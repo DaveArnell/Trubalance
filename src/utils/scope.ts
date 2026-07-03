@@ -239,7 +239,19 @@ export function getScopeLevelLabel(level: ScopeLevel): string {
 
 /** Structured path for the current sidebar scope (group → business → venue). */
 export function getScopePathSegments(state: AppState, scope: ViewScope): ScopePathSegment[] {
+  const singleBusiness = state.businesses.length <= 1
+
   if (scope.type === 'group') {
+    if (singleBusiness && state.businesses[0]) {
+      return [
+        {
+          level: 'business',
+          id: state.businesses[0].id,
+          label: state.businesses[0].name,
+          isActive: true,
+        },
+      ]
+    }
     return [
       {
         level: 'group',
@@ -254,7 +266,7 @@ export function getScopePathSegments(state: AppState, scope: ViewScope): ScopePa
     const business = state.businesses.find((b) => b.id === scope.id)
     const group = business ? state.groups.find((g) => g.id === business.groupId) : null
     const segments: ScopePathSegment[] = []
-    if (group) {
+    if (group && !singleBusiness) {
       segments.push({
         level: 'group',
         id: group.id,
@@ -277,7 +289,7 @@ export function getScopePathSegments(state: AppState, scope: ViewScope): ScopePa
   const business = venue ? state.businesses.find((b) => b.id === venue.businessId) : null
   const group = business ? state.groups.find((g) => g.id === business.groupId) : null
   const segments: ScopePathSegment[] = []
-  if (group) {
+  if (group && !singleBusiness) {
     segments.push({
       level: 'group',
       id: group.id,

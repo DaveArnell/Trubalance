@@ -64,15 +64,29 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
       backupBrowserStateToSession()
       cancelPendingPersist()
       const withOrigin: AppState = { ...pendingImport, workspaceOrigin: 'user' }
+      console.log('[Import] State to restore:', {
+        commitments: withOrigin.commitments.length,
+        receipts: withOrigin.expectedReceipts.length,
+        planners: withOrigin.reservePlanners.length,
+        sampleCommitment: withOrigin.commitments[0] ? {
+          name: withOrigin.commitments[0].name,
+          lastPaidPeriod: withOrigin.commitments[0].lastPaidPeriod,
+          createdAt: withOrigin.commitments[0].createdAt,
+        } : null,
+      })
       onReplaceState(withOrigin)
       if (cloudBacked) {
         await restoreWorkspaceState(withOrigin)
       }
-      const restoredLabel = summarizeAppState(withOrigin).label
+      const summary = summarizeAppState(withOrigin)
       setPendingImport(null)
-      setStatus(`Restored "${restoredLabel}" from your file. The demo banner should disappear if this was your real data.`)
-    } catch {
-      setStatus('Restore failed. Try again or use a different export file.')
+      setStatus(
+        `Restored "${summary.label}" — ${summary.commitments} costs, ${summary.receipts} receipts, ${summary.planners} planners.` +
+        (cloudBacked ? ' Saved to your account.' : ''),
+      )
+    } catch (err) {
+      console.error('[Import] Failed:', err)
+      setStatus(`Restore failed: ${err instanceof Error ? err.message : 'Unknown error'}. Try again.`)
     } finally {
       setImporting(false)
     }

@@ -152,10 +152,6 @@ export function OverviewStrip({
         >
           <aside className="overview-strip-aside">
             <div className="overview-hero" data-tour="overview-hero">
-              {state && (
-                <ViewingScopeBar state={state} viewScope={viewScope} variant="compact" />
-              )}
-
               <div className="overview-hero-header">
                 <p className="overview-hero-label">True Balance</p>
                 <div className="overview-hero-toolbar">

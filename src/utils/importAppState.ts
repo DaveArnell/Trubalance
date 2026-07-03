@@ -29,17 +29,43 @@ export function parseImportedAppState(raw: unknown): { state: AppState } | { err
   const base = emptyAppState()
 
   const groups = record.groups as AppState['groups']
+  const businesses = record.businesses as AppState['businesses']
+  const venues = record.venues as AppState['venues']
+  const reservePlanners = record.reservePlanners as AppState['reservePlanners']
+  const diaryReminders = Array.isArray(record.diaryReminders)
+    ? (record.diaryReminders as AppState['diaryReminders'])
+    : []
+  const businessReferenceProfiles = Array.isArray(record.businessReferenceProfiles)
+    ? (record.businessReferenceProfiles as AppState['businessReferenceProfiles'])
+    : []
+
+  const groupIds = new Set(groups.map((g) => g.id))
+  const validBusinesses = businesses.filter((b) => groupIds.has(b.groupId))
+  const businessIds = new Set(validBusinesses.map((b) => b.id))
+  const venueIds = new Set(venues.map((v) => v.id))
+
+  const validPlanners = reservePlanners.filter((p) => businessIds.has(p.businessId))
+  const validDiaryReminders = diaryReminders.filter((d) => businessIds.has(d.businessId))
+  const validBusinessRefs = businessReferenceProfiles.filter((p) => businessIds.has(p.businessId))
+  const validVenues = venues.filter((v) => businessIds.has(v.businessId))
+
+  const validVenueIds = new Set(validVenues.map((v) => v.id))
+  for (const planner of validPlanners) {
+    planner.bills = planner.bills.filter(
+      (b) => !b.venueId || venueIds.has(b.venueId) || validVenueIds.has(b.venueId),
+    )
+  }
 
   return {
     state: {
       ...base,
       groups,
-      businesses: record.businesses as AppState['businesses'],
-      venues: record.venues as AppState['venues'],
+      businesses: validBusinesses,
+      venues: validVenues,
       accounts: record.accounts as AppState['accounts'],
       commitments: record.commitments as AppState['commitments'],
       expectedReceipts: record.expectedReceipts as AppState['expectedReceipts'],
-      reservePlanners: record.reservePlanners as AppState['reservePlanners'],
+      reservePlanners: validPlanners,
       snapshots: record.snapshots as AppState['snapshots'],
       historyRecords: Array.isArray(record.historyRecords)
         ? (record.historyRecords as AppState['historyRecords'])
@@ -48,12 +74,8 @@ export function parseImportedAppState(raw: unknown): { state: AppState } | { err
         Array.isArray(record.dayNotes) ? (record.dayNotes as AppState['dayNotes']) : [],
         groups[0]?.id,
       ),
-      businessReferenceProfiles: Array.isArray(record.businessReferenceProfiles)
-        ? (record.businessReferenceProfiles as AppState['businessReferenceProfiles'])
-        : [],
-      diaryReminders: Array.isArray(record.diaryReminders)
-        ? (record.diaryReminders as AppState['diaryReminders'])
-        : [],
+      businessReferenceProfiles: validBusinessRefs,
+      diaryReminders: validDiaryReminders,
       workspaceOrigin: 'user',
     },
   }

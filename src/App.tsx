@@ -471,7 +471,7 @@ function AppShellInner({
                   <ViewingScopeBar state={app.state} viewScope={app.viewScope} variant="full" />
                 </div>
                 <div className="top-bar-actions">
-                  <TourMenuButton />
+                  <TourMenuButton onSetupGuide={() => setSetupWizardOpen(true)} />
                   <Link to="/" className="btn-ghost btn-tiny">
                     Home
                   </Link>

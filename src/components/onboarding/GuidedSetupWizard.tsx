@@ -189,7 +189,7 @@ function GuidedSetupAiWizard({
   primaryBusinessId?: string
   onBack: () => void
 }) {
-  const [aiStep, setAiStep] = useState<AiSetupStepId>(primaryBusinessId ? 'import' : 'structure')
+  const [aiStep, setAiStep] = useState<AiSetupStepId>('structure')
   const [businessName, setBusinessName] = useState('')
   const [singleSite, setSingleSite] = useState(false)
   const [venues, setVenues] = useState<VenueStructureDraft[]>([defaultVenueDraft()])
@@ -279,7 +279,14 @@ function GuidedSetupAiWizard({
           }
           return { name: venue.name.trim(), accounts: accountList }
         })
-      actions.setupGuidedWorkspace({ businessName: name, venues: venuePayload })
+      const businessAccounts: Array<{ name: string; type: AccountType }> = []
+      if (includeBusinessSavings) {
+        businessAccounts.push({
+          name: businessSavingsName.trim() || 'Savings account',
+          type: 'savings',
+        })
+      }
+      actions.setupGuidedWorkspace({ businessName: name, venues: venuePayload, businessAccounts })
     }
     setPendingStructureAdvance(true)
   }
@@ -504,142 +511,211 @@ function GuidedSetupAiWizard({
         <div className="setup-onboarding-body guided-setup-ai-body">
           {aiStep === 'structure' && (
             <>
-              <h2 id="guided-ai-title">Set up your business structure</h2>
+              <h2 id="guided-ai-title">Your business structure</h2>
               <p className="setup-onboarding-explain">
-                Tell us where each bank account lives so statements import to the right place. You
-                can skip accounts and add them later.
+                Build your tree below. Click to edit names, tick the accounts you use, and add venues if you have multiple sites.
               </p>
               {business ? (
-                <p className="muted">
-                  Using <strong>{business.name}</strong>. Continue to upload statements.
-                </p>
-              ) : (
-                <div className="setup-onboarding-form">
-                  <label className="setup-field">
-                    <span>Business name</span>
-                    <input
-                      className="sheet-input"
-                      value={businessName}
-                      onChange={(event) => setBusinessName(event.target.value)}
-                      placeholder="e.g. Laser Tag Leisure Ltd"
-                      autoFocus
-                    />
-                  </label>
-                  <label className="setup-field setup-field--checkbox">
-                    <input
-                      type="checkbox"
-                      checked={singleSite}
-                      onChange={(event) => setSingleSite(event.target.checked)}
-                    />
-                    <span>Single site — no separate venues</span>
-                  </label>
-                  {singleSite ? (
-                    <>
-                      <label className="setup-field">
-                        <span>Current account name</span>
-                        <input
-                          className="sheet-input"
-                          value={businessCurrentName}
-                          onChange={(event) => setBusinessCurrentName(event.target.value)}
-                        />
-                      </label>
-                      <label className="setup-field setup-field--checkbox">
-                        <input
-                          type="checkbox"
-                          checked={includeBusinessSavings}
-                          onChange={(event) => setIncludeBusinessSavings(event.target.checked)}
-                        />
-                        <span>Also add a savings account</span>
-                      </label>
-                      {includeBusinessSavings && (
-                        <label className="setup-field">
-                          <span>Savings account name</span>
-                          <input
-                            className="sheet-input"
-                            value={businessSavingsName}
-                            onChange={(event) => setBusinessSavingsName(event.target.value)}
-                          />
-                        </label>
-                      )}
-                    </>
-                  ) : (
-                    <div className="guided-setup-venue-list">
-                      {venues.map((venue, index) => (
-                        <div key={index} className="guided-setup-venue-card">
-                          <label className="setup-field">
-                            <span>Venue {venues.length > 1 ? index + 1 : ''} name</span>
-                            <input
-                              className="sheet-input"
-                              value={venue.name}
-                              onChange={(event) =>
-                                setVenues((current) =>
-                                  current.map((row, rowIndex) =>
-                                    rowIndex === index ? { ...row, name: event.target.value } : row,
-                                  ),
-                                )
-                              }
-                              placeholder="e.g. Bournemouth"
-                            />
-                          </label>
-                          <label className="setup-field">
-                            <span>Current account</span>
-                            <input
-                              className="sheet-input"
-                              value={venue.currentAccountName}
-                              onChange={(event) =>
-                                setVenues((current) =>
-                                  current.map((row, rowIndex) =>
-                                    rowIndex === index
-                                      ? { ...row, currentAccountName: event.target.value }
-                                      : row,
-                                  ),
-                                )
-                              }
-                            />
-                          </label>
-                          <label className="setup-field setup-field--checkbox">
-                            <input
-                              type="checkbox"
-                              checked={venue.includeSavings}
-                              onChange={(event) =>
-                                setVenues((current) =>
-                                  current.map((row, rowIndex) =>
-                                    rowIndex === index
-                                      ? { ...row, includeSavings: event.target.checked }
-                                      : row,
-                                  ),
-                                )
-                              }
-                            />
-                            <span>Savings account</span>
-                          </label>
-                          <label className="setup-field setup-field--checkbox">
-                            <input
-                              type="checkbox"
-                              checked={venue.includeReserve}
-                              onChange={(event) =>
-                                setVenues((current) =>
-                                  current.map((row, rowIndex) =>
-                                    rowIndex === index
-                                      ? { ...row, includeReserve: event.target.checked }
-                                      : row,
-                                  ),
-                                )
-                              }
-                            />
-                            <span>Reserve account (optional)</span>
-                          </label>
-                        </div>
-                      ))}
-                      <button
-                        type="button"
-                        className="btn-ghost btn-tiny"
-                        onClick={() => setVenues((current) => [...current, defaultVenueDraft()])}
-                      >
-                        + Add another venue
-                      </button>
+                <div className="structure-tree">
+                  <div className="structure-tree-node structure-tree-node--business">
+                    <div className="structure-tree-node-head">
+                      <span className="structure-tree-swatch" style={{ background: 'var(--accent)' }} />
+                      <span className="structure-tree-node-label">{business.name}</span>
                     </div>
-                  )}
+                    <div className="structure-tree-accounts">
+                      {state.accounts
+                        .filter((a) => a.businessId === business.id || state.venues.some((v) => v.businessId === business.id && a.venueId === v.id))
+                        .map((a) => (
+                          <span key={a.id} className="structure-tree-account-chip">
+                            {a.type === 'current' ? '🏦' : '💰'} {a.name}
+                          </span>
+                        ))}
+                    </div>
+                    {state.venues.filter((v) => v.businessId === business.id).length > 0 && (
+                      <div className="structure-tree-children">
+                        {state.venues.filter((v) => v.businessId === business.id).map((venue) => (
+                          <div key={venue.id} className="structure-tree-node structure-tree-node--venue">
+                            <div className="structure-tree-connector" />
+                            <div className="structure-tree-node-head">
+                              <span className="structure-tree-swatch" style={{ background: venue.accentColor || '#6366f1' }} />
+                              <span className="structure-tree-node-label">{venue.name}</span>
+                            </div>
+                            <div className="structure-tree-accounts">
+                              {state.accounts
+                                .filter((a) => a.venueId === venue.id)
+                                .map((a) => (
+                                  <span key={a.id} className="structure-tree-account-chip">
+                                    {a.type === 'current' ? '🏦' : '💰'} {a.name}
+                                  </span>
+                                ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <p className="muted" style={{ marginTop: '12px', fontSize: '0.82rem' }}>
+                    Your structure is ready. You can add more businesses or venues later in Settings. Continue to upload statements.
+                  </p>
+                </div>
+              ) : (
+                <div className="structure-tree structure-tree--editable">
+                  <div className="structure-tree-node structure-tree-node--business">
+                    <div className="structure-tree-node-head">
+                      <span className="structure-tree-swatch" style={{ background: 'var(--accent)' }} />
+                      <input
+                        className="structure-tree-name-input"
+                        value={businessName}
+                        onChange={(e) => setBusinessName(e.target.value)}
+                        placeholder="Your business name"
+                        autoFocus
+                      />
+                    </div>
+                    <label className="structure-tree-toggle">
+                      <input
+                        type="checkbox"
+                        checked={singleSite}
+                        onChange={(e) => setSingleSite(e.target.checked)}
+                      />
+                      <span>Single site (no separate venues)</span>
+                    </label>
+
+                    {singleSite ? (
+                      <div className="structure-tree-accounts structure-tree-accounts--editable">
+                        <div className="structure-tree-account-row">
+                          <span className="structure-tree-account-icon">🏦</span>
+                          <input
+                            className="structure-tree-name-input structure-tree-name-input--small"
+                            value={businessCurrentName}
+                            onChange={(e) => setBusinessCurrentName(e.target.value)}
+                            placeholder="Current account name"
+                          />
+                        </div>
+                        <label className="structure-tree-toggle">
+                          <input
+                            type="checkbox"
+                            checked={includeBusinessSavings}
+                            onChange={(e) => setIncludeBusinessSavings(e.target.checked)}
+                          />
+                          <span>Add savings account</span>
+                        </label>
+                        {includeBusinessSavings && (
+                          <div className="structure-tree-account-row">
+                            <span className="structure-tree-account-icon">💰</span>
+                            <input
+                              className="structure-tree-name-input structure-tree-name-input--small"
+                              value={businessSavingsName}
+                              onChange={(e) => setBusinessSavingsName(e.target.value)}
+                              placeholder="Savings account name"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <>
+                        <div className="structure-tree-accounts structure-tree-accounts--editable" style={{ marginTop: '8px' }}>
+                          <label className="structure-tree-toggle">
+                            <input
+                              type="checkbox"
+                              checked={includeBusinessSavings}
+                              onChange={(e) => setIncludeBusinessSavings(e.target.checked)}
+                            />
+                            <span>Business-level savings account</span>
+                          </label>
+                          {includeBusinessSavings && (
+                            <div className="structure-tree-account-row">
+                              <span className="structure-tree-account-icon">💰</span>
+                              <input
+                                className="structure-tree-name-input structure-tree-name-input--small"
+                                value={businessSavingsName}
+                                onChange={(e) => setBusinessSavingsName(e.target.value)}
+                                placeholder="Savings account name"
+                              />
+                            </div>
+                          )}
+                        </div>
+                        <div className="structure-tree-children">
+                        {venues.map((venue, index) => (
+                          <div key={index} className="structure-tree-node structure-tree-node--venue">
+                            <div className="structure-tree-connector" />
+                            <div className="structure-tree-node-head">
+                              <span className="structure-tree-swatch" style={{ background: ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'][index % 5] }} />
+                              <input
+                                className="structure-tree-name-input"
+                                value={venue.name}
+                                onChange={(e) =>
+                                  setVenues((cur) =>
+                                    cur.map((row, i) => (i === index ? { ...row, name: e.target.value } : row)),
+                                  )
+                                }
+                                placeholder={`Venue ${index + 1} name`}
+                              />
+                              {venues.length > 1 && (
+                                <button
+                                  type="button"
+                                  className="structure-tree-remove"
+                                  title="Remove venue"
+                                  onClick={() => setVenues((cur) => cur.filter((_, i) => i !== index))}
+                                >
+                                  ×
+                                </button>
+                              )}
+                            </div>
+                            <div className="structure-tree-accounts structure-tree-accounts--editable">
+                              <div className="structure-tree-account-row">
+                                <span className="structure-tree-account-icon">🏦</span>
+                                <input
+                                  className="structure-tree-name-input structure-tree-name-input--small"
+                                  value={venue.currentAccountName}
+                                  onChange={(e) =>
+                                    setVenues((cur) =>
+                                      cur.map((row, i) => (i === index ? { ...row, currentAccountName: e.target.value } : row)),
+                                    )
+                                  }
+                                  placeholder="Current account"
+                                />
+                              </div>
+                              <label className="structure-tree-toggle">
+                                <input
+                                  type="checkbox"
+                                  checked={venue.includeSavings}
+                                  onChange={(e) =>
+                                    setVenues((cur) =>
+                                      cur.map((row, i) => (i === index ? { ...row, includeSavings: e.target.checked } : row)),
+                                    )
+                                  }
+                                />
+                                <span>Savings</span>
+                              </label>
+                              {venue.includeSavings && (
+                                <div className="structure-tree-account-row">
+                                  <span className="structure-tree-account-icon">💰</span>
+                                  <input
+                                    className="structure-tree-name-input structure-tree-name-input--small"
+                                    value={venue.savingsName}
+                                    onChange={(e) =>
+                                      setVenues((cur) =>
+                                        cur.map((row, i) => (i === index ? { ...row, savingsName: e.target.value } : row)),
+                                      )
+                                    }
+                                    placeholder="Savings account"
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                        <button
+                          type="button"
+                          className="btn-ghost btn-tiny structure-tree-add-btn"
+                          onClick={() => setVenues((cur) => [...cur, defaultVenueDraft()])}
+                        >
+                          + Add another venue
+                        </button>
+                      </div>
+                      </>
+                    )}
+                  </div>
                 </div>
               )}
             </>
@@ -650,7 +726,7 @@ function GuidedSetupAiWizard({
               <h2 id="guided-ai-title">Upload bank statements</h2>
               <p className="setup-onboarding-explain">
                 Pick an account, then upload its statement. True Balance will look for recurring
-                costs, larger bills and expected receipts — you review everything before it is added.
+                payments and regular outgoings — you review everything before it is added.
               </p>
               <ul className="guided-setup-history-tips">
                 {STATEMENT_HISTORY_TIPS.map((tip) => (

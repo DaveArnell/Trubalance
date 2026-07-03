@@ -1,4 +1,4 @@
-import type { AppState, BalanceSnapshot, Commitment, ExpectedReceipt, Group, Business, Venue, Account, ReservePlanner, ReserveBill, HistoryRecord } from '../types'
+import type { AppState, BalanceSnapshot, BusinessReferenceProfile, Commitment, DayNote, DiaryReminder, ExpectedReceipt, Group, Business, Venue, Account, ReservePlanner, ReserveBill, HistoryRecord } from '../types'
 import { tryGetSupabase } from '../lib/supabase'
 import { readBrowserAppState } from '../hooks/useAppState'
 import { emptyAppState } from '../utils/localStateStorage'
@@ -66,6 +66,9 @@ function mapCommitment(row: Record<string, unknown>): Commitment {
     dismissedDuePeriods: Array.isArray(row.dismissed_due_periods)
       ? row.dismissed_due_periods.map(String)
       : undefined,
+    preservedDuePeriods: Array.isArray(row.preserved_due_periods)
+      ? row.preserved_due_periods.map(String)
+      : undefined,
     acknowledgedDuePeriods: Array.isArray(row.acknowledged_due_periods)
       ? row.acknowledged_due_periods.map(String)
       : undefined,
@@ -87,9 +90,20 @@ function mapCommitment(row: Record<string, unknown>): Commitment {
             ]),
           )
         : undefined,
-    createdAt: row.created_at ? String(row.created_at) : undefined,
+    paidPeriodDates:
+      row.paid_period_dates && typeof row.paid_period_dates === 'object'
+        ? (row.paid_period_dates as Record<string, string>)
+        : undefined,
+    createdAt: row.created_at ? toDateOnly(String(row.created_at)) : undefined,
     sortOrder: row.sort_order != null ? Number(row.sort_order) : undefined,
   }
+}
+
+function toDateOnly(val: string): string {
+  if (val.length === 10) return val
+  const d = new Date(val)
+  if (isNaN(d.getTime())) return val
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
 function mapReceipt(row: Record<string, unknown>): ExpectedReceipt {
@@ -97,7 +111,16 @@ function mapReceipt(row: Record<string, unknown>): ExpectedReceipt {
     id: String(row.id),
     name: String(row.name),
     amount: toNumber(row.amount),
-    expectedDate: row.expected_date ? String(row.expected_date) : undefined,
+    expectedDate: row.expected_date ? toDateOnly(String(row.expected_date)) : undefined,
+    receiptTiming: row.receipt_timing ? (row.receipt_timing as ExpectedReceipt['receiptTiming']) : undefined,
+    accrualStartDate: row.accrual_start_date ? toDateOnly(String(row.accrual_start_date)) : undefined,
+    periodAmountOverrides:
+      row.period_amount_overrides && typeof row.period_amount_overrides === 'object'
+        ? Object.fromEntries(
+            Object.entries(row.period_amount_overrides as Record<string, unknown>).map(([k, v]) => [k, toNumber(v)]),
+          )
+        : undefined,
+    createdAt: row.created_at ? toDateOnly(String(row.created_at)) : undefined,
     scopeLevel: row.scope_level as ExpectedReceipt['scopeLevel'],
     scopeId: String(row.scope_id),
     notes: row.notes ? String(row.notes) : undefined,
@@ -165,6 +188,45 @@ function mapHistoryRecord(row: Record<string, unknown>): HistoryRecord {
   }
 }
 
+function mapDayNote(row: Record<string, unknown>): DayNote {
+  return {
+    id: String(row.id),
+    date: String(row.date),
+    text: String(row.text),
+    scopeLevel: row.scope_level as DayNote['scopeLevel'],
+    scopeId: String(row.scope_id),
+    updatedAt: String(row.updated_at),
+  }
+}
+
+function mapBusinessReferenceProfile(row: Record<string, unknown>): BusinessReferenceProfile {
+  return {
+    businessId: String(row.business_id),
+    fields: Array.isArray(row.fields) ? row.fields : [],
+    notes: row.notes ? String(row.notes) : undefined,
+    updatedAt: String(row.updated_at),
+  }
+}
+
+function mapDiaryReminder(row: Record<string, unknown>): DiaryReminder {
+  return {
+    id: String(row.id),
+    businessId: String(row.business_id),
+    title: String(row.title),
+    date: String(row.date),
+    category: row.category as DiaryReminder['category'],
+    notes: row.notes ? String(row.notes) : undefined,
+    completed: Boolean(row.completed),
+    completedAt: row.completed_at ? String(row.completed_at) : undefined,
+    recurring: (row.recurring as DiaryReminder['recurring']) ?? 'none',
+    templateId: row.template_id ? String(row.template_id) : undefined,
+    sortOrder: row.sort_order != null ? Number(row.sort_order) : undefined,
+    createdAt: String(row.created_at),
+    weekBeforeAlertDismissedFor: row.week_before_alert_dismissed_for ? String(row.week_before_alert_dismissed_for) : undefined,
+    overdueAlertDismissedFor: row.overdue_alert_dismissed_for ? String(row.overdue_alert_dismissed_for) : undefined,
+  }
+}
+
 export async function loadWorkspaceState(workspaceId: string): Promise<AppState> {
   const supabase = tryGetSupabase()
   if (!supabase) return emptyAppState()
@@ -180,6 +242,9 @@ export async function loadWorkspaceState(workspaceId: string): Promise<AppState>
     billsRes,
     snapshotsRes,
     historyRes,
+    dayNotesRes,
+    businessRefRes,
+    diaryRemindersRes,
   ] = await Promise.all([
     supabase.from('groups').select('*').eq('workspace_id', workspaceId).order('sort_order'),
     supabase.from('businesses').select('*').eq('workspace_id', workspaceId).order('sort_order'),
@@ -191,6 +256,9 @@ export async function loadWorkspaceState(workspaceId: string): Promise<AppState>
     supabase.from('reserve_bills').select('*').eq('workspace_id', workspaceId).order('sort_order'),
     supabase.from('balance_snapshots').select('*').eq('workspace_id', workspaceId).order('date'),
     supabase.from('history_records').select('*').eq('workspace_id', workspaceId).order('date', { ascending: false }),
+    supabase.from('day_notes').select('*').eq('workspace_id', workspaceId).order('date'),
+    supabase.from('business_reference_profiles').select('*').eq('workspace_id', workspaceId),
+    supabase.from('diary_reminders').select('*').eq('workspace_id', workspaceId).order('sort_order'),
   ])
 
   const bills = (billsRes.data ?? []).map((row) => mapBill(row as Record<string, unknown>))
@@ -225,9 +293,9 @@ export async function loadWorkspaceState(workspaceId: string): Promise<AppState>
     reservePlanners,
     snapshots: (snapshotsRes.data ?? []).map((row) => mapSnapshot(row as Record<string, unknown>)),
     historyRecords: (historyRes.data ?? []).map((row) => mapHistoryRecord(row as Record<string, unknown>)),
-    dayNotes: [],
-    businessReferenceProfiles: [],
-    diaryReminders: [],
+    dayNotes: (dayNotesRes.data ?? []).map((row) => mapDayNote(row as Record<string, unknown>)),
+    businessReferenceProfiles: (businessRefRes.data ?? []).map((row) => mapBusinessReferenceProfile(row as Record<string, unknown>)),
+    diaryReminders: (diaryRemindersRes.data ?? []).map((row) => mapDiaryReminder(row as Record<string, unknown>)),
   }
 
   return state
@@ -281,8 +349,8 @@ export async function saveWorkspaceState(workspaceId: string, state: AppState): 
     name: a.name,
     type: a.type,
     balance: a.balance,
-    active: a.active,
-    updated_at: a.updatedAt,
+    active: a.active ?? true,
+    updated_at: a.updatedAt ?? new Date().toISOString(),
     ...ws,
   }))
   const commitmentRows = state.commitments.map((c, i) => ({
@@ -306,6 +374,8 @@ export async function saveWorkspaceState(workspaceId: string, state: AppState): 
     acknowledged_due_periods: c.acknowledgedDuePeriods ?? [],
     period_amount_overrides: c.periodAmountOverrides ?? {},
     paid_period_amounts: c.paidPeriodAmounts ?? {},
+    preserved_due_periods: c.preservedDuePeriods ?? [],
+    paid_period_dates: c.paidPeriodDates ?? {},
     created_at: c.createdAt ?? null,
     sort_order: c.sortOrder ?? i,
     ...ws,
@@ -315,6 +385,9 @@ export async function saveWorkspaceState(workspaceId: string, state: AppState): 
     name: r.name,
     amount: r.amount,
     expected_date: r.expectedDate ?? null,
+    receipt_timing: r.receiptTiming === 'lump' || r.receiptTiming === 'accrual' ? r.receiptTiming : null,
+    accrual_start_date: r.accrualStartDate ?? null,
+    period_amount_overrides: r.periodAmountOverrides ?? {},
     scope_level: r.scopeLevel,
     scope_id: r.scopeId,
     notes: r.notes ?? null,
@@ -355,18 +428,18 @@ export async function saveWorkspaceState(workspaceId: string, state: AppState): 
     date: s.date,
     scope_type: s.scopeType,
     scope_id: s.scopeId,
-    view_name: s.viewName,
-    cash: s.cash,
-    committed_funds: s.committedFunds,
-    expected_receipts: s.expectedReceipts,
-    true_balance: s.trueBalance,
+    view_name: s.viewName ?? '',
+    cash: s.cash ?? 0,
+    committed_funds: s.committedFunds ?? 0,
+    expected_receipts: s.expectedReceipts ?? 0,
+    true_balance: s.trueBalance ?? 0,
     note: s.note ?? null,
     note_source: s.noteSource ?? null,
-    freshness: s.freshness,
-    changed_accounts: s.changedAccounts,
+    freshness: s.freshness ?? 'green',
+    changed_accounts: s.changedAccounts ?? [],
     recorded_values: s.recordedValues ?? null,
     corrected_at: s.correctedAt ?? null,
-    updated_at: s.updatedAt,
+    updated_at: s.updatedAt ?? new Date().toISOString(),
     ...ws,
   }))
   const historyRows = (state.historyRecords ?? []).map((r) => ({
@@ -374,6 +447,39 @@ export async function saveWorkspaceState(workspaceId: string, state: AppState): 
     date: r.date,
     saved_at: r.savedAt,
     payload: r,
+    ...ws,
+  }))
+  const dayNoteRows = (state.dayNotes ?? []).map((n) => ({
+    id: n.id,
+    date: n.date,
+    text: n.text,
+    scope_level: n.scopeLevel,
+    scope_id: n.scopeId,
+    updated_at: n.updatedAt ?? new Date().toISOString(),
+    ...ws,
+  }))
+  const businessRefRows = (state.businessReferenceProfiles ?? []).map((p) => ({
+    business_id: p.businessId,
+    fields: p.fields,
+    notes: p.notes ?? null,
+    updated_at: p.updatedAt ?? new Date().toISOString(),
+    ...ws,
+  }))
+  const diaryReminderRows = (state.diaryReminders ?? []).map((d, i) => ({
+    id: d.id,
+    business_id: d.businessId,
+    title: d.title,
+    date: d.date,
+    category: d.category,
+    notes: d.notes ?? null,
+    completed: d.completed ?? false,
+    completed_at: d.completedAt ?? null,
+    recurring: d.recurring ?? 'none',
+    template_id: d.templateId ?? null,
+    sort_order: d.sortOrder ?? i,
+    created_at: d.createdAt ?? new Date().toISOString(),
+    week_before_alert_dismissed_for: d.weekBeforeAlertDismissedFor ?? null,
+    overdue_alert_dismissed_for: d.overdueAlertDismissedFor ?? null,
     ...ws,
   }))
 
@@ -388,13 +494,44 @@ export async function saveWorkspaceState(workspaceId: string, state: AppState): 
     { name: 'reserve_bills', rows: billRows },
     { name: 'balance_snapshots', rows: snapshotRows },
     { name: 'history_records', rows: historyRows },
+    { name: 'day_notes', rows: dayNoteRows },
+    { name: 'business_reference_profiles', rows: businessRefRows },
+    { name: 'diary_reminders', rows: diaryReminderRows },
   ] as const
 
+  const EXTENDED_COLUMNS = [
+    'preserved_due_periods', 'paid_period_dates',
+    'receipt_timing', 'accrual_start_date', 'period_amount_overrides',
+  ]
+
   for (const table of tables) {
-    await supabase.from(table.name).delete().eq('workspace_id', workspaceId)
-    if (table.rows.length > 0) {
-      const { error } = await supabase.from(table.name).upsert(table.rows as Record<string, unknown>[])
-      if (error) throw error
+    if (table.rows.length === 0) {
+      await supabase.from(table.name).delete().eq('workspace_id', workspaceId)
+      continue
+    }
+
+    const { error } = await supabase.from(table.name).upsert(table.rows as Record<string, unknown>[])
+    if (error) {
+      console.warn(`[workspaceRepository] upsert ${table.name}:`, error.message)
+      const coreRows = table.rows.map((row) => {
+        const clean = { ...(row as Record<string, unknown>) }
+        for (const col of EXTENDED_COLUMNS) delete clean[col]
+        return clean
+      })
+      const { error: retryErr } = await supabase.from(table.name).upsert(coreRows)
+      if (retryErr) {
+        console.warn(`[workspaceRepository] upsert ${table.name} (retry):`, retryErr.message)
+        continue
+      }
+    }
+
+    const ids = table.rows.map((r) => (r as Record<string, unknown>).id).filter(Boolean) as string[]
+    if (ids.length > 0) {
+      await supabase
+        .from(table.name)
+        .delete()
+        .eq('workspace_id', workspaceId)
+        .not('id', 'in', `(${ids.join(',')})`)
     }
   }
 }

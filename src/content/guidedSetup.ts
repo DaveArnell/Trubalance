@@ -11,7 +11,7 @@ export const GUIDED_SETUP_PATH_OPTIONS = [
     title: 'Let True Balance build it for me',
     badge: 'Recommended',
     subtitle: 'Good if you do not want to work everything out manually',
-    lead: 'Upload your transaction history and True Balance will look for recurring costs, larger bills, expected receipts and reserve planner items.',
+    lead: 'Upload your transaction history and True Balance will look for recurring payments — monthly direct debits, subscriptions, and regular outgoings. It may also spot quarterly or annual bills based on patterns.',
     timeEstimate: '2–5 minutes',
     highlights: [
       'Upload a CSV for each bank account',
@@ -23,7 +23,7 @@ export const GUIDED_SETUP_PATH_OPTIONS = [
     id: 'manual' as const,
     title: 'Manual setup',
     subtitle: 'Good if you already know your numbers',
-    lead: 'Prefer to enter everything yourself? Add accounts, committed funds, reserve planner items and expected receipts step by step.',
+    lead: 'Prefer to enter everything yourself? Add accounts, committed funds, and reserve planner items step by step.',
     timeEstimate: '20–30 minutes',
     highlights: [
       'Same end result as assisted setup',

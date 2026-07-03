@@ -187,7 +187,7 @@ export function SetupOnboardingWizard({
         onClick={handleDismiss}
       />
 
-      <aside className="setup-onboarding-panel" role="dialog" aria-labelledby="setup-onboarding-title">
+      <aside className="setup-onboarding-panel setup-onboarding-panel--sidebar" role="dialog" aria-labelledby="setup-onboarding-title">
         <header className="setup-onboarding-header">
           <p className="setup-onboarding-kicker">
             {onBackToPathChoice ? 'Manual setup' : 'Setup guide'} · Step {stepIndex + 1} of {stepCount}
@@ -221,9 +221,51 @@ export function SetupOnboardingWizard({
           {step.id === 'business' && (
             <div className="setup-onboarding-form">
               {primaryBusiness ? (
-                <p className="muted">
-                  Using <strong>{primaryBusiness.name}</strong>. You can add more in Settings later.
-                </p>
+                <div className="structure-tree">
+                  {state.businesses.map((biz) => (
+                    <div key={biz.id} className="structure-tree-node structure-tree-node--business">
+                      <div className="structure-tree-node-head">
+                        <span className="structure-tree-swatch" style={{ background: biz.accentColor || 'var(--accent)' }} />
+                        <span className="structure-tree-node-label">{biz.name}</span>
+                      </div>
+                      <div className="structure-tree-accounts">
+                        {state.accounts
+                          .filter((a) => a.businessId === biz.id && !a.venueId)
+                          .map((a) => (
+                            <span key={a.id} className="structure-tree-account-chip">
+                              {a.type === 'current' ? '🏦' : '💰'} {a.name}
+                            </span>
+                          ))}
+                      </div>
+                      {state.venues.filter((v) => v.businessId === biz.id).length > 0 && (
+                        <div className="structure-tree-children">
+                          {state.venues.filter((v) => v.businessId === biz.id).map((venue) => (
+                            <div key={venue.id} className="structure-tree-node structure-tree-node--venue">
+                              <div className="structure-tree-connector" />
+                              <div className="structure-tree-node-head">
+                                <span className="structure-tree-swatch" style={{ background: venue.accentColor || '#6366f1' }} />
+                                <span className="structure-tree-node-label">{venue.name}</span>
+                              </div>
+                              <div className="structure-tree-accounts">
+                                {state.accounts
+                                  .filter((a) => a.venueId === venue.id)
+                                  .map((a) => (
+                                    <span key={a.id} className="structure-tree-account-chip">
+                                      {a.type === 'current' ? '🏦' : '💰'} {a.name}
+                                    </span>
+                                  ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  <p className="muted" style={{ marginTop: '12px', fontSize: '0.8rem' }}>
+                    To add businesses, venues, or accounts — go to Settings after setup.
+                    Press Next to continue with this structure.
+                  </p>
+                </div>
               ) : (
                 <>
                   <label className="setup-field">

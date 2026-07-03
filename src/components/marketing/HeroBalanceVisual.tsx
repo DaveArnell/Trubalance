@@ -538,12 +538,23 @@ export function HeroBalanceVisual() {
       BILLS.map((bill) => {
         const state = billLedgerState(bill, ledgerCtx)
         const popping = poppingId === bill.id
+
+        if (state === 'due') {
+          const daysSinceDue = day - bill.dueDay
+          const daysUntilNextDue = MONTH_DAYS
+          const regrowProgress = daysSinceDue > 0 ? Math.min(1, daysSinceDue / daysUntilNextDue) : 0
+          const scale = potScale(regrowProgress)
+          const amount = Math.round(bill.amount * regrowProgress)
+          const atColumn = potColumnPercent(bill)
+          return { bill, state: 'regrowing' as BillLedgerState, progress: regrowProgress, scale, amount, popping: false, atColumn }
+        }
+
         const progress = billProgress(bill, ledgerCtx)
         const scale = potScale(progress)
         const amount = Math.round(accruedForBill(bill, ledgerCtx) + dueForBill(bill, ledgerCtx))
         const atColumn = potColumnPercent(bill)
         return { bill, state, progress, scale, amount, popping, atColumn }
-      }).filter(({ state }) => state !== 'due'),
+      }),
     [ledgerCtx, day, poppingId],
   )
 

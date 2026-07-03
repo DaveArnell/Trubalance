@@ -217,11 +217,30 @@ function columnFromSharedScope(state: AppState, scope: ViewScope, label: string,
 }
 
 export function buildBreakdownColumns(state: AppState, scope: ViewScope): BreakdownColumn[] {
-  // Venue scope: accounts widget stays at business level — use sidebar to focus a venue.
   if (scope.type === 'venue') {
     const venue = state.venues.find((v) => v.id === scope.id)
     if (!venue) return []
-    return buildBreakdownColumns(state, { type: 'business', id: venue.businessId })
+    const business = state.businesses.find((b) => b.id === venue.businessId)
+    if (!business) return []
+    const venuesInBusiness = state.venues.filter((v) => v.businessId === business.id)
+    if (venuesInBusiness.length <= 1) {
+      return [columnFromScope(state, scope, columnLabel(venue.name), false, true)]
+    }
+    const columns = venuesInBusiness.map((v) =>
+      columnFromScope(state, { type: 'venue', id: v.id }, columnLabel(v.name), false),
+    )
+    const shared = hasSharedScopeCosts(state, { type: 'business', id: business.id })
+      ? [
+          columnFromSharedScope(
+            state,
+            { type: 'business', id: business.id },
+            'BUSINESS',
+            `Business-wide — ${business.name}`,
+          ),
+        ]
+      : []
+    const rollup = columnFromScope(state, { type: 'business', id: business.id }, 'BUSINESS', true, true)
+    return [...columns, ...shared, rollup]
   }
 
   if (scope.type === 'group') {

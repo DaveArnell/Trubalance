@@ -327,7 +327,7 @@ export function isPaidThisCycle(commitment: Commitment, referenceDate: Date = ge
 function periodHasPaidRecord(commitment: Commitment, period: string): boolean {
   if (commitment.paidPeriodAmounts && period in commitment.paidPeriodAmounts) return true
   if (!commitment.lastPaidPeriod) return false
-  return commitment.lastPaidPeriod.slice(0, 7) === period.slice(0, 7)
+  return period <= commitment.lastPaidPeriod.slice(0, 7)
 }
 
 function getPeriodDueDateKey(commitment: Commitment, period: string): string | null {
@@ -382,9 +382,9 @@ export function isDismissedForPeriod(commitment: Commitment, period: string): bo
 
 function parseCommitmentCreatedDate(commitment: Commitment): Date | null {
   if (!commitment.createdAt) return null
-  const [year, month, day] = commitment.createdAt.split('-').map(Number)
-  if (!year || !month || !day) return null
-  return dateOnly(new Date(year, month - 1, day))
+  const d = new Date(commitment.createdAt)
+  if (isNaN(d.getTime())) return null
+  return dateOnly(d)
 }
 
 /** Monthly costs only roll into Due for periods whose due date is after the item was added. */

@@ -24,7 +24,7 @@ export function SetupTourBanner({
   )
 }
 
-export function TourMenuButton() {
+export function TourMenuButton({ onSetupGuide }: { onSetupGuide?: () => void }) {
   const { activePageId, startPageTour, startSetupTour, isTourActive } = useTour()
   if (isTourActive) return null
 
@@ -37,7 +37,7 @@ export function TourMenuButton() {
           Page tour
         </button>
       )}
-      <button type="button" className="btn-ghost btn-tiny" onClick={startSetupTour}>
+      <button type="button" className="btn-ghost btn-tiny" onClick={onSetupGuide ?? startSetupTour}>
         Setup guide
       </button>
     </div>
