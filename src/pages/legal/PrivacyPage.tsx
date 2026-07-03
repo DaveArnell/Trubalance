@@ -1,0 +1,96 @@
+import { LegalPageLayout } from './LegalPageLayout'
+
+export function PrivacyPage() {
+  return (
+    <LegalPageLayout title="Privacy policy" updated="25 June 2025">
+      <p>
+        True Balance (&quot;we&quot;, &quot;us&quot;) helps you understand what cash is genuinely
+        available in your business. This policy explains what we collect, where it is stored, and your
+        choices.
+      </p>
+
+      <h2>What we collect</h2>
+      <ul>
+        <li>
+          <strong>Account details</strong> — email address and authentication data when you sign up or
+          log in.
+        </li>
+        <li>
+          <strong>Workspace data</strong> — the financial and operational information you enter: groups,
+          businesses, accounts, balances, commitments, expected receipts, reserve plans, snapshots,
+          Business Hub references, and diary reminders.
+        </li>
+        <li>
+          <strong>Usage</strong> — basic technical logs needed to run and secure the service (for
+          example errors and sign-in events).
+        </li>
+      </ul>
+      <p>
+        We do not sell your workspace data. We do not use your figures for advertising profiles.
+      </p>
+
+      <h2>Where your data is stored</h2>
+      <ul>
+        <li>
+          <strong>With an account</strong> — your workspace is stored in our database (hosted via
+          Supabase) and tied to your user account. A copy may also sit in your browser while you use
+          the app.
+        </li>
+        <li>
+          <strong>Without an account</strong> — data stays in your browser&apos;s local storage on
+          that device only. We do not receive it unless you sign up and sync, or contact us directly.
+        </li>
+        <li>
+          <strong>Downloads</strong> — when you export JSON from Settings, that file is saved wherever
+          you choose on your device; we do not keep a copy of exports.
+        </li>
+      </ul>
+
+      <h2>How we use your data</h2>
+      <p>We use your information to:</p>
+      <ul>
+        <li>Provide, maintain, and improve True Balance</li>
+        <li>Authenticate you and sync your workspace across sessions</li>
+        <li>Respond to support requests</li>
+        <li>Meet legal and security obligations</li>
+      </ul>
+
+      <h2>Retention and deletion</h2>
+      <p>
+        We keep workspace data while your account is active. If you close your account or ask us to
+        delete your data, we will remove or anonymise it within a reasonable period, subject to any
+        legal retention requirements.
+      </p>
+      <p>
+        Clearing your browser data removes the local copy only. Account data remains until you delete
+        your account or request erasure.
+      </p>
+
+      <h2>Your rights</h2>
+      <p>
+        Depending on where you live, you may have rights to access, correct, export, or delete personal
+        data we hold about you. You can download your workspace from Settings at any time. For other
+        requests, contact us using the details on our website.
+      </p>
+
+      <h2>Cookies and local storage</h2>
+      <p>
+        We use browser local storage to remember your workspace and display preferences. Authentication
+        may use session cookies or similar tokens from our auth provider. These are necessary for the
+        app to function.
+      </p>
+
+      <h2>Changes</h2>
+      <p>
+        We may update this policy from time to time. The &quot;Last updated&quot; date at the top will
+        change when we do. Continued use after changes means you accept the revised policy.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Questions about privacy? Contact us through the support channel listed on{' '}
+        <a href="https://trubalance.app">trubalance.app</a> (or your deployment&apos;s contact address).
+      </p>
+    </LegalPageLayout>
+  )
+}

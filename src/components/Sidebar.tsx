@@ -1,0 +1,406 @@
+import { useEffect, useRef, useState, type DragEvent, type ReactNode } from 'react'
+import { Link } from 'react-router-dom'
+import type { AppState, ViewScope } from '../types'
+import type { AppRoute, PageId } from '../navigation'
+import { buildHash, RESERVE_PLANNER_CREATE_ROUTE } from '../navigation'
+import { useNavLayout } from '../hooks/useNavLayout'
+import { getOrderedPages } from '../utils/navLayout'
+import { SidebarScopeTree } from './SidebarScopeTree'
+import { useAuth } from '../contexts/AuthContext'
+import { useSidebarCollapsed } from '../hooks/useSidebarCollapsed'
+
+interface SidebarProps {
+  state: AppState
+  viewScope: ViewScope
+  onSelectScope: (scope: ViewScope) => void
+  activeRoute: AppRoute
+  activePage: PageId
+  reserveMenuOpen: boolean
+  setReserveMenuOpen: (open: boolean | ((value: boolean) => boolean)) => void
+  onNavigate: (pageId: PageId, reservePlannerId?: string | null) => void
+}
+
+function startDrag(e: DragEvent, key: string, onDragStart: () => void) {
+  e.stopPropagation()
+  e.dataTransfer.effectAllowed = 'move'
+  e.dataTransfer.setData('text/plain', key)
+  onDragStart()
+}
+
+function NavDragShell({
+  itemId,
+  isDragging,
+  dragOver,
+  onDragStart,
+  onDragEnter,
+  onDragEnd,
+  onDrop,
+  className = '',
+  compact = false,
+  children,
+}: {
+  itemId: string
+  isDragging: boolean
+  dragOver: boolean
+  onDragStart: () => void
+  onDragEnter: () => void
+  onDragEnd: () => void
+  onDrop: () => void
+  className?: string
+  compact?: boolean
+  children: ReactNode
+}) {
+  if (compact) {
+    return (
+      <div
+        className={`sidebar-nav-item sidebar-nav-item--compact${className ? ` ${className}` : ''}`}
+        data-nav-id={itemId}
+      >
+        <div className="sidebar-nav-item-body">{children}</div>
+      </div>
+    )
+  }
+
+  return (
+    <div
+      className={`sidebar-nav-item${className ? ` ${className}` : ''}${
+        isDragging ? ' sidebar-nav-item--dragging' : ''
+      }${dragOver ? ' sidebar-nav-item--drag-over' : ''}`}
+      data-nav-id={itemId}
+      onDragEnter={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        onDragEnter()
+      }}
+      onDragOver={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
+      }}
+      onDrop={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        onDrop()
+      }}
+    >
+      <button
+        type="button"
+        className="sidebar-drag-handle"
+        draggable
+        title="Drag to reorder"
+        aria-label="Drag to reorder"
+        onDragStart={(e) => startDrag(e, itemId, onDragStart)}
+        onDragEnd={onDragEnd}
+      >
+        ⋮⋮
+      </button>
+      <div className="sidebar-nav-item-body">{children}</div>
+    </div>
+  )
+}
+
+export function Sidebar({
+  state,
+  viewScope,
+  onSelectScope,
+  activeRoute,
+  activePage,
+  reserveMenuOpen,
+  setReserveMenuOpen,
+  onNavigate,
+}: SidebarProps) {
+  const { user, profile, isAdmin, isImpersonating, signOut, configured } = useAuth()
+  const { collapsed, toggleCollapsed } = useSidebarCollapsed()
+  const plannerIds = state.reservePlanners.map((p) => p.id)
+  const { order, orderedPlannerIds, moveItem, movePlannerItem } = useNavLayout(plannerIds)
+  const [draggingKey, setDraggingKey] = useState<string | null>(null)
+  const [dragOverKey, setDragOverKey] = useState<string | null>(null)
+
+  const pages = getOrderedPages(order)
+  const plannersById = new Map(state.reservePlanners.map((p) => [p.id, p]))
+  const orderedPlanners = orderedPlannerIds
+    .map((id) => plannersById.get(id))
+    .filter((planner) => planner !== undefined)
+
+  const finishDrag = () => {
+    setDraggingKey(null)
+    setDragOverKey(null)
+  }
+
+  const pageKey = (id: PageId) => `page:${id}`
+  const plannerKey = (id: string) => `planner:${id}`
+
+  const reserveFlyout =
+    collapsed && reserveMenuOpen ? (
+      <div className="sidebar-flyout" role="menu" aria-label="Reserve plans">
+        <p className="sidebar-flyout-title">Reserve Planner</p>
+        {orderedPlanners.map((planner) => (
+          <a
+            key={planner.id}
+            href={buildHash('reserve-planner', planner.id)}
+            className={`sidebar-flyout-link${
+              activeRoute.reservePlannerId === planner.id ? ' active' : ''
+            }`}
+            role="menuitem"
+            onClick={(e) => {
+              e.preventDefault()
+              onNavigate('reserve-planner', planner.id)
+              setReserveMenuOpen(false)
+            }}
+          >
+            {planner.name}
+          </a>
+        ))}
+        <a
+          href={buildHash('reserve-planner', RESERVE_PLANNER_CREATE_ROUTE)}
+          className={`sidebar-flyout-link sidebar-flyout-link--action${
+            activeRoute.reservePlannerId === RESERVE_PLANNER_CREATE_ROUTE ? ' active' : ''
+          }`}
+          role="menuitem"
+          onClick={(e) => {
+            e.preventDefault()
+            onNavigate('reserve-planner', RESERVE_PLANNER_CREATE_ROUTE)
+            setReserveMenuOpen(false)
+          }}
+        >
+          + New plan
+        </a>
+      </div>
+    ) : null
+
+  const sidebarRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    if (!collapsed || !reserveMenuOpen) return
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target as Node
+      if (sidebarRef.current?.contains(target)) return
+      setReserveMenuOpen(false)
+    }
+
+    document.addEventListener('pointerdown', handlePointerDown)
+    return () => document.removeEventListener('pointerdown', handlePointerDown)
+  }, [collapsed, reserveMenuOpen, setReserveMenuOpen])
+
+  return (
+    <aside ref={sidebarRef} className={`sidebar${collapsed ? ' sidebar--collapsed' : ''}`}>
+      <div className="sidebar-brand">
+        <span className="brand-mark" aria-hidden="true">
+          TB
+        </span>
+        {!collapsed && (
+          <div>
+            <h1>True Balance</h1>
+            <p className="brand-tagline">Financial clarity</p>
+          </div>
+        )}
+        <button
+          type="button"
+          className="sidebar-collapse-btn"
+          onClick={toggleCollapsed}
+          aria-expanded={!collapsed}
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          {collapsed ? '›' : '‹'}
+        </button>
+      </div>
+
+      <div className="sidebar-body">
+        <SidebarScopeTree
+          state={state}
+          viewScope={viewScope}
+          onSelect={onSelectScope}
+          compact={collapsed}
+        />
+
+        <div className="sidebar-divider" aria-hidden="true" />
+
+        <nav className="sidebar-nav" aria-label="Main">
+          {pages.map((page, index) => {
+            if (page.id === 'reserve-planner') {
+              const onReservePage = activeRoute.page === 'reserve-planner'
+
+              return (
+                <NavDragShell
+                  key={page.id}
+                  itemId={pageKey(page.id)}
+                  className="sidebar-nav-item--top"
+                  compact={collapsed}
+                  isDragging={draggingKey === pageKey(page.id)}
+                  dragOver={dragOverKey === pageKey(page.id) && draggingKey !== pageKey(page.id)}
+                  onDragStart={() => setDraggingKey(pageKey(page.id))}
+                  onDragEnter={() => setDragOverKey(pageKey(page.id))}
+                  onDragEnd={finishDrag}
+                  onDrop={() => {
+                    if (draggingKey?.startsWith('page:')) {
+                      moveItem(draggingKey.slice(5) as PageId, index)
+                    }
+                    finishDrag()
+                  }}
+                >
+                  <div className={`sidebar-group${collapsed ? ' sidebar-group--compact' : ''}`}>
+                    <a
+                      href={buildHash('reserve-planner')}
+                      className={`sidebar-link${onReservePage ? ' active' : ''}`}
+                      data-tour="nav-reserve-planner"
+                      aria-current={onReservePage ? 'page' : undefined}
+                      aria-expanded={reserveMenuOpen}
+                      title={collapsed ? page.label : undefined}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        setReserveMenuOpen((open) => !open)
+                        if (orderedPlanners.length > 0) {
+                          const targetId = activeRoute.reservePlannerId ?? orderedPlanners[0].id
+                          onNavigate('reserve-planner', targetId)
+                        } else {
+                          onNavigate('reserve-planner')
+                        }
+                      }}
+                    >
+                      <span className="sidebar-nav-icon" aria-hidden>
+                        {page.icon}
+                      </span>
+                      {!collapsed && page.label}
+                    </a>
+                    {!collapsed && (reserveMenuOpen || onReservePage) && (
+                      <div className="sidebar-submenu">
+                        {orderedPlanners.map((planner, subIndex) => (
+                          <NavDragShell
+                            key={planner.id}
+                            itemId={plannerKey(planner.id)}
+                            className="sidebar-submenu-item"
+                            isDragging={draggingKey === plannerKey(planner.id)}
+                            dragOver={
+                              dragOverKey === plannerKey(planner.id) &&
+                              draggingKey !== plannerKey(planner.id)
+                            }
+                            onDragStart={() => setDraggingKey(plannerKey(planner.id))}
+                            onDragEnter={() => setDragOverKey(plannerKey(planner.id))}
+                            onDragEnd={finishDrag}
+                            onDrop={() => {
+                              if (draggingKey?.startsWith('planner:')) {
+                                movePlannerItem(draggingKey.slice(8), subIndex)
+                              }
+                              finishDrag()
+                            }}
+                          >
+                            <a
+                              href={buildHash('reserve-planner', planner.id)}
+                              className={`sidebar-sublink${
+                                activeRoute.reservePlannerId === planner.id ? ' active' : ''
+                              }`}
+                              aria-current={
+                                activeRoute.reservePlannerId === planner.id ? 'page' : undefined
+                              }
+                              onClick={(e) => {
+                                e.preventDefault()
+                                onNavigate('reserve-planner', planner.id)
+                              }}
+                            >
+                              {planner.name}
+                            </a>
+                          </NavDragShell>
+                        ))}
+                        <a
+                          href={buildHash('reserve-planner', RESERVE_PLANNER_CREATE_ROUTE)}
+                          className={`sidebar-sublink sidebar-sublink--action${
+                            activeRoute.reservePlannerId === RESERVE_PLANNER_CREATE_ROUTE
+                              ? ' active'
+                              : ''
+                          }`}
+                          onClick={(e) => {
+                            e.preventDefault()
+                            onNavigate('reserve-planner', RESERVE_PLANNER_CREATE_ROUTE)
+                          }}
+                        >
+                          + New plan
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                </NavDragShell>
+              )
+            }
+
+            return (
+              <NavDragShell
+                key={page.id}
+                itemId={pageKey(page.id)}
+                compact={collapsed}
+                isDragging={draggingKey === pageKey(page.id)}
+                dragOver={dragOverKey === pageKey(page.id) && draggingKey !== pageKey(page.id)}
+                onDragStart={() => setDraggingKey(pageKey(page.id))}
+                onDragEnter={() => setDragOverKey(pageKey(page.id))}
+                onDragEnd={finishDrag}
+                onDrop={() => {
+                  if (draggingKey?.startsWith('page:')) {
+                    moveItem(draggingKey.slice(5) as PageId, index)
+                  }
+                  finishDrag()
+                }}
+              >
+                <a
+                  href={buildHash(page.id)}
+                  className={`sidebar-link${activePage === page.id ? ' active' : ''}`}
+                  aria-current={activePage === page.id ? 'page' : undefined}
+                  data-tour={page.id === 'settings' ? 'nav-settings' : undefined}
+                  title={collapsed ? page.label : undefined}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    onNavigate(page.id)
+                  }}
+                >
+                  <span className="sidebar-nav-icon" aria-hidden>
+                    {page.icon}
+                  </span>
+                  {!collapsed && page.label}
+                </a>
+              </NavDragShell>
+            )
+          })}
+        </nav>
+      </div>
+
+      <div className={`sidebar-account${collapsed ? ' sidebar-account--compact' : ''}`}>
+        {!collapsed && profile?.email && (
+          <p className="sidebar-account-email" title={profile.email}>
+            {profile.email}
+          </p>
+        )}
+        <div className="sidebar-account-actions">
+          <Link to="/" className="sidebar-account-link" title={collapsed ? 'Home' : undefined}>
+            {collapsed ? '⌂' : 'Home'}
+          </Link>
+          {isAdmin && !isImpersonating && (
+            <Link
+              to="/platform-admin"
+              className="sidebar-account-link"
+              title={collapsed ? 'Platform admin' : undefined}
+            >
+              {collapsed ? '⚙' : 'Platform admin'}
+            </Link>
+          )}
+          {configured && user ? (
+            <button
+              type="button"
+              className="sidebar-account-link sidebar-account-logout"
+              title={collapsed ? 'Log out' : undefined}
+              onClick={() => signOut()}
+            >
+              {collapsed ? '⎋' : 'Log out'}
+            </button>
+          ) : (
+            configured && (
+              <Link to="/login" className="sidebar-account-link" title={collapsed ? 'Log in' : undefined}>
+                {collapsed ? '→' : 'Log in'}
+              </Link>
+            )
+          )}
+        </div>
+      </div>
+
+      {reserveFlyout}
+    </aside>
+  )
+}

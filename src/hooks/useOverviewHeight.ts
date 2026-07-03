@@ -1,0 +1,79 @@
+import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+
+const STORAGE_KEY = 'trubalance-overview-height-v2'
+export const OVERVIEW_HEIGHT_MIN = 56
+export const OVERVIEW_HEIGHT_MAX = 340
+export const OVERVIEW_HEIGHT_DEFAULT = 210
+
+function readStoredHeight(): number {
+  try {
+    const legacy = localStorage.getItem('trubalance-overview-height')
+    const raw = localStorage.getItem(STORAGE_KEY) ?? legacy
+    if (!raw) return OVERVIEW_HEIGHT_DEFAULT
+    const value = Number(raw)
+    if (!Number.isFinite(value)) return OVERVIEW_HEIGHT_DEFAULT
+    return Math.min(OVERVIEW_HEIGHT_MAX, Math.max(OVERVIEW_HEIGHT_MIN, Math.round(value)))
+  } catch {
+    return OVERVIEW_HEIGHT_DEFAULT
+  }
+}
+
+function persistHeight(height: number) {
+  try {
+    localStorage.setItem(STORAGE_KEY, String(height))
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Vertical size of the pinned True Balance overview (drag bottom edge). */
+export function useOverviewHeight() {
+  const [height, setHeight] = useState(readStoredHeight)
+  const draggingRef = useRef(false)
+  const startYRef = useRef(0)
+  const startHeightRef = useRef(OVERVIEW_HEIGHT_DEFAULT)
+
+  const onPointerMove = useCallback((event: PointerEvent) => {
+    if (!draggingRef.current) return
+    const delta = event.clientY - startYRef.current
+    const next = Math.min(
+      OVERVIEW_HEIGHT_MAX,
+      Math.max(OVERVIEW_HEIGHT_MIN, startHeightRef.current + delta),
+    )
+    setHeight(next)
+  }, [])
+
+  const endDrag = useCallback(() => {
+    if (!draggingRef.current) return
+    draggingRef.current = false
+    document.body.classList.remove('overview-height-dragging')
+    window.removeEventListener('pointermove', onPointerMove)
+    window.removeEventListener('pointerup', endDrag)
+    setHeight((current) => {
+      persistHeight(current)
+      return current
+    })
+  }, [onPointerMove])
+
+  const startHeightDrag = useCallback(
+    (event: ReactPointerEvent<HTMLElement>) => {
+      event.preventDefault()
+      draggingRef.current = true
+      startYRef.current = event.clientY
+      startHeightRef.current = height
+      document.body.classList.add('overview-height-dragging')
+      window.addEventListener('pointermove', onPointerMove)
+      window.addEventListener('pointerup', endDrag)
+    },
+    [endDrag, height, onPointerMove],
+  )
+
+  const resetHeight = useCallback(() => {
+    setHeight(OVERVIEW_HEIGHT_DEFAULT)
+    persistHeight(OVERVIEW_HEIGHT_DEFAULT)
+  }, [])
+
+  useEffect(() => () => endDrag(), [endDrag])
+
+  return { height, setHeight, startHeightDrag, resetHeight }
+}

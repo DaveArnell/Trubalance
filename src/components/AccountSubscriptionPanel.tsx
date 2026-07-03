@@ -1,0 +1,213 @@
+import { useMemo } from 'react'
+import { Link } from 'react-router-dom'
+import {
+  SUBSCRIPTION_TIERS,
+  TRIAL_DAYS,
+  TIER_ORDER,
+  formatPriceGbp,
+  minimumTierForUsage,
+  recommendTierForWorkspace,
+  type SubscriptionTierId,
+} from '../config/subscriptionTiers'
+import { useAuth } from '../contexts/AuthContext'
+import { useSubscription } from '../contexts/SubscriptionContext'
+import { summarizeAppState } from '../utils/localStateStorage'
+import type { AppState } from '../types'
+
+function formatTrialEnd(iso: string | null): string | null {
+  if (!iso) return null
+  try {
+    return new Date(iso).toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })
+  } catch {
+    return null
+  }
+}
+
+function businessLimitLabel(tierId: SubscriptionTierId): string {
+  const cap = SUBSCRIPTION_TIERS[tierId].limits.businesses
+  if (cap == null) return 'Unlimited businesses'
+  if (cap === 1) return '1 business'
+  return `Up to ${cap} businesses`
+}
+
+interface AccountSubscriptionPanelProps {
+  state: AppState
+  embedded?: boolean
+}
+
+export function AccountSubscriptionPanel({ state, embedded = false }: AccountSubscriptionPanelProps) {
+  const { user } = useAuth()
+  const { subscription, usage, trialActive, trialDaysLeft, fullAccess, openUpgrade } =
+    useSubscription()
+
+  const summary = summarizeAppState(state)
+  const recommendedTierId = recommendTierForWorkspace(usage)
+  const minimumTierId = minimumTierForUsage(usage)
+  const recommendedTier = SUBSCRIPTION_TIERS[recommendedTierId]
+  const minimumTier = SUBSCRIPTION_TIERS[minimumTierId]
+  const trialEndLabel = formatTrialEnd(subscription.trialEndsAt)
+
+  const trialProgress = useMemo(() => {
+    if (!trialActive || trialDaysLeft == null) return null
+    const elapsed = TRIAL_DAYS - trialDaysLeft
+    return Math.min(100, Math.max(0, Math.round((elapsed / TRIAL_DAYS) * 100)))
+  }, [trialActive, trialDaysLeft])
+
+  const verdictDetail =
+    usage.businesses <= 1
+      ? 'You are tracking one business — the Solo plan is the right fit when your trial ends.'
+      : minimumTierId !== recommendedTierId
+        ? `You have ${usage.businesses} companies. You need at least ${minimumTier.name} to cover them all. For the group roll-up view, Business Hub, and diary, choose ${recommendedTier.name}.`
+        : `You are running ${usage.businesses} companies as a group — ${recommendedTier.name} includes the group-wide view, Business Hub, and unlimited companies.`
+
+  const body = (
+    <>
+      <article className="account-plan-verdict">
+        <p className="account-plan-verdict-eyebrow">Recommended plan</p>
+        <p className="account-plan-verdict-name">{recommendedTier.name}</p>
+        <p className="account-plan-verdict-why">{verdictDetail}</p>
+        {usage.businesses > 1 && (
+          <dl className="account-plan-compare-note">
+            <div>
+              <dt>Business plan</dt>
+              <dd>
+                {businessLimitLabel('business')} — switch between companies separately. No Business Hub.
+              </dd>
+            </div>
+            <div>
+              <dt>Group plan</dt>
+              <dd>
+                Group roll-up in the sidebar, Business Hub (references & diary), unlimited companies.
+              </dd>
+            </div>
+          </dl>
+        )}
+        {trialActive && (
+          <p className="account-plan-verdict-trial muted">
+            Your trial unlocks <strong>every plan&apos;s features</strong> until{' '}
+            {trialEndLabel ?? 'it ends'}. After that, features follow the plan you choose.
+          </p>
+        )}
+      </article>
+
+      {trialActive && trialDaysLeft != null && (
+        <article className="account-plan-block account-plan-block--trial">
+          <h4>Trial progress</h4>
+          <p>
+            <strong>{trialDaysLeft}</strong> day{trialDaysLeft === 1 ? '' : 's'} left
+            {trialEndLabel ? ` · ends ${trialEndLabel}` : ''}
+          </p>
+          {trialProgress != null && (
+            <div
+              className="account-plan-trial-bar"
+              role="progressbar"
+              aria-valuenow={trialProgress}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label="Trial progress"
+            >
+              <span style={{ width: `${trialProgress}%` }} />
+            </div>
+          )}
+        </article>
+      )}
+
+      <div className="account-plan-tiers">
+        {TIER_ORDER.map((tierId) => {
+          const tier = SUBSCRIPTION_TIERS[tierId]
+          const isRecommended = tierId === recommendedTierId
+          return (
+            <article
+              key={tierId}
+              className={`account-plan-tier${isRecommended ? ' account-plan-tier--recommended' : ''}`}
+            >
+              {isRecommended && (
+                <span className="account-plan-tier-badge">Recommended for you</span>
+              )}
+              <h4 className="account-plan-tier-name">{tier.name}</h4>
+              <p className="account-plan-tier-price-row">
+                <span className="account-plan-tier-price-main">
+                  {formatPriceGbp(tier.priceMonthlyGbp)}
+                  <span className="account-plan-tier-price-unit">/ month</span>
+                </span>
+                <span className="account-plan-tier-price-note muted">Rolling monthly contract</span>
+              </p>
+              <p className="account-plan-tier-price-row account-plan-tier-price-row--annual">
+                <span className="account-plan-tier-price-main">
+                  {formatPriceGbp(tier.priceAnnualGbp)}
+                  <span className="account-plan-tier-price-unit">/ year</span>
+                </span>
+                <span className="account-plan-tier-price-note muted">Paid upfront · 2 months free</span>
+              </p>
+              <p className="account-plan-tier-for muted">{tier.perfectFor}</p>
+              <p className="account-plan-tier-limit">
+                <strong>{businessLimitLabel(tierId)}</strong>
+              </p>
+              <ul className="account-plan-tier-features">
+                {tier.marketingFeatures.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </article>
+          )
+        })}
+      </div>
+
+      <article className="account-plan-block">
+        <h4>Billing & invoices</h4>
+        <p className="muted">
+          Online payments are not live yet. Compare plans and see pricing on our pricing page. When
+          billing starts, you will manage your subscription here and download invoices.
+        </p>
+        {user?.email && (
+          <p className="muted account-plan-email">
+            Signed in as <strong>{user.email}</strong> · workspace <strong>{summary.label}</strong>
+          </p>
+        )}
+        <div className="account-plan-actions">
+          <Link to="/pricing#billing" className="btn-primary btn-tiny">
+            Manage billing
+          </Link>
+          <Link to="/pricing" className="btn-secondary btn-tiny">
+            Full plan comparison
+          </Link>
+          {!fullAccess && (
+            <button
+              type="button"
+              className="btn-ghost btn-tiny"
+              onClick={() =>
+                openUpgrade(
+                  recommendedTierId,
+                  `${recommendedTier.name} plan recommended`,
+                  verdictDetail,
+                )
+              }
+            >
+              See upgrade options
+            </button>
+          )}
+        </div>
+      </article>
+    </>
+  )
+
+  if (embedded) {
+    return <div className="account-plan-embedded">{body}</div>
+  }
+
+  return (
+    <section className="card account-plan-card">
+      <div className="card-head card-head-compact">
+        <div>
+          <h2>Your plan</h2>
+          <p className="muted account-plan-lead">Which plan fits your setup and what each one includes.</p>
+        </div>
+      </div>
+      {body}
+    </section>
+  )
+}

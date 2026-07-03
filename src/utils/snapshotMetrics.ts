@@ -1,0 +1,35 @@
+import type { AppState, BalanceSnapshot } from '../types'
+import { computeScopeMetricsAtDate } from './historyRebuild'
+import { isSnapshotMetricCorrected } from './snapshotCorrections'
+import type { HistoryMetricKey } from './historyTable'
+
+const METRIC_KEYS: HistoryMetricKey[] = ['cash', 'committedFunds', 'expectedReceipts', 'trueBalance']
+
+/** Metric value for display — recomputed from current data unless manually corrected. */
+export function getEffectiveSnapshotMetric(
+  state: AppState,
+  snapshot: BalanceSnapshot,
+  metric: HistoryMetricKey,
+): number {
+  if (isSnapshotMetricCorrected(snapshot, metric)) {
+    return snapshot[metric]
+  }
+  const scope = { type: snapshot.scopeType, id: snapshot.scopeId } as const
+  return computeScopeMetricsAtDate(state, scope, snapshot.date)[metric]
+}
+
+/** Snapshot with metrics aligned to History page calculations (preserves manual corrections). */
+export function withEffectiveSnapshotMetrics(
+  state: AppState,
+  snapshot: BalanceSnapshot,
+): BalanceSnapshot {
+  const scope = { type: snapshot.scopeType, id: snapshot.scopeId } as const
+  const computed = computeScopeMetricsAtDate(state, scope, snapshot.date)
+  const next = { ...snapshot }
+  for (const metric of METRIC_KEYS) {
+    if (!isSnapshotMetricCorrected(snapshot, metric)) {
+      next[metric] = computed[metric]
+    }
+  }
+  return next
+}
