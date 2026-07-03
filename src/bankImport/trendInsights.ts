@@ -47,7 +47,7 @@ export function detectTrendInsights(transactions: ParsedBankTransaction[]): Impo
 
   const insights: ImportTrendInsight[] = []
 
-  for (const [key, items] of groups) {
+  for (const [, items] of groups) {
     if (items.length < 3) continue
 
     const outflows = items.filter((item) => item.amount < 0)

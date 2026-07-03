@@ -6,6 +6,8 @@ export type MonthlyCostLeaf = {
   row: CommitmentAccruingRow
 }
 
+import { getAccruingRowDailyRate } from './commitmentCalculations'
+
 export type MonthlyCostScopeGroup = {
   type: 'scope-group'
   id: string
@@ -15,6 +17,7 @@ export type MonthlyCostScopeGroup = {
   children: MonthlyCostLeaf[]
   monthlyTotal: number
   accruedTotal: number
+  dailyTotal: number
 }
 
 export type MonthlyCostNameGroup = {
@@ -25,6 +28,7 @@ export type MonthlyCostNameGroup = {
   children: Array<MonthlyCostScopeGroup | MonthlyCostLeaf>
   monthlyTotal: number
   accruedTotal: number
+  dailyTotal: number
 }
 
 export type MonthlyCostDisplayNode = MonthlyCostLeaf | MonthlyCostNameGroup
@@ -46,6 +50,7 @@ function sumTotals(rows: CommitmentAccruingRow[]) {
   return {
     monthlyTotal: rows.reduce((sum, row) => sum + row.commitment.amount, 0),
     accruedTotal: rows.reduce((sum, row) => sum + row.accruedAmount, 0),
+    dailyTotal: rows.reduce((sum, row) => sum + getAccruingRowDailyRate(row), 0),
   }
 }
 

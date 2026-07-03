@@ -183,18 +183,30 @@ export function TrendChart({
   } | null>(null)
   const [noteEditorDate, setNoteEditorDate] = useState<string | null>(null)
   const svgRef = useRef<SVGSVGElement>(null)
+  const scopeOptionKeys = scopeOptions.map((opt) => opt.key).join('|')
 
   useEffect(() => {
-    const focusKey = focusScope ? scopeKey(focusScope) : null
+    if (!focusScope) return
+    const focusKey = scopeKey(focusScope)
     const next: Record<string, boolean> = {}
     for (const opt of scopeOptions) {
-      next[opt.key] = focusKey ? opt.key === focusKey : opt.key === currentScopeKey
+      next[opt.key] = opt.key === focusKey
     }
     setEnabledScopes(next)
     setHoverDate(null)
     setPinnedSnapshot(null)
-    if (focusScope) onFocusScopeApplied?.()
-  }, [currentScopeKey, scopeOptions, focusScope, onFocusScopeApplied])
+    onFocusScopeApplied?.()
+  }, [focusScope, onFocusScopeApplied, scopeOptions])
+
+  useEffect(() => {
+    const next: Record<string, boolean> = {}
+    for (const opt of scopeOptions) {
+      next[opt.key] = opt.key === currentScopeKey
+    }
+    setEnabledScopes(next)
+    setHoverDate(null)
+    setPinnedSnapshot(null)
+  }, [currentScopeKey, scopeOptionKeys])
 
   const activeScopeKeys = scopeOptions.filter((o) => enabledScopes[o.key]).map((o) => o.key)
   const activeMetricKeys = METRIC_KEYS.filter((key) => enabledMetrics[key])

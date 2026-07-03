@@ -7,19 +7,17 @@ import {
   AI_SETUP_STEPS,
   GUIDED_SETUP_EDITABLE_NOTE,
   GUIDED_SETUP_PATH_OPTIONS,
+  STATEMENT_HISTORY_TIPS,
   type AiSetupStepId,
   type GuidedSetupPath,
 } from '../../content/guidedSetup'
 import { dismissSetupOnboardingLocally } from '../../content/setupOnboarding'
 import { SetupOnboardingWizard } from './SetupOnboardingWizard'
-import {
-  BankImportSuggestionReview,
-  countAcceptedSuggestions,
-} from '../bankImport/BankImportSuggestionReview'
+import { BankImportSuggestionReview } from '../bankImport/BankImportSuggestionReview'
 import { analyzeBankTransactions } from '../../bankImport/aiAdapter'
 import { applyBankImportSuggestions, scopeForAccount } from '../../bankImport/applySuggestions'
 import type { AccountImportResult } from '../../bankImport/importCentre'
-import { mergeAccountImportSuggestions } from '../../bankImport/importCentre'
+import { mergeAccountImportInsights, mergeAccountImportSuggestions } from '../../bankImport/importCentre'
 import { DEMO_BANK_CSV } from '../../bankImport/demoCsv'
 import {
   guessColumnMapping,
@@ -27,6 +25,7 @@ import {
   parseCsvText,
 } from '../../bankImport/parseCsv'
 import type { BankImportColumnKey, BankImportColumnMapping, BankImportSuggestion } from '../../bankImport/types'
+import { historySpanMonths } from '../../bankImport/trendInsights'
 import { formatCurrency } from '../../utils/format'
 import { getScopeLabel } from '../../utils/scope'
 
@@ -152,6 +151,9 @@ function GuidedSetupPathChoice({
                 <span className="guided-setup-path-badge">{option.badge}</span>
               ) : null}
               <h3>{option.title}</h3>
+              {'subtitle' in option && option.subtitle ? (
+                <p className="guided-setup-path-subtitle">{option.subtitle}</p>
+              ) : null}
               <p>{option.lead}</p>
               <ul>
                 {option.highlights.map((item) => (
@@ -222,6 +224,11 @@ function GuidedSetupAiWizard({
 
   const mergedSuggestions = useMemo(
     () => mergeAccountImportSuggestions(importResults),
+    [importResults],
+  )
+
+  const mergedInsights = useMemo(
+    () => mergeAccountImportInsights(importResults),
     [importResults],
   )
 
@@ -310,6 +317,10 @@ function GuidedSetupAiWizard({
         scopeLevel: scope.scopeLevel,
         scopeId: scope.scopeId,
       })
+      const taggedSuggestions = result.suggestions.map((suggestion) => ({
+        ...suggestion,
+        sourceAccountId: activeImportAccountId,
+      }))
       setImportResults((current) => {
         const without = current.filter((item) => item.accountId !== activeImportAccountId)
         return [
@@ -317,9 +328,10 @@ function GuidedSetupAiWizard({
           {
             accountId: activeImportAccountId,
             fileName,
+            insights: result.insights,
             session: {
               transactions: parsed,
-              suggestions: result.suggestions,
+              suggestions: taggedSuggestions,
               scopeLevel: scope.scopeLevel,
               scopeId: scope.scopeId,
             },
@@ -400,25 +412,48 @@ function GuidedSetupAiWizard({
 
   const handleBuildTrueBalance = () => {
     ensureReservePlanner()
-    const applyAccount =
-      accounts.find((account) => account.businessId && !account.venueId) ?? accounts[0]
-    if (!applyAccount) {
+
+    const accepted = reviewSuggestions.filter(
+      (item) => item.status === 'accepted' || item.status === 'edited',
+    )
+
+    if (accepted.length === 0) {
       setApplySummary('Setup complete. You can add items manually anytime.')
       setAiStep('complete')
       return
     }
 
-    const result = applyBankImportSuggestions(
-      state,
-      applyAccount.id,
-      reviewSuggestions,
-      actions,
-    )
+    const byAccount = new Map<string, BankImportSuggestion[]>()
+    for (const suggestion of accepted) {
+      const accountId =
+        suggestion.sourceAccountId ??
+        importResults.find((item) =>
+          item.session.suggestions.some((s) => s.id === suggestion.id),
+        )?.accountId ??
+        accounts[0]?.id
+      if (!accountId) continue
+      const list = byAccount.get(accountId) ?? []
+      list.push(suggestion)
+      byAccount.set(accountId, list)
+    }
+
+    let commitmentsCreated = 0
+    let receiptsCreated = 0
+    let reserveBillsCreated = 0
+    const errors: string[] = []
+
+    for (const [accountId, suggestions] of byAccount) {
+      const result = applyBankImportSuggestions(state, accountId, suggestions, actions)
+      commitmentsCreated += result.commitmentsCreated
+      receiptsCreated += result.receiptsCreated
+      reserveBillsCreated += result.reserveBillsCreated
+      errors.push(...result.errors)
+    }
 
     const parts = [
-      result.commitmentsCreated > 0 ? `${result.commitmentsCreated} commitments` : null,
-      result.receiptsCreated > 0 ? `${result.receiptsCreated} receipts` : null,
-      result.reserveBillsCreated > 0 ? `${result.reserveBillsCreated} reserve bills` : null,
+      commitmentsCreated > 0 ? `${commitmentsCreated} commitments` : null,
+      receiptsCreated > 0 ? `${receiptsCreated} receipts` : null,
+      reserveBillsCreated > 0 ? `${reserveBillsCreated} reserve bills` : null,
     ].filter(Boolean)
 
     setApplySummary(
@@ -426,10 +461,12 @@ function GuidedSetupAiWizard({
         ? `Created ${parts.join(', ')}. Everything remains editable.`
         : 'Setup complete. You can add items manually anytime.',
     )
+    if (errors.length > 0) {
+      setImportError(errors.join(' '))
+    }
     setAiStep('complete')
   }
 
-  const acceptedCount = countAcceptedSuggestions(reviewSuggestions)
   const importedCount = importResults.filter((item) => !item.skipped && item.session.suggestions.length > 0).length
   const activeAccount = accounts.find((account) => account.id === activeImportAccountId)
 
@@ -612,9 +649,14 @@ function GuidedSetupAiWizard({
             <>
               <h2 id="guided-ai-title">Upload bank statements</h2>
               <p className="setup-onboarding-explain">
-                CSV today — PDF and Open Banking can plug in later. Each upload is analysed with
-                rules now; AI interpretation slots in without changing this review step.
+                Pick an account, then upload its statement. True Balance will look for recurring
+                costs, larger bills and expected receipts — you review everything before it is added.
               </p>
+              <ul className="guided-setup-history-tips">
+                {STATEMENT_HISTORY_TIPS.map((tip) => (
+                  <li key={tip.months}>{tip.text}</li>
+                ))}
+              </ul>
               <ul className="guided-setup-import-queue">
                 {accounts.map((account) => {
                   const result = importResults.find((item) => item.accountId === account.id)
@@ -687,6 +729,13 @@ function GuidedSetupAiWizard({
                     <>
                       <p className="bank-import-hint">
                         <strong>{fileName}</strong> · map columns then analyse
+                        {rows.length > 0 && (
+                          <>
+                            {' '}
+                            · about {historySpanMonths(mapRowsToTransactions(rows, mapping))} months
+                            of history
+                          </>
+                        )}
                       </p>
                       <div className="bank-import-mapping-grid">
                         {(Object.keys(COLUMN_LABELS) as BankImportColumnKey[]).map((key) => (
@@ -740,8 +789,8 @@ function GuidedSetupAiWizard({
             <>
               <h2 id="guided-ai-title">Review suggestions</h2>
               <p className="setup-onboarding-explain">
-                Nothing is added until you accept it. Edit names, amounts, or categories — or ignore
-                anything that does not look right.
+                Nothing is added until you accept it. For each item you can see why we suggested it,
+                then accept, edit or ignore. {GUIDED_SETUP_EDITABLE_NOTE}
               </p>
               <p className="bank-import-hint">
                 From <strong>{importedCount}</strong> statement{importedCount === 1 ? '' : 's'} ·{' '}
@@ -751,6 +800,7 @@ function GuidedSetupAiWizard({
                 suggestions={reviewSuggestions}
                 onUpdate={updateSuggestion}
                 onSetStatus={setSuggestionStatus}
+                insights={mergedInsights}
                 compact
               />
             </>
@@ -826,7 +876,6 @@ function GuidedSetupAiWizard({
               <button
                 type="button"
                 className="btn-primary btn-tiny"
-                disabled={acceptedCount === 0 && reviewSuggestions.length > 0}
                 onClick={handleBuildTrueBalance}
               >
                 Build True Balance

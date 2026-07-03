@@ -1,16 +1,10 @@
 import { useMemo, useRef, useState } from 'react'
 import type { AppState } from '../../types'
 import type { AppActions } from '../../hooks/useAppState'
-import { formatCurrency } from '../../utils/format'
 import { getAccountBusinessId } from '../../utils/accounts'
 import { getScopeItemLabel } from '../../utils/scope'
 import { analyzeBankTransactions } from '../../bankImport/aiAdapter'
 import { applyBankImportSuggestions, scopeForAccount } from '../../bankImport/applySuggestions'
-import {
-  categoryDisplayName,
-  destinationDisplayName,
-  frequencyDisplayName,
-} from '../../bankImport/categorize'
 import { DEMO_BANK_CSV } from '../../bankImport/demoCsv'
 import {
   guessColumnMapping,
@@ -22,8 +16,13 @@ import type {
   BankImportColumnMapping,
   BankImportSuggestion,
   ImportSuggestionStatus,
-  SuggestionDestination,
 } from '../../bankImport/types'
+import type { ImportTrendInsight } from '../../bankImport/trendInsights'
+import { historySpanMonths } from '../../bankImport/trendInsights'
+import {
+  BankImportSuggestionReview,
+  countAcceptedSuggestions,
+} from './BankImportSuggestionReview'
 
 type WizardStep = 'account' | 'upload' | 'mapping' | 'review' | 'done'
 
@@ -39,12 +38,6 @@ interface BankStatementImportPanelProps {
   state: AppState
   actions: Pick<AppActions, 'addCommitment' | 'addReceipt' | 'addReserveBill'>
   embedded?: boolean
-}
-
-function confidenceLabel(score: number): string {
-  if (score >= 80) return 'High'
-  if (score >= 60) return 'Medium'
-  return 'Low'
 }
 
 function accountLabel(state: AppState, accountId: string): string {
@@ -69,6 +62,7 @@ export function BankStatementImportPanel({
   const [mapping, setMapping] = useState<BankImportColumnMapping>({ date: 0, description: 1 })
   const [transactions, setTransactions] = useState<ReturnType<typeof mapRowsToTransactions>>([])
   const [suggestions, setSuggestions] = useState<BankImportSuggestion[]>([])
+  const [insights, setInsights] = useState<ImportTrendInsight[]>([])
   const [analyzing, setAnalyzing] = useState(false)
   const [applySummary, setApplySummary] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -136,6 +130,7 @@ export function BankStatementImportPanel({
         scopeId: scope.scopeId,
       })
       setSuggestions(result.suggestions)
+      setInsights(result.insights ?? [])
       setStep('review')
     } finally {
       setAnalyzing(false)
@@ -185,14 +180,12 @@ export function BankStatementImportPanel({
     setRows([])
     setTransactions([])
     setSuggestions([])
+    setInsights([])
     setApplySummary(null)
     setError(null)
   }
 
-  const acceptedCount = suggestions.filter((item) => {
-    if (item.status !== 'accepted' && item.status !== 'edited') return false
-    return (item.editedDestination ?? item.destination) !== 'ignore'
-  }).length
+  const acceptedCount = countAcceptedSuggestions(suggestions)
 
   return (
     <section className={`bank-import${embedded ? ' bank-import--embedded' : ''}`}>
@@ -394,130 +387,18 @@ export function BankStatementImportPanel({
       {step === 'review' && (
         <div className="bank-import-panel">
           <p className="bank-import-hint">
-            Parsed <strong>{transactions.length}</strong> transactions ·{' '}
+            Parsed <strong>{transactions.length}</strong> transactions · about{' '}
+            <strong>{historySpanMonths(transactions)}</strong> months of history ·{' '}
             <strong>{suggestions.length}</strong> suggestions · Accept, edit, or ignore each one
             before applying.
           </p>
 
-          <div className="bank-import-suggestion-list">
-            {suggestions.map((suggestion) => (
-              <article
-                key={suggestion.id}
-                className={`bank-import-suggestion bank-import-suggestion--${suggestion.status}`}
-              >
-                <div className="bank-import-suggestion-head">
-                  <div>
-                    <input
-                      className="bank-import-name-input"
-                      value={suggestion.editedName ?? suggestion.suggestedName}
-                      onChange={(event) =>
-                        updateSuggestion(suggestion.id, {
-                          editedName: event.target.value,
-                          status: 'edited',
-                        })
-                      }
-                    />
-                    <p className="bank-import-suggestion-meta muted">
-                      {categoryDisplayName(suggestion.category)} ·{' '}
-                      {frequencyDisplayName(suggestion.frequency)}
-                      {suggestion.likelyDueDay ? ` · around day ${suggestion.likelyDueDay}` : ''}
-                    </p>
-                  </div>
-                  <div className="bank-import-confidence">
-                    <span
-                      className={`bank-import-confidence-pill bank-import-confidence-pill--${confidenceLabel(suggestion.confidence).toLowerCase()}`}
-                    >
-                      {confidenceLabel(suggestion.confidence)} · {suggestion.confidence}%
-                    </span>
-                  </div>
-                </div>
-
-                <p className="bank-import-reason">{suggestion.reason}</p>
-                {suggestion.sampleDescriptions.length > 0 && (
-                  <p className="muted bank-import-samples">
-                    e.g. {suggestion.sampleDescriptions.join(' · ')}
-                  </p>
-                )}
-
-                <div className="bank-import-suggestion-fields">
-                  <label className="bank-import-field bank-import-field--inline">
-                    <span>Amount</span>
-                    <input
-                      type="number"
-                      min={0}
-                      step="0.01"
-                      className="bank-import-input"
-                      value={suggestion.editedAmount ?? suggestion.averageAmount}
-                      onChange={(event) =>
-                        updateSuggestion(suggestion.id, {
-                          editedAmount: Number(event.target.value),
-                          status: 'edited',
-                        })
-                      }
-                    />
-                  </label>
-                  <label className="bank-import-field bank-import-field--inline">
-                    <span>Add as</span>
-                    <select
-                      className="bank-import-select"
-                      value={suggestion.editedDestination ?? suggestion.destination}
-                      onChange={(event) =>
-                        updateSuggestion(suggestion.id, {
-                          editedDestination: event.target.value as SuggestionDestination,
-                          status: 'edited',
-                        })
-                      }
-                    >
-                      {(
-                        [
-                          'commitment',
-                          'reserve_bill',
-                          'expected_receipt',
-                          'ignore',
-                        ] as SuggestionDestination[]
-                      ).map((destination) => (
-                        <option key={destination} value={destination}>
-                          {destinationDisplayName(destination)}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <p className="bank-import-amount-hint muted">
-                    Typical {formatCurrency(suggestion.averageAmount)}
-                    {suggestion.amount !== suggestion.averageAmount
-                      ? ` · max ${formatCurrency(suggestion.amount)}`
-                      : ''}
-                  </p>
-                </div>
-
-                <div className="bank-import-suggestion-actions">
-                  <button
-                    type="button"
-                    className={`btn-tiny${suggestion.status === 'accepted' || suggestion.status === 'edited' ? ' btn-primary' : ' btn-secondary'}`}
-                    onClick={() =>
-                      setSuggestionStatus(
-                        suggestion.id,
-                        suggestion.status === 'edited' ? 'edited' : 'accepted',
-                      )
-                    }
-                  >
-                    Accept
-                  </button>
-                  <button
-                    type="button"
-                    className="btn-tiny btn-ghost"
-                    onClick={() => setSuggestionStatus(suggestion.id, 'ignored')}
-                  >
-                    Ignore
-                  </button>
-                </div>
-              </article>
-            ))}
-          </div>
-
-          {suggestions.length === 0 && (
-            <p className="muted">No patterns detected. Try a longer statement or different account.</p>
-          )}
+          <BankImportSuggestionReview
+            suggestions={suggestions}
+            onUpdate={updateSuggestion}
+            onSetStatus={setSuggestionStatus}
+            insights={insights}
+          />
 
           <div className="bank-import-actions">
             <button type="button" className="btn-ghost" onClick={() => setStep('mapping')}>

@@ -133,6 +133,8 @@ export function destinationDisplayName(destination: SuggestionDestination): stri
       return 'Expected receipt'
     case 'ignore':
       return 'Ignore / not relevant'
+    default:
+      return 'Commitment'
   }
 }
 

@@ -14,12 +14,12 @@ import { flattenMonthlyCostTree } from '../utils/monthlyCostGrouping'
 import { monthlyCostEditableCellIds, useSheetCellNavigation } from '../utils/sheetCellNavigation'
 import { HelpButton } from './HelpButton'
 import { WIDGET_HELP } from '../content/livingDashboard'
-import { ordinalDay, ReadOnlyCell, SheetDragHeader } from './committed/shared'
+import { ordinalDay, ReadOnlyCell, SheetDragHeader, DailyAccrualCell } from './committed/shared'
 import { MonthlyCostRows } from './committed/MonthlyCostRows'
 import { MonthlyCostPeriodView } from './committed/MonthlyCostPeriodView'
 import { PlatformSheetTable, PlatformSheetWrap, ResizableSheetHeader } from './PlatformSheetWrap'
 import { COMMITTED_MONTHLY_COLUMNS } from '../utils/sheetColumnSpecs'
-import { getCommitmentDueOccurrences } from '../utils/commitmentCalculations'
+import { getCommitmentDueOccurrences, getAccruingRowDailyRate } from '../utils/commitmentCalculations'
 import { ConfirmDialog } from './ConfirmDialog'
 
 type AccruingViewMode = 'list' | 'period'
@@ -90,6 +90,10 @@ export function CommittedFundsPanel({
       monthlyCommitmentRows.reduce((sum, row) => sum + row.commitment.amount, 0) +
       reserveAccrualRows.reduce((sum, row) => sum + row.commitment.amount, 0),
     [monthlyCommitmentRows, reserveAccrualRows],
+  )
+  const dailyTotal = useMemo(
+    () => simulatorRows.reduce((sum, row) => sum + getAccruingRowDailyRate(row), 0),
+    [simulatorRows],
   )
 
   const {
@@ -221,17 +225,19 @@ export function CommittedFundsPanel({
       </div>
 
       <div className="card-scroll-body">
-        <table className="kpi-table kpi-table--summary committed-funds-summary">
+        <table className="kpi-table kpi-table--summary committed-funds-summary committed-funds-summary--accruing">
           <thead>
             <tr>
-              <th className="col-amount">Monthly total</th>
-              <th className="col-amount">Accrued now</th>
+              <th className="col-amount col-amount--side">Monthly total</th>
+              <th className="col-amount col-amount--primary">Accrued now</th>
+              <th className="col-amount col-amount--side">Per day</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td className="col-amount">{formatCurrency(monthlyTotal)}</td>
-              <td className="col-amount kpi-primary">{formatCurrency(accruingNow)}</td>
+              <td className="col-amount col-amount--side kpi-secondary">{formatCurrency(monthlyTotal)}</td>
+              <td className="col-amount col-amount--primary kpi-primary">{formatCurrency(accruingNow)}</td>
+              <td className="col-amount col-amount--side kpi-secondary">{formatCurrency(dailyTotal)}</td>
             </tr>
           </tbody>
         </table>
@@ -282,10 +288,17 @@ export function CommittedFundsPanel({
                         <ResizableSheetHeader columnIndex={4} onResizeStart={startResize} className="sheet-num">
                           Monthly
                         </ResizableSheetHeader>
-                        <ResizableSheetHeader columnIndex={5} onResizeStart={startResize} className="sheet-num">
+                        <ResizableSheetHeader
+                          columnIndex={5}
+                          onResizeStart={startResize}
+                          className="sheet-num sheet-col-emphasis"
+                        >
                           Accrued
                         </ResizableSheetHeader>
-                        <ResizableSheetHeader columnIndex={6} onResizeStart={startResize} className="sheet-actions" />
+                        <ResizableSheetHeader columnIndex={6} onResizeStart={startResize} className="sheet-num">
+                          Per day
+                        </ResizableSheetHeader>
+                        <ResizableSheetHeader columnIndex={7} onResizeStart={startResize} className="sheet-actions" />
                       </tr>
                     </thead>
                     <tbody>
@@ -326,10 +339,13 @@ export function CommittedFundsPanel({
                             <ReadOnlyCell className="sheet-num sheet-cell--reserve">
                               {formatCurrency(item.amount)}
                             </ReadOnlyCell>
-                            <td className="sheet-num sheet-cell-computed sheet-cell--reserve">
+                            <td className="sheet-num sheet-cell-computed sheet-cell--reserve sheet-col-emphasis">
                               <span title={getReserveAccrualTooltip()}>
                                 {formatCurrency(accruedAmount)}
                               </span>
+                            </td>
+                            <td className="sheet-num sheet-cell-computed sheet-cell--reserve">
+                              <DailyAccrualCell row={row} />
                             </td>
                             <td className="sheet-actions">
                               <a

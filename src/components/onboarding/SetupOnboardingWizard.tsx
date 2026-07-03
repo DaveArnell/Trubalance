@@ -10,6 +10,7 @@ import {
   dismissSetupOnboardingLocally,
 } from '../../content/setupOnboarding'
 import { QUICK_HABITS } from '../../content/livingDashboard'
+import { MANUAL_SETUP_REASSURANCE } from '../../content/guidedSetup'
 import { formatCurrency } from '../../utils/format'
 import { getCashAccounts, getAccountsForScope } from '../../utils/calculations'
 import type { PageId } from '../../navigation'
@@ -189,7 +190,7 @@ export function SetupOnboardingWizard({
       <aside className="setup-onboarding-panel" role="dialog" aria-labelledby="setup-onboarding-title">
         <header className="setup-onboarding-header">
           <p className="setup-onboarding-kicker">
-            Setup guide · Step {stepIndex + 1} of {stepCount}
+            {onBackToPathChoice ? 'Manual setup' : 'Setup guide'} · Step {stepIndex + 1} of {stepCount}
           </p>
           <ol className="setup-onboarding-checklist" aria-label="Progress">
             {SETUP_ONBOARDING_STEPS.map((item, index) => (
@@ -213,6 +214,9 @@ export function SetupOnboardingWizard({
         <div className="setup-onboarding-body">
           <h2 id="setup-onboarding-title">{step.title}</h2>
           <p className="setup-onboarding-explain">{step.explain}</p>
+          {onBackToPathChoice && stepIndex === 0 && (
+            <p className="setup-onboarding-explain muted">{MANUAL_SETUP_REASSURANCE}</p>
+          )}
 
           {step.id === 'business' && (
             <div className="setup-onboarding-form">

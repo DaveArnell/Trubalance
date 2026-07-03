@@ -609,6 +609,34 @@ export function getAccruedAmount(commitment: Commitment, referenceDate: Date = g
   return toAmount(getCurrentCycleAmount(commitment, referenceDate)) * accrual.progress
 }
 
+/** Steady daily accrual rate for the active cycle (monthly budget ÷ days in cycle). */
+export function getDailyAccrualRate(
+  commitment: Commitment,
+  referenceDate: Date = getReferenceDate(),
+): number {
+  if (commitment.schedule !== 'monthly') return 0
+  if (shouldSuppressAccrualForPaidPeriod(commitment, referenceDate)) return 0
+
+  const accrual = getAccrualProgress(commitment, referenceDate)
+  if (!accrual) return 0
+
+  const totalDays = daysBetweenDates(accrual.cycle.cycleStart, accrual.cycle.cycleEnd) + 1
+  if (totalDays <= 0) return 0
+
+  return toAmount(getCurrentCycleAmount(commitment, referenceDate)) / totalDays
+}
+
+export function getAccruingRowDailyRate(
+  row: CommitmentAccruingRow,
+  referenceDate: Date = getReferenceDate(),
+): number {
+  if (row.source === 'reserve') {
+    const daysInMonth = new Date(referenceDate.getFullYear(), referenceDate.getMonth() + 1, 0).getDate()
+    return daysInMonth > 0 ? toAmount(row.commitment.amount) / daysInMonth : 0
+  }
+  return getDailyAccrualRate(row.commitment, referenceDate)
+}
+
 /** Days past the due date (0 on due day). null if not yet due or paid. */
 export function getDaysOverdue(commitment: Commitment, referenceDate: Date = getReferenceDate()): number | null {
   const offset = getDueTimingOffset(commitment, referenceDate)

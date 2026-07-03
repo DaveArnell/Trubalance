@@ -1,4 +1,5 @@
 import type { BankImportSession, BankImportSuggestion } from './types'
+import type { ImportTrendInsight } from './trendInsights'
 import { mergeImportSuggestions } from './mergeSuggestions'
 
 /**
@@ -15,6 +16,8 @@ export interface AccountImportResult {
     BankImportSession,
     'transactions' | 'suggestions' | 'scopeLevel' | 'scopeId'
   >
+  /** Rule-based or AI insights — informational only. */
+  insights?: ImportTrendInsight[]
   skipped?: boolean
 }
 
@@ -23,6 +26,22 @@ export interface ImportCentreRun {
   source: ImportCentreSource
   startedAt: string
   accountImports: AccountImportResult[]
+}
+
+/** Future Import Centre: diff types when re-importing after onboarding. */
+export type ImportCentreChangeKind =
+  | 'new_recurring'
+  | 'removed_recurring'
+  | 'amount_changed'
+  | 'update_commitment'
+  | 'update_reserve_bill'
+
+export interface ImportCentreSuggestedChange {
+  kind: ImportCentreChangeKind
+  suggestion: BankImportSuggestion
+  /** Existing commitment or reserve bill id when updating. */
+  existingItemId?: string
+  message: string
 }
 
 export function createImportCentreRun(source: ImportCentreSource): ImportCentreRun {
@@ -37,4 +56,15 @@ export function createImportCentreRun(source: ImportCentreSource): ImportCentreR
 export function mergeAccountImportSuggestions(imports: AccountImportResult[]): BankImportSuggestion[] {
   const all = imports.flatMap((item) => item.session.suggestions)
   return mergeImportSuggestions(all)
+}
+
+export function mergeAccountImportInsights(imports: AccountImportResult[]): ImportTrendInsight[] {
+  const seen = new Set<string>()
+  return imports
+    .flatMap((item) => item.insights ?? [])
+    .filter((insight) => {
+      if (seen.has(insight.message)) return false
+      seen.add(insight.message)
+      return true
+    })
 }

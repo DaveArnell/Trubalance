@@ -19,6 +19,7 @@ import {
 } from '../SheetInlineCells'
 import {
   AccruedTodayCell,
+  DailyAccrualCell,
   DismissibleCommitmentStatusDot,
   DuplicateRowButton,
   SheetDragCell,
@@ -106,7 +107,10 @@ function MonthlyCostGroupRow({
       </td>
       <td className={`sheet-cell-readonly sheet-row-label ${fillClass}`}>—</td>
       <td className={`sheet-num sheet-cell-readonly ${fillClass}`}>{formatCurrency(node.monthlyTotal)}</td>
-      <td className={`sheet-num sheet-cell-computed ${fillClass}`}>{formatCurrency(node.accruedTotal)}</td>
+      <td className={`sheet-num sheet-cell-computed sheet-col-emphasis ${fillClass}`}>
+        {formatCurrency(node.accruedTotal)}
+      </td>
+      <td className={`sheet-num sheet-cell-computed ${fillClass}`}>{formatCurrency(node.dailyTotal)}</td>
       <td className={`sheet-actions ${fillClass}`} />
     </tr>
   )
@@ -212,8 +216,11 @@ function MonthlyCostLeafRow({
         onSave={(amount) => actions.updateCommitment(item.id, { amount })}
         onTab={makeTabHandler(`${item.id}-amount`)}
       />
-      <td className="sheet-num sheet-cell-computed">
+      <td className="sheet-num sheet-cell-computed sheet-col-emphasis">
         <AccruedTodayCell commitment={item} />
+      </td>
+      <td className="sheet-num sheet-cell-computed">
+        <DailyAccrualCell row={row} />
       </td>
       <td className="sheet-actions">
         <div className="sheet-action-group">

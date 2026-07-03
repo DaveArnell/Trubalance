@@ -159,10 +159,7 @@ export function applyBankImportSuggestions(
         continue
       }
 
-      const isPlanned =
-        destination === 'planned_commitment' ||
-        suggestion.frequency === 'annual' ||
-        suggestion.frequency === 'one_off'
+      const isPlanned = destination === 'planned_commitment'
 
       if (isPlanned) {
         const dueMonth = suggestion.likelyDueMonth ?? new Date().getMonth() + 1

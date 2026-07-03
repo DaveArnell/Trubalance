@@ -1,5 +1,7 @@
 import type { ScopeLevel } from '../types'
 
+import type { ImportTrendInsight } from './trendInsights'
+
 export type BankImportColumnKey = 'date' | 'description' | 'moneyIn' | 'moneyOut' | 'balance'
 
 export interface BankImportColumnMapping {
@@ -98,7 +100,7 @@ export interface BankImportAnalysisInput {
 export interface BankImportAnalysisResult {
   suggestions: BankImportSuggestion[]
   /** Trend insights only — never auto-applied. */
-  insights?: import('./trendInsights').ImportTrendInsight[]
+  insights?: ImportTrendInsight[]
   /** Reserved for a future AI pass — empty when using rules only. */
   aiNotes?: string
 }

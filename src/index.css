@@ -8123,6 +8123,34 @@ textarea:focus {
   font-size: 0.78rem;
 }
 
+.committed-funds-summary--accruing .col-amount--primary {
+  width: 8rem;
+}
+
+.committed-funds-summary--accruing .col-amount--side {
+  width: 6.25rem;
+}
+
+.committed-funds-summary--accruing th.col-amount--primary,
+.committed-funds-summary--accruing td.col-amount--primary {
+  text-align: center;
+}
+
+.committed-funds-summary--accruing th.col-amount--side,
+.committed-funds-summary--accruing td.col-amount--side {
+  color: var(--text-muted);
+}
+
+.committed-funds-summary .kpi-secondary {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.sheet-col-emphasis {
+  font-weight: 700;
+}
+
 .committed-funds-total {
   margin: 0 0 var(--space-4);
   padding: var(--space-4) var(--space-5);
@@ -12457,6 +12485,52 @@ tr.sheet-row--drag-over td {
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   background: var(--bg-subtle);
+}
+
+.guided-setup-path-subtitle {
+  margin: 0 0 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.guided-setup-history-tips {
+  margin: 0 0 var(--space-3);
+  padding-left: 1.2rem;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.guided-setup-history-tips li + li {
+  margin-top: 4px;
+}
+
+.bank-import-insights {
+  margin-bottom: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-subtle);
+}
+
+.bank-import-insights-title {
+  margin: 0 0 4px;
+  font-size: 0.95rem;
+}
+
+.bank-import-insights-lead {
+  margin: 0 0 var(--space-2);
+  font-size: 0.82rem;
+}
+
+.bank-import-insights-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  font-size: 0.88rem;
+}
+
+.bank-import-insights-list li + li {
+  margin-top: 6px;
 }
 
 .bank-import-suggestion-tag {

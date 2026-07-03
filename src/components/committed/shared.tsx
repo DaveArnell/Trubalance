@@ -1,6 +1,15 @@
 import type { ReactNode, DragEvent as ReactDragEvent } from 'react'
-import type { Commitment, CommitmentDueRow, HealthLevel, StatusColor } from '../../types'
-import { getAccruedAmount, getAccrualTooltip, formatMonthlyCostAttentionTiming, getDerivedDueRowStatus, getMonthlyCostAttentionStatus, isPaidThisCycle, monthlyCostNeedsAttention } from '../../utils/commitmentCalculations'
+import type { Commitment, CommitmentAccruingRow, CommitmentDueRow, HealthLevel, StatusColor } from '../../types'
+import {
+  getAccruedAmount,
+  getAccrualTooltip,
+  getAccruingRowDailyRate,
+  formatMonthlyCostAttentionTiming,
+  getDerivedDueRowStatus,
+  getMonthlyCostAttentionStatus,
+  isPaidThisCycle,
+  monthlyCostNeedsAttention,
+} from '../../utils/commitmentCalculations'
 import { formatCurrency } from '../../utils/format'
 
 export function ordinalDay(day: number) {
@@ -211,4 +220,18 @@ export function AccruedTodayCell({ commitment }: { commitment: Commitment }) {
   return (
     <span title={getAccrualTooltip(commitment)}>{formatCurrency(getAccruedAmount(commitment))}</span>
   )
+}
+
+export function DailyAccrualCell({ row }: { row: CommitmentAccruingRow }) {
+  if (row.source === 'commitment' && isPaidThisCycle(row.commitment)) {
+    return <span className="muted">—</span>
+  }
+
+  const rate = getAccruingRowDailyRate(row)
+  const title =
+    row.source === 'reserve'
+      ? 'Monthly reserve deposit spread evenly across the calendar month'
+      : 'Monthly budget for this cycle divided by days in the cycle'
+
+  return <span title={title}>{formatCurrency(rate)}</span>
 }

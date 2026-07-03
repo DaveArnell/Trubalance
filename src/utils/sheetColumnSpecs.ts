@@ -7,6 +7,7 @@ const dueDay: SheetColumnSpec = { id: 'due-day', defaultWidth: 72, minWidth: 52 
 const dueTiming: SheetColumnSpec = { id: 'due', defaultWidth: 88, minWidth: 64 }
 const amount: SheetColumnSpec = { id: 'amount', defaultWidth: 88, minWidth: 56 }
 const accrued: SheetColumnSpec = { id: 'accrued', defaultWidth: 80, minWidth: 56 }
+const daily: SheetColumnSpec = { id: 'daily', defaultWidth: 72, minWidth: 56 }
 const funding: SheetColumnSpec = { id: 'funding', defaultWidth: 108, minWidth: 72 }
 const reserved: SheetColumnSpec = { id: 'reserved', defaultWidth: 80, minWidth: 56 }
 const expected: SheetColumnSpec = { id: 'expected', defaultWidth: 104, minWidth: 72 }
@@ -27,6 +28,7 @@ export const COMMITTED_MONTHLY_COLUMNS: SheetColumnSpec[] = [
   dueDay,
   amount,
   accrued,
+  daily,
   actions,
 ]
 
