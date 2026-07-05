@@ -1,7 +1,9 @@
 import { useMemo } from 'react'
 import type { AppState, ViewScope } from '../types'
-import { getScopeOptionsForView } from '../utils/scope'
+import { getCommitmentScopeOptionsForView, itemMatchesScope } from '../utils/scope'
+import { sortByOrder } from '../utils/sortOrder'
 import type { AppActions } from '../hooks/useAppState'
+import { useDemoReadOnly } from '../contexts/DemoModeContext'
 import { useSheetRowReorder } from '../hooks/useSheetRowReorder'
 import { receiptEditableCellIds, useSheetCellNavigation } from '../utils/sheetCellNavigation'
 import { HelpButton } from './HelpButton'
@@ -14,7 +16,6 @@ import { InlineNumberCell, InlineTextCell, ScopeSelectCell } from './SheetInline
 interface ExpectedReceiptsPanelProps {
   state: AppState
   viewScope: ViewScope
-  receipts: AppState['expectedReceipts']
   actions: Pick<AppActions, 'addReceipt' | 'updateReceipt' | 'markReceiptReceived' | 'deleteReceipt' | 'duplicateReceipt' | 'reorderReceipts'>
   openHelp: string | null
   setOpenHelp: (id: string | null) => void
@@ -23,16 +24,29 @@ interface ExpectedReceiptsPanelProps {
 export function ExpectedReceiptsPanel({
   state,
   viewScope,
-  receipts,
   actions,
   openHelp,
   setOpenHelp,
 }: ExpectedReceiptsPanelProps) {
-  const options = getScopeOptionsForView(state, viewScope)
-  const orderedCellIds = useMemo(() => receiptEditableCellIds(receipts), [receipts])
+  const demoReadOnly = useDemoReadOnly()
+  const options = getCommitmentScopeOptionsForView(state, viewScope)
+  const visibleReceipts = useMemo(
+    () =>
+      sortByOrder(
+        state.expectedReceipts.filter((r) =>
+          itemMatchesScope(state, viewScope, r.scopeLevel, r.scopeId),
+        ),
+        (r) => r.sortOrder,
+      ),
+    [state.expectedReceipts, state, viewScope],
+  )
+  const orderedCellIds = useMemo(() => receiptEditableCellIds(visibleReceipts), [visibleReceipts])
   const { activeCell, activate, deactivate, makeTabHandler } = useSheetCellNavigation(orderedCellIds)
+  const tryActivate = (cellId: string) => {
+    if (!demoReadOnly) activate(cellId)
+  }
 
-  const receiptRowIds = useMemo(() => receipts.map((item) => item.id), [receipts])
+  const receiptRowIds = useMemo(() => visibleReceipts.map((item) => item.id), [visibleReceipts])
   const receiptReorder = useSheetRowReorder(receiptRowIds, actions.reorderReceipts)
 
   const addRow = () => {
@@ -49,9 +63,11 @@ export function ExpectedReceiptsPanel({
       <div className="card-head card-head-compact">
         <h2>Expected Receipts</h2>
         <div className="card-actions">
-          <button type="button" className="btn-secondary btn-tiny" onClick={addRow}>
-            + Add row
-          </button>
+          {!demoReadOnly && (
+            <button type="button" className="btn-secondary btn-tiny" onClick={addRow}>
+              + Add row
+            </button>
+          )}
           <HelpButton
             id="receipts"
             openHelp={openHelp}
@@ -67,35 +83,39 @@ export function ExpectedReceiptsPanel({
             <PlatformSheetTable widths={widths} preferenceClasses={prefClasses}>
               <thead>
                 <tr>
-                  <SheetDragHeader />
+                  {!demoReadOnly && <SheetDragHeader />}
                   <ResizableSheetHeader columnIndex={1} onResizeStart={startResize}>Name</ResizableSheetHeader>
                   <ResizableSheetHeader columnIndex={2} onResizeStart={startResize} className="committed-scope-col">Scope</ResizableSheetHeader>
                   <ResizableSheetHeader columnIndex={3} onResizeStart={startResize}>Timing</ResizableSheetHeader>
                   <ResizableSheetHeader columnIndex={4} onResizeStart={startResize}>Expected</ResizableSheetHeader>
                   <ResizableSheetHeader columnIndex={5} onResizeStart={startResize}>Accrual from</ResizableSheetHeader>
                   <ResizableSheetHeader columnIndex={6} onResizeStart={startResize} className="sheet-num">Amount</ResizableSheetHeader>
-                  <ResizableSheetHeader columnIndex={7} onResizeStart={startResize} className="sheet-actions" />
+                  {!demoReadOnly && (
+                    <ResizableSheetHeader columnIndex={7} onResizeStart={startResize} className="sheet-actions" />
+                  )}
                 </tr>
               </thead>
               <tbody>
-                {receipts.length === 0 ? (
+                {visibleReceipts.length === 0 ? (
                   <tr className="sheet-empty-row">
                     <td colSpan={8} className="sheet-empty-cell">
                       No expected receipts in this view. Use + Add row.
                     </td>
                   </tr>
                 ) : (
-                  receipts.map((item, index) => {
+                  visibleReceipts.map((item, index) => {
                   const rowProps = receiptReorder.getRowProps(item.id, index)
                   return (
-                  <tr key={item.id} {...rowProps}>
-                    <SheetDragCell rowId={item.id} getHandleProps={receiptReorder.getHandleProps} />
+                  <tr key={item.id} className={item.received ? 'sheet-row--received' : undefined} {...(demoReadOnly ? {} : rowProps)}>
+                    {!demoReadOnly && (
+                      <SheetDragCell rowId={item.id} getHandleProps={receiptReorder.getHandleProps} />
+                    )}
                     <InlineTextCell
                       cellId={`${item.id}-name`}
                       value={item.name}
                       isActive={activeCell === `${item.id}-name`}
                       placeholder="Name"
-                      onActivate={() => activate(`${item.id}-name`)}
+                      onActivate={() => tryActivate(`${item.id}-name`)}
                       onDeactivate={deactivate}
                       onSave={(name) => actions.updateReceipt(item.id, { name: name || 'Untitled' })}
                       onTab={makeTabHandler(`${item.id}-name`)}
@@ -106,8 +126,9 @@ export function ExpectedReceiptsPanel({
                       scopeLevel={item.scopeLevel}
                       scopeId={item.scopeId}
                       options={options}
+                      readOnly={demoReadOnly}
                       isActive={activeCell === `${item.id}-scope`}
-                      onActivate={() => activate(`${item.id}-scope`)}
+                      onActivate={() => tryActivate(`${item.id}-scope`)}
                       onDeactivate={deactivate}
                       onChange={(scopeLevel, scopeId) =>
                         actions.updateReceipt(item.id, { scopeLevel, scopeId })
@@ -115,6 +136,11 @@ export function ExpectedReceiptsPanel({
                       onTab={makeTabHandler(`${item.id}-scope`)}
                     />
                     <td className="sheet-select-cell">
+                      {demoReadOnly ? (
+                        <span className="sheet-cell-value">
+                          {(item.receiptTiming ?? 'lump') === 'accrual' ? 'Build up' : 'Lump sum'}
+                        </span>
+                      ) : (
                       <select
                         className="sheet-inline-select"
                         value={item.receiptTiming ?? 'lump'}
@@ -128,13 +154,14 @@ export function ExpectedReceiptsPanel({
                         <option value="lump">Lump sum</option>
                         <option value="accrual">Build up</option>
                       </select>
+                      )}
                     </td>
                     <InlineTextCell
                       cellId={`${item.id}-expected`}
                       value={item.expectedDate ?? ''}
                       isActive={activeCell === `${item.id}-expected`}
                       placeholder="e.g. 31 Jul"
-                      onActivate={() => activate(`${item.id}-expected`)}
+                      onActivate={() => tryActivate(`${item.id}-expected`)}
                       onDeactivate={deactivate}
                       onSave={(expectedDate) =>
                         actions.updateReceipt(item.id, { expectedDate: expectedDate || undefined })
@@ -146,7 +173,7 @@ export function ExpectedReceiptsPanel({
                       value={item.accrualStartDate ?? ''}
                       isActive={activeCell === `${item.id}-accrual-start`}
                       placeholder={item.receiptTiming === 'accrual' ? 'e.g. 1 Jul' : '—'}
-                      onActivate={() => activate(`${item.id}-accrual-start`)}
+                      onActivate={() => tryActivate(`${item.id}-accrual-start`)}
                       onDeactivate={deactivate}
                       onSave={(accrualStartDate) =>
                         actions.updateReceipt(item.id, {
@@ -159,19 +186,21 @@ export function ExpectedReceiptsPanel({
                       cellId={`${item.id}-amount`}
                       value={item.amount}
                       isActive={activeCell === `${item.id}-amount`}
-                      onActivate={() => activate(`${item.id}-amount`)}
+                      onActivate={() => tryActivate(`${item.id}-amount`)}
                       onDeactivate={deactivate}
                       onSave={(amount) => actions.updateReceipt(item.id, { amount })}
                       onTab={makeTabHandler(`${item.id}-amount`)}
                     />
+                    {!demoReadOnly && (
                     <td className="sheet-actions">
                       <div className="sheet-action-group">
                         <button
                           type="button"
                           className="btn-primary btn-tiny"
+                          disabled={item.received}
                           onClick={() => actions.markReceiptReceived(item.id)}
                         >
-                          Received
+                          {item.received ? 'Received' : 'Mark received'}
                         </button>
                         <DuplicateRowButton onClick={() => actions.duplicateReceipt(item.id)} />
                         <button
@@ -184,6 +213,7 @@ export function ExpectedReceiptsPanel({
                         </button>
                       </div>
                     </td>
+                    )}
                   </tr>
                   )
                 })

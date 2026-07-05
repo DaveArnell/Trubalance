@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { adminFetchOverview } from '../adminApi'
+import { adminFetchOverview, adminFetchUsers } from '../adminApi'
 import {
   AdminPageHeader,
   AdminPlaceholderChart,
@@ -10,36 +10,34 @@ import {
   HealthStatusBadge,
   RiskBadge,
 } from '../components/AdminUi'
-import type { AdminActivityRow, AdminNote, AdminUserHealthRow, PlatformOverviewStats } from '../types'
-
-function activityIcon(type: AdminActivityRow['type']) {
-  switch (type) {
-    case 'signup':
-      return '＋'
-    case 'login':
-      return '→'
-    case 'payment':
-      return '£'
-    case 'support':
-      return '?'
-    default:
-      return '!'
-  }
-}
+import { SUBSCRIPTION_TIERS } from '../../config/subscriptionTiers'
+import type {
+  AdminNote,
+  AdminUserHealthRow,
+  AdminUserListItem,
+  PlatformOverviewStats,
+} from '../types'
 
 export function AdminOverviewPage() {
   const [stats, setStats] = useState<PlatformOverviewStats | null>(null)
-  const [activity, setActivity] = useState<AdminActivityRow[]>([])
   const [atRisk, setAtRisk] = useState<AdminUserHealthRow[]>([])
   const [recentNotes, setRecentNotes] = useState<AdminNote[]>([])
+  const [trialUsers, setTrialUsers] = useState<AdminUserListItem[]>([])
+  const [allUsers, setAllUsers] = useState<AdminUserListItem[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    adminFetchOverview().then((data) => {
-      setStats(data.stats)
-      setActivity(data.recentActivity)
-      setAtRisk(data.usersAtRisk)
-      setRecentNotes(data.recentNotes)
+    Promise.all([
+      adminFetchOverview(),
+      adminFetchUsers({ page: 1, pageSize: 100 }),
+    ]).then(([overview, users]) => {
+      setStats(overview.stats)
+      setAtRisk(overview.usersAtRisk)
+      setRecentNotes(overview.recentNotes)
+      setAllUsers(users.items)
+      setTrialUsers(
+        users.items.filter((u) => u.subscriptionStatus === 'trialing'),
+      )
       setLoading(false)
     })
   }, [])
@@ -48,37 +46,30 @@ export function AdminOverviewPage() {
     return <p className="admin-loading muted">Loading platform overview…</p>
   }
 
-  const signups = activity.filter((a) => a.type === 'signup')
-  const recentActivity = activity.filter((a) => a.type !== 'signup')
+  const recentSignups = [...allUsers]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 8)
 
   return (
     <div className="admin-page">
       <AdminPageHeader
         title="Platform Overview"
-        description="True Balance at a glance — who is active, who needs help, and how the product is being used."
+        description="True Balance at a glance — users, trial pipeline, and platform health."
       />
 
       <AdminStatGrid>
         <AdminStatCard label="Total users" value={stats.totalUsers.toLocaleString()} />
-        <AdminStatCard label="Active users" value={stats.activeUsers.toLocaleString()} />
-        <AdminStatCard label="Trial users" value={stats.trialUsers} />
-        <AdminStatCard label="Beta / lifetime" value={stats.lifetimeUsers + stats.betaUsers} />
-        <AdminStatCard label="Paying users" value={stats.payingUsers} hint="Placeholder" />
-        <AdminStatCard label="Stale users" value={stats.staleUsers} />
-        <AdminStatCard label="Users needing help" value={stats.usersNeedingHelp} />
-        <AdminStatCard label="Total balance updates" value={stats.totalBalanceUpdates.toLocaleString()} />
-        <AdminStatCard label="Total reserve planners" value={stats.totalReservePlanners} />
-        <AdminStatCard
-          label="Onboarding complete"
-          value={`${Math.round(stats.onboardingCompletionPct * 100)}%`}
-        />
+        <AdminStatCard label="Active (logged in last 7d)" value={stats.dau > 0 ? stats.dau : stats.activeUsers} />
+        <AdminStatCard label="On trial" value={trialUsers.length} />
+        <AdminStatCard label="Paying" value={stats.payingUsers} />
         <AdminStatCard label="New today" value={stats.newUsersToday} />
         <AdminStatCard label="New this week" value={stats.newUsersWeek} />
+        <AdminStatCard label="New this month" value={stats.newUsersMonth} />
       </AdminStatGrid>
 
       <div className="admin-overview-panels">
-        <ActivityPanel title="Recent signups" items={signups} empty="No recent signups." linkTo="/platform-admin/users" />
-        <ActivityPanel title="Recent activity" items={recentActivity} empty="No recent activity." />
+        <TrialPipelinePanel users={trialUsers} />
+        <RecentSignupsPanel users={recentSignups} />
         <AtRiskPanel users={atRisk} />
         <NotesPanel notes={recentNotes} />
       </div>
@@ -93,43 +84,100 @@ export function AdminOverviewPage() {
   )
 }
 
-function ActivityPanel({
-  title,
-  items,
-  empty,
-  linkTo,
-}: {
-  title: string
-  items: AdminActivityRow[]
-  empty: string
-  linkTo?: string
-}) {
+function TrialPipelinePanel({ users }: { users: AdminUserListItem[] }) {
+  const now = Date.now()
+  const TRIAL_DAYS = 90
+
+  const withDaysLeft = users.map((u) => {
+    const created = new Date(u.createdAt).getTime()
+    const elapsed = Math.floor((now - created) / (1000 * 60 * 60 * 24))
+    const remaining = Math.max(0, TRIAL_DAYS - elapsed)
+    return { ...u, daysLeft: remaining, elapsed }
+  })
+
+  const expiringSoon = withDaysLeft.filter((u) => u.daysLeft <= 14 && u.daysLeft > 0)
+  const expired = withDaysLeft.filter((u) => u.daysLeft === 0)
+
+  const potentialMRR = users.reduce((sum, u) => {
+    const tier = SUBSCRIPTION_TIERS[u.subscriptionTier]
+    return sum + (tier?.priceMonthlyGbp ?? 0)
+  }, 0)
+
   return (
     <section className="admin-panel-card">
-      <h2>{title}</h2>
-      {items.length === 0 ? (
-        <p className="muted admin-empty">{empty}</p>
+      <h2>Trial Pipeline</h2>
+      <div className="admin-pipeline-stats">
+        <div className="admin-pipeline-stat">
+          <span className="admin-pipeline-num">{users.length}</span>
+          <span className="admin-pipeline-label">On trial</span>
+        </div>
+        <div className="admin-pipeline-stat">
+          <span className="admin-pipeline-num">{expiringSoon.length}</span>
+          <span className="admin-pipeline-label">Expiring ≤14d</span>
+        </div>
+        <div className="admin-pipeline-stat">
+          <span className="admin-pipeline-num">{expired.length}</span>
+          <span className="admin-pipeline-label">Expired</span>
+        </div>
+        <div className="admin-pipeline-stat">
+          <span className="admin-pipeline-num">£{potentialMRR.toFixed(2)}</span>
+          <span className="admin-pipeline-label">Potential MRR</span>
+        </div>
+      </div>
+
+      {withDaysLeft.length === 0 ? (
+        <p className="muted admin-empty">No trial users yet.</p>
       ) : (
-        <ul className="admin-activity-list">
-          {items.map((item) => (
-            <li key={item.id}>
-              <span className="admin-activity-icon" aria-hidden>
-                {activityIcon(item.type)}
+        <ul className="admin-pipeline-list">
+          {withDaysLeft.slice(0, 10).map((u) => (
+            <li key={u.id} className="admin-pipeline-row">
+              <Link to={`/platform-admin/users/${u.id}`} className="admin-link">
+                {u.fullName || u.email}
+              </Link>
+              <span className="admin-pipeline-tier">{u.subscriptionTier}</span>
+              <span className="admin-pipeline-biz">{u.businessCount} biz</span>
+              <span className={`admin-pipeline-days ${u.daysLeft <= 14 ? 'admin-pipeline-days--urgent' : ''}`}>
+                {u.daysLeft > 0 ? `${u.daysLeft}d left` : 'Expired'}
               </span>
-              <div>
-                <p className="admin-activity-title">{item.title}</p>
-                {item.subtitle && <p className="muted admin-activity-sub">{item.subtitle}</p>}
-              </div>
-              <time className="muted">{new Date(item.createdAt).toLocaleString()}</time>
             </li>
           ))}
         </ul>
       )}
-      {linkTo && (
-        <Link to={linkTo} className="admin-panel-link">
-          View all users →
-        </Link>
+
+      <Link to="/platform-admin/subscriptions" className="admin-panel-link">
+        View all subscriptions →
+      </Link>
+    </section>
+  )
+}
+
+function RecentSignupsPanel({ users }: { users: AdminUserListItem[] }) {
+  return (
+    <section className="admin-panel-card">
+      <h2>Recent signups</h2>
+      {users.length === 0 ? (
+        <p className="muted admin-empty">No signups yet.</p>
+      ) : (
+        <ul className="admin-activity-list">
+          {users.map((u) => (
+            <li key={u.id}>
+              <span className="admin-activity-icon" aria-hidden>＋</span>
+              <div>
+                <Link to={`/platform-admin/users/${u.id}`} className="admin-link">
+                  <p className="admin-activity-title">{u.fullName || u.email}</p>
+                </Link>
+                <p className="muted admin-activity-sub">
+                  {u.businessCount} business{u.businessCount !== 1 ? 'es' : ''} · {u.subscriptionTier}
+                </p>
+              </div>
+              <time className="muted">{new Date(u.createdAt).toLocaleDateString()}</time>
+            </li>
+          ))}
+        </ul>
       )}
+      <Link to="/platform-admin/users" className="admin-panel-link">
+        View all users →
+      </Link>
     </section>
   )
 }

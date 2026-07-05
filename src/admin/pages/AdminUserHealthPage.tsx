@@ -16,13 +16,10 @@ const PAGE_SIZE = 25
 
 type HealthSortKey =
   | 'fullName'
-  | 'workspaceName'
   | 'plan'
-  | 'trialEndsAt'
   | 'lastLoginAt'
   | 'lastBalanceUpdateAt'
   | 'businessCount'
-  | 'venueCount'
   | 'accountCount'
   | 'commitmentCount'
   | 'reservePlannerCount'
@@ -52,6 +49,13 @@ function formatRelative(iso: string | null) {
   if (days === 1) return 'Yesterday'
   if (days < 7) return `${days}d ago`
   return new Date(iso).toLocaleDateString()
+}
+
+function setupLabel(row: AdminUserHealthRow): string {
+  if (row.commitmentCount > 0 && row.reservePlannerCount > 0) return 'Full'
+  if (row.commitmentCount > 0) return 'Costs only'
+  if (row.businessCount > 0) return 'Structure'
+  return 'New'
 }
 
 export function AdminUserHealthPage() {
@@ -157,17 +161,14 @@ export function AdminUserHealthPage() {
           <thead>
             <tr>
               <AdminSortableTh label="User" {...sortProps('fullName')} />
-              <AdminSortableTh label="Workspace" {...sortProps('workspaceName')} />
               <AdminSortableTh label="Plan" {...sortProps('plan')} />
-              <AdminSortableTh label="Trial ends" {...sortProps('trialEndsAt')} />
               <AdminSortableTh label="Last login" {...sortProps('lastLoginAt')} />
               <AdminSortableTh label="Last balance update" {...sortProps('lastBalanceUpdateAt')} />
               <AdminSortableTh label="Businesses" {...sortProps('businessCount')} />
-              <AdminSortableTh label="Venues" {...sortProps('venueCount')} />
               <AdminSortableTh label="Accounts" {...sortProps('accountCount')} />
-              <AdminSortableTh label="Committed" {...sortProps('commitmentCount')} />
+              <AdminSortableTh label="Monthly costs" {...sortProps('commitmentCount')} />
               <AdminSortableTh label="Reserves" {...sortProps('reservePlannerCount')} />
-              <AdminSortableTh label="Onboarding" {...sortProps('onboardingPct')} />
+              <AdminSortableTh label="Setup" {...sortProps('onboardingPct')} />
               <AdminSortableTh label="Health" {...sortProps('healthStatus')} />
               <AdminSortableTh label="Risk" {...sortProps('riskStatus')} />
             </tr>
@@ -175,13 +176,13 @@ export function AdminUserHealthPage() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={14} className="muted">
+                <td colSpan={11} className="muted">
                   Loading…
                 </td>
               </tr>
             ) : rows.length === 0 ? (
               <tr>
-                <td colSpan={14} className="muted">
+                <td colSpan={11} className="muted">
                   No users match your filters. Switch to demo data if you are previewing the admin panel locally.
                 </td>
               </tr>
@@ -191,20 +192,17 @@ export function AdminUserHealthPage() {
                   <td>
                     <AdminUserCell userId={row.userId} name={row.fullName} email={row.email} />
                   </td>
-                  <td className="admin-cell-truncate">{row.workspaceName}</td>
                   <td>
-                    <AdminBadge tone="purple">{row.plan}</AdminBadge>
+                    <AdminBadge tone="purple">{row.plan ?? '—'}</AdminBadge>
                     <span className="admin-cell-sub">{row.subscriptionStatus}</span>
                   </td>
-                  <td>{row.trialEndsAt ? new Date(row.trialEndsAt).toLocaleDateString() : '—'}</td>
                   <td>{formatRelative(row.lastLoginAt)}</td>
                   <td>{formatRelative(row.lastBalanceUpdateAt)}</td>
                   <td>{row.businessCount}</td>
-                  <td>{row.venueCount}</td>
                   <td>{row.accountCount}</td>
                   <td>{row.commitmentCount}</td>
                   <td>{row.reservePlannerCount}</td>
-                  <td>{row.onboardingPct}%</td>
+                  <td>{setupLabel(row)}</td>
                   <td>
                     <HealthStatusBadge status={row.healthStatus} />
                   </td>

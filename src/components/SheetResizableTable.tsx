@@ -21,6 +21,12 @@ export function ReserveSheetColumnSpecs(): SheetColumnSpec[] {
   return RESERVE_SHEET_COLUMNS
 }
 
+/** Reserve planner columns when drag/action handles are hidden (demo view-only). */
+export function reserveSheetColumnsForMode(readOnlyLayout: boolean): SheetColumnSpec[] {
+  if (!readOnlyLayout) return RESERVE_SHEET_COLUMNS
+  return RESERVE_SHEET_COLUMNS.filter((column) => column.id !== 'drag' && column.id !== 'actions')
+}
+
 export function SheetColGroup({ widths }: { widths: number[] }) {
   return (
     <colgroup>

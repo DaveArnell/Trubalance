@@ -1,0 +1,157 @@
+import type { AppState, BalanceSnapshot } from '../../types'
+import { getAccountsForScope } from '../../utils/calculations'
+import type { ViewScope } from '../../types'
+
+export interface SnapshotScope {
+  id: string
+  type: BalanceSnapshot['scopeType']
+  name: string
+  baseTrue: number
+  growthPerMonth: number
+  seasonality?: number
+}
+
+function dateKey(d: Date): string {
+  return d.toISOString().slice(0, 10)
+}
+
+function weekDate(weeksAgo: number): string {
+  const d = new Date()
+  d.setHours(12, 0, 0, 0)
+  d.setDate(d.getDate() - weeksAgo * 7)
+  return dateKey(d)
+}
+
+function monthDate(monthsAgo: number): string {
+  const d = new Date()
+  d.setDate(1)
+  d.setHours(12, 0, 0, 0)
+  d.setMonth(d.getMonth() - monthsAgo)
+  return dateKey(d)
+}
+
+function snap(
+  id: string,
+  date: string,
+  scopeType: BalanceSnapshot['scopeType'],
+  scopeId: string,
+  viewName: string,
+  trueBalance: number,
+  changedAccounts: BalanceSnapshot['changedAccounts'],
+): BalanceSnapshot {
+  const cash = Math.round(trueBalance * 0.72)
+  const committed = Math.round(trueBalance * 0.22)
+  const receipts = Math.max(0, trueBalance - cash + committed)
+  return {
+    id,
+    date,
+    scopeType,
+    scopeId,
+    viewName,
+    cash,
+    committedFunds: committed,
+    expectedReceipts: receipts,
+    trueBalance,
+    freshness: 'green',
+    changedAccounts,
+    updatedAt: `${date}T12:00:00.000Z`,
+  }
+}
+
+function trueBalanceForScope(
+  scope: SnapshotScope,
+  months: number,
+  monthsAgo: number,
+): number {
+  const t = months === 0 ? 1 : (months - monthsAgo) / months
+  const season =
+    scope.seasonality != null
+      ? Math.exp(-Math.pow((t - 0.55) / 0.22, 2)) * scope.seasonality
+      : 0
+  return Math.round(scope.baseTrue + scope.growthPerMonth * (months - monthsAgo) + season)
+}
+
+function accountChangesForCash(
+  state: AppState,
+  scope: ViewScope,
+  targetCash: number,
+): BalanceSnapshot['changedAccounts'] {
+  const accounts = getAccountsForScope(state, scope).filter(
+    (a) => a.active && (a.type === 'current' || a.type === 'savings'),
+  )
+  if (accounts.length === 0) return []
+
+  const total = accounts.reduce((sum, a) => sum + Math.max(a.balance, 1), 0)
+  let allocated = 0
+  return accounts.map((account, index) => {
+    const isLast = index === accounts.length - 1
+    const share = isLast
+      ? targetCash - allocated
+      : Math.round((targetCash * Math.max(account.balance, 1)) / total)
+    allocated += share
+    const venue = account.venueId
+      ? state.venues.find((v) => v.id === account.venueId)
+      : undefined
+    return {
+      accountId: account.id,
+      accountName: account.name,
+      venueId: account.venueId,
+      venueName: venue?.name ?? '',
+      balance: share,
+    }
+  })
+}
+
+/** Weekly points for the last 12 weeks, then monthly — powers Trends and History consistently. */
+export function buildScenarioSnapshots(
+  state: AppState,
+  months: number,
+  scopes: SnapshotScope[],
+): BalanceSnapshot[] {
+  const snapshots: BalanceSnapshot[] = []
+  const seen = new Set<string>()
+
+  const addSnapshot = (
+    date: string,
+    scope: SnapshotScope,
+    monthsAgo: number,
+  ) => {
+    const key = `${scope.type}:${scope.id}:${date}`
+    if (seen.has(key)) return
+    seen.add(key)
+
+    const trueBalance = trueBalanceForScope(scope, months, monthsAgo)
+    const viewScope: ViewScope = { type: scope.type, id: scope.id }
+    const cash = Math.round(trueBalance * 0.72)
+
+    snapshots.push(
+      snap(
+        `snap-${scope.id}-${date}`,
+        date,
+        scope.type,
+        scope.id,
+        scope.name,
+        trueBalance,
+        accountChangesForCash(state, viewScope, cash),
+      ),
+    )
+  }
+
+  for (let w = 12; w >= 0; w--) {
+    const date = weekDate(w)
+    const monthsAgo = w / 4
+    for (const scope of scopes) {
+      addSnapshot(date, scope, monthsAgo)
+    }
+  }
+
+  for (let i = months; i > 0; i--) {
+    const date = monthDate(i)
+    const monthsAgo = i
+    for (const scope of scopes) {
+      addSnapshot(date, scope, monthsAgo)
+    }
+  }
+
+  return snapshots.sort((a, b) => a.date.localeCompare(b.date))
+}

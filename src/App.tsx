@@ -8,7 +8,6 @@ import { buildPageWidgets } from './components/pageWidgets'
 import { WidgetGrid } from './components/WidgetGrid'
 import { useOverviewSize } from './hooks/useOverviewSize'
 import { OverviewStrip } from './components/OverviewStrip'
-import { AdminToolsDrawer } from './components/AdminToolsDrawer'
 import { GuidedTour } from './components/GuidedTour'
 import { SetupTourBanner, TourMenuButton } from './components/TourMenu'
 import { GuidedSetupWizard } from './components/onboarding/GuidedSetupWizard'
@@ -25,22 +24,25 @@ import {
   type AppRoute,
   type PageId,
 } from './navigation'
-import type { GraphRange, ViewScope, AttentionItem } from './types'
+import type { AppState, GraphRange, ViewScope, AttentionItem } from './types'
 import { calculateDashboard } from './utils/calculations'
 import { buildBreakdownColumns } from './utils/breakdownTable'
-import { summarizeReservePlanner } from './utils/reserveCalculations'
+import { getPlannerDisplayName, summarizeReservePlanner, getReservePlannerIdForScope } from './utils/reserveCalculations'
 import { getScopeLabel } from './utils/scope'
 import { ViewingScopeBar } from './components/ViewingScopeBar'
 import { scopeThemeBusinessId, scopeThemeStyle } from './utils/businessTheme'
-import { defaultViewScope } from './data/initialState'
+import { defaultViewScope as initialDefaultViewScope } from './data/initialState'
 import { formatSnapshotDateLong } from './utils/snapshots'
-import { SubscriptionProvider } from './contexts/SubscriptionContext'
+import { SubscriptionProvider, useSubscription } from './contexts/SubscriptionContext'
 import { PostTrialNotice, TrialBanner, UpgradePrompt } from './components/UpgradePrompt'
 import { MonthlyReserveCheckIn } from './components/MonthlyReserveCheckIn'
 import { trackEvent } from './services/eventTracking'
 import { showsDemoDataBanner } from './utils/localStateStorage'
+import { useDemoMode, useDemoReadOnly } from './contexts/DemoModeContext'
 
-export interface AppShellProps extends UseAppStateOptions {}
+export interface AppShellProps extends UseAppStateOptions {
+  isInteractiveDemo?: boolean
+}
 
 function useActiveRoute() {
   const [route, setRoute] = useState<AppRoute>(() => parseRoute(window.location.hash))
@@ -64,6 +66,20 @@ function AppTourBridge({ activePage }: { activePage: PageId }) {
   return null
 }
 
+function SubscriptionTierEnforcer({ state, dissolveGroup }: { state: AppState; dissolveGroup: (id: string) => void }) {
+  const { effectiveTierId } = useSubscription()
+
+  useEffect(() => {
+    if (effectiveTierId === 'business' && state.groups.length > 0) {
+      for (const group of state.groups) {
+        dissolveGroup(group.id)
+      }
+    }
+  }, [effectiveTierId, state.groups.length])
+
+  return null
+}
+
 function AppShellInner({
   workspaceId,
   externalState,
@@ -71,9 +87,15 @@ function AppShellInner({
   externalLoading,
   onStateChange,
   remotePersist,
+  skipLocalPersist,
+  defaultViewScope,
   readOnly,
+  isInteractiveDemo,
 }: AppShellProps) {
-  const { user, profile, isAdmin, isImpersonating, impersonation, stopImpersonation, signOut, refreshProfile } = useAuth()
+  const demoMode = useDemoMode()
+  const demoReadOnly = useDemoReadOnly()
+  const isDemoSession = isInteractiveDemo || demoMode != null
+  const { user, profile, isImpersonating, impersonation, stopImpersonation, refreshProfile } = useAuth()
   const { workspaceId: ctxWorkspaceId, importedFromLocal } = useWorkspace()
   const app = useAppState({
     workspaceId: workspaceId ?? ctxWorkspaceId,
@@ -82,6 +104,8 @@ function AppShellInner({
     externalLoading,
     onStateChange,
     remotePersist,
+    skipLocalPersist,
+    defaultViewScope,
     readOnly,
   })
   const { isSimulated, simulatedDateKey, clearSimulatedDate, referenceDateKey } = useReferenceDate()
@@ -90,13 +114,12 @@ function AppShellInner({
   const [openHelp, setOpenHelp] = useState<string | null>(null)
   const [graphRange, setGraphRange] = useState<GraphRange>('90d')
   const [trendsFocusScope, setTrendsFocusScope] = useState<ViewScope | null>(null)
-  const [devToolsOpen, setDevToolsOpen] = useState(false)
   const { size: overviewSize, setOverviewSize } = useOverviewSize()
 
-  const workspaceEmpty = app.state.groups.length === 0
+  const workspaceEmpty = app.state.groups.length === 0 && app.state.businesses.length === 0
   const onboardingCompleted = profile?.onboardingCompleted ?? false
   const shouldOfferSetup =
-    workspaceEmpty && !onboardingCompleted && !wasSetupOnboardingDismissed()
+    !isDemoSession && workspaceEmpty && !onboardingCompleted && !wasSetupOnboardingDismissed()
   const [setupWizardOpen, setSetupWizardOpen] = useState(false)
 
   useEffect(() => {
@@ -120,10 +143,14 @@ function AppShellInner({
 
   const activePage = activeRoute.page
 
-  const metrics = useMemo(
-    () => calculateDashboard(app.state, app.viewScope),
-    [app.state, app.viewScope, referenceDateKey],
-  )
+  const metrics = useMemo(() => {
+    const base = calculateDashboard(app.state, app.viewScope)
+    if (!isDemoSession) return base
+    return {
+      ...base,
+      attentionItems: [],
+    }
+  }, [app.state, app.viewScope, referenceDateKey, isDemoSession])
 
   const breakdownColumns = useMemo(
     () => buildBreakdownColumns(app.state, app.viewScope),
@@ -141,6 +168,7 @@ function AppShellInner({
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
+      if (readOnly || demoReadOnly) return
       if (!(e.ctrlKey || e.metaKey)) return
       const target = e.target
       if (
@@ -161,7 +189,7 @@ function AppShellInner({
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [app.canRedo, app.canUndo, app.redo, app.undo])
+  }, [app.canRedo, app.canUndo, app.redo, app.undo, demoReadOnly, readOnly])
 
   const viewName = getScopeLabel(app.state, app.viewScope)
 
@@ -174,7 +202,7 @@ function AppShellInner({
   const pageMeta = useMemo(() => {
     const meta = getPageMeta(activePage)
     if (activePage === 'reserve-planner' && activeReserveSummary) {
-      return { ...meta, kicker: activeReserveSummary.planner.name }
+      return { ...meta, kicker: getPlannerDisplayName(app.state, activeReserveSummary.planner) }
     }
     return meta
   }, [activePage, activeReserveSummary])
@@ -197,7 +225,11 @@ function AppShellInner({
     if (activeRoute.reservePlannerId === 'new') return
 
     if (!activeRoute.reservePlannerId || !selectedExists) {
-      if (planners.length === 1) {
+      const scopedId = getReservePlannerIdForScope(app.state, app.viewScope)
+      if (scopedId) {
+        navigateToRoute('reserve-planner', scopedId)
+        setActiveRoute({ page: 'reserve-planner', reservePlannerId: scopedId })
+      } else if (planners.length === 1) {
         navigateToRoute('reserve-planner', planners[0].id)
         setActiveRoute({ page: 'reserve-planner', reservePlannerId: planners[0].id })
       } else if (activeRoute.reservePlannerId && !selectedExists) {
@@ -205,7 +237,15 @@ function AppShellInner({
         setActiveRoute({ page: 'reserve-planner', reservePlannerId: null })
       }
     }
-  }, [activeRoute.page, activeRoute.reservePlannerId, app.state.reservePlanners])
+  }, [activeRoute.page, activeRoute.reservePlannerId, app.state.reservePlanners, app.viewScope])
+
+  useEffect(() => {
+    if (activeRoute.page !== 'reserve-planner') return
+    const scopedId = getReservePlannerIdForScope(app.state, app.viewScope)
+    if (!scopedId || scopedId === activeRoute.reservePlannerId) return
+    navigateToRoute('reserve-planner', scopedId)
+    setActiveRoute({ page: 'reserve-planner', reservePlannerId: scopedId })
+  }, [app.viewScope, activeRoute.page, app.state.reservePlanners, activeRoute.reservePlannerId])
 
   const handlePlannerCreated = (plannerId: string) => {
     goToRoute('reserve-planner', plannerId)
@@ -218,19 +258,40 @@ function AppShellInner({
     }
     if (pageId === 'settings') {
       const firstGroup = app.state.groups[0]
-      app.setViewScope(firstGroup ? { type: 'group', id: firstGroup.id } : defaultViewScope)
+      if (firstGroup) {
+        app.setViewScope({ type: 'group', id: firstGroup.id })
+      } else {
+        app.setViewScope(initialDefaultViewScope)
+      }
     }
-    navigateToRoute(pageId, reservePlannerId)
+    let resolvedReserveId = reservePlannerId
+    if (
+      pageId === 'reserve-planner' &&
+      (resolvedReserveId === undefined || resolvedReserveId === null)
+    ) {
+      const scopedId = getReservePlannerIdForScope(app.state, app.viewScope)
+      if (scopedId) resolvedReserveId = scopedId
+    }
+    if (
+      pageId === 'reserve-planner' &&
+      resolvedReserveId &&
+      resolvedReserveId !== 'new'
+    ) {
+      const planner = app.state.reservePlanners.find((p) => p.id === resolvedReserveId)
+      if (planner) {
+        app.setViewScope({ type: 'business', id: planner.businessId })
+      }
+    }
+    navigateToRoute(pageId, resolvedReserveId)
     setActiveRoute({
       page: pageId,
-      reservePlannerId: pageId === 'reserve-planner' ? (reservePlannerId ?? null) : null,
+      reservePlannerId: pageId === 'reserve-planner' ? (resolvedReserveId ?? null) : null,
     })
   }
 
   useEffect(() => {
     const raw = window.location.hash.replace(/^#/, '').trim()
     if (raw === 'admin' || raw.startsWith('admin/')) {
-      setDevToolsOpen(true)
       navigateToRoute('committed-funds')
       setActiveRoute({ page: 'committed-funds', reservePlannerId: null })
     }
@@ -341,10 +402,9 @@ function AppShellInner({
   )
 
   useEffect(() => {
-    if (user?.id) {
-      trackEvent('page_view', user.id, workspaceId ?? undefined, { page: activePage })
-    }
-  }, [activePage, user?.id, workspaceId])
+    if (isDemoSession || !user?.id) return
+    trackEvent('page_view', user.id, workspaceId ?? undefined, { page: activePage })
+  }, [activePage, user?.id, workspaceId, isDemoSession])
 
   return (
     <SubscriptionProvider state={app.state}>
@@ -355,8 +415,9 @@ function AppShellInner({
     >
       <TablePreferencesProvider>
         <AppTourBridge activePage={activePage} />
+        <SubscriptionTierEnforcer state={app.state} dissolveGroup={app.dissolveGroup} />
         <GuidedTour />
-        {setupWizardOpen && (
+        {setupWizardOpen && !isDemoSession && (
           <GuidedSetupWizard
             state={app.state}
             viewScope={app.viewScope}
@@ -415,7 +476,7 @@ function AppShellInner({
             </div>
           )}
 
-          {showsDemoDataBanner(app.state) && !isImpersonating && (
+          {showsDemoDataBanner(app.state) && !isImpersonating && !isDemoSession && (
             <div className="demo-data-banner" role="status">
               <span>
                 You are viewing <strong>demo data</strong>, not your real figures. You can still explore
@@ -438,17 +499,21 @@ function AppShellInner({
             </div>
           )}
 
-          <TrialBanner />
-          <PostTrialNotice />
-          <MonthlyReserveCheckIn
-            state={app.state}
-            viewScope={app.viewScope}
-            onOpenReserve={(plannerId) => goToRoute('reserve-planner', plannerId)}
-          />
-          <SetupTourBanner
-            visible={shouldOfferSetup && !setupWizardOpen}
-            onStart={() => setSetupWizardOpen(true)}
-          />
+          {!isDemoSession && <TrialBanner />}
+          {!isDemoSession && <PostTrialNotice />}
+          {!isDemoSession && (
+            <MonthlyReserveCheckIn
+              state={app.state}
+              viewScope={app.viewScope}
+              onOpenReserve={(plannerId) => goToRoute('reserve-planner', plannerId)}
+            />
+          )}
+          {!isDemoSession && (
+            <SetupTourBanner
+              visible={shouldOfferSetup && !setupWizardOpen}
+              onStart={() => setSetupWizardOpen(true)}
+            />
+          )}
           {isSimulated && simulatedDateKey && (
             <div className="admin-date-banner" role="status">
               <span>
@@ -456,9 +521,6 @@ function AppShellInner({
               </span>
               <button type="button" className="btn-ghost btn-tiny" onClick={clearSimulatedDate}>
                 Use real today
-              </button>
-              <button type="button" className="btn-ghost btn-tiny" onClick={() => setDevToolsOpen(true)}>
-                Dev tools
               </button>
             </div>
           )}
@@ -472,24 +534,13 @@ function AppShellInner({
                 </div>
                 <div className="top-bar-actions">
                   <TourMenuButton onSetupGuide={() => setSetupWizardOpen(true)} />
-                  <Link to="/" className="btn-ghost btn-tiny">
-                    Home
+                  <Link to={isDemoSession ? '/see-how-it-works' : '/'} className="btn-ghost btn-tiny">
+                    {isDemoSession ? 'All demos' : 'Home'}
                   </Link>
-                  {user && (
-                    <div className="top-bar-user">
-                      {profile?.email && <span className="muted top-bar-email">{profile.email}</span>}
-                      {isAdmin && !isImpersonating && (
-                        <Link to="/platform-admin" className="btn-ghost btn-tiny">
-                          Platform admin
-                        </Link>
-                      )}
-                      <button type="button" className="btn-ghost btn-tiny" onClick={() => setDevToolsOpen(true)}>
-                        Dev tools
-                      </button>
-                      <button type="button" className="btn-ghost btn-tiny" onClick={() => signOut()}>
-                        Log out
-                      </button>
-                    </div>
+                  {isDemoSession && !user && (
+                    <Link to="/signup" className="btn-primary btn-tiny">
+                      Start free trial
+                    </Link>
                   )}
                   {!readOnly && (
                     <>
@@ -529,8 +580,12 @@ function AppShellInner({
               breakdownColumns={breakdownColumns}
               size={overviewSize}
               onSizeChange={setOverviewSize}
-              onBalanceSave={(changes) =>
-                app.saveBalanceUpdate(app.viewScope, viewName, changes, undefined, true)
+              readOnly={demoReadOnly}
+              onBalanceSave={
+                demoReadOnly
+                  ? undefined
+                  : (changes) =>
+                      app.saveBalanceUpdate(app.viewScope, viewName, changes, undefined, true)
               }
             />
           </div>
@@ -539,8 +594,6 @@ function AppShellInner({
             <WidgetGrid pageId={activePage} widgets={pageWidgets} />
           </div>
         </main>
-
-        <AdminToolsDrawer open={devToolsOpen} onClose={() => setDevToolsOpen(false)} />
         </div>
       </TablePreferencesProvider>
     </TourProvider>

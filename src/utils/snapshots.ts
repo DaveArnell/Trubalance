@@ -6,8 +6,11 @@ export const todayDateKey = () => getReferenceDateKey()
 
 export const daysBetween = (from: string | Date, to: Date = getReferenceDate()) => {
   const start = typeof from === 'string' ? new Date(from) : from
-  const diff = to.getTime() - start.getTime()
-  return Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)))
+  if (isNaN(start.getTime())) return 0
+  const startDay = new Date(start.getFullYear(), start.getMonth(), start.getDate())
+  const toDay = new Date(to.getFullYear(), to.getMonth(), to.getDate())
+  const diff = toDay.getTime() - startDay.getTime()
+  return Math.max(0, Math.round(diff / (1000 * 60 * 60 * 24)))
 }
 
 export function getFreshness(daysAgo: number): HealthLevel {
@@ -79,6 +82,60 @@ export function getSnapshotIdsForDateInScope(
       return false
     })
     .map((snap) => snap.id)
+}
+
+/** Parent scopes above the current scope (business → group, venue → business → group). */
+export function getAncestorScopes(state: AppState, scope: ViewScope): ViewScope[] {
+  const ancestors: ViewScope[] = []
+
+  if (scope.type === 'venue') {
+    const venue = state.venues.find((v) => v.id === scope.id)
+    if (!venue) return ancestors
+    ancestors.push({ type: 'business', id: venue.businessId })
+    const business = state.businesses.find((b) => b.id === venue.businessId)
+    if (business) ancestors.push({ type: 'group', id: business.groupId })
+    return ancestors
+  }
+
+  if (scope.type === 'business') {
+    const business = state.businesses.find((b) => b.id === scope.id)
+    if (business) ancestors.push({ type: 'group', id: business.groupId })
+  }
+
+  return ancestors
+}
+
+/** Snapshot ids for a scope and its ancestors on a calendar day (for historical account balances). */
+export function getSnapshotIdsForDateInScopeTree(
+  state: AppState,
+  date: string,
+  scope: ViewScope,
+): string[] {
+  const ids = new Set(getSnapshotIdsForDateInScope(state, date, scope))
+  for (const ancestor of getAncestorScopes(state, scope)) {
+    for (const id of getSnapshotIdsForDateInScope(state, date, ancestor)) {
+      ids.add(id)
+    }
+  }
+  return [...ids]
+}
+
+export function snapshotScopeSpecificity(snap: BalanceSnapshot): number {
+  if (snap.scopeType === 'venue') return 3
+  if (snap.scopeType === 'business') return 2
+  return 1
+}
+
+/** Saved snapshots for a scope tree on one day — least specific first so child scopes override. */
+export function getSnapshotsForDateInScopeTree(
+  state: AppState,
+  date: string,
+  scope: ViewScope,
+): BalanceSnapshot[] {
+  const ids = new Set(getSnapshotIdsForDateInScopeTree(state, date, scope))
+  return state.snapshots
+    .filter((snap) => ids.has(snap.id))
+    .sort((a, b) => snapshotScopeSpecificity(a) - snapshotScopeSpecificity(b))
 }
 
 export function filterSnapshotsByRange(snapshots: BalanceSnapshot[], range: GraphRange): BalanceSnapshot[] {

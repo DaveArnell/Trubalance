@@ -32,7 +32,7 @@ const SECTIONS: {
   {
     id: 'structure',
     label: 'Structure',
-    lead: 'Groups, businesses, sites, and bank accounts.',
+    lead: 'Businesses, venues, and bank accounts.',
   },
 ]
 

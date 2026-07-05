@@ -1,10 +1,11 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import type { AppState, ReserveBill, ReserveMonthConfirmation, ReservePlannerSummary } from '../types'
+import type { AppState, ReserveBill, ReserveMonthConfirmation, ReservePlannerSummary, ViewScope } from '../types'
 import { MONTHS, currentMonthIndex } from '../utils/format'
 import {
   buildReserveGrid,
-  computeMonthlyNetTransfer,
+  computeReserveOperatingTransfer,
+  getReserveTransferTargetForMonth,
   computeReserveMonthEndBalances,
   formatMonthlyNetTransfer,
   getBillDueDay,
@@ -12,15 +13,16 @@ import {
   getPlannerOperatingAccount,
   getPlannerReserveAccount,
   getSuggestedOperatingBalanceForMonth,
-  getSuggestedReserveBalanceForMonth,
+  getReserveBalanceForTransfer,
   monthAmountsFromPatch,
   monthDueDaysFromPatch,
   NEW_BILL_TYPE,
   DEFAULT_RESERVE_BILL_DUE_DAY,
   type ReserveMonthEndBalance,
 } from '../utils/reserveCalculations'
-import { businessHasVenues, getVenuesInBusiness } from '../utils/scope'
+import { getReserveBillScopeOptionsForView } from '../utils/scope'
 import type { AppActions } from '../hooks/useAppState'
+import { useDemoReadOnly } from '../contexts/DemoModeContext'
 import { useSheetRowReorder } from '../hooks/useSheetRowReorder'
 import { formatCurrency, getCurrencySymbol } from '../utils/format'
 import { ReservePlanChart } from './ReservePlanChart'
@@ -30,12 +32,14 @@ import { ReservePlannerEmptyState, ReservePlannerPicker } from './ReservePlanner
 import { DuplicateRowButton, SheetDragCell, SheetDragHeader } from './committed/shared'
 import {
   SheetColGroup,
-  RESERVE_SHEET_COLUMNS,
+  reserveSheetColumnsForMode,
   sheetTableWidthStyle,
 } from './SheetResizableTable'
+import { useResizableSheetColumns } from '../hooks/useResizableSheetColumns'
 
 interface ReservePlannerPanelProps {
   state: AppState
+  viewScope: ViewScope
   summary: ReservePlannerSummary | null
   reserveRouteId?: string | null
   actions: Pick<
@@ -61,16 +65,11 @@ function formatCellAmount(value: number) {
   return formatCurrency(value)
 }
 
-function getBillScopeOptions(state: AppState, businessId: string) {
-  const business = state.businesses.find((b) => b.id === businessId)
-  const venues = getVenuesInBusiness(state, businessId)
-  if (!businessHasVenues(state, businessId)) {
-    return [{ venueId: undefined as string | undefined, label: business?.name ?? 'Business' }]
-  }
-  return [
-    { venueId: undefined as string | undefined, label: business?.name ?? 'Business' },
-    ...venues.map((v) => ({ venueId: v.id, label: v.name })),
-  ]
+function getBillScopeOptions(state: AppState, businessId: string, viewScope: ViewScope) {
+  return getReserveBillScopeOptionsForView(state, businessId, viewScope).map((option) => ({
+    venueId: option.level === 'venue' ? option.id : undefined,
+    label: option.label,
+  }))
 }
 
 function ordinalDay(day: number) {
@@ -90,6 +89,7 @@ function currentMonthClass(isCurrentMonth: boolean, isConfirmed: boolean) {
 function ReserveMonthFlowBar({
   monthLabel,
   monthEnd,
+  transferTarget,
   state,
   plannerId,
   confirmation,
@@ -97,9 +97,11 @@ function ReserveMonthFlowBar({
   suggestedReserveBalance,
   onConfirm,
   compact = false,
+  readOnly = false,
 }: {
   monthLabel: string
   monthEnd: ReserveMonthEndBalance
+  transferTarget: number
   state: AppState
   plannerId: string
   confirmation?: ReserveMonthConfirmation
@@ -111,13 +113,17 @@ function ReserveMonthFlowBar({
     transferDone?: boolean
   }) => void
   compact?: boolean
+  readOnly?: boolean
 }) {
   const planner = state.reservePlanners.find((p) => p.id === plannerId)!
   const reserveAccount = getPlannerReserveAccount(state, planner)
   const operatingAccount = getPlannerOperatingAccount(state, planner)
   const reserveName = reserveAccount?.name ?? 'reserve'
   const operatingName = operatingAccount?.name ?? 'current account'
-  const netTransfer = computeMonthlyNetTransfer(monthEnd.monthlyDeposit, monthEnd.totalDue)
+  const netTransfer = computeReserveOperatingTransfer(
+    suggestedReserveBalance,
+    transferTarget,
+  )
   const transferLine = formatMonthlyNetTransfer(netTransfer, reserveName, operatingName)
   const needsTransfer = netTransfer.direction !== 'none'
 
@@ -205,10 +211,15 @@ function ReserveMonthFlowBar({
             type="button"
             className="btn-ghost btn-tiny reserve-month-flow-adjust"
             onClick={openEdit}
+            disabled={readOnly}
           >
             Adjust
           </button>
         </>
+      ) : readOnly ? (
+        <p className={`reserve-month-flow-transfer reserve-month-flow-transfer--${netTransfer.direction}`}>
+          {transferLine}
+        </p>
       ) : (
         <>
           <label className="reserve-month-flow-field">
@@ -586,7 +597,9 @@ function BillScopeCell({
   cellId,
   state,
   businessId,
+  viewScope,
   bill,
+  readOnly,
   isActive,
   onActivate,
   onDeactivate,
@@ -595,33 +608,35 @@ function BillScopeCell({
   cellId: string
   state: AppState
   businessId: string
+  viewScope: ViewScope
   bill: ReserveBill
+  readOnly?: boolean
   isActive: boolean
   onActivate: () => void
   onDeactivate: () => void
   onScopeChange: (venueId: string | undefined) => void
 }) {
   const selectRef = useRef<HTMLSelectElement>(null)
-  const options = getBillScopeOptions(state, businessId)
-  const readOnly = options.length === 1
+  const options = getBillScopeOptions(state, businessId, viewScope)
+  const displayOnly = readOnly || options.length <= 1
   const label =
-    options.find((option) => (option.venueId ?? '') === (bill.venueId ?? ''))?.label ?? options[0].label
+    options.find((option) => (option.venueId ?? '') === (bill.venueId ?? ''))?.label ?? options[0]?.label ?? '—'
 
   useEffect(() => {
-    if (!isActive) return
+    if (!isActive || displayOnly) return
     selectRef.current?.focus()
     try {
       selectRef.current?.showPicker?.()
     } catch {
       /* showPicker not supported */
     }
-  }, [isActive])
+  }, [displayOnly, isActive])
 
-  if (readOnly) {
+  if (displayOnly) {
     return (
       <td className="reserve-scope-col sheet-row-label">
-        <span className="reserve-scope-label" title={options[0].label}>
-          {options[0].label}
+        <span className="reserve-scope-label" title={label}>
+          {label}
         </span>
       </td>
     )
@@ -781,6 +796,7 @@ function BillTypeCell({
 
 export function ReservePlannerPanel({
   state,
+  viewScope,
   summary,
   reserveRouteId = null,
   actions,
@@ -789,12 +805,20 @@ export function ReservePlannerPanel({
   onPlannerDeleted,
   onPlannerCreated,
 }: ReservePlannerPanelProps) {
+  const demoReadOnly = useDemoReadOnly()
   const [activeCell, setActiveCell] = useState<string | null>(null)
-  const [showCreateForm, setShowCreateForm] = useState(false)
-  const columnWidths = useMemo(
-    () => RESERVE_SHEET_COLUMNS.map((column) => column.defaultWidth),
-    [],
+  const sheetWrapRef = useRef<HTMLDivElement>(null)
+  const sheetColumns = useMemo(() => reserveSheetColumnsForMode(demoReadOnly), [demoReadOnly])
+  const { widths: columnWidths } = useResizableSheetColumns(
+    sheetWrapRef,
+    sheetColumns,
+    'reserve-planner',
   )
+  const activateCell = (cellId: string) => {
+    if (demoReadOnly) return
+    setActiveCell(cellId)
+  }
+  const [showCreateForm, setShowCreateForm] = useState(false)
   const currentMonthIdx = currentMonthIndex()
   const planner = summary?.planner
   const bills = planner?.bills ?? []
@@ -854,7 +878,11 @@ export function ReservePlannerPanel({
     planner,
     currentMonthIdx,
   )
-  const suggestedReserveBalance = getSuggestedReserveBalanceForMonth(state, planner, currentMonthIdx)
+  const suggestedReserveBalance = getReserveBalanceForTransfer(state, planner, currentMonthIdx)
+  const currentMonthTransferTarget = getReserveTransferTargetForMonth(
+    monthEndBalances,
+    currentMonthIdx,
+  )
 
   const copyFromPlanner = (sourcePlannerId: string) => {
     const source = state.reservePlanners.find((p) => p.id === sourcePlannerId)
@@ -886,15 +914,19 @@ export function ReservePlannerPanel({
     <section id="reserve-planner" className="card reserve-box card-scroll">
       <div className="card-head card-head-compact">
         <div>
-          <input
-            className="planner-name-input planner-name-input--compact"
-            value={planner.name}
-            onChange={(e) => actions.updateReservePlanner(planner.id, { name: e.target.value })}
-            aria-label="Reserve planner name"
-          />
-          <p className="muted">{businessName}</p>
+          <h2 className="reserve-planner-business-heading">{businessName || planner.name}</h2>
+          {businessName && (
+            <input
+              className="planner-name-input planner-name-input--compact planner-name-input--subtitle"
+              value={planner.name}
+              onChange={(e) => actions.updateReservePlanner(planner.id, { name: e.target.value })}
+              aria-label="Reserve plan label"
+              readOnly={demoReadOnly}
+            />
+          )}
         </div>
         <div className="card-actions">
+          {!demoReadOnly && (
           <button
             type="button"
             className="btn-ghost btn-tiny reserve-delete-btn"
@@ -911,6 +943,7 @@ export function ReservePlannerPanel({
           >
             Delete plan
           </button>
+          )}
           <HelpButton
             id="reserve"
             openHelp={openHelp}
@@ -935,6 +968,7 @@ export function ReservePlannerPanel({
                       actions.updateReservePlanner(planner.id, { bufferAmount: Number(e.target.value) })
                     }
                     title="The reserve should not drop below this amount across the year"
+                    readOnly={demoReadOnly}
                   />
                 </label>
                 <div
@@ -954,6 +988,7 @@ export function ReservePlannerPanel({
                   compact
                   monthLabel={currentMonthLabel}
                   monthEnd={currentMonthEnd}
+                  transferTarget={currentMonthTransferTarget}
                   state={state}
                   plannerId={planner.id}
                   confirmation={currentMonthEnd.confirmation}
@@ -962,11 +997,12 @@ export function ReservePlannerPanel({
                   onConfirm={(input) =>
                     actions.confirmReserveMonth(planner.id, currentMonthEnd.month, input)
                   }
+                  readOnly={demoReadOnly}
                 />
               </div>
 
               <div className="reserve-planner-top-actions" data-tour="reserve-planner-bills">
-                {otherPlanners.length > 0 && (
+                {!demoReadOnly && otherPlanners.length > 0 && (
                   <select
                     className="reserve-copy-from-select"
                     defaultValue=""
@@ -988,6 +1024,7 @@ export function ReservePlannerPanel({
                     ))}
                   </select>
                 )}
+                {!demoReadOnly && (
                 <button
                   type="button"
                   className="btn-secondary btn-tiny"
@@ -1001,10 +1038,11 @@ export function ReservePlannerPanel({
                 >
                   + Add bill row
                 </button>
+                )}
               </div>
             </div>
 
-            <div className="sheet-wrap reserve-sheet-wrap reserve-sheet-wrap--fixed">
+            <div className="sheet-wrap reserve-sheet-wrap" ref={sheetWrapRef}>
               <table
                 className="sheet-table reserve-sheet-table"
                 style={sheetTableWidthStyle(columnWidths)}
@@ -1012,8 +1050,8 @@ export function ReservePlannerPanel({
                 <SheetColGroup widths={columnWidths} />
                 <thead>
                   <tr>
-                    <SheetDragHeader />
-                    <th className="sheet-actions" />
+                    {!demoReadOnly && <SheetDragHeader />}
+                    {!demoReadOnly && <th className="sheet-actions" />}
                     <th className="sheet-label-col reserve-bill-col">Bill</th>
                     <th className="reserve-scope-col">Applies to</th>
                     {MONTHS.map((month, idx) => (
@@ -1034,7 +1072,15 @@ export function ReservePlannerPanel({
                   {grid.rows.length === 0 && (
                     <tr>
                       <td colSpan={18} className="reserve-empty-row">
-                        No bills yet — add a row and click a month cell to enter amount and due day.
+                        <div className="reserve-empty-guidance">
+                          <p><strong>Add your irregular bills here.</strong></p>
+                          <p>Think: VAT, corporation tax, insurance, annual renewals — anything too big to pay from one month&apos;s income.</p>
+                          <ol>
+                            <li>Click <strong>+ Add bill row</strong> above to add a bill.</li>
+                            <li>Click a <strong>month cell</strong> to enter the amount due that month and which day it&apos;s due.</li>
+                            <li>Each month, the planner tells you exactly how much to transfer in or out of your savings account.</li>
+                          </ol>
+                        </div>
                       </td>
                     </tr>
                   )}
@@ -1042,8 +1088,11 @@ export function ReservePlannerPanel({
                     const bill = planner.bills.find((b) => b.id === row.billId)!
                     const rowProps = billReorder.getRowProps(row.billId, index)
                     return (
-                      <tr key={row.billId} {...rowProps}>
-                        <SheetDragCell rowId={row.billId} getHandleProps={billReorder.getHandleProps} />
+                      <tr key={row.billId} {...(demoReadOnly ? {} : rowProps)}>
+                        {!demoReadOnly && (
+                          <SheetDragCell rowId={row.billId} getHandleProps={billReorder.getHandleProps} />
+                        )}
+                        {!demoReadOnly && (
                         <td className="sheet-actions">
                           <DuplicateRowButton onClick={() => actions.duplicateReserveBill(planner.id, bill.id)} />
                           <button
@@ -1055,12 +1104,13 @@ export function ReservePlannerPanel({
                             ×
                           </button>
                         </td>
+                        )}
                         <BillTypeCell
                           cellId={`${bill.id}-type`}
                           bill={bill}
                           options={billTypeOptions}
                           isActive={activeCell === `${bill.id}-type`}
-                          onActivate={() => setActiveCell(`${bill.id}-type`)}
+                          onActivate={() => activateCell(`${bill.id}-type`)}
                           onDeactivate={() => setActiveCell(null)}
                           onRename={(name) => actions.updateReserveBill(planner.id, bill.id, { name })}
                         />
@@ -1068,9 +1118,11 @@ export function ReservePlannerPanel({
                           cellId={`${bill.id}-scope`}
                           state={state}
                           businessId={planner.businessId}
+                          viewScope={viewScope}
                           bill={bill}
+                          readOnly={demoReadOnly}
                           isActive={activeCell === `${bill.id}-scope`}
-                          onActivate={() => setActiveCell(`${bill.id}-scope`)}
+                          onActivate={() => activateCell(`${bill.id}-scope`)}
                           onDeactivate={() => setActiveCell(null)}
                           onScopeChange={(venueId) =>
                             actions.updateReserveBill(planner.id, bill.id, { venueId })
@@ -1091,8 +1143,8 @@ export function ReservePlannerPanel({
                               isCurrentMonthConfirmed={idx === currentMonthIdx && isCurrentMonthConfirmed}
                               isActive={activeCell === cellId || isDueEdit}
                               initialEditMode={isDueEdit ? 'due' : 'amount'}
-                              onActivate={() => setActiveCell(cellId)}
-                              onActivateDue={() => setActiveCell(`${cellId}-due`)}
+                              onActivate={() => activateCell(cellId)}
+                              onActivateDue={() => activateCell(`${cellId}-due`)}
                               onDeactivate={() => setActiveCell(null)}
                               onSave={(value, day) => saveMonthAmount(bill, month, value, day)}
                             />
@@ -1110,8 +1162,8 @@ export function ReservePlannerPanel({
                 </tbody>
                 <tfoot>
                   <tr className="reserve-balance-row">
-                    <td className="sheet-drag-col" />
-                    <td className="sheet-actions" />
+                    {!demoReadOnly && <td className="sheet-drag-col" />}
+                    {!demoReadOnly && <td className="sheet-actions" />}
                     <td className="sheet-row-label reserve-bill-col">
                       Reserve balance
                       <span className="sheet-row-hint">Planned after bills</span>
@@ -1124,7 +1176,7 @@ export function ReservePlannerPanel({
                         currentMonthIdx={currentMonthIdx}
                         currentActualBalance={suggestedReserveBalance}
                         onAdjustCurrentBalance={
-                          monthEnd.monthIndex === currentMonthIdx
+                          !demoReadOnly && monthEnd.monthIndex === currentMonthIdx
                             ? (balance) => {
                                 const confirmation = monthEnd.confirmation
                                 actions.confirmReserveMonth(planner.id, monthEnd.month, {
@@ -1141,8 +1193,8 @@ export function ReservePlannerPanel({
                     <td className="reserve-total-col reserve-total-col--monthly" />
                   </tr>
                   <tr className="reserve-plan-chart-row" data-tour="reserve-planner-chart">
-                    <td className="sheet-drag-col" />
-                    <td className="sheet-actions" />
+                    {!demoReadOnly && <td className="sheet-drag-col" />}
+                    {!demoReadOnly && <td className="sheet-actions" />}
                     <td colSpan={2} className="reserve-plan-chart-label">
                       <span className="reserve-plan-chart-title">Balance outlook</span>
                       <span className="sheet-row-hint">Bills &amp; planned balance</span>

@@ -1,12 +1,17 @@
 import { type ReactNode, useCallback } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { useAuth } from '../../contexts/AuthContext'
 import { isSupabaseConfigured } from '../../lib/supabase'
+import { COMPANY_INFO } from '../../content/companyInfo'
+import { CompanyLegalNotice } from './CompanyLegalNotice'
 
 const NAV = [
   { id: 'features', label: 'Features' },
   { id: 'how-it-works', label: 'How it works' },
   { id: 'pricing', label: 'Pricing' },
 ] as const
+
+const DEMO_NAV = { to: '/see-how-it-works', label: 'Try demo' } as const
 
 export function scrollToMarketingSection(id: string) {
   const shell = document.querySelector('.marketing-shell')
@@ -27,6 +32,7 @@ export function MarketingShell({ children }: { children: ReactNode }) {
 export function MarketingHeader() {
   const location = useLocation()
   const isLanding = location.pathname === '/'
+  const { user, loading } = useAuth()
 
   const handleNav = useCallback(
     (id: string) => (event: React.MouseEvent) => {
@@ -57,15 +63,24 @@ export function MarketingHeader() {
               </Link>
             ),
           )}
+          <Link to={DEMO_NAV.to}>{DEMO_NAV.label}</Link>
         </nav>
 
         <div className="marketing-header-cta">
-          <Link to="/login" className="btn-ghost marketing-nav-btn">
-            Log in
-          </Link>
-          <Link to="/signup" className="btn-primary marketing-nav-btn">
-            Get started
-          </Link>
+          {!loading && user ? (
+            <Link to="/app" className="btn-primary marketing-nav-btn">
+              Dashboard
+            </Link>
+          ) : (
+            <>
+              <Link to="/login" className="btn-ghost marketing-nav-btn">
+                Log in
+              </Link>
+              <Link to="/signup" className="btn-primary marketing-nav-btn">
+                Get started
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </header>
@@ -84,9 +99,17 @@ export function MarketingFooter() {
           <p className="marketing-footer-tagline">
             Know what is genuinely yours — not just what is in the account.
           </p>
+          <CompanyLegalNotice variant="footer" />
         </div>
 
         <div className="marketing-footer-columns">
+          <div>
+            <p className="marketing-footer-heading">Company</p>
+            <a href={`mailto:${COMPANY_INFO.contactEmail}`}>Contact</a>
+            <a href={COMPANY_INFO.parentWebsite} target="_blank" rel="noopener noreferrer">
+              Vocatio.io
+            </a>
+          </div>
           <div>
             <p className="marketing-footer-heading">Product</p>
             <Link to="/#features">Features</Link>
@@ -104,16 +127,12 @@ export function MarketingFooter() {
             <Link to="/privacy">Privacy policy</Link>
             <Link to="/terms">Terms of service</Link>
           </div>
-          <div>
-            <p className="marketing-footer-heading">Team</p>
-            <Link to="/platform-admin">Platform admin</Link>
-          </div>
         </div>
       </div>
 
       <div className="marketing-footer-bottom">
         <p>
-          © {new Date().getFullYear()} True Balance. All rights reserved.{' '}
+          © {new Date().getFullYear()} {COMPANY_INFO.legalName}. All rights reserved.{' '}
           <Link to="/privacy">Privacy</Link>
           {' · '}
           <Link to="/terms">Terms</Link>

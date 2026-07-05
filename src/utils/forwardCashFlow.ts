@@ -11,13 +11,13 @@ import { calculateDashboard, getAccountsForScope, getReceiptsForScope } from './
 import { parsePlannedDueDateInput } from './plannedFunding'
 import { getReferenceDate } from './referenceDate'
 import {
-  computeMonthlyNetTransfer,
+  computeReserveOperatingTransfer,
   computeReserveMonthEndBalances,
-  isReserveTransferPending,
+  getPlannerActualBalance,
+  getReserveTransferTargetForMonth,
 } from './reserveCalculations'
 import { getBusinessIdsForScope, itemMatchesScope } from './scope'
 import { addDays } from './trendProjection'
-import { MONTHS } from './format'
 
 const AUTO_PAY_DAYS = 1
 
@@ -229,6 +229,8 @@ function buildReserveTransferEvents(
   today: Date,
   endDate: Date,
 ): CashFlowEvent[] {
+  if (state.workspaceOrigin === 'builtin-demo') return []
+
   const events: CashFlowEvent[] = []
   const todayKey = isoFromDate(today)
   const endKey = isoFromDate(endDate)
@@ -239,29 +241,46 @@ function buildReserveTransferEvents(
     const business = state.businesses.find((b) => b.id === planner.businessId)
     const plannerLabel = business?.name ?? planner.name
 
-    for (const monthEnd of monthEnds) {
-      if (monthEnd.monthIndex < today.getMonth() && !monthEnd.isCurrentMonth) continue
+    let simulatedReserve = getPlannerActualBalance(state, planner)
 
-      const net = computeMonthlyNetTransfer(monthEnd.monthlyDeposit, monthEnd.totalDue)
-      if (net.direction === 'none' || net.amount <= 0) continue
+    let year = today.getFullYear()
+    let monthIndex = today.getMonth()
+    const endYear = endDate.getFullYear()
+    const endMonth = endDate.getMonth()
 
-      const transferDate = lastDayOfMonth(today.getFullYear(), monthEnd.monthIndex)
-      const eventDate = clampEventDate(isoFromDate(transferDate), todayKey, endKey)
-      if (!eventDate) continue
+    while (year < endYear || (year === endYear && monthIndex <= endMonth)) {
+      const monthEnd = monthEnds[monthIndex]
+      const transferDate = lastDayOfMonth(year, monthIndex)
 
-      const monthKey = MONTHS[monthEnd.monthIndex]!
-      if (isReserveTransferPending(planner, monthKey, net)) {
-        const signed =
-          net.direction === 'to_reserve' ? -net.amount : net.amount
-        events.push({
-          date: eventDate,
-          amount: signed,
-          label:
-            net.direction === 'to_reserve'
-              ? `Reserve transfer · ${plannerLabel}`
-              : `Reserve return · ${plannerLabel}`,
-          category: 'reserve_transfer',
-        })
+      if (monthEnd) {
+        if (transferDate < today) {
+          simulatedReserve = monthEnd.confirmation?.balance ?? monthEnd.balanceAfterBills
+        } else {
+          const transferTarget = getReserveTransferTargetForMonth(monthEnds, monthIndex)
+          const net = computeReserveOperatingTransfer(simulatedReserve, transferTarget)
+          if (net.direction !== 'none' && net.amount > 0) {
+            const eventDate = clampEventDate(isoFromDate(transferDate), todayKey, endKey)
+            if (eventDate) {
+              const signed = net.direction === 'to_reserve' ? -net.amount : net.amount
+              events.push({
+                date: eventDate,
+                amount: signed,
+                label:
+                  net.direction === 'to_reserve'
+                    ? `Reserve transfer · ${plannerLabel}`
+                    : `Reserve return · ${plannerLabel}`,
+                category: 'reserve_transfer',
+              })
+            }
+          }
+          simulatedReserve = transferTarget
+        }
+      }
+
+      monthIndex += 1
+      if (monthIndex > 11) {
+        monthIndex = 0
+        year += 1
       }
     }
   }

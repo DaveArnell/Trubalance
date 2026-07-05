@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { MarketingFooter, MarketingHeader, MarketingShell } from '../../components/marketing/MarketingLayout'
+import { CompanyLegalNotice } from '../../components/marketing/CompanyLegalNotice'
 
 interface LegalPageLayoutProps {
   title: string
@@ -19,6 +20,7 @@ export function LegalPageLayout({ title, updated, children }: LegalPageLayoutPro
           </p>
           <h1>{title}</h1>
           <p className="legal-page-updated muted">Last updated: {updated}</p>
+          <CompanyLegalNotice variant="legal" />
           <div className="legal-prose">{children}</div>
         </div>
       </main>

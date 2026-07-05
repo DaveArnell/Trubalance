@@ -6,66 +6,52 @@ import {
   MarketingShell,
   scrollToMarketingSection,
 } from '../components/marketing/MarketingLayout'
+import { HeroBalanceEquation } from '../components/marketing/HeroBalanceEquation'
 import { HeroBalanceVisual } from '../components/marketing/HeroBalanceVisual'
+import { MarketingBrowserFrame } from '../components/marketing/MarketingBrowserFrame'
+import { MarketingProductShowcase } from '../components/marketing/MarketingProductShowcase'
+import { CompanyLegalNotice } from '../components/marketing/CompanyLegalNotice'
 import { PricingSection } from '../components/marketing/PricingSection'
 import { isSupabaseConfigured } from '../lib/supabase'
 
-const HERO_BENEFITS = [
-  'Know what you can actually afford.',
-  'Stay ahead of VAT, tax and large bills.',
-  'Build better financial habits.',
-  'Understand where your business is really heading.',
+const STATS = [
+  { value: '1', label: 'True Balance', accent: 'indigo' },
+  { value: '3 mo', label: 'Free trial', accent: 'teal' },
+  { value: '5 min', label: 'Setup', accent: 'violet' },
+] as const
+
+const PILLARS = [
+  {
+    accent: 'indigo',
+    title: 'Know what\u2019s spoken for',
+    body: 'Monthly costs accrue daily. See what\u2019s committed — and what\u2019s genuinely yours.',
+  },
+  {
+    accent: 'violet',
+    title: 'Plan irregular bills',
+    body: 'VAT, tax, renewals — Reserve Planner works out how much to put aside each month, kept separate so those bills are covered when they\u2019re due.',
+  },
 ] as const
 
 const FEATURES = [
-  {
-    icon: '◈',
-    title: 'True Balance overview',
-    body: 'See real available cash across every account — minus what is already committed, plus expected receipts.',
-  },
-  {
-    icon: '▤',
-    title: 'Committed Funds',
-    body: 'Monthly costs, due items, and receipts in one spreadsheet-style view — scoped to group, business, or venue.',
-  },
-  {
-    icon: '◷',
-    title: 'Reserve Planner',
-    body: 'Model irregular bills month by month and track whether reserves are building on target.',
-  },
-  {
-    icon: '↗',
-    title: 'Trends & forecast',
-    body: 'Balance history with forward projection so you spot problems before they become crises.',
-  },
-  {
-    icon: '◎',
-    title: 'Multi-venue structure',
-    body: 'Groups, businesses, and venues with roll-up totals — one picture for the whole operation.',
-  },
-  {
-    icon: '?',
-    title: 'Guided setup',
-    body: 'Interactive tours walk new users through structure, balances, and commitments in minutes.',
-  },
+  { icon: '◈', title: 'True Balance', body: 'Cash − committed + expected in.', accent: 'indigo' },
+  { icon: '▤', title: 'Accruing costs', body: 'Rent, payroll, subs — tracked daily.', accent: 'orange' },
+  { icon: '◷', title: 'Reserve Planner', body: 'How much to set aside monthly for irregular bills.', accent: 'violet' },
+  { icon: '↗', title: 'Trends', body: 'History every time you update.', accent: 'teal' },
+  { icon: '◎', title: 'Multi-site', body: 'Venues roll up to group totals.', accent: 'pink' },
+  { icon: '⇢', title: 'Cash outlook', body: '30–90 day forward view.', accent: 'blue' },
 ] as const
 
 const STEPS = [
-  {
-    step: '01',
-    title: 'Set up your business',
-    body: 'Add your business and accounts. Keep it simple — you can add sites and detail later.',
-  },
-  {
-    step: '02',
-    title: 'Enter your balances',
-    body: 'Tell True Balance what is in the bank today. That is the starting point for everything else.',
-  },
-  {
-    step: '03',
-    title: 'See your True Balance',
-    body: 'Add regular costs and big bills. The dashboard shows what is genuinely available — not just the bank balance.',
-  },
+  { step: '01', title: 'Set up', body: 'Business, accounts, sites — guided in minutes.' },
+  { step: '02', title: 'Add costs', body: 'Monthly and irregular bills. We calculate.' },
+  { step: '03', title: 'Stay current', body: 'Update balances. Mark paid. Done.' },
+] as const
+
+const TESTIMONIALS = [
+  { quote: '£18k was already spoken for. I had no idea until True Balance showed me.', name: 'James', role: 'Café owner' },
+  { quote: 'VAT and corp tax finally feel predictable. I just follow the monthly transfer.', name: 'Sarah', role: 'Trades' },
+  { quote: 'Three sites, one dashboard. Exactly what we needed.', name: 'Priya', role: 'Leisure group' },
 ] as const
 
 export function LandingPage() {
@@ -80,93 +66,90 @@ export function LandingPage() {
     <MarketingShell>
       <MarketingHeader />
 
-      <main className="marketing-main">
-        <section className="marketing-hero">
-          <div className="marketing-hero-glow" aria-hidden />
-          <div className="marketing-hero-inner">
+      <main className="marketing-main marketing-main--pop">
+        <section className="marketing-hero marketing-hero--pop">
+          <div className="marketing-hero-blob marketing-hero-blob--1" aria-hidden />
+          <div className="marketing-hero-blob marketing-hero-blob--2" aria-hidden />
+          <div className="marketing-hero-blob marketing-hero-blob--3" aria-hidden />
+          <div className="marketing-hero-inner marketing-hero-inner--pop">
             <div className="marketing-hero-copy">
-              <h1>Stop managing your business from your bank balance.</h1>
-              <p className="marketing-lead">
-                True Balance is the simple cash flow management system that helps business owners
-                understand what money is actually available, build better financial habits, and avoid
-                getting caught out by the bills that matter most.
+              <p className="marketing-eyebrow marketing-eyebrow--vivid">For SME owners</p>
+              <h1>
+                Know what&apos;s <span className="marketing-gradient-text">really</span> yours.
+              </h1>
+              <p className="marketing-lead marketing-lead--pop">
+                The web dashboard that sits alongside your bank — one honest number, not bookkeeping software.
               </p>
-              <ul className="marketing-hero-benefits">
-                {HERO_BENEFITS.map((benefit) => (
-                  <li key={benefit}>{benefit}</li>
-                ))}
-              </ul>
               <div className="marketing-cta-row">
-                <Link to="/signup" className="btn-primary btn-large marketing-cta-primary">
-                  Start your free 3-month trial
+                <Link to="/signup" className="btn-primary btn-large marketing-cta-primary marketing-cta-primary--pop">
+                  Start free — 3 months
                 </Link>
-                <a href="#product-video" className="btn-secondary btn-large">
-                  See how it works
-                </a>
+                <Link to="/see-how-it-works" className="btn-secondary btn-large marketing-cta-secondary--pop">
+                  Live demo
+                </Link>
               </div>
-              <p className="marketing-hero-note muted">
-                Full access · No payment details required · No charge until day 91
-              </p>
+              <p className="marketing-hero-note muted">No card required · Full access from day one</p>
               {!isSupabaseConfigured && (
                 <p className="marketing-config-hint">
-                  Cloud signup needs Supabase in <code>.env.local</code> — or{' '}
-                  <Link to="/app">try the app locally</Link> without an account.
+                  <Link to="/app">Try locally</Link> or add Supabase to <code>.env.local</code> for cloud signup.
                 </p>
               )}
             </div>
 
-            <div className="marketing-hero-visual">
-              <HeroBalanceVisual />
+            <div className="marketing-hero-visual marketing-hero-visual--pop">
+              <MarketingBrowserFrame>
+                <HeroBalanceEquation />
+                <HeroBalanceVisual />
+              </MarketingBrowserFrame>
             </div>
           </div>
         </section>
 
-        <section className="marketing-position-band" aria-label="What True Balance is">
-          <div className="marketing-position-band-inner">
-            <p className="marketing-position-statement">
-              True Balance doesn&apos;t try to replace your accounting software.
-            </p>
-            <p className="marketing-position-detail">
-              It gives business owners a simple financial management system that helps them understand
-              where they really stand.
-            </p>
-          </div>
-        </section>
-
-        <section id="product-video" className="marketing-video-section">
-          <div className="marketing-section-inner">
-            <div className="marketing-section-head">
-              <p className="marketing-eyebrow">What it does</p>
-              <h2>See True Balance in action</h2>
-              <p className="marketing-section-lead">
-                A short walkthrough of how operators use True Balance day to day. Setup guide coming soon.
-              </p>
-            </div>
-            <div className="marketing-video-frame">
-              <div className="marketing-video-placeholder">
-                <button type="button" className="marketing-video-play" aria-label="Play product video">
-                  <span aria-hidden>▶</span>
-                </button>
-                <p>Product video coming soon</p>
-                <span className="muted">Replace with your embed URL when ready</span>
+        <section className="marketing-stats-band marketing-stats-band--pop" aria-label="Key facts">
+          <div className="marketing-stats-band-inner">
+            {STATS.map((stat) => (
+              <div key={stat.label} className={`marketing-stat-card marketing-stat-card--${stat.accent}`}>
+                <p className="marketing-stat-value">{stat.value}</p>
+                <p className="marketing-stat-label">{stat.label}</p>
               </div>
-            </div>
+            ))}
           </div>
         </section>
 
-        <section id="features" className="marketing-features-section">
+        <MarketingProductShowcase />
+
+        <section id="what-it-does" className="marketing-pillars-section marketing-pillars-section--pop">
           <div className="marketing-section-inner">
             <div className="marketing-section-head marketing-section-head--center">
-              <p className="marketing-eyebrow">Features</p>
-              <h2>Everything you need to stay ahead of cash</h2>
-              <p className="marketing-section-lead">
-                Built for small and medium businesses who need one honest number — what is really yours,
-                not a bank balance that still belongs to suppliers, tax, or the next payment in the cycle.
-              </p>
+              <p className="marketing-eyebrow marketing-eyebrow--vivid">Core idea</p>
+              <h2>Two shifts that change cash management</h2>
             </div>
-            <div className="marketing-feature-grid">
+            <div className="marketing-pillars-grid marketing-pillars-grid--pop">
+              {PILLARS.map((pillar) => (
+                <article
+                  key={pillar.title}
+                  className={`marketing-pillar-card marketing-pillar-card--pop marketing-pillar-card--${pillar.accent}`}
+                >
+                  <h3>{pillar.title}</h3>
+                  <p>{pillar.body}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="features" className="marketing-features-section marketing-features-section--pop">
+          <div className="marketing-section-inner">
+            <div className="marketing-section-head marketing-section-head--center">
+              <p className="marketing-eyebrow marketing-eyebrow--vivid">Features</p>
+              <h2>Stay ahead of cash</h2>
+            </div>
+            <div className="marketing-feature-grid marketing-feature-grid--pop">
               {FEATURES.map((feature) => (
-                <article key={feature.title} className="marketing-feature-card">
+                <article
+                  key={feature.title}
+                  className={`marketing-feature-card marketing-feature-card--pop marketing-feature-card--${feature.accent}`}
+                >
                   <span className="marketing-feature-icon" aria-hidden>
                     {feature.icon}
                   </span>
@@ -178,40 +161,72 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section id="how-it-works" className="marketing-how-section">
+        <section className="marketing-testimonials marketing-testimonials--pop" aria-label="What owners say">
           <div className="marketing-section-inner">
-            <div className="marketing-section-head">
-              <p className="marketing-eyebrow">How it works</p>
-              <h2>Up and running in three steps</h2>
+            <div className="marketing-section-head marketing-section-head--center marketing-section-head--on-dark">
+              <p className="marketing-eyebrow marketing-eyebrow--light-on-dark">Real businesses</p>
+              <h2>Owners who stopped guessing</h2>
             </div>
-            <ol className="marketing-steps-grid">
+            <div className="marketing-testimonials-grid">
+              {TESTIMONIALS.map((item) => (
+                <blockquote key={item.name} className="marketing-testimonial-card marketing-testimonial-card--pop">
+                  <p>&ldquo;{item.quote}&rdquo;</p>
+                  <footer>
+                    <strong>{item.name}</strong>
+                    <span>{item.role}</span>
+                  </footer>
+                </blockquote>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="how-it-works" className="marketing-how-section marketing-how-section--pop">
+          <div className="marketing-section-inner">
+            <div className="marketing-section-head marketing-section-head--center">
+              <p className="marketing-eyebrow marketing-eyebrow--vivid">How it works</p>
+              <h2>Three steps. That&apos;s it.</h2>
+            </div>
+            <ol className="marketing-steps-grid marketing-steps-grid--pop">
               {STEPS.map((step) => (
-                <li key={step.step} className="marketing-step-card">
+                <li key={step.step} className="marketing-step-card marketing-step-card--pop">
                   <span className="marketing-step-num">{step.step}</span>
                   <h3>{step.title}</h3>
                   <p>{step.body}</p>
                 </li>
               ))}
             </ol>
-            <p className="marketing-tour-note">
-              When you first log in, a guided setup walks you through your business, balances, and commitments
-              right on the dashboard. Replay page tours anytime from the <strong>?</strong> icons.
-            </p>
+          </div>
+        </section>
+
+        <section id="product-video" className="marketing-demo-band">
+          <div className="marketing-demo-band-inner">
+            <h2>Try a live demo workspace</h2>
+            <p>Leisure group, café, or trades — months of history, no signup.</p>
+            <Link to="/see-how-it-works" className="btn-primary btn-large">
+              Open demo
+            </Link>
           </div>
         </section>
 
         <PricingSection />
 
-        <section className="marketing-cta-band">
+        <section className="marketing-company-band" aria-label="Company information">
+          <div className="marketing-section-inner">
+            <CompanyLegalNotice variant="inline" />
+          </div>
+        </section>
+
+        <section className="marketing-cta-band marketing-cta-band--pop">
           <div className="marketing-cta-band-inner">
-            <h2>Ready to see what is actually yours?</h2>
-            <p>Start your free 3-month trial. No payment details required.</p>
+            <h2>Start free for 3 months</h2>
+            <p>No payment details. Full access.</p>
             <div className="marketing-cta-row marketing-cta-row--center">
-              <Link to="/signup" className="btn-primary btn-large">
-                Start your free 3-month trial
+              <Link to="/signup" className="btn-primary btn-large marketing-cta-btn-on-dark">
+                Get started
               </Link>
               <Link to="/login" className="btn-ghost btn-large marketing-cta-ghost">
-                I already have an account
+                Log in
               </Link>
             </div>
           </div>

@@ -17,19 +17,8 @@ function segmentAccent(state: AppState, viewScope: ViewScope, isActive: boolean)
   return businessId ? getBusinessAccentColor(state, businessId) : undefined
 }
 
-function scopeSummary(viewScope: ViewScope): string {
-  if (viewScope.type === 'group') {
-    return 'Totals across every business and venue in this group.'
-  }
-  if (viewScope.type === 'business') {
-    return 'Totals for this business and its venues.'
-  }
-  return 'Totals for this venue only.'
-}
-
 export function ViewingScopeBar({ state, viewScope, variant = 'full' }: ViewingScopeBarProps) {
   const segments = getScopePathSegments(state, viewScope)
-  const active = segments.find((segment) => segment.isActive)
 
   return (
     <div
@@ -68,10 +57,6 @@ export function ViewingScopeBar({ state, viewScope, variant = 'full' }: ViewingS
           )
         })}
       </ol>
-
-      {variant === 'full' && active && (
-        <p className="viewing-scope-summary muted">{scopeSummary(viewScope)}</p>
-      )}
     </div>
   )
 }

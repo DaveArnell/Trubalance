@@ -29,7 +29,7 @@ interface BreakdownTableProps {
   columns: BreakdownColumn[]
   showReceipts?: boolean
   compact?: boolean
-  onBalanceSave: (changes: BalanceSaveChange[]) => void
+  onBalanceSave?: (changes: BalanceSaveChange[]) => void
 }
 
 function cellValue(value: number) {
@@ -153,7 +153,7 @@ function EditableBalanceCell({
   isActive: boolean
   onActivate: () => void
   onDeactivate: () => void
-  onSave: (changes: BalanceSaveChange[]) => void
+  onSave?: (changes: BalanceSaveChange[]) => void
   onTab?: SheetTabHandler
   columnClass?: string
 }) {
@@ -196,7 +196,7 @@ function EditableBalanceCell({
         changes.push({ accountId: account.id, balance })
       }
     }
-    if (changes.length > 0) onSave(changes)
+    if (changes.length > 0) onSave?.(changes)
     onDeactivate()
     setDrafts({})
   }, [accounts, onSave, onDeactivate])
@@ -246,7 +246,7 @@ function EditableBalanceCell({
   const saveSingle = (raw: string, account: Account) => {
     const balance = roundCurrency(toAmount(raw))
     if (balance === roundCurrency(toAmount(account.balance))) return
-    onSave([{ accountId: account.id, balance }])
+    onSave?.([{ accountId: account.id, balance }])
   }
 
   const commitSingle = () => {
@@ -396,6 +396,7 @@ export function BreakdownTable({
 }: BreakdownTableProps) {
   const balanceCellIds = useMemo(() => breakdownBalanceCellIds(columns), [columns])
   const { activeCell, activate, deactivate, makeTabHandler } = useSheetCellNavigation(balanceCellIds)
+  const canEditBalances = !!onBalanceSave
   const { preferences: tablePreferences } = useTablePreferences('overview-breakdown')
   const tablePrefClasses = tablePreferenceClasses(tablePreferences, 'overview-breakdown')
   const [openCostsKey, setOpenCostsKey] = useState<string | null>(null)
@@ -412,7 +413,7 @@ export function BreakdownTable({
         const accounts = rowType === 'current' ? col.currentAccounts : col.savingsAccounts
         const value = rowType === 'current' ? col.current : col.savings
         const cellId = `${col.key}-${rowType}`
-        const editable = !col.isRollup && accounts.length > 0
+        const editable = canEditBalances && !col.isRollup && accounts.length > 0
         const columnClass = breakdownColumnClass(col)
 
         if (col.isRollup) {
@@ -437,10 +438,14 @@ export function BreakdownTable({
             onDeactivate={deactivate}
             onTab={makeTabHandler(cellId)}
             columnClass={columnClass}
-            onSave={(changes) => {
-              onBalanceSave(changes)
-              deactivate()
-            }}
+            onSave={
+              canEditBalances
+                ? (changes) => {
+                    onBalanceSave!(changes)
+                    deactivate()
+                  }
+                : undefined
+            }
           />
         )
       })}

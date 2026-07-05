@@ -58,9 +58,8 @@ export function ReserveStatusPanel({
               <tr key={planner.id}>
                 <td className="col-balance">
                   <a className="reserve-status-link" href={`#reserve-planner/${planner.id}`}>
-                    {planner.name}
+                    {businessName || planner.name}
                   </a>
-                  <span className="reserve-status-business">{businessName}</span>
                 </td>
                 <td className="col-amount">{formatCurrency(monthly)}</td>
                 <td className="col-amount" title={accountLabel ?? undefined}>

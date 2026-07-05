@@ -1,18 +1,19 @@
 import { LegalPageLayout } from './LegalPageLayout'
+import { COMPANY_INFO } from '../../content/companyInfo'
 
 export function TermsPage() {
   return (
-    <LegalPageLayout title="Terms of service" updated="25 June 2025">
+    <LegalPageLayout title="Terms of service" updated="5 July 2026">
       <p>
-        These terms govern your use of True Balance (&quot;the service&quot;). By creating an account
-        or using the service, you agree to them.
+        These terms govern your use of {COMPANY_INFO.productName} (&quot;the service&quot;), operated
+        by {COMPANY_INFO.legalName}. By creating an account or using the service, you agree to them.
       </p>
 
       <h2>The service</h2>
       <p>
-        True Balance is a planning and visibility tool for business cash. It helps you model balances,
-        commitments, and reserves. It is not accounting software, tax advice, or a substitute for
-        professional judgement. You are responsible for how you use the figures it shows.
+        {COMPANY_INFO.productName} is a planning and visibility tool for business cash. It helps you
+        model balances, commitments, and reserves. It is not accounting software, tax advice, or a
+        substitute for professional judgement. You are responsible for how you use the figures it shows.
       </p>
 
       <h2>Accounts and trials</h2>
@@ -49,10 +50,10 @@ export function TermsPage() {
 
       <h2>Limitation of liability</h2>
       <p>
-        To the fullest extent permitted by law, True Balance is provided &quot;as is&quot;. We are not
-        liable for indirect or consequential losses, or for decisions you make based on figures in the
-        app. Our total liability for any claim relating to the service is limited to the fees you paid
-        us in the twelve months before the claim (or zero during a free trial).
+        To the fullest extent permitted by law, {COMPANY_INFO.productName} is provided &quot;as is&quot;.
+        We are not liable for indirect or consequential losses, or for decisions you make based on
+        figures in the app. Our total liability for any claim relating to the service is limited to the
+        fees you paid us in the twelve months before the claim (or zero during a free trial).
       </p>
 
       <h2>Changes and termination</h2>
@@ -63,15 +64,19 @@ export function TermsPage() {
 
       <h2>Governing law</h2>
       <p>
-        These terms are governed by the laws of England and Wales. Courts in England and Wales have
-        exclusive jurisdiction, without prejudice to mandatory consumer rights in your country of
-        residence.
+        These terms are governed by the laws of {COMPANY_INFO.jurisdiction}. Courts in{' '}
+        {COMPANY_INFO.jurisdiction} have exclusive jurisdiction, without prejudice to mandatory consumer
+        rights in your country of residence.
       </p>
 
-      <h2>Contact</h2>
+      <h2>Contact and complaints</h2>
       <p>
-        Questions about these terms? Contact us through the support channel listed on{' '}
-        <a href="https://trubalance.app">trubalance.app</a> (or your deployment&apos;s contact address).
+        Questions about these terms? Email{' '}
+        <a href={`mailto:${COMPANY_INFO.contactEmail}`}>{COMPANY_INFO.contactEmail}</a>.
+      </p>
+      <p>
+        If you have a complaint about our service, contact us at the same address. We will acknowledge
+        your complaint within 2 business days and aim to resolve it within 14 business days.
       </p>
     </LegalPageLayout>
   )

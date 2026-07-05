@@ -1,5 +1,6 @@
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { AppState, CommitmentAccruingRow, ViewScope } from '../types'
+import { useWorkspace } from '../contexts/WorkspaceContext'
 import {
   buildMonthlyCostDisplayTree,
   collectGroupIds,
@@ -10,6 +11,9 @@ export function useMonthlyCostGroupCollapse(
   rows: CommitmentAccruingRow[],
   viewScope: ViewScope,
 ) {
+  const { workspaceId, remoteStateVersion, loading } = useWorkspace()
+  const sessionKey = `${workspaceId ?? 'local'}:${remoteStateVersion}`
+
   const displayTree = useMemo(
     () => buildMonthlyCostDisplayTree(state, rows, viewScope),
     [rows, state, viewScope],
@@ -17,11 +21,22 @@ export function useMonthlyCostGroupCollapse(
   const groupIds = useMemo(() => collectGroupIds(displayTree), [displayTree])
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(() => new Set())
   const knownGroupIdsRef = useRef<Set<string>>(new Set())
+  const sessionKeyRef = useRef<string | null>(null)
 
   useLayoutEffect(() => {
+    if (loading) return
+
     setCollapsedGroups((prev) => {
       const activeIds = new Set(groupIds)
-      const next = new Set<string>()
+      const sessionChanged = sessionKey !== sessionKeyRef.current
+
+      if (sessionChanged) {
+        sessionKeyRef.current = sessionKey
+        knownGroupIdsRef.current = new Set(groupIds)
+        return new Set(groupIds)
+      }
+
+      const next = new Set(prev)
       let changed = false
 
       for (const id of groupIds) {
@@ -29,13 +44,14 @@ export function useMonthlyCostGroupCollapse(
           knownGroupIdsRef.current.add(id)
           next.add(id)
           changed = true
-        } else if (prev.has(id)) {
-          next.add(id)
         }
       }
 
       for (const id of prev) {
-        if (!activeIds.has(id)) changed = true
+        if (!activeIds.has(id)) {
+          next.delete(id)
+          changed = true
+        }
       }
 
       for (const id of knownGroupIdsRef.current) {
@@ -47,7 +63,7 @@ export function useMonthlyCostGroupCollapse(
       }
       return next
     })
-  }, [groupIds])
+  }, [sessionKey, loading, groupIds])
 
   const toggleGroup = useCallback((id: string) => {
     setCollapsedGroups((current) => {

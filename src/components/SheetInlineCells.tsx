@@ -242,6 +242,7 @@ export function ScopeSelectCell({
   scopeId,
   options,
   commitmentScope,
+  readOnly,
   isActive,
   onActivate,
   onDeactivate,
@@ -255,6 +256,7 @@ export function ScopeSelectCell({
   scopeId: string
   options: ScopeOption[]
   commitmentScope?: boolean
+  readOnly?: boolean
   isActive: boolean
   onActivate: () => void
   onDeactivate: () => void
@@ -271,16 +273,29 @@ export function ScopeSelectCell({
     getScopeItemLabel(state, scopeLevel, scopeId)
   const currentValue = `${scopeLevel}:${scopeId}`
   const valueInOptions = options.some((o) => `${o.level}:${o.id}` === currentValue)
+  const displayOnly = readOnly || options.length <= 1
 
   useLayoutEffect(() => {
-    if (!isActive) return
+    if (!isActive || displayOnly) return
     selectRef.current?.focus()
     try {
       selectRef.current?.showPicker?.()
     } catch {
       /* showPicker not supported */
     }
-  }, [isActive])
+  }, [displayOnly, isActive])
+
+  if (displayOnly) {
+    return (
+      <td
+        className={`committed-scope-col sheet-row-label sheet-scope--${scopeLevel}${className ? ` ${className}` : ''}`}
+        data-cell-id={cellId}
+        title={label}
+      >
+        <span className="sheet-cell-value">{label}</span>
+      </td>
+    )
+  }
 
   return (
     <td

@@ -44,8 +44,8 @@ export const SETUP_TOUR: PageTour = {
     {
       id: 'setup-committed',
       target: '[data-widget-id="committed-funds"]',
-      title: 'Money already spoken for',
-      body: 'Regular costs like payroll, rent, and HMRC build up here. They reduce what you can safely spend.',
+      title: 'Regular predictable bills',
+      body: 'Monthly costs that always come out — rent, payroll, subscriptions, loan repayments. They accrue daily so you can see exactly how much is spoken for at any point in the month. Not for one-off or irregular bills.',
       placement: 'top',
     },
     {
@@ -81,8 +81,8 @@ export const PAGE_TOURS: Partial<Record<PageId, PageTour>> = {
       {
         id: 'cf-commitments',
         target: '[data-widget-id="committed-funds"]',
-        title: 'Monthly commitments',
-        body: 'Recurring costs by month. Each row is scoped to a group, business, or venue. Amounts roll up into committed funds.',
+        title: 'Monthly accruing costs',
+        body: 'Regular predictable bills — rent, payroll, subscriptions, direct debits. Each row accrues daily toward its monthly total so you always know how much is already spoken for. Add one row per recurring cost. For irregular or one-off bills, use Reserve Planner instead.',
         placement: 'top',
       },
       {
@@ -131,7 +131,7 @@ export const PAGE_TOURS: Partial<Record<PageId, PageTour>> = {
         id: 'fc-outlook',
         target: '[data-widget-id="forecast-cash-outlook"]',
         title: 'Cash outlook',
-        body: 'Projects your current account forward using scheduled costs, reserve transfers, and dated expected receipts. Set income pattern per business in Settings → Structure.',
+        body: 'Projects your current account forward from scheduled outgoings, reserve transfers, and dated receipts. Best for businesses with identifiable incoming payments (invoices, contracts). For steady daily income (retail, hospitality), this only shows outgoings — use Trends for your overall trajectory.',
         placement: 'bottom',
       },
       {

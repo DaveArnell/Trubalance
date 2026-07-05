@@ -496,16 +496,6 @@ function MonthChart({
         <circle cx={headAccrued.x} cy={headAccrued.y} r={3} className="hero-month-dot hero-month-dot--accrued" />
         <circle cx={headBank.x} cy={headBank.y} r={4} className="hero-month-dot hero-month-dot--bank" />
         <circle cx={headTruth.x} cy={headTruth.y} r={3.5} className="hero-month-dot hero-month-dot--true" />
-
-        <text x={CHART.right} y={CHART.top + 2} className="hero-month-legend-label hero-month-legend-label--bank" textAnchor="end">
-          Current account
-        </text>
-        <text x={CHART.right} y={CHART.top + 12} className="hero-month-legend-label hero-month-legend-label--accrued" textAnchor="end">
-          Accrued costs
-        </text>
-        <text x={CHART.right} y={CHART.top + 22} className="hero-month-legend-label hero-month-legend-label--true" textAnchor="end">
-          True Balance
-        </text>
       </svg>
 
       <p className="hero-chart-accrued-now muted">

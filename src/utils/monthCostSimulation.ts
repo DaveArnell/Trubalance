@@ -37,8 +37,6 @@ export interface MonthAccruingWindowSimulation {
   lowAccruing: number
 }
 
-const AUTO_PAY_DAYS = 1
-
 function daysInMonth(reference: Date): number {
   return new Date(reference.getFullYear(), reference.getMonth() + 1, 0).getDate()
 }
@@ -47,20 +45,27 @@ function clampDueDay(dueDay: number, maxDay: number): number {
   return Math.min(Math.max(1, dueDay), maxDay)
 }
 
-/** Accruing portion only — linear build to due day, then zero after payment until month rolls. */
+/** Cycle position for a bill before its due day (includes carry-over from the prior month). */
+function billCycleDay(day: number, dueDay: number, daysInMonthCount: number): number {
+  if (day < dueDay) {
+    const daysUntilDue = dueDay - day + 1
+    return daysInMonthCount - daysUntilDue
+  }
+  return daysInMonthCount
+}
+
+/** Accruing builds toward the due date, then restarts on the due date itself for the next cycle. */
 function accruingAtDayInMonth(item: MonthSimItem, day: number, daysInMonthCount: number): number {
   const dueDay = clampDueDay(item.dueDay, daysInMonthCount)
-  const payDay = Math.min(daysInMonthCount, dueDay + AUTO_PAY_DAYS)
 
   if (day < dueDay) {
-    return item.amount * (dueDay <= 1 ? 1 : day / dueDay)
+    const progress = billCycleDay(day, dueDay, daysInMonthCount) / daysInMonthCount
+    return item.amount * progress
   }
 
-  if (day <= payDay) {
-    return 0
-  }
-
-  return 0
+  // From the due date onward, every calendar day accrues toward the next due date.
+  const progress = Math.min(1, (day - dueDay + 1) / daysInMonthCount)
+  return item.amount * progress
 }
 
 export function monthSimItemsFromRows(rows: CommitmentAccruingRow[]): MonthSimItem[] {

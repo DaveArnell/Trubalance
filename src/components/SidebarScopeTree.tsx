@@ -65,6 +65,77 @@ export function SidebarScopeTree({
   const currentLabel = getScopeLabel(state, viewScope)
   const breadcrumb = getScopeBreadcrumb(state, viewScope)
 
+  const renderBusinessNode = (business: typeof state.businesses[number]) => {
+    const venues = state.venues.filter((v) => v.businessId === business.id)
+    const accent = getBusinessAccentColor(state, business.id)
+
+    if (venues.length === 1) {
+      const venue = venues[0]!
+      const active = isSingleVenueBusinessActive(viewScope, business.id, venue.id)
+      const label = compact ? abbreviateScopeName(business.name, 3) : business.name
+      return (
+        <li key={business.id} className="scope-tree-node">
+          <button
+            type="button"
+            className={
+              active
+                ? `scope-tree-btn scope-tree-btn--active${compact ? ' scope-tree-btn--compact' : ''}`
+                : scopeBtnClass(state, viewScope, 'business', business.id, compact)
+            }
+            title={compact ? business.name : undefined}
+            onClick={() => onSelect({ type: 'venue', id: venue.id })}
+          >
+            <span className="scope-tree-swatch" style={{ background: accent }} aria-hidden />
+            <span className="scope-tree-label">{label}</span>
+          </button>
+        </li>
+      )
+    }
+
+    return (
+      <li key={business.id} className="scope-tree-node">
+        <button
+          type="button"
+          className={scopeBtnClass(state, viewScope, 'business', business.id, compact)}
+          title={compact ? business.name : undefined}
+          onClick={() => onSelect({ type: 'business', id: business.id })}
+        >
+          <span className="scope-tree-swatch" style={{ background: accent }} aria-hidden />
+          <span className="scope-tree-label">
+            {compact ? abbreviateScopeName(business.name, 3) : business.name}
+          </span>
+        </button>
+
+        {venues.length > 1 && (
+          <ul className={`scope-tree-branch${compact ? ' scope-tree-branch--compact' : ''}`}>
+            {venues.map((venue) => (
+              <li key={venue.id} className="scope-tree-node">
+                <button
+                  type="button"
+                  className={scopeBtnClass(state, viewScope, 'venue', venue.id, compact)}
+                  title={compact ? venue.name : undefined}
+                  onClick={() => onSelect({ type: 'venue', id: venue.id })}
+                >
+                  <span className="scope-tree-swatch" style={{ background: accent }} aria-hidden />
+                  <span className="scope-tree-label">
+                    {compact ? abbreviateScopeName(venue.name, 3) : venue.name}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </li>
+    )
+  }
+
+  const renderUngroupedBusinesses = () => {
+    const groupedIds = new Set(state.groups.flatMap((g) => state.businesses.filter((b) => b.groupId === g.id).map((b) => b.id)))
+    const ungrouped = state.businesses.filter((b) => !groupedIds.has(b.id))
+    if (ungrouped.length === 0) return null
+    return <>{ungrouped.map((business) => renderBusinessNode(business))}</>
+  }
+
   return (
     <section
       className={`sidebar-scope-section${compact ? ' sidebar-scope-section--compact' : ''}`}
@@ -89,6 +160,15 @@ export function SidebarScopeTree({
       <ul className={`scope-tree${compact ? ' scope-tree--compact' : ''}`}>
         {state.groups.map((group) => {
           const businesses = state.businesses.filter((b) => b.groupId === group.id)
+          if (businesses.length === 0) return null
+
+          if (businesses.length === 1) {
+            return (
+              <li key={group.id} className="scope-tree-node scope-tree-node--root">
+                {renderBusinessNode(businesses[0]!)}
+              </li>
+            )
+          }
 
           return (
             <li key={group.id} className="scope-tree-node scope-tree-node--root">
@@ -106,80 +186,14 @@ export function SidebarScopeTree({
                 )}
               </button>
 
-              {businesses.length > 0 && (
-                <ul className={`scope-tree-branch${compact ? ' scope-tree-branch--compact' : ''}`}>
-                  {businesses.map((business) => {
-                    const venues = state.venues.filter((v) => v.businessId === business.id)
-                    const accent = getBusinessAccentColor(state, business.id)
-
-                    if (venues.length === 1) {
-                      const venue = venues[0]!
-                      const active = isSingleVenueBusinessActive(viewScope, business.id, venue.id)
-                      const label = compact ? abbreviateScopeName(business.name, 3) : business.name
-                      return (
-                        <li key={business.id} className="scope-tree-node">
-                          <button
-                            type="button"
-                            className={
-                              active
-                                ? `scope-tree-btn scope-tree-btn--active${compact ? ' scope-tree-btn--compact' : ''}`
-                                : scopeBtnClass(state, viewScope, 'business', business.id, compact)
-                            }
-                            title={compact ? business.name : undefined}
-                            onClick={() => onSelect({ type: 'venue', id: venue.id })}
-                          >
-                            <span className="scope-tree-swatch" style={{ background: accent }} aria-hidden />
-                            <span className="scope-tree-label">{label}</span>
-                          </button>
-                        </li>
-                      )
-                    }
-
-                    return (
-                      <li key={business.id} className="scope-tree-node">
-                        <button
-                          type="button"
-                          className={scopeBtnClass(state, viewScope, 'business', business.id, compact)}
-                          title={compact ? business.name : undefined}
-                          onClick={() => onSelect({ type: 'business', id: business.id })}
-                        >
-                          <span className="scope-tree-swatch" style={{ background: accent }} aria-hidden />
-                          <span className="scope-tree-label">
-                            {compact ? abbreviateScopeName(business.name, 3) : business.name}
-                          </span>
-                        </button>
-
-                        {venues.length > 1 && (
-                          <ul className={`scope-tree-branch${compact ? ' scope-tree-branch--compact' : ''}`}>
-                            {venues.map((venue) => (
-                              <li key={venue.id} className="scope-tree-node">
-                                <button
-                                  type="button"
-                                  className={scopeBtnClass(state, viewScope, 'venue', venue.id, compact)}
-                                  title={compact ? venue.name : undefined}
-                                  onClick={() => onSelect({ type: 'venue', id: venue.id })}
-                                >
-                                  <span
-                                    className="scope-tree-swatch"
-                                    style={{ background: accent }}
-                                    aria-hidden
-                                  />
-                                  <span className="scope-tree-label">
-                                    {compact ? abbreviateScopeName(venue.name, 3) : venue.name}
-                                  </span>
-                                </button>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </li>
-                    )
-                  })}
-                </ul>
-              )}
+              <ul className={`scope-tree-branch${compact ? ' scope-tree-branch--compact' : ''}`}>
+                {businesses.map((business) => renderBusinessNode(business))}
+              </ul>
             </li>
           )
         })}
+
+        {renderUngroupedBusinesses()}
       </ul>
     </section>
   )

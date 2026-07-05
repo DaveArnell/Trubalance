@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { AppState, BalanceSnapshot, GraphRange, ViewScope } from '../types'
 import { CHART_COLORS, chartDashArrayForLevel, chartDotRadiusForLevel, chartStrokeWidthForLevel, getChartScopeOptions, scopeKey } from '../utils/chartScopes'
 import type { ChartScopeLevel } from '../utils/chartScopes'
-import { computeNiceTicks, computeZeroAnchoredDomain, formatAxisCurrency, isChartZeroTick } from '../utils/chartFormat'
+import { computeNiceTicks, computeTrendYDomain, formatAxisCurrency, isChartZeroTick } from '../utils/chartFormat'
 import { formatCurrency, getCurrencySymbol } from '../utils/format'
 import {
   filterSnapshotsByRange,
@@ -50,11 +50,11 @@ const ranges: { key: GraphRange; label: string }[] = [
 ]
 
 const CHART_WIDTH = 720
-const CHART_HEIGHT = 280
-const PAD_LEFT = 76
-const PAD_RIGHT = 24
-const PAD_TOP = 20
-const PAD_BOTTOM = 36
+const CHART_HEIGHT = 260
+const PAD_LEFT = 64
+const PAD_RIGHT = 20
+const PAD_TOP = 16
+const PAD_BOTTOM = 30
 
 interface TrendChartProps {
   state: AppState
@@ -139,32 +139,9 @@ export function TrendChart({
 }: TrendChartProps) {
   const scopeOptions = useMemo(() => getChartScopeOptions(state, viewScope), [state, viewScope])
   const currentScopeKey = scopeKey(viewScope)
-  const chartWrapRef = useRef<HTMLDivElement>(null)
-  const [plotSize, setPlotSize] = useState({ width: CHART_WIDTH, height: CHART_HEIGHT })
 
-  useEffect(() => {
-    if (!embedded) return
-    const node = chartWrapRef.current
-    if (!node) return
-
-    const updateSize = () => {
-      const { width, height } = node.getBoundingClientRect()
-      if (width < 80 || height < 80) return
-      setPlotSize({
-        width: CHART_WIDTH,
-        height: Math.max(120, Math.round(CHART_WIDTH * (height / width))),
-      })
-    }
-
-    updateSize()
-    const observer = new ResizeObserver(updateSize)
-    observer.observe(node)
-    return () => observer.disconnect()
-  }, [embedded])
-
-  const chartHeight = embedded ? plotSize.height : CHART_HEIGHT
   const plotWidth = CHART_WIDTH - PAD_LEFT - PAD_RIGHT
-  const plotHeight = chartHeight - PAD_TOP - PAD_BOTTOM
+  const plotHeight = CHART_HEIGHT - PAD_TOP - PAD_BOTTOM
 
   const [enabledMetrics, setEnabledMetrics] = useState<Record<MetricKey, boolean>>(() => ({
     trueBalance: true,
@@ -189,8 +166,9 @@ export function TrendChart({
     if (!focusScope) return
     const focusKey = scopeKey(focusScope)
     const next: Record<string, boolean> = {}
+    const hasFocus = scopeOptions.some((opt) => opt.key === focusKey)
     for (const opt of scopeOptions) {
-      next[opt.key] = opt.key === focusKey
+      next[opt.key] = hasFocus ? opt.key === focusKey : true
     }
     setEnabledScopes(next)
     setHoverDate(null)
@@ -200,8 +178,9 @@ export function TrendChart({
 
   useEffect(() => {
     const next: Record<string, boolean> = {}
+    const hasCurrentScope = scopeOptions.some((opt) => opt.key === currentScopeKey)
     for (const opt of scopeOptions) {
-      next[opt.key] = opt.key === currentScopeKey
+      next[opt.key] = hasCurrentScope ? opt.key === currentScopeKey : true
     }
     setEnabledScopes(next)
     setHoverDate(null)
@@ -328,7 +307,7 @@ export function TrendChart({
 
     const minVal = allValues.length ? Math.min(...allValues) : 0
     const maxVal = allValues.length ? Math.max(...allValues) : 1
-    const { yMin, yMax } = computeZeroAnchoredDomain(minVal, maxVal)
+    const { yMin, yMax } = computeTrendYDomain(minVal, maxVal)
     const yTicks = computeNiceTicks(yMin, yMax, 5)
 
     const yForValue = (v: number) => {
@@ -379,7 +358,7 @@ export function TrendChart({
     }
 
     const tickDates =
-      firstDate && chartMaxDate ? evenlySpacedDateKeys(firstDate, chartMaxDate, 6) : sortedDates
+      firstDate && chartMaxDate ? evenlySpacedDateKeys(firstDate, chartMaxDate, 5) : sortedDates
     const xTickMarks = tickDates.map((date) => ({ date, x: xForDate(date) }))
     const projectionBoundaryX = lastDate ? xForDate(lastDate) : null
 
@@ -528,12 +507,12 @@ export function TrendChart({
         </div>
       ) : (
         <div className={`trends-chart-plot${embedded ? ' trends-chart-plot--embedded' : ''}`}>
-          <div className="chart-wrap" ref={embedded ? chartWrapRef : undefined}>
+          <div className="chart-wrap">
             <svg
               ref={svgRef}
-              viewBox={`0 0 ${CHART_WIDTH} ${chartHeight}`}
+              viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
               className={`trend-svg${embedded ? ' trend-svg--embedded' : ''}`}
-              preserveAspectRatio={embedded ? 'none' : undefined}
+              preserveAspectRatio="xMidYMid meet"
               role="img"
               aria-label="Balance trend chart"
               onMouseMove={handleSvgMouseMove}
@@ -642,14 +621,6 @@ export function TrendChart({
                 </>
               )}
 
-              <text
-                x={PAD_LEFT + plotWidth / 2}
-                y={chartHeight - 4}
-                textAnchor="middle"
-                className="chart-axis-title"
-              >
-                Date
-              </text>
               <text
                 x={16}
                 y={PAD_TOP + plotHeight / 2}

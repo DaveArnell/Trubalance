@@ -89,16 +89,15 @@ export async function fetchAdminStats(): Promise<AdminStats> {
   const weekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
 
-  const [usersRes, subsRes, paymentsRes, loginsRes, signupsTodayRes, signupsWeekRes, signupsMonthRes] =
+  const [usersRes, subsRes, paymentsRes, activeWeekRes, signupsTodayRes, signupsWeekRes, signupsMonthRes] =
     await Promise.all([
       supabase.from('profiles').select('id', { count: 'exact', head: true }),
       supabase.from('subscriptions').select('id', { count: 'exact', head: true }).eq('status', 'active'),
       supabase.from('payments').select('amount_cents').eq('status', 'succeeded'),
       supabase
-        .from('user_events')
+        .from('profiles')
         .select('id', { count: 'exact', head: true })
-        .eq('event_type', 'login')
-        .gte('created_at', todayStart),
+        .gte('last_sign_in_at', weekStart),
       supabase
         .from('profiles')
         .select('id', { count: 'exact', head: true })
@@ -125,7 +124,7 @@ export async function fetchAdminStats(): Promise<AdminStats> {
     signupsMonth: signupsMonthRes.count ?? 0,
     activeSubscriptions: subsRes.count ?? 0,
     totalRevenueCents,
-    loginsToday: loginsRes.count ?? 0,
+    loginsToday: activeWeekRes.count ?? 0,
   }
 }
 

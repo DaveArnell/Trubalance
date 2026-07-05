@@ -1,6 +1,6 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { ReserveMonthEndBalance } from '../utils/reserveCalculations'
-import { computeNiceTicks, computeZeroAnchoredDomain, formatAxisCurrency, isChartZeroTick } from '../utils/chartFormat'
+import { computeNiceTicks, computeTrendYDomain, formatAxisCurrency, isChartZeroTick } from '../utils/chartFormat'
 import { formatCurrency } from '../utils/format'
 
 interface ReservePlanChartProps {
@@ -96,7 +96,7 @@ export function ReservePlanChart({
     const allY = [...balanceValues, ...actualValues, bufferAmount, 0]
     const minVal = Math.min(...allY)
     const maxVal = Math.max(...allY)
-    const { yMin, yMax } = computeZeroAnchoredDomain(minVal, maxVal, 0.1)
+    const { yMin, yMax } = computeTrendYDomain(minVal, maxVal, 0.1)
     const yTicks = computeNiceTicks(yMin, yMax, 4)
 
     return { yMin, yMax, yTicks }
@@ -151,7 +151,7 @@ export function ReservePlanChart({
         <svg
           viewBox={`0 0 ${layout.plotWidth} ${CHART_HEIGHT}`}
           className="reserve-plan-chart-svg"
-          preserveAspectRatio="none"
+          preserveAspectRatio="xMinYMid meet"
           style={{ marginLeft: layout.plotLeft, width: layout.plotWidth }}
         >
           <rect

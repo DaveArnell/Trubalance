@@ -34,11 +34,31 @@ export const GUIDED_SETUP_PATH_OPTIONS = [
 ] as const
 
 export const AI_SETUP_STEPS = [
+  { id: 'why', label: 'Why True Balance' },
   { id: 'structure', label: 'Business & accounts' },
   { id: 'import', label: 'Upload statements' },
   { id: 'review', label: 'Review suggestions' },
   { id: 'complete', label: 'Your True Balance' },
 ] as const
+
+export const WHY_TRUE_BALANCE_CONTENT = {
+  title: 'What True Balance does for you',
+  paragraphs: [
+    'Your bank balance lies. Part of it already belongs to rent, payroll, and bills that haven\'t landed yet — and bigger bills like VAT and insurance are quietly building up in the background.',
+    'True Balance does two things:',
+  ],
+  pillars: [
+    {
+      heading: 'Know what\'s spoken for',
+      body: 'Every regular monthly cost accrues daily. At any point you can see exactly how much of your balance is already committed — and how much is genuinely yours to spend.',
+    },
+    {
+      heading: 'Plan for irregular bills',
+      body: 'The Reserve Planner calculates exactly how much to transfer into savings each month. When a big bill arrives, it tells you to draw the money back out. You don\'t calculate anything — just follow the monthly instruction.',
+    },
+  ],
+  closing: 'The result is one honest number you can trust every single day.',
+} as const
 
 export type AiSetupStepId = (typeof AI_SETUP_STEPS)[number]['id']
 

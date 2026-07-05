@@ -2,7 +2,6 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode }
 import { createPortal } from 'react-dom'
 import type { Account, AppState, Business, Group, Venue } from '../types'
 import type { AppActions } from '../hooks/useAppState'
-import { businessHasVenues } from '../utils/scope'
 import { useSubscription } from '../contexts/SubscriptionContext'
 import {
   BUSINESS_ACCENT_COLORS,
@@ -207,12 +206,38 @@ function OrgName({
   onChange: (value: string) => void
   size?: 'lg' | 'md' | 'sm'
 }) {
+  const [draft, setDraft] = useState(value)
+  const committed = useRef(value)
+
+  useEffect(() => {
+    if (value !== committed.current) {
+      committed.current = value
+      setDraft(value)
+    }
+  }, [value])
+
+  const commit = () => {
+    const trimmed = draft.trim()
+    if (trimmed && trimmed !== committed.current) {
+      committed.current = trimmed
+      onChange(trimmed)
+    } else {
+      setDraft(committed.current)
+    }
+  }
+
   return (
     <input
       type="text"
       className={`org-name org-name--${size}`}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
+      value={draft}
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={commit}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.currentTarget.blur()
+        }
+      }}
       aria-label="Name"
     />
   )
@@ -404,26 +429,27 @@ function BusinessCard({
   venues: Venue[]
   actions: AppActions
 }) {
-  const hasVenues = businessHasVenues(state, business.id)
-  const businessAccounts = state.accounts.filter((a) => a.businessId === business.id && !a.venueId && a.active)
+  const hasVenues = venues.length > 0
+  const businessAccounts = state.accounts.filter(
+    (a) => a.businessId === business.id && !a.venueId && a.active && a.type !== 'reserve',
+  )
   const savings = businessAccounts.filter((a) => a.type === 'savings')
   const direct = businessAccounts.filter((a) => a.type !== 'savings')
 
-  const siteCount = venues.length
   const accountCount =
     savings.length +
     direct.length +
-    venues.reduce((n, v) => n + state.accounts.filter((a) => a.venueId === v.id && a.active).length, 0)
+    venues.reduce(
+      (n, v) =>
+        n + state.accounts.filter((a) => a.venueId === v.id && a.active && a.type !== 'reserve').length,
+      0,
+    )
 
-  const addItems = hasVenues
-    ? [
-        { label: 'Site', onClick: () => actions.addVenue(business.id, 'New site') },
-        { label: 'Savings account', onClick: () => actions.addBusinessSavingsAccount(business.id, 'Savings account') },
-      ]
-    : [
-        { label: 'Current account', onClick: () => actions.addBusinessAccount(business.id, 'Current account', 'current') },
-        { label: 'Savings account', onClick: () => actions.addBusinessSavingsAccount(business.id, 'Savings account') },
-      ]
+  const addItems = [
+    { label: 'Current account', onClick: () => actions.addBusinessAccount(business.id, 'Current account', 'current') },
+    { label: 'Savings account', onClick: () => actions.addBusinessSavingsAccount(business.id, 'Savings account') },
+    { label: 'Venue / site', onClick: () => actions.addVenue(business.id, 'New site') },
+  ]
 
   return (
     <article className="org-business-card">
@@ -432,8 +458,7 @@ function BusinessCard({
         <div className="org-entity-copy">
           <OrgName value={business.name} onChange={(name) => actions.renameBusiness(business.id, name)} size="md" />
           <span className="org-meta-inline">
-            {hasVenues ? `${siteCount} site${siteCount === 1 ? '' : 's'}` : 'Direct accounts'}
-            {' · '}
+            {hasVenues ? `${venues.length} venue${venues.length === 1 ? '' : 's'} · ` : ''}
             {accountCount} account{accountCount === 1 ? '' : 's'}
           </span>
         </div>
@@ -443,7 +468,7 @@ function BusinessCard({
           onChange={(color) => actions.setBusinessAccentColor(business.id, color)}
           label={business.name}
         />
-        <label className="org-income-pattern" title="How money typically arrives — shapes cash outlook guidance">
+        <label className="org-income-pattern" title="Shapes Cash Outlook guidance. Steady = daily trade (forecast shows outgoings only). Irregular = invoiced/contract payments (forecast plots income too).">
           <span className="sr-only">Income pattern for {business.name}</span>
           <select
             value={business.incomePattern ?? 'steady'}
@@ -451,8 +476,8 @@ function BusinessCard({
               actions.setBusinessIncomePattern(business.id, e.target.value as 'steady' | 'lumpy')
             }
           >
-            <option value="steady">Steady income</option>
-            <option value="lumpy">Irregular income</option>
+            <option value="steady">Steady / daily income</option>
+            <option value="lumpy">Irregular / invoiced income</option>
           </select>
         </label>
         <EntityActions
@@ -463,56 +488,45 @@ function BusinessCard({
       </header>
 
       <div className="org-business-body">
-        {savings.length > 0 && (
+        {(direct.length > 0 || savings.length > 0) && (
+          <div className="org-account-list">
+            {direct.map((account) => (
+              <AccountLine
+                key={account.id}
+                type="account"
+                name={account.name}
+                onRename={(name) => actions.renameAccount(account.id, name)}
+                onRemove={() => actions.deactivateAccount(account.id)}
+              />
+            ))}
+            {savings.map((account) => (
+              <AccountLine
+                key={account.id}
+                type="savings"
+                name={account.name}
+                onRename={(name) => actions.renameAccount(account.id, name)}
+                onRemove={() => actions.deactivateAccount(account.id)}
+              />
+            ))}
+          </div>
+        )}
+
+        {venues.length > 0 && (
           <>
-            <SectionTitle>Savings</SectionTitle>
-            <div className="org-account-list">
-              {savings.map((account) => (
-                <AccountLine
-                  key={account.id}
-                  type="savings"
-                  name={account.name}
-                  onRename={(name) => actions.renameAccount(account.id, name)}
-                  onRemove={() => actions.deactivateAccount(account.id)}
+            <SectionTitle>Venues</SectionTitle>
+            <div className="org-site-list">
+              {venues.map((venue) => (
+                <SiteCard
+                  key={venue.id}
+                  venue={venue}
+                  accounts={state.accounts.filter(
+                    (a) => a.venueId === venue.id && a.active && a.type !== 'reserve',
+                  )}
+                  actions={actions}
                 />
               ))}
             </div>
           </>
-        )}
-
-        {hasVenues ? (
-          venues.length > 0 && (
-            <>
-              <SectionTitle>Sites</SectionTitle>
-              <div className="org-site-list">
-                {venues.map((venue) => (
-                  <SiteCard
-                    key={venue.id}
-                    venue={venue}
-                    accounts={state.accounts.filter((a) => a.venueId === venue.id && a.active)}
-                    actions={actions}
-                  />
-                ))}
-              </div>
-            </>
-          )
-        ) : (
-          direct.length > 0 && (
-            <>
-              <SectionTitle>Accounts</SectionTitle>
-              <div className="org-account-list">
-                {direct.map((account) => (
-                  <AccountLine
-                    key={account.id}
-                    type="account"
-                    name={account.name}
-                    onRename={(name) => actions.renameAccount(account.id, name)}
-                    onRemove={() => actions.deactivateAccount(account.id)}
-                  />
-                ))}
-              </div>
-            </>
-          )
         )}
       </div>
     </article>
@@ -538,7 +552,11 @@ function GroupCard({
     0,
   )
   const accountCount = state.accounts.filter(
-    (a) => a.active && businesses.some((b) => b.id === a.businessId),
+    (a) =>
+      a.active &&
+      a.type !== 'reserve' &&
+      (businesses.some((b) => b.id === a.businessId) ||
+        businesses.some((b) => state.venues.some((v) => v.businessId === b.id && v.id === a.venueId))),
   ).length
 
   return (
@@ -559,9 +577,12 @@ function GroupCard({
           label={group.name}
         />
         <EntityActions
-          addItems={[{ label: 'Business', onClick: () => onAddBusiness(group.id) }]}
+          addItems={[
+            { label: 'Business', onClick: () => onAddBusiness(group.id) },
+            { label: 'Remove group (keep businesses)', onClick: () => actions.dissolveGroup(group.id) },
+          ]}
           onRemove={() => actions.deleteGroup(group.id)}
-          removeTitle="Delete group"
+          removeTitle="Delete group and all businesses"
         />
       </header>
 
@@ -587,9 +608,12 @@ function GroupCard({
 export function StructureManagement({ state, actions, embedded = false }: StructureManagementProps) {
   const { requestLimit } = useSubscription()
 
-  const tryAddBusiness = (groupId: string) => {
+  const tryAddBusiness = (groupId?: string) => {
     if (!requestLimit('businesses', state.businesses.length + 1)) return
-    actions.addBusiness(groupId, 'New business')
+    const resolvedGroupId = groupId ?? state.groups[0]?.id
+    if (resolvedGroupId) {
+      actions.addBusiness(resolvedGroupId, 'New business', true)
+    }
   }
 
   const businessesByGroup = useMemo(() => {
@@ -602,10 +626,17 @@ export function StructureManagement({ state, actions, embedded = false }: Struct
     return map
   }, [state.businesses])
 
+  const showGroupLevel = state.businesses.length > 1 && state.groups.length > 0
+
   const headActions = (
     <div className="org-head-actions">
-      <button type="button" className="btn-secondary btn-tiny" onClick={() => actions.addGroup('New group')}>
-        + Group
+      {!showGroupLevel && state.businesses.length > 1 && (
+        <button type="button" className="btn-secondary btn-tiny" onClick={() => actions.addGroup('Group')}>
+          + Group view
+        </button>
+      )}
+      <button type="button" className="btn-secondary btn-tiny" onClick={() => tryAddBusiness()}>
+        + Business
       </button>
       <button
         type="button"
@@ -626,17 +657,17 @@ export function StructureManagement({ state, actions, embedded = false }: Struct
   const body = (
     <>
       {embedded ? <div className="org-embedded-actions">{headActions}</div> : null}
-      {state.groups.length === 0 ? (
+      {state.businesses.length === 0 ? (
         <div className="org-empty">
           <div className="org-empty-icon">
-            <OrgIcon type="group" />
+            <OrgIcon type="business" />
           </div>
-          <p>No organisation structure yet.</p>
-          <button type="button" className="btn-primary" onClick={() => actions.addGroup('New group')}>
-            Create your first group
+          <p>No business set up yet.</p>
+          <button type="button" className="btn-primary" onClick={() => tryAddBusiness()}>
+            Add your first business
           </button>
         </div>
-      ) : (
+      ) : showGroupLevel ? (
         <div className="org-stack">
           {state.groups.map((group) => (
             <GroupCard
@@ -645,7 +676,19 @@ export function StructureManagement({ state, actions, embedded = false }: Struct
               businesses={businessesByGroup.get(group.id) ?? []}
               state={state}
               actions={actions}
-              onAddBusiness={tryAddBusiness}
+              onAddBusiness={(gid) => tryAddBusiness(gid)}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="org-stack">
+          {state.businesses.map((business) => (
+            <BusinessCard
+              key={business.id}
+              state={state}
+              business={business}
+              venues={state.venues.filter((v) => v.businessId === business.id)}
+              actions={actions}
             />
           ))}
         </div>

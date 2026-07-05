@@ -1,0 +1,82 @@
+import { useEffect, useMemo, useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { ReferenceDateProvider } from '../contexts/ReferenceDateContext'
+import { DemoModeProvider } from '../contexts/DemoModeContext'
+import { useAuth } from '../contexts/AuthContext'
+import { AppShell } from '../App'
+import type { AppState } from '../types'
+import {
+  buildDemoScenarioState,
+  DEFAULT_DEMO_SCENARIO_ID,
+  DEMO_SCENARIOS,
+} from '../data/demoScenarios'
+
+export function DemoPage() {
+  const { scenarioId } = useParams<{ scenarioId?: string }>()
+  const navigate = useNavigate()
+  const { profile } = useAuth()
+  const resolvedId = scenarioId ?? DEFAULT_DEMO_SCENARIO_ID
+
+  const { meta, state: initialState } = useMemo(() => buildDemoScenarioState(resolvedId), [resolvedId])
+  const canEditDemo = profile?.role === 'super_admin'
+  const [demoState, setDemoState] = useState<AppState>(initialState)
+
+  useEffect(() => {
+    setDemoState(initialState)
+  }, [initialState])
+
+  const handleScenarioChange = (nextId: string) => {
+    navigate(`/demo/${nextId}`, { replace: true })
+  }
+
+  return (
+    <ReferenceDateProvider>
+      <DemoModeProvider
+        scenario={meta}
+        onScenarioChange={handleScenarioChange}
+        canEditDemo={canEditDemo}
+      >
+        <div className={`interactive-demo-shell${canEditDemo ? '' : ' interactive-demo-shell--locked'}`}>
+          <div className="interactive-demo-banner">
+            <label className="interactive-demo-scenario-picker">
+              <span className="interactive-demo-scenario-picker-label">Example business</span>
+              <select
+                value={meta.id}
+                onChange={(e) => handleScenarioChange(e.target.value)}
+                className="interactive-demo-scenario-select"
+              >
+                {DEMO_SCENARIOS.map((scenario) => (
+                  <option key={scenario.id} value={scenario.id}>
+                    {scenario.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="interactive-demo-banner-actions">
+              {canEditDemo && (
+                <span className="interactive-demo-admin-hint">Admin edit mode</span>
+              )}
+              <Link to="/see-how-it-works" className="btn-ghost btn-tiny">
+                All demos
+              </Link>
+              <Link to="/signup" className="btn-primary btn-tiny">
+                Start free trial
+              </Link>
+            </div>
+          </div>
+
+          <AppShell
+            key={meta.id}
+            externalState={demoState}
+            externalStateVersion={`${meta.id}:${meta.historyMonths}`}
+            defaultViewScope={meta.defaultViewScope}
+            readOnly={!canEditDemo}
+            skipLocalPersist
+            onStateChange={canEditDemo ? setDemoState : undefined}
+            isInteractiveDemo
+          />
+        </div>
+      </DemoModeProvider>
+    </ReferenceDateProvider>
+  )
+}

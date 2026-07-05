@@ -41,7 +41,7 @@ function mapAccount(row: Record<string, unknown>): Account {
     type: row.type as Account['type'],
     balance: toNumber(row.balance),
     active: Boolean(row.active),
-    updatedAt: String(row.updated_at ?? new Date().toISOString()),
+    updatedAt: String(row.updated_at || row.created_at || ''),
   }
 }
 
@@ -227,9 +227,15 @@ function mapDiaryReminder(row: Record<string, unknown>): DiaryReminder {
   }
 }
 
-export async function loadWorkspaceState(workspaceId: string): Promise<AppState> {
+export interface WorkspaceLoadResult {
+  state: AppState
+  /** True when any table failed to load — cloud save must not wipe missing tables. */
+  loadHadErrors: boolean
+}
+
+export async function loadWorkspaceState(workspaceId: string): Promise<WorkspaceLoadResult> {
   const supabase = tryGetSupabase()
-  if (!supabase) return emptyAppState()
+  if (!supabase) return { state: emptyAppState(), loadHadErrors: true }
 
   const [
     groupsRes,
@@ -260,6 +266,30 @@ export async function loadWorkspaceState(workspaceId: string): Promise<AppState>
     supabase.from('business_reference_profiles').select('*').eq('workspace_id', workspaceId),
     supabase.from('diary_reminders').select('*').eq('workspace_id', workspaceId).order('sort_order'),
   ])
+
+  const responses = [
+    ['groups', groupsRes],
+    ['businesses', businessesRes],
+    ['venues', venuesRes],
+    ['accounts', accountsRes],
+    ['commitments', commitmentsRes],
+    ['expected_receipts', receiptsRes],
+    ['reserve_planners', plannersRes],
+    ['reserve_bills', billsRes],
+    ['balance_snapshots', snapshotsRes],
+    ['history_records', historyRes],
+    ['day_notes', dayNotesRes],
+    ['business_reference_profiles', businessRefRes],
+    ['diary_reminders', diaryRemindersRes],
+  ] as const
+
+  let loadHadErrors = false
+  for (const [table, res] of responses) {
+    if (res.error) {
+      loadHadErrors = true
+      console.error(`[workspaceRepository] load ${table}:`, res.error.message)
+    }
+  }
 
   const bills = (billsRes.data ?? []).map((row) => mapBill(row as Record<string, unknown>))
   const billsByPlanner = new Map<string, ReserveBill[]>()
@@ -298,7 +328,7 @@ export async function loadWorkspaceState(workspaceId: string): Promise<AppState>
     diaryReminders: (diaryRemindersRes.data ?? []).map((row) => mapDiaryReminder(row as Record<string, unknown>)),
   }
 
-  return state
+  return { state, loadHadErrors }
 }
 
 /** Whether the database has no saved rows yet for this workspace. */
@@ -314,9 +344,80 @@ export async function isWorkspaceEmptyInDatabase(workspaceId: string): Promise<b
   return (count ?? 0) === 0
 }
 
-export async function saveWorkspaceState(workspaceId: string, state: AppState): Promise<void> {
+const WORKSPACE_TABLE_NAMES = [
+  'groups',
+  'businesses',
+  'venues',
+  'accounts',
+  'commitments',
+  'expected_receipts',
+  'reserve_planners',
+  'reserve_bills',
+  'balance_snapshots',
+  'history_records',
+  'day_notes',
+  'business_reference_profiles',
+  'diary_reminders',
+] as const
+
+export type WorkspaceTableName = (typeof WORKSPACE_TABLE_NAMES)[number]
+
+function tableCounts(state: AppState): Record<WorkspaceTableName, number> {
+  return {
+    groups: state.groups.length,
+    businesses: state.businesses.length,
+    venues: state.venues.length,
+    accounts: state.accounts.length,
+    commitments: state.commitments.length,
+    expected_receipts: state.expectedReceipts.length,
+    reserve_planners: state.reservePlanners.length,
+    reserve_bills: state.reservePlanners.reduce((n, p) => n + p.bills.length, 0),
+    balance_snapshots: state.snapshots.length,
+    history_records: (state.historyRecords ?? []).length,
+    day_notes: (state.dayNotes ?? []).length,
+    business_reference_profiles: (state.businessReferenceProfiles ?? []).length,
+    diary_reminders: (state.diaryReminders ?? []).length,
+  }
+}
+
+/** Safe empty-table deletes for autosave — never wipe rows on first persist after a loaded workspace. */
+export function buildSafeTableEmptyDeletes(
+  state: AppState,
+  options: { loaded: AppState | null; previous: AppState | null; allowAll?: boolean },
+): Partial<Record<WorkspaceTableName, boolean>> | undefined {
+  if (options.allowAll) return undefined
+
+  const counts = tableCounts(state)
+  const loaded = options.loaded ? tableCounts(options.loaded) : null
+  const previous = options.previous ? tableCounts(options.previous) : null
+  const out: Partial<Record<WorkspaceTableName, boolean>> = {}
+
+  for (const table of WORKSPACE_TABLE_NAMES) {
+    if (counts[table] > 0) continue
+    if (previous == null) {
+      out[table] = false
+      continue
+    }
+    const prevCount = previous[table] ?? 0
+    const loadedCount = loaded?.[table] ?? 0
+    out[table] = prevCount > 0 || loadedCount === 0
+  }
+
+  return out
+}
+
+export async function saveWorkspaceState(
+  workspaceId: string,
+  state: AppState,
+  options?: {
+    allowEmptyDeletes?: boolean
+    /** Per-table override when row list is empty — avoids wiping data on a partial/stale save. */
+    tableEmptyDeletes?: Partial<Record<WorkspaceTableName, boolean>>
+  },
+): Promise<void> {
   const supabase = tryGetSupabase()
   if (!supabase) return
+  const allowEmptyDeletes = options?.allowEmptyDeletes ?? false
 
   const ws = { workspace_id: workspaceId }
 
@@ -393,6 +494,7 @@ export async function saveWorkspaceState(workspaceId: string, state: AppState): 
     notes: r.notes ?? null,
     received: r.received,
     sort_order: r.sortOrder ?? i,
+    created_at: r.createdAt ?? null,
     ...ws,
   }))
   const plannerRows = state.reservePlanners.map((p, i) => ({
@@ -506,6 +608,9 @@ export async function saveWorkspaceState(workspaceId: string, state: AppState): 
 
   for (const table of tables) {
     if (table.rows.length === 0) {
+      const mayDeleteEmpty =
+        options?.tableEmptyDeletes?.[table.name as WorkspaceTableName] ?? allowEmptyDeletes
+      if (!mayDeleteEmpty) continue
       await supabase.from(table.name).delete().eq('workspace_id', workspaceId)
       continue
     }
@@ -576,10 +681,10 @@ export async function getWorkspaceIdForUser(userId: string): Promise<string | nu
 export async function importLocalStorageToWorkspace(workspaceId: string): Promise<boolean> {
   const parsed = readBrowserAppState()
   if (!parsed) return false
-  await saveWorkspaceState(workspaceId, parsed)
+  await saveWorkspaceState(workspaceId, parsed, { allowEmptyDeletes: true })
   return true
 }
 
 export async function restoreStateToWorkspace(workspaceId: string, state: AppState): Promise<void> {
-  await saveWorkspaceState(workspaceId, state)
+  await saveWorkspaceState(workspaceId, state, { allowEmptyDeletes: true })
 }

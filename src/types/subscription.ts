@@ -37,6 +37,7 @@ export interface WorkspaceUsage {
   reservePlanners: number
   commitments: number
   expectedReceipts: number
+  hasGroup: boolean
 }
 
 export interface AccessCheckResult {

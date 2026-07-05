@@ -3,10 +3,12 @@ import { AuthProvider } from './contexts/AuthContext'
 import { WorkspaceProvider } from './contexts/WorkspaceContext'
 import { LandingPage } from './pages/LandingPage'
 import { PricingPage } from './pages/PricingPage'
-import { LoginPage, SignupPage } from './pages/AuthPages'
+import { ForgotPasswordPage, LoginPage, ResetPasswordPage, SignupPage } from './pages/AuthPages'
 import { PrivacyPage } from './pages/legal/PrivacyPage'
 import { TermsPage } from './pages/legal/TermsPage'
 import { AppPage } from './pages/AppPage'
+import { DemoPage } from './pages/DemoPage'
+import { SeeHowItWorksPage } from './pages/SeeHowItWorksPage'
 import { PlatformAdminShell } from './admin/PlatformAdminShell'
 import { isSupabaseConfigured } from './lib/supabase'
 
@@ -20,8 +22,13 @@ export function AppRouter() {
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/terms" element={<TermsPage />} />
+            <Route path="/see-how-it-works" element={<SeeHowItWorksPage />} />
+            <Route path="/demo" element={<DemoPage />} />
+            <Route path="/demo/:scenarioId" element={<DemoPage />} />
             <Route path="/app/*" element={<AppPage />} />
             <Route path="/platform-admin/*" element={<PlatformAdminShell />} />
             <Route

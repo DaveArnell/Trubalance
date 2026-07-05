@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { useDemoReadOnly } from '../contexts/DemoModeContext'
 
 const STORAGE_KEY = 'trubalance-overview-aside-pct'
 const DEFAULT_FR = 24
@@ -19,19 +20,24 @@ function readStoredFr(): number {
 
 /** Horizontal split between True Balance hero and breakdown table (fr units, both can shrink). */
 export function useOverviewSplit() {
-  const [asideFr, setAsideFr] = useState(readStoredFr)
+  const demoReadOnly = useDemoReadOnly()
+  const [asideFr, setAsideFr] = useState(() => (demoReadOnly ? DEFAULT_FR : readStoredFr()))
   const draggingRef = useRef(false)
   const startXRef = useRef(0)
   const startFrRef = useRef(DEFAULT_FR)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const persist = useCallback((fr: number) => {
-    try {
-      localStorage.setItem(STORAGE_KEY, String(Math.round(fr)))
-    } catch {
-      /* ignore */
-    }
-  }, [])
+  const persist = useCallback(
+    (fr: number) => {
+      if (demoReadOnly) return
+      try {
+        localStorage.setItem(STORAGE_KEY, String(Math.round(fr)))
+      } catch {
+        /* ignore */
+      }
+    },
+    [demoReadOnly],
+  )
 
   const onPointerMove = useCallback((event: PointerEvent) => {
     if (!draggingRef.current || !containerRef.current) return
@@ -56,6 +62,7 @@ export function useOverviewSplit() {
 
   const startDrag = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
+      if (demoReadOnly) return
       event.preventDefault()
       draggingRef.current = true
       startXRef.current = event.clientX
@@ -64,7 +71,7 @@ export function useOverviewSplit() {
       window.addEventListener('pointermove', onPointerMove)
       window.addEventListener('pointerup', endDrag)
     },
-    [asideFr, endDrag, onPointerMove],
+    [asideFr, demoReadOnly, endDrag, onPointerMove],
   )
 
   useEffect(() => () => endDrag(), [endDrag])

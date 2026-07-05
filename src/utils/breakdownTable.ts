@@ -161,12 +161,7 @@ function columnFromScope(
   useRollupTotals = false,
 ): BreakdownColumn {
   const metrics = useRollupTotals ? calculateDashboard(state, scope) : calculateColumnDashboard(state, scope)
-  const allAccounts = getAccountsForScope(state, scope)
-  const scopedAccounts =
-    !useRollupTotals && scope.type === 'venue'
-      ? allAccounts.filter((account) => account.venueId === scope.id)
-      : allAccounts
-  const accounts = getCashAccounts(scopedAccounts)
+  const accounts = getCashAccounts(getAccountsForScope(state, scope))
   const currentAccounts = accounts.filter((a) => a.type === 'current')
   const savingsAccounts = accounts.filter((a) => a.type === 'savings')
   const current = sumAccountBalances(currentAccounts)
@@ -220,32 +215,18 @@ export function buildBreakdownColumns(state: AppState, scope: ViewScope): Breakd
   if (scope.type === 'venue') {
     const venue = state.venues.find((v) => v.id === scope.id)
     if (!venue) return []
-    const business = state.businesses.find((b) => b.id === venue.businessId)
-    if (!business) return []
-    const venuesInBusiness = state.venues.filter((v) => v.businessId === business.id)
-    if (venuesInBusiness.length <= 1) {
-      return [columnFromScope(state, scope, columnLabel(venue.name), false, true)]
-    }
-    const columns = venuesInBusiness.map((v) =>
-      columnFromScope(state, { type: 'venue', id: v.id }, columnLabel(v.name), false),
-    )
-    const shared = hasSharedScopeCosts(state, { type: 'business', id: business.id })
-      ? [
-          columnFromSharedScope(
-            state,
-            { type: 'business', id: business.id },
-            'BUSINESS',
-            `Business-wide — ${business.name}`,
-          ),
-        ]
-      : []
-    const rollup = columnFromScope(state, { type: 'business', id: business.id }, 'BUSINESS', true, true)
-    return [...columns, ...shared, rollup]
+    return [columnFromScope(state, scope, columnLabel(venue.name), false, true)]
   }
 
   if (scope.type === 'group') {
     const group = state.groups.find((g) => g.id === scope.id)
-    const businesses = state.businesses.filter((b) => b.groupId === scope.id)
+    const businesses = getBusinessesInGroup(state, scope.id)
+
+    if (businesses.length === 1) {
+      const biz = businesses[0]!
+      return buildBreakdownColumns(state, { type: 'business', id: biz.id })
+    }
+
     const columns = businesses.map((b) =>
       columnFromScope(state, { type: 'business', id: b.id }, columnLabel(b.name), false, true),
     )
@@ -259,13 +240,35 @@ export function buildBreakdownColumns(state: AppState, scope: ViewScope): Breakd
           ),
         ]
       : []
-    const rollup = columnFromScope(state, scope, 'BUSINESS', true, true)
+    const rollup = columnFromScope(state, scope, 'TOTAL', true, true)
     return [...columns, ...shared, rollup]
   }
 
   const business = state.businesses.find((b) => b.id === scope.id)
   if (!business) return []
 
-  // One column per business — venue accounts are updated via the Current Acc popover.
-  return [columnFromScope(state, scope, columnLabel(business.name), false, true)]
+  const venues = getVenuesInBusiness(state, scope.id)
+  if (venues.length === 0) {
+    return [columnFromScope(state, scope, columnLabel(business.name), false, true)]
+  }
+
+  if (venues.length <= 1) {
+    return [columnFromScope(state, scope, columnLabel(business.name), false, true)]
+  }
+
+  const columns = venues.map((v) =>
+    columnFromScope(state, { type: 'venue', id: v.id }, columnLabel(v.name), false, true),
+  )
+  const shared = hasSharedScopeCosts(state, scope)
+    ? [
+        columnFromSharedScope(
+          state,
+          scope,
+          'BIZ',
+          `Business-wide — ${business.name}`,
+        ),
+      ]
+    : []
+  const rollup = columnFromScope(state, scope, 'TOTAL', true, true)
+  return [...columns, ...shared, rollup]
 }

@@ -170,6 +170,12 @@ export function AuthForm({ mode }: AuthFormProps) {
         )}
       </form>
 
+      {mode === 'login' && (
+        <p className="auth-forgot">
+          <Link to="/forgot-password">Forgot your password?</Link>
+        </p>
+      )}
+
       <p className="auth-switch">
         {mode === 'login' ? (
           <>
@@ -208,6 +214,181 @@ export function SignupPage() {
         <AuthAside mode="signup" />
         <div className="auth-main">
           <AuthForm mode="signup" />
+        </div>
+      </div>
+      <MarketingFooter />
+    </MarketingShell>
+  )
+}
+
+export function ForgotPasswordPage() {
+  const { resetPassword } = useAuth()
+  const [email, setEmail] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [sent, setSent] = useState(false)
+
+  const onSubmit = async (e: FormEvent) => {
+    e.preventDefault()
+    setError(null)
+    setLoading(true)
+    try {
+      const result = await resetPassword(email)
+      if (result.error) {
+        setError(result.error)
+        return
+      }
+      setSent(true)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <MarketingShell>
+      <MarketingHeader />
+      <div className="auth-layout">
+        <div className="auth-main">
+          <div className="auth-card">
+            {sent ? (
+              <>
+                <h1>Check your email</h1>
+                <p className="muted">
+                  If an account exists for <strong>{email}</strong>, we've sent a password reset link.
+                  Check your inbox and follow the link to set a new password.
+                </p>
+                <Link to="/login" className="btn-primary btn-large">
+                  Back to log in
+                </Link>
+              </>
+            ) : (
+              <>
+                <h1>Forgot your password?</h1>
+                <p className="auth-card-lead muted">
+                  Enter the email address you signed up with and we'll send you a link to reset your password.
+                </p>
+                {error && <p className="auth-error">{error}</p>}
+                <form onSubmit={onSubmit} className="auth-form">
+                  <label className="auth-field">
+                    <span>Email</span>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      autoFocus
+                    />
+                  </label>
+                  <button type="submit" className="btn-primary btn-large auth-submit" disabled={loading}>
+                    {loading ? 'Sending…' : 'Send reset link'}
+                  </button>
+                </form>
+                <p className="auth-switch">
+                  <Link to="/login">← Back to log in</Link>
+                </p>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+      <MarketingFooter />
+    </MarketingShell>
+  )
+}
+
+export function ResetPasswordPage() {
+  const { updatePassword } = useAuth()
+  const navigate = useNavigate()
+  const [password, setPassword] = useState('')
+  const [confirm, setConfirm] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [done, setDone] = useState(false)
+
+  const onSubmit = async (e: FormEvent) => {
+    e.preventDefault()
+    setError(null)
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters.')
+      return
+    }
+    if (password !== confirm) {
+      setError('Passwords do not match.')
+      return
+    }
+    setLoading(true)
+    try {
+      const result = await updatePassword(password)
+      if (result.error) {
+        setError(result.error)
+        return
+      }
+      setDone(true)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (done) {
+    return (
+      <MarketingShell>
+        <MarketingHeader />
+        <div className="auth-layout">
+          <div className="auth-main">
+            <div className="auth-card">
+              <h1>Password updated</h1>
+              <p className="muted">Your password has been changed. You can now log in with your new password.</p>
+              <button
+                type="button"
+                className="btn-primary btn-large"
+                onClick={() => navigate('/app')}
+              >
+                Go to dashboard
+              </button>
+            </div>
+          </div>
+        </div>
+        <MarketingFooter />
+      </MarketingShell>
+    )
+  }
+
+  return (
+    <MarketingShell>
+      <MarketingHeader />
+      <div className="auth-layout">
+        <div className="auth-main">
+          <div className="auth-card">
+            <h1>Set a new password</h1>
+            <p className="auth-card-lead muted">Choose a new password for your True Balance account.</p>
+            {error && <p className="auth-error">{error}</p>}
+            <form onSubmit={onSubmit} className="auth-form">
+              <label className="auth-field">
+                <span>New password</span>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoFocus
+                  minLength={8}
+                />
+              </label>
+              <label className="auth-field">
+                <span>Confirm password</span>
+                <input
+                  type="password"
+                  value={confirm}
+                  onChange={(e) => setConfirm(e.target.value)}
+                  required
+                  minLength={8}
+                />
+              </label>
+              <button type="submit" className="btn-primary btn-large auth-submit" disabled={loading}>
+                {loading ? 'Updating…' : 'Update password'}
+              </button>
+            </form>
+          </div>
         </div>
       </div>
       <MarketingFooter />

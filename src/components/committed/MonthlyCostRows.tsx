@@ -46,6 +46,7 @@ interface MonthlyCostRowsProps {
     | 'reorderCommitments'
     | 'acknowledgeCommitmentDueAlert'
   >
+  readOnly?: boolean
 }
 
 function groupTitle(node: MonthlyCostGroupNode) {
@@ -130,6 +131,7 @@ function MonthlyCostLeafRow({
   onSaveDueDay,
   actions,
   reorder,
+  readOnly,
 }: {
   state: AppState
   row: CommitmentAccruingRow
@@ -144,6 +146,7 @@ function MonthlyCostLeafRow({
   onSaveDueDay: MonthlyCostRowsProps['onSaveDueDay']
   actions: MonthlyCostRowsProps['actions']
   reorder: ReturnType<typeof useSheetRowReorder>
+  readOnly?: boolean
 }) {
   const item = row.commitment
   const rowProps = reorder.getRowProps(item.id, index)
@@ -159,7 +162,8 @@ function MonthlyCostLeafRow({
   const namePadding = grouped ? { paddingLeft: `${6 + depth * 10}px` } : undefined
 
   return (
-    <tr key={item.id} {...rowProps} className={rowClass || undefined}>
+    <tr key={item.id} {...(readOnly ? {} : rowProps)} className={rowClass || undefined}>
+      {!readOnly && (
       <SheetDragCell
         rowId={item.id}
         getHandleProps={reorder.getHandleProps}
@@ -172,6 +176,7 @@ function MonthlyCostLeafRow({
           ) : undefined
         }
       />
+      )}
       <InlineTextCell
         cellId={`${item.id}-name`}
         value={item.name}
@@ -191,6 +196,7 @@ function MonthlyCostLeafRow({
         scopeId={item.scopeId}
         options={scopeOptions}
         commitmentScope
+        readOnly={readOnly}
         isActive={activeCell === `${item.id}-scope`}
         onActivate={() => onActivate(`${item.id}-scope`)}
         onDeactivate={onDeactivate}
@@ -222,6 +228,7 @@ function MonthlyCostLeafRow({
       <td className="sheet-num sheet-cell-computed">
         <DailyAccrualCell row={row} />
       </td>
+      {!readOnly && (
       <td className="sheet-actions">
         <div className="sheet-action-group">
           <DuplicateRowButton onClick={() => actions.duplicateCommitment(item.id)} />
@@ -234,6 +241,7 @@ function MonthlyCostLeafRow({
           </button>
         </div>
       </td>
+      )}
     </tr>
   )
 }
@@ -251,6 +259,7 @@ export function MonthlyCostRows({
   makeTabHandler,
   onSaveDueDay,
   actions,
+  readOnly = false,
 }: MonthlyCostRowsProps) {
   const flatRows = useMemo(
     () => flattenMonthlyCostTree(displayTree, collapsedGroups),
@@ -309,6 +318,7 @@ export function MonthlyCostRows({
             onSaveDueDay={onSaveDueDay}
             actions={actions}
             reorder={reorder}
+            readOnly={readOnly}
           />
         )
       })}

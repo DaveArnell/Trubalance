@@ -1,8 +1,19 @@
-import type { AppState, BalanceSnapshot, Commitment, ExpectedReceipt, ReservePlanner, ScopeLevel, SnapshotAccountChange, ViewScope } from '../types'
+import type {
+  AppState,
+  BalanceSnapshot,
+  Commitment,
+  ExpectedReceipt,
+  ReservePlanner,
+  ScopeLevel,
+  SnapshotAccountChange,
+  ViewScope,
+} from '../types'
 import { getAccountLocationLabel } from './accounts'
+import { roundCurrency } from './amounts'
+import { getAccountsForScope } from './calculations'
 import { newId } from './id'
-import { getChartScopeOptions } from './chartScopes'
-import { computeScopeMetricsAtDate, getHistoryDatesForViewScope, rebuildHistoryRecordsFromDate } from './historyRebuild'
+import { getChartScopeTreeOptions } from './chartScopes'
+import { computeScopeMetricsAtDate, buildSnapshotAccountChangesForScopeDate, getHistoryDatesForViewScope, rebuildHistoryRecordsFromDate } from './historyRebuild'
 import {
   getBusinessIdsForScope,
   getBusinessesInGroup,
@@ -10,7 +21,7 @@ import {
   getVenueIdsForScope,
   getVenuesInBusiness,
 } from './scope'
-import { getFreshness, getSnapshotIdsForDateInScope } from './snapshots'
+import { getFreshness, getSnapshotsForDateInScopeTree } from './snapshots'
 import { rebuildSnapshotsFromDate } from './snapshotRebuild'
 
 export function getScopesForChangedAccounts(state: AppState, accountIds: string[]): ViewScope[] {
@@ -69,11 +80,10 @@ function collectAccountChangesFromTreeSnapshots(
   scope: ViewScope,
   date: string,
 ): SnapshotAccountChange[] {
-  const snapshotIds = new Set(getSnapshotIdsForDateInScope(state, date, scope))
   const byAccount = new Map<string, SnapshotAccountChange>()
 
-  for (const snap of state.snapshots) {
-    if (!snapshotIds.has(snap.id)) continue
+  for (const snap of getSnapshotsForDateInScopeTree(state, date, scope)) {
+    if (snap.changedAccounts.length === 0) continue
     for (const change of snap.changedAccounts) {
       if (getChangedAccountsForScope(state, scope, [change]).length > 0) {
         byAccount.set(change.accountId, change)
@@ -102,16 +112,29 @@ export function expandScopesForRollup(state: AppState, seed: ViewScope[]): ViewS
       }
     } else if (scope.type === 'business') {
       const business = state.businesses.find((b) => b.id === scope.id)
-      if (business) add({ type: 'group', id: business.groupId })
-      for (const venue of getVenuesInBusiness(state, scope.id)) {
-        add({ type: 'venue', id: venue.id })
+      if (business) {
+        add({ type: 'group', id: business.groupId })
+        for (const biz of getBusinessesInGroup(state, business.groupId)) {
+          add({ type: 'business', id: biz.id })
+          for (const venue of getVenuesInBusiness(state, biz.id)) {
+            add({ type: 'venue', id: venue.id })
+          }
+        }
       }
     } else if (scope.type === 'venue') {
       const venue = state.venues.find((v) => v.id === scope.id)
       if (venue) {
         add({ type: 'business', id: venue.businessId })
         const business = state.businesses.find((b) => b.id === venue.businessId)
-        if (business) add({ type: 'group', id: business.groupId })
+        if (business) {
+          add({ type: 'group', id: business.groupId })
+          for (const biz of getBusinessesInGroup(state, business.groupId)) {
+            add({ type: 'business', id: biz.id })
+            for (const v of getVenuesInBusiness(state, biz.id)) {
+              add({ type: 'venue', id: v.id })
+            }
+          }
+        }
       }
     }
   }
@@ -164,21 +187,69 @@ export function ensureDailySnapshotAtDate(
   },
 ): BalanceSnapshot[] {
   const { date, scope, state, changedAccounts, noteText, now, requireScopeChanges = false } = params
-  const scopeChanges = getChangedAccountsForScope(state, scope, changedAccounts)
+  const workingState = { ...state, snapshots }
+  const scopeChanges = getChangedAccountsForScope(workingState, scope, changedAccounts)
   const existingIdx = snapshots.findIndex(
     (s) => s.date === date && s.scopeType === scope.type && s.scopeId === scope.id,
   )
   const existing = existingIdx >= 0 ? snapshots[existingIdx] : undefined
-  const treeChanges = collectAccountChangesFromTreeSnapshots(state, scope, date)
-  const mergedChanges =
+  const treeChanges = collectAccountChangesFromTreeSnapshots(workingState, scope, date)
+  const isGroupSave = changedAccounts.length > 0
+  let mergedChanges =
     scopeChanges.length > 0
       ? mergeAccountChanges(existing?.changedAccounts ?? [], scopeChanges)
       : (existing?.changedAccounts ?? treeChanges)
 
-  if (requireScopeChanges && scopeChanges.length === 0) return snapshots
-  if (!existing && mergedChanges.length === 0 && treeChanges.length === 0) return snapshots
+  if (isGroupSave) {
+    const fullScopeAccounts = fullAccountChangesForScope(workingState, scope)
+    if (scopeChanges.length > 0) {
+      mergedChanges = mergeAccountChanges(
+        mergeAccountChanges(existing?.changedAccounts ?? [], fullScopeAccounts),
+        scopeChanges,
+      )
+    } else {
+      mergedChanges = mergeAccountChanges(mergedChanges, fullScopeAccounts)
+    }
+  }
 
-  const metrics = computeScopeMetricsAtDate(state, scope, date)
+  if (requireScopeChanges && scopeChanges.length === 0) return snapshots
+
+  if (mergedChanges.length === 0 && treeChanges.length === 0) {
+    const historical = buildSnapshotAccountChangesForScopeDate(workingState, scope, date)
+    mergedChanges =
+      historical.length > 0 ? historical : fullAccountChangesForScope(workingState, scope)
+  }
+
+  if (!existing && mergedChanges.length === 0) return snapshots
+
+  const snapshotsForMetrics =
+    existingIdx >= 0
+      ? snapshots.map((snap, index) =>
+          index === existingIdx ? { ...snap, changedAccounts: mergedChanges } : snap,
+        )
+      : [
+          ...snapshots,
+          {
+            id: existing?.id ?? 'pending',
+            date,
+            scopeType: scope.type,
+            scopeId: scope.id,
+            viewName: getScopeLabel(workingState, scope),
+            cash: 0,
+            committedFunds: 0,
+            expectedReceipts: 0,
+            trueBalance: 0,
+            freshness: getFreshness(0),
+            changedAccounts: mergedChanges,
+            updatedAt: now,
+          },
+        ]
+
+  const metrics = computeScopeMetricsAtDate(
+    { ...workingState, snapshots: snapshotsForMetrics },
+    scope,
+    date,
+  )
   const noteChanges = scopeChanges.length > 0 ? scopeChanges : mergedChanges
   const { note, noteSource } = noteForScope(scope, noteChanges, noteText, existing)
 
@@ -187,7 +258,7 @@ export function ensureDailySnapshotAtDate(
     date,
     scopeType: scope.type,
     scopeId: scope.id,
-    viewName: getScopeLabel(state, scope),
+    viewName: getScopeLabel(workingState, scope),
     cash: metrics.cash,
     committedFunds: metrics.committedFunds,
     expectedReceipts: metrics.expectedReceipts,
@@ -228,15 +299,18 @@ export function backfillScopeSnapshots(state: AppState, now: string): AppState {
 
   for (const group of state.groups) {
     const viewScope: ViewScope = { type: 'group', id: group.id }
+    const scopeOptions = getChartScopeTreeOptions(state, viewScope).sort((a, b) =>
+      rollupScopeOrder(a.scope, b.scope),
+    )
     for (const date of getHistoryDatesForViewScope(state, viewScope)) {
-      for (const option of getChartScopeOptions(state, viewScope)) {
+      for (const option of scopeOptions) {
         const key = `${option.scope.type}:${option.scope.id}:${date}`
         if (touched.has(key)) continue
         touched.add(key)
         snapshots = ensureDailySnapshotAtDate(snapshots, {
           date,
           scope: option.scope,
-          state,
+          state: { ...state, snapshots },
           changedAccounts: [],
           now,
         })
@@ -327,6 +401,11 @@ export function refreshSnapshotsForScopes(
   return next
 }
 
+function rollupScopeOrder(a: ViewScope, b: ViewScope): number {
+  const rank = (scope: ViewScope) => (scope.type === 'group' ? 0 : scope.type === 'business' ? 1 : 2)
+  return rank(a) - rank(b)
+}
+
 export function applySnapshotRollup(
   state: AppState,
   changedAccounts: SnapshotAccountChange[],
@@ -335,7 +414,9 @@ export function applySnapshotRollup(
   date: string,
 ): AppState {
   const accountIds = changedAccounts.map((c) => c.accountId)
-  const scopes = expandScopesForRollup(state, getScopesForChangedAccounts(state, accountIds))
+  const scopes = expandScopesForRollup(state, getScopesForChangedAccounts(state, accountIds)).sort(
+    rollupScopeOrder,
+  )
 
   let snapshots = state.snapshots
   for (const scope of scopes) {
@@ -365,4 +446,14 @@ export function buildSnapshotAccountChange(
     venueName: full ? getAccountLocationLabel(state, full) : 'Unknown',
     balance,
   }
+}
+
+/** Every active account in a scope — used so each business gets a full balance picture on save day. */
+export function fullAccountChangesForScope(
+  state: AppState,
+  scope: ViewScope,
+): SnapshotAccountChange[] {
+  return getAccountsForScope(state, scope).map((account) =>
+    buildSnapshotAccountChange(state, account, roundCurrency(account.balance)),
+  )
 }

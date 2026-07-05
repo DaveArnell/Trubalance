@@ -20,6 +20,11 @@ import { getBusinessIdsForScope, getVenueIdsForScope } from './scope'
 import { getReferenceDate } from './referenceDate'
 import { sortByOrder } from './sortOrder'
 
+export function getPlannerDisplayName(state: AppState, planner: ReservePlanner): string {
+  const business = state.businesses.find((b) => b.id === planner.businessId)
+  return business?.name ?? planner.name
+}
+
 function roundMoney(value: number): number {
   return Math.round(value * 100) / 100
 }
@@ -311,16 +316,21 @@ export function buildReserveTransferDueRows(
   scope: ViewScope,
   referenceDate: Date = getReferenceDate(),
 ): CommitmentDueRow[] {
+  if (state.workspaceOrigin === 'builtin-demo') return []
+
   const period = currentPeriod()
   const monthIndex = referenceDate.getMonth()
   const monthKey = MONTHS[monthIndex]!
   const rows: CommitmentDueRow[] = []
 
   for (const planner of plannersInScope(state, scope)) {
-    const monthEnd = computeReserveMonthEndBalances(planner)[monthIndex]
+    const monthEnds = computeReserveMonthEndBalances(planner)
+    const monthEnd = monthEnds[monthIndex]
     if (!monthEnd) continue
 
-    const netTransfer = computeMonthlyNetTransfer(monthEnd.monthlyDeposit, monthEnd.totalDue)
+    const actualBalance = getReserveBalanceForTransfer(state, planner, monthIndex, referenceDate)
+    const transferTarget = getReserveTransferTargetForMonth(monthEnds, monthIndex)
+    const netTransfer = computeReserveOperatingTransfer(actualBalance, transferTarget)
     if (!isReserveTransferPending(planner, monthKey, netTransfer)) continue
 
     const reserveAccount = getPlannerReserveAccount(state, planner)
@@ -777,6 +787,76 @@ export function computeMonthlyNetTransfer(
   return { amount: Math.abs(net), direction: 'from_reserve' }
 }
 
+/**
+ * Planned reserve balance at the start of next month — what this month's transfer should close to.
+ * Uses the live reserve account when the current month is not yet confirmed.
+ */
+export function getReserveTransferTargetForMonth(
+  monthEnds: ReserveMonthEndBalance[],
+  monthIndex: number,
+): number {
+  const current = monthEnds[monthIndex]
+  if (!current) return 0
+  const nextIndex = (monthIndex + 1) % 12
+  const next = monthEnds[nextIndex]
+  return next?.startBalance ?? current.balanceAfterBills
+}
+
+/** Reserve balance to use when calculating a pending operating ↔ reserve transfer. */
+export function getReserveBalanceForTransfer(
+  state: AppState,
+  planner: ReservePlanner,
+  monthIndex: number,
+  referenceDate: Date = getReferenceDate(),
+): number {
+  const monthKey = MONTHS[monthIndex]!
+  const isCurrentMonth = monthIndex === referenceDate.getMonth()
+  const hasConfirmation = Boolean(planner.monthConfirmations?.[monthKey])
+
+  if (isCurrentMonth && !hasConfirmation) {
+    return getPlannerActualBalance(state, planner)
+  }
+
+  return getSuggestedReserveBalanceForMonth(state, planner, monthIndex)
+}
+
+/**
+ * Operating ↔ reserve transfer from the gap between actual balance and the plan target
+ * for the following month (see getReserveTransferTargetForMonth). Used in forecast, Due, and check-in.
+ */
+export function computeReserveOperatingTransfer(
+  actualBalance: number,
+  targetBalance: number,
+): MonthlyNetTransfer {
+  const gap = roundMoney(targetBalance - actualBalance)
+  if (Math.abs(gap) < 0.5) return { amount: 0, direction: 'none' }
+  if (gap > 0) return { amount: gap, direction: 'to_reserve' }
+  const withdraw = Math.min(Math.abs(gap), Math.max(0, actualBalance))
+  if (withdraw < 0.5) return { amount: 0, direction: 'none' }
+  return { amount: withdraw, direction: 'from_reserve' }
+}
+
+export function getReservePlannerForBusiness(
+  state: AppState,
+  businessId: string,
+): ReservePlanner | undefined {
+  return state.reservePlanners.find((p) => p.businessId === businessId)
+}
+
+/** Reserve planner to open for the current sidebar scope (business or venue). */
+export function getReservePlannerIdForScope(state: AppState, scope: ViewScope): string | null {
+  if (scope.type === 'business') {
+    return getReservePlannerForBusiness(state, scope.id)?.id ?? null
+  }
+  if (scope.type === 'venue') {
+    const venue = state.venues.find((v) => v.id === scope.id)
+    if (!venue) return null
+    return getReservePlannerForBusiness(state, venue.businessId)?.id ?? null
+  }
+  const inScope = plannersInScope(state, scope)
+  return inScope.length === 1 ? inScope[0]!.id : null
+}
+
 export function formatMonthlyNetTransfer(
   transfer: MonthlyNetTransfer,
   reserveAccountName: string,
@@ -835,6 +915,7 @@ export function getPlannerOperatingBalance(state: AppState, planner: ReservePlan
 
 /** Operating balance at the end of a confirmed month (after any transfer). */
 export function getOperatingBalanceAfterConfirmation(
+  state: AppState,
   planner: ReservePlanner,
   monthIndex: number,
   confirmation: ReserveMonthConfirmation,
@@ -843,7 +924,10 @@ export function getOperatingBalanceAfterConfirmation(
   const monthEnd = computeReserveMonthEndBalances(planner)[monthIndex]
   if (!monthEnd) return confirmation.operatingBalanceBefore
 
-  const netTransfer = computeMonthlyNetTransfer(monthEnd.monthlyDeposit, monthEnd.totalDue)
+  const monthEnds = computeReserveMonthEndBalances(planner)
+  const reserveBefore = getReserveBalanceForTransfer(state, planner, monthIndex)
+  const transferTarget = getReserveTransferTargetForMonth(monthEnds, monthIndex)
+  const netTransfer = computeReserveOperatingTransfer(reserveBefore, transferTarget)
   if (netTransfer.direction === 'none' || confirmation.transferDone === false) {
     return confirmation.operatingBalanceBefore
   }
@@ -874,6 +958,7 @@ export function getSuggestedOperatingBalanceForMonth(
   const prior = getLatestConfirmationBeforeMonth(planner, monthIndex)
   if (prior?.confirmation.operatingBalanceBefore != null) {
     const carried = getOperatingBalanceAfterConfirmation(
+      state,
       planner,
       prior.monthIndex,
       prior.confirmation,

@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react'
+import { useDemoReadOnly } from '../contexts/DemoModeContext'
 
 export type OverviewSize = 'default' | 'detailed'
 
@@ -23,17 +24,22 @@ function readStoredSize(): OverviewSize {
 }
 
 export function useOverviewSize() {
-  const [size, setSize] = useState<OverviewSize>(readStoredSize)
+  const demoReadOnly = useDemoReadOnly()
+  const [size, setSize] = useState<OverviewSize>(() => (demoReadOnly ? 'default' : readStoredSize()))
 
-  const setOverviewSize = useCallback((next: OverviewSize) => {
-    setSize(next)
-    try {
-      localStorage.setItem(STORAGE_KEY, next)
-      localStorage.setItem(LEGACY_COMPACT_KEY, '0')
-    } catch {
-      /* ignore */
-    }
-  }, [])
+  const setOverviewSize = useCallback(
+    (next: OverviewSize) => {
+      if (demoReadOnly) return
+      setSize(next)
+      try {
+        localStorage.setItem(STORAGE_KEY, next)
+        localStorage.setItem(LEGACY_COMPACT_KEY, '0')
+      } catch {
+        /* ignore */
+      }
+    },
+    [demoReadOnly],
+  )
 
-  return { size, setOverviewSize }
+  return { size, setOverviewSize, demoReadOnly }
 }

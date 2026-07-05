@@ -47,6 +47,10 @@ import { filterRemindersForScope, getDiaryAttentionBuckets } from './businessHub
 import { getPlannersNeedingMonthlyCheckIn } from './reserveCheckIn'
 
 export function getAccountsForScope(state: AppState, scope: ViewScope): Account[] {
+  if (scope.type === 'venue') {
+    return state.accounts.filter((a) => a.active && a.venueId === scope.id)
+  }
+
   const venueIds = getVenueIdsForScope(state, scope)
   const businessIds = getBusinessIdsForScope(state, scope)
 

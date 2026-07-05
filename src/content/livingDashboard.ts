@@ -29,7 +29,7 @@ export const WIDGET_HELP = {
   trueBalance:
     'True Balance shows how much money is genuinely available once money already spoken for has been accounted for. Update balances regularly — the fresher the data, the more you can trust this number. Most people refresh every day or two, or whenever significant money moves.',
   committedFunds:
-    'Record regular costs as they change. Add a row, adjust an amount — each update takes seconds and keeps committed funds honest.',
+    'For regular, predictable bills that come out every month — rent, payroll, subscriptions, insurance DD, loan repayments. These build up (accrue) daily so you always know how much of your balance is already spoken for. Not for one-off or irregular costs — use Reserve Planner for those.',
   due: 'As things get paid, mark them here. That frees up your True Balance and clears what needs attention.',
   expectedReceipts:
     'Money you expect to receive. Choose Lump sum (counts in full straight away) or Build up (accrues daily toward the expected date). When the actual amount differs from your estimate, edit the amount in Due or pay with the real figure — history for that month is corrected automatically.',
@@ -38,9 +38,9 @@ export const WIDGET_HELP = {
   trends:
     'Every time you save balances, a point is recorded. The chart shows whether you are drifting up or down over time.',
   cashOutlook:
-    'Projects your current account forward using dated monthly costs, planned payments, reserve transfers, and expected receipts. Set income pattern per business in Settings → Structure. Use the range toggle (30d / 90d) to change the horizon.',
+    'Projects your current account forward using dated monthly costs, planned payments, reserve transfers, and expected receipts. Works best for businesses with identifiable incoming payments (e.g. invoiced clients, grants, contract payments). For businesses with steady daily income (e.g. retail, hospitality), outgoings are plotted but income is not — your actual balance will be higher than shown. Set income pattern per business in Settings → Structure.',
   forecast:
-    'Forward-looking view: cash outlook from scheduled movements, plus trend projection from saved balance history.',
+    'Forward-looking view: cash outlook from scheduled movements, plus trend projection from saved balance history. The cash outlook is most accurate for businesses with dated incoming payments. If your income arrives steadily (daily trade), the Trends page gives a better picture of your overall trajectory.',
 } as const
 
 export const QUICK_HABITS = [

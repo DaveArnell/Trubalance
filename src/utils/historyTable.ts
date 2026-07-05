@@ -1,6 +1,7 @@
 import type { AppState, BalanceSnapshot, GraphRange, HistoryGranularity, ViewScope } from '../types'
 import { CHART_COLORS, getChartScopeOptions, scopeKey, type ChartScopeOption } from './chartScopes'
 import { hasSharedScopeCosts } from './breakdownTable'
+import { getScopeLabel } from './scope'
 import { roundCurrency } from './amounts'
 import { filterSnapshotsByRange } from './snapshots'
 import { getEffectiveSnapshotsForScope } from './scopeSnapshotSeries'
@@ -43,6 +44,17 @@ function sharedColumnKey(viewScope: ViewScope): string {
   return `${scopeKey(viewScope)}-shared`
 }
 
+function resolveScopeForHistoryColumn(
+  state: AppState,
+  viewScope: ViewScope,
+  columnKey: string,
+): ViewScope | null {
+  if (columnKey === scopeKey(viewScope)) return viewScope
+  if (columnKey === sharedColumnKey(viewScope)) return null
+  const opt = getChartScopeOptions(state, viewScope).find((o) => scopeKey(o.scope) === columnKey)
+  return opt?.scope ?? null
+}
+
 export function getParentScopesForSnapshot(state: AppState, snap: BalanceSnapshot): ViewScope[] {
   const parents: ViewScope[] = []
 
@@ -80,11 +92,20 @@ export function getHistoryColumns(state: AppState, viewScope: ViewScope): Histor
     ]
   }
 
-  const detailLevels: ChartScopeOption['level'][] =
-    viewScope.type === 'group' ? ['business'] : ['venue']
+  // One level below the current view — businesses at group, venues at business.
+  const details = options.filter((o) => o.key !== totalKey)
 
-  const details = options.filter((o) => o.key !== totalKey && detailLevels.includes(o.level))
-  const total = options.find((o) => o.key === totalKey)
+  if (details.length === 0) {
+    const col = options[0]
+    if (!col) return []
+    return [{
+      key: col.key,
+      label: col.label,
+      level: col.level,
+      color: CHART_COLORS[0],
+      isTotal: true,
+    }]
+  }
 
   const columns: HistoryColumn[] = details.map((col, idx) => ({
     key: col.key,
@@ -94,10 +115,10 @@ export function getHistoryColumns(state: AppState, viewScope: ViewScope): Histor
     isTotal: false,
   }))
 
-  if (hasSharedScopeCosts(state, viewScope)) {
+  if (viewScope.type === 'group' && hasSharedScopeCosts(state, viewScope)) {
     columns.push({
       key: sharedColumnKey(viewScope),
-      label: viewScope.type === 'group' ? 'GROUP' : 'SHARED',
+      label: 'GROUP',
       level: viewScope.type,
       color: CHART_COLORS[(details.length + 1) % CHART_COLORS.length],
       isTotal: false,
@@ -105,15 +126,13 @@ export function getHistoryColumns(state: AppState, viewScope: ViewScope): Histor
     })
   }
 
-  if (total) {
-    columns.push({
-      key: total.key,
-      label: viewScope.type === 'group' ? 'Total' : total.label,
-      level: total.level,
-      color: CHART_COLORS[0],
-      isTotal: true,
-    })
-  }
+  columns.push({
+    key: totalKey,
+    label: viewScope.type === 'group' ? 'Total' : getScopeLabel(state, viewScope),
+    level: viewScope.type,
+    color: CHART_COLORS[0],
+    isTotal: true,
+  })
 
   return columns
 }
@@ -178,30 +197,22 @@ function cellFromSnapshot(
   }
 }
 
-/** Use the latest snapshot date within a period so every column reflects the same day. */
+/** Use the latest snapshot per scope within a period (chart and log stay in sync). */
 function alignedSnapshotsForPeriod(
   snapshotsByKey: Map<string, BalanceSnapshot[]>,
   scopeColumnKeys: string[],
   period: string,
   granularity: HistoryGranularity,
 ): Map<string, BalanceSnapshot | undefined> {
-  let anchorDate: string | null = null
-
-  for (const key of scopeColumnKeys) {
-    for (const snap of snapshotsByKey.get(key) ?? []) {
-      if (periodKeyForDate(snap.date, granularity) !== period) continue
-      if (!anchorDate || snap.date > anchorDate) anchorDate = snap.date
-    }
-  }
-
   const aligned = new Map<string, BalanceSnapshot | undefined>()
-  if (!anchorDate) return aligned
 
   for (const key of scopeColumnKeys) {
-    aligned.set(
-      key,
-      (snapshotsByKey.get(key) ?? []).find((snap) => snap.date === anchorDate),
+    const inPeriod = (snapshotsByKey.get(key) ?? []).filter(
+      (snap) => periodKeyForDate(snap.date, granularity) === period,
     )
+    if (inPeriod.length === 0) continue
+    const latest = inPeriod.reduce((best, snap) => (snap.date > best.date ? snap : best))
+    aligned.set(key, latest)
   }
 
   return aligned
@@ -237,18 +248,15 @@ export function buildHistoryTable(
   const totalKey = scopeKey(viewScope)
   const detailColumns = columns.filter((col) => !col.isTotal && !col.isShared)
   const sharedColumns = columns.filter((col) => col.isShared)
-  const scopeColumnKeys = [
-    ...detailColumns.map((col) => col.key),
-    ...(columns.some((col) => col.isTotal) ? [totalKey] : []),
-  ]
+  const columnKeys = columns.filter((col) => !col.isShared).map((col) => col.key)
 
   const snapshotsByKey = new Map<string, BalanceSnapshot[]>()
-  for (const key of scopeColumnKeys) {
-    const opt = getChartScopeOptions(state, viewScope).find((o) => scopeKey(o.scope) === key)
-    if (!opt) continue
+  for (const key of columnKeys) {
+    const scope = resolveScopeForHistoryColumn(state, viewScope, key)
+    if (!scope) continue
     snapshotsByKey.set(
       key,
-      filterSnapshotsByRange(getEffectiveSnapshotsForScope(state, opt.scope, viewScope), range),
+      filterSnapshotsByRange(getEffectiveSnapshotsForScope(state, scope, viewScope), range),
     )
   }
 
@@ -262,7 +270,7 @@ export function buildHistoryTable(
   const rows: HistoryRow[] = [...periodSet]
     .sort((a, b) => a.localeCompare(b))
     .map((period) => {
-      const aligned = alignedSnapshotsForPeriod(snapshotsByKey, scopeColumnKeys, period, granularity)
+      const aligned = alignedSnapshotsForPeriod(snapshotsByKey, columnKeys, period, granularity)
       const values: Record<string, HistoryCellData> = {}
 
       for (const col of detailColumns) {
@@ -292,11 +300,14 @@ export function buildHistoryTable(
 
       if (columns.some((col) => col.isTotal)) {
         values[totalKey] = cellFromSnapshot(state, parentSnap, metric, granularity)
-        const rolledUp = rollupTotalValue(values, columns)
-        if (rolledUp != null) {
-          values[totalKey] = {
-            ...values[totalKey]!,
-            value: rolledUp,
+        // Group total can reconcile venues + GROUP column; business total is its own saved figure.
+        if (viewScope.type === 'group') {
+          const rolledUp = rollupTotalValue(values, columns)
+          if (rolledUp != null) {
+            values[totalKey] = {
+              ...values[totalKey]!,
+              value: rolledUp,
+            }
           }
         }
       }

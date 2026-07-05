@@ -10,6 +10,7 @@ import {
 import type { Session, User } from '@supabase/supabase-js'
 import { getSupabase, isSupabaseConfigured, tryGetSupabase } from '../lib/supabase'
 import { isLocalDevMode } from '../lib/devMode'
+import { clearLocalUserData } from '../utils/localStateStorage'
 import { fetchProfile, logAdminAction, type UserProfile } from '../services/adminRepository'
 import { trackEvent, updateLastSignIn } from '../services/eventTracking'
 
@@ -34,6 +35,8 @@ interface AuthContextValue {
   isImpersonating: boolean
   signIn: (email: string, password: string) => Promise<{ error: string | null }>
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: string | null }>
+  resetPassword: (email: string) => Promise<{ error: string | null }>
+  updatePassword: (password: string) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
   startImpersonation: (target: ImpersonationTarget) => Promise<void>
   stopImpersonation: () => void
@@ -133,6 +136,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: null }
   }, [])
 
+  const resetPassword = useCallback(async (email: string) => {
+    if (!isSupabaseConfigured) return { error: 'Supabase is not configured' }
+    const supabase = getSupabase()
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    })
+    if (error) return { error: error.message }
+    return { error: null }
+  }, [])
+
+  const updatePassword = useCallback(async (password: string) => {
+    if (!isSupabaseConfigured) return { error: 'Supabase is not configured' }
+    const supabase = getSupabase()
+    const { error } = await supabase.auth.updateUser({ password })
+    if (error) return { error: error.message }
+    return { error: null }
+  }, [])
+
   const signOut = useCallback(async () => {
     saveImpersonation(null)
     setImpersonation(null)
@@ -140,6 +161,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (supabase) await supabase.auth.signOut()
     setSession(null)
     setProfile(null)
+
+    clearLocalUserData()
+
     window.location.href = '/'
   }, [])
 
@@ -177,6 +201,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isImpersonating,
       signIn,
       signUp,
+      resetPassword,
+      updatePassword,
       signOut,
       startImpersonation,
       stopImpersonation,

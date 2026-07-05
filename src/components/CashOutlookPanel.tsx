@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import type { AppState, GraphRange, IncomePattern, ViewScope } from '../types'
 import { formatCurrency } from '../utils/format'
-import { formatAxisCurrency } from '../utils/chartFormat'
+import { formatAxisCurrency, computeTrendYDomain } from '../utils/chartFormat'
 import {
   buildForwardCashFlowProjection,
   cashOutlookHorizonDays,
@@ -18,17 +18,17 @@ const PAD = { top: 20, right: 16, bottom: 48, left: 56 }
 function incomePatternLabel(pattern: IncomePattern | 'mixed'): string {
   if (pattern === 'lumpy') return 'Lumpy / irregular income'
   if (pattern === 'mixed') return 'Mixed income patterns'
-  return 'Steady / regular income'
+  return 'Steady / daily income'
 }
 
 function incomePatternHint(pattern: IncomePattern | 'mixed'): string {
   if (pattern === 'lumpy') {
-    return 'Add expected receipts with dates so large payments show on the outlook. Costs use your Due and monthly schedule.'
+    return 'Best suited for this view — add expected receipts with dates so large payments show on the outlook alongside your scheduled costs.'
   }
   if (pattern === 'mixed') {
     return 'Set income pattern per business in Settings → Structure for tailored guidance.'
   }
-  return 'Outlook projects current-account balance from scheduled costs, reserve transfers, and dated receipts.'
+  return 'This outlook shows scheduled outgoings only. Daily income is not plotted — your real balance will trend higher than shown here. Use the Trends page for a more accurate picture.'
 }
 
 function eventTone(category: CashFlowEvent['category']): string {
@@ -100,11 +100,9 @@ export function CashOutlookPanel({
     const plotH = height - PAD.top - PAD.bottom
 
     const values = projection.days.map((d) => d.balance)
-    const minVal = Math.min(projection.openingCurrentBalance, ...values, 0)
-    const maxVal = Math.max(projection.openingCurrentBalance, ...values, 0)
-    const pad = Math.max(500, (maxVal - minVal) * 0.08)
-    const yMin = minVal - pad
-    const yMax = maxVal + pad
+    const minVal = Math.min(projection.openingCurrentBalance, ...values)
+    const maxVal = Math.max(projection.openingCurrentBalance, ...values)
+    const { yMin, yMax } = computeTrendYDomain(minVal, maxVal, 0.1)
 
     const xForIndex = (index: number) => PAD.left + (index / Math.max(1, projection.days.length - 1)) * plotW
     const yForValue = (value: number) => PAD.top + plotH - ((value - yMin) / Math.max(1, yMax - yMin)) * plotH

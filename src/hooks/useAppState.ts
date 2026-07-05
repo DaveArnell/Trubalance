@@ -16,7 +16,7 @@ import type {
   SnapshotAccountChange,
   ViewScope,
 } from '../types'
-import { isCommitmentScopeAllowed, isValidScopeReference, getScopeLabel } from '../utils/scope'
+import { isCommitmentScopeAllowed, isValidScopeReference, getScopeLabel, resolveDefaultViewScope } from '../utils/scope'
 import { applySnapshotRollup, backfillScopeSnapshots, buildSnapshotAccountChange, getScopesForCommitment, getScopesForReceipt, getScopesForReservePlanner, refreshSnapshotsForScopes } from '../utils/snapshotRollup'
 import {
   getCommitmentHistoricCorrectionFromDateKey,
@@ -27,7 +27,7 @@ import {
 } from '../utils/snapshotRebuild'
 import { getReceiptRebuildFromDateKey, getReceiptDeleteFromDateKey } from '../utils/receiptCalculations'
 import { captureHistoryRecord, upsertDailyHistoryRecord } from '../utils/historyCapture'
-import { getStoredHistoryRecordIdsForDay, getSnapshotIdsForDayInViewScope, scopeInViewTree } from '../utils/historyRebuild'
+import { getStoredHistoryRecordIdsForDay, getSnapshotIdsForDayInViewScope, repairEmptySnapshotChangedAccounts, scopeInViewTree } from '../utils/historyRebuild'
 import { calculateDashboard, getCommitmentsForScope } from '../utils/calculations'
 import {
   buildAmountChangePatch,
@@ -51,6 +51,7 @@ import type { HistoryMetricKey } from '../utils/historyTable'
 import { todayDateKey, getFreshness } from '../utils/snapshots'
 import { MONTHS, currentMonthIndex } from '../utils/format'
 import { backupBrowserStateToSession, readRawBrowserStateJson, statesMatchRoughly } from '../utils/localStateStorage'
+import { normalizeWorkspaceState } from '../utils/workspaceNormalize'
 import { DIARY_REMINDER_TEMPLATES } from '../content/businessHub'
 import { filterRemindersForScope, getDiaryAttentionBuckets, templateToNextDate } from '../utils/businessHub'
 import { getReferenceDate, getReferenceDateKey } from '../utils/referenceDate'
@@ -198,7 +199,8 @@ function migrateState(parsed: Record<string, unknown>): AppState {
     )
   }
   const migratedAt = new Date().toISOString()
-  const withBackfill = backfillScopeSnapshots(base, migratedAt)
+  const repaired = repairEmptySnapshotChangedAccounts(base)
+  const withBackfill = backfillScopeSnapshots(repaired, migratedAt)
   const withSnapshots = refreshAllSnapshotMetrics(withBackfill, migratedAt)
   if (base.workspaceOrigin === undefined) {
     if (!statesMatchRoughly(withSnapshots, initialState)) {
@@ -254,7 +256,7 @@ export function readBrowserAppState(): AppState | null {
 }
 
 function loadState(): AppState {
-  return readBrowserAppState() ?? initialState
+  return normalizeWorkspaceState(readBrowserAppState() ?? initialState)
 }
 
 export interface BalanceSaveChange {
@@ -271,7 +273,7 @@ export interface UseAppStateOptions {
   /** When set, replaces localStorage as the data source after load. */
   externalState?: AppState | null
   /** Bumped when remote workspace is replaced (import / restore). */
-  externalStateVersion?: number
+  externalStateVersion?: number | string
   /** Workspace id — resets remote hydration when the signed-in workspace changes. */
   workspaceId?: string | null
   externalLoading?: boolean
@@ -279,20 +281,42 @@ export interface UseAppStateOptions {
   onStateChange?: (state: AppState) => void
   /** When true, skip localStorage writes (cloud-backed session). */
   remotePersist?: boolean
+  /** When true, never write demo/session data to localStorage. */
+  skipLocalPersist?: boolean
+  /** Initial scope when hydrating external state (e.g. interactive demo). */
+  defaultViewScope?: ViewScope
   readOnly?: boolean
 }
 
 export function useAppState(options?: UseAppStateOptions) {
-  const [state, setState] = useState<AppState>(loadState)
-  const [viewScope, setViewScope] = useState<ViewScope>(defaultViewScope)
+  const [state, setState] = useState<AppState>(() => {
+    if (options?.externalState) {
+      return normalizeWorkspaceState(cloneState(options.externalState))
+    }
+    return loadState()
+  })
+  const [viewScope, setViewScope] = useState<ViewScope>(() => {
+    const initial = options?.externalState ?? loadState()
+    return resolveDefaultViewScope(initial, options?.defaultViewScope ?? defaultViewScope)
+  })
   const [canUndo, setCanUndo] = useState(false)
   const [canRedo, setCanRedo] = useState(false)
   const undoStackRef = useRef<AppState[]>([])
   const redoStackRef = useRef<AppState[]>([])
   const skipPersistRef = useRef(true)
+  const remoteHydratedRef = useRef(!options?.remotePersist)
   const externalStateRef = useRef(options?.externalState)
   externalStateRef.current = options?.externalState
   const lastHydrateKeyRef = useRef<string | null>(null)
+
+  useEffect(() => {
+    if (!options?.remotePersist) {
+      remoteHydratedRef.current = true
+      return
+    }
+    remoteHydratedRef.current = false
+    lastHydrateKeyRef.current = null
+  }, [options?.remotePersist, options?.workspaceId])
 
   useEffect(() => {
     if (options?.externalLoading) return
@@ -303,29 +327,57 @@ export function useAppState(options?: UseAppStateOptions) {
     if (lastHydrateKeyRef.current === hydrateKey) return
     lastHydrateKeyRef.current = hydrateKey
 
-    const next = cloneState(external)
+    const next = normalizeWorkspaceState(cloneState(external))
     setState(next)
     undoStackRef.current = []
     setCanUndo(false)
     redoStackRef.current = []
     setCanRedo(false)
-    const firstGroup = next.groups[0]
-    if (firstGroup) {
-      setViewScope({ type: 'group', id: firstGroup.id })
+    if (options?.defaultViewScope) {
+      setViewScope(resolveDefaultViewScope(next, options.defaultViewScope))
+    } else {
+      setViewScope(resolveDefaultViewScope(next))
     }
     skipPersistRef.current = true
-  }, [options?.externalStateVersion, options?.workspaceId, options?.externalLoading])
+    remoteHydratedRef.current = true
+  }, [options?.externalStateVersion, options?.workspaceId, options?.externalLoading, options?.defaultViewScope])
 
   useEffect(() => {
+    const scopeValid =
+      (viewScope.type === 'group' && state.groups.some((group) => group.id === viewScope.id)) ||
+      (viewScope.type === 'business' && state.businesses.some((business) => business.id === viewScope.id)) ||
+      (viewScope.type === 'venue' && state.venues.some((venue) => venue.id === viewScope.id))
+    if (!scopeValid) {
+      setViewScope(resolveDefaultViewScope(state, options?.defaultViewScope))
+    }
+  }, [state, viewScope, options?.defaultViewScope])
+
+  useEffect(() => {
+    if (options?.skipLocalPersist) {
+      options.onStateChange?.(state)
+      return
+    }
     if (skipPersistRef.current) {
       skipPersistRef.current = false
       return
     }
+    if (options?.remotePersist && !remoteHydratedRef.current) return
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
     if (options?.remotePersist) {
       options.onStateChange?.(state)
     }
-  }, [state, options?.remotePersist, options?.onStateChange])
+  }, [state, options?.remotePersist, options?.onStateChange, options?.skipLocalPersist])
+
+  useEffect(() => {
+    if (viewScope.type === 'group') {
+      const groupExists = state.groups.some((g) => g.id === viewScope.id)
+      if (!groupExists && state.businesses.length > 0) {
+        setViewScope({ type: 'business', id: state.businesses[0].id })
+      } else if (groupExists && state.businesses.length === 1) {
+        setViewScope({ type: 'business', id: state.businesses[0].id })
+      }
+    }
+  }, [state.groups, state.businesses, viewScope])
 
   const pushUndo = useCallback((snapshot: AppState) => {
     undoStackRef.current = [...undoStackRef.current.slice(-(MAX_UNDO - 1)), cloneState(snapshot)]
@@ -405,9 +457,37 @@ export function useAppState(options?: UseAppStateOptions) {
       }
     })
 
+  const dissolveGroup = (id: string) =>
+    update((s) => ({
+      ...s,
+      groups: s.groups.filter((g) => g.id !== id),
+    }))
+
   // Businesses
-  const addBusiness = (groupId: string, name: string) =>
-    update((s) => ({ ...s, businesses: [...s.businesses, { id: newId(), groupId, name }] }))
+  const addBusiness = (groupId: string | undefined, name: string, createDefaultAccount = false) =>
+    update((s) => {
+      const resolvedGroupId = groupId ?? s.groups[0]?.id ?? newId()
+      let groups = s.groups
+      if (!groups.some((g) => g.id === resolvedGroupId)) {
+        groups = [...groups, { id: resolvedGroupId, name: 'Group' }]
+      }
+      const businessId = newId()
+      const businesses = [...s.businesses, { id: businessId, groupId: resolvedGroupId, name }]
+      if (!createDefaultAccount) return { ...s, groups, businesses }
+      const accounts = [
+        ...s.accounts,
+        {
+          id: newId(),
+          businessId,
+          name: 'Current account',
+          type: 'current' as const,
+          balance: 0,
+          active: true,
+          updatedAt: new Date().toISOString(),
+        },
+      ]
+      return { ...s, groups, businesses, accounts }
+    })
 
   const renameBusiness = (id: string, name: string) =>
     update((s) => ({ ...s, businesses: s.businesses.map((b) => (b.id === id ? { ...b, name } : b)) }))
@@ -1350,8 +1430,10 @@ export function useAppState(options?: UseAppStateOptions) {
       setState(withOrigin)
       localStorage.setItem(STORAGE_KEY, JSON.stringify(withOrigin))
       const firstGroup = withOrigin.groups[0]
-      if (firstGroup) {
+      if (firstGroup && withOrigin.businesses.length > 1) {
         setViewScope({ type: 'group', id: firstGroup.id })
+      } else if (withOrigin.businesses[0]) {
+        setViewScope({ type: 'business', id: withOrigin.businesses[0].id })
       }
       skipPersistRef.current = Boolean(options?.remotePersist)
     },
@@ -1740,7 +1822,7 @@ export function useAppState(options?: UseAppStateOptions) {
       if (s.businesses.length > 0) return s
       const groupId = newId()
       const businessId = newId()
-      const groups = [...s.groups, { id: groupId, name: businessName }]
+      const groups = [...s.groups, { id: groupId, name: 'Group' }]
       const businesses = [...s.businesses, { id: businessId, groupId, name: businessName }]
       let venues = [...s.venues]
       let accounts = [...s.accounts]
@@ -1792,7 +1874,7 @@ export function useAppState(options?: UseAppStateOptions) {
       if (s.businesses.length > 0) return s
       const groupId = newId()
       const businessId = newId()
-      const groups = [...s.groups, { id: groupId, name: businessName }]
+      const groups = [...s.groups, { id: groupId, name: 'Group' }]
       const businesses = [...s.businesses, { id: businessId, groupId, name: businessName }]
       let venues = [...s.venues]
       let accounts = [...s.accounts]
@@ -1853,6 +1935,7 @@ export function useAppState(options?: UseAppStateOptions) {
     renameGroup,
     setGroupAccentColor,
     deleteGroup,
+    dissolveGroup,
     addBusiness,
     renameBusiness,
     setBusinessAccentColor,

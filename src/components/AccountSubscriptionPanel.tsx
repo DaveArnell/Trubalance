@@ -5,7 +5,6 @@ import {
   TRIAL_DAYS,
   TIER_ORDER,
   formatPriceGbp,
-  minimumTierForUsage,
   recommendTierForWorkspace,
   type SubscriptionTierId,
 } from '../config/subscriptionTiers'
@@ -46,9 +45,7 @@ export function AccountSubscriptionPanel({ state, embedded = false }: AccountSub
 
   const summary = summarizeAppState(state)
   const recommendedTierId = recommendTierForWorkspace(usage)
-  const minimumTierId = minimumTierForUsage(usage)
   const recommendedTier = SUBSCRIPTION_TIERS[recommendedTierId]
-  const minimumTier = SUBSCRIPTION_TIERS[minimumTierId]
   const trialEndLabel = formatTrialEnd(subscription.trialEndsAt)
 
   const trialProgress = useMemo(() => {
@@ -60,9 +57,9 @@ export function AccountSubscriptionPanel({ state, embedded = false }: AccountSub
   const verdictDetail =
     usage.businesses <= 1
       ? 'You are tracking one business — the Solo plan is the right fit when your trial ends.'
-      : minimumTierId !== recommendedTierId
-        ? `You have ${usage.businesses} companies. You need at least ${minimumTier.name} to cover them all. For the group roll-up view, Business Hub, and diary, choose ${recommendedTier.name}.`
-        : `You are running ${usage.businesses} companies as a group — ${recommendedTier.name} includes the group-wide view, Business Hub, and unlimited companies.`
+      : recommendedTierId === 'group'
+        ? `You are running ${usage.businesses} companies as a group — ${recommendedTier.name} includes the group-wide view, Business Hub, and unlimited companies.`
+        : `You have ${usage.businesses} companies. The Business plan lets you switch between them. Upgrade to Group for a rolled-up view across all companies.`
 
   const body = (
     <>

@@ -7,6 +7,7 @@ import { useRef, useState } from 'react'
 
 import type { PageId } from '../navigation'
 
+import { useDemoReadOnly } from '../contexts/DemoModeContext'
 import { useWidgetLayout } from '../hooks/useWidgetLayout'
 
 import {
@@ -774,6 +775,7 @@ function WidgetSlot({
 
 export function WidgetGrid({ pageId, widgets }: WidgetGridProps) {
 
+  const demoReadOnly = useDemoReadOnly()
   const { layout, setVisible, setWidgetRects, resetLayout } = useWidgetLayout(pageId)
 
   const canvasRef = useRef<HTMLDivElement>(null)
@@ -794,7 +796,7 @@ export function WidgetGrid({ pageId, widgets }: WidgetGridProps) {
 
   const [settling, setSettling] = useState(false)
 
-  const customizable = isLayoutCustomizable(pageId)
+  const customizable = isLayoutCustomizable(pageId) && !demoReadOnly
 
   const visible = layout.filter((item) => item.visible)
 

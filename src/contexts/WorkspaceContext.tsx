@@ -16,10 +16,12 @@ import {
   loadWorkspaceState,
   restoreStateToWorkspace,
   saveWorkspaceState,
+  buildSafeTableEmptyDeletes,
 } from '../services/workspaceRepository'
 import { isSupabaseConfigured } from '../lib/supabase'
 import { emptyAppState, isBuiltinDemoWorkspace, isUserOwnedWorkspace, backupBrowserStateToSession } from '../utils/localStateStorage'
 import { readBrowserAppState } from '../hooks/useAppState'
+import { normalizeWorkspaceState } from '../utils/workspaceNormalize'
 
 interface WorkspaceContextValue {
   workspaceId: string | null
@@ -50,6 +52,9 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pendingStateRef = useRef<AppState | null>(null)
   const persistEnabledRef = useRef(false)
+  const allowEmptyDeletesRef = useRef(false)
+  const loadedStateRef = useRef<AppState | null>(null)
+  const lastPersistedStateRef = useRef<AppState | null>(null)
   const loadedForUserRef = useRef<string | null>(null)
 
   const remoteEnabled = configured && Boolean(effectiveUserId)
@@ -57,6 +62,9 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
   const loadWorkspace = useCallback(async () => {
     persistEnabledRef.current = false
+    allowEmptyDeletesRef.current = false
+    loadedStateRef.current = null
+    lastPersistedStateRef.current = null
     if (!configured || !effectiveUserId) {
       setWorkspaceId(null)
       setInitialRemoteState(null)
@@ -82,7 +90,8 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       backupBrowserStateToSession()
 
       const dbEmpty = await isWorkspaceEmptyInDatabase(wsId)
-      let state = await loadWorkspaceState(wsId)
+      const { state: loadedState } = await loadWorkspaceState(wsId)
+      let state = loadedState
       const localState = !isImpersonating && user?.id === effectiveUserId ? readBrowserAppState() : null
 
       const cloudLooksLikeDemo = isBuiltinDemoWorkspace(state)
@@ -94,11 +103,15 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         localLooksLikeUserData &&
         (dbEmpty || cloudLooksLikeDemo)
       ) {
-        await saveWorkspaceState(wsId, localState)
+        await saveWorkspaceState(wsId, localState, { allowEmptyDeletes: true })
         state = localState
+        allowEmptyDeletesRef.current = true
         setImportedFromLocal(true)
       } else if (dbEmpty && !localLooksLikeUserData) {
         state = emptyAppState()
+        allowEmptyDeletesRef.current = false
+      } else {
+        allowEmptyDeletesRef.current = false
       }
 
       if (!state.workspaceOrigin) {
@@ -108,6 +121,11 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
           state = { ...state, workspaceOrigin: 'builtin-demo' }
         }
       }
+
+      state = normalizeWorkspaceState(state)
+
+      loadedStateRef.current = state
+      lastPersistedStateRef.current = null
 
       setInitialRemoteState(state)
       loadedForUserRef.current = effectiveUserId
@@ -136,7 +154,15 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     const state = pendingStateRef.current
     if (!state) return
     pendingStateRef.current = null
-    await saveWorkspaceState(workspaceId, state)
+    await saveWorkspaceState(workspaceId, state, {
+      allowEmptyDeletes: allowEmptyDeletesRef.current,
+      tableEmptyDeletes: buildSafeTableEmptyDeletes(state, {
+        loaded: loadedStateRef.current,
+        previous: lastPersistedStateRef.current,
+        allowAll: allowEmptyDeletesRef.current,
+      }),
+    })
+    lastPersistedStateRef.current = state
   }, [workspaceId, readOnly])
 
   const persistState = useCallback(
@@ -182,7 +208,15 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     return () => {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
       if (pendingStateRef.current && workspaceId && !readOnly && persistEnabledRef.current) {
-        saveWorkspaceState(workspaceId, pendingStateRef.current)
+        const state = pendingStateRef.current
+        saveWorkspaceState(workspaceId, state, {
+          allowEmptyDeletes: allowEmptyDeletesRef.current,
+          tableEmptyDeletes: buildSafeTableEmptyDeletes(state, {
+            loaded: loadedStateRef.current,
+            previous: lastPersistedStateRef.current,
+            allowAll: allowEmptyDeletesRef.current,
+          }),
+        })
       }
     }
   }, [workspaceId, readOnly])

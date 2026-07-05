@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { AppState, Commitment, CommitmentViews, ViewScope } from '../types'
 import {
   getScopeItemLabel,
@@ -9,6 +9,7 @@ import {
 import { formatCurrency } from '../utils/format'
 import { getReserveAccrualTooltip } from '../utils/reserveCalculations'
 import type { AppActions } from '../hooks/useAppState'
+import { useDemoReadOnly } from '../contexts/DemoModeContext'
 import { useMonthlyCostGroupCollapse } from '../hooks/useMonthlyCostGroupCollapse'
 import { flattenMonthlyCostTree } from '../utils/monthlyCostGrouping'
 import { monthlyCostEditableCellIds, useSheetCellNavigation } from '../utils/sheetCellNavigation'
@@ -49,6 +50,7 @@ export function CommittedFundsPanel({
   openHelp,
   setOpenHelp,
 }: CommittedFundsPanelProps) {
+  const demoReadOnly = useDemoReadOnly()
   const [viewMode, setViewMode] = useState<AccruingViewMode>('list')
   const [pendingDueDayChange, setPendingDueDayChange] = useState<{
     commitmentId: string
@@ -58,6 +60,15 @@ export function CommittedFundsPanel({
     preservedPeriodsOnRemove: string[]
     message: string
   } | null>(null)
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const mode = (e as CustomEvent).detail as AccruingViewMode
+      if (mode) setViewMode(mode)
+    }
+    window.addEventListener('tb-set-accruing-view', handler)
+    return () => window.removeEventListener('tb-set-accruing-view', handler)
+  }, [])
   const options = getCommitmentScopeOptionsForView(state, viewScope)
 
   const monthlyCommitmentRows = useMemo(
@@ -196,6 +207,7 @@ export function CommittedFundsPanel({
       <div className="card-head card-head-compact">
         <div>
           <h2>Monthly accruing</h2>
+          <p className="muted card-lead-compact">Regular predictable bills — rent, payroll, subscriptions, direct debits</p>
         </div>
         <div className="card-head-actions">
           <div className="view-mode-toggle" role="group" aria-label="Monthly accruing view">
@@ -258,9 +270,11 @@ export function CommittedFundsPanel({
                     {allExpanded ? 'Collapse all' : 'Expand all'}
                   </button>
                 )}
+                {!demoReadOnly && (
                 <button type="button" className="btn-secondary btn-tiny" onClick={addMonthlyRow}>
                   + Add
                 </button>
+                )}
               </div>
             </div>
             {!hasRows ? (
@@ -271,7 +285,7 @@ export function CommittedFundsPanel({
                   <PlatformSheetTable widths={widths} preferenceClasses={prefClasses}>
                     <thead>
                       <tr>
-                        <SheetDragHeader />
+                        {!demoReadOnly && <SheetDragHeader />}
                         <ResizableSheetHeader columnIndex={1} onResizeStart={startResize}>
                           Name
                         </ResizableSheetHeader>
@@ -298,7 +312,9 @@ export function CommittedFundsPanel({
                         <ResizableSheetHeader columnIndex={6} onResizeStart={startResize} className="sheet-num">
                           Per day
                         </ResizableSheetHeader>
+                        {!demoReadOnly && (
                         <ResizableSheetHeader columnIndex={7} onResizeStart={startResize} className="sheet-actions" />
+                        )}
                       </tr>
                     </thead>
                     <tbody>
@@ -310,11 +326,14 @@ export function CommittedFundsPanel({
                         onToggleGroup={toggleGroup}
                         scopeOptions={options}
                         activeCell={activeCell}
-                        onActivate={activate}
+                        onActivate={(id) => {
+                          if (!demoReadOnly) activate(id)
+                        }}
                         onDeactivate={deactivate}
                         makeTabHandler={makeTabHandler}
                         onSaveDueDay={saveMonthlyDueDay}
                         actions={actions}
+                        readOnly={demoReadOnly}
                       />
                       {reserveAccrualRows.map((row) => {
                         const { commitment: item, accruedAmount } = row

@@ -1,16 +1,17 @@
 import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { AppActions } from '../../hooks/useAppState'
-import type { AppState, DashboardMetrics, ViewScope } from '../../types'
+import type { AppState, DashboardMetrics, IncomePattern, ViewScope } from '../../types'
 import { getScopeLabel } from '../../utils/scope'
 import { toAmount, roundCurrency } from '../../utils/amounts'
 import {
+  INCOME_PATTERN_HINTS,
   QUICK_COMMITMENT_TEMPLATES,
   SETUP_ONBOARDING_STEPS,
   dismissSetupOnboardingLocally,
 } from '../../content/setupOnboarding'
 import { QUICK_HABITS } from '../../content/livingDashboard'
-import { MANUAL_SETUP_REASSURANCE } from '../../content/guidedSetup'
+import { MANUAL_SETUP_REASSURANCE, WHY_TRUE_BALANCE_CONTENT } from '../../content/guidedSetup'
 import { formatCurrency } from '../../utils/format'
 import { getCashAccounts, getAccountsForScope } from '../../utils/calculations'
 import type { PageId } from '../../navigation'
@@ -21,15 +22,15 @@ interface SetupOnboardingWizardProps {
   metrics: DashboardMetrics
   actions: Pick<
     AppActions,
-    'setupMinimalWorkspace' | 'saveBalanceUpdate' | 'addCommitment'
+    'setupMinimalWorkspace' | 'saveBalanceUpdate' | 'addCommitment' | 'setBusinessIncomePattern' | 'addBusiness' | 'addReservePlanner'
   >
-  onNavigate: (pageId: PageId) => void
+  onNavigate: (pageId: PageId, reservePlannerId?: string | null) => void
   onComplete: () => void
   onDismiss: () => void
   onBackToPathChoice?: () => void
 }
 
-type CommitmentDraft = { name: string; amount: string; selected: boolean }
+type CommitmentDraft = { name: string; amount: string; dueDay: string; selected: boolean }
 
 export function SetupOnboardingWizard({
   state,
@@ -41,19 +42,31 @@ export function SetupOnboardingWizard({
   onDismiss,
   onBackToPathChoice,
 }: SetupOnboardingWizardProps) {
-  const [stepIndex, setStepIndex] = useState(0)
+  const PROGRESS_KEY = 'trubalance-setup-step-index'
+  const [stepIndex, setStepIndex] = useState(() => {
+    try {
+      const saved = localStorage.getItem(PROGRESS_KEY)
+      const idx = saved ? parseInt(saved, 10) : 0
+      return idx >= 0 && idx < SETUP_ONBOARDING_STEPS.length ? idx : 0
+    } catch { return 0 }
+  })
   const [businessName, setBusinessName] = useState('')
   const [venueName, setVenueName] = useState('')
   const [accountName, setAccountName] = useState('Current account')
+  const [incomePatternDraft, setIncomePatternDraft] = useState<IncomePattern>('steady')
   const [balanceDrafts, setBalanceDrafts] = useState<Record<string, string>>({})
   const [commitmentDrafts, setCommitmentDrafts] = useState<CommitmentDraft[]>(() =>
-    QUICK_COMMITMENT_TEMPLATES.map((t) => ({ name: t.name, amount: '', selected: false })),
+    QUICK_COMMITMENT_TEMPLATES.map((t) => ({ name: t.name, amount: '', dueDay: '', selected: false })),
   )
   const [pendingBusinessAdvance, setPendingBusinessAdvance] = useState(false)
 
   const step = SETUP_ONBOARDING_STEPS[stepIndex]!
   const stepCount = SETUP_ONBOARDING_STEPS.length
   const isLast = stepIndex >= stepCount - 1
+
+  useEffect(() => {
+    try { localStorage.setItem(PROGRESS_KEY, String(stepIndex)) } catch { /* */ }
+  }, [stepIndex])
 
   const primaryBusiness = state.businesses[0]
   const cashAccounts = useMemo(
@@ -64,16 +77,41 @@ export function SetupOnboardingWizard({
   useEffect(() => {
     if (!pendingBusinessAdvance || !primaryBusiness) return
     setPendingBusinessAdvance(false)
+    actions.setBusinessIncomePattern(primaryBusiness.id, incomePatternDraft)
     setStepIndex((i) => i + 1)
   }, [pendingBusinessAdvance, primaryBusiness])
 
   useEffect(() => {
+    if (step.spotlight && step.spotlight.includes('data-widget-id')) {
+      onNavigate('committed-funds')
+    }
+    if (step.id === 'month-view') {
+      window.dispatchEvent(new CustomEvent('tb-set-accruing-view', { detail: 'period' }))
+      return () => {
+        window.dispatchEvent(new CustomEvent('tb-set-accruing-view', { detail: 'list' }))
+      }
+    }
+  }, [step.id])
+
+  const [panelPlacement, setPanelPlacement] = useState<'center' | 'left' | 'right'>('center')
+
+  useEffect(() => {
     const selector = step.spotlight
-    if (!selector) return
+    if (!selector) { setPanelPlacement('center'); return }
     const el = document.querySelector(selector)
-    if (!el) return
+    if (!el) { setPanelPlacement('center'); return }
     el.setAttribute('data-onboarding-focus', 'true')
     el.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+
+    const rect = el.getBoundingClientRect()
+    const midX = rect.left + rect.width / 2
+    const vpWidth = window.innerWidth
+    if (step.explain) {
+      setPanelPlacement(midX < vpWidth * 0.5 ? 'right' : 'left')
+    } else {
+      setPanelPlacement(midX < vpWidth * 0.5 ? 'right' : 'left')
+    }
+
     return () => el.removeAttribute('data-onboarding-focus')
   }, [step.id, step.spotlight])
 
@@ -87,12 +125,14 @@ export function SetupOnboardingWizard({
   }, [step.id, cashAccounts])
 
   const handleDismiss = () => {
+    try { localStorage.removeItem(PROGRESS_KEY) } catch { /* */ }
     dismissSetupOnboardingLocally()
     onDismiss()
   }
 
   const handleBusinessNext = () => {
     if (primaryBusiness) {
+      actions.setBusinessIncomePattern(primaryBusiness.id, incomePatternDraft)
       setStepIndex((i) => i + 1)
       return
     }
@@ -130,11 +170,12 @@ export function SetupOnboardingWizard({
         if (!draft.selected) continue
         const amount = roundCurrency(toAmount(draft.amount))
         if (amount <= 0) continue
+        const dueDay = parseInt(draft.dueDay, 10)
         actions.addCommitment({
           name: draft.name,
           schedule: 'monthly',
           amount,
-          dueDayOfMonth: 28,
+          dueDayOfMonth: dueDay >= 1 && dueDay <= 31 ? dueDay : 28,
           scopeLevel: 'business',
           scopeId: businessId,
           status: 'healthy',
@@ -145,7 +186,23 @@ export function SetupOnboardingWizard({
   }
 
   const handleReserveSetup = () => {
-    onNavigate('reserve-planner')
+    const businessId = primaryBusiness?.id
+    if (businessId) {
+      const existingPlanner = state.reservePlanners.find((p) => p.businessId === businessId)
+      if (!existingPlanner) {
+        const plannerId = actions.addReservePlanner({
+          name: `${primaryBusiness.name} Reserve Plan`,
+          businessId,
+          bufferAmount: 0,
+          actualBalance: 0,
+        })
+        onNavigate('reserve-planner', plannerId)
+      } else {
+        onNavigate('reserve-planner', existingPlanner.id)
+      }
+    } else {
+      onNavigate('reserve-planner')
+    }
     setStepIndex((i) => i + 1)
   }
 
@@ -167,6 +224,7 @@ export function SetupOnboardingWizard({
       return
     }
     if (isLast) {
+      try { localStorage.removeItem(PROGRESS_KEY) } catch { /* */ }
       dismissSetupOnboardingLocally()
       onComplete()
       return
@@ -180,18 +238,18 @@ export function SetupOnboardingWizard({
 
   const panel = (
     <div className="setup-onboarding-root" role="presentation">
-      <button
-        type="button"
-        className="setup-onboarding-shade"
-        aria-label="Close setup guide"
-        onClick={handleDismiss}
-      />
+      <div className="setup-onboarding-shade" aria-hidden="true" />
 
-      <aside className="setup-onboarding-panel setup-onboarding-panel--sidebar" role="dialog" aria-labelledby="setup-onboarding-title">
+      <aside className={`setup-onboarding-panel setup-onboarding-panel--wide${step.spotlight ? ` setup-onboarding-panel--${panelPlacement}` : ''}`} role="dialog" aria-labelledby="setup-onboarding-title">
         <header className="setup-onboarding-header">
-          <p className="setup-onboarding-kicker">
-            {onBackToPathChoice ? 'Manual setup' : 'Setup guide'} · Step {stepIndex + 1} of {stepCount}
-          </p>
+          <div className="setup-onboarding-header-row">
+            <p className="setup-onboarding-kicker">
+              Getting started · {stepIndex + 1} / {stepCount}
+            </p>
+            <button type="button" className="btn-ghost btn-tiny setup-onboarding-skip" onClick={handleDismiss}>
+              Skip setup
+            </button>
+          </div>
           <ol className="setup-onboarding-checklist" aria-label="Progress">
             {SETUP_ONBOARDING_STEPS.map((item, index) => (
               <li
@@ -205,7 +263,6 @@ export function SetupOnboardingWizard({
                 }
               >
                 <span className="setup-onboarding-check-dot" aria-hidden />
-                <span className="setup-onboarding-check-label">{item.title.split('.')[0]}</span>
               </li>
             ))}
           </ol>
@@ -213,9 +270,25 @@ export function SetupOnboardingWizard({
 
         <div className="setup-onboarding-body">
           <h2 id="setup-onboarding-title">{step.title}</h2>
-          <p className="setup-onboarding-explain">{step.explain}</p>
+          {step.explain.split('\n\n').map((para, i) => (
+            <p key={i} className="setup-onboarding-explain">{para}</p>
+          ))}
           {onBackToPathChoice && stepIndex === 0 && (
             <p className="setup-onboarding-explain muted">{MANUAL_SETUP_REASSURANCE}</p>
+          )}
+
+          {step.id === 'why' && (
+            <div className="setup-why-pillars">
+              {WHY_TRUE_BALANCE_CONTENT.pillars.map((pillar) => (
+                <div key={pillar.heading} className="setup-why-pillar">
+                  <h3>{pillar.heading}</h3>
+                  <p>{pillar.body}</p>
+                </div>
+              ))}
+              <p className="setup-why-closing">
+                <strong>{WHY_TRUE_BALANCE_CONTENT.closing}</strong>
+              </p>
+            </div>
           )}
 
           {step.id === 'business' && (
@@ -261,42 +334,103 @@ export function SetupOnboardingWizard({
                       )}
                     </div>
                   ))}
-                  <p className="muted" style={{ marginTop: '12px', fontSize: '0.8rem' }}>
-                    To add businesses, venues, or accounts — go to Settings after setup.
-                    Press Next to continue with this structure.
+                  <button
+                    type="button"
+                    className="structure-tree-add-btn"
+                    onClick={() => {
+                      const name = `Business ${state.businesses.length + 1}`
+                      actions.addBusiness(undefined, name, true)
+                    }}
+                  >
+                    + Add another business
+                  </button>
+                  <p className="muted" style={{ marginTop: '8px', fontSize: '0.78rem' }}>
+                    You can rename, add venues, or reorganise in Settings anytime.
                   </p>
                 </div>
               ) : (
-                <>
-                  <label className="setup-field">
-                    <span>Business name</span>
-                    <input
-                      className="sheet-input"
-                      value={businessName}
-                      onChange={(e) => setBusinessName(e.target.value)}
-                      placeholder="e.g. Acme Ltd"
-                      autoFocus
-                    />
-                  </label>
-                  <label className="setup-field">
-                    <span>Site or venue (optional)</span>
-                    <input
-                      className="sheet-input"
-                      value={venueName}
-                      onChange={(e) => setVenueName(e.target.value)}
-                      placeholder="Leave blank if you only need one location"
-                    />
-                  </label>
-                  <label className="setup-field">
-                    <span>Main account name</span>
-                    <input
-                      className="sheet-input"
-                      value={accountName}
-                      onChange={(e) => setAccountName(e.target.value)}
-                    />
-                  </label>
-                </>
+                <div className="structure-tree structure-tree--editable">
+                  <div className="structure-tree-node structure-tree-node--business">
+                    <div className="structure-tree-node-head">
+                      <span className="structure-tree-swatch" style={{ background: 'var(--accent)' }} />
+                      <input
+                        className="structure-tree-name-input"
+                        value={businessName}
+                        onChange={(e) => setBusinessName(e.target.value)}
+                        placeholder="Your business name"
+                        autoFocus
+                      />
+                    </div>
+                    <div className="structure-tree-accounts structure-tree-accounts--editable">
+                      <div className="structure-tree-account-row">
+                        <span className="structure-tree-account-icon">🏦</span>
+                        <input
+                          className="structure-tree-name-input structure-tree-name-input--small"
+                          value={accountName}
+                          onChange={(e) => setAccountName(e.target.value)}
+                          placeholder="Current account name"
+                        />
+                      </div>
+                    </div>
+                    {venueName ? (
+                      <div className="structure-tree-children">
+                        <div className="structure-tree-node structure-tree-node--venue">
+                          <div className="structure-tree-connector" />
+                          <div className="structure-tree-node-head">
+                            <span className="structure-tree-swatch" style={{ background: '#6366f1' }} />
+                            <input
+                              className="structure-tree-name-input structure-tree-name-input--small"
+                              value={venueName}
+                              onChange={(e) => setVenueName(e.target.value)}
+                              placeholder="Site / venue name"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        className="structure-tree-add-btn"
+                        onClick={() => setVenueName('Site 1')}
+                      >
+                        + Add a venue / site
+                      </button>
+                    )}
+                  </div>
+                  <p className="muted" style={{ marginTop: '12px', fontSize: '0.78rem' }}>
+                    Keep it simple — one business, one account. You can add more later.
+                  </p>
+                </div>
               )}
+              <fieldset className="setup-income-pattern">
+                <legend>How does money come into your business?</legend>
+                <label className={`setup-income-option${incomePatternDraft === 'steady' ? ' setup-income-option--active' : ''}`}>
+                  <input
+                    type="radio"
+                    name="incomePattern"
+                    value="steady"
+                    checked={incomePatternDraft === 'steady'}
+                    onChange={() => setIncomePatternDraft('steady')}
+                  />
+                  <span>
+                    <strong>Steady / daily</strong>
+                    <small>Retail, hospitality, trade — money comes in most days</small>
+                  </span>
+                </label>
+                <label className={`setup-income-option${incomePatternDraft === 'lumpy' ? ' setup-income-option--active' : ''}`}>
+                  <input
+                    type="radio"
+                    name="incomePattern"
+                    value="lumpy"
+                    checked={incomePatternDraft === 'lumpy'}
+                    onChange={() => setIncomePatternDraft('lumpy')}
+                  />
+                  <span>
+                    <strong>Irregular / invoiced</strong>
+                    <small>Contractors, agencies, consultancies — larger payments at varying intervals</small>
+                  </span>
+                </label>
+              </fieldset>
             </div>
           )}
 
@@ -345,26 +479,91 @@ export function SetupOnboardingWizard({
                     <span>{draft.name}</span>
                   </label>
                   {draft.selected && (
-                    <input
-                      className="sheet-input setup-quick-amount"
-                      type="number"
-                      step="0.01"
-                      placeholder="Monthly £"
-                      value={draft.amount}
-                      onChange={(e) =>
-                        setCommitmentDrafts((rows) =>
-                          rows.map((row, i) =>
-                            i === index ? { ...row, amount: e.target.value } : row,
-                          ),
-                        )
-                      }
-                    />
+                    <div className="setup-quick-fields">
+                      <input
+                        className="sheet-input setup-quick-amount"
+                        type="number"
+                        step="0.01"
+                        placeholder="Monthly £"
+                        value={draft.amount}
+                        onChange={(e) =>
+                          setCommitmentDrafts((rows) =>
+                            rows.map((row, i) =>
+                              i === index ? { ...row, amount: e.target.value } : row,
+                            ),
+                          )
+                        }
+                      />
+                      <input
+                        className="sheet-input setup-quick-day"
+                        type="number"
+                        min="1"
+                        max="31"
+                        placeholder="Day"
+                        title="Day of month it's due (1–31)"
+                        value={draft.dueDay}
+                        onChange={(e) =>
+                          setCommitmentDrafts((rows) =>
+                            rows.map((row, i) =>
+                              i === index ? { ...row, dueDay: e.target.value } : row,
+                            ),
+                          )
+                        }
+                      />
+                    </div>
                   )}
                 </div>
               ))}
               <p className="setup-onboarding-hint muted">
-                Tick what applies and enter a typical monthly amount. You can refine these anytime.
+                Tick what applies, enter the monthly amount and which day it leaves your account.
               </p>
+            </div>
+          )}
+
+          {step.id === 'committed-explain' && (
+            <div className="setup-edu-visual setup-edu-visual--centered">
+              <div className="setup-accrual-anim">
+                <div className="setup-accrual-stage setup-accrual-stage--left">
+                  <div className="setup-accrual-bar-track">
+                    <div className="setup-accrual-bar setup-accrual-bar--grow" />
+                  </div>
+                  <span className="setup-accrual-label">Building up</span>
+                </div>
+                <div className="setup-accrual-arrow">
+                  <svg width="32" height="16" viewBox="0 0 32 16"><path d="M0 8h26m0 0l-5-5m5 5l-5 5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </div>
+                <div className="setup-accrual-stage setup-accrual-stage--right">
+                  <div className="setup-accrual-due-box">
+                    <span className="setup-accrual-due-text">Due</span>
+                  </div>
+                  <span className="setup-accrual-paid-pop">Paid</span>
+                  <span className="setup-accrual-label">Stays until paid</span>
+                </div>
+              </div>
+              <p className="setup-accrual-caption">
+                Each bill builds up daily — it never stops. Once the date hits, the full amount
+                moves to Due. You mark it paid when it leaves your account. Meanwhile, it&apos;s
+                already building up again from day one.
+              </p>
+            </div>
+          )}
+
+          {step.id === 'due-explain' && (
+            <div className="setup-edu-visual">
+              <div className="setup-edu-funding-options">
+                <div className="setup-edu-funding-option">
+                  <div className="setup-edu-funding-bar setup-edu-funding-bar--immediate" />
+                  <span>Deduct now</span>
+                </div>
+                <div className="setup-edu-funding-option">
+                  <div className="setup-edu-funding-bar setup-edu-funding-bar--accrual" />
+                  <span>Build up</span>
+                </div>
+                <div className="setup-edu-funding-option">
+                  <div className="setup-edu-funding-bar setup-edu-funding-bar--hybrid" />
+                  <span>Part + build</span>
+                </div>
+              </div>
             </div>
           )}
 
@@ -383,30 +582,34 @@ export function SetupOnboardingWizard({
             <div className="setup-onboarding-reveal">
               <dl className="setup-reveal-math">
                 <div>
-                  <dt>Cash</dt>
+                  <dt>Cash in bank</dt>
                   <dd>{formatCurrency(metrics.cash)}</dd>
                 </div>
                 <div>
-                  <dt>Committed funds</dt>
+                  <dt>Already spoken for</dt>
                   <dd>−{formatCurrency(metrics.committedFunds)}</dd>
                 </div>
                 {metrics.expectedReceipts > 0 && (
                   <div>
-                    <dt>Expected receipts</dt>
+                    <dt>Expected in</dt>
                     <dd>+{formatCurrency(metrics.expectedReceipts)}</dd>
                   </div>
                 )}
                 <div className="setup-reveal-total">
-                  <dt>True Balance</dt>
+                  <dt>Your True Balance</dt>
                   <dd>{formatCurrency(trueBalance)}</dd>
                 </div>
               </dl>
               {exampleGap > 0 && bankBalance > 0 && (
-                <p className="setup-reveal-example muted">
-                  Your bank balance might say {formatCurrency(bankBalance)}, but your True Balance is{' '}
-                  {formatCurrency(trueBalance)} once committed money is accounted for.
+                <p className="setup-reveal-example">
+                  Your bank says <strong>{formatCurrency(bankBalance)}</strong>, but{' '}
+                  <strong>{formatCurrency(exampleGap)}</strong> is already spoken for.
+                  Your real available money is <strong>{formatCurrency(trueBalance)}</strong>.
                 </p>
               )}
+              <p className="setup-income-hint">
+                {INCOME_PATTERN_HINTS[incomePatternDraft]}
+              </p>
             </div>
           )}
 

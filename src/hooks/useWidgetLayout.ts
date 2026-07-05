@@ -3,6 +3,7 @@ import type { PageId } from '../navigation'
 import type { PageWidgetLayout, WidgetRect } from '../utils/widgetLayout'
 import {
   clampWidgetRect,
+  defaultPageWidgetLayout,
   getGridRowCount,
   loadPageWidgetLayout,
   resetPageWidgetLayout,
@@ -10,6 +11,7 @@ import {
   alignStackedColumnWidgets,
 } from '../utils/widgetLayout'
 import { reflowFillLayout } from '../utils/widgetLayoutReflow'
+import { useDemoReadOnly } from '../contexts/DemoModeContext'
 
 function normalizeOrder(layout: PageWidgetLayout): PageWidgetLayout {
   return [...layout]
@@ -18,19 +20,22 @@ function normalizeOrder(layout: PageWidgetLayout): PageWidgetLayout {
 }
 
 export function useWidgetLayout(pageId: PageId) {
-  const [layout, setLayout] = useState<PageWidgetLayout>(() => loadPageWidgetLayout(pageId))
+  const demoReadOnly = useDemoReadOnly()
+  const [layout, setLayout] = useState<PageWidgetLayout>(() =>
+    demoReadOnly ? defaultPageWidgetLayout(pageId) : loadPageWidgetLayout(pageId),
+  )
 
   useEffect(() => {
-    setLayout(loadPageWidgetLayout(pageId))
-  }, [pageId])
+    setLayout(demoReadOnly ? defaultPageWidgetLayout(pageId) : loadPageWidgetLayout(pageId))
+  }, [pageId, demoReadOnly])
 
   const persist = useCallback(
     (next: PageWidgetLayout) => {
       const normalized = normalizeOrder(next)
       setLayout(normalized)
-      savePageWidgetLayout(pageId, normalized)
+      if (!demoReadOnly) savePageWidgetLayout(pageId, normalized)
     },
-    [pageId],
+    [pageId, demoReadOnly],
   )
 
   const setVisible = useCallback(
@@ -134,7 +139,9 @@ export function useWidgetLayout(pageId: PageId) {
   )
 
   const resetLayout = useCallback(() => {
-    const defaults = resetPageWidgetLayout(pageId)
+    const defaults = demoReadOnly
+      ? defaultPageWidgetLayout(pageId)
+      : resetPageWidgetLayout(pageId)
     const visibleItems = defaults.filter((item) => item.visible)
     if (visibleItems.length > 1) {
       const rowCount = getGridRowCount(defaults)
@@ -144,11 +151,11 @@ export function useWidgetLayout(pageId: PageId) {
         return rect ? { ...item, ...clampWidgetRect(rect) } : item
       })
       setLayout(reflowed)
-      savePageWidgetLayout(pageId, reflowed)
+      if (!demoReadOnly) savePageWidgetLayout(pageId, reflowed)
       return
     }
     setLayout(defaults)
-  }, [pageId])
+  }, [pageId, demoReadOnly])
 
   return {
     layout,

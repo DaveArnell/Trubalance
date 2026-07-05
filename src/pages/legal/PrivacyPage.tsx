@@ -1,12 +1,21 @@
 import { LegalPageLayout } from './LegalPageLayout'
+import { COMPANY_INFO } from '../../content/companyInfo'
 
 export function PrivacyPage() {
   return (
-    <LegalPageLayout title="Privacy policy" updated="25 June 2025">
+    <LegalPageLayout title="Privacy policy" updated="5 July 2026">
       <p>
-        True Balance (&quot;we&quot;, &quot;us&quot;) helps you understand what cash is genuinely
-        available in your business. This policy explains what we collect, where it is stored, and your
-        choices.
+        {COMPANY_INFO.productName} (&quot;the service&quot;) is owned and operated by{' '}
+        {COMPANY_INFO.legalName} (&quot;we&quot;, &quot;us&quot;). We help you understand what cash is
+        genuinely available in your business. This policy explains what we collect, where it is stored,
+        and your choices.
+      </p>
+
+      <h2>Who we are</h2>
+      <p>
+        Data controller: {COMPANY_INFO.legalName}. Registered office:{' '}
+        {COMPANY_INFO.registeredAddressLines.join(', ')}. Company number: {COMPANY_INFO.companyNumber}.
+        VAT: {COMPANY_INFO.vatNumber}.
       </p>
 
       <h2>What we collect</h2>
@@ -49,7 +58,7 @@ export function PrivacyPage() {
       <h2>How we use your data</h2>
       <p>We use your information to:</p>
       <ul>
-        <li>Provide, maintain, and improve True Balance</li>
+        <li>Provide, maintain, and improve {COMPANY_INFO.productName}</li>
         <li>Authenticate you and sync your workspace across sessions</li>
         <li>Respond to support requests</li>
         <li>Meet legal and security obligations</li>
@@ -70,7 +79,12 @@ export function PrivacyPage() {
       <p>
         Depending on where you live, you may have rights to access, correct, export, or delete personal
         data we hold about you. You can download your workspace from Settings at any time. For other
-        requests, contact us using the details on our website.
+        requests, contact us at{' '}
+        <a href={`mailto:${COMPANY_INFO.contactEmail}`}>{COMPANY_INFO.contactEmail}</a>.
+      </p>
+      <p>
+        You also have the right to lodge a complaint with the Information Commissioner&apos;s Office (ICO)
+        if you believe your data protection rights have been violated.
       </p>
 
       <h2>Cookies and local storage</h2>
@@ -88,8 +102,8 @@ export function PrivacyPage() {
 
       <h2>Contact</h2>
       <p>
-        Questions about privacy? Contact us through the support channel listed on{' '}
-        <a href="https://trubalance.app">trubalance.app</a> (or your deployment&apos;s contact address).
+        Questions about privacy? Email{' '}
+        <a href={`mailto:${COMPANY_INFO.contactEmail}`}>{COMPANY_INFO.contactEmail}</a>.
       </p>
     </LegalPageLayout>
   )

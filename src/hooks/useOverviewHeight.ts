@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { useDemoReadOnly } from '../contexts/DemoModeContext'
 
 const STORAGE_KEY = 'trubalance-overview-height-v2'
 export const OVERVIEW_HEIGHT_MIN = 56
@@ -28,7 +29,10 @@ function persistHeight(height: number) {
 
 /** Vertical size of the pinned True Balance overview (drag bottom edge). */
 export function useOverviewHeight() {
-  const [height, setHeight] = useState(readStoredHeight)
+  const demoReadOnly = useDemoReadOnly()
+  const [height, setHeight] = useState(() =>
+    demoReadOnly ? OVERVIEW_HEIGHT_DEFAULT : readStoredHeight(),
+  )
   const draggingRef = useRef(false)
   const startYRef = useRef(0)
   const startHeightRef = useRef(OVERVIEW_HEIGHT_DEFAULT)
@@ -50,13 +54,14 @@ export function useOverviewHeight() {
     window.removeEventListener('pointermove', onPointerMove)
     window.removeEventListener('pointerup', endDrag)
     setHeight((current) => {
-      persistHeight(current)
+      if (!demoReadOnly) persistHeight(current)
       return current
     })
-  }, [onPointerMove])
+  }, [demoReadOnly, onPointerMove])
 
   const startHeightDrag = useCallback(
     (event: ReactPointerEvent<HTMLElement>) => {
+      if (demoReadOnly) return
       event.preventDefault()
       draggingRef.current = true
       startYRef.current = event.clientY
@@ -65,13 +70,14 @@ export function useOverviewHeight() {
       window.addEventListener('pointermove', onPointerMove)
       window.addEventListener('pointerup', endDrag)
     },
-    [endDrag, height, onPointerMove],
+    [demoReadOnly, endDrag, height, onPointerMove],
   )
 
   const resetHeight = useCallback(() => {
+    if (demoReadOnly) return
     setHeight(OVERVIEW_HEIGHT_DEFAULT)
     persistHeight(OVERVIEW_HEIGHT_DEFAULT)
-  }, [])
+  }, [demoReadOnly])
 
   useEffect(() => () => endDrag(), [endDrag])
 

@@ -210,12 +210,13 @@ export function minimumTierForUsage(usage: { businesses: number }): Subscription
 
 /**
  * Best-fit plan for how the workspace is used.
- * Multiple companies in one group → Group (hub + roll-up views).
+ * Multiple companies → Business tier. Group view (rolled-up) → Group tier.
  */
-export function recommendTierForWorkspace(usage: { businesses: number }): SubscriptionTierId {
+export function recommendTierForWorkspace(usage: { businesses: number; hasGroup?: boolean }): SubscriptionTierId {
   if (usage.businesses <= 1) return 'solo'
+  if (usage.hasGroup) return 'group'
   if (usage.businesses > 10) return 'group'
-  return 'group'
+  return 'business'
 }
 
 export function tierForLimitViolation(

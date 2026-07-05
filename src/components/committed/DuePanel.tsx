@@ -1,6 +1,7 @@
 import { useMemo, useState, Fragment } from 'react'
 import type { AppState, Commitment, CommitmentViews, PlannedFundingMethod, ScopeLevel, ViewScope } from '../../types'
-import { getCommitmentScopeOptionsForView, getDefaultCommitmentScope, getReserveBillScopeOptions } from '../../utils/scope'
+import { useDemoReadOnly } from '../../contexts/DemoModeContext'
+import { getCommitmentScopeOptionsForView, getDefaultCommitmentScope, getReserveBillScopeOptionsForView } from '../../utils/scope'
 import {
   buildDueRowSections,
   formatDueRowTiming,
@@ -83,6 +84,7 @@ export function DuePanel({
   setOpenHelp,
   onOpenReservePlanner,
 }: DuePanelProps) {
+  const demoReadOnly = useDemoReadOnly()
   const [fundingDraft, setFundingDraft] = useState<PlannedFundingDraft | null>(null)
   const [pendingPlannedPatch, setPendingPlannedPatch] = useState<{
     id: string
@@ -115,6 +117,9 @@ export function DuePanel({
   const dueRowIds = useMemo(() => visibleDueRows.map((row) => row.id), [visibleDueRows])
   const orderedCellIds = useMemo(() => dueEditableCellIds(visibleDueRows), [visibleDueRows])
   const { activeCell, activate, deactivate, makeTabHandler } = useSheetCellNavigation(orderedCellIds)
+  const tryActivate = (cellId: string) => {
+    if (!demoReadOnly) activate(cellId)
+  }
   const dueReorder = useSheetRowReorder(dueRowIds, (orderedIds) => {
     const items = orderedIds.map((id) => {
       const row = commitmentViews.due.find((entry) => entry.id === id)!
@@ -345,9 +350,11 @@ export function DuePanel({
           </tbody>
         </table>
         <div className="card-actions">
-          <button type="button" className="btn-secondary btn-tiny" onClick={addPlannedRow}>
-            + Add planned
-          </button>
+          {!demoReadOnly && (
+            <button type="button" className="btn-secondary btn-tiny" onClick={addPlannedRow}>
+              + Add planned
+            </button>
+          )}
           <HelpButton
             id="due"
             openHelp={openHelp}
@@ -363,7 +370,7 @@ export function DuePanel({
             <PlatformSheetTable widths={widths} preferenceClasses={prefClasses}>
               <thead>
                 <tr>
-                  <SheetDragHeader />
+                  {!demoReadOnly && <SheetDragHeader />}
                   <ResizableSheetHeader columnIndex={1} onResizeStart={startResize}>
                     Name
                   </ResizableSheetHeader>
@@ -421,18 +428,20 @@ export function DuePanel({
                           ? state.reservePlanners.find((p) => p.id === row.reservePlannerId)
                           : undefined
                         const reserveBillScopeOptions = reservePlanner
-                          ? getReserveBillScopeOptions(state, reservePlanner.businessId)
+                          ? getReserveBillScopeOptionsForView(state, reservePlanner.businessId, viewScope)
                           : []
 
                         return (
                           <tr
                             key={row.id}
-                            {...rowProps}
+                            {...(demoReadOnly ? {} : rowProps)}
                             className={[rowProps.className, `sheet-due-row--${rowKind}`]
                               .filter(Boolean)
                               .join(' ')}
                           >
-                        <SheetDragCell rowId={row.id} getHandleProps={dueReorder.getHandleProps} />
+                        {!demoReadOnly && (
+                          <SheetDragCell rowId={row.id} getHandleProps={dueReorder.getHandleProps} />
+                        )}
                         {isReserveTransfer ? (
                           <td>
                             <button
@@ -470,8 +479,9 @@ export function DuePanel({
                             scopeId={item.scopeId}
                             options={reserveBillScopeOptions}
                             commitmentScope
+                            readOnly={demoReadOnly}
                             isActive={activeCell === `due-${row.id}-scope`}
-                            onActivate={() => activate(`due-${row.id}-scope`)}
+                            onActivate={() => tryActivate(`due-${row.id}-scope`)}
                             onDeactivate={deactivate}
                             onChange={(scopeLevel, scopeId) =>
                               saveReserveBillScope(row, scopeLevel, scopeId)
@@ -490,8 +500,9 @@ export function DuePanel({
                             scopeId={item.scopeId}
                             options={options}
                             commitmentScope
+                            readOnly={demoReadOnly}
                             isActive={activeCell === `due-${item.id}-scope`}
-                            onActivate={() => activate(`due-${item.id}-scope`)}
+                            onActivate={() => tryActivate(`due-${item.id}-scope`)}
                             onDeactivate={deactivate}
                             onChange={(scopeLevel, scopeId) =>
                               actions.updateCommitment(item.id, { scopeLevel, scopeId })

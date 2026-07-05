@@ -26,6 +26,29 @@ export function computeZeroAnchoredDomain(
   }
 }
 
+/**
+ * Y-axis for balance trend lines — only pin to zero when values are near or below it.
+ * Avoids a huge empty band under the line when balances stay well above zero.
+ */
+export function computeTrendYDomain(
+  minVal: number,
+  maxVal: number,
+  paddingRatio = 0.08,
+): { yMin: number; yMax: number } {
+  const span = Math.max(0, maxVal - minVal)
+  const fallbackPad = Math.max(500, Math.abs(maxVal || minVal || 1) * 0.05)
+  const padding = span > 0 ? span * paddingRatio : fallbackPad
+  const nearZero = minVal < 0 || (maxVal > 0 && minVal <= maxVal * 0.25)
+
+  if (!nearZero && minVal >= 0) {
+    return {
+      yMin: Math.max(0, minVal - padding),
+      yMax: maxVal + padding,
+    }
+  }
+  return computeZeroAnchoredDomain(minVal, maxVal, paddingRatio)
+}
+
 export function isChartZeroTick(tick: number): boolean {
   return Math.abs(tick) < 1e-6
 }

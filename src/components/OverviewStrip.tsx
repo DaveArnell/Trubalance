@@ -16,7 +16,6 @@ import { AccountFreshnessList } from './AccountFreshnessList'
 import { BreakdownTable } from './BreakdownTable'
 
 import { HelpButton } from './HelpButton'
-import { ViewingScopeBar } from './ViewingScopeBar'
 
 import { WIDGET_HELP } from '../content/livingDashboard'
 
@@ -38,6 +37,7 @@ interface OverviewStripProps {
   onBalanceSave?: (changes: BalanceSaveChange[]) => BalanceSaveResult
   size: OverviewSize
   onSizeChange: (size: OverviewSize) => void
+  readOnly?: boolean
 }
 
 function alertTone(level: AttentionItem['level']) {
@@ -102,13 +102,14 @@ export function OverviewStrip({
   onBalanceSave,
   size,
   onSizeChange,
+  readOnly = false,
 }: OverviewStripProps) {
   const [saveMessage, setSaveMessage] = useState('')
   const { asideFr, containerRef, startDrag } = useOverviewSplit()
   const { height, startHeightDrag, resetHeight } = useOverviewHeight()
   const showDetailed = size === 'detailed'
 
-  const showAccounts = breakdownColumns.length > 0 && state && onBalanceSave
+  const showAccounts = breakdownColumns.length > 0 && !!state
 
   const handleBalanceSave = (changes: BalanceSaveChange[]) => {
     if (!onBalanceSave) return
@@ -155,21 +156,23 @@ export function OverviewStrip({
               <div className="overview-hero-header">
                 <p className="overview-hero-label">True Balance</p>
                 <div className="overview-hero-toolbar">
-                  <label className="overview-strip-size-select-wrap">
-                    <span className="sr-only">Overview detail</span>
-                    <select
-                      className="overview-strip-size-select"
-                      value={size}
-                      onChange={(e) => onSizeChange(e.target.value as OverviewSize)}
-                      aria-label="Overview detail level"
-                    >
-                      {SIZE_OPTIONS.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                  {!readOnly && (
+                    <label className="overview-strip-size-select-wrap">
+                      <span className="sr-only">Overview detail</span>
+                      <select
+                        className="overview-strip-size-select"
+                        value={size}
+                        onChange={(e) => onSizeChange(e.target.value as OverviewSize)}
+                        aria-label="Overview detail level"
+                      >
+                        {SIZE_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
                   <HelpButton
                     id="hero"
                     className="help-btn-hero"
@@ -188,9 +191,9 @@ export function OverviewStrip({
                 </p>
               )}
 
-              {state && <AccountFreshnessList state={state} viewScope={viewScope} />}
+              {state && !readOnly && <AccountFreshnessList state={state} viewScope={viewScope} />}
 
-              {showDetailed && (
+              {showDetailed && !readOnly && (
                 <OverviewAlertsDetailed items={attentionItems} onAlertClick={handleAlertClick} />
               )}
             </div>
@@ -198,20 +201,22 @@ export function OverviewStrip({
 
           {showAccounts && (
             <>
-              <div
-                className="overview-split-handle"
-                role="separator"
-                aria-orientation="vertical"
-                aria-label="Resize True Balance panels"
-                onPointerDown={startDrag}
-              />
+              {!readOnly && (
+                <div
+                  className="overview-split-handle"
+                  role="separator"
+                  aria-orientation="vertical"
+                  aria-label="Resize True Balance panels"
+                  onPointerDown={startDrag}
+                />
+              )}
 
               <div className="overview-strip-table" data-tour="overview-balances">
                 <BreakdownTable
                   state={state}
                   columns={breakdownColumns}
                   compact
-                  onBalanceSave={handleBalanceSave}
+                  onBalanceSave={readOnly ? undefined : handleBalanceSave}
                 />
                 {saveMessage && <p className="overview-accounts-save-msg">{saveMessage}</p>}
               </div>
@@ -220,15 +225,17 @@ export function OverviewStrip({
         </div>
       </div>
 
-      <div
-        className="overview-height-handle"
-        role="separator"
-        aria-orientation="horizontal"
-        aria-label="Resize overview height"
-        title="Drag to resize · double-click to reset height"
-        onPointerDown={startHeightDrag}
-        onDoubleClick={resetHeight}
-      />
+      {!readOnly && (
+        <div
+          className="overview-height-handle"
+          role="separator"
+          aria-orientation="horizontal"
+          aria-label="Resize overview height"
+          title="Drag to resize · double-click to reset height"
+          onPointerDown={startHeightDrag}
+          onDoubleClick={resetHeight}
+        />
+      )}
     </section>
   )
 }

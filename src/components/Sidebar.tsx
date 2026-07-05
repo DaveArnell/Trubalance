@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState, type DragEvent, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+import { useDemoMode, useDemoReadOnly } from '../contexts/DemoModeContext'
 import type { AppState, ViewScope } from '../types'
 import type { AppRoute, PageId } from '../navigation'
 import { buildHash, RESERVE_PLANNER_CREATE_ROUTE } from '../navigation'
 import { useNavLayout } from '../hooks/useNavLayout'
 import { getOrderedPages } from '../utils/navLayout'
+import { getPlannerDisplayName, getReservePlannerIdForScope } from '../utils/reserveCalculations'
 import { SidebarScopeTree } from './SidebarScopeTree'
 import { useAuth } from '../contexts/AuthContext'
 import { useSidebarCollapsed } from '../hooks/useSidebarCollapsed'
@@ -37,6 +39,7 @@ function NavDragShell({
   onDrop,
   className = '',
   compact = false,
+  reorderable = true,
   children,
 }: {
   itemId: string
@@ -48,12 +51,24 @@ function NavDragShell({
   onDrop: () => void
   className?: string
   compact?: boolean
+  reorderable?: boolean
   children: ReactNode
 }) {
   if (compact) {
     return (
       <div
         className={`sidebar-nav-item sidebar-nav-item--compact${className ? ` ${className}` : ''}`}
+        data-nav-id={itemId}
+      >
+        <div className="sidebar-nav-item-body">{children}</div>
+      </div>
+    )
+  }
+
+  if (reorderable === false) {
+    return (
+      <div
+        className={`sidebar-nav-item${className ? ` ${className}` : ''}`}
         data-nav-id={itemId}
       >
         <div className="sidebar-nav-item-body">{children}</div>
@@ -108,6 +123,8 @@ export function Sidebar({
   setReserveMenuOpen,
   onNavigate,
 }: SidebarProps) {
+  const demoMode = useDemoMode()
+  const demoReadOnly = useDemoReadOnly()
   const { user, profile, isAdmin, isImpersonating, signOut, configured } = useAuth()
   const { collapsed, toggleCollapsed } = useSidebarCollapsed()
   const plannerIds = state.reservePlanners.map((p) => p.id)
@@ -120,6 +137,7 @@ export function Sidebar({
   const orderedPlanners = orderedPlannerIds
     .map((id) => plannersById.get(id))
     .filter((planner) => planner !== undefined)
+  const scopePlannerId = getReservePlannerIdForScope(state, viewScope)
 
   const finishDrag = () => {
     setDraggingKey(null)
@@ -147,7 +165,7 @@ export function Sidebar({
               setReserveMenuOpen(false)
             }}
           >
-            {planner.name}
+            {getPlannerDisplayName(state, planner)}
           </a>
         ))}
         <a
@@ -227,6 +245,7 @@ export function Sidebar({
                   itemId={pageKey(page.id)}
                   className="sidebar-nav-item--top"
                   compact={collapsed}
+                  reorderable={!demoReadOnly}
                   isDragging={draggingKey === pageKey(page.id)}
                   dragOver={dragOverKey === pageKey(page.id) && draggingKey !== pageKey(page.id)}
                   onDragStart={() => setDraggingKey(pageKey(page.id))}
@@ -251,7 +270,10 @@ export function Sidebar({
                         e.preventDefault()
                         setReserveMenuOpen((open) => !open)
                         if (orderedPlanners.length > 0) {
-                          const targetId = activeRoute.reservePlannerId ?? orderedPlanners[0].id
+                          const targetId =
+                            scopePlannerId ??
+                            activeRoute.reservePlannerId ??
+                            orderedPlanners[0].id
                           onNavigate('reserve-planner', targetId)
                         } else {
                           onNavigate('reserve-planner')
@@ -270,6 +292,7 @@ export function Sidebar({
                             key={planner.id}
                             itemId={plannerKey(planner.id)}
                             className="sidebar-submenu-item"
+                            reorderable={!demoReadOnly}
                             isDragging={draggingKey === plannerKey(planner.id)}
                             dragOver={
                               dragOverKey === plannerKey(planner.id) &&
@@ -298,7 +321,7 @@ export function Sidebar({
                                 onNavigate('reserve-planner', planner.id)
                               }}
                             >
-                              {planner.name}
+                              {getPlannerDisplayName(state, planner)}
                             </a>
                           </NavDragShell>
                         ))}
@@ -328,6 +351,7 @@ export function Sidebar({
                 key={page.id}
                 itemId={pageKey(page.id)}
                 compact={collapsed}
+                reorderable={!demoReadOnly}
                 isDragging={draggingKey === pageKey(page.id)}
                 dragOver={dragOverKey === pageKey(page.id) && draggingKey !== pageKey(page.id)}
                 onDragStart={() => setDraggingKey(pageKey(page.id))}
@@ -381,7 +405,7 @@ export function Sidebar({
               {collapsed ? '⚙' : 'Platform admin'}
             </Link>
           )}
-          {configured && user ? (
+          {configured && user && !demoMode ? (
             <button
               type="button"
               className="sidebar-account-link sidebar-account-logout"
@@ -391,10 +415,18 @@ export function Sidebar({
               {collapsed ? '⎋' : 'Log out'}
             </button>
           ) : (
-            configured && (
-              <Link to="/login" className="sidebar-account-link" title={collapsed ? 'Log in' : undefined}>
-                {collapsed ? '→' : 'Log in'}
-              </Link>
+            !user && (
+              demoMode ? (
+                <Link to="/signup" className="sidebar-account-link" title={collapsed ? 'Start trial' : undefined}>
+                  {collapsed ? '★' : 'Start free trial'}
+                </Link>
+              ) : (
+                configured && (
+                  <Link to="/login" className="sidebar-account-link" title={collapsed ? 'Log in' : undefined}>
+                    {collapsed ? '→' : 'Log in'}
+                  </Link>
+                )
+              )
             )
           )}
         </div>

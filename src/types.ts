@@ -33,6 +33,8 @@ export interface Venue {
   id: string
   businessId: string
   name: string
+  /** User-chosen accent for venue-scoped UI (hex). */
+  accentColor?: string
 }
 
 export interface Account {

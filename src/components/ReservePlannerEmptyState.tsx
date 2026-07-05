@@ -43,16 +43,16 @@ export function ReservePlannerEmptyState({
 
   const selectedBusiness = businesses.find((b) => b.id === businessId)
   const effectiveReserveId = reserveAccountId || reserveAccounts[0]?.id || ''
-  const canCreate = Boolean(businessId && effectiveReserveId)
+  const canCreate = Boolean(businessId)
 
   const handleCreate = () => {
     if (!canCreate || !selectedBusiness) return
-    const account = state.accounts.find((a) => a.id === effectiveReserveId)
+    const account = effectiveReserveId ? state.accounts.find((a) => a.id === effectiveReserveId) : undefined
     const name = planName.trim() || `${selectedBusiness.name} reserves`
     const id = actions.addReservePlanner({
       name,
       businessId,
-      reserveAccountId: effectiveReserveId,
+      reserveAccountId: effectiveReserveId || undefined,
       bufferAmount: 0,
       actualBalance: account?.balance ?? 0,
     })
@@ -109,39 +109,36 @@ export function ReservePlannerEmptyState({
           <h3>Create your first reserve plan</h3>
           {businesses.length === 0 ? (
             <p className="muted">
-              Add a business and reserve savings account in <strong>Settings</strong> first, then come back here
-              to create a plan.
-            </p>
-          ) : reserveAccounts.length === 0 && businessId ? (
-            <p className="muted">
-              No reserve savings account found for this business. Add a <strong>reserve</strong> type account
-              in Settings, then return here.
+              Set up your business first (via the setup wizard or Settings), then come back here to create a plan.
             </p>
           ) : (
             <>
-              <label className="reserve-empty-field">
-                <span>Business</span>
-                <select
-                  value={businessId}
-                  onChange={(e) => {
-                    setBusinessId(e.target.value)
-                    setReserveAccountId('')
-                  }}
-                >
-                  {businesses.map((b) => (
-                    <option key={b.id} value={b.id}>
-                      {b.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              {businesses.length > 1 && (
+                <label className="reserve-empty-field">
+                  <span>Business</span>
+                  <select
+                    value={businessId}
+                    onChange={(e) => {
+                      setBusinessId(e.target.value)
+                      setReserveAccountId('')
+                    }}
+                  >
+                    {businesses.map((b) => (
+                      <option key={b.id} value={b.id}>
+                        {b.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
               {reserveAccounts.length > 0 && (
                 <label className="reserve-empty-field">
-                  <span>Reserve account</span>
+                  <span>Reserve savings account (optional)</span>
                   <select
                     value={effectiveReserveId}
                     onChange={(e) => setReserveAccountId(e.target.value)}
                   >
+                    <option value="">None — I&apos;ll link one later</option>
                     {reserveAccounts.map((a) => (
                       <option key={a.id} value={a.id}>
                         {a.name}
@@ -165,8 +162,13 @@ export function ReservePlannerEmptyState({
                 disabled={!canCreate}
                 onClick={handleCreate}
               >
-                + Add reserve plan
+                + Create reserve plan
               </button>
+              {reserveAccounts.length === 0 && (
+                <p className="muted" style={{ marginTop: '8px', fontSize: '0.78rem' }}>
+                  You can link a savings account later in Settings — the planner works without one.
+                </p>
+              )}
             </>
           )}
         </div>

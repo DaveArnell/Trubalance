@@ -145,7 +145,6 @@ export function buildPageWidgets(pageId: PageId, ctx: PageWidgetContext): Record
           <ExpectedReceiptsPanel
             state={state}
             viewScope={viewScope}
-            receipts={metrics.receipts}
             actions={actions}
             openHelp={openHelp}
             setOpenHelp={setOpenHelp}
@@ -157,6 +156,7 @@ export function buildPageWidgets(pageId: PageId, ctx: PageWidgetContext): Record
         'reserve-planner': (
           <ReservePlannerPanel
             state={state}
+            viewScope={viewScope}
             summary={activeReserveSummary}
             reserveRouteId={reserveRouteId}
             actions={actions}

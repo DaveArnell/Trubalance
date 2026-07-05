@@ -109,3 +109,18 @@ export function readSessionBackup(): AppState | null {
 export function isInitialDemoState(state: AppState): boolean {
   return isBuiltinDemoWorkspace(state)
 }
+
+/** Clear all user-specific data from localStorage on sign out. */
+export function clearLocalUserData() {
+  const keysToRemove: string[] = []
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i)
+    if (key && key.startsWith('trubalance-')) {
+      keysToRemove.push(key)
+    }
+  }
+  for (const key of keysToRemove) {
+    localStorage.removeItem(key)
+  }
+  sessionStorage.clear()
+}

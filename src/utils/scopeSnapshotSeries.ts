@@ -56,8 +56,18 @@ export function getEffectiveSnapshotsForScope(
   return dates
     .map((date) => {
       const stored = storedByDate.get(date)
-      if (stored) return withEffectiveSnapshotMetrics(state, stored)
-      return buildDerivedSnapshot(state, scope, date)
+      const derived = buildDerivedSnapshot(state, scope, date)
+      if (!stored) return derived
+
+      if (state.workspaceOrigin === 'builtin-demo' && isPersistedSnapshot(stored)) {
+        return stored
+      }
+
+      const display = withEffectiveSnapshotMetrics(state, stored)
+      if (display.trueBalance === 0 && derived.trueBalance !== 0) {
+        return derived
+      }
+      return display
     })
     .sort((a, b) => a.date.localeCompare(b.date))
 }

@@ -1,7 +1,10 @@
 import type { AppState, Business, ScopeLevel, Venue, ViewScope } from '../types'
 
 export function getBusinessesInGroup(state: AppState, groupId: string): Business[] {
-  return state.businesses.filter((b) => b.groupId === groupId)
+  const grouped = state.businesses.filter((b) => b.groupId === groupId)
+  if (grouped.length > 0) return grouped
+  if (!state.groups.some((g) => g.id === groupId)) return state.businesses
+  return grouped
 }
 
 export function getVenuesInBusiness(state: AppState, businessId: string): Venue[] {
@@ -121,6 +124,41 @@ export function getScopeLabel(state: AppState, scope: ViewScope): string {
   return state.venues.find((v) => v.id === scope.id)?.name ?? 'Venue'
 }
 
+function scopeExistsInState(state: AppState, scope: ViewScope): boolean {
+  if (scope.type === 'group') return state.groups.some((group) => group.id === scope.id)
+  if (scope.type === 'business') return state.businesses.some((business) => business.id === scope.id)
+  return state.venues.some((venue) => venue.id === scope.id)
+}
+
+/**
+ * Default sidebar scope — group when multiple businesses, otherwise the top business (or venue).
+ */
+export function resolveDefaultViewScope(state: AppState, preferred?: ViewScope): ViewScope {
+  if (preferred && scopeExistsInState(state, preferred)) return preferred
+
+  const firstGroup = state.groups[0]
+  if (firstGroup) {
+    const inGroup = state.businesses.filter((business) => business.groupId === firstGroup.id)
+    if (inGroup.length > 1) {
+      return { type: 'group', id: firstGroup.id }
+    }
+  }
+
+  if (state.businesses[0]) {
+    return { type: 'business', id: state.businesses[0].id }
+  }
+
+  if (firstGroup) {
+    return { type: 'group', id: firstGroup.id }
+  }
+
+  if (state.venues[0]) {
+    return { type: 'venue', id: state.venues[0].id }
+  }
+
+  return preferred ?? { type: 'business', id: '' }
+}
+
 export type ScopeOption = { level: ScopeLevel; id: string; label: string }
 
 export function getScopeOptionsForView(state: AppState, viewScope: ViewScope): ScopeOption[] {
@@ -176,6 +214,17 @@ export function getReserveBillScopeOptions(state: AppState, businessId: string):
     options.push({ level: 'venue', id: venue.id, label: venue.name })
   }
   return options
+}
+
+/** Reserve bill scope options limited to the current sidebar view (group / business / venue). */
+export function getReserveBillScopeOptionsForView(
+  state: AppState,
+  businessId: string,
+  viewScope: ViewScope,
+): ScopeOption[] {
+  return getReserveBillScopeOptions(state, businessId).filter((option) =>
+    itemMatchesScope(state, viewScope, option.level, option.id),
+  )
 }
 
 /** Default scope when adding a commitment from the current view (never group-level). */
@@ -282,7 +331,8 @@ export function getScopePathSegments(state: AppState, scope: ViewScope): ScopePa
         isActive: true,
       })
     }
-    return segments
+    if (segments.length > 0) return segments
+    return getScopePathSegments(state, resolveDefaultViewScope(state, scope))
   }
 
   const venue = state.venues.find((v) => v.id === scope.id)
@@ -313,7 +363,10 @@ export function getScopePathSegments(state: AppState, scope: ViewScope): ScopePa
       isActive: true,
     })
   }
-  return segments
+  if (segments.length > 0) return segments
+
+  const fallback = resolveDefaultViewScope(state, scope)
+  return getScopePathSegments(state, fallback)
 }
 
 /** Venue view: only costs assigned to that venue — not parent-business rollups. */

@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useDemoReadOnly } from './DemoModeContext'
 import { setDisplayCurrency } from '../utils/format'
 import {
   applyGlobalTablePreferenceClasses,
@@ -20,6 +21,7 @@ interface TablePreferencesContextValue {
 const TablePreferencesContext = createContext<TablePreferencesContextValue | null>(null)
 
 export function TablePreferencesProvider({ children }: { children: ReactNode }) {
+  const demoReadOnly = useDemoReadOnly()
   const [store, setStore] = useState<TablePreferencesStore>(() => {
     const loaded = loadTablePreferences()
     setDisplayCurrency(loaded.global.currency)
@@ -38,7 +40,7 @@ export function TablePreferencesProvider({ children }: { children: ReactNode }) 
       setGlobalPreferences: (patch) => {
         setStore((current) => {
           const next = { ...current, global: { ...current.global, ...patch } }
-          saveTablePreferences(next)
+          if (!demoReadOnly) saveTablePreferences(next)
           return next
         })
       },
@@ -51,7 +53,7 @@ export function TablePreferencesProvider({ children }: { children: ReactNode }) 
               [widgetId]: { ...current.widgets[widgetId], ...patch },
             },
           }
-          saveTablePreferences(next)
+          if (!demoReadOnly) saveTablePreferences(next)
           return next
         })
       },
@@ -60,12 +62,12 @@ export function TablePreferencesProvider({ children }: { children: ReactNode }) 
           const widgets = { ...current.widgets }
           delete widgets[widgetId]
           const next = { ...current, widgets }
-          saveTablePreferences(next)
+          if (!demoReadOnly) saveTablePreferences(next)
           return next
         })
       },
     }),
-    [store],
+    [demoReadOnly, store],
   )
 
   return <TablePreferencesContext.Provider value={value}>{children}</TablePreferencesContext.Provider>

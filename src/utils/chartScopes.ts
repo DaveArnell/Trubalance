@@ -74,7 +74,43 @@ export function chartDashArrayForLevel(
   return SCOPE_LEVEL_DASH[level]
 }
 
+/**
+ * Scopes shown on Trends — one level below the current view only.
+ * Group → businesses; business → venues (or the business if single-site); venue → itself.
+ */
 export function getChartScopeOptions(state: AppState, viewScope: ViewScope): ChartScopeOption[] {
+  const option = (scope: ViewScope, indent = 0): ChartScopeOption => ({
+    key: scopeKey(scope),
+    scope,
+    label: getScopeLabel(state, scope),
+    level: scope.type,
+    indent,
+  })
+
+  if (viewScope.type === 'group') {
+    const businesses = getBusinessesInGroup(state, viewScope.id)
+    return [
+      option(viewScope, 0),
+      ...businesses.map((business) => option({ type: 'business', id: business.id }, 1)),
+    ]
+  }
+
+  if (viewScope.type === 'business') {
+    const venues = getVenuesInBusiness(state, viewScope.id)
+    if (venues.length > 1) {
+      return [
+        option(viewScope, 0),
+        ...venues.map((venue) => option({ type: 'venue', id: venue.id }, 1)),
+      ]
+    }
+    return [option(viewScope)]
+  }
+
+  return [option(viewScope)]
+}
+
+/** Full scope tree for snapshot backfill and roll-up (all descendants). */
+export function getChartScopeTreeOptions(state: AppState, viewScope: ViewScope): ChartScopeOption[] {
   const options: ChartScopeOption[] = []
   const seen = new Set<string>()
 
@@ -92,31 +128,55 @@ export function getChartScopeOptions(state: AppState, viewScope: ViewScope): Cha
   }
 
   const groupId = getGroupIdForScope(state, viewScope)
+  const singleBusiness = state.businesses.length <= 1
 
   if (viewScope.type === 'group') {
-    add(viewScope, 0)
-    for (const business of getBusinessesInGroup(state, viewScope.id)) {
-      add({ type: 'business', id: business.id }, 1)
-      for (const venue of getVenuesInBusiness(state, business.id)) {
-        add({ type: 'venue', id: venue.id }, 2)
+    const businesses = getBusinessesInGroup(state, viewScope.id)
+    if (businesses.length === 1) {
+      const biz = businesses[0]!
+      const venues = getVenuesInBusiness(state, biz.id)
+      add({ type: 'business', id: biz.id }, 0)
+      if (venues.length > 1) {
+        for (const venue of venues) {
+          add({ type: 'venue', id: venue.id }, 1)
+        }
+      }
+    } else {
+      add(viewScope, 0)
+      for (const business of businesses) {
+        add({ type: 'business', id: business.id }, 1)
+        const venues = getVenuesInBusiness(state, business.id)
+        if (venues.length > 1) {
+          for (const venue of venues) {
+            add({ type: 'venue', id: venue.id }, 2)
+          }
+        }
       }
     }
     return options
   }
 
   if (viewScope.type === 'business') {
-    if (groupId) add({ type: 'group', id: groupId }, 0)
-    add(viewScope, 1)
-    for (const venue of getVenuesInBusiness(state, viewScope.id)) {
-      add({ type: 'venue', id: venue.id }, 2)
+    if (groupId && !singleBusiness) add({ type: 'group', id: groupId }, 0)
+    const venues = getVenuesInBusiness(state, viewScope.id)
+    add(viewScope, singleBusiness ? 0 : 1)
+    if (venues.length > 1) {
+      for (const venue of venues) {
+        add({ type: 'venue', id: venue.id }, singleBusiness ? 1 : 2)
+      }
     }
     return options
   }
 
   const venue = state.venues.find((v) => v.id === viewScope.id)
   const business = venue ? state.businesses.find((b) => b.id === venue.businessId) : null
-  if (groupId) add({ type: 'group', id: groupId }, 0)
-  if (business) add({ type: 'business', id: business.id }, 1)
-  add(viewScope, 2)
+  if (groupId && !singleBusiness) add({ type: 'group', id: groupId }, 0)
+  if (business) {
+    const venues = getVenuesInBusiness(state, business.id)
+    if (venues.length > 1) {
+      add({ type: 'business', id: business.id }, singleBusiness ? 0 : 1)
+    }
+  }
+  add(viewScope, singleBusiness ? (business && getVenuesInBusiness(state, business.id).length > 1 ? 1 : 0) : 2)
   return options
 }

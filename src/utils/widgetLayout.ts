@@ -324,6 +324,10 @@ function loadAllLayouts(): Partial<Record<PageId, PageWidgetLayout>> {
   return {}
 }
 
+export function defaultPageWidgetLayout(pageId: PageId): PageWidgetLayout {
+  return DEFAULT_LAYOUTS[pageId].map((item) => ({ ...item }))
+}
+
 export function loadPageWidgetLayout(pageId: PageId): PageWidgetLayout {
   const all = loadAllLayouts()
   return mergeWithDefaults(pageId, all[pageId])

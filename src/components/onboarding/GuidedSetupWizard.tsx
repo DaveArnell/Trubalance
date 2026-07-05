@@ -8,10 +8,11 @@ import {
   GUIDED_SETUP_EDITABLE_NOTE,
   GUIDED_SETUP_PATH_OPTIONS,
   STATEMENT_HISTORY_TIPS,
+  WHY_TRUE_BALANCE_CONTENT,
   type AiSetupStepId,
   type GuidedSetupPath,
 } from '../../content/guidedSetup'
-import { dismissSetupOnboardingLocally } from '../../content/setupOnboarding'
+import { dismissSetupOnboardingLocally, INCOME_PATTERN_HINTS } from '../../content/setupOnboarding'
 import { SetupOnboardingWizard } from './SetupOnboardingWizard'
 import { BankImportSuggestionReview } from '../bankImport/BankImportSuggestionReview'
 import { analyzeBankTransactions } from '../../bankImport/aiAdapter'
@@ -27,7 +28,6 @@ import {
 import type { BankImportColumnKey, BankImportColumnMapping, BankImportSuggestion } from '../../bankImport/types'
 import { historySpanMonths } from '../../bankImport/trendInsights'
 import { formatCurrency } from '../../utils/format'
-import { getScopeLabel } from '../../utils/scope'
 
 const COLUMN_LABELS: Record<BankImportColumnKey, string> = {
   date: 'Date',
@@ -51,7 +51,7 @@ interface GuidedSetupWizardProps {
   viewScope: ViewScope
   metrics: DashboardMetrics
   actions: AppActions
-  onNavigate: (pageId: PageId) => void
+  onNavigate: (pageId: PageId, reservePlannerId?: string | null) => void
   onComplete: () => void
   onDismiss: () => void
 }
@@ -128,7 +128,7 @@ function GuidedSetupPathChoice({
 }) {
   return (
     <div className="setup-onboarding-root" role="presentation">
-      <button type="button" className="setup-onboarding-shade" aria-label="Close setup" onClick={onDismiss} />
+      <div className="setup-onboarding-shade" aria-hidden="true" />
       <aside
         className="setup-onboarding-panel setup-onboarding-panel--wide"
         role="dialog"
@@ -178,10 +178,10 @@ function GuidedSetupPathChoice({
 
 function GuidedSetupAiWizard({
   state,
-  viewScope,
+  viewScope: _viewScope,
   metrics,
   actions,
-  primaryBusinessId,
+  primaryBusinessId: _primaryBusinessId,
   onBack,
   onComplete,
   onDismiss,
@@ -189,13 +189,14 @@ function GuidedSetupAiWizard({
   primaryBusinessId?: string
   onBack: () => void
 }) {
-  const [aiStep, setAiStep] = useState<AiSetupStepId>('structure')
+  const [aiStep, setAiStep] = useState<AiSetupStepId>('why')
   const [businessName, setBusinessName] = useState('')
   const [singleSite, setSingleSite] = useState(false)
   const [venues, setVenues] = useState<VenueStructureDraft[]>([defaultVenueDraft()])
   const [businessCurrentName, setBusinessCurrentName] = useState('Current account')
   const [includeBusinessSavings, setIncludeBusinessSavings] = useState(false)
   const [businessSavingsName, setBusinessSavingsName] = useState('Savings account')
+  const [incomePatternDraft, setIncomePatternDraft] = useState<'steady' | 'lumpy'>('steady')
   const [pendingStructureAdvance, setPendingStructureAdvance] = useState(false)
 
   const [activeImportAccountId, setActiveImportAccountId] = useState<string | null>(null)
@@ -218,6 +219,7 @@ function GuidedSetupAiWizard({
   useEffect(() => {
     if (!pendingStructureAdvance || !business) return
     setPendingStructureAdvance(false)
+    actions.setBusinessIncomePattern(business.id, incomePatternDraft)
     setAiStep('import')
     if (accounts[0]) setActiveImportAccountId(accounts[0].id)
   }, [pendingStructureAdvance, business, accounts])
@@ -240,6 +242,7 @@ function GuidedSetupAiWizard({
 
   const handleStructureSave = () => {
     if (business) {
+      actions.setBusinessIncomePattern(business.id, incomePatternDraft)
       setAiStep('import')
       if (accounts[0]) setActiveImportAccountId(accounts[0].id)
       return
@@ -479,7 +482,7 @@ function GuidedSetupAiWizard({
 
   const panel = (
     <div className="setup-onboarding-root" role="presentation">
-      <button type="button" className="setup-onboarding-shade" aria-label="Close setup" onClick={onDismiss} />
+      <div className="setup-onboarding-shade" aria-hidden="true" />
       <aside
         className={`setup-onboarding-panel setup-onboarding-panel--wide${aiStep === 'review' ? ' setup-onboarding-panel--review' : ''}`}
         role="dialog"
@@ -509,54 +512,135 @@ function GuidedSetupAiWizard({
         </header>
 
         <div className="setup-onboarding-body guided-setup-ai-body">
+          {aiStep === 'why' && (
+            <>
+              <h2 id="guided-ai-title">{WHY_TRUE_BALANCE_CONTENT.title}</h2>
+              {WHY_TRUE_BALANCE_CONTENT.paragraphs.map((p, i) => (
+                <p key={i} className="setup-onboarding-explain">{p}</p>
+              ))}
+              <div className="setup-why-pillars">
+                {WHY_TRUE_BALANCE_CONTENT.pillars.map((pillar) => (
+                  <div key={pillar.heading} className="setup-why-pillar">
+                    <h3>{pillar.heading}</h3>
+                    <p>{pillar.body}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="setup-onboarding-explain setup-why-closing">
+                <strong>{WHY_TRUE_BALANCE_CONTENT.closing}</strong>
+              </p>
+            </>
+          )}
+
           {aiStep === 'structure' && (
             <>
               <h2 id="guided-ai-title">Your business structure</h2>
               <p className="setup-onboarding-explain">
-                Build your tree below. Click to edit names, tick the accounts you use, and add venues if you have multiple sites.
+                This is the foundation — everything else hangs off it. Build your tree below: name your business,
+                add the accounts you use, and add venues if you have multiple sites.
               </p>
-              {business ? (
+              {state.businesses.length > 0 ? (
                 <div className="structure-tree">
-                  <div className="structure-tree-node structure-tree-node--business">
-                    <div className="structure-tree-node-head">
-                      <span className="structure-tree-swatch" style={{ background: 'var(--accent)' }} />
-                      <span className="structure-tree-node-label">{business.name}</span>
-                    </div>
-                    <div className="structure-tree-accounts">
-                      {state.accounts
-                        .filter((a) => a.businessId === business.id || state.venues.some((v) => v.businessId === business.id && a.venueId === v.id))
-                        .map((a) => (
-                          <span key={a.id} className="structure-tree-account-chip">
-                            {a.type === 'current' ? '🏦' : '💰'} {a.name}
-                          </span>
-                        ))}
-                    </div>
-                    {state.venues.filter((v) => v.businessId === business.id).length > 0 && (
-                      <div className="structure-tree-children">
-                        {state.venues.filter((v) => v.businessId === business.id).map((venue) => (
-                          <div key={venue.id} className="structure-tree-node structure-tree-node--venue">
-                            <div className="structure-tree-connector" />
-                            <div className="structure-tree-node-head">
-                              <span className="structure-tree-swatch" style={{ background: venue.accentColor || '#6366f1' }} />
-                              <span className="structure-tree-node-label">{venue.name}</span>
-                            </div>
-                            <div className="structure-tree-accounts">
-                              {state.accounts
-                                .filter((a) => a.venueId === venue.id)
-                                .map((a) => (
-                                  <span key={a.id} className="structure-tree-account-chip">
-                                    {a.type === 'current' ? '🏦' : '💰'} {a.name}
-                                  </span>
-                                ))}
-                            </div>
+                  {state.businesses.map((biz) => {
+                    const bizVenues = state.venues.filter((v) => v.businessId === biz.id)
+                    const bizAccounts = state.accounts.filter(
+                      (a) => a.businessId === biz.id || bizVenues.some((v) => a.venueId === v.id),
+                    )
+                    return (
+                      <div key={biz.id} className="structure-tree-node structure-tree-node--business">
+                        <div className="structure-tree-node-head">
+                          <span className="structure-tree-swatch" style={{ background: biz.accentColor || 'var(--accent)' }} />
+                          <span className="structure-tree-node-label">{biz.name}</span>
+                          {state.businesses.length > 1 && (
+                            <button
+                              type="button"
+                              className="structure-tree-remove"
+                              title="Delete business"
+                              onClick={() => actions.deleteBusiness(biz.id)}
+                            >
+                              ×
+                            </button>
+                          )}
+                        </div>
+                        <div className="structure-tree-accounts">
+                          {bizAccounts
+                            .filter((a) => a.businessId === biz.id)
+                            .map((a) => (
+                              <span key={a.id} className="structure-tree-account-chip">
+                                {a.type === 'current' ? '🏦' : '💰'} {a.name}
+                              </span>
+                            ))}
+                        </div>
+                        {bizVenues.length > 0 && (
+                          <div className="structure-tree-children">
+                            {bizVenues.map((venue) => (
+                              <div key={venue.id} className="structure-tree-node structure-tree-node--venue">
+                                <div className="structure-tree-connector" />
+                                <div className="structure-tree-node-head">
+                                  <span className="structure-tree-swatch" style={{ background: venue.accentColor || '#6366f1' }} />
+                                  <span className="structure-tree-node-label">{venue.name}</span>
+                                  <button
+                                    type="button"
+                                    className="structure-tree-remove"
+                                    title="Remove venue"
+                                    onClick={() => actions.deleteVenue(venue.id)}
+                                  >
+                                    ×
+                                  </button>
+                                </div>
+                                <div className="structure-tree-accounts">
+                                  {state.accounts
+                                    .filter((a) => a.venueId === venue.id)
+                                    .map((a) => (
+                                      <span key={a.id} className="structure-tree-account-chip">
+                                        {a.type === 'current' ? '🏦' : '💰'} {a.name}
+                                      </span>
+                                    ))}
+                                </div>
+                              </div>
+                            ))}
                           </div>
-                        ))}
+                        )}
+                        <div className="structure-tree-add-actions">
+                          <button
+                            type="button"
+                            className="btn-ghost btn-tiny"
+                            onClick={() => {
+                              const name = prompt('Venue name:')
+                              if (name?.trim()) actions.addVenue(biz.id, name.trim())
+                            }}
+                          >
+                            + Venue
+                          </button>
+                          <button
+                            type="button"
+                            className="btn-ghost btn-tiny"
+                            onClick={() => actions.addBusinessAccount(biz.id, 'Current account', 'current')}
+                          >
+                            + Current
+                          </button>
+                          <button
+                            type="button"
+                            className="btn-ghost btn-tiny"
+                            onClick={() => actions.addBusinessAccount(biz.id, 'Savings account', 'savings')}
+                          >
+                            + Savings
+                          </button>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                  <p className="muted" style={{ marginTop: '12px', fontSize: '0.82rem' }}>
-                    Your structure is ready. You can add more businesses or venues later in Settings. Continue to upload statements.
-                  </p>
+                    )
+                  })}
+                  <button
+                    type="button"
+                    className="btn-ghost btn-tiny structure-tree-add-btn"
+                    style={{ marginTop: '10px' }}
+                    onClick={() => {
+                      const name = prompt('New business name:')
+                      if (name?.trim()) actions.addBusiness(undefined, name.trim(), true)
+                    }}
+                  >
+                    + Add another business
+                  </button>
                 </div>
               ) : (
                 <div className="structure-tree structure-tree--editable">
@@ -718,6 +802,36 @@ function GuidedSetupAiWizard({
                   </div>
                 </div>
               )}
+
+              <fieldset className="setup-income-pattern">
+                <legend>How does money come into your business?</legend>
+                <label className={`setup-income-option${incomePatternDraft === 'steady' ? ' setup-income-option--active' : ''}`}>
+                  <input
+                    type="radio"
+                    name="aiIncomePattern"
+                    value="steady"
+                    checked={incomePatternDraft === 'steady'}
+                    onChange={() => setIncomePatternDraft('steady')}
+                  />
+                  <span>
+                    <strong>Steady / daily</strong>
+                    <small>Retail, hospitality, trade — money comes in most days</small>
+                  </span>
+                </label>
+                <label className={`setup-income-option${incomePatternDraft === 'lumpy' ? ' setup-income-option--active' : ''}`}>
+                  <input
+                    type="radio"
+                    name="aiIncomePattern"
+                    value="lumpy"
+                    checked={incomePatternDraft === 'lumpy'}
+                    onChange={() => setIncomePatternDraft('lumpy')}
+                  />
+                  <span>
+                    <strong>Irregular / invoiced</strong>
+                    <small>Contractors, agencies, consultancies — larger payments at varying intervals</small>
+                  </span>
+                </label>
+              </fieldset>
             </>
           )}
 
@@ -886,32 +1000,40 @@ function GuidedSetupAiWizard({
             <>
               <h2 id="guided-ai-title">Your True Balance is ready</h2>
               {applySummary && <p className="bank-import-success">{applySummary}</p>}
+              <p className="setup-onboarding-explain">
+                Your bank says one number, but now you can see what&apos;s genuinely available.
+              </p>
               <div className="setup-onboarding-reveal">
                 <dl className="setup-reveal-math">
                   <div>
-                    <dt>Cash</dt>
+                    <dt>Cash in bank</dt>
                     <dd>{formatCurrency(metrics.cash)}</dd>
                   </div>
                   <div>
-                    <dt>Committed funds</dt>
+                    <dt>Already spoken for</dt>
                     <dd>−{formatCurrency(metrics.committedFunds)}</dd>
                   </div>
                   {metrics.expectedReceipts > 0 && (
                     <div>
-                      <dt>Expected receipts</dt>
+                      <dt>Expected in</dt>
                       <dd>+{formatCurrency(metrics.expectedReceipts)}</dd>
                     </div>
                   )}
                   <div className="setup-reveal-total">
-                    <dt>True Balance</dt>
+                    <dt>Your True Balance</dt>
                     <dd>{formatCurrency(metrics.trueBalance)}</dd>
                   </div>
                 </dl>
               </div>
-              <p className="muted">
-                Viewing <strong>{getScopeLabel(state, viewScope)}</strong>. Add, rename, or delete
-                anything in Settings or each section — nothing is locked because you used assisted
-                setup.
+              <p className="setup-income-hint">
+                {INCOME_PATTERN_HINTS[incomePatternDraft]}
+              </p>
+              <p className="setup-onboarding-explain muted" style={{ marginTop: 'var(--space-2)' }}>
+                <strong>Your routine:</strong> Update your bank balance every day or two. Mark things paid as they go out.
+                Once a month, do the reserve check-in (5 minutes). The system handles the rest.
+              </p>
+              <p className="muted" style={{ fontSize: '0.78rem' }}>
+                Everything remains editable — add, rename, or delete anything in Settings or each section.
               </p>
             </>
           )}
@@ -926,7 +1048,8 @@ function GuidedSetupAiWizard({
               type="button"
               className="btn-secondary btn-tiny"
               onClick={() => {
-                if (aiStep === 'structure') onBack()
+                if (aiStep === 'why') onBack()
+                else if (aiStep === 'structure') setAiStep('why')
                 else if (aiStep === 'import') setAiStep('structure')
                 else if (aiStep === 'review') setAiStep('import')
                 else if (aiStep === 'complete') setAiStep('review')
@@ -934,6 +1057,11 @@ function GuidedSetupAiWizard({
             >
               Back
             </button>
+            {aiStep === 'why' && (
+              <button type="button" className="btn-primary btn-tiny" onClick={() => setAiStep('structure')}>
+                Let&apos;s get started
+              </button>
+            )}
             {aiStep === 'structure' && (
               <button type="button" className="btn-primary btn-tiny" onClick={handleStructureSave}>
                 Continue

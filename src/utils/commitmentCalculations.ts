@@ -549,16 +549,12 @@ export function getAccrualProgress(
   const month = today.getMonth()
   const thisMonthDue = getDueDate(year, month, dueDay)
 
-  // On or after due day (unpaid): accrual resets and ticks toward the next due date.
+  // On or after due day (unpaid): accrual restarts on the due date toward the next due date.
   if (today.getTime() >= thisMonthDue.getTime()) {
-    const cycleStart = addDays(thisMonthDue, 1)
+    const cycleStart = thisMonthDue
     const nextMonth = month === 11 ? 0 : month + 1
     const nextYear = month === 11 ? year + 1 : year
     const cycleEnd = getDueDate(nextYear, nextMonth, dueDay)
-
-    if (today.getTime() < cycleStart.getTime()) {
-      return { progress: 0, cycle: { cycleStart, cycleEnd, today } }
-    }
 
     const totalDays = daysBetweenDates(cycleStart, cycleEnd) + 1
     const elapsedDays = daysBetweenDates(cycleStart, today) + 1

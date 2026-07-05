@@ -12,10 +12,10 @@ import {
 
 export function PricingSection() {
   return (
-    <section id="pricing" className="marketing-pricing-section">
-      <div className="marketing-section-inner">
-        <div className="marketing-section-head marketing-section-head--center">
-          <p className="marketing-eyebrow">Pricing</p>
+        <section id="pricing" className="marketing-pricing-section marketing-pricing-section--pop">
+          <div className="marketing-section-inner">
+            <div className="marketing-section-head marketing-section-head--center">
+              <p className="marketing-eyebrow marketing-eyebrow--vivid">Pricing</p>
           <h2>{PRICING_HEADLINE}</h2>
           <p className="marketing-section-lead">{PRICING_SUBHEADLINE}</p>
         </div>
