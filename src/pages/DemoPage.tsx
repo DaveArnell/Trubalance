@@ -25,6 +25,8 @@ export function DemoPage() {
     setDemoState(initialState)
   }, [initialState])
 
+  const externalState = canEditDemo ? demoState : initialState
+
   const handleScenarioChange = (nextId: string) => {
     navigate(`/demo/${nextId}`, { replace: true })
   }
@@ -67,7 +69,7 @@ export function DemoPage() {
 
           <AppShell
             key={meta.id}
-            externalState={demoState}
+            externalState={externalState}
             externalStateVersion={`${meta.id}:${meta.historyMonths}`}
             defaultViewScope={meta.defaultViewScope}
             readOnly={!canEditDemo}

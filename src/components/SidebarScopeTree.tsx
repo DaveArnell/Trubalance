@@ -83,7 +83,7 @@ export function SidebarScopeTree({
                 : scopeBtnClass(state, viewScope, 'business', business.id, compact)
             }
             title={compact ? business.name : undefined}
-            onClick={() => onSelect({ type: 'venue', id: venue.id })}
+            onClick={() => onSelect({ type: 'business', id: business.id })}
           >
             <span className="scope-tree-swatch" style={{ background: accent }} aria-hidden />
             <span className="scope-tree-label">{label}</span>

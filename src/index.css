@@ -4629,6 +4629,15 @@ body.overview-split-dragging .overview-split-handle::after {
   width: 3px;
 }
 
+.overview-split-handle--readonly {
+  cursor: default;
+  pointer-events: none;
+}
+
+.overview-split-handle--readonly::after {
+  display: none;
+}
+
 body.overview-split-dragging {
   cursor: col-resize !important;
   user-select: none;

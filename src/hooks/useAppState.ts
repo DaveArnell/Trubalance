@@ -373,8 +373,11 @@ export function useAppState(options?: UseAppStateOptions) {
       const groupExists = state.groups.some((g) => g.id === viewScope.id)
       if (!groupExists && state.businesses.length > 0) {
         setViewScope({ type: 'business', id: state.businesses[0].id })
-      } else if (groupExists && state.businesses.length === 1) {
-        setViewScope({ type: 'business', id: state.businesses[0].id })
+      } else if (groupExists) {
+        const inGroup = state.businesses.filter((business) => business.groupId === viewScope.id)
+        if (inGroup.length === 1) {
+          setViewScope({ type: 'business', id: inGroup[0]!.id })
+        }
       }
     }
   }, [state.groups, state.businesses, viewScope])

@@ -133,6 +133,10 @@ export function OverviewStrip({
     '--overview-height': `${height}px`,
   } as CSSProperties
 
+  const splitGridColumns = showAccounts
+    ? `minmax(0, ${asideFr}fr) 5px minmax(0, ${100 - asideFr}fr)`
+    : undefined
+
   return (
     <section
       className={`overview-strip overview-strip--${size}`}
@@ -144,9 +148,9 @@ export function OverviewStrip({
           ref={containerRef}
           className={`overview-strip-split${showAccounts ? '' : ' overview-strip-split--solo'}`}
           style={
-            showAccounts
+            splitGridColumns
               ? {
-                  gridTemplateColumns: `minmax(0, ${asideFr}fr) 5px minmax(0, ${100 - asideFr}fr)`,
+                  gridTemplateColumns: splitGridColumns,
                 }
               : undefined
           }
@@ -201,15 +205,14 @@ export function OverviewStrip({
 
           {showAccounts && (
             <>
-              {!readOnly && (
-                <div
-                  className="overview-split-handle"
-                  role="separator"
-                  aria-orientation="vertical"
-                  aria-label="Resize True Balance panels"
-                  onPointerDown={startDrag}
-                />
-              )}
+              <div
+                className={`overview-split-handle${readOnly ? ' overview-split-handle--readonly' : ''}`}
+                role={readOnly ? undefined : 'separator'}
+                aria-orientation="vertical"
+                aria-hidden={readOnly ? true : undefined}
+                aria-label={readOnly ? undefined : 'Resize True Balance panels'}
+                onPointerDown={readOnly ? undefined : startDrag}
+              />
 
               <div className="overview-strip-table" data-tour="overview-balances">
                 <BreakdownTable
