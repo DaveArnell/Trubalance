@@ -1,5 +1,5 @@
 import type { Account, AppState, ViewScope } from '../types'
-import { sumAccountBalances, toAmount } from './amounts'
+import { sumAccountBalances } from './amounts'
 import {
   calculateColumnDashboard,
   calculateDashboard,
