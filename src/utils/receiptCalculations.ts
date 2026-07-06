@@ -37,7 +37,16 @@ export function normalizeReceiptDateInput(
 ): string | undefined {
   const trimmed = input.trim()
   if (!trimmed) return undefined
-  return resolveReceiptDateKey(trimmed, referenceDate) ?? trimmed
+  return resolveReceiptDateKey(trimmed, referenceDate) ?? undefined
+}
+
+/** Coerce receipt date fields to YYYY-MM-DD for database date columns. */
+export function serializeReceiptDateField(
+  value: string | undefined,
+  referenceDate: Date = getReferenceDate(),
+): string | null {
+  if (!value?.trim()) return null
+  return resolveReceiptDateKey(value, referenceDate)
 }
 
 function daysBetween(a: Date, b: Date): number {

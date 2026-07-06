@@ -106,6 +106,19 @@ export function readSessionBackup(): AppState | null {
   }
 }
 
+/** Recover expected receipts present locally but missing from a cloud load. */
+export function mergeMissingExpectedReceipts(cloud: AppState, local: AppState | null): AppState {
+  if (!local?.expectedReceipts.length) return cloud
+  const cloudIds = new Set(cloud.expectedReceipts.map((receipt) => receipt.id))
+  const missing = local.expectedReceipts.filter((receipt) => !cloudIds.has(receipt.id))
+  if (missing.length === 0) return cloud
+  return {
+    ...cloud,
+    workspaceOrigin: cloud.workspaceOrigin ?? 'user',
+    expectedReceipts: [...cloud.expectedReceipts, ...missing],
+  }
+}
+
 export function isInitialDemoState(state: AppState): boolean {
   return isBuiltinDemoWorkspace(state)
 }

@@ -19,7 +19,7 @@ import {
   buildSafeTableEmptyDeletes,
 } from '../services/workspaceRepository'
 import { isSupabaseConfigured } from '../lib/supabase'
-import { emptyAppState, isBuiltinDemoWorkspace, isUserOwnedWorkspace, backupBrowserStateToSession } from '../utils/localStateStorage'
+import { emptyAppState, isBuiltinDemoWorkspace, isUserOwnedWorkspace, backupBrowserStateToSession, mergeMissingExpectedReceipts } from '../utils/localStateStorage'
 import { readBrowserAppState } from '../hooks/useAppState'
 import { normalizeWorkspaceState } from '../utils/workspaceNormalize'
 
@@ -112,6 +112,15 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         allowEmptyDeletesRef.current = false
       } else {
         allowEmptyDeletesRef.current = false
+      }
+
+      if (
+        !isImpersonating &&
+        user?.id === effectiveUserId &&
+        localState &&
+        isUserOwnedWorkspace(localState)
+      ) {
+        state = mergeMissingExpectedReceipts(state, localState)
       }
 
       if (!state.workspaceOrigin) {

@@ -4,7 +4,7 @@ import type { AppState } from '../types'
 import { useAuth } from '../contexts/AuthContext'
 import { useWorkspace } from '../contexts/WorkspaceContext'
 import { isSupabaseConfigured } from '../lib/supabase'
-import { backupBrowserStateToSession, summarizeAppState } from '../utils/localStateStorage'
+import { backupBrowserStateToSession, readSessionBackup, summarizeAppState } from '../utils/localStateStorage'
 import { parseImportedAppState } from '../utils/importAppState'
 
 interface DataExportPanelProps {
@@ -19,7 +19,10 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
   const [status, setStatus] = useState<string | null>(null)
   const [pendingImport, setPendingImport] = useState<AppState | null>(null)
   const [importing, setImporting] = useState(false)
+  const [restoringBackup, setRestoringBackup] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const sessionBackup = readSessionBackup()
+  const sessionBackupSummary = sessionBackup ? summarizeAppState(sessionBackup) : null
 
   const summary = summarizeAppState(state)
   const signedIn = Boolean(user)
@@ -89,6 +92,31 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
       setStatus(`Restore failed: ${err instanceof Error ? err.message : 'Unknown error'}. Try again.`)
     } finally {
       setImporting(false)
+    }
+  }
+
+  const handleRestoreSessionBackup = async () => {
+    const backup = readSessionBackup()
+    if (!backup || readOnly) return
+    setRestoringBackup(true)
+    setStatus(null)
+    try {
+      cancelPendingPersist()
+      const withOrigin: AppState = { ...backup, workspaceOrigin: 'user' }
+      onReplaceState(withOrigin)
+      if (cloudBacked) {
+        await restoreWorkspaceState(withOrigin)
+      }
+      const restored = summarizeAppState(withOrigin)
+      setStatus(
+        `Restored browser backup from this session — ${restored.receipts} expected receipts, ${restored.commitments} costs.` +
+          (cloudBacked ? ' Saved to your account.' : ''),
+      )
+    } catch (err) {
+      console.error('[Restore backup] Failed:', err)
+      setStatus(`Restore failed: ${err instanceof Error ? err.message : 'Unknown error'}.`)
+    } finally {
+      setRestoringBackup(false)
     }
   }
 
@@ -186,6 +214,16 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
         >
           Restore from file
         </button>
+        {sessionBackupSummary && sessionBackupSummary.receipts > summary.receipts ? (
+          <button
+            type="button"
+            className="btn-secondary btn-tiny"
+            disabled={readOnly || restoringBackup}
+            onClick={handleRestoreSessionBackup}
+          >
+            Restore browser backup
+          </button>
+        ) : null}
         <input
           ref={fileInputRef}
           type="file"

@@ -1,4 +1,5 @@
 import type { AppState, BalanceSnapshot, BusinessReferenceProfile, Commitment, DayNote, DiaryReminder, ExpectedReceipt, Group, Business, Venue, Account, ReservePlanner, ReserveBill, HistoryRecord } from '../types'
+import { serializeReceiptDateField } from '../utils/receiptCalculations'
 import { tryGetSupabase } from '../lib/supabase'
 import { readBrowserAppState } from '../hooks/useAppState'
 import { emptyAppState } from '../utils/localStateStorage'
@@ -107,13 +108,15 @@ function toDateOnly(val: string): string {
 }
 
 function mapReceipt(row: Record<string, unknown>): ExpectedReceipt {
+  const expectedRaw = row.expected_date ? String(row.expected_date) : undefined
+  const startRaw = row.accrual_start_date ? String(row.accrual_start_date) : undefined
   return {
     id: String(row.id),
     name: String(row.name),
     amount: toNumber(row.amount),
-    expectedDate: row.expected_date ? toDateOnly(String(row.expected_date)) : undefined,
+    expectedDate: expectedRaw ? toDateOnly(expectedRaw) : undefined,
     receiptTiming: row.receipt_timing ? (row.receipt_timing as ExpectedReceipt['receiptTiming']) : undefined,
-    accrualStartDate: row.accrual_start_date ? toDateOnly(String(row.accrual_start_date)) : undefined,
+    accrualStartDate: startRaw ? toDateOnly(startRaw) : undefined,
     periodAmountOverrides:
       row.period_amount_overrides && typeof row.period_amount_overrides === 'object'
         ? Object.fromEntries(
@@ -400,6 +403,11 @@ export function buildSafeTableEmptyDeletes(
     }
     const prevCount = previous[table] ?? 0
     const loadedCount = loaded?.[table] ?? 0
+    // Never wipe expected receipts on a stale/empty autosave after the workspace loaded with data.
+    if (table === 'expected_receipts' && loadedCount > 0) {
+      out[table] = false
+      continue
+    }
     out[table] = prevCount > 0 || loadedCount === 0
   }
 
@@ -485,9 +493,9 @@ export async function saveWorkspaceState(
     id: r.id,
     name: r.name,
     amount: r.amount,
-    expected_date: r.expectedDate ?? null,
+    expected_date: serializeReceiptDateField(r.expectedDate),
     receipt_timing: r.receiptTiming === 'lump' || r.receiptTiming === 'accrual' ? r.receiptTiming : null,
-    accrual_start_date: r.accrualStartDate ?? null,
+    accrual_start_date: serializeReceiptDateField(r.accrualStartDate),
     period_amount_overrides: r.periodAmountOverrides ?? {},
     scope_level: r.scopeLevel,
     scope_id: r.scopeId,

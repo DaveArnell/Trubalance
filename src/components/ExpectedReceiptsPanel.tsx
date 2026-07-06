@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import type { AppState, ViewScope } from '../types'
-import { getCommitmentScopeOptionsForView, itemMatchesScope } from '../utils/scope'
+import { getCommitmentScopeOptionsForView, itemMatchesScope, getScopeItemLabel } from '../utils/scope'
 import { sortByOrder } from '../utils/sortOrder'
 import type { AppActions } from '../hooks/useAppState'
 import { useDemoReadOnly } from '../contexts/DemoModeContext'
@@ -39,6 +39,13 @@ export function ExpectedReceiptsPanel({
           itemMatchesScope(state, viewScope, r.scopeLevel, r.scopeId),
         ),
         (r) => r.sortOrder,
+      ),
+    [state.expectedReceipts, state, viewScope],
+  )
+  const outOfScopeReceipts = useMemo(
+    () =>
+      state.expectedReceipts.filter(
+        (receipt) => !itemMatchesScope(state, viewScope, receipt.scopeLevel, receipt.scopeId),
       ),
     [state.expectedReceipts, state, viewScope],
   )
@@ -95,6 +102,16 @@ export function ExpectedReceiptsPanel({
         </div>
       </div>
 
+      {outOfScopeReceipts.length > 0 ? (
+        <p className="expected-receipts-scope-hint muted">
+          {outOfScopeReceipts.length} receipt{outOfScopeReceipts.length === 1 ? '' : 's'} in other scopes
+          {outOfScopeReceipts.length <= 3
+            ? `: ${outOfScopeReceipts.map((receipt) => `${receipt.name} (${getScopeItemLabel(state, receipt.scopeLevel, receipt.scopeId)})`).join(', ')}`
+            : ''}
+          . Change the sidebar scope to view them.
+        </p>
+      ) : null}
+
       <div className="card-scroll-body">
         <PlatformSheetWrap storageKey="expected-receipts" columns={RECEIPTS_COLUMNS}>
           {({ widths, startResize, prefClasses }) => (
@@ -117,7 +134,9 @@ export function ExpectedReceiptsPanel({
                 {visibleReceipts.length === 0 ? (
                   <tr className="sheet-empty-row">
                     <td colSpan={8} className="sheet-empty-cell">
-                      No expected receipts in this view. Use + Add row.
+                      {state.expectedReceipts.length === 0
+                        ? 'No expected receipts in this view. Use + Add row.'
+                        : 'No expected receipts in this scope. Check the sidebar scope or the note above.'}
                     </td>
                   </tr>
                 ) : (
