@@ -7,6 +7,7 @@ import {
   scrollToMarketingSection,
 } from '../components/marketing/MarketingLayout'
 import { HeroBalanceEquation } from '../components/marketing/HeroBalanceEquation'
+import { HeroBalanceVisual } from '../components/marketing/HeroBalanceVisual'
 import { LandingAppPreview } from '../components/marketing/LandingAppPreview'
 import { MarketingBrowserFrame } from '../components/marketing/MarketingBrowserFrame'
 import { CompanyLegalNotice } from '../components/marketing/CompanyLegalNotice'
@@ -41,13 +42,13 @@ const FEATURES = [
   {
     icon: '◈',
     title: 'True Balance overview',
-    body: 'One honest number across your accounts — cash minus commitments plus expected receipts.',
+    body: 'One honest number across your accounts: cash minus commitments plus expected receipts.',
     accent: 'indigo',
   },
   {
     icon: '▤',
     title: 'Committed funds',
-    body: 'See what is building up, due now, and still owed to you — in one place.',
+    body: 'See what is building up, due now, and still owed to you, in one place.',
     accent: 'orange',
   },
   {
@@ -124,7 +125,7 @@ export function LandingPage() {
                 ))}
               </ul>
               <p className="marketing-founder-callout" role="note">
-                <strong>{FOUNDER_PROGRAM_HEADLINE}</strong> — {FOUNDER_PROGRAM_BODY}
+                <strong>{FOUNDER_PROGRAM_HEADLINE}</strong>. {FOUNDER_PROGRAM_BODY}
               </p>
               <div className="marketing-cta-row">
                 <Link to="/signup" className="btn-primary btn-large marketing-cta-primary marketing-cta-primary--pop">
@@ -148,6 +149,7 @@ export function LandingPage() {
             <div className="marketing-hero-visual marketing-hero-visual--pop">
               <MarketingBrowserFrame>
                 <HeroBalanceEquation />
+                <HeroBalanceVisual />
               </MarketingBrowserFrame>
             </div>
           </div>
@@ -196,7 +198,7 @@ export function LandingPage() {
               <p className="marketing-eyebrow marketing-eyebrow--vivid">Features</p>
               <h2>Three views that change how you manage cash</h2>
               <p className="marketing-section-lead">
-                Groups, venues, trends and guided setup are there when you need them — but most
+                Groups, venues, trends and guided setup are there when you need them. Most
                 owners live in these three panels.
               </p>
             </div>
@@ -263,7 +265,7 @@ export function LandingPage() {
           <div className="marketing-demo-band-inner">
             <h2>Try a live demo workspace</h2>
             <p>
-              Summit Leisure, Cornerstone Coffee, or Riverside Building — fully set up with months
+              Summit Leisure, Cornerstone Coffee, or Riverside Building, fully set up with months
               of history. No signup.
             </p>
             <div className="marketing-cta-row marketing-cta-row--center">
@@ -288,7 +290,7 @@ export function LandingPage() {
         <section className="marketing-cta-band marketing-cta-band--pop">
           <div className="marketing-cta-band-inner">
             <h2>Ready to see what is actually yours?</h2>
-            <p>{FOUNDER_PROGRAM_HEADLINE}. Help us improve True Balance — no payment details required.</p>
+            <p>{FOUNDER_PROGRAM_HEADLINE}. Help us improve True Balance. No payment details required.</p>
             <div className="marketing-cta-row marketing-cta-row--center">
               <Link to="/signup" className="btn-primary btn-large marketing-cta-btn-on-dark">
                 Claim your spot

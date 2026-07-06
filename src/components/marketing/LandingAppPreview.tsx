@@ -52,7 +52,7 @@ function CommittedWidget() {
           <span className="landing-preview-row-value">£1,450</span>
         </div>
         <div className="landing-preview-row">
-          <span className="landing-preview-row-label">Extension — interim</span>
+          <span className="landing-preview-row-label">Extension, interim</span>
           <span className="landing-preview-row-meta">Expected</span>
           <span className="landing-preview-row-value">£8,200</span>
         </div>
@@ -83,7 +83,7 @@ function ForecastWidget() {
         </text>
       </svg>
       <p className="landing-preview-chart-note muted">
-        Scheduled costs, receipts and the van purchase — from the trades demo.
+        Scheduled costs, receipts and the van purchase, from the trades demo.
       </p>
     </div>
   )
@@ -103,10 +103,10 @@ export function LandingAppPreview({ variant = 'section' }: LandingAppPreviewProp
       <div className="marketing-section-inner">
         <div className="marketing-section-head marketing-section-head--center">
           <p className="marketing-eyebrow marketing-eyebrow--vivid">Inside the app</p>
-          <h2 id="landing-preview-heading">The parts that matter — not the whole dashboard</h2>
+          <h2 id="landing-preview-heading">The parts that matter, not the whole dashboard</h2>
           <p className="marketing-section-lead">
             The live workspace has a lot going on. On the marketing site we show individual
-            widgets — the numbers and panels owners actually use — from the Riverside Building demo.
+            widgets, the numbers and panels owners actually use, from the Riverside Building demo.
           </p>
         </div>
 
@@ -120,7 +120,7 @@ export function LandingAppPreview({ variant = 'section' }: LandingAppPreviewProp
 
         <div className="landing-preview-footer">
           <p className="muted">
-            Pick a café, trades business or leisure group — every page is live in the demo.
+            Pick a café, trades business or leisure group. Every page is live in the demo.
           </p>
           <Link to="/see-how-it-works" className="btn-primary btn-large">
             Explore the demo
