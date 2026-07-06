@@ -1,4 +1,4 @@
-import type { AppState, Commitment, ExpectedReceipt, IncomePattern, ViewScope } from '../types'
+import type { AppState, Commitment, CommitmentDueRow, ExpectedReceipt, IncomePattern, ReserveBill, ViewScope } from '../types'
 import { sumAccountBalances, toAmount, roundCurrency } from './amounts'
 import {
   clampDueDay,
@@ -7,24 +7,37 @@ import {
   isCommitmentPaidForPeriod,
   isDismissedForPeriod,
 } from './commitmentCalculations'
-import { calculateDashboard, getAccountsForScope, getCommitmentsForScope, getReceiptsForScope } from './calculations'
-import { getEffectiveCommittedAmount, getDueRowCommittedAmount } from './commitmentCalculations'
+import { getAccountsForScope, getCommitmentsForScope, getReceiptsForScope } from './calculations'
+import {
+  getAccruedAmount,
+  getActiveAccrualPeriod,
+  getCommitmentDueOccurrences,
+  getCommitmentDueRowAmount,
+  getDueRowCommittedAmount,
+  isPaidThisCycle,
+} from './commitmentCalculations'
 import { parsePlannedDueDateInput, getPlannedCommittedAmount } from './plannedFunding'
 import {
   getEffectiveReceiptAmount,
-  getReceiptTiming,
   resolveReceiptDateKey,
 } from './receiptCalculations'
 import { getReferenceDate } from './referenceDate'
+import { MONTHS } from './format'
 import {
   buildReserveAccruingRows,
   buildReserveDueRows,
   computeReserveOperatingTransfer,
   computeReserveMonthEndBalances,
+  getBillDueDay,
   getPlannerActualBalance,
+  getReserveDueOccurrenceAmount,
+  getReserveDueRowAmount,
   getReserveTransferTargetForMonth,
+  getUnpaidReserveBillDueOccurrences,
+  isReserveBillDismissedThisPeriod,
+  isReserveBillPaidThisPeriod,
 } from './reserveCalculations'
-import { getBusinessIdsForScope, itemMatchesScope } from './scope'
+import { getBusinessIdsForScope, getVenueIdsForScope, itemMatchesScope } from './scope'
 import { addDays } from './trendProjection'
 
 const AUTO_PAY_DAYS = 1
@@ -100,23 +113,139 @@ function getForecastReceiptCashAmount(receipt: ExpectedReceipt): number {
 
 /**
  * Expected-receipt contribution for the True Balance line on a forecast day.
- * Build-up accrues daily; lump sums count in full until cash lands.
+ * Uses the same rules as the dashboard (lump needs Start; build-up accrues daily).
  */
 function getForecastTrueBalanceReceiptAmount(
   receipt: ExpectedReceipt,
   referenceDate: Date,
   cashDateKey: string | undefined,
+  endOfDay: boolean,
 ): number {
   if (receipt.received) return 0
   const dateKey = isoFromDate(referenceDate)
-  if (cashDateKey && dateKey >= cashDateKey) return 0
+  if (cashDateKey && (endOfDay ? dateKey >= cashDateKey : dateKey > cashDateKey)) return 0
+  return getEffectiveReceiptAmount(receipt, referenceDate)
+}
 
-  if (getReceiptTiming(receipt) === 'accrual') {
-    return getEffectiveReceiptAmount(receipt, referenceDate)
+function forecastSettlementKey(commitmentId: string, period: string): string {
+  return `${commitmentId}:${period}`
+}
+
+function reserveSettlementKey(plannerId: string, billId: string, period: string): string {
+  return `reserve:${plannerId}:${billId}:${period}`
+}
+
+function reserveBillAppliesToScope(state: AppState, scope: ViewScope, bill: ReserveBill): boolean {
+  if (!bill.venueId) return scope.type !== 'venue'
+  const venue = state.venues.find((v) => v.id === bill.venueId)
+  if (!venue) return scope.type !== 'venue'
+  if (scope.type === 'venue') return bill.venueId === scope.id
+  if (scope.type === 'business') return venue.businessId === scope.id
+  return getVenueIdsForScope(state, scope).includes(bill.venueId)
+}
+
+function getForecastReserveBillDueAmount(
+  bill: ReserveBill,
+  plannerId: string,
+  referenceDate: Date,
+  reserveSettlements: ReadonlyMap<string, string>,
+  endOfDay: boolean,
+): number {
+  const dateKey = isoFromDate(referenceDate)
+  const occurrences = getUnpaidReserveBillDueOccurrences(bill, referenceDate).filter(
+    (occurrence) =>
+      !isForecastSettled(reserveSettlements, plannerId, occurrence.period, dateKey, endOfDay, bill.id),
+  )
+  return getReserveDueRowAmount(bill, occurrences)
+}
+
+function getForecastDueRowCommittedAmount(
+  state: AppState,
+  row: CommitmentDueRow,
+  referenceDate: Date,
+  reserveSettlements: ReadonlyMap<string, string>,
+  endOfDay: boolean,
+): number {
+  if (row.source !== 'reserve' || !row.reserveBillId || !row.reservePlannerId) {
+    return getDueRowCommittedAmount(row, referenceDate)
+  }
+  const planner = state.reservePlanners.find((entry) => entry.id === row.reservePlannerId)
+  const bill = planner?.bills.find((entry) => entry.id === row.reserveBillId)
+  if (!bill) return getDueRowCommittedAmount(row, referenceDate)
+  return getForecastReserveBillDueAmount(bill, row.reservePlannerId, referenceDate, reserveSettlements, endOfDay)
+}
+
+function collectReserveBillSettlements(
+  state: AppState,
+  scope: ViewScope,
+  today: Date,
+  endDate: Date,
+): Map<string, string> {
+  const settlements = new Map<string, string>()
+  const todayKey = isoFromDate(today)
+  const endKey = isoFromDate(endDate)
+  const businessIds = getBusinessIdsForScope(state, scope)
+
+  for (const planner of state.reservePlanners.filter((entry) => businessIds.includes(entry.businessId))) {
+    for (const bill of planner.bills) {
+      if (!reserveBillAppliesToScope(state, scope, bill)) continue
+
+      const scheduledPeriods = new Set<string>()
+      const schedulePeriod = (period: string, month: string, year: number, monthIndex: number) => {
+        if (scheduledPeriods.has(period)) return
+        if (isReserveBillPaidThisPeriod(bill, period) || isReserveBillDismissedThisPeriod(bill, period)) return
+        if (getReserveDueOccurrenceAmount(bill, period, month) <= 0) return
+
+        const dueDay = getBillDueDay(bill, month)
+        const dueDate = dateOnly(new Date(year, monthIndex, clampDueDay(year, monthIndex, dueDay)))
+        const eventDate = clampEventDate(isoFromDate(dueDate), todayKey, endKey)
+        if (!eventDate) return
+
+        settlements.set(reserveSettlementKey(planner.id, bill.id, period), eventDate)
+        scheduledPeriods.add(period)
+      }
+
+      for (const occurrence of getUnpaidReserveBillDueOccurrences(bill, today)) {
+        const [year, month] = occurrence.period.split('-').map(Number)
+        schedulePeriod(occurrence.period, occurrence.month, year, month - 1)
+      }
+
+      let year = today.getFullYear()
+      let monthIndex = today.getMonth()
+      const endYear = endDate.getFullYear()
+      const endMonth = endDate.getMonth()
+
+      while (year < endYear || (year === endYear && monthIndex <= endMonth)) {
+        const month = MONTHS[monthIndex]!
+        const period = `${year}-${String(monthIndex + 1).padStart(2, '0')}`
+        schedulePeriod(period, month, year, monthIndex)
+
+        monthIndex += 1
+        if (monthIndex > 11) {
+          monthIndex = 0
+          year += 1
+        }
+      }
+    }
   }
 
-  if (!cashDateKey) return 0
-  return toAmount(receipt.amount)
+  return settlements
+}
+
+function isForecastSettled(
+  settlements: ReadonlyMap<string, string>,
+  commitmentId: string,
+  period: string,
+  dateKey: string,
+  endOfDay: boolean,
+  reserveBillId?: string,
+): boolean {
+  const key = reserveBillId
+    ? reserveSettlementKey(commitmentId, reserveBillId, period)
+    : forecastSettlementKey(commitmentId, period)
+  const payDate = settlements.get(key)
+  if (!payDate) return false
+  return endOfDay ? dateKey >= payDate : dateKey > payDate
 }
 
 export function cashOutlookHorizonDays(graphRange: string): number {
@@ -147,13 +276,43 @@ function buildMonthlyCostEvents(
   commitment: Commitment,
   today: Date,
   endDate: Date,
-): CashFlowEvent[] {
-  if (commitment.schedule !== 'monthly') return []
+): { events: CashFlowEvent[]; settlements: Map<string, string> } {
+  if (commitment.schedule !== 'monthly') return { events: [], settlements: new Map() }
 
   const todayKey = isoFromDate(today)
   const endKey = isoFromDate(endDate)
   const dueDay = commitment.dueDayOfMonth ?? 28
   const events: CashFlowEvent[] = []
+  const settlements = new Map<string, string>()
+  const scheduledPeriods = new Set<string>()
+
+  const pushMonthlyPayment = (period: string, year: number, monthIndex: number) => {
+    if (scheduledPeriods.has(period)) return
+    if (isCommitmentPaidForPeriod(commitment, period) || isDismissedForPeriod(commitment, period)) return
+    if (!commitmentEligibleForPeriodDue(commitment, year, monthIndex)) return
+
+    const dueDate = getDueDate(year, monthIndex, dueDay)
+    const payDate = payDateForDue(dueDate)
+    const eventDate = clampEventDate(isoFromDate(payDate), todayKey, endKey)
+    if (!eventDate) return
+
+    const amount = getPeriodExpectedAmount(commitment, period)
+    if (amount <= 0) return
+
+    events.push({
+      date: eventDate,
+      amount: -amount,
+      label: commitment.name.trim() || 'Monthly cost',
+      category: 'monthly_cost',
+    })
+    settlements.set(forecastSettlementKey(commitment.id, period), eventDate)
+    scheduledPeriods.add(period)
+  }
+
+  for (const occurrence of getCommitmentDueOccurrences(commitment, today)) {
+    const [year, month] = occurrence.period.split('-').map(Number)
+    pushMonthlyPayment(occurrence.period, year, month - 1)
+  }
 
   let year = today.getFullYear()
   let monthIndex = today.getMonth()
@@ -162,24 +321,7 @@ function buildMonthlyCostEvents(
 
   while (year < endYear || (year === endYear && monthIndex <= endMonth)) {
     const period = `${year}-${String(monthIndex + 1).padStart(2, '0')}`
-    if (!isCommitmentPaidForPeriod(commitment, period) && !isDismissedForPeriod(commitment, period)) {
-      if (commitmentEligibleForPeriodDue(commitment, year, monthIndex)) {
-        const dueDate = getDueDate(year, monthIndex, dueDay)
-        const payDate = payDateForDue(dueDate)
-        const eventDate = clampEventDate(isoFromDate(payDate), todayKey, endKey)
-        if (eventDate) {
-          const amount = getPeriodExpectedAmount(commitment, period)
-          if (amount > 0) {
-            events.push({
-              date: eventDate,
-              amount: -amount,
-              label: commitment.name.trim() || 'Monthly cost',
-              category: 'monthly_cost',
-            })
-          }
-        }
-      }
-    }
+    pushMonthlyPayment(period, year, monthIndex)
 
     monthIndex += 1
     if (monthIndex > 11) {
@@ -188,7 +330,7 @@ function buildMonthlyCostEvents(
     }
   }
 
-  return events
+  return { events, settlements }
 }
 
 function buildPlannedCostEvents(
@@ -276,6 +418,7 @@ function projectedExpectedReceiptsAt(
   scope: ViewScope,
   referenceDate: Date,
   receiptCashDates: ReadonlyMap<string, string>,
+  endOfDay: boolean,
 ): number {
   const dateKey = isoFromDate(referenceDate)
   let total = 0
@@ -283,11 +426,38 @@ function projectedExpectedReceiptsAt(
   for (const receipt of getReceiptsForScope(state, scope)) {
     if (receipt.received) continue
     const cashDate = receiptCashDates.get(receipt.id)
-    if (cashDate && dateKey >= cashDate) continue
-    total += getForecastTrueBalanceReceiptAmount(receipt, referenceDate, cashDate)
+    if (cashDate && (endOfDay ? dateKey >= cashDate : dateKey > cashDate)) continue
+    total += getForecastTrueBalanceReceiptAmount(receipt, referenceDate, cashDate, endOfDay)
   }
 
   return total
+}
+
+/** Monthly accrual/due amounts stop counting once forecast cash leaves on the pay date. */
+function getForecastMonthlyCommittedAmount(
+  commitment: Commitment,
+  referenceDate: Date,
+  monthlySettlements: ReadonlyMap<string, string>,
+  endOfDay: boolean,
+): number {
+  const dateKey = isoFromDate(referenceDate)
+  const dueOccurrences = getCommitmentDueOccurrences(commitment, referenceDate).filter(
+    (occurrence) => !isForecastSettled(monthlySettlements, commitment.id, occurrence.period, dateKey, endOfDay),
+  )
+  if (dueOccurrences.length > 0) {
+    return getCommitmentDueRowAmount(commitment, dueOccurrences)
+  }
+  if (isPaidThisCycle(commitment, referenceDate)) return 0
+
+  const activePeriod = getActiveAccrualPeriod(commitment, referenceDate)
+  if (
+    activePeriod &&
+    isForecastSettled(monthlySettlements, commitment.id, activePeriod, dateKey, endOfDay)
+  ) {
+    return 0
+  }
+
+  return getAccruedAmount(commitment, referenceDate)
 }
 
 /** Planned build-up stops counting toward True Balance once cash leaves on the due date. */
@@ -295,9 +465,10 @@ function getForecastPlannedCommittedAmount(
   commitment: Commitment,
   referenceDate: Date,
   cashDateKey: string | undefined,
+  endOfDay: boolean,
 ): number {
   const dateKey = isoFromDate(referenceDate)
-  if (cashDateKey && dateKey >= cashDateKey) return 0
+  if (cashDateKey && (endOfDay ? dateKey >= cashDateKey : dateKey > cashDateKey)) return 0
   return getPlannedCommittedAmount(commitment, referenceDate)
 }
 
@@ -318,6 +489,9 @@ function projectedCommittedFundsAt(
   scope: ViewScope,
   referenceDate: Date,
   plannedCashDates: ReadonlyMap<string, string>,
+  monthlySettlements: ReadonlyMap<string, string>,
+  reserveSettlements: ReadonlyMap<string, string>,
+  endOfDay: boolean,
 ): number {
   let total = 0
   for (const commitment of getCommitmentsForScope(state, scope)) {
@@ -326,16 +500,20 @@ function projectedCommittedFundsAt(
         commitment,
         referenceDate,
         plannedCashDates.get(commitment.id),
+        endOfDay,
       )
       continue
     }
-    total += getEffectiveCommittedAmount(commitment, referenceDate)
+    if (commitment.schedule === 'monthly') {
+      total += getForecastMonthlyCommittedAmount(commitment, referenceDate, monthlySettlements, endOfDay)
+      continue
+    }
   }
   for (const row of buildReserveAccruingRows(state, scope, referenceDate)) {
     total += row.accruedAmount
   }
   for (const row of buildReserveDueRows(state, scope, referenceDate)) {
-    total += getDueRowCommittedAmount(row, referenceDate)
+    total += getForecastDueRowCommittedAmount(state, row, referenceDate, reserveSettlements, endOfDay)
   }
   return total
 }
@@ -416,13 +594,17 @@ export function buildForwardCashFlowProjection(
   endDate.setDate(endDate.getDate() + horizonDays)
 
   const openingCurrentBalance = getCurrentAccountBalance(state, scope)
-  const metrics = calculateDashboard(state, scope)
-  const openingTrueBalance = metrics.trueBalance
   const plannedCashDates = collectPlannedCashDates(state, scope, today)
+  const monthlySettlements = new Map<string, string>()
+  const reserveSettlements = collectReserveBillSettlements(state, scope, today, endDate)
 
   const rawEvents: CashFlowEvent[] = []
   for (const commitment of commitmentsInScope(state, scope)) {
-    rawEvents.push(...buildMonthlyCostEvents(commitment, today, endDate))
+    const monthly = buildMonthlyCostEvents(commitment, today, endDate)
+    rawEvents.push(...monthly.events)
+    for (const [key, date] of monthly.settlements) {
+      monthlySettlements.set(key, date)
+    }
     rawEvents.push(...buildPlannedCostEvents(commitment, today, endDate))
   }
 
@@ -446,24 +628,62 @@ export function buildForwardCashFlowProjection(
   let balance = openingCurrentBalance
   let lowestBalance = balance
   let lowestBalanceDate = isoFromDate(today)
+
+  const openingReferenceDate = dateOnly(today)
+  const openingCommittedFunds = projectedCommittedFundsAt(
+    state,
+    scope,
+    openingReferenceDate,
+    plannedCashDates,
+    monthlySettlements,
+    reserveSettlements,
+    false,
+  )
+  const openingExpectedReceipts = projectedExpectedReceiptsAt(
+    state,
+    scope,
+    openingReferenceDate,
+    receiptCashDates,
+    false,
+  )
+  const openingTrueBalance = roundCurrency(
+    openingCurrentBalance - openingCommittedFunds + openingExpectedReceipts,
+  )
   let lowestTrueBalance = openingTrueBalance
   let lowestTrueBalanceDate = isoFromDate(today)
 
   for (let offset = 0; offset <= horizonDays; offset += 1) {
     const dateKey = addDays(isoFromDate(today), offset)
+    const referenceDate = dateOnly(new Date(today))
+    referenceDate.setDate(referenceDate.getDate() + offset)
+    const committedFunds = projectedCommittedFundsAt(
+      state,
+      scope,
+      referenceDate,
+      plannedCashDates,
+      monthlySettlements,
+      reserveSettlements,
+      false,
+    )
+    const expectedReceipts = projectedExpectedReceiptsAt(
+      state,
+      scope,
+      referenceDate,
+      receiptCashDates,
+      false,
+    )
+    const startOfDayBalance = balance
+    const trueBalance = roundCurrency(startOfDayBalance - committedFunds + expectedReceipts)
+
     const dayEvents = eventsByDate.get(dateKey) ?? []
+    days.push({ date: dateKey, balance: startOfDayBalance, trueBalance, events: dayEvents })
+
     for (const event of dayEvents) {
       balance += event.amount
     }
-    const referenceDate = dateOnly(new Date(today))
-    referenceDate.setDate(referenceDate.getDate() + offset)
-    const committedFunds = projectedCommittedFundsAt(state, scope, referenceDate, plannedCashDates)
-    const expectedReceipts = projectedExpectedReceiptsAt(state, scope, referenceDate, receiptCashDates)
-    const trueBalance = roundCurrency(balance - committedFunds + expectedReceipts)
 
-    days.push({ date: dateKey, balance, trueBalance, events: dayEvents })
-    if (balance < lowestBalance) {
-      lowestBalance = balance
+    if (startOfDayBalance < lowestBalance) {
+      lowestBalance = startOfDayBalance
       lowestBalanceDate = dateKey
     }
     if (trueBalance < lowestTrueBalance) {
@@ -474,7 +694,24 @@ export function buildForwardCashFlowProjection(
 
   const allEvents = [...rawEvents].sort((a, b) => a.date.localeCompare(b.date) || a.label.localeCompare(b.label))
 
-  const endingTrueBalance = days[days.length - 1]?.trueBalance ?? openingTrueBalance
+  const lastReferenceDate = dateOnly(endDate)
+  const endingCommittedFunds = projectedCommittedFundsAt(
+    state,
+    scope,
+    lastReferenceDate,
+    plannedCashDates,
+    monthlySettlements,
+    reserveSettlements,
+    true,
+  )
+  const endingExpectedReceipts = projectedExpectedReceiptsAt(
+    state,
+    scope,
+    lastReferenceDate,
+    receiptCashDates,
+    true,
+  )
+  const endingTrueBalance = roundCurrency(balance - endingCommittedFunds + endingExpectedReceipts)
 
   return {
     startDate: isoFromDate(today),

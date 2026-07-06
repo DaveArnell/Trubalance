@@ -13,6 +13,7 @@ const NAV = [
 ] as const
 
 const DEMO_NAV = { to: '/see-how-it-works', label: 'Try demo' } as const
+const BLOG_NAV = { to: '/blog', label: 'Blog' } as const
 
 export function scrollToMarketingSection(id: string) {
   const shell = document.querySelector('.marketing-shell')
@@ -65,6 +66,7 @@ export function MarketingHeader() {
             ),
           )}
           <Link to={DEMO_NAV.to}>{DEMO_NAV.label}</Link>
+          <Link to={BLOG_NAV.to}>{BLOG_NAV.label}</Link>
         </nav>
 
         <div className="marketing-header-cta">
@@ -114,6 +116,8 @@ export function MarketingFooter() {
             <Link to="/#features">Features</Link>
             <Link to="/#how-it-works">How it works</Link>
             <Link to="/#pricing">Pricing</Link>
+            <Link to="/blog">Blog</Link>
+            <Link to="/see-how-it-works">Demo</Link>
             {!isSupabaseConfigured && <Link to="/app">Try locally</Link>}
           </div>
           <div>

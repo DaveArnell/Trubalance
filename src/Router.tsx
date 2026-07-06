@@ -9,6 +9,8 @@ import { TermsPage } from './pages/legal/TermsPage'
 import { AppPage } from './pages/AppPage'
 import { DemoPage } from './pages/DemoPage'
 import { SeeHowItWorksPage } from './pages/SeeHowItWorksPage'
+import { BlogIndexPage } from './pages/BlogIndexPage'
+import { BlogPostPage } from './pages/BlogPostPage'
 import { PlatformAdminShell } from './admin/PlatformAdminShell'
 import { isSupabaseConfigured } from './lib/supabase'
 
@@ -27,6 +29,8 @@ export function AppRouter() {
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/see-how-it-works" element={<SeeHowItWorksPage />} />
+            <Route path="/blog" element={<BlogIndexPage />} />
+            <Route path="/blog/:slug" element={<BlogPostPage />} />
             <Route path="/demo" element={<DemoPage />} />
             <Route path="/demo/:scenarioId" element={<DemoPage />} />
             <Route path="/app/*" element={<AppPage />} />

@@ -7,9 +7,8 @@ import {
   scrollToMarketingSection,
 } from '../components/marketing/MarketingLayout'
 import { HeroBalanceEquation } from '../components/marketing/HeroBalanceEquation'
-import { HeroBalanceVisual } from '../components/marketing/HeroBalanceVisual'
+import { LandingAppPreview } from '../components/marketing/LandingAppPreview'
 import { MarketingBrowserFrame } from '../components/marketing/MarketingBrowserFrame'
-import { MarketingProductShowcase } from '../components/marketing/MarketingProductShowcase'
 import { CompanyLegalNotice } from '../components/marketing/CompanyLegalNotice'
 import { PricingSection } from '../components/marketing/PricingSection'
 import { isSupabaseConfigured } from '../lib/supabase'
@@ -25,61 +24,24 @@ const HERO_BENEFITS = [
   'Built for owners who run the numbers themselves.',
 ] as const
 
-const STATS = [
-  { value: '1', label: 'True Balance', accent: 'indigo' },
-  { value: '50', label: 'Lifetime free spots', accent: 'teal' },
-  { value: '5 min', label: 'Setup', accent: 'violet' },
-] as const
-
-const PILLARS = [
-  {
-    accent: 'indigo',
-    title: 'Know what\u2019s spoken for',
-    body: 'Monthly costs accrue every day. True Balance shows what\u2019s committed and what\u2019s genuinely yours to use.',
-  },
-  {
-    accent: 'violet',
-    title: 'Plan irregular bills',
-    body: 'VAT, tax and renewals go in Reserve Planner. It tells you how much to set aside each month before the bill lands.',
-  },
-] as const
-
 const FEATURES = [
   {
     icon: '◈',
     title: 'True Balance overview',
-    body: 'Real available cash across every account, minus commitments, plus expected receipts.',
+    body: 'One honest number across your accounts — cash minus commitments plus expected receipts.',
     accent: 'indigo',
   },
   {
     icon: '▤',
-    title: 'Committed Funds',
-    body: 'Monthly costs, due items and receipts in one view, scoped to group, business or venue.',
+    title: 'Committed funds',
+    body: 'See what is building up, due now, and still owed to you — in one place.',
     accent: 'orange',
   },
   {
     icon: '◷',
-    title: 'Reserve Planner',
-    body: 'Model irregular bills month by month and track whether reserves are building on target.',
+    title: 'Reserve & forecast',
+    body: 'Plan VAT and tax month by month, then look 30–90 days ahead.',
     accent: 'violet',
-  },
-  {
-    icon: '↗',
-    title: 'Trends & forecast',
-    body: 'Balance history with forward projection so you spot problems before they become crises.',
-    accent: 'teal',
-  },
-  {
-    icon: '◎',
-    title: 'Multi-venue structure',
-    body: 'Groups, businesses and venues with roll-up totals in one picture.',
-    accent: 'pink',
-  },
-  {
-    icon: '?',
-    title: 'Guided setup',
-    body: 'Interactive tours walk new users through structure, balances, and commitments in minutes.',
-    accent: 'blue',
   },
 ] as const
 
@@ -173,7 +135,7 @@ export function LandingPage() {
             <div className="marketing-hero-visual marketing-hero-visual--pop">
               <MarketingBrowserFrame>
                 <HeroBalanceEquation />
-                <HeroBalanceVisual />
+                <LandingAppPreview variant="hero" />
               </MarketingBrowserFrame>
             </div>
           </div>
@@ -190,54 +152,19 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section className="marketing-stats-band marketing-stats-band--pop" aria-label="Key facts">
-          <div className="marketing-stats-band-inner">
-            {STATS.map((stat) => (
-              <div key={stat.label} className={`marketing-stat-card marketing-stat-card--${stat.accent}`}>
-                <p className="marketing-stat-value">{stat.value}</p>
-                <p className="marketing-stat-label">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <MarketingProductShowcase />
-
-        <section id="what-it-does" className="marketing-pillars-section marketing-pillars-section--pop">
-          <div className="marketing-section-inner">
-            <div className="marketing-section-head marketing-section-head--center">
-              <p className="marketing-eyebrow marketing-eyebrow--vivid">Core idea</p>
-              <h2>Two shifts that change how you manage cash</h2>
-              <p className="marketing-section-lead">
-                Most owners look at the bank and guess. True Balance separates what is spoken for
-                from what you can use, and helps you plan for bills that do not land every month.
-              </p>
-            </div>
-            <div className="marketing-pillars-grid marketing-pillars-grid--pop">
-              {PILLARS.map((pillar) => (
-                <article
-                  key={pillar.title}
-                  className={`marketing-pillar-card marketing-pillar-card--pop marketing-pillar-card--${pillar.accent}`}
-                >
-                  <h3>{pillar.title}</h3>
-                  <p>{pillar.body}</p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
+        <LandingAppPreview />
 
         <section id="features" className="marketing-features-section marketing-features-section--pop">
           <div className="marketing-section-inner">
             <div className="marketing-section-head marketing-section-head--center">
               <p className="marketing-eyebrow marketing-eyebrow--vivid">Features</p>
-              <h2>Everything you need to stay ahead of cash</h2>
+              <h2>Three views that change how you manage cash</h2>
               <p className="marketing-section-lead">
-                Built for small and medium businesses who need one honest number: what is really yours,
-                not a bank balance that still belongs to suppliers, tax or the next payment.
+                Groups, venues, trends and guided setup are there when you need them — but most
+                owners live in these three panels.
               </p>
             </div>
-            <div className="marketing-feature-grid marketing-feature-grid--pop">
+            <div className="marketing-feature-grid marketing-feature-grid--pop marketing-feature-grid--compact">
               {FEATURES.map((feature) => (
                 <article
                   key={feature.title}
@@ -300,12 +227,17 @@ export function LandingPage() {
           <div className="marketing-demo-band-inner">
             <h2>Try a live demo workspace</h2>
             <p>
-              Explore a fully set-up example (leisure group, café or trades) with months of history. Navigate
-              every page with no signup required.
+              Summit Leisure, Cornerstone Coffee, or Riverside Building — fully set up with months
+              of history. No signup.
             </p>
-            <Link to="/see-how-it-works" className="btn-primary btn-large">
-              Open demo
-            </Link>
+            <div className="marketing-cta-row marketing-cta-row--center">
+              <Link to="/see-how-it-works" className="btn-primary btn-large">
+                Open demo
+              </Link>
+              <Link to="/blog" className="btn-secondary btn-large">
+                Cash flow guides
+              </Link>
+            </div>
           </div>
         </section>
 

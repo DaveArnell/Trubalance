@@ -348,7 +348,7 @@ export function CashOutlookPanel({
             <i /> Current account
           </span>
           <span className="cash-outlook-chart-legend--true">
-            <i /> True Balance (includes receipt build-up)
+            <i /> True Balance (cash − committed + expected)
           </span>
         </p>
       ) : null}
