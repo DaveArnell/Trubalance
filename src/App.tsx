@@ -29,7 +29,7 @@ import type { WorkspaceSubscription } from './types/subscription'
 import { calculateDashboard } from './utils/calculations'
 import { buildBreakdownColumns } from './utils/breakdownTable'
 import { getPlannerDisplayName, summarizeReservePlanner, getReservePlannerIdForScope } from './utils/reserveCalculations'
-import { getScopeLabel } from './utils/scope'
+import { getScopeLabel, getSidebarScopePickerOptions } from './utils/scope'
 import { ViewingScopeBar } from './components/ViewingScopeBar'
 import { ViewingScopePicker } from './components/ViewingScopePicker'
 import { scopeThemeBusinessId, scopeThemeStyle } from './utils/businessTheme'
@@ -111,7 +111,7 @@ function AppShellInner({
   const { user, profile, isImpersonating, impersonation, stopImpersonation, refreshProfile } = useAuth()
   const { workspaceId: ctxWorkspaceId, importedFromLocal } = useWorkspace()
   const app = useAppState({
-    workspaceId: workspaceId ?? ctxWorkspaceId,
+    workspaceId: isDemoSession ? null : (workspaceId ?? ctxWorkspaceId),
     externalState,
     externalStateVersion,
     externalLoading,
@@ -177,6 +177,10 @@ function AppShellInner({
   const scopeBusinessId = useMemo(
     () => scopeThemeBusinessId(app.state, app.viewScope),
     [app.state, app.viewScope],
+  )
+  const showScopePicker = useMemo(
+    () => getSidebarScopePickerOptions(app.state).length > 1,
+    [app.state],
   )
 
   useEffect(() => {
@@ -560,12 +564,15 @@ function AppShellInner({
               <div className="top-bar-inner">
                 <div className="top-bar-scope-block">
                   <p className="top-kicker">{pageMeta.label}</p>
-                  <ViewingScopePicker
-                    state={app.state}
-                    viewScope={app.viewScope}
-                    onSelect={app.setViewScope}
-                  />
-                  <ViewingScopeBar state={app.state} viewScope={app.viewScope} variant="full" />
+                  {showScopePicker ? (
+                    <ViewingScopePicker
+                      state={app.state}
+                      viewScope={app.viewScope}
+                      onSelect={app.setViewScope}
+                    />
+                  ) : (
+                    <ViewingScopeBar state={app.state} viewScope={app.viewScope} variant="full" />
+                  )}
                 </div>
                 <div className="top-bar-actions">
                   <TourMenuButton onSetupGuide={() => setSetupWizardOpen(true)} />

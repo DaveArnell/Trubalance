@@ -3693,7 +3693,11 @@ body.widget-canvas-resizing * {
 }
 
 .viewing-scope-picker {
-  display: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
 }
 
 .viewing-scope-picker-label {
@@ -10623,14 +10627,6 @@ tr.sheet-row--received td {
 
   .viewing-scope-bar {
     display: none;
-  }
-
-  .viewing-scope-picker {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    min-width: 0;
-    flex: 1;
   }
 
   .sidebar-divider {

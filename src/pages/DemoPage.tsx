@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ReferenceDateProvider } from '../contexts/ReferenceDateContext'
 import { DemoModeProvider } from '../contexts/DemoModeContext'
 import { useAuth } from '../contexts/AuthContext'
 import { AppShell } from '../App'
-import type { AppState } from '../types'
 import {
   buildDemoScenarioState,
   DEFAULT_DEMO_SCENARIO_ID,
@@ -19,15 +18,18 @@ export function DemoPage() {
 
   const { meta, state: initialState } = useMemo(() => buildDemoScenarioState(resolvedId), [resolvedId])
   const canEditDemo = profile?.role === 'super_admin'
-  const [demoState, setDemoState] = useState<AppState>(initialState)
+  const [demoState, setDemoState] = useState(initialState)
+  const [loadedScenarioId, setLoadedScenarioId] = useState(resolvedId)
 
-  useEffect(() => {
+  if (resolvedId !== loadedScenarioId) {
+    setLoadedScenarioId(resolvedId)
     setDemoState(initialState)
-  }, [initialState])
+  }
 
   const externalState = canEditDemo ? demoState : initialState
 
   const handleScenarioChange = (nextId: string) => {
+    if (nextId === resolvedId) return
     navigate(`/demo/${nextId}`, { replace: true })
   }
 
@@ -43,7 +45,7 @@ export function DemoPage() {
             <label className="interactive-demo-scenario-picker">
               <span className="interactive-demo-scenario-picker-label">Example business</span>
               <select
-                value={meta.id}
+                value={resolvedId}
                 onChange={(e) => handleScenarioChange(e.target.value)}
                 className="interactive-demo-scenario-select"
               >
@@ -68,9 +70,10 @@ export function DemoPage() {
           </div>
 
           <AppShell
-            key={meta.id}
+            key={resolvedId}
+            workspaceId={null}
             externalState={externalState}
-            externalStateVersion={`${meta.id}:${meta.historyMonths}`}
+            externalStateVersion={`${resolvedId}:${meta.historyMonths}`}
             defaultViewScope={meta.defaultViewScope}
             readOnly={!canEditDemo}
             skipLocalPersist
