@@ -1655,7 +1655,7 @@ body.widget-canvas-resizing * {
 }
 
 .table-pref-surface .history-table thead th.history-total-col {
-  background: rgba(16, 185, 129, 0.2);
+  background: #d1fae5;
 }
 
 .table-pref-surface.table-style-platform .history-table thead th.history-total-col {
@@ -3097,6 +3097,20 @@ body.widget-canvas-resizing * {
   font-weight: 600;
 }
 
+.trends-history-panel .history-table {
+  min-width: 36rem;
+}
+
+.trends-history-panel .history-value-col,
+.trends-history-panel .history-total-col {
+  min-width: 5.75rem;
+  white-space: nowrap;
+}
+
+.trends-history-panel .history-col-head {
+  font-size: 0.62rem;
+}
+
 .trends-history-panel .history-range-note {
   flex-shrink: 0;
   margin: 2px 0 0;
@@ -3108,6 +3122,18 @@ body.widget-canvas-resizing * {
 
 .trends-history-panel .history-table td {
   padding: 3px 6px;
+}
+
+/* Narrow trends panel: scroll for all columns — sticky total overlaps business cells. */
+.trends-history-panel .history-total-col {
+  position: static;
+  right: auto;
+  box-shadow: none;
+}
+
+.trends-history-panel .history-table thead th.history-total-col {
+  position: static;
+  box-shadow: none;
 }
 
 /* Narrow content: stack widgets vertically and allow page scroll (all pages). */
@@ -6734,9 +6760,15 @@ textarea:focus {
   right: 0;
   z-index: 1;
   min-width: 6.5rem;
-  background: rgba(16, 185, 129, 0.12);
+  background: #ecfdf5;
   font-weight: 600;
   box-shadow: -4px 0 8px rgba(15, 23, 42, 0.06);
+}
+
+.history-table:has(.history-actions-col) .history-total-col {
+  position: static;
+  right: auto;
+  box-shadow: none;
 }
 
 .history-actions-col {
@@ -6767,8 +6799,13 @@ textarea:focus {
 
 .history-table thead th.history-total-col {
   z-index: 4;
-  background: rgba(16, 185, 129, 0.2);
+  background: #d1fae5;
   box-shadow: -4px 0 8px rgba(15, 23, 42, 0.06);
+}
+
+.history-table:has(.history-actions-col) thead th.history-total-col {
+  position: static;
+  box-shadow: none;
 }
 
 .history-col-head {
@@ -12755,10 +12792,10 @@ tr.sheet-row--received td {
 }
 
 .marketing-hero--pop h1 {
-  max-width: 14ch;
-  font-size: clamp(2.4rem, 5.5vw, 3.75rem);
-  line-height: 1.05;
-  letter-spacing: -0.04em;
+  max-width: 22ch;
+  font-size: clamp(2.1rem, 4.8vw, 3.35rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
 }
 
 .marketing-lead--pop {

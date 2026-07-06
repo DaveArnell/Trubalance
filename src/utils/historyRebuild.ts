@@ -12,7 +12,7 @@ import {
   getAccruedAmount,
   getDerivedDueRowStatus,
 } from './commitmentCalculations'
-import { getEffectiveReceiptAmount } from './receiptCalculations'
+import { getEffectiveReceiptAmount, receiptContributesOnDate } from './receiptCalculations'
 import { buildReserveAccruingRows, buildReserveDueRows } from './reserveCalculations'
 import { getBusinessIdsForScope, getGroupIdForScope, getVenueIdsForScope, businessHasVenues, getVenuesInBusiness } from './scope'
 import { computeCommittedFundsAt, computeExpectedReceiptsAt } from './metricsAtDate'
@@ -462,11 +462,7 @@ function receiptsForHistoryRecord(
   referenceDate: Date,
 ) {
   return getReceiptsForScope(state, scope)
-    .filter((receipt) => {
-      const created = receipt.createdAt?.slice(0, 10)
-      if (created && created > recordDate) return false
-      return true
-    })
+    .filter((receipt) => receiptContributesOnDate(receipt, recordDate))
     .map((receipt) => ({
       id: receipt.id,
       name: receipt.name,

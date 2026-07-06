@@ -14,6 +14,13 @@ import { CompanyLegalNotice } from '../components/marketing/CompanyLegalNotice'
 import { PricingSection } from '../components/marketing/PricingSection'
 import { isSupabaseConfigured } from '../lib/supabase'
 
+const HERO_BENEFITS = [
+  'Know what you can actually afford.',
+  'Stay ahead of VAT, tax and large bills.',
+  'Build better financial habits.',
+  'Understand where your business is really heading.',
+] as const
+
 const STATS = [
   { value: '1', label: 'True Balance', accent: 'indigo' },
   { value: '3 mo', label: 'Free trial', accent: 'teal' },
@@ -24,34 +31,88 @@ const PILLARS = [
   {
     accent: 'indigo',
     title: 'Know what\u2019s spoken for',
-    body: 'Monthly costs accrue daily. See what\u2019s committed — and what\u2019s genuinely yours.',
+    body: 'Your bank balance isn\u2019t a spending limit. Monthly costs accrue every day \u2014 rent, payroll, subscriptions \u2014 so True Balance shows what\u2019s committed and what\u2019s genuinely yours to use.',
   },
   {
     accent: 'violet',
     title: 'Plan irregular bills',
-    body: 'VAT, tax, renewals — Reserve Planner works out how much to put aside each month, kept separate so those bills are covered when they\u2019re due.',
+    body: 'VAT, corporation tax, insurance renewals \u2014 Reserve Planner works out how much to put aside each month and tracks whether you\u2019re on target before the bill lands.',
   },
 ] as const
 
 const FEATURES = [
-  { icon: '◈', title: 'True Balance', body: 'Cash − committed + expected in.', accent: 'indigo' },
-  { icon: '▤', title: 'Accruing costs', body: 'Rent, payroll, subs — tracked daily.', accent: 'orange' },
-  { icon: '◷', title: 'Reserve Planner', body: 'How much to set aside monthly for irregular bills.', accent: 'violet' },
-  { icon: '↗', title: 'Trends', body: 'History every time you update.', accent: 'teal' },
-  { icon: '◎', title: 'Multi-site', body: 'Venues roll up to group totals.', accent: 'pink' },
-  { icon: '⇢', title: 'Cash outlook', body: '30–90 day forward view.', accent: 'blue' },
+  {
+    icon: '◈',
+    title: 'True Balance overview',
+    body: 'See real available cash across every account \u2014 minus what is already committed, plus expected receipts.',
+    accent: 'indigo',
+  },
+  {
+    icon: '▤',
+    title: 'Committed Funds',
+    body: 'Monthly costs, due items, and receipts in one spreadsheet-style view \u2014 scoped to group, business, or venue.',
+    accent: 'orange',
+  },
+  {
+    icon: '◷',
+    title: 'Reserve Planner',
+    body: 'Model irregular bills month by month and track whether reserves are building on target.',
+    accent: 'violet',
+  },
+  {
+    icon: '↗',
+    title: 'Trends & forecast',
+    body: 'Balance history with forward projection so you spot problems before they become crises.',
+    accent: 'teal',
+  },
+  {
+    icon: '◎',
+    title: 'Multi-venue structure',
+    body: 'Groups, businesses, and venues with roll-up totals \u2014 one picture for the whole operation.',
+    accent: 'pink',
+  },
+  {
+    icon: '?',
+    title: 'Guided setup',
+    body: 'Interactive tours walk new users through structure, balances, and commitments in minutes.',
+    accent: 'blue',
+  },
 ] as const
 
 const STEPS = [
-  { step: '01', title: 'Set up', body: 'Business, accounts, sites — guided in minutes.' },
-  { step: '02', title: 'Add costs', body: 'Monthly and irregular bills. We calculate.' },
-  { step: '03', title: 'Stay current', body: 'Update balances. Mark paid. Done.' },
+  {
+    step: '01',
+    title: 'Set up your business',
+    body: 'Add your business and accounts. Keep it simple \u2014 you can add sites and detail later.',
+  },
+  {
+    step: '02',
+    title: 'Enter your balances',
+    body: 'Tell True Balance what is in the bank today. That is the starting point for everything else.',
+  },
+  {
+    step: '03',
+    title: 'See your True Balance',
+    body: 'Add regular costs and big bills. The dashboard shows what is genuinely available \u2014 not just the bank balance.',
+  },
 ] as const
 
 const TESTIMONIALS = [
-  { quote: '£18k was already spoken for. I had no idea until True Balance showed me.', name: 'James', role: 'Café owner' },
-  { quote: 'VAT and corp tax finally feel predictable. I just follow the monthly transfer.', name: 'Sarah', role: 'Trades' },
-  { quote: 'Three sites, one dashboard. Exactly what we needed.', name: 'Priya', role: 'Leisure group' },
+  {
+    quote: '£18k was already spoken for. I had no idea until True Balance showed me.',
+    name: 'James',
+    role: 'Café owner',
+  },
+  {
+    quote: 'VAT and corp tax finally feel predictable. I just follow the monthly transfer.',
+    name: 'Sarah',
+    role: 'Trades',
+  },
+  {
+    quote: 'Three sites, one dashboard. Exactly what we needed.',
+    name: 'Priya',
+    role: 'Leisure group',
+  },
 ] as const
 
 export function LandingPage() {
@@ -73,25 +134,33 @@ export function LandingPage() {
           <div className="marketing-hero-blob marketing-hero-blob--3" aria-hidden />
           <div className="marketing-hero-inner marketing-hero-inner--pop">
             <div className="marketing-hero-copy">
-              <p className="marketing-eyebrow marketing-eyebrow--vivid">For SME owners</p>
-              <h1>
-                Know what&apos;s <span className="marketing-gradient-text">really</span> yours.
-              </h1>
-              <p className="marketing-lead marketing-lead--pop">
-                The web dashboard that sits alongside your bank — one honest number, not bookkeeping software.
+              <p className="marketing-eyebrow marketing-eyebrow--vivid">Cash clarity for small and medium businesses</p>
+              <h1>Stop managing your business from your bank balance.</h1>
+              <p className="marketing-lead">
+                True Balance is the simple cash flow management system that helps business owners
+                understand what money is actually available, build better financial habits, and avoid
+                getting caught out by the bills that matter most.
               </p>
+              <ul className="marketing-hero-benefits">
+                {HERO_BENEFITS.map((benefit) => (
+                  <li key={benefit}>{benefit}</li>
+                ))}
+              </ul>
               <div className="marketing-cta-row">
                 <Link to="/signup" className="btn-primary btn-large marketing-cta-primary marketing-cta-primary--pop">
-                  Start free — 3 months
+                  Start your free 3-month trial
                 </Link>
                 <Link to="/see-how-it-works" className="btn-secondary btn-large marketing-cta-secondary--pop">
-                  Live demo
+                  See how it works
                 </Link>
               </div>
-              <p className="marketing-hero-note muted">No card required · Full access from day one</p>
+              <p className="marketing-hero-note muted">
+                Full access · No payment details required · No charge until day 91
+              </p>
               {!isSupabaseConfigured && (
                 <p className="marketing-config-hint">
-                  <Link to="/app">Try locally</Link> or add Supabase to <code>.env.local</code> for cloud signup.
+                  Cloud signup needs Supabase in <code>.env.local</code> — or{' '}
+                  <Link to="/app">try the app locally</Link> without an account.
                 </p>
               )}
             </div>
@@ -102,6 +171,18 @@ export function LandingPage() {
                 <HeroBalanceVisual />
               </MarketingBrowserFrame>
             </div>
+          </div>
+        </section>
+
+        <section className="marketing-position-band marketing-position-band--v2" aria-label="What True Balance is">
+          <div className="marketing-position-band-inner">
+            <p className="marketing-position-statement">
+              True Balance doesn&apos;t try to replace your accounting software.
+            </p>
+            <p className="marketing-position-detail">
+              It gives business owners a simple financial management system that helps them understand
+              where they really stand.
+            </p>
           </div>
         </section>
 
@@ -122,7 +203,11 @@ export function LandingPage() {
           <div className="marketing-section-inner">
             <div className="marketing-section-head marketing-section-head--center">
               <p className="marketing-eyebrow marketing-eyebrow--vivid">Core idea</p>
-              <h2>Two shifts that change cash management</h2>
+              <h2>Two shifts that change how you manage cash</h2>
+              <p className="marketing-section-lead">
+                Most owners look at the bank and guess. True Balance separates what is already spoken for
+                from what you can actually use — and helps you plan for the bills that do not land every month.
+              </p>
             </div>
             <div className="marketing-pillars-grid marketing-pillars-grid--pop">
               {PILLARS.map((pillar) => (
@@ -142,7 +227,11 @@ export function LandingPage() {
           <div className="marketing-section-inner">
             <div className="marketing-section-head marketing-section-head--center">
               <p className="marketing-eyebrow marketing-eyebrow--vivid">Features</p>
-              <h2>Stay ahead of cash</h2>
+              <h2>Everything you need to stay ahead of cash</h2>
+              <p className="marketing-section-lead">
+                Built for small and medium businesses who need one honest number — what is really yours,
+                not a bank balance that still belongs to suppliers, tax, or the next payment in the cycle.
+              </p>
             </div>
             <div className="marketing-feature-grid marketing-feature-grid--pop">
               {FEATURES.map((feature) => (
@@ -185,7 +274,7 @@ export function LandingPage() {
           <div className="marketing-section-inner">
             <div className="marketing-section-head marketing-section-head--center">
               <p className="marketing-eyebrow marketing-eyebrow--vivid">How it works</p>
-              <h2>Three steps. That&apos;s it.</h2>
+              <h2>Up and running in three steps</h2>
             </div>
             <ol className="marketing-steps-grid marketing-steps-grid--pop">
               {STEPS.map((step) => (
@@ -196,13 +285,20 @@ export function LandingPage() {
                 </li>
               ))}
             </ol>
+            <p className="marketing-tour-note">
+              When you first log in, a guided setup walks you through your business, balances, and commitments
+              right on the dashboard. Replay page tours anytime from the <strong>?</strong> icons.
+            </p>
           </div>
         </section>
 
         <section id="product-video" className="marketing-demo-band">
           <div className="marketing-demo-band-inner">
             <h2>Try a live demo workspace</h2>
-            <p>Leisure group, café, or trades — months of history, no signup.</p>
+            <p>
+              Explore a fully set-up example — leisure group, café, or trades — with months of history. Navigate
+              every page with no signup required.
+            </p>
             <Link to="/see-how-it-works" className="btn-primary btn-large">
               Open demo
             </Link>
@@ -219,14 +315,14 @@ export function LandingPage() {
 
         <section className="marketing-cta-band marketing-cta-band--pop">
           <div className="marketing-cta-band-inner">
-            <h2>Start free for 3 months</h2>
-            <p>No payment details. Full access.</p>
+            <h2>Ready to see what is actually yours?</h2>
+            <p>Start your free 3-month trial. No payment details required.</p>
             <div className="marketing-cta-row marketing-cta-row--center">
               <Link to="/signup" className="btn-primary btn-large marketing-cta-btn-on-dark">
-                Get started
+                Start your free 3-month trial
               </Link>
               <Link to="/login" className="btn-ghost btn-large marketing-cta-ghost">
-                Log in
+                I already have an account
               </Link>
             </div>
           </div>

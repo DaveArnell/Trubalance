@@ -30,6 +30,33 @@ export function getReceiptTiming(receipt: ExpectedReceipt): ReceiptTiming {
   return receipt.receiptTiming ?? 'lump'
 }
 
+/** First calendar day this receipt should affect True Balance and history. */
+export function getReceiptActiveFromDateKey(receipt: ExpectedReceipt): string {
+  const timing = getReceiptTiming(receipt)
+
+  if (timing === 'accrual') {
+    const start = receipt.accrualStartDate?.slice(0, 10)
+    if (start) return start
+    const expected = receipt.expectedDate?.slice(0, 10)
+    if (expected) return `${expected.slice(0, 7)}-01`
+  }
+
+  if (timing === 'lump') {
+    const start = receipt.accrualStartDate?.slice(0, 10)
+    if (start) return start
+  }
+
+  if (receipt.createdAt) return receipt.createdAt.slice(0, 10)
+
+  if (receipt.expectedDate) return `${receipt.expectedDate.slice(0, 7)}-01`
+
+  return '1970-01-01'
+}
+
+export function receiptContributesOnDate(receipt: ExpectedReceipt, dateKey: string): boolean {
+  return dateKey >= getReceiptActiveFromDateKey(receipt)
+}
+
 /** Target amount for a calendar month, respecting per-period overrides. */
 export function getReceiptPeriodAmount(receipt: ExpectedReceipt, period: string): number {
   const override = receipt.periodAmountOverrides?.[period]
@@ -52,7 +79,8 @@ function resolveAccrualWindow(receipt: ExpectedReceipt): { start: Date; end: Dat
 
 /**
  * How much of this receipt counts toward True Balance on a given date.
- * Lump: full headline amount until received. Accrual: builds daily from start date to expected date.
+ * Lump: full headline amount from accrual-from (or row created date) until received.
+ * Accrual: builds daily from start date to expected date.
  */
 export function getEffectiveReceiptAmount(
   receipt: ExpectedReceipt,
@@ -64,8 +92,8 @@ export function getEffectiveReceiptAmount(
   const today = dateOnly(referenceDate)
 
   if (timing === 'lump') {
-    const created = receipt.createdAt ? parseDateKey(receipt.createdAt) : null
-    if (created && today.getTime() < created.getTime()) return 0
+    const activeFrom = parseDateKey(getReceiptActiveFromDateKey(receipt))
+    if (activeFrom && today.getTime() < activeFrom.getTime()) return 0
     return toAmount(receipt.amount)
   }
 
@@ -83,19 +111,7 @@ export function getEffectiveReceiptAmount(
 }
 
 export function getReceiptDeleteFromDateKey(receipt: ExpectedReceipt): string {
-  if (receipt.createdAt) return receipt.createdAt.slice(0, 10)
-
-  const timing = getReceiptTiming(receipt)
-  if (timing === 'accrual') {
-    const start = receipt.accrualStartDate?.slice(0, 10)
-    if (start) return start
-    if (receipt.expectedDate) return `${receipt.expectedDate.slice(0, 7)}-01`
-  }
-
-  if (receipt.expectedDate) return `${receipt.expectedDate.slice(0, 7)}-01`
-
-  // Legacy rows with no anchor date — rebuild the full balance log.
-  return '1970-01-01'
+  return getReceiptActiveFromDateKey(receipt)
 }
 
 export function getReceiptRebuildFromDateKey(
@@ -103,25 +119,14 @@ export function getReceiptRebuildFromDateKey(
   patch: Partial<ExpectedReceipt> = {},
 ): string {
   const merged = { ...receipt, ...patch }
-  const timing = getReceiptTiming(merged)
+  const candidates = [getReceiptActiveFromDateKey(receipt), getReceiptActiveFromDateKey(merged)]
 
   if (patch.periodAmountOverrides) {
     const periods = Object.keys(patch.periodAmountOverrides).sort()
-    if (periods[0]) return `${periods[0]}-01`
+    if (periods[0]) candidates.push(`${periods[0]}-01`)
   }
 
-  if (timing === 'accrual') {
-    const start = merged.accrualStartDate?.slice(0, 10)
-    if (start) return start
-    const expected = merged.expectedDate?.slice(0, 10)
-    if (expected) return `${expected.slice(0, 7)}-01`
-  }
-
-  if (merged.createdAt) return merged.createdAt.slice(0, 10)
-
-  if (merged.expectedDate) return `${merged.expectedDate.slice(0, 7)}-01`
-
-  return dateToKey(getReferenceDate())
+  return candidates.sort()[0] ?? dateToKey(getReferenceDate())
 }
 
 export function buildReceiptPeriodOverridePatch(

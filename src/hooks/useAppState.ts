@@ -927,6 +927,7 @@ export function useAppState(options?: UseAppStateOptions) {
       const affectsHistory =
         patch.amount !== undefined ||
         patch.receiptTiming !== undefined ||
+        patch.expectedDate !== undefined ||
         patch.accrualStartDate !== undefined ||
         patch.periodAmountOverrides !== undefined
 
