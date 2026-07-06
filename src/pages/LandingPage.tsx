@@ -24,6 +24,19 @@ const HERO_BENEFITS = [
   'Built for owners who run the numbers themselves.',
 ] as const
 
+const PILLARS = [
+  {
+    accent: 'indigo',
+    title: 'Know what\u2019s spoken for',
+    body: 'Monthly costs accrue every day. True Balance shows what\u2019s committed and what\u2019s genuinely yours to use.',
+  },
+  {
+    accent: 'violet',
+    title: 'Plan irregular bills',
+    body: 'VAT, tax and renewals go in Reserve Planner. It tells you how much to set aside each month before the bill lands.',
+  },
+] as const
+
 const FEATURES = [
   {
     icon: '◈',
@@ -135,7 +148,6 @@ export function LandingPage() {
             <div className="marketing-hero-visual marketing-hero-visual--pop">
               <MarketingBrowserFrame>
                 <HeroBalanceEquation />
-                <LandingAppPreview variant="hero" />
               </MarketingBrowserFrame>
             </div>
           </div>
@@ -153,6 +165,30 @@ export function LandingPage() {
         </section>
 
         <LandingAppPreview />
+
+        <section id="what-it-does" className="marketing-pillars-section marketing-pillars-section--pop">
+          <div className="marketing-section-inner">
+            <div className="marketing-section-head marketing-section-head--center">
+              <p className="marketing-eyebrow marketing-eyebrow--vivid">Core idea</p>
+              <h2>Two shifts that change how you manage cash</h2>
+              <p className="marketing-section-lead">
+                Most owners look at the bank and guess. True Balance separates what is spoken for
+                from what you can use, and helps you plan for bills that do not land every month.
+              </p>
+            </div>
+            <div className="marketing-pillars-grid marketing-pillars-grid--pop">
+              {PILLARS.map((pillar) => (
+                <article
+                  key={pillar.title}
+                  className={`marketing-pillar-card marketing-pillar-card--pop marketing-pillar-card--${pillar.accent}`}
+                >
+                  <h3>{pillar.title}</h3>
+                  <p>{pillar.body}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
 
         <section id="features" className="marketing-features-section marketing-features-section--pop">
           <div className="marketing-section-inner">

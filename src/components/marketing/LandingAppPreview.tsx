@@ -90,17 +90,12 @@ function ForecastWidget() {
 }
 
 interface LandingAppPreviewProps {
-  variant?: 'hero' | 'section'
+  variant?: 'section'
 }
 
 export function LandingAppPreview({ variant = 'section' }: LandingAppPreviewProps) {
-  if (variant === 'hero') {
-    return (
-      <div className="landing-preview landing-preview--hero">
-        <OverviewWidget />
-        <ForecastWidget />
-      </div>
-    )
+  if (variant !== 'section') {
+    return null
   }
 
   return (
@@ -108,10 +103,10 @@ export function LandingAppPreview({ variant = 'section' }: LandingAppPreviewProp
       <div className="marketing-section-inner">
         <div className="marketing-section-head marketing-section-head--center">
           <p className="marketing-eyebrow marketing-eyebrow--vivid">Inside the app</p>
-          <h2 id="landing-preview-heading">What you actually see</h2>
+          <h2 id="landing-preview-heading">The parts that matter — not the whole dashboard</h2>
           <p className="marketing-section-lead">
-            Real widgets from the Riverside Building demo — calm, scannable, and focused on what
-            matters. No spreadsheet. No accounting jargon.
+            The live workspace has a lot going on. On the marketing site we show individual
+            widgets — the numbers and panels owners actually use — from the Riverside Building demo.
           </p>
         </div>
 
