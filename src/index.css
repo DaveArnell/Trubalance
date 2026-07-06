@@ -2924,10 +2924,51 @@ body.widget-canvas-resizing * {
 }
 
 .cash-outlook-line {
-  stroke: #0d9488;
-  stroke-width: 2.25;
   stroke-linejoin: round;
   stroke-linecap: round;
+}
+
+.cash-outlook-line--cash {
+  stroke: #0d9488;
+  stroke-width: 2.25;
+}
+
+.cash-outlook-line--true-balance {
+  stroke: #9333ea;
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+}
+
+.cash-outlook-chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  margin: 8px 0 0;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.cash-outlook-chart-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cash-outlook-chart-legend i {
+  display: inline-block;
+  width: 18px;
+  height: 0;
+  border-top: 2px solid currentColor;
+  font-style: normal;
+}
+
+.cash-outlook-chart-legend .cash-outlook-chart-legend--true i {
+  border-top-style: dashed;
+  color: #9333ea;
+}
+
+.cash-outlook-chart-legend .cash-outlook-chart-legend--cash i {
+  color: #0d9488;
 }
 
 .cash-outlook-event-dot {

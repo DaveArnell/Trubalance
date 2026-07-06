@@ -8,9 +8,11 @@ import { useSheetRowReorder } from '../hooks/useSheetRowReorder'
 import { receiptEditableCellIds, useSheetCellNavigation } from '../utils/sheetCellNavigation'
 import { HelpButton } from './HelpButton'
 import { WIDGET_HELP } from '../content/livingDashboard'
+import { formatCurrency } from '../utils/format'
 import { DuplicateRowButton, SheetDragCell, SheetDragHeader } from './committed/shared'
 import { PlatformSheetTable, PlatformSheetWrap, ResizableSheetHeader } from './PlatformSheetWrap'
 import { RECEIPTS_COLUMNS } from '../utils/sheetColumnSpecs'
+import { normalizeReceiptDateInput, getEffectiveReceiptAmount } from '../utils/receiptCalculations'
 import { InlineNumberCell, InlineTextCell, ScopeSelectCell } from './SheetInlineCells'
 
 interface ExpectedReceiptsPanelProps {
@@ -49,6 +51,15 @@ export function ExpectedReceiptsPanel({
   const receiptRowIds = useMemo(() => visibleReceipts.map((item) => item.id), [visibleReceipts])
   const receiptReorder = useSheetRowReorder(receiptRowIds, actions.reorderReceipts)
 
+  const totalAccrued = useMemo(
+    () =>
+      visibleReceipts.reduce(
+        (sum, receipt) => sum + (receipt.received ? 0 : getEffectiveReceiptAmount(receipt)),
+        0,
+      ),
+    [visibleReceipts],
+  )
+
   const addRow = () => {
     actions.addReceipt({
       name: 'New receipt',
@@ -61,7 +72,14 @@ export function ExpectedReceiptsPanel({
   return (
     <section id="expected-receipts" className="card widget-compact card-scroll">
       <div className="card-head card-head-compact">
-        <h2>Expected Receipts</h2>
+        <div>
+          <h2>Expected Receipts</h2>
+          {totalAccrued > 0 ? (
+            <p className="muted widget-subtitle">
+              Accrued in True Balance: +{formatCurrency(totalAccrued)}
+            </p>
+          ) : null}
+        </div>
         <div className="card-actions">
           {!demoReadOnly && (
             <button type="button" className="btn-secondary btn-tiny" onClick={addRow}>
@@ -165,7 +183,7 @@ export function ExpectedReceiptsPanel({
                       onDeactivate={deactivate}
                       onSave={(accrualStartDate) =>
                         actions.updateReceipt(item.id, {
-                          accrualStartDate: accrualStartDate || undefined,
+                          accrualStartDate: normalizeReceiptDateInput(accrualStartDate),
                         })
                       }
                       onTab={makeTabHandler(`${item.id}-start`)}
@@ -178,7 +196,9 @@ export function ExpectedReceiptsPanel({
                       onActivate={() => tryActivate(`${item.id}-expected`)}
                       onDeactivate={deactivate}
                       onSave={(expectedDate) =>
-                        actions.updateReceipt(item.id, { expectedDate: expectedDate || undefined })
+                        actions.updateReceipt(item.id, {
+                          expectedDate: normalizeReceiptDateInput(expectedDate),
+                        })
                       }
                       onTab={makeTabHandler(`${item.id}-expected`)}
                     />

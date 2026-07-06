@@ -1,5 +1,6 @@
 import type { ExpectedReceipt } from '../types'
 import { toAmount } from './amounts'
+import { parsePlannedDueDateInput } from './plannedFunding'
 import { getReferenceDate, dateToKey } from './referenceDate'
 
 export type ReceiptTiming = 'lump' | 'accrual'
@@ -9,13 +10,34 @@ function dateOnly(d: Date): Date {
 }
 
 function parseDateKey(key: string): Date | null {
-  const match = key.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  const iso = resolveReceiptDateKey(key)
+  if (!iso) return null
+  const match = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/)
   if (!match) return null
   const year = Number(match[1])
   const month = Number(match[2])
   const day = Number(match[3])
   const date = new Date(year, month - 1, day)
   return Number.isNaN(date.getTime()) ? null : dateOnly(date)
+}
+
+/** Parse receipt Start / Expected input (ISO or friendly text like "1 Jul") to YYYY-MM-DD. */
+export function resolveReceiptDateKey(
+  input: string | undefined,
+  referenceDate: Date = getReferenceDate(),
+): string | null {
+  if (!input?.trim()) return null
+  return parsePlannedDueDateInput(input, referenceDate)
+}
+
+/** Normalize user-entered receipt dates to ISO when possible (for storage). */
+export function normalizeReceiptDateInput(
+  input: string,
+  referenceDate: Date = getReferenceDate(),
+): string | undefined {
+  const trimmed = input.trim()
+  if (!trimmed) return undefined
+  return resolveReceiptDateKey(trimmed, referenceDate) ?? trimmed
 }
 
 function daysBetween(a: Date, b: Date): number {
@@ -34,12 +56,15 @@ export function getReceiptTiming(receipt: ExpectedReceipt): ReceiptTiming {
  * When this receipt begins counting toward True Balance.
  * Lump sum requires an explicit Start; build-up defaults to the first of the Expected month.
  */
-export function getReceiptStartDateKey(receipt: ExpectedReceipt): string | null {
-  const explicit = receipt.accrualStartDate?.slice(0, 10)
+export function getReceiptStartDateKey(
+  receipt: ExpectedReceipt,
+  referenceDate: Date = getReferenceDate(),
+): string | null {
+  const explicit = resolveReceiptDateKey(receipt.accrualStartDate, referenceDate)
   if (explicit) return explicit
 
   if (getReceiptTiming(receipt) === 'accrual') {
-    const expected = receipt.expectedDate?.slice(0, 10)
+    const expected = resolveReceiptDateKey(receipt.expectedDate, referenceDate)
     if (expected) return `${expected.slice(0, 7)}-01`
   }
 
@@ -53,7 +78,10 @@ export function getReceiptActiveFromDateKey(receipt: ExpectedReceipt): string {
 
   if (receipt.createdAt) return receipt.createdAt.slice(0, 10)
 
-  if (receipt.expectedDate) return `${receipt.expectedDate.slice(0, 7)}-01`
+  if (receipt.expectedDate) {
+    const expected = resolveReceiptDateKey(receipt.expectedDate)
+    if (expected) return `${expected.slice(0, 7)}-01`
+  }
 
   return '1970-01-01'
 }
@@ -71,17 +99,35 @@ export function getReceiptPeriodAmount(receipt: ExpectedReceipt, period: string)
   return toAmount(receipt.amount)
 }
 
-function resolveAccrualWindow(receipt: ExpectedReceipt): { start: Date; end: Date; period: string } | null {
-  const end = receipt.expectedDate ? parseDateKey(receipt.expectedDate) : null
+export function resolveReceiptAccrualWindow(
+  receipt: ExpectedReceipt,
+  referenceDate: Date = getReferenceDate(),
+): { start: Date; end: Date; period: string } | null {
+  const endKey = resolveReceiptDateKey(receipt.expectedDate, referenceDate)
+  const end = endKey ? parseDateKey(endKey) : null
   if (!end) return null
 
   const period = periodFromDate(end)
+  const startKey = resolveReceiptDateKey(receipt.accrualStartDate, referenceDate)
   const start =
-    parseDateKey(receipt.accrualStartDate ?? '') ??
+    (startKey ? parseDateKey(startKey) : null) ??
     dateOnly(new Date(end.getFullYear(), end.getMonth(), 1))
 
   if (start.getTime() > end.getTime()) return null
   return { start, end, period }
+}
+
+export function getReceiptDailyAccrualRate(
+  receipt: ExpectedReceipt,
+  referenceDate: Date = getReferenceDate(),
+): number {
+  if (getReceiptTiming(receipt) !== 'accrual' || receipt.received) return 0
+  const window = resolveReceiptAccrualWindow(receipt, referenceDate)
+  if (!window) return 0
+  const target = getReceiptPeriodAmount(receipt, window.period)
+  const totalDays = daysBetween(window.start, window.end)
+  if (totalDays <= 0) return 0
+  return target / totalDays
 }
 
 /**
@@ -106,7 +152,7 @@ export function getEffectiveReceiptAmount(
     return toAmount(receipt.amount)
   }
 
-  const window = resolveAccrualWindow(receipt)
+  const window = resolveReceiptAccrualWindow(receipt, referenceDate)
   if (!window) return 0
 
   const target = getReceiptPeriodAmount(receipt, window.period)

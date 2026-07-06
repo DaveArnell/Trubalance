@@ -13,6 +13,7 @@ import {
   getReceiptsForSharedColumnScope,
 } from './calculations'
 import { buildCommitmentViews, summarizeCommittedFundsBreakdown } from './commitmentCalculations'
+import { getEffectiveReceiptAmount, getReceiptTiming } from './receiptCalculations'
 import { columnLabel } from './format'
 import { buildReserveAccruingRows, buildReserveAccruingRowsForSharedColumn, buildReserveDueRows, buildReserveDueRowsForSharedColumn } from './reserveCalculations'
 import { businessHasVenues, getBusinessesInGroup, getVenuesInBusiness } from './scope'
@@ -24,10 +25,27 @@ export interface ScopeCostBreakdown {
   due: number
   planned: number
   expectedReceipts: number
+  receiptsBuildingUp?: number
   businessShared?: number
   businessSharedReceipts?: number
   groupShared?: number
   groupSharedReceipts?: number
+}
+
+function sumEffectiveReceipts(receipts: ReturnType<typeof getReceiptsForColumnScope>): {
+  expectedReceipts: number
+  receiptsBuildingUp: number
+} {
+  let expectedReceipts = 0
+  let receiptsBuildingUp = 0
+  for (const receipt of receipts) {
+    const effective = getEffectiveReceiptAmount(receipt)
+    expectedReceipts += effective
+    if (getReceiptTiming(receipt) === 'accrual' && !receipt.received && effective > 0) {
+      receiptsBuildingUp += effective
+    }
+  }
+  return { expectedReceipts, receiptsBuildingUp }
 }
 
 export function getScopeCostBreakdown(state: AppState, scope: ViewScope): ScopeCostBreakdown {
@@ -36,9 +54,8 @@ export function getScopeCostBreakdown(state: AppState, scope: ViewScope): ScopeC
   const reserveDueRows = buildReserveDueRows(state, scope)
   const views = buildCommitmentViews(commitments, reserveRows, reserveDueRows)
   const breakdown = summarizeCommittedFundsBreakdown(views)
-  const expectedReceipts = getReceiptsForColumnScope(state, scope).reduce(
-    (sum, receipt) => sum + toAmount(receipt.amount),
-    0,
+  const { expectedReceipts, receiptsBuildingUp } = sumEffectiveReceipts(
+    getReceiptsForColumnScope(state, scope),
   )
 
   const result: ScopeCostBreakdown = {
@@ -48,6 +65,7 @@ export function getScopeCostBreakdown(state: AppState, scope: ViewScope): ScopeC
     due: breakdown.outstandingDue,
     planned: breakdown.outstandingPlanned,
     expectedReceipts,
+    receiptsBuildingUp,
   }
 
   if (scope.type === 'business' && businessHasVenues(state, scope.id)) {
@@ -116,9 +134,8 @@ export function getSharedScopeCostBreakdown(state: AppState, scope: ViewScope): 
   const reserveDueRows = buildReserveDueRowsForSharedColumn(state, scope)
   const views = buildCommitmentViews(commitments, reserveRows, reserveDueRows)
   const breakdown = summarizeCommittedFundsBreakdown(views)
-  const expectedReceipts = getReceiptsForSharedColumnScope(state, scope).reduce(
-    (sum, receipt) => sum + toAmount(receipt.amount),
-    0,
+  const { expectedReceipts, receiptsBuildingUp } = sumEffectiveReceipts(
+    getReceiptsForSharedColumnScope(state, scope),
   )
 
   return {
@@ -128,6 +145,7 @@ export function getSharedScopeCostBreakdown(state: AppState, scope: ViewScope): 
     due: breakdown.outstandingDue,
     planned: breakdown.outstandingPlanned,
     expectedReceipts,
+    receiptsBuildingUp,
   }
 }
 

@@ -1,5 +1,5 @@
 import type { AppState, Commitment, IncomePattern, ViewScope } from '../types'
-import { sumAccountBalances, toAmount } from './amounts'
+import { sumAccountBalances, toAmount, roundCurrency } from './amounts'
 import {
   clampDueDay,
   commitmentEligibleForPeriodDue,
@@ -7,8 +7,14 @@ import {
   isCommitmentPaidForPeriod,
   isDismissedForPeriod,
 } from './commitmentCalculations'
-import { calculateDashboard, getAccountsForScope, getReceiptsForScope } from './calculations'
+import { calculateDashboard, getReceiptsForScope } from './calculations'
 import { parsePlannedDueDateInput } from './plannedFunding'
+import { computeCommittedFundsAt } from './metricsAtDate'
+import {
+  getEffectiveReceiptAmount,
+  getReceiptTiming,
+  resolveReceiptDateKey,
+} from './receiptCalculations'
 import { getReferenceDate } from './referenceDate'
 import {
   computeReserveOperatingTransfer,
@@ -33,6 +39,7 @@ export interface CashFlowEvent {
 export interface ForwardCashFlowDay {
   date: string
   balance: number
+  trueBalance: number
   events: CashFlowEvent[]
 }
 
@@ -48,6 +55,9 @@ export interface ForwardCashFlowProjection {
   lowestBalance: number
   lowestBalanceDate: string
   endingBalance: number
+  endingTrueBalance: number
+  lowestTrueBalance: number
+  lowestTrueBalanceDate: string
 }
 
 function dateOnly(d: Date): Date {
@@ -190,37 +200,71 @@ function buildReceiptEvents(
   scope: ViewScope,
   today: Date,
   endDate: Date,
-): { events: CashFlowEvent[]; unscheduled: { id: string; label: string; amount: number }[] } {
+): {
+  events: CashFlowEvent[]
+  unscheduled: { id: string; label: string; amount: number }[]
+  receiptCashDates: Map<string, string>
+} {
   const todayKey = isoFromDate(today)
   const endKey = isoFromDate(endDate)
   const events: CashFlowEvent[] = []
   const unscheduled: { id: string; label: string; amount: number }[] = []
+  const receiptCashDates = new Map<string, string>()
 
   for (const receipt of getReceiptsForScope(state, scope)) {
-    const amount = toAmount(receipt.amount)
-    if (amount <= 0) continue
+    if (receipt.received) continue
     const label = receipt.name.trim() || 'Expected receipt'
-    const dueIso = receipt.expectedDate
-      ? parsePlannedDueDateInput(receipt.expectedDate, today)
-      : null
+    const timing = getReceiptTiming(receipt)
+    const dueIso =
+      resolveReceiptDateKey(receipt.expectedDate, today) ??
+      (receipt.expectedDate ? parsePlannedDueDateInput(receipt.expectedDate, today) : null)
 
     if (!dueIso) {
-      unscheduled.push({ id: receipt.id, label, amount })
+      const headline = toAmount(receipt.amount)
+      if (headline > 0) unscheduled.push({ id: receipt.id, label, amount: headline })
       continue
     }
+
+    receiptCashDates.set(receipt.id, dueIso)
+
+    const cashAmount =
+      timing === 'accrual'
+        ? toAmount(receipt.amount)
+        : getEffectiveReceiptAmount(receipt, today)
+
+    if (cashAmount <= 0) continue
 
     const eventDate = clampEventDate(dueIso, todayKey, endKey)
     if (!eventDate) continue
 
     events.push({
       date: eventDate,
-      amount,
+      amount: cashAmount,
       label,
       category: 'receipt',
     })
   }
 
-  return { events, unscheduled }
+  return { events, unscheduled, receiptCashDates }
+}
+
+function projectedExpectedReceiptsAt(
+  state: AppState,
+  scope: ViewScope,
+  referenceDate: Date,
+  receiptCashDates: ReadonlyMap<string, string>,
+): number {
+  const dateKey = isoFromDate(referenceDate)
+  let total = 0
+
+  for (const receipt of getReceiptsForScope(state, scope)) {
+    if (receipt.received) continue
+    const cashDate = receiptCashDates.get(receipt.id)
+    if (cashDate && dateKey >= cashDate) continue
+    total += getEffectiveReceiptAmount(receipt, referenceDate)
+  }
+
+  return total
 }
 
 function buildReserveTransferEvents(
@@ -308,7 +352,12 @@ export function buildForwardCashFlowProjection(
     rawEvents.push(...buildPlannedCostEvents(commitment, today, endDate))
   }
 
-  const { events: receiptEvents, unscheduled } = buildReceiptEvents(state, scope, today, endDate)
+  const { events: receiptEvents, unscheduled, receiptCashDates } = buildReceiptEvents(
+    state,
+    scope,
+    today,
+    endDate,
+  )
   rawEvents.push(...receiptEvents)
   rawEvents.push(...buildReserveTransferEvents(state, scope, today, endDate))
 
@@ -323,6 +372,8 @@ export function buildForwardCashFlowProjection(
   let balance = openingCurrentBalance
   let lowestBalance = balance
   let lowestBalanceDate = isoFromDate(today)
+  let lowestTrueBalance = openingTrueBalance
+  let lowestTrueBalanceDate = isoFromDate(today)
 
   for (let offset = 0; offset <= horizonDays; offset += 1) {
     const dateKey = addDays(isoFromDate(today), offset)
@@ -330,14 +381,26 @@ export function buildForwardCashFlowProjection(
     for (const event of dayEvents) {
       balance += event.amount
     }
-    days.push({ date: dateKey, balance, events: dayEvents })
+    const referenceDate = dateOnly(new Date(today))
+    referenceDate.setDate(referenceDate.getDate() + offset)
+    const committedFunds = computeCommittedFundsAt(state, scope, referenceDate)
+    const expectedReceipts = projectedExpectedReceiptsAt(state, scope, referenceDate, receiptCashDates)
+    const trueBalance = roundCurrency(balance - committedFunds + expectedReceipts)
+
+    days.push({ date: dateKey, balance, trueBalance, events: dayEvents })
     if (balance < lowestBalance) {
       lowestBalance = balance
       lowestBalanceDate = dateKey
     }
+    if (trueBalance < lowestTrueBalance) {
+      lowestTrueBalance = trueBalance
+      lowestTrueBalanceDate = dateKey
+    }
   }
 
   const allEvents = [...rawEvents].sort((a, b) => a.date.localeCompare(b.date) || a.label.localeCompare(b.label))
+
+  const endingTrueBalance = days[days.length - 1]?.trueBalance ?? openingTrueBalance
 
   return {
     startDate: isoFromDate(today),
@@ -351,5 +414,8 @@ export function buildForwardCashFlowProjection(
     lowestBalance,
     lowestBalanceDate,
     endingBalance: balance,
+    endingTrueBalance,
+    lowestTrueBalance,
+    lowestTrueBalanceDate,
   }
 }

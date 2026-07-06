@@ -75,9 +75,15 @@ export function CostsBreakdownPopover({
               <strong>{formatCurrency(breakdown.planned)}</strong>
             </li>
           ) : null}
+          {breakdown.receiptsBuildingUp != null && breakdown.receiptsBuildingUp > 0 ? (
+            <li>
+              <span>Expected receipts (building up)</span>
+              <strong>+{formatCurrency(breakdown.receiptsBuildingUp)}</strong>
+            </li>
+          ) : null}
           {breakdown.expectedReceipts > 0 ? (
             <li>
-              <span>Expected receipts</span>
+              <span>Expected receipts (total)</span>
               <strong>+{formatCurrency(breakdown.expectedReceipts)}</strong>
             </li>
           ) : null}
