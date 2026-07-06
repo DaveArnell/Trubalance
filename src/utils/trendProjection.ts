@@ -162,10 +162,11 @@ export function canUseSeasonalProjection(snapshots: BalanceSnapshot[]): boolean 
 }
 
 export function projectionHorizonDays(graphRange: GraphRange, snapshotSpanDays: number): number {
-  if (graphRange === '30d') return 30
+  if (graphRange === '30d') return 45
   if (graphRange === '90d') return 90
-  if (graphRange === '12m') return 120
-  return Math.min(365, Math.max(90, Math.round(snapshotSpanDays * 0.25)))
+  if (graphRange === '12m') return 150
+  // Give the forecast zone meaningful width on long histories (was ~25% of span).
+  return Math.min(365, Math.max(120, Math.round(snapshotSpanDays * 0.4)))
 }
 
 function projectValueAt(

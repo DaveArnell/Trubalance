@@ -14,6 +14,7 @@ export function AppPage() {
     remoteEnabled,
     persistState,
     readOnly,
+    workspaceSubscription,
   } = useWorkspace()
 
   if (configured && authLoading) {
@@ -45,6 +46,7 @@ export function AppPage() {
         remotePersist={remoteEnabled}
         onStateChange={persistState}
         readOnly={readOnly}
+        remoteSubscription={remoteEnabled ? workspaceSubscription : null}
       />
     </ReferenceDateProvider>
   )

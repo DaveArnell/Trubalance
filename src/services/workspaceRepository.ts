@@ -1,4 +1,7 @@
 import type { AppState, BalanceSnapshot, BusinessReferenceProfile, Commitment, DayNote, DiaryReminder, ExpectedReceipt, Group, Business, Venue, Account, ReservePlanner, ReserveBill, HistoryRecord } from '../types'
+import type { SubscriptionTierId } from '../config/subscriptionTiers'
+import { FOUNDER_LIFETIME_SIGNUP_LIMIT } from '../config/founderProgram'
+import type { SubscriptionStatus, WorkspaceSubscription } from '../types/subscription'
 import { serializeReceiptDateField } from '../utils/receiptCalculations'
 import { tryGetSupabase } from '../lib/supabase'
 import { readBrowserAppState } from '../hooks/useAppState'
@@ -695,4 +698,68 @@ export async function importLocalStorageToWorkspace(workspaceId: string): Promis
 
 export async function restoreStateToWorkspace(workspaceId: string, state: AppState): Promise<void> {
   await saveWorkspaceState(workspaceId, state, { allowEmptyDeletes: true })
+}
+
+function mapWorkspaceSubscriptionRow(row: Record<string, unknown>): WorkspaceSubscription {
+  const tierId = (row.subscription_tier as SubscriptionTierId) || 'solo'
+  const lifetimeAccess = Boolean(row.lifetime_access)
+  const betaTester = Boolean(row.beta_tester)
+  const trialEndsAt = row.trial_ends_at ? String(row.trial_ends_at) : null
+  const adminOverride = row.admin_tier_override
+    ? (String(row.admin_tier_override) as SubscriptionTierId)
+    : null
+
+  let status: SubscriptionStatus = 'trialing'
+  if (lifetimeAccess || betaTester) {
+    status = 'active'
+  } else if (trialEndsAt && new Date(trialEndsAt) <= new Date()) {
+    status = 'expired'
+  }
+
+  return {
+    tierId,
+    status,
+    trialEndsAt: lifetimeAccess ? null : trialEndsAt,
+    lifetimeAccess,
+    betaTester,
+    adminTierOverride: adminOverride,
+    stripeCustomerId: row.stripe_customer_id ? String(row.stripe_customer_id) : null,
+    stripeSubscriptionId: null,
+    currentPeriodStart: null,
+    currentPeriodEnd: null,
+    cancelAtPeriodEnd: false,
+    gracePeriodEndsAt: row.grace_period_ends_at ? String(row.grace_period_ends_at) : null,
+    billingInterval:
+      row.billing_interval === 'monthly' || row.billing_interval === 'annual'
+        ? row.billing_interval
+        : null,
+  }
+}
+
+export async function loadWorkspaceSubscription(workspaceId: string): Promise<WorkspaceSubscription | null> {
+  const supabase = tryGetSupabase()
+  if (!supabase) return null
+
+  const { data, error } = await supabase
+    .from('workspaces')
+    .select(
+      'subscription_tier, trial_ends_at, lifetime_access, beta_tester, admin_tier_override, grace_period_ends_at, billing_interval, stripe_customer_id',
+    )
+    .eq('id', workspaceId)
+    .maybeSingle()
+
+  if (error || !data) return null
+  return mapWorkspaceSubscriptionRow(data as Record<string, unknown>)
+}
+
+export async function getFounderSpotsRemaining(): Promise<number | null> {
+  const supabase = tryGetSupabase()
+  if (!supabase) return null
+
+  const { count, error } = await supabase
+    .from('profiles')
+    .select('id', { count: 'exact', head: true })
+
+  if (error || count == null) return null
+  return Math.max(0, FOUNDER_LIFETIME_SIGNUP_LIMIT - count)
 }

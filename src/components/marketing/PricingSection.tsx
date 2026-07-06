@@ -6,9 +6,9 @@ import {
   PRICING_SUBHEADLINE,
   SUBSCRIPTION_TIERS,
   TIER_ORDER,
-  TRIAL_DAYS,
   formatPriceGbp,
 } from '../../config/subscriptionTiers'
+import { FOUNDER_PROGRAM_FOOTNOTE, FOUNDER_PROGRAM_HEADLINE } from '../../config/founderProgram'
 
 export function PricingSection() {
   return (
@@ -21,10 +21,9 @@ export function PricingSection() {
         </div>
 
         <div className="marketing-trial-banner">
-          <strong>{TRIAL_DAYS / 30}-month free trial</strong>
+          <strong>{FOUNDER_PROGRAM_HEADLINE}</strong>
           <span>
-            Full access to every feature · No payment details required · No charge until day{' '}
-            {TRIAL_DAYS + 1} · Cancel anytime
+            Full access to every feature · No payment details required · {FOUNDER_PROGRAM_FOOTNOTE}
           </span>
         </div>
 

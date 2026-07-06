@@ -3,6 +3,11 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { MarketingFooter, MarketingHeader, MarketingShell } from '../components/marketing/MarketingLayout'
 import { useAuth } from '../contexts/AuthContext'
 import { isSupabaseConfigured } from '../lib/supabase'
+import {
+  FOUNDER_PROGRAM_BODY,
+  FOUNDER_PROGRAM_FOOTNOTE,
+  FOUNDER_PROGRAM_HEADLINE,
+} from '../config/founderProgram'
 
 interface AuthFormProps {
   mode: 'login' | 'signup'
@@ -13,16 +18,17 @@ function AuthAside({ mode }: { mode: 'login' | 'signup' }) {
     <aside className="auth-aside">
       <div className="auth-aside-inner">
         <p className="marketing-eyebrow">True Balance</p>
-        <h2>{mode === 'login' ? 'Welcome back' : 'Start your free trial'}</h2>
+        <h2>{mode === 'login' ? 'Welcome back' : 'Join early access'}</h2>
         <p className="auth-aside-lead">
           {mode === 'login'
             ? 'Pick up where you left off — balances, commitments, and reserves in one place.'
-            : 'Three months free with full access. Set up your business and see your True Balance in minutes.'}
+            : `${FOUNDER_PROGRAM_HEADLINE}. ${FOUNDER_PROGRAM_BODY}`}
         </p>
         <ul className="auth-aside-points">
-          <li>3-month free trial — every feature unlocked</li>
+          <li>{FOUNDER_PROGRAM_HEADLINE}</li>
+          <li>Full access — every feature unlocked</li>
           <li>No payment details required</li>
-          <li>No charge until day 91 · cancel anytime</li>
+          <li>{FOUNDER_PROGRAM_FOOTNOTE}</li>
           <li>Guided setup on first login</li>
         </ul>
         <div className="auth-aside-video">
@@ -100,7 +106,7 @@ export function AuthForm({ mode }: AuthFormProps) {
         <h1>Check your email</h1>
         <p className="muted">
           We sent a confirmation link to <strong>{email}</strong>. Once confirmed, log in and we will walk you
-          through setup.
+          through setup. If you are among the first 50 accounts, you will have lifetime free access.
         </p>
         <Link to="/login" className="btn-primary btn-large">
           Go to log in
@@ -114,7 +120,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       <h1>{mode === 'login' ? 'Log in' : 'Create your account'}</h1>
       <p className="auth-card-lead muted">
         {mode === 'signup'
-          ? 'Your 3-month free trial starts when you confirm your email. No plan to choose — just start building.'
+          ? `Confirm your email to get started. ${FOUNDER_PROGRAM_HEADLINE} if you are among the first 50 accounts — otherwise your 3-month trial begins when you confirm.`
           : 'Open your True Balance dashboard.'}
       </p>
 

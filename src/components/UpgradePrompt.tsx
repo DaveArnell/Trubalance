@@ -36,7 +36,18 @@ export function UpgradePrompt() {
 }
 
 export function TrialBanner() {
-  const { trialActive, trialDaysLeft } = useSubscription()
+  const { trialActive, trialDaysLeft, subscription } = useSubscription()
+
+  if (subscription.lifetimeAccess) {
+    return (
+      <div className="trial-banner trial-banner--founder" role="status">
+        <strong>Founder access</strong>
+        <span>
+          Lifetime free access — thank you for helping shape True Balance in early access.
+        </span>
+      </div>
+    )
+  }
 
   if (!trialActive || trialDaysLeft == null) return null
 

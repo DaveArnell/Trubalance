@@ -13,17 +13,21 @@ import { MarketingProductShowcase } from '../components/marketing/MarketingProdu
 import { CompanyLegalNotice } from '../components/marketing/CompanyLegalNotice'
 import { PricingSection } from '../components/marketing/PricingSection'
 import { isSupabaseConfigured } from '../lib/supabase'
+import {
+  FOUNDER_PROGRAM_BODY,
+  FOUNDER_PROGRAM_FOOTNOTE,
+  FOUNDER_PROGRAM_HEADLINE,
+} from '../config/founderProgram'
 
 const HERO_BENEFITS = [
-  'Know what you can actually afford.',
+  'One honest number for what you can spend.',
   'Stay ahead of VAT, tax and large bills.',
-  'Build better financial habits.',
-  'Understand where your business is really heading.',
+  'Built for owners who run the numbers themselves.',
 ] as const
 
 const STATS = [
   { value: '1', label: 'True Balance', accent: 'indigo' },
-  { value: '3 mo', label: 'Free trial', accent: 'teal' },
+  { value: '50', label: 'Lifetime free spots', accent: 'teal' },
   { value: '5 min', label: 'Setup', accent: 'violet' },
 ] as const
 
@@ -31,12 +35,12 @@ const PILLARS = [
   {
     accent: 'indigo',
     title: 'Know what\u2019s spoken for',
-    body: 'Your bank balance isn\u2019t a spending limit. Monthly costs accrue every day \u2014 rent, payroll, subscriptions \u2014 so True Balance shows what\u2019s committed and what\u2019s genuinely yours to use.',
+    body: 'Monthly costs accrue every day. True Balance shows what\u2019s committed and what\u2019s genuinely yours to use.',
   },
   {
     accent: 'violet',
     title: 'Plan irregular bills',
-    body: 'VAT, corporation tax, insurance renewals \u2014 Reserve Planner works out how much to put aside each month and tracks whether you\u2019re on target before the bill lands.',
+    body: 'VAT, tax and renewals go in Reserve Planner. It tells you how much to set aside each month before the bill lands.',
   },
 ] as const
 
@@ -44,13 +48,13 @@ const FEATURES = [
   {
     icon: '◈',
     title: 'True Balance overview',
-    body: 'See real available cash across every account \u2014 minus what is already committed, plus expected receipts.',
+    body: 'Real available cash across every account, minus commitments, plus expected receipts.',
     accent: 'indigo',
   },
   {
     icon: '▤',
     title: 'Committed Funds',
-    body: 'Monthly costs, due items, and receipts in one spreadsheet-style view \u2014 scoped to group, business, or venue.',
+    body: 'Monthly costs, due items and receipts in one view, scoped to group, business or venue.',
     accent: 'orange',
   },
   {
@@ -68,7 +72,7 @@ const FEATURES = [
   {
     icon: '◎',
     title: 'Multi-venue structure',
-    body: 'Groups, businesses, and venues with roll-up totals \u2014 one picture for the whole operation.',
+    body: 'Groups, businesses and venues with roll-up totals in one picture.',
     accent: 'pink',
   },
   {
@@ -83,7 +87,7 @@ const STEPS = [
   {
     step: '01',
     title: 'Set up your business',
-    body: 'Add your business and accounts. Keep it simple \u2014 you can add sites and detail later.',
+    body: 'Add your business and accounts. Start simple and add detail later.',
   },
   {
     step: '02',
@@ -93,7 +97,7 @@ const STEPS = [
   {
     step: '03',
     title: 'See your True Balance',
-    body: 'Add regular costs and big bills. The dashboard shows what is genuinely available \u2014 not just the bank balance.',
+    body: 'Add regular costs and big bills. The dashboard shows what is genuinely available.',
   },
 ] as const
 
@@ -134,32 +138,33 @@ export function LandingPage() {
           <div className="marketing-hero-blob marketing-hero-blob--3" aria-hidden />
           <div className="marketing-hero-inner marketing-hero-inner--pop">
             <div className="marketing-hero-copy">
-              <p className="marketing-eyebrow marketing-eyebrow--vivid">Cash clarity for small and medium businesses</p>
-              <h1>Stop managing your business from your bank balance.</h1>
+              <p className="marketing-eyebrow marketing-eyebrow--vivid">For small and medium business owners</p>
+              <h1>One finance platform for business owners.</h1>
               <p className="marketing-lead">
-                True Balance is the simple cash flow management system that helps business owners
-                understand what money is actually available, build better financial habits, and avoid
-                getting caught out by the bills that matter most.
+                See what cash is really yours. Plan for tax and big bills. Stop managing from the bank balance alone.
               </p>
               <ul className="marketing-hero-benefits">
                 {HERO_BENEFITS.map((benefit) => (
                   <li key={benefit}>{benefit}</li>
                 ))}
               </ul>
+              <p className="marketing-founder-callout" role="note">
+                <strong>{FOUNDER_PROGRAM_HEADLINE}</strong> — {FOUNDER_PROGRAM_BODY}
+              </p>
               <div className="marketing-cta-row">
                 <Link to="/signup" className="btn-primary btn-large marketing-cta-primary marketing-cta-primary--pop">
-                  Start your free 3-month trial
+                  Claim your spot
                 </Link>
                 <Link to="/see-how-it-works" className="btn-secondary btn-large marketing-cta-secondary--pop">
                   See how it works
                 </Link>
               </div>
               <p className="marketing-hero-note muted">
-                Full access · No payment details required · No charge until day 91
+                Full access · No payment details required · {FOUNDER_PROGRAM_FOOTNOTE}
               </p>
               {!isSupabaseConfigured && (
                 <p className="marketing-config-hint">
-                  Cloud signup needs Supabase in <code>.env.local</code> — or{' '}
+                  Cloud signup needs Supabase in <code>.env.local</code>, or{' '}
                   <Link to="/app">try the app locally</Link> without an account.
                 </p>
               )}
@@ -177,11 +182,10 @@ export function LandingPage() {
         <section className="marketing-position-band marketing-position-band--v2" aria-label="What True Balance is">
           <div className="marketing-position-band-inner">
             <p className="marketing-position-statement">
-              True Balance doesn&apos;t try to replace your accounting software.
+              Not accounting software. A cash clarity tool for owners.
             </p>
             <p className="marketing-position-detail">
-              It gives business owners a simple financial management system that helps them understand
-              where they really stand.
+              One place to see what is spoken for, what is due, and what you can actually spend.
             </p>
           </div>
         </section>
@@ -205,8 +209,8 @@ export function LandingPage() {
               <p className="marketing-eyebrow marketing-eyebrow--vivid">Core idea</p>
               <h2>Two shifts that change how you manage cash</h2>
               <p className="marketing-section-lead">
-                Most owners look at the bank and guess. True Balance separates what is already spoken for
-                from what you can actually use — and helps you plan for the bills that do not land every month.
+                Most owners look at the bank and guess. True Balance separates what is spoken for
+                from what you can use, and helps you plan for bills that do not land every month.
               </p>
             </div>
             <div className="marketing-pillars-grid marketing-pillars-grid--pop">
@@ -229,8 +233,8 @@ export function LandingPage() {
               <p className="marketing-eyebrow marketing-eyebrow--vivid">Features</p>
               <h2>Everything you need to stay ahead of cash</h2>
               <p className="marketing-section-lead">
-                Built for small and medium businesses who need one honest number — what is really yours,
-                not a bank balance that still belongs to suppliers, tax, or the next payment in the cycle.
+                Built for small and medium businesses who need one honest number: what is really yours,
+                not a bank balance that still belongs to suppliers, tax or the next payment.
               </p>
             </div>
             <div className="marketing-feature-grid marketing-feature-grid--pop">
@@ -296,7 +300,7 @@ export function LandingPage() {
           <div className="marketing-demo-band-inner">
             <h2>Try a live demo workspace</h2>
             <p>
-              Explore a fully set-up example — leisure group, café, or trades — with months of history. Navigate
+              Explore a fully set-up example (leisure group, café or trades) with months of history. Navigate
               every page with no signup required.
             </p>
             <Link to="/see-how-it-works" className="btn-primary btn-large">
@@ -316,10 +320,10 @@ export function LandingPage() {
         <section className="marketing-cta-band marketing-cta-band--pop">
           <div className="marketing-cta-band-inner">
             <h2>Ready to see what is actually yours?</h2>
-            <p>Start your free 3-month trial. No payment details required.</p>
+            <p>{FOUNDER_PROGRAM_HEADLINE}. Help us improve True Balance — no payment details required.</p>
             <div className="marketing-cta-row marketing-cta-row--center">
               <Link to="/signup" className="btn-primary btn-large marketing-cta-btn-on-dark">
-                Start your free 3-month trial
+                Claim your spot
               </Link>
               <Link to="/login" className="btn-ghost btn-large marketing-cta-ghost">
                 I already have an account

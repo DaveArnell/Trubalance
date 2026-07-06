@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { isSupabaseConfigured } from '../../lib/supabase'
 import { COMPANY_INFO } from '../../content/companyInfo'
+import { FOUNDER_PROGRAM_FOOTNOTE, FOUNDER_PROGRAM_HEADLINE } from '../../config/founderProgram'
 import { CompanyLegalNotice } from './CompanyLegalNotice'
 
 const NAV = [
@@ -97,7 +98,7 @@ export function MarketingFooter() {
             True Balance
           </Link>
           <p className="marketing-footer-tagline">
-            Know what is genuinely yours — not just what is in the account.
+            Know what is genuinely yours, not just what is in the account.
           </p>
           <CompanyLegalNotice variant="footer" />
         </div>
@@ -106,9 +107,7 @@ export function MarketingFooter() {
           <div>
             <p className="marketing-footer-heading">Company</p>
             <a href={`mailto:${COMPANY_INFO.contactEmail}`}>Contact</a>
-            <a href={COMPANY_INFO.parentWebsite} target="_blank" rel="noopener noreferrer">
-              Vocatio.io
-            </a>
+            <span className="marketing-footer-plain">Vocatio.io</span>
           </div>
           <div>
             <p className="marketing-footer-heading">Product</p>
@@ -137,7 +136,9 @@ export function MarketingFooter() {
           {' · '}
           <Link to="/terms">Terms</Link>
         </p>
-        <p className="marketing-footer-trial muted">3-month free trial on all plans. No card required to start.</p>
+        <p className="marketing-footer-trial muted">
+          {FOUNDER_PROGRAM_HEADLINE}. {FOUNDER_PROGRAM_FOOTNOTE}
+        </p>
       </div>
     </footer>
   )

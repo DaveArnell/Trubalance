@@ -9,11 +9,13 @@ import {
   type ReactNode,
 } from 'react'
 import type { AppState } from '../types'
+import type { WorkspaceSubscription } from '../types/subscription'
 import { useAuth } from './AuthContext'
 import {
   getWorkspaceIdForUser,
   isWorkspaceEmptyInDatabase,
   loadWorkspaceState,
+  loadWorkspaceSubscription,
   restoreStateToWorkspace,
   saveWorkspaceState,
   buildSafeTableEmptyDeletes,
@@ -34,6 +36,7 @@ interface WorkspaceContextValue {
   persistState: (state: AppState) => void
   cancelPendingPersist: () => void
   initialRemoteState: AppState | null
+  workspaceSubscription: WorkspaceSubscription | null
   restoreFromBrowser: () => Promise<AppState | null>
   restoreWorkspaceState: (state: AppState) => Promise<AppState>
 }
@@ -47,6 +50,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [workspaceId, setWorkspaceId] = useState<string | null>(null)
   const [loading, setLoading] = useState(configured)
   const [initialRemoteState, setInitialRemoteState] = useState<AppState | null>(null)
+  const [workspaceSubscription, setWorkspaceSubscription] = useState<WorkspaceSubscription | null>(null)
   const [remoteStateVersion, setRemoteStateVersion] = useState(0)
   const [importedFromLocal, setImportedFromLocal] = useState(false)
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -68,6 +72,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     if (!configured || !effectiveUserId) {
       setWorkspaceId(null)
       setInitialRemoteState(null)
+      setWorkspaceSubscription(null)
       setLoading(false)
       loadedForUserRef.current = null
       return
@@ -83,9 +88,13 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       setWorkspaceId(wsId)
       if (!wsId) {
         setInitialRemoteState(emptyAppState())
+        setWorkspaceSubscription(null)
         loadedForUserRef.current = effectiveUserId
         return
       }
+
+      const remoteSubscription = await loadWorkspaceSubscription(wsId)
+      setWorkspaceSubscription(remoteSubscription)
 
       backupBrowserStateToSession()
 
@@ -242,6 +251,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       persistState,
       cancelPendingPersist,
       initialRemoteState,
+      workspaceSubscription,
       restoreFromBrowser,
       restoreWorkspaceState,
     }),
@@ -256,6 +266,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       persistState,
       cancelPendingPersist,
       initialRemoteState,
+      workspaceSubscription,
       restoreFromBrowser,
       restoreWorkspaceState,
     ],

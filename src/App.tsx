@@ -25,11 +25,13 @@ import {
   type PageId,
 } from './navigation'
 import type { AppState, GraphRange, ViewScope, AttentionItem } from './types'
+import type { WorkspaceSubscription } from './types/subscription'
 import { calculateDashboard } from './utils/calculations'
 import { buildBreakdownColumns } from './utils/breakdownTable'
 import { getPlannerDisplayName, summarizeReservePlanner, getReservePlannerIdForScope } from './utils/reserveCalculations'
 import { getScopeLabel } from './utils/scope'
 import { ViewingScopeBar } from './components/ViewingScopeBar'
+import { ViewingScopePicker } from './components/ViewingScopePicker'
 import { scopeThemeBusinessId, scopeThemeStyle } from './utils/businessTheme'
 import { defaultViewScope as initialDefaultViewScope } from './data/initialState'
 import { formatSnapshotDateLong } from './utils/snapshots'
@@ -42,6 +44,7 @@ import { useDemoMode, useDemoReadOnly } from './contexts/DemoModeContext'
 
 export interface AppShellProps extends UseAppStateOptions {
   isInteractiveDemo?: boolean
+  remoteSubscription?: WorkspaceSubscription | null
 }
 
 function useActiveRoute() {
@@ -66,16 +69,25 @@ function AppTourBridge({ activePage }: { activePage: PageId }) {
   return null
 }
 
-function SubscriptionTierEnforcer({ state, dissolveGroup }: { state: AppState; dissolveGroup: (id: string) => void }) {
+function SubscriptionTierEnforcer({
+  state,
+  dissolveGroup,
+  disabled,
+}: {
+  state: AppState
+  dissolveGroup: (id: string) => void
+  disabled?: boolean
+}) {
   const { effectiveTierId } = useSubscription()
 
   useEffect(() => {
+    if (disabled) return
     if (effectiveTierId === 'business' && state.groups.length > 0) {
       for (const group of state.groups) {
         dissolveGroup(group.id)
       }
     }
-  }, [effectiveTierId, state.groups.length])
+  }, [disabled, effectiveTierId, state.groups.length, dissolveGroup])
 
   return null
 }
@@ -91,6 +103,7 @@ function AppShellInner({
   defaultViewScope,
   readOnly,
   isInteractiveDemo,
+  remoteSubscription,
 }: AppShellProps) {
   const demoMode = useDemoMode()
   const demoReadOnly = useDemoReadOnly()
@@ -407,7 +420,7 @@ function AppShellInner({
   }, [activePage, user?.id, workspaceId, isDemoSession])
 
   return (
-    <SubscriptionProvider state={app.state}>
+    <SubscriptionProvider state={app.state} remoteSubscription={remoteSubscription}>
     <TourProvider
       userId={user?.id ?? null}
       onboardingCompleted={onboardingCompleted}
@@ -415,7 +428,11 @@ function AppShellInner({
     >
       <TablePreferencesProvider>
         <AppTourBridge activePage={activePage} />
-        <SubscriptionTierEnforcer state={app.state} dissolveGroup={app.dissolveGroup} />
+        <SubscriptionTierEnforcer
+          state={app.state}
+          dissolveGroup={app.dissolveGroup}
+          disabled={isDemoSession}
+        />
         <GuidedTour />
         {setupWizardOpen && !isDemoSession && (
           <GuidedSetupWizard
@@ -530,6 +547,11 @@ function AppShellInner({
               <div className="top-bar-inner">
                 <div className="top-bar-scope-block">
                   <p className="top-kicker">{pageMeta.label}</p>
+                  <ViewingScopePicker
+                    state={app.state}
+                    viewScope={app.viewScope}
+                    onSelect={app.setViewScope}
+                  />
                   <ViewingScopeBar state={app.state} viewScope={app.viewScope} variant="full" />
                 </div>
                 <div className="top-bar-actions">

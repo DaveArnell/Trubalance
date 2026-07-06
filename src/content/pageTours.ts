@@ -111,7 +111,7 @@ export const PAGE_TOURS: Partial<Record<PageId, PageTour>> = {
         target: '[data-widget-id="trends-chart"]',
         title: 'Balance chart',
         body: 'Each point is recorded when you save bank balances in the overview. Toggle scopes and metrics to compare group, business, or venue levels.',
-        placement: 'bottom',
+        placement: 'top',
       },
       {
         id: 'tr-log',
@@ -132,7 +132,7 @@ export const PAGE_TOURS: Partial<Record<PageId, PageTour>> = {
         target: '[data-widget-id="forecast-cash-outlook"]',
         title: 'Cash outlook',
         body: 'Projects your current account forward from scheduled outgoings, reserve transfers, and dated receipts. Best for businesses with identifiable incoming payments (invoices, contracts). For steady daily income (retail, hospitality), this only shows outgoings — use Trends for your overall trajectory.',
-        placement: 'bottom',
+        placement: 'top',
       },
       {
         id: 'fc-projection',

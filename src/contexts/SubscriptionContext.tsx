@@ -52,13 +52,21 @@ export function SubscriptionProvider({
   children,
   state,
   userCount = 1,
+  remoteSubscription = null,
 }: {
   children: ReactNode
   state: AppState
   userCount?: number
+  remoteSubscription?: WorkspaceSubscription | null
 }) {
   const [subscription, setSubscription] = useState<WorkspaceSubscription>(() => loadLocalSubscription())
   const [upgradePrompt, setUpgradePrompt] = useState<UpgradePromptState | null>(null)
+
+  useEffect(() => {
+    if (!remoteSubscription) return
+    setSubscription(remoteSubscription)
+    saveLocalSubscription(remoteSubscription)
+  }, [remoteSubscription])
 
   useEffect(() => {
     const reload = () => setSubscription(loadLocalSubscription())

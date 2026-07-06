@@ -379,3 +379,97 @@ export function filterAccruingRowsForView<T extends { commitment: { scopeLevel: 
     (row) => row.commitment.scopeLevel === 'venue' && row.commitment.scopeId === viewScope.id,
   )
 }
+
+export interface ScopePickerOption {
+  scope: ViewScope
+  label: string
+  indent: number
+}
+
+/** Flat scope list for the mobile / narrow top-bar picker (mirrors sidebar tree). */
+export function getSidebarScopePickerOptions(state: AppState): ScopePickerOption[] {
+  const options: ScopePickerOption[] = []
+  const groupedBusinessIds = new Set<string>()
+
+  for (const group of state.groups) {
+    const businesses = state.businesses.filter((business) => business.groupId === group.id)
+    if (businesses.length === 0) continue
+
+    if (businesses.length > 1) {
+      options.push({
+        scope: { type: 'group', id: group.id },
+        label: `${group.name} (whole group)`,
+        indent: 0,
+      })
+    }
+
+    for (const business of businesses) {
+      groupedBusinessIds.add(business.id)
+      const venues = getVenuesInBusiness(state, business.id)
+      const branchIndent = businesses.length > 1 ? 1 : 0
+
+      if (venues.length <= 1) {
+        options.push({
+          scope: { type: 'business', id: business.id },
+          label: business.name,
+          indent: branchIndent,
+        })
+        continue
+      }
+
+      options.push({
+        scope: { type: 'business', id: business.id },
+        label: business.name,
+        indent: branchIndent,
+      })
+      for (const venue of venues) {
+        options.push({
+          scope: { type: 'venue', id: venue.id },
+          label: venue.name,
+          indent: branchIndent + 1,
+        })
+      }
+    }
+  }
+
+  for (const business of state.businesses.filter((b) => !groupedBusinessIds.has(b.id))) {
+    const venues = getVenuesInBusiness(state, business.id)
+    if (venues.length <= 1) {
+      options.push({
+        scope: { type: 'business', id: business.id },
+        label: business.name,
+        indent: 0,
+      })
+      continue
+    }
+
+    options.push({
+      scope: { type: 'business', id: business.id },
+      label: business.name,
+      indent: 0,
+    })
+    for (const venue of venues) {
+      options.push({
+        scope: { type: 'venue', id: venue.id },
+        label: venue.name,
+        indent: 1,
+      })
+    }
+  }
+
+  return options
+}
+
+export function scopePickerValue(scope: ViewScope): string {
+  return `${scope.type}:${scope.id}`
+}
+
+export function parseScopePickerValue(value: string): ViewScope | null {
+  const colon = value.indexOf(':')
+  if (colon <= 0) return null
+  const type = value.slice(0, colon)
+  const id = value.slice(colon + 1)
+  if (type !== 'group' && type !== 'business' && type !== 'venue') return null
+  if (!id) return null
+  return { type, id }
+}

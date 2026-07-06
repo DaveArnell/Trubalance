@@ -3,31 +3,44 @@ import { HeroBalanceEquation } from './HeroBalanceEquation'
 import { HeroBalanceVisual } from './HeroBalanceVisual'
 import { MarketingBrowserFrame } from './MarketingBrowserFrame'
 
+const RESERVE_BILLS = [
+  { name: 'VAT', annual: 19_200, due: 'Jun' },
+  { name: 'Corp tax', annual: 8_400, due: 'Dec' },
+  { name: 'Insurance', annual: 2_100, due: 'Mar' },
+] as const
+
+const RESERVE_ANNUAL_TOTAL = RESERVE_BILLS.reduce((sum, bill) => sum + bill.annual, 0)
+const RESERVE_MONTHLY_TARGET = Math.round(RESERVE_ANNUAL_TOTAL / 12)
+
 const TABS = [
   {
     id: 'balance',
     label: 'True Balance',
     accent: 'indigo',
     title: 'One number that tells the truth',
-    body: 'Cash in the bank minus what is already committed, plus expected receipts. True Balance rolls up every account and scope so you see what is genuinely available — not just what the bank app shows.',
+    body: 'Cash minus what is committed, plus expected receipts. True Balance rolls up every account so you see what is genuinely available, not just what the bank app shows.',
   },
   {
     id: 'month',
     label: 'Through the month',
     accent: 'teal',
-    title: 'Bills build through the month — then land in Due',
-    body: 'Rent, payroll, and subscriptions accrue day by day. Watch commitments grow, see what is due soon, and mark items paid when they clear — so the dashboard always reflects reality.',
+    title: 'Bills build through the month, then land in Due',
+    body: 'Rent, payroll and subscriptions accrue day by day. Watch commitments grow, see what is due soon, and mark items paid when they clear.',
   },
   {
     id: 'reserve',
     label: 'Reserve Planner',
     accent: 'violet',
     title: 'Irregular bills, planned month by month',
-    body: 'VAT, corporation tax, insurance renewals — add the bill, set the due date, and Reserve Planner works out how much to put aside each month. Track transfers and stay on target before the payment lands.',
+    body: 'Add VAT, tax and renewals with their due dates. Reserve Planner spreads the annual cost into a monthly set-aside and shows the transfer to make.',
   },
 ] as const
 
 type TabId = (typeof TABS)[number]['id']
+
+function formatGbp(amount: number): string {
+  return `£${amount.toLocaleString('en-GB')}`
+}
 
 export function MarketingProductShowcase() {
   const [active, setActive] = useState<TabId>('month')
@@ -40,8 +53,8 @@ export function MarketingProductShowcase() {
           <p className="marketing-eyebrow marketing-eyebrow--vivid">See it in action</p>
           <h2 id="marketing-showcase-heading">From bank balance to real clarity</h2>
           <p className="marketing-section-lead">
-            True Balance sits alongside your bank — not instead of it. Update balances when you choose,
-            and the dashboard shows what is spoken for, what is due, and what you can actually use.
+            True Balance sits alongside your bank. Update balances when you choose, and see what is
+            spoken for, what is due and what you can actually use.
           </p>
         </div>
 
@@ -75,28 +88,23 @@ export function MarketingProductShowcase() {
                 aria-label="Reserve planner preview"
               >
                 <div className="marketing-reserve-preview-head">
-                  <span>Reserve Planner</span>
-                  <strong>£840 / mo</strong>
+                  <span>Monthly set-aside</span>
+                  <strong>{formatGbp(RESERVE_MONTHLY_TARGET)} / mo</strong>
                 </div>
+                <p className="marketing-reserve-preview-total muted">
+                  {formatGbp(RESERVE_ANNUAL_TOTAL)} across the year
+                </p>
                 <ul className="marketing-reserve-preview-bills">
-                  <li>
-                    <span>VAT</span>
-                    <span>£19,200</span>
-                    <span className="marketing-reserve-preview-due">Jun</span>
-                  </li>
-                  <li>
-                    <span>Corp tax</span>
-                    <span>£8,400</span>
-                    <span className="marketing-reserve-preview-due">Dec</span>
-                  </li>
-                  <li>
-                    <span>Insurance</span>
-                    <span>£2,100</span>
-                    <span className="marketing-reserve-preview-due">Mar</span>
-                  </li>
+                  {RESERVE_BILLS.map((bill) => (
+                    <li key={bill.name}>
+                      <span>{bill.name}</span>
+                      <span>{formatGbp(bill.annual)} / yr</span>
+                      <span className="marketing-reserve-preview-due">{bill.due}</span>
+                    </li>
+                  ))}
                 </ul>
                 <p className="marketing-reserve-preview-transfer">
-                  Suggested transfer this month: <strong>£1,240</strong>
+                  Suggested transfer this month: <strong>{formatGbp(RESERVE_MONTHLY_TARGET)}</strong>
                 </p>
               </div>
             )}

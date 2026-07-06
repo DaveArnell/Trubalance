@@ -147,6 +147,11 @@ export function GuidedTour() {
   if (!activeTour || !step) return null
 
   const tooltipStyle = (): CSSProperties => {
+    const cardWidth = 320
+    const cardHeight = 220
+    const margin = 12
+    const gap = 14
+
     if (!rect) {
       return {
         top: '50%',
@@ -155,24 +160,55 @@ export function GuidedTour() {
         maxWidth: '22rem',
       }
     }
-    const placement = step.placement ?? 'bottom'
-    const gap = 14
+
+    const vw = window.innerWidth
+    const vh = window.innerHeight
+    const preferred = step.placement ?? 'bottom'
+
+    const fits = {
+      bottom:
+        rect.top + rect.height + gap + cardHeight <= vh - margin &&
+        rect.left + cardWidth <= vw - margin,
+      top: rect.top - gap - cardHeight >= margin,
+      right: rect.left + rect.width + gap + cardWidth <= vw - margin,
+      left: rect.left - gap - cardWidth >= margin,
+    }
+
+    const order: Array<'bottom' | 'top' | 'right' | 'left'> =
+      preferred === 'left'
+        ? ['left', 'right', 'top', 'bottom']
+        : preferred === 'right'
+          ? ['right', 'left', 'top', 'bottom']
+          : preferred === 'top'
+            ? ['top', 'bottom', 'right', 'left']
+            : ['bottom', 'top', 'right', 'left']
+
+    const placement = order.find((side) => fits[side]) ?? 'bottom'
+
     if (placement === 'right') {
-      return { top: rect.top, left: rect.left + rect.width + gap, maxWidth: '18rem' }
+      return {
+        top: Math.min(Math.max(margin, rect.top), vh - cardHeight - margin),
+        left: rect.left + rect.width + gap,
+        maxWidth: '18rem',
+      }
     }
     if (placement === 'left') {
-      return { top: rect.top, right: window.innerWidth - rect.left + gap, maxWidth: '18rem' }
+      return {
+        top: Math.min(Math.max(margin, rect.top), vh - cardHeight - margin),
+        right: vw - rect.left + gap,
+        maxWidth: '18rem',
+      }
     }
     if (placement === 'top') {
       return {
-        bottom: window.innerHeight - rect.top + gap,
-        left: Math.min(rect.left, window.innerWidth - 320),
+        bottom: vh - rect.top + gap,
+        left: Math.min(Math.max(margin, rect.left), vw - cardWidth - margin),
         maxWidth: '20rem',
       }
     }
     return {
       top: rect.top + rect.height + gap,
-      left: Math.min(Math.max(12, rect.left), window.innerWidth - 332),
+      left: Math.min(Math.max(margin, rect.left), vw - cardWidth - margin),
       maxWidth: '20rem',
     }
   }

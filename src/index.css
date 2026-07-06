@@ -3692,6 +3692,33 @@ body.widget-canvas-resizing * {
   font-weight: 650;
 }
 
+.viewing-scope-picker {
+  display: none;
+}
+
+.viewing-scope-picker-label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.viewing-scope-picker-select {
+  min-width: 0;
+  flex: 1;
+  max-width: 100%;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface-raised);
+  color: var(--text-primary);
+}
+
 /* ─── KPI / summary tables (fixed columns) ──────────────────── */
 .kpi-table {
   width: 100%;
@@ -10594,6 +10621,18 @@ tr.sheet-row--received td {
     display: none;
   }
 
+  .viewing-scope-bar {
+    display: none;
+  }
+
+  .viewing-scope-picker {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    flex: 1;
+  }
+
   .sidebar-divider {
     display: none;
   }
@@ -10840,6 +10879,21 @@ tr.sheet-row--received td {
 .marketing-hero-note {
   margin: 16px 0 0;
   font-size: 0.82rem;
+}
+
+.marketing-founder-callout {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(99, 102, 241, 0.22);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(20, 184, 166, 0.08));
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.marketing-founder-callout strong {
+  color: var(--text-primary);
 }
 
 .marketing-config-hint {
@@ -12306,6 +12360,13 @@ tr.sheet-row--received td {
   color: var(--accent);
 }
 
+.marketing-footer-plain {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+}
+
 .marketing-footer-bottom {
   max-width: 1140px;
   margin: 0 auto;
@@ -12660,6 +12721,11 @@ tr.sheet-row--received td {
   color: #0f766e;
 }
 
+.marketing-reserve-preview-total {
+  margin: -4px 0 12px;
+  font-size: 0.78rem;
+}
+
 .marketing-reserve-preview-bills {
   margin: 0;
   padding: 0;
@@ -12833,7 +12899,7 @@ tr.sheet-row--received td {
 }
 
 .marketing-hero--pop h1 {
-  max-width: 22ch;
+  max-width: 14ch;
   font-size: clamp(2.1rem, 4.8vw, 3.35rem);
   line-height: 1.08;
   letter-spacing: -0.03em;
@@ -13234,7 +13300,7 @@ tr.sheet-row--received td {
 .guided-tour-root {
   position: fixed;
   inset: 0;
-  z-index: 500;
+  z-index: 10000;
   pointer-events: none;
 }
 
@@ -13249,7 +13315,7 @@ tr.sheet-row--received td {
 .guided-tour-shade {
   position: fixed;
   inset: 0;
-  z-index: 500;
+  z-index: 10000;
   margin: 0;
   padding: 0;
   border: none;
@@ -13265,7 +13331,7 @@ tr.sheet-row--received td {
 
 .guided-tour-spotlight-ring {
   position: fixed;
-  z-index: 502;
+  z-index: 10001;
   border-radius: var(--radius-md);
   box-shadow:
     0 0 0 2px var(--accent),
@@ -13274,14 +13340,14 @@ tr.sheet-row--received td {
 }
 
 .guided-tour-target {
+  /* Keep the cut-out visible without stacking above the tour card (sibling portal layer). */
   position: relative;
-  z-index: 503 !important;
-  isolation: isolate;
+  z-index: 1;
 }
 
 .guided-tour-card {
   position: fixed;
-  z-index: 504;
+  z-index: 10005;
   padding: var(--space-4);
   border-radius: var(--radius-lg);
   background: var(--bg-surface-raised);
@@ -16361,6 +16427,11 @@ tr.sheet-row--received td {
   border: 1px solid rgba(15, 118, 110, 0.25);
   background: rgba(15, 118, 110, 0.08);
   font-size: 0.78rem;
+}
+
+.trial-banner--founder {
+  border-color: rgba(99, 102, 241, 0.28);
+  background: rgba(99, 102, 241, 0.08);
 }
 
 .post-trial-notice {
