@@ -30,21 +30,26 @@ export function getReceiptTiming(receipt: ExpectedReceipt): ReceiptTiming {
   return receipt.receiptTiming ?? 'lump'
 }
 
-/** First calendar day this receipt should affect True Balance and history. */
-export function getReceiptActiveFromDateKey(receipt: ExpectedReceipt): string {
-  const timing = getReceiptTiming(receipt)
+/**
+ * When this receipt begins counting toward True Balance.
+ * Lump sum requires an explicit Start; build-up defaults to the first of the Expected month.
+ */
+export function getReceiptStartDateKey(receipt: ExpectedReceipt): string | null {
+  const explicit = receipt.accrualStartDate?.slice(0, 10)
+  if (explicit) return explicit
 
-  if (timing === 'accrual') {
-    const start = receipt.accrualStartDate?.slice(0, 10)
-    if (start) return start
+  if (getReceiptTiming(receipt) === 'accrual') {
     const expected = receipt.expectedDate?.slice(0, 10)
     if (expected) return `${expected.slice(0, 7)}-01`
   }
 
-  if (timing === 'lump') {
-    const start = receipt.accrualStartDate?.slice(0, 10)
-    if (start) return start
-  }
+  return null
+}
+
+/** Earliest calendar day to rebuild history when this receipt changes. */
+export function getReceiptActiveFromDateKey(receipt: ExpectedReceipt): string {
+  const start = getReceiptStartDateKey(receipt)
+  if (start) return start
 
   if (receipt.createdAt) return receipt.createdAt.slice(0, 10)
 
@@ -54,7 +59,9 @@ export function getReceiptActiveFromDateKey(receipt: ExpectedReceipt): string {
 }
 
 export function receiptContributesOnDate(receipt: ExpectedReceipt, dateKey: string): boolean {
-  return dateKey >= getReceiptActiveFromDateKey(receipt)
+  const start = getReceiptStartDateKey(receipt)
+  if (!start) return false
+  return dateKey >= start
 }
 
 /** Target amount for a calendar month, respecting per-period overrides. */
@@ -79,8 +86,8 @@ function resolveAccrualWindow(receipt: ExpectedReceipt): { start: Date; end: Dat
 
 /**
  * How much of this receipt counts toward True Balance on a given date.
- * Lump: full headline amount from accrual-from (or row created date) until received.
- * Accrual: builds daily from start date to expected date.
+ * Lump: full amount from Start until received (no Start = no effect — avoids spikes on new rows).
+ * Build up: accrues daily from Start to Expected.
  */
 export function getEffectiveReceiptAmount(
   receipt: ExpectedReceipt,
@@ -92,13 +99,15 @@ export function getEffectiveReceiptAmount(
   const today = dateOnly(referenceDate)
 
   if (timing === 'lump') {
-    const activeFrom = parseDateKey(getReceiptActiveFromDateKey(receipt))
+    const startKey = getReceiptStartDateKey(receipt)
+    if (!startKey) return 0
+    const activeFrom = parseDateKey(startKey)
     if (activeFrom && today.getTime() < activeFrom.getTime()) return 0
     return toAmount(receipt.amount)
   }
 
   const window = resolveAccrualWindow(receipt)
-  if (!window) return toAmount(receipt.amount)
+  if (!window) return 0
 
   const target = getReceiptPeriodAmount(receipt, window.period)
   if (today.getTime() < window.start.getTime()) return 0
@@ -119,7 +128,12 @@ export function getReceiptRebuildFromDateKey(
   patch: Partial<ExpectedReceipt> = {},
 ): string {
   const merged = { ...receipt, ...patch }
-  const candidates = [getReceiptActiveFromDateKey(receipt), getReceiptActiveFromDateKey(merged)]
+  const candidates = [
+    getReceiptStartDateKey(receipt),
+    getReceiptStartDateKey(merged),
+    getReceiptActiveFromDateKey(receipt),
+    getReceiptActiveFromDateKey(merged),
+  ].filter((date): date is string => date != null)
 
   if (patch.periodAmountOverrides) {
     const periods = Object.keys(patch.periodAmountOverrides).sort()

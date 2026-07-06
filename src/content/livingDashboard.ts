@@ -32,7 +32,7 @@ export const WIDGET_HELP = {
     'For regular, predictable bills that come out every month — rent, payroll, subscriptions, insurance DD, loan repayments. These build up (accrue) daily so you always know how much of your balance is already spoken for. Not for one-off or irregular costs — use Reserve Planner for those.',
   due: 'As things get paid, mark them here. That frees up your True Balance and clears what needs attention.',
   expectedReceipts:
-    'Money you expect to receive. Choose Lump sum (counts in full straight away) or Build up (accrues daily toward the expected date). When the actual amount differs from your estimate, edit the amount in Due or pay with the real figure — history for that month is corrected automatically.',
+    'Money you expect to receive. Set Start (when it begins affecting True Balance) and Expected (when cash should arrive). Lump sum counts the full amount from Start; Build up accrues daily from Start to Expected. A new row with no Start does not change your balance until you set one — useful for future lump sums you want to backdate. When the actual amount differs from your estimate, edit the amount and history for that period is corrected automatically.',
   reservePlanner:
     'Put money aside for irregular bills like VAT, corporation tax and insurance. Add bills with amounts in the months they are due. Follow the balance outlook chart — the solid line is planned balance; the dashed line is what you have confirmed. Each month, confirm balances and complete any transfer. Bills appear in Due when payment is due.',
   trends:

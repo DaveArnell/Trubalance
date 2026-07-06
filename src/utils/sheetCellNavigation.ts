@@ -201,8 +201,8 @@ export function receiptEditableCellIds(receipts: { id: string }[]): string[] {
   return buildSheetTabOrder(receipts, (item) => [
     `${item.id}-name`,
     `${item.id}-scope`,
+    `${item.id}-start`,
     `${item.id}-expected`,
-    `${item.id}-accrual-start`,
     `${item.id}-amount`,
   ])
 }

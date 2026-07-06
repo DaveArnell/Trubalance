@@ -87,8 +87,8 @@ export function ExpectedReceiptsPanel({
                   <ResizableSheetHeader columnIndex={1} onResizeStart={startResize}>Name</ResizableSheetHeader>
                   <ResizableSheetHeader columnIndex={2} onResizeStart={startResize} className="committed-scope-col">Scope</ResizableSheetHeader>
                   <ResizableSheetHeader columnIndex={3} onResizeStart={startResize}>Timing</ResizableSheetHeader>
-                  <ResizableSheetHeader columnIndex={4} onResizeStart={startResize}>Expected</ResizableSheetHeader>
-                  <ResizableSheetHeader columnIndex={5} onResizeStart={startResize}>Accrual from</ResizableSheetHeader>
+                  <ResizableSheetHeader columnIndex={4} onResizeStart={startResize}>Start</ResizableSheetHeader>
+                  <ResizableSheetHeader columnIndex={5} onResizeStart={startResize}>Expected</ResizableSheetHeader>
                   <ResizableSheetHeader columnIndex={6} onResizeStart={startResize} className="sheet-num">Amount</ResizableSheetHeader>
                   {!demoReadOnly && (
                     <ResizableSheetHeader columnIndex={7} onResizeStart={startResize} className="sheet-actions" />
@@ -157,6 +157,20 @@ export function ExpectedReceiptsPanel({
                       )}
                     </td>
                     <InlineTextCell
+                      cellId={`${item.id}-start`}
+                      value={item.accrualStartDate ?? ''}
+                      isActive={activeCell === `${item.id}-start`}
+                      placeholder="e.g. 1 Jul"
+                      onActivate={() => tryActivate(`${item.id}-start`)}
+                      onDeactivate={deactivate}
+                      onSave={(accrualStartDate) =>
+                        actions.updateReceipt(item.id, {
+                          accrualStartDate: accrualStartDate || undefined,
+                        })
+                      }
+                      onTab={makeTabHandler(`${item.id}-start`)}
+                    />
+                    <InlineTextCell
                       cellId={`${item.id}-expected`}
                       value={item.expectedDate ?? ''}
                       isActive={activeCell === `${item.id}-expected`}
@@ -167,20 +181,6 @@ export function ExpectedReceiptsPanel({
                         actions.updateReceipt(item.id, { expectedDate: expectedDate || undefined })
                       }
                       onTab={makeTabHandler(`${item.id}-expected`)}
-                    />
-                    <InlineTextCell
-                      cellId={`${item.id}-accrual-start`}
-                      value={item.accrualStartDate ?? ''}
-                      isActive={activeCell === `${item.id}-accrual-start`}
-                      placeholder={item.receiptTiming === 'accrual' ? 'e.g. 1 Jul' : '—'}
-                      onActivate={() => tryActivate(`${item.id}-accrual-start`)}
-                      onDeactivate={deactivate}
-                      onSave={(accrualStartDate) =>
-                        actions.updateReceipt(item.id, {
-                          accrualStartDate: accrualStartDate || undefined,
-                        })
-                      }
-                      onTab={makeTabHandler(`${item.id}-accrual-start`)}
                     />
                     <InlineNumberCell
                       cellId={`${item.id}-amount`}

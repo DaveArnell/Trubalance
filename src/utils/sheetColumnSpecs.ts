@@ -12,7 +12,7 @@ const funding: SheetColumnSpec = { id: 'funding', defaultWidth: 108, minWidth: 7
 const reserved: SheetColumnSpec = { id: 'reserved', defaultWidth: 80, minWidth: 56 }
 const expected: SheetColumnSpec = { id: 'expected', defaultWidth: 104, minWidth: 72 }
 const timing: SheetColumnSpec = { id: 'timing', defaultWidth: 88, minWidth: 72 }
-const accrualStart: SheetColumnSpec = { id: 'accrual-start', defaultWidth: 96, minWidth: 72 }
+const startCol: SheetColumnSpec = { id: 'start', defaultWidth: 96, minWidth: 72 }
 const actions: SheetColumnSpec = {
   id: 'actions',
   defaultWidth: 56,
@@ -45,4 +45,4 @@ export const COMMITTED_PLANNED_COLUMNS: SheetColumnSpec[] = [
 
 export const DUE_COLUMNS: SheetColumnSpec[] = [drag, name, scope, dueTiming, amount, funding, actions]
 
-export const RECEIPTS_COLUMNS: SheetColumnSpec[] = [drag, name, scope, timing, expected, accrualStart, amount, actions]
+export const RECEIPTS_COLUMNS: SheetColumnSpec[] = [drag, name, scope, timing, startCol, expected, amount, actions]
