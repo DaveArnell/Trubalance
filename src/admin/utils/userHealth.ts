@@ -82,3 +82,13 @@ export function onboardingPctFromUser(flags: {
   if (flags.businessCount > 0 && flags.accountCount > 0) score += 10
   return Math.min(100, score)
 }
+
+/** Active if they logged in or updated balances within the last 30 days. */
+export function isUserRecentlyActive(
+  lastLoginAt: string | null,
+  lastBalanceUpdateAt: string | null,
+): boolean {
+  const loginDays = daysSince(lastLoginAt)
+  const balanceDays = daysSince(lastBalanceUpdateAt)
+  return (loginDays != null && loginDays <= 30) || (balanceDays != null && balanceDays <= 30)
+}

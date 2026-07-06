@@ -1,4 +1,4 @@
-import type { AppState, Commitment, IncomePattern, ViewScope } from '../types'
+import type { AppState, Commitment, ExpectedReceipt, IncomePattern, ViewScope } from '../types'
 import { sumAccountBalances, toAmount, roundCurrency } from './amounts'
 import {
   clampDueDay,
@@ -89,6 +89,32 @@ function clampEventDate(dateKey: string, todayKey: string, endKey: string): stri
   if (dateKey > endKey) return null
   if (dateKey < todayKey) return todayKey
   return dateKey
+}
+
+/** Cash that lands in the bank on the expected date (forecast only — not gated by Start). */
+function getForecastReceiptCashAmount(receipt: ExpectedReceipt): number {
+  return toAmount(receipt.amount)
+}
+
+/**
+ * Expected-receipt contribution for the True Balance line on a forecast day.
+ * Build-up accrues daily; lump sums count in full until cash lands.
+ */
+function getForecastTrueBalanceReceiptAmount(
+  receipt: ExpectedReceipt,
+  referenceDate: Date,
+  cashDateKey: string | undefined,
+): number {
+  if (receipt.received) return 0
+  const dateKey = isoFromDate(referenceDate)
+  if (cashDateKey && dateKey >= cashDateKey) return 0
+
+  if (getReceiptTiming(receipt) === 'accrual') {
+    return getEffectiveReceiptAmount(receipt, referenceDate)
+  }
+
+  if (!cashDateKey) return 0
+  return toAmount(receipt.amount)
 }
 
 export function cashOutlookHorizonDays(graphRange: string): number {
@@ -214,7 +240,6 @@ function buildReceiptEvents(
   for (const receipt of getReceiptsForScope(state, scope)) {
     if (receipt.received) continue
     const label = receipt.name.trim() || 'Expected receipt'
-    const timing = getReceiptTiming(receipt)
     const dueIso =
       resolveReceiptDateKey(receipt.expectedDate, today) ??
       (receipt.expectedDate ? parsePlannedDueDateInput(receipt.expectedDate, today) : null)
@@ -227,11 +252,7 @@ function buildReceiptEvents(
 
     receiptCashDates.set(receipt.id, dueIso)
 
-    const cashAmount =
-      timing === 'accrual'
-        ? toAmount(receipt.amount)
-        : getEffectiveReceiptAmount(receipt, today)
-
+    const cashAmount = getForecastReceiptCashAmount(receipt)
     if (cashAmount <= 0) continue
 
     const eventDate = clampEventDate(dueIso, todayKey, endKey)
@@ -261,7 +282,7 @@ function projectedExpectedReceiptsAt(
     if (receipt.received) continue
     const cashDate = receiptCashDates.get(receipt.id)
     if (cashDate && dateKey >= cashDate) continue
-    total += getEffectiveReceiptAmount(receipt, referenceDate)
+    total += getForecastTrueBalanceReceiptAmount(receipt, referenceDate, cashDate)
   }
 
   return total

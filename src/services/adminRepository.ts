@@ -445,6 +445,67 @@ export async function fetchWorkspaceSummary(workspaceId: string): Promise<Worksp
   }
 }
 
+export interface WorkspaceEngagementMetrics {
+  venueCount: number
+  accountCount: number
+  commitmentCount: number
+  reservePlannerCount: number
+  lastBalanceUpdateAt: string | null
+}
+
+export async function fetchWorkspaceEngagementMetrics(
+  workspaceId: string,
+): Promise<WorkspaceEngagementMetrics> {
+  const supabase = tryGetSupabase()
+  if (!supabase) {
+    return {
+      venueCount: 0,
+      accountCount: 0,
+      commitmentCount: 0,
+      reservePlannerCount: 0,
+      lastBalanceUpdateAt: null,
+    }
+  }
+
+  const [venRes, accRes, comRes, rpRes, snapRes, accUpdatedRes] = await Promise.all([
+    supabase.from('venues').select('id', { count: 'exact', head: true }).eq('workspace_id', workspaceId),
+    supabase.from('accounts').select('id', { count: 'exact', head: true }).eq('workspace_id', workspaceId),
+    supabase.from('commitments').select('id', { count: 'exact', head: true }).eq('workspace_id', workspaceId),
+    supabase.from('reserve_planners').select('id', { count: 'exact', head: true }).eq('workspace_id', workspaceId),
+    supabase
+      .from('balance_snapshots')
+      .select('date')
+      .eq('workspace_id', workspaceId)
+      .order('date', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from('accounts')
+      .select('updated_at')
+      .eq('workspace_id', workspaceId)
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ])
+
+  const snapshotDate = snapRes.data?.date ? String(snapRes.data.date) : null
+  const accountUpdatedAt = accUpdatedRes.data?.updated_at ? String(accUpdatedRes.data.updated_at) : null
+  let lastBalanceUpdateAt: string | null = snapshotDate
+  if (accountUpdatedAt) {
+    if (!lastBalanceUpdateAt || accountUpdatedAt > lastBalanceUpdateAt) {
+      lastBalanceUpdateAt = accountUpdatedAt
+    }
+  }
+
+  return {
+    venueCount: venRes.count ?? 0,
+    accountCount: accRes.count ?? 0,
+    commitmentCount: comRes.count ?? 0,
+    reservePlannerCount: rpRes.count ?? 0,
+    lastBalanceUpdateAt,
+  }
+}
+
 export interface AuditLogRow {
   id: string
   adminEmail: string | null

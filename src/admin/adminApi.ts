@@ -7,6 +7,7 @@ import {
   fetchAdminUsers,
   fetchPayments,
   fetchRecentEvents,
+  fetchWorkspaceEngagementMetrics,
 } from '../services/adminRepository'
 import {
   getMockAnalytics,
@@ -38,6 +39,7 @@ import {
   loadAllAdminNotes,
   saveAccessOverride,
 } from './services/adminLocalStorage'
+import { computeUserHealth, isUserRecentlyActive, onboardingPctFromUser } from './utils/userHealth'
 import type {
   AdminActivityRow,
   AdminAnalyticsSnapshot,
@@ -180,7 +182,9 @@ export async function adminFetchOverview(): Promise<{
       subtitle: e.email,
       createdAt: e.createdAt,
     })),
-    usersAtRisk: [],
+    usersAtRisk: (await adminFetchUserHealth({ page: 1, pageSize: 200 }))
+      .items.filter((r) => r.riskStatus === 'high' || r.healthStatus === 'red' || r.healthStatus === 'orange')
+      .slice(0, 8),
     recentNotes: loadAllAdminNotes().slice(0, 6),
   }
 }
@@ -193,23 +197,29 @@ async function enrichUsersWithWorkspaceData(
     users.map(async (u) => {
       let businessCount = 0
       let businessNames: string[] = []
-
+      let venueCount = 0
+      let accountCount = 0
+      let commitmentCount = 0
+      let reservePlannerCount = 0
+      let lastBalanceUpdateAt: string | null = null
       let hasGroup = false
 
       if (supabase && u.workspaceId) {
-        const { data: businesses } = await supabase
-          .from('businesses')
-          .select('id, name')
-          .eq('workspace_id', u.workspaceId)
+        const [{ data: businesses }, { count: gCount }, engagement] = await Promise.all([
+          supabase.from('businesses').select('id, name').eq('workspace_id', u.workspaceId),
+          supabase.from('groups').select('id', { count: 'exact', head: true }).eq('workspace_id', u.workspaceId),
+          fetchWorkspaceEngagementMetrics(u.workspaceId),
+        ])
         if (businesses) {
           businessCount = businesses.length
           businessNames = businesses.map((b) => String(b.name))
         }
-        const { count: gCount } = await supabase
-          .from('groups')
-          .select('id', { count: 'exact', head: true })
-          .eq('workspace_id', u.workspaceId)
         hasGroup = (gCount ?? 0) > 0
+        venueCount = engagement.venueCount
+        accountCount = engagement.accountCount
+        commitmentCount = engagement.commitmentCount
+        reservePlannerCount = engagement.reservePlannerCount
+        lastBalanceUpdateAt = engagement.lastBalanceUpdateAt
       }
 
       const override = loadAccessOverride(u.id)
@@ -227,6 +237,8 @@ async function enrichUsersWithWorkspaceData(
           ? 'trialing'
           : u.subscriptionStatus
 
+      const lastLoginAt = u.lastSignInAt
+
       return {
         id: u.id,
         fullName: u.fullName,
@@ -237,16 +249,68 @@ async function enrichUsersWithWorkspaceData(
         businessCount,
         businessNames,
         workspaceName: u.workspaceName,
-        lastLoginAt: u.lastSignInAt,
-        lastBalanceUpdateAt: null,
+        lastLoginAt,
+        lastBalanceUpdateAt,
         createdAt: u.createdAt,
-        isActive: true,
+        isActive: isUserRecentlyActive(lastLoginAt, lastBalanceUpdateAt),
         lifetimeAccess: override?.lifetimeAccess ?? false,
         betaTester: override?.betaTester ?? false,
         isPlatformAdmin: u.role === 'admin' || u.role === 'super_admin',
+        venueCount,
+        accountCount,
+        commitmentCount,
+        reservePlannerCount,
+        onboardingCompleted: u.onboardingCompleted,
       }
     }),
   )
+}
+
+function buildHealthRowFromUser(u: AdminUserListItem & {
+  venueCount?: number
+  accountCount?: number
+  commitmentCount?: number
+  reservePlannerCount?: number
+  onboardingCompleted?: boolean
+}): AdminUserHealthRow {
+  const venueCount = u.venueCount ?? 0
+  const accountCount = u.accountCount ?? 0
+  const commitmentCount = u.commitmentCount ?? 0
+  const reservePlannerCount = u.reservePlannerCount ?? 0
+  const onboardingPct = onboardingPctFromUser({
+    businessCount: u.businessCount,
+    accountCount,
+    commitmentCount,
+    reservePlannerCount,
+    onboardingCompleted: u.onboardingCompleted ?? false,
+  })
+  const { healthStatus, riskStatus } = computeUserHealth({
+    lastLoginAt: u.lastLoginAt,
+    lastBalanceUpdateAt: u.lastBalanceUpdateAt,
+    onboardingPct,
+    trialEndsAt: u.trialEndsAt,
+    isActive: u.isActive,
+  })
+
+  return {
+    userId: u.id,
+    fullName: u.fullName,
+    email: u.email,
+    workspaceName: u.workspaceName ?? '—',
+    plan: u.subscriptionTier,
+    subscriptionStatus: u.subscriptionStatus,
+    trialEndsAt: u.trialEndsAt,
+    lastLoginAt: u.lastLoginAt,
+    lastBalanceUpdateAt: u.lastBalanceUpdateAt,
+    businessCount: u.businessCount,
+    venueCount,
+    accountCount,
+    commitmentCount,
+    reservePlannerCount,
+    onboardingPct,
+    healthStatus,
+    riskStatus,
+  }
 }
 
 export async function adminFetchUsers(
@@ -324,17 +388,14 @@ export async function adminFetchUserDetail(userId: string): Promise<AdminUserDet
   let commitmentCount = 0
   let expectedReceiptCount = 0
   let latestTrueBalance: number | null = null
+  let lastBalanceUpdateAt: string | null = null
 
   let hasGroup = false
 
   if (workspace?.id) {
-    const [bizRes, venRes, accRes, rpRes, comRes, recRes, snapRes, grpRes] = await Promise.all([
+    const [bizRes, engagement, snapRes, grpRes] = await Promise.all([
       supabase.from('businesses').select('id, name').eq('workspace_id', workspace.id),
-      supabase.from('venues').select('id', { count: 'exact', head: true }).eq('workspace_id', workspace.id),
-      supabase.from('accounts').select('id', { count: 'exact', head: true }).eq('workspace_id', workspace.id),
-      supabase.from('reserve_planners').select('id', { count: 'exact', head: true }).eq('workspace_id', workspace.id),
-      supabase.from('commitments').select('id', { count: 'exact', head: true }).eq('workspace_id', workspace.id),
-      supabase.from('expected_receipts').select('id', { count: 'exact', head: true }).eq('workspace_id', workspace.id),
+      fetchWorkspaceEngagementMetrics(workspace.id),
       supabase.from('balance_snapshots').select('true_balance').eq('workspace_id', workspace.id).order('date', { ascending: false }).limit(1).maybeSingle(),
       supabase.from('groups').select('id', { count: 'exact', head: true }).eq('workspace_id', workspace.id),
     ])
@@ -342,13 +403,19 @@ export async function adminFetchUserDetail(userId: string): Promise<AdminUserDet
       businessCount = bizRes.data.length
       businessNames = bizRes.data.map((b) => String(b.name))
     }
-    venueCount = venRes.count ?? 0
-    accountCount = accRes.count ?? 0
-    reservePlannerCount = rpRes.count ?? 0
-    commitmentCount = comRes.count ?? 0
-    expectedReceiptCount = recRes.count ?? 0
+    venueCount = engagement.venueCount
+    accountCount = engagement.accountCount
+    reservePlannerCount = engagement.reservePlannerCount
+    commitmentCount = engagement.commitmentCount
+    lastBalanceUpdateAt = engagement.lastBalanceUpdateAt
     latestTrueBalance = snapRes.data ? Number(snapRes.data.true_balance) : null
     hasGroup = (grpRes.count ?? 0) > 0
+    expectedReceiptCount = 0
+    const { count: recCount } = await supabase
+      .from('expected_receipts')
+      .select('id', { count: 'exact', head: true })
+      .eq('workspace_id', workspace.id)
+    expectedReceiptCount = recCount ?? 0
   }
 
   const tierFromUsage =
@@ -367,6 +434,15 @@ export async function adminFetchUserDetail(userId: string): Promise<AdminUserDet
   const resolvedLifetime = override?.lifetimeAccess ?? false
   const resolvedBeta = override?.betaTester ?? false
   const resolvedTrialEnds = override?.trialEndsAt ?? null
+  const onboardingCompleted = Boolean(profileRow.onboarding_completed)
+  const onboardingPct = onboardingPctFromUser({
+    businessCount,
+    accountCount,
+    commitmentCount,
+    reservePlannerCount,
+    onboardingCompleted,
+  })
+  const lastLoginAt = profileRow.last_sign_in_at ? String(profileRow.last_sign_in_at) : null
 
   return {
     id: String(profileRow.id),
@@ -378,17 +454,17 @@ export async function adminFetchUserDetail(userId: string): Promise<AdminUserDet
     businessCount,
     businessNames,
     workspaceName: workspace?.name ?? null,
-    lastLoginAt: profileRow.last_sign_in_at ? String(profileRow.last_sign_in_at) : null,
-    lastBalanceUpdateAt: null,
+    lastLoginAt,
+    lastBalanceUpdateAt,
     createdAt: String(profileRow.created_at ?? ''),
-    isActive: true,
+    isActive: isUserRecentlyActive(lastLoginAt, lastBalanceUpdateAt),
     lifetimeAccess: resolvedLifetime,
     betaTester: resolvedBeta,
     isPlatformAdmin: profileRow.role === 'admin' || profileRow.role === 'super_admin',
     phone: null,
     emailVerified: true,
-    onboardingCompleted: commitmentCount > 0 || reservePlannerCount > 0,
-    onboardingPct: commitmentCount > 0 && reservePlannerCount > 0 ? 100 : commitmentCount > 0 ? 75 : businessCount > 0 ? 25 : 0,
+    onboardingCompleted,
+    onboardingPct,
     workspaceId: workspace?.id ?? null,
     invitedUsers: 0,
     venueCount,
@@ -468,28 +544,7 @@ export async function adminFetchUserHealth(
   if (!supabase) return paginate([], page, pageSize)
 
   const allUsers = await adminFetchUsers({ page: 1, pageSize: 200 })
-  let rows: AdminUserHealthRow[] = allUsers.items.map((u) => {
-    const score = computeHealthScore(u)
-    return {
-      userId: u.id,
-      fullName: u.fullName,
-      email: u.email,
-      workspaceName: u.workspaceName ?? '',
-      plan: u.subscriptionTier,
-      subscriptionStatus: u.subscriptionStatus,
-      trialEndsAt: u.trialEndsAt,
-      healthStatus: (score >= 70 ? 'green' : score >= 40 ? 'amber' : 'red') as AdminUserHealthRow['healthStatus'],
-      riskStatus: (score < 40 ? 'high' : score < 70 ? 'medium' : 'low') as AdminUserHealthRow['riskStatus'],
-      lastLoginAt: u.lastLoginAt,
-      lastBalanceUpdateAt: u.lastBalanceUpdateAt,
-      businessCount: u.businessCount,
-      venueCount: 0,
-      accountCount: 0,
-      commitmentCount: 0,
-      reservePlannerCount: 0,
-      onboardingPct: u.businessCount > 0 ? 25 : 0,
-    }
-  })
+  let rows: AdminUserHealthRow[] = allUsers.items.map(buildHealthRowFromUser)
 
   const q = params.search?.trim().toLowerCase()
   if (q) {
@@ -523,16 +578,6 @@ export async function adminFetchUserHealth(
     })
   }
   return paginate(rows, page, pageSize)
-}
-
-function computeHealthScore(u: AdminUserListItem): number {
-  let score = 0
-  if (u.businessCount > 0) score += 25
-  if (u.lastLoginAt && daysSince(u.lastLoginAt) < 7) score += 30
-  else if (u.lastLoginAt && daysSince(u.lastLoginAt) < 30) score += 15
-  if (u.isActive) score += 20
-  if (u.businessCount > 1) score += 10
-  return Math.min(100, score)
 }
 
 function daysSince(dateStr: string): number {

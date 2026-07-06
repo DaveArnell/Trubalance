@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { ReferenceDateProvider, useReferenceDate } from './contexts/ReferenceDateContext'
 import { TablePreferencesProvider } from './contexts/TablePreferencesContext'
@@ -377,6 +377,19 @@ function AppShellInner({
 
   const clearTrendsFocus = () => setTrendsFocusScope(null)
 
+  const handleBalanceSave = useCallback(
+    (changes: Parameters<typeof app.saveBalanceUpdate>[2]) => {
+      const result = app.saveBalanceUpdate(app.viewScope, viewName, changes, undefined, true)
+      if (!isDemoSession && user?.id && result.snapshotted) {
+        void trackEvent('balance_update', user.id, workspaceId ?? ctxWorkspaceId ?? undefined, {
+          accounts: result.updated,
+        })
+      }
+      return result
+    },
+    [app, viewName, isDemoSession, user?.id, workspaceId, ctxWorkspaceId],
+  )
+
   const pageWidgets = useMemo(
     () =>
       buildPageWidgets(activePage, {
@@ -387,8 +400,7 @@ function AppShellInner({
         graphRange,
         setGraphRange,
         viewName,
-        onBalanceSave: (changes) =>
-          app.saveBalanceUpdate(app.viewScope, viewName, changes, undefined, true),
+        onBalanceSave: handleBalanceSave,
         activeReserveSummary,
         reserveRouteId: activeRoute.reservePlannerId,
         actions: app,
@@ -407,6 +419,7 @@ function AppShellInner({
       breakdownColumns,
       graphRange,
       viewName,
+      handleBalanceSave,
       activeReserveSummary,
       activeRoute.reservePlannerId,
       openHelp,
@@ -603,12 +616,7 @@ function AppShellInner({
               size={overviewSize}
               onSizeChange={setOverviewSize}
               readOnly={demoReadOnly}
-              onBalanceSave={
-                demoReadOnly
-                  ? undefined
-                  : (changes) =>
-                      app.saveBalanceUpdate(app.viewScope, viewName, changes, undefined, true)
-              }
+              onBalanceSave={demoReadOnly ? undefined : handleBalanceSave}
             />
           </div>
 

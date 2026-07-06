@@ -4,7 +4,6 @@ import { buildLeisureBusinessHub } from './demoBusinessHub'
 import {
   daysAheadDateKey,
   demoAccountUpdatedAt,
-  receiptDateLabel,
   todayDateKey,
 } from './dateHelpers'
 
@@ -101,9 +100,9 @@ export function buildLeisureGroupDemoState(): AppState {
       },
     ],
     expectedReceipts: [
-      { id: 'lg-r-1', name: 'Corporate event booking', amount: 2400, expectedDate: receiptDateLabel(9), scopeLevel: 'venue', scopeId: venueCity, received: false },
-      { id: 'lg-r-2', name: 'Birthday party deposit', amount: 650, expectedDate: receiptDateLabel(4), scopeLevel: 'venue', scopeId: venueRiverside, received: false },
-      { id: 'lg-r-3', name: 'School holiday block', amount: 1800, expectedDate: receiptDateLabel(18), scopeLevel: 'venue', scopeId: venueNorthgate, received: false },
+      { id: 'lg-r-1', name: 'Corporate event booking', amount: 2400, expectedDate: daysAheadDateKey(9), scopeLevel: 'venue', scopeId: venueCity, received: false },
+      { id: 'lg-r-2', name: 'Birthday party deposit', amount: 650, expectedDate: daysAheadDateKey(4), scopeLevel: 'venue', scopeId: venueRiverside, received: false },
+      { id: 'lg-r-3', name: 'School holiday block', amount: 1800, expectedDate: daysAheadDateKey(18), scopeLevel: 'venue', scopeId: venueNorthgate, received: false },
     ],
     reservePlanners: [
       {

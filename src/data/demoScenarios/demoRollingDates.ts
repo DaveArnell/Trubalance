@@ -1,5 +1,5 @@
 import type { AppState, Commitment, ExpectedReceipt } from '../../types'
-import { daysAheadDateKey, daysAgoDateKey, receiptDateLabel, todayDateKey } from './dateHelpers'
+import { daysAheadDateKey, daysAgoDateKey, todayDateKey } from './dateHelpers'
 
 /** Days ahead of “today” for each demo expected receipt (stable relative timing). */
 export const DEMO_EXPECTED_RECEIPT_DAYS_AHEAD: Readonly<Record<string, number>> = {
@@ -39,7 +39,7 @@ function rollExpectedReceipt(receipt: ExpectedReceipt, today: Date): ExpectedRec
 
   const rolled: ExpectedReceipt = {
     ...receipt,
-    expectedDate: receiptDateLabel(daysAhead, today),
+    expectedDate: daysAheadDateKey(daysAhead, today),
   }
 
   const accrualDaysAgo = DEMO_EXPECTED_RECEIPT_ACCRUAL_DAYS_AGO[receipt.id]

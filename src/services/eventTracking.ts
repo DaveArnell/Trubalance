@@ -26,3 +26,19 @@ export async function updateLastSignIn(userId: string) {
     .update({ last_sign_in_at: new Date().toISOString() })
     .eq('id', userId)
 }
+
+const SESSION_ACTIVITY_KEY = 'trubalance-session-activity'
+
+/** Record a returning session once per calendar day (login + last_sign_in_at). */
+export async function recordSessionActivity(userId: string) {
+  const today = new Date().toISOString().slice(0, 10)
+  const key = `${SESSION_ACTIVITY_KEY}:${userId}`
+  try {
+    if (sessionStorage.getItem(key) === today) return
+    sessionStorage.setItem(key, today)
+  } catch {
+    // sessionStorage unavailable — still record
+  }
+  await updateLastSignIn(userId)
+  await trackEvent('session', userId)
+}

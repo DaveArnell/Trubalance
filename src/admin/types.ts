@@ -80,6 +80,11 @@ export interface AdminUserListItem {
   lifetimeAccess: boolean
   betaTester: boolean
   isPlatformAdmin: boolean
+  venueCount?: number
+  accountCount?: number
+  commitmentCount?: number
+  reservePlannerCount?: number
+  onboardingCompleted?: boolean
 }
 
 export type HealthStatus = 'green' | 'yellow' | 'orange' | 'red'

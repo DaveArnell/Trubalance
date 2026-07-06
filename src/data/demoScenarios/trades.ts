@@ -5,7 +5,6 @@ import {
   daysAheadDateKey,
   daysAgoDateKey,
   demoAccountUpdatedAt,
-  receiptDateLabel,
   todayDateKey,
 } from './dateHelpers'
 
@@ -53,24 +52,24 @@ export function buildTradesDemoState(): AppState {
       },
     ],
     expectedReceipts: [
-      { id: 'trades-r-1', name: 'Office fit-out — stage 2', amount: 8500, expectedDate: receiptDateLabel(14), scopeLevel: 'business', scopeId: bizId, received: false },
-      { id: 'trades-r-2', name: 'Kitchen refit — final payment', amount: 1850, expectedDate: receiptDateLabel(3), scopeLevel: 'business', scopeId: bizId, received: false },
-      { id: 'trades-r-3', name: 'Warehouse conversion — deposit', amount: 12000, expectedDate: receiptDateLabel(21), scopeLevel: 'business', scopeId: bizId, received: false },
-      { id: 'trades-r-4', name: 'Bathroom refurb — balance', amount: 3200, expectedDate: receiptDateLabel(7), scopeLevel: 'business', scopeId: bizId, received: false },
+      { id: 'trades-r-1', name: 'Office fit-out — stage 2', amount: 8500, expectedDate: daysAheadDateKey(14), scopeLevel: 'business', scopeId: bizId, received: false },
+      { id: 'trades-r-2', name: 'Kitchen refit — final payment', amount: 1850, expectedDate: daysAheadDateKey(3), scopeLevel: 'business', scopeId: bizId, received: false },
+      { id: 'trades-r-3', name: 'Warehouse conversion — deposit', amount: 12000, expectedDate: daysAheadDateKey(21), scopeLevel: 'business', scopeId: bizId, received: false },
+      { id: 'trades-r-4', name: 'Bathroom refurb — balance', amount: 3200, expectedDate: daysAheadDateKey(7), scopeLevel: 'business', scopeId: bizId, received: false },
       {
         id: 'trades-r-5',
         name: 'Extension project — interim',
         amount: 14500,
-        expectedDate: receiptDateLabel(38),
+        expectedDate: daysAheadDateKey(38),
         receiptTiming: 'accrual',
         accrualStartDate: daysAgoDateKey(10),
         scopeLevel: 'business',
         scopeId: bizId,
         received: false,
       },
-      { id: 'trades-r-6', name: 'Shopfront renovation', amount: 6800, expectedDate: receiptDateLabel(52), scopeLevel: 'business', scopeId: bizId, received: false },
-      { id: 'trades-r-7', name: 'Loft conversion — stage 1', amount: 11200, expectedDate: receiptDateLabel(28), scopeLevel: 'business', scopeId: bizId, received: false },
-      { id: 'trades-r-8', name: 'Commercial maintenance contract', amount: 2400, expectedDate: receiptDateLabel(45), scopeLevel: 'business', scopeId: bizId, received: false },
+      { id: 'trades-r-6', name: 'Shopfront renovation', amount: 6800, expectedDate: daysAheadDateKey(52), scopeLevel: 'business', scopeId: bizId, received: false },
+      { id: 'trades-r-7', name: 'Loft conversion — stage 1', amount: 11200, expectedDate: daysAheadDateKey(28), scopeLevel: 'business', scopeId: bizId, received: false },
+      { id: 'trades-r-8', name: 'Commercial maintenance contract', amount: 2400, expectedDate: daysAheadDateKey(45), scopeLevel: 'business', scopeId: bizId, received: false },
     ],
     reservePlanners: [
       {

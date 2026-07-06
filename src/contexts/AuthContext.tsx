@@ -12,7 +12,7 @@ import { getSupabase, isSupabaseConfigured, tryGetSupabase } from '../lib/supaba
 import { isLocalDevMode } from '../lib/devMode'
 import { clearLocalUserData } from '../utils/localStateStorage'
 import { fetchProfile, logAdminAction, type UserProfile } from '../services/adminRepository'
-import { trackEvent, updateLastSignIn } from '../services/eventTracking'
+import { trackEvent, updateLastSignIn, recordSessionActivity } from '../services/eventTracking'
 
 const IMPERSONATE_KEY = 'trubalance-impersonate'
 
@@ -108,6 +108,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     refreshProfile()
   }, [user?.id, refreshProfile])
+
+  useEffect(() => {
+    if (!user?.id || impersonation) return
+    void recordSessionActivity(user.id)
+  }, [user?.id, impersonation])
 
   const signIn = useCallback(async (email: string, password: string) => {
     if (!isSupabaseConfigured) return { error: 'Supabase is not configured' }

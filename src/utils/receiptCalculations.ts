@@ -1,6 +1,6 @@
 import type { ExpectedReceipt } from '../types'
 import { toAmount } from './amounts'
-import { parsePlannedDueDateInput } from './plannedFunding'
+import { parsePlannedDueDateInput, formatPlannedDueDate } from './plannedFunding'
 import { getReferenceDate, dateToKey } from './referenceDate'
 
 export type ReceiptTiming = 'lump' | 'accrual'
@@ -55,6 +55,12 @@ function daysBetween(a: Date, b: Date): number {
 
 function periodFromDate(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+}
+
+/** Display stored receipt dates as e.g. 14 Jul 2026. */
+export function formatReceiptDateDisplay(value: string | undefined): string {
+  if (!value?.trim()) return ''
+  return formatPlannedDueDate(value, value)
 }
 
 export function getReceiptTiming(receipt: ExpectedReceipt): ReceiptTiming {

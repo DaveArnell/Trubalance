@@ -12,7 +12,7 @@ import { formatCurrency } from '../utils/format'
 import { DuplicateRowButton, SheetDragCell, SheetDragHeader } from './committed/shared'
 import { PlatformSheetTable, PlatformSheetWrap, ResizableSheetHeader } from './PlatformSheetWrap'
 import { RECEIPTS_COLUMNS } from '../utils/sheetColumnSpecs'
-import { normalizeReceiptDateInput, getEffectiveReceiptAmount } from '../utils/receiptCalculations'
+import { normalizeReceiptDateInput, getEffectiveReceiptAmount, formatReceiptDateDisplay } from '../utils/receiptCalculations'
 import { InlineNumberCell, InlineTextCell, ScopeSelectCell } from './SheetInlineCells'
 
 interface ExpectedReceiptsPanelProps {
@@ -195,9 +195,9 @@ export function ExpectedReceiptsPanel({
                     </td>
                     <InlineTextCell
                       cellId={`${item.id}-start`}
-                      value={item.accrualStartDate ?? ''}
+                      value={formatReceiptDateDisplay(item.accrualStartDate)}
                       isActive={activeCell === `${item.id}-start`}
-                      placeholder="e.g. 1 Jul"
+                      placeholder="e.g. 1 Jul 2026"
                       onActivate={() => tryActivate(`${item.id}-start`)}
                       onDeactivate={deactivate}
                       onSave={(accrualStartDate) =>
@@ -209,9 +209,9 @@ export function ExpectedReceiptsPanel({
                     />
                     <InlineTextCell
                       cellId={`${item.id}-expected`}
-                      value={item.expectedDate ?? ''}
+                      value={formatReceiptDateDisplay(item.expectedDate)}
                       isActive={activeCell === `${item.id}-expected`}
-                      placeholder="e.g. 31 Jul"
+                      placeholder="e.g. 31 Jul 2026"
                       onActivate={() => tryActivate(`${item.id}-expected`)}
                       onDeactivate={deactivate}
                       onSave={(expectedDate) =>

@@ -4,7 +4,6 @@ import { buildCafeBusinessHub } from './demoBusinessHub'
 import {
   daysAheadDateKey,
   demoAccountUpdatedAt,
-  receiptDateLabel,
   todayDateKey,
 } from './dateHelpers'
 
@@ -64,8 +63,8 @@ export function buildCafeDemoState(): AppState {
       },
     ],
     expectedReceipts: [
-      { id: 'cafe-r-1', name: 'Corporate catering', amount: 1200, expectedDate: receiptDateLabel(5), scopeLevel: 'business', scopeId: bizId, received: false },
-      { id: 'cafe-r-2', name: 'Market event deposit', amount: 450, expectedDate: receiptDateLabel(12), scopeLevel: 'venue', scopeId: venueMarket, received: false },
+      { id: 'cafe-r-1', name: 'Corporate catering', amount: 1200, expectedDate: daysAheadDateKey(5), scopeLevel: 'business', scopeId: bizId, received: false },
+      { id: 'cafe-r-2', name: 'Market event deposit', amount: 450, expectedDate: daysAheadDateKey(12), scopeLevel: 'venue', scopeId: venueMarket, received: false },
     ],
     reservePlanners: [
       {
