@@ -7,9 +7,9 @@ import {
   isCommitmentPaidForPeriod,
   isDismissedForPeriod,
 } from './commitmentCalculations'
-import { calculateDashboard, getAccountsForScope, getReceiptsForScope } from './calculations'
-import { parsePlannedDueDateInput } from './plannedFunding'
-import { computeCommittedFundsAt } from './metricsAtDate'
+import { calculateDashboard, getAccountsForScope, getCommitmentsForScope, getReceiptsForScope } from './calculations'
+import { getEffectiveCommittedAmount, getDueRowCommittedAmount } from './commitmentCalculations'
+import { parsePlannedDueDateInput, getPlannedCommittedAmount } from './plannedFunding'
 import {
   getEffectiveReceiptAmount,
   getReceiptTiming,
@@ -17,6 +17,8 @@ import {
 } from './receiptCalculations'
 import { getReferenceDate } from './referenceDate'
 import {
+  buildReserveAccruingRows,
+  buildReserveDueRows,
   computeReserveOperatingTransfer,
   computeReserveMonthEndBalances,
   getPlannerActualBalance,
@@ -288,6 +290,56 @@ function projectedExpectedReceiptsAt(
   return total
 }
 
+/** Planned build-up stops counting toward True Balance once cash leaves on the due date. */
+function getForecastPlannedCommittedAmount(
+  commitment: Commitment,
+  referenceDate: Date,
+  cashDateKey: string | undefined,
+): number {
+  const dateKey = isoFromDate(referenceDate)
+  if (cashDateKey && dateKey >= cashDateKey) return 0
+  return getPlannedCommittedAmount(commitment, referenceDate)
+}
+
+function collectPlannedCashDates(state: AppState, scope: ViewScope, today: Date): Map<string, string> {
+  const dates = new Map<string, string>()
+  for (const commitment of commitmentsInScope(state, scope)) {
+    if (commitment.schedule !== 'planned') continue
+    const dueIso =
+      commitment.plannedDueDate ??
+      (commitment.plannedLabel ? parsePlannedDueDateInput(commitment.plannedLabel, today) : null)
+    if (dueIso) dates.set(commitment.id, dueIso)
+  }
+  return dates
+}
+
+function projectedCommittedFundsAt(
+  state: AppState,
+  scope: ViewScope,
+  referenceDate: Date,
+  plannedCashDates: ReadonlyMap<string, string>,
+): number {
+  let total = 0
+  for (const commitment of getCommitmentsForScope(state, scope)) {
+    if (commitment.schedule === 'planned') {
+      total += getForecastPlannedCommittedAmount(
+        commitment,
+        referenceDate,
+        plannedCashDates.get(commitment.id),
+      )
+      continue
+    }
+    total += getEffectiveCommittedAmount(commitment, referenceDate)
+  }
+  for (const row of buildReserveAccruingRows(state, scope, referenceDate)) {
+    total += row.accruedAmount
+  }
+  for (const row of buildReserveDueRows(state, scope, referenceDate)) {
+    total += getDueRowCommittedAmount(row, referenceDate)
+  }
+  return total
+}
+
 function buildReserveTransferEvents(
   state: AppState,
   scope: ViewScope,
@@ -366,6 +418,7 @@ export function buildForwardCashFlowProjection(
   const openingCurrentBalance = getCurrentAccountBalance(state, scope)
   const metrics = calculateDashboard(state, scope)
   const openingTrueBalance = metrics.trueBalance
+  const plannedCashDates = collectPlannedCashDates(state, scope, today)
 
   const rawEvents: CashFlowEvent[] = []
   for (const commitment of commitmentsInScope(state, scope)) {
@@ -404,7 +457,7 @@ export function buildForwardCashFlowProjection(
     }
     const referenceDate = dateOnly(new Date(today))
     referenceDate.setDate(referenceDate.getDate() + offset)
-    const committedFunds = computeCommittedFundsAt(state, scope, referenceDate)
+    const committedFunds = projectedCommittedFundsAt(state, scope, referenceDate, plannedCashDates)
     const expectedReceipts = projectedExpectedReceiptsAt(state, scope, referenceDate, receiptCashDates)
     const trueBalance = roundCurrency(balance - committedFunds + expectedReceipts)
 
