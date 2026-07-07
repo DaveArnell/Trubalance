@@ -29,7 +29,7 @@ export function AppPage() {
     return <Navigate to="/login?redirect=/app" replace />
   }
 
-  if (remoteEnabled && wsLoading) {
+  if (remoteEnabled && wsLoading && initialRemoteState === null) {
     return (
       <div className="auth-page">
         <p className="muted">Loading your dashboard…</p>

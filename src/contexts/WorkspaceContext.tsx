@@ -23,7 +23,7 @@ import {
 import { isSupabaseConfigured } from '../lib/supabase'
 import { emptyAppState, isBuiltinDemoWorkspace, isUserOwnedWorkspace, backupBrowserStateToSession, mergeMissingExpectedReceipts } from '../utils/localStateStorage'
 import { readBrowserAppState } from '../hooks/useAppState'
-import { normalizeWorkspaceState } from '../utils/workspaceNormalize'
+import { normalizeWorkspaceStateForDisplay } from '../utils/workspaceNormalize'
 
 interface WorkspaceContextValue {
   workspaceId: string | null
@@ -44,12 +44,49 @@ interface WorkspaceContextValue {
 const WorkspaceContext = createContext<WorkspaceContextValue | null>(null)
 
 const SAVE_DEBOUNCE_MS = 400
+const LOAD_WORKSPACE_TIMEOUT_MS = 45_000
+
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = window.setTimeout(() => {
+      reject(new Error(`${label} timed out after ${ms}ms`))
+    }, ms)
+    promise.then(
+      (value) => {
+        window.clearTimeout(timer)
+        resolve(value)
+      },
+      (error) => {
+        window.clearTimeout(timer)
+        reject(error)
+      },
+    )
+  })
+}
 
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const { effectiveUserId, isImpersonating, user, configured } = useAuth()
   const [workspaceId, setWorkspaceId] = useState<string | null>(null)
-  const [loading, setLoading] = useState(configured)
-  const [initialRemoteState, setInitialRemoteState] = useState<AppState | null>(null)
+  const [loading, setLoading] = useState(() => {
+    if (!isSupabaseConfigured) return false
+    try {
+      const local = readBrowserAppState()
+      if (local && isUserOwnedWorkspace(local)) return false
+    } catch {
+      // Fall through to configured default below.
+    }
+    return configured
+  })
+  const [initialRemoteState, setInitialRemoteState] = useState<AppState | null>(() => {
+    if (!isSupabaseConfigured) return null
+    try {
+      const local = readBrowserAppState()
+      if (local && isUserOwnedWorkspace(local)) return local
+    } catch {
+      // Ignore corrupt local cache; cloud load will recover.
+    }
+    return null
+  })
   const [workspaceSubscription, setWorkspaceSubscription] = useState<WorkspaceSubscription | null>(null)
   const [remoteStateVersion, setRemoteStateVersion] = useState(0)
   const [importedFromLocal, setImportedFromLocal] = useState(false)
@@ -60,6 +97,17 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const loadedStateRef = useRef<AppState | null>(null)
   const lastPersistedStateRef = useRef<AppState | null>(null)
   const loadedForUserRef = useRef<string | null>(null)
+  const hasLoadedStateRef = useRef(
+    (() => {
+      if (!isSupabaseConfigured) return false
+      try {
+        const local = readBrowserAppState()
+        return Boolean(local && isUserOwnedWorkspace(local))
+      } catch {
+        return false
+      }
+    })(),
+  )
 
   const remoteEnabled = configured && Boolean(effectiveUserId)
   const readOnly = isImpersonating
@@ -75,21 +123,26 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       setWorkspaceSubscription(null)
       setLoading(false)
       loadedForUserRef.current = null
+      hasLoadedStateRef.current = false
       return
     }
 
     const isFirstLoadForUser = loadedForUserRef.current !== effectiveUserId
-    if (isFirstLoadForUser) {
+    const shouldShowLoading = isFirstLoadForUser && !hasLoadedStateRef.current
+    if (shouldShowLoading) {
       setLoading(true)
     }
 
     try {
+      await withTimeout(
+        (async () => {
       const wsId = await getWorkspaceIdForUser(effectiveUserId)
       setWorkspaceId(wsId)
       if (!wsId) {
         setInitialRemoteState(emptyAppState())
         setWorkspaceSubscription(null)
         loadedForUserRef.current = effectiveUserId
+        hasLoadedStateRef.current = true
         return
       }
 
@@ -140,17 +193,34 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      state = normalizeWorkspaceState(state)
+      state = normalizeWorkspaceStateForDisplay(state)
 
       loadedStateRef.current = state
       lastPersistedStateRef.current = null
 
       setInitialRemoteState(state)
       loadedForUserRef.current = effectiveUserId
-    } finally {
-      if (isFirstLoadForUser) {
-        setLoading(false)
+      hasLoadedStateRef.current = true
+        })(),
+        LOAD_WORKSPACE_TIMEOUT_MS,
+        'Workspace load',
+      )
+    } catch (error) {
+      console.error('[Workspace] Failed to load workspace', error)
+      const localState =
+        !isImpersonating && user?.id === effectiveUserId ? readBrowserAppState() : null
+      if (localState && isUserOwnedWorkspace(localState)) {
+        const fallback = normalizeWorkspaceStateForDisplay(localState)
+        loadedStateRef.current = fallback
+        setInitialRemoteState(fallback)
+        loadedForUserRef.current = effectiveUserId
+        hasLoadedStateRef.current = true
+      } else if (!hasLoadedStateRef.current) {
+        setInitialRemoteState(emptyAppState())
+        loadedForUserRef.current = effectiveUserId
       }
+    } finally {
+      setLoading(false)
       persistEnabledRef.current = true
     }
   }, [configured, effectiveUserId, isImpersonating, user?.id])
