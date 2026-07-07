@@ -203,20 +203,18 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTierId, SubscriptionTierDefi
   },
 }
 
-/** Lowest tier that covers how many businesses you have set up. */
-export function minimumTierForUsage(usage: { businesses: number }): SubscriptionTierId {
-  return tierForLimitViolation('businesses', usage.businesses) ?? 'group'
+/** Lowest tier that covers how the workspace is set up (roll-up needs Group). */
+export function minimumTierForUsage(usage: { businesses: number; hasGroup?: boolean }): SubscriptionTierId {
+  return recommendTierForWorkspace(usage)
 }
 
 /**
  * Best-fit plan for how the workspace is used.
- * Multiple companies → Business tier. Group view (rolled-up) → Group tier.
+ * Multiple companies with roll-up → Group tier.
  */
 export function recommendTierForWorkspace(usage: { businesses: number; hasGroup?: boolean }): SubscriptionTierId {
   if (usage.businesses <= 1) return 'solo'
-  if (usage.hasGroup) return 'group'
-  if (usage.businesses > 10) return 'group'
-  return 'business'
+  return 'group'
 }
 
 export function tierForLimitViolation(

@@ -6,7 +6,7 @@ export function HeroBalanceEquation() {
     <div
       className="hero-balance-equation"
       role="img"
-      aria-label="Bank account £42,500 minus accrued bills and obligations £18,200 equals True Balance £24,300"
+      aria-label="Bank balance £42,500 minus committed money £18,200 equals True Balance £24,300"
     >
       <div className="hero-balance-equation-row hero-balance-equation-row--bank">
         <div className="hero-balance-equation-term">
@@ -14,7 +14,7 @@ export function HeroBalanceEquation() {
             £
           </span>
           <div>
-            <p className="hero-balance-equation-label">Bank account</p>
+            <p className="hero-balance-equation-label">Bank balance</p>
             <p className="hero-balance-equation-hint">What your bank shows</p>
           </div>
         </div>
@@ -31,8 +31,8 @@ export function HeroBalanceEquation() {
             ▤
           </span>
           <div>
-            <p className="hero-balance-equation-label">Accrued bills &amp; obligations</p>
-            <p className="hero-balance-equation-hint">Rent, payroll, tax, subscriptions…</p>
+            <p className="hero-balance-equation-label">Committed money</p>
+            <p className="hero-balance-equation-hint">Payroll, VAT, tax, annual and quarterly bills</p>
           </div>
         </div>
         <p className="hero-balance-equation-value">£18,200</p>

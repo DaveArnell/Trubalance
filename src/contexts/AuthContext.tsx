@@ -34,6 +34,7 @@ interface AuthContextValue {
   effectiveUserId: string | null
   isImpersonating: boolean
   signIn: (email: string, password: string) => Promise<{ error: string | null }>
+  signInWithGoogle: () => Promise<{ error: string | null }>
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: string | null }>
   resetPassword: (email: string) => Promise<{ error: string | null }>
   updatePassword: (password: string) => Promise<{ error: string | null }>
@@ -128,6 +129,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: null }
   }, [])
 
+  const signInWithGoogle = useCallback(async () => {
+    if (!isSupabaseConfigured) return { error: 'Supabase is not configured' }
+    const supabase = getSupabase()
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/app`,
+      },
+    })
+    if (error) return { error: error.message }
+    return { error: null }
+  }, [])
+
   const signUp = useCallback(async (email: string, password: string, fullName: string) => {
     if (!isSupabaseConfigured) return { error: 'Supabase is not configured' }
     const supabase = getSupabase()
@@ -205,6 +219,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       effectiveUserId,
       isImpersonating,
       signIn,
+      signInWithGoogle,
       signUp,
       resetPassword,
       updatePassword,
@@ -223,6 +238,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       effectiveUserId,
       isImpersonating,
       signIn,
+      signInWithGoogle,
       signUp,
       signOut,
       startImpersonation,

@@ -102,11 +102,11 @@ export function LandingAppPreview({ variant = 'section' }: LandingAppPreviewProp
     <section className="landing-preview-section" aria-labelledby="landing-preview-heading">
       <div className="marketing-section-inner">
         <div className="marketing-section-head marketing-section-head--center">
-          <p className="marketing-eyebrow marketing-eyebrow--vivid">Inside the app</p>
-          <h2 id="landing-preview-heading">The parts that matter, not the whole dashboard</h2>
+          <p className="marketing-eyebrow marketing-eyebrow--vivid">Live demo snapshot</p>
+          <h2 id="landing-preview-heading">See available cash, not just bank balance</h2>
           <p className="marketing-section-lead">
-            The live workspace has a lot going on. On the marketing site we show individual
-            widgets, the numbers and panels owners actually use, from the Riverside Building demo.
+            A quick look at the numbers that drive decisions: bank balance, committed money, and
+            True Balance in a real demo workspace.
           </p>
         </div>
 

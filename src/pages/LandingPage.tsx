@@ -20,41 +20,41 @@ import {
 } from '../config/founderProgram'
 
 const HERO_BENEFITS = [
-  'One honest number for what you can spend.',
-  'Stay ahead of VAT, tax and large bills.',
-  'Built for owners who run the numbers themselves.',
+  'Know exactly what your business can safely spend.',
+  'Stay ahead of VAT, corporation tax and larger bills.',
+  'Stop getting caught out by irregular costs.',
 ] as const
 
 const PILLARS = [
   {
     accent: 'indigo',
-    title: 'Know what\u2019s spoken for',
-    body: 'Monthly costs accrue every day. True Balance shows what\u2019s committed and what\u2019s genuinely yours to use.',
+    title: 'Know what is already committed',
+    body: 'Payroll, tax and recurring costs build up before payment day. See committed money clearly so your available cash is always grounded in reality.',
   },
   {
     accent: 'violet',
-    title: 'Plan irregular bills',
-    body: 'VAT, tax and renewals go in Reserve Planner. It tells you how much to set aside each month before the bill lands.',
+    title: 'Stay ahead of irregular bills',
+    body: 'VAT, corporation tax, annual and quarterly bills are planned in advance so you can set money aside steadily, not scramble at the deadline.',
   },
 ] as const
 
 const FEATURES = [
   {
     icon: '◈',
-    title: 'True Balance overview',
-    body: 'One honest number across your accounts: cash minus commitments plus expected receipts.',
+    title: 'Know what is actually yours',
+    body: 'True Balance shows what is genuinely available once committed funds and expected receipts are accounted for.',
     accent: 'indigo',
   },
   {
     icon: '▤',
-    title: 'Committed funds',
-    body: 'See what is building up, due now, and still owed to you, in one place.',
+    title: 'Build financial discipline',
+    body: 'Track regular and one off costs as they build so cash decisions are based on what is real, not what the bank balance suggests.',
     accent: 'orange',
   },
   {
     icon: '◷',
-    title: 'Reserve & forecast',
-    body: 'Plan VAT and tax month by month, then look 30–90 days ahead.',
+    title: 'Manage cash with confidence',
+    body: 'Set monthly reserves for tax and larger bills, then look 30 to 90 days ahead with a clearer view of risk.',
     accent: 'violet',
   },
 ] as const
@@ -77,24 +77,6 @@ const STEPS = [
   },
 ] as const
 
-const TESTIMONIALS = [
-  {
-    quote: '£18k was already spoken for. I had no idea until True Balance showed me.',
-    name: 'James',
-    role: 'Café owner',
-  },
-  {
-    quote: 'VAT and corp tax finally feel predictable. I just follow the monthly transfer.',
-    name: 'Sarah',
-    role: 'Trades',
-  },
-  {
-    quote: 'Three sites, one dashboard. Exactly what we needed.',
-    name: 'Priya',
-    role: 'Leisure group',
-  },
-] as const
-
 export function LandingPage() {
   useEffect(() => {
     const hash = window.location.hash.replace('#', '')
@@ -114,10 +96,11 @@ export function LandingPage() {
           <div className="marketing-hero-blob marketing-hero-blob--3" aria-hidden />
           <div className="marketing-hero-inner marketing-hero-inner--pop">
             <div className="marketing-hero-copy">
-              <p className="marketing-eyebrow marketing-eyebrow--vivid">For small and medium business owners</p>
-              <h1>One finance platform for business owners.</h1>
+              <p className="marketing-eyebrow marketing-eyebrow--vivid">Business cash management</p>
+              <h1>Your bank balance is not your available cash.</h1>
               <p className="marketing-lead">
-                See what cash is really yours. Plan for tax and big bills. Stop managing from the bank balance alone.
+                True Balance works alongside your accounting software to show what money is genuinely
+                available after committed costs, tax and expected receipts are taken into account.
               </p>
               <ul className="marketing-hero-benefits">
                 {HERO_BENEFITS.map((benefit) => (
@@ -158,10 +141,10 @@ export function LandingPage() {
         <section className="marketing-position-band marketing-position-band--v2" aria-label="What True Balance is">
           <div className="marketing-position-band-inner">
             <p className="marketing-position-statement">
-              Not accounting software. A cash clarity tool for owners.
+              Not bookkeeping. Not accounting software.
             </p>
             <p className="marketing-position-detail">
-              One place to see what is spoken for, what is due, and what you can actually spend.
+              A cash management system for owners who need to know what the business can really afford.
             </p>
           </div>
         </section>
@@ -172,10 +155,10 @@ export function LandingPage() {
           <div className="marketing-section-inner">
             <div className="marketing-section-head marketing-section-head--center">
               <p className="marketing-eyebrow marketing-eyebrow--vivid">Core idea</p>
-              <h2>Two shifts that change how you manage cash</h2>
+              <h2>Know what your business can really afford</h2>
               <p className="marketing-section-lead">
-                Most owners look at the bank and guess. True Balance separates what is spoken for
-                from what you can use, and helps you plan for bills that do not land every month.
+                Most owners still keep a spreadsheet alongside accounting software for this exact
+                reason. True Balance turns that discipline into a clear daily system.
               </p>
             </div>
             <div className="marketing-pillars-grid marketing-pillars-grid--pop">
@@ -196,10 +179,10 @@ export function LandingPage() {
           <div className="marketing-section-inner">
             <div className="marketing-section-head marketing-section-head--center">
               <p className="marketing-eyebrow marketing-eyebrow--vivid">Features</p>
-              <h2>Three views that change how you manage cash</h2>
+              <h2>Three ways to stay in control of cash</h2>
               <p className="marketing-section-lead">
-                Groups, venues, trends and guided setup are there when you need them. Most
-                owners live in these three panels.
+                Focus on outcomes first: safer spending decisions, fewer surprises, and better
+                discipline around the bills that catch businesses out.
               </p>
             </div>
             <div className="marketing-feature-grid marketing-feature-grid--pop marketing-feature-grid--compact">
@@ -214,26 +197,6 @@ export function LandingPage() {
                   <h3>{feature.title}</h3>
                   <p>{feature.body}</p>
                 </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="marketing-testimonials marketing-testimonials--pop" aria-label="What owners say">
-          <div className="marketing-section-inner">
-            <div className="marketing-section-head marketing-section-head--center marketing-section-head--on-dark">
-              <p className="marketing-eyebrow marketing-eyebrow--light-on-dark">Real businesses</p>
-              <h2>Owners who stopped guessing</h2>
-            </div>
-            <div className="marketing-testimonials-grid">
-              {TESTIMONIALS.map((item) => (
-                <blockquote key={item.name} className="marketing-testimonial-card marketing-testimonial-card--pop">
-                  <p>&ldquo;{item.quote}&rdquo;</p>
-                  <footer>
-                    <strong>{item.name}</strong>
-                    <span>{item.role}</span>
-                  </footer>
-                </blockquote>
               ))}
             </div>
           </div>
@@ -273,8 +236,23 @@ export function LandingPage() {
                 Open demo
               </Link>
               <Link to="/blog" className="btn-secondary btn-large">
-                Cash flow guides
+                Business finance articles
               </Link>
+            </div>
+          </div>
+        </section>
+
+        <section className="marketing-company-band" aria-label="Why True Balance exists">
+          <div className="marketing-section-inner">
+            <div className="marketing-section-head marketing-section-head--center">
+              <p className="marketing-eyebrow marketing-eyebrow--vivid">Why this exists</p>
+              <h2>Built from real business experience</h2>
+              <p className="marketing-section-lead">
+                For over 17 years I have run businesses and, despite using accounting software, I still
+                relied on a spreadsheet I built myself to make day to day decisions. It answered the
+                questions I actually needed: what is committed, what is genuinely available, and what we
+                can safely afford next. True Balance is that system rebuilt as modern software.
+              </p>
             </div>
           </div>
         </section>
@@ -290,7 +268,7 @@ export function LandingPage() {
         <section className="marketing-cta-band marketing-cta-band--pop">
           <div className="marketing-cta-band-inner">
             <h2>Ready to see what is actually yours?</h2>
-            <p>{FOUNDER_PROGRAM_HEADLINE}. Help us improve True Balance. No payment details required.</p>
+            <p>{FOUNDER_PROGRAM_HEADLINE}. Help shape True Balance before public launch.</p>
             <div className="marketing-cta-row marketing-cta-row--center">
               <Link to="/signup" className="btn-primary btn-large marketing-cta-btn-on-dark">
                 Claim your spot

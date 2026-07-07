@@ -435,26 +435,21 @@ function MonthChart({
 }) {
   const marks = [1, 7, 14, 21, 28, 30]
 
-  const { bankPath, truthPath, accruedPath, headBank, headTruth, headAccrued, accruedNow } =
+  const { bankPath, truthPath, headBank, headTruth } =
     useMemo(() => {
-      const { bankSeries, truthSeries, accruedSeries } = buildSmoothChartPaths(day)
+      const { bankSeries, truthSeries } = buildSmoothChartPaths(day)
       const bankNow = interpolateSeriesAtDay(MONTH_SERIES.bank, day)
       const truthNow = interpolateSeriesAtDay(MONTH_SERIES.truth, day)
-      const accruedNowVal = interpolateSeriesAtDay(MONTH_SERIES.accrued, day)
 
       const bx = dayToX(day)
       const bankY = valueToY(bankNow, MONTH_SERIES.min, MONTH_SERIES.max)
       const truthY = valueToY(truthNow, MONTH_SERIES.min, MONTH_SERIES.max)
-      const accY = valueToY(accruedNowVal, MONTH_SERIES.min, MONTH_SERIES.max)
 
       return {
         bankPath: seriesToPoints(bankSeries, day, MONTH_SERIES.min, MONTH_SERIES.max),
         truthPath: seriesToPoints(truthSeries, day, MONTH_SERIES.min, MONTH_SERIES.max),
-        accruedPath: seriesToPoints(accruedSeries, day, MONTH_SERIES.min, MONTH_SERIES.max),
         headBank: { x: bx, y: bankY },
         headTruth: { x: bx, y: truthY },
-        headAccrued: { x: bx, y: accY },
-        accruedNow: accruedNowVal,
       }
     }, [day])
 
@@ -479,7 +474,6 @@ function MonthChart({
           Day
         </text>
 
-        <polyline className="hero-month-line hero-month-line--accrued" points={accruedPath} />
         <polyline className="hero-month-line hero-month-line--bank" points={bankPath} />
         <polyline className="hero-month-line hero-month-line--true" points={truthPath} />
 
@@ -493,14 +487,9 @@ function MonthChart({
           />
         )}
 
-        <circle cx={headAccrued.x} cy={headAccrued.y} r={3} className="hero-month-dot hero-month-dot--accrued" />
         <circle cx={headBank.x} cy={headBank.y} r={4} className="hero-month-dot hero-month-dot--bank" />
         <circle cx={headTruth.x} cy={headTruth.y} r={3.5} className="hero-month-dot hero-month-dot--true" />
       </svg>
-
-      <p className="hero-chart-accrued-now muted">
-        Accrued costs: <strong>{formatGbp(accruedNow)}</strong>
-      </p>
     </div>
   )
 }
@@ -514,11 +503,11 @@ export function HeroBalanceVisual() {
     [day, poppingId, dueRows, paidBillIds, paymentDayByBill],
   )
 
-  const { bank: bankNow, truth: trueNow, accruing: accruingNow } = useMemo(
+  const { bank: bankNow, truth: trueNow, committed: committedNow } = useMemo(
     () => ({
       bank: interpolateSeriesAtDay(MONTH_SERIES.bank, day),
       truth: interpolateSeriesAtDay(MONTH_SERIES.truth, day),
-      accruing: interpolateSeriesAtDay(MONTH_SERIES.accrued, day),
+      committed: interpolateSeriesAtDay(MONTH_SERIES.accrued, day),
     }),
     [day],
   )
@@ -559,8 +548,8 @@ export function HeroBalanceVisual() {
             <p className="hero-graph-stat-value">{formatGbp(bankNow)}</p>
           </div>
           <div className="hero-graph-stat hero-graph-stat--accrued">
-            <p className="hero-graph-stat-label">Accrued costs</p>
-            <p className="hero-graph-stat-value">{formatGbp(accruingNow)}</p>
+            <p className="hero-graph-stat-label">Committed money</p>
+            <p className="hero-graph-stat-value">{formatGbp(committedNow)}</p>
           </div>
           <div className="hero-graph-stat hero-graph-stat--true">
             <p className="hero-graph-stat-label">True Balance</p>

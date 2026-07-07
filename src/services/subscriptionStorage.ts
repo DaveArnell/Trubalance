@@ -38,6 +38,6 @@ export function buildUsageFromAppState(state: AppState, userCount = 1): Workspac
     reservePlanners: state.reservePlanners.length,
     commitments: state.commitments.length,
     expectedReceipts: state.expectedReceipts.length,
-    hasGroup: state.groups.length > 0 && state.businesses.length > 1,
+    hasGroup: state.businesses.length > 1,
   }
 }

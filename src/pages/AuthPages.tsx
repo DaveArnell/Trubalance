@@ -45,7 +45,7 @@ function AuthAside({ mode }: { mode: 'login' | 'signup' }) {
 }
 
 export function AuthForm({ mode }: AuthFormProps) {
-  const { signIn, signUp } = useAuth()
+  const { signIn, signInWithGoogle, signUp } = useAuth()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const [email, setEmail] = useState('')
@@ -125,6 +125,25 @@ export function AuthForm({ mode }: AuthFormProps) {
       </p>
 
       <form className="auth-form" onSubmit={onSubmit}>
+        <button
+          type="button"
+          className="btn-secondary btn-large auth-submit"
+          disabled={loading}
+          onClick={async () => {
+            setError(null)
+            setLoading(true)
+            try {
+              const result = await signInWithGoogle()
+              if (result.error) setError(result.error)
+            } finally {
+              setLoading(false)
+            }
+          }}
+        >
+          Continue with Google
+        </button>
+        <p className="auth-legal muted">or use your email and password</p>
+
         {mode === 'signup' && (
           <label className="auth-field">
             <span>Full name</span>

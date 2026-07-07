@@ -1,10 +1,10 @@
-/** First N cloud signups receive lifetime access (no billing). */
+/** Founding Members program limit before public launch. */
 export const FOUNDER_LIFETIME_SIGNUP_LIMIT = 50
 
-export const FOUNDER_PROGRAM_HEADLINE = 'First 50 signups get lifetime free access'
+export const FOUNDER_PROGRAM_HEADLINE = 'Founding Members'
 
 export const FOUNDER_PROGRAM_BODY =
-  'Help shape True Balance while we are in early access. Full features, no subscription, forever — for the first 50 accounts.'
+  'We are looking for the first 50 businesses to help shape True Balance before public launch. Founding Members get lifetime access, direct input into future features, early access to new releases, and personal onboarding support.'
 
 export const FOUNDER_PROGRAM_FOOTNOTE =
-  'After the first 50 signups, new accounts get a 3-month free trial as usual.'
+  'Limited to the first 50 businesses.'

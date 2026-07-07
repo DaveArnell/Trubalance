@@ -1,7 +1,7 @@
 import type { Commitment, CommitmentAccruingRow, CommitmentDueRow, CommitmentViews, DueRowKind, DueRowSection, HealthLevel, StatusColor } from '../types'
 import { roundCurrency, toAmount } from './amounts'
 import { sortByOrder } from './sortOrder'
-import { getPlannedCommittedAmount, getPlannedDueTimingOffset, isPlannedDueAttentionDismissed, parsePlannedDueDateInput } from './plannedFunding'
+import { getPlannedCommittedAmount, getPlannedDueTimingOffset, isPlannedDismissedFromDue, isPlannedDueAttentionDismissed, parsePlannedDueDateInput } from './plannedFunding'
 import { getReferenceDate, getReferenceDateKey, dateToKey } from './referenceDate'
 import { formatCurrency, MONTHS } from './format'
 
@@ -988,7 +988,9 @@ export function buildCommitmentViews(
   // Monthly costs always stay in the monthly table — they keep accruing each cycle.
   const buildingUp: CommitmentAccruingRow[] = [...commitmentBuilding, ...reserveRows]
 
-  const plannedDueRows: CommitmentDueRow[] = planned.map((commitment) => ({
+  const plannedDueRows: CommitmentDueRow[] = planned
+    .filter((commitment) => !isPlannedDismissedFromDue(commitment))
+    .map((commitment) => ({
     id: `planned-${commitment.id}`,
     commitment,
     amount: toAmount(commitment.amount),

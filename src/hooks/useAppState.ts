@@ -50,7 +50,7 @@ import { applySnapshotMetricCorrection } from '../utils/snapshotCorrections'
 import type { HistoryMetricKey } from '../utils/historyTable'
 import { todayDateKey, getFreshness } from '../utils/snapshots'
 import { MONTHS, currentMonthIndex } from '../utils/format'
-import { backupBrowserStateToSession, readRawBrowserStateJson, statesMatchRoughly } from '../utils/localStateStorage'
+import { backupBrowserStateToSession, isUserOwnedWorkspace, readRawBrowserStateJson, statesMatchRoughly } from '../utils/localStateStorage'
 import { normalizeWorkspaceState } from '../utils/workspaceNormalize'
 import { DIARY_REMINDER_TEMPLATES } from '../content/businessHub'
 import { filterRemindersForScope, getDiaryAttentionBuckets, templateToNextDate } from '../utils/businessHub'
@@ -259,6 +259,23 @@ function loadState(): AppState {
   return normalizeWorkspaceState(readBrowserAppState() ?? initialState)
 }
 
+function resolveInitialAppState(options?: UseAppStateOptions): AppState {
+  if (options?.remotePersist) {
+    const local = readBrowserAppState()
+    if (local && isUserOwnedWorkspace(local)) {
+      return normalizeWorkspaceState(cloneState(local))
+    }
+    if (options.externalState) {
+      return normalizeWorkspaceState(cloneState(options.externalState))
+    }
+    return loadState()
+  }
+  if (options?.externalState) {
+    return normalizeWorkspaceState(cloneState(options.externalState))
+  }
+  return loadState()
+}
+
 export interface BalanceSaveChange {
   accountId: string
   balance: number
@@ -278,7 +295,7 @@ export interface UseAppStateOptions {
   workspaceId?: string | null
   externalLoading?: boolean
   /** Called after each state change (e.g. sync to Supabase). */
-  onStateChange?: (state: AppState) => void
+  onStateChange?: (state: AppState, options?: { immediate?: boolean }) => void
   /** When true, skip localStorage writes (cloud-backed session). */
   remotePersist?: boolean
   /** When true, never write demo/session data to localStorage. */
@@ -289,14 +306,9 @@ export interface UseAppStateOptions {
 }
 
 export function useAppState(options?: UseAppStateOptions) {
-  const [state, setState] = useState<AppState>(() => {
-    if (options?.externalState) {
-      return normalizeWorkspaceState(cloneState(options.externalState))
-    }
-    return loadState()
-  })
+  const [state, setState] = useState<AppState>(() => resolveInitialAppState(options))
   const [viewScope, setViewScope] = useState<ViewScope>(() => {
-    const initial = options?.externalState ?? loadState()
+    const initial = options?.externalState ?? readBrowserAppState() ?? initialState
     return resolveDefaultViewScope(initial, options?.defaultViewScope ?? defaultViewScope)
   })
   const [canUndo, setCanUndo] = useState(false)
@@ -308,12 +320,17 @@ export function useAppState(options?: UseAppStateOptions) {
   const externalStateRef = useRef(options?.externalState)
   externalStateRef.current = options?.externalState
   const lastHydrateKeyRef = useRef<string | null>(null)
+  const prevWorkspaceIdRef = useRef<string | null | undefined>(undefined)
+  const persistImmediateRef = useRef(false)
 
   useEffect(() => {
     if (!options?.remotePersist) {
       remoteHydratedRef.current = true
       return
     }
+    const workspaceId = options?.workspaceId ?? null
+    if (prevWorkspaceIdRef.current === workspaceId) return
+    prevWorkspaceIdRef.current = workspaceId
     remoteHydratedRef.current = false
     lastHydrateKeyRef.current = null
   }, [options?.remotePersist, options?.workspaceId])
@@ -323,9 +340,20 @@ export function useAppState(options?: UseAppStateOptions) {
     const external = externalStateRef.current
     if (!external) return
 
-    const hydrateKey = `${options?.workspaceId ?? 'local'}:${options?.externalStateVersion ?? 0}`
+    const version = options?.externalStateVersion ?? 0
+    const hydrateKey = `${options?.workspaceId ?? 'local'}:${version}`
     if (lastHydrateKeyRef.current === hydrateKey) return
     lastHydrateKeyRef.current = hydrateKey
+
+    // Initial app load uses resolveInitialAppState (localStorage when present). Only
+    // replace in-memory state when the cloud workspace is explicitly replaced (restore/import).
+    const isExplicitRemoteReplace =
+      version !== 0 && version !== '0' || Boolean(options?.defaultViewScope)
+    if (!isExplicitRemoteReplace) {
+      remoteHydratedRef.current = true
+      skipPersistRef.current = true
+      return
+    }
 
     const next = normalizeWorkspaceState(cloneState(external))
     setState(next)
@@ -364,7 +392,9 @@ export function useAppState(options?: UseAppStateOptions) {
     if (options?.remotePersist && !remoteHydratedRef.current) return
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
     if (options?.remotePersist) {
-      options.onStateChange?.(state)
+      const immediate = persistImmediateRef.current
+      persistImmediateRef.current = false
+      options.onStateChange?.(state, { immediate })
     }
   }, [state, options?.remotePersist, options?.onStateChange, options?.skipLocalPersist])
 
@@ -426,8 +456,20 @@ export function useAppState(options?: UseAppStateOptions) {
   }, [state])
 
   // Groups
-  const addGroup = (name: string) =>
-    update((s) => ({ ...s, groups: [...s.groups, { id: newId(), name }] }))
+  const addGroup = (name: string) => {
+    let targetGroupId = ''
+    update((s) => {
+      const groupId = s.groups.length === 0 ? newId() : s.groups[0]!.id
+      targetGroupId = groupId
+      const groups =
+        s.groups.length === 0 ? [{ id: groupId, name }] : s.groups
+      const businesses = s.businesses.map((business) => ({ ...business, groupId }))
+      return { ...s, groups, businesses }
+    })
+    if (targetGroupId) {
+      setViewScope({ type: 'group', id: targetGroupId })
+    }
+  }
 
   const renameGroup = (id: string, name: string) =>
     update((s) => ({ ...s, groups: s.groups.map((g) => (g.id === id ? { ...g, name } : g)) }))
@@ -464,6 +506,9 @@ export function useAppState(options?: UseAppStateOptions) {
     update((s) => ({
       ...s,
       groups: s.groups.filter((g) => g.id !== id),
+      businesses: s.businesses.map((business) =>
+        business.groupId === id ? { ...business, groupId: `ungrouped-${business.id}` } : business,
+      ),
     }))
 
   // Businesses
@@ -597,6 +642,7 @@ export function useAppState(options?: UseAppStateOptions) {
     if (changes.length === 0) return { updated: 0, snapshotted: false }
 
     let result: BalanceSaveResult = { updated: 0, snapshotted: false }
+    requestImmediatePersist()
 
     setState((s) => {
       const now = new Date().toISOString()
@@ -725,7 +771,12 @@ export function useAppState(options?: UseAppStateOptions) {
       )
     })
 
-  const markCommitmentPaid = (id: string, paidAmount?: number) =>
+  const requestImmediatePersist = () => {
+    persistImmediateRef.current = true
+  }
+
+  const markCommitmentPaid = (id: string, paidAmount?: number) => {
+    requestImmediatePersist()
     update((s) => {
       const commitment = s.commitments.find((c) => c.id === id)
       if (!commitment) return s
@@ -783,8 +834,10 @@ export function useAppState(options?: UseAppStateOptions) {
         new Date().toISOString(),
       )
     })
+  }
 
-  const dismissCommitmentDue = (id: string) =>
+  const dismissCommitmentDue = (id: string) => {
+    requestImmediatePersist()
     update((s) => {
       const commitment = s.commitments.find((c) => c.id === id)
       if (!commitment) return s
@@ -807,6 +860,7 @@ export function useAppState(options?: UseAppStateOptions) {
         }),
       }
     })
+  }
 
   const acknowledgeCommitmentDueAlert = (id: string, period?: string) =>
     update((s) => {
@@ -834,7 +888,8 @@ export function useAppState(options?: UseAppStateOptions) {
       }
     })
 
-  const deleteCommitment = (id: string) =>
+  const deleteCommitment = (id: string) => {
+    requestImmediatePersist()
     update((s) => {
       const existing = s.commitments.find((c) => c.id === id)
       if (!existing) return s
@@ -850,6 +905,7 @@ export function useAppState(options?: UseAppStateOptions) {
         new Date().toISOString(),
       )
     })
+  }
 
   const duplicateCommitment = (id: string) =>
     update((s) => {
@@ -1196,7 +1252,8 @@ export function useAppState(options?: UseAppStateOptions) {
       return { ...s, commitments, reservePlanners }
     })
 
-  const markReserveBillPaid = (plannerId: string, billId: string) =>
+  const markReserveBillPaid = (plannerId: string, billId: string) => {
+    requestImmediatePersist()
     update((s) => {
       const planner = s.reservePlanners.find((p) => p.id === plannerId)
       const bill = planner?.bills.find((b) => b.id === billId)
@@ -1235,8 +1292,10 @@ export function useAppState(options?: UseAppStateOptions) {
         new Date().toISOString(),
       )
     })
+  }
 
-  const dismissReserveBillDue = (plannerId: string, billId: string) =>
+  const dismissReserveBillDue = (plannerId: string, billId: string) => {
+    requestImmediatePersist()
     update((s) => {
       const bill = s.reservePlanners
         .find((p) => p.id === plannerId)
@@ -1259,6 +1318,7 @@ export function useAppState(options?: UseAppStateOptions) {
         }),
       }
     })
+  }
 
   const acknowledgeReserveBillDueAlert = (plannerId: string, billId: string, period?: string) =>
     update((s) => {

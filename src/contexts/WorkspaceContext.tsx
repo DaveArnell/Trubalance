@@ -33,7 +33,7 @@ interface WorkspaceContextValue {
   importedFromLocal: boolean
   remoteStateVersion: number
   reload: () => Promise<void>
-  persistState: (state: AppState) => void
+  persistState: (state: AppState, options?: { immediate?: boolean }) => void
   cancelPendingPersist: () => void
   initialRemoteState: AppState | null
   workspaceSubscription: WorkspaceSubscription | null
@@ -181,13 +181,18 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       }),
     })
     lastPersistedStateRef.current = state
+    setInitialRemoteState(state)
   }, [workspaceId, readOnly])
 
   const persistState = useCallback(
-    (state: AppState) => {
+    (state: AppState, options?: { immediate?: boolean }) => {
       if (!remoteEnabled || readOnly || !workspaceId || !persistEnabledRef.current) return
       pendingStateRef.current = state
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+      if (options?.immediate) {
+        void flushSave()
+        return
+      }
       saveTimerRef.current = setTimeout(() => {
         flushSave()
       }, SAVE_DEBOUNCE_MS)

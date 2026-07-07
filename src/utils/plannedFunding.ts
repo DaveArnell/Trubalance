@@ -100,6 +100,13 @@ export function isPlannedDueAttentionDismissed(commitment: Commitment): boolean 
   return commitment.acknowledgedDuePeriods?.includes(period) ?? false
 }
 
+/** Planned costs removed from Due via dismiss or delete should stay hidden. */
+export function isPlannedDismissedFromDue(commitment: Commitment): boolean {
+  const period = getPlannedDueDismissPeriod(commitment)
+  if (!period) return false
+  return commitment.dismissedDuePeriods?.includes(period) ?? false
+}
+
 export function getPlannedFundingStartDate(commitment: Commitment, referenceDate: Date = getReferenceDate()): Date {
   if (commitment.fundingStartDate) {
     const parsed = parseIsoDate(commitment.fundingStartDate)
