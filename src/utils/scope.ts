@@ -130,7 +130,14 @@ function scopeExistsInState(state: AppState, scope: ViewScope): boolean {
   return state.venues.some((venue) => venue.id === scope.id)
 }
 
-function scopesMatch(a: ViewScope, b: ViewScope): boolean {
+export function isViewScopeValid(state: AppState, scope: ViewScope): boolean {
+  if (!scope.id) {
+    return state.businesses.length === 0 && state.groups.length === 0 && state.venues.length === 0
+  }
+  return scopeExistsInState(state, scope)
+}
+
+export function scopesMatch(a: ViewScope, b: ViewScope): boolean {
   return a.type === b.type && a.id === b.id
 }
 

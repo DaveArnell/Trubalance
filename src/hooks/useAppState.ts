@@ -16,7 +16,7 @@ import type {
   SnapshotAccountChange,
   ViewScope,
 } from '../types'
-import { isCommitmentScopeAllowed, isValidScopeReference, getScopeLabel, resolveDefaultViewScope } from '../utils/scope'
+import { isCommitmentScopeAllowed, isValidScopeReference, getScopeLabel, resolveDefaultViewScope, isViewScopeValid, scopesMatch } from '../utils/scope'
 import { applySnapshotRollup, backfillScopeSnapshots, buildSnapshotAccountChange, getScopesForCommitment, getScopesForReceipt, getScopesForReservePlanner, refreshSnapshotsForScopes } from '../utils/snapshotRollup'
 import {
   getCommitmentHistoricCorrectionFromDateKey,
@@ -371,12 +371,24 @@ export function useAppState(options?: UseAppStateOptions) {
   }, [options?.externalStateVersion, options?.workspaceId, options?.externalLoading, options?.defaultViewScope])
 
   useEffect(() => {
-    const scopeValid =
-      (viewScope.type === 'group' && state.groups.some((group) => group.id === viewScope.id)) ||
-      (viewScope.type === 'business' && state.businesses.some((business) => business.id === viewScope.id)) ||
-      (viewScope.type === 'venue' && state.venues.some((venue) => venue.id === viewScope.id))
-    if (!scopeValid) {
-      setViewScope(resolveDefaultViewScope(state, options?.defaultViewScope))
+    let next = viewScope
+
+    if (!isViewScopeValid(state, viewScope)) {
+      next = resolveDefaultViewScope(state, options?.defaultViewScope)
+    } else if (viewScope.type === 'group') {
+      const groupExists = state.groups.some((group) => group.id === viewScope.id)
+      if (!groupExists && state.businesses.length > 0) {
+        next = { type: 'business', id: state.businesses[0]!.id }
+      } else if (groupExists) {
+        const inGroup = state.businesses.filter((business) => business.groupId === viewScope.id)
+        if (inGroup.length === 1) {
+          next = { type: 'business', id: inGroup[0]!.id }
+        }
+      }
+    }
+
+    if (isViewScopeValid(state, next) && !scopesMatch(next, viewScope)) {
+      setViewScope(next)
     }
   }, [state, viewScope, options?.defaultViewScope])
 
@@ -397,20 +409,6 @@ export function useAppState(options?: UseAppStateOptions) {
       options.onStateChange?.(state, { immediate })
     }
   }, [state, options?.remotePersist, options?.onStateChange, options?.skipLocalPersist])
-
-  useEffect(() => {
-    if (viewScope.type === 'group') {
-      const groupExists = state.groups.some((g) => g.id === viewScope.id)
-      if (!groupExists && state.businesses.length > 0) {
-        setViewScope({ type: 'business', id: state.businesses[0].id })
-      } else if (groupExists) {
-        const inGroup = state.businesses.filter((business) => business.groupId === viewScope.id)
-        if (inGroup.length === 1) {
-          setViewScope({ type: 'business', id: inGroup[0]!.id })
-        }
-      }
-    }
-  }, [state.groups, state.businesses, viewScope])
 
   const pushUndo = useCallback((snapshot: AppState) => {
     undoStackRef.current = [...undoStackRef.current.slice(-(MAX_UNDO - 1)), cloneState(snapshot)]
