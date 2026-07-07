@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { AppState, BalanceSnapshot, GraphRange, ViewScope } from '../types'
-import { CHART_COLORS, chartDashArrayForLevel, chartDotRadiusForLevel, chartStrokeWidthForLevel, getChartScopeOptions, scopeKey } from '../utils/chartScopes'
+import { chartDashArrayForLevel, chartDotRadiusForLevel, chartStrokeWidthForLevel, getChartScopeOptions, scopeKey } from '../utils/chartScopes'
+import { chartColorForScope } from '../utils/businessTheme'
 import type { ChartScopeLevel } from '../utils/chartScopes'
 import { computeNiceTicks, computeTrendYDomain, formatAxisCurrency, isChartZeroTick } from '../utils/chartFormat'
 import { formatCurrency, getCurrencySymbol } from '../utils/format'
@@ -226,7 +227,7 @@ export function TrendChart({
           scopeLevel: opt.level,
           metric,
           label,
-          color: multiMetric ? METRIC_COLORS[metric] : CHART_COLORS[scopeIdx % CHART_COLORS.length],
+          color: multiMetric ? METRIC_COLORS[metric] : chartColorForScope(state, opt.scope, scopeIdx),
           strokeWidth: chartStrokeWidthForLevel(opt.level),
           dashArray: chartDashArrayForLevel(opt.level, multiMetric, multiScope, scopeIdx),
           points: [],
@@ -903,7 +904,7 @@ export function TrendChart({
                 />
                 <span
                   className="chart-scope-swatch"
-                  style={{ background: CHART_COLORS[idx % CHART_COLORS.length] }}
+                  style={{ background: chartColorForScope(state, opt.scope, idx) }}
                 />
                 <span className="chart-scope-name">{opt.label}</span>
               </label>
@@ -1004,7 +1005,7 @@ export function TrendChart({
               />
               <span
                 className="trends-chart-scope-swatch"
-                style={{ background: CHART_COLORS[idx % CHART_COLORS.length] }}
+                style={{ background: chartColorForScope(state, opt.scope, idx) }}
                 aria-hidden
               />
               <span className="trends-chart-scope-name">{opt.label}</span>

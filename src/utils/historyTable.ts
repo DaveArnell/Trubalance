@@ -1,5 +1,6 @@
 import type { AppState, BalanceSnapshot, GraphRange, HistoryGranularity, ViewScope } from '../types'
-import { CHART_COLORS, getChartScopeOptions, scopeKey, type ChartScopeOption } from './chartScopes'
+import { getChartScopeOptions, scopeKey, type ChartScopeOption } from './chartScopes'
+import { chartColorForScope, getGroupAccentColor } from './businessTheme'
 import { hasSharedScopeCosts } from './breakdownTable'
 import { getScopeLabel } from './scope'
 import { roundCurrency } from './amounts'
@@ -86,7 +87,7 @@ export function getHistoryColumns(state: AppState, viewScope: ViewScope): Histor
         key: col.key,
         label: col.label,
         level: col.level,
-        color: CHART_COLORS[0],
+        color: chartColorForScope(state, col.scope),
         isTotal: true,
       },
     ]
@@ -102,7 +103,7 @@ export function getHistoryColumns(state: AppState, viewScope: ViewScope): Histor
       key: col.key,
       label: col.label,
       level: col.level,
-      color: CHART_COLORS[0],
+      color: chartColorForScope(state, col.scope),
       isTotal: true,
     }]
   }
@@ -111,7 +112,7 @@ export function getHistoryColumns(state: AppState, viewScope: ViewScope): Histor
     key: col.key,
     label: col.label,
     level: col.level,
-    color: CHART_COLORS[(idx + 1) % CHART_COLORS.length],
+    color: chartColorForScope(state, col.scope, idx + 1),
     isTotal: false,
   }))
 
@@ -120,7 +121,7 @@ export function getHistoryColumns(state: AppState, viewScope: ViewScope): Histor
       key: sharedColumnKey(viewScope),
       label: 'GROUP',
       level: viewScope.type,
-      color: CHART_COLORS[(details.length + 1) % CHART_COLORS.length],
+      color: getGroupAccentColor(state, viewScope.id),
       isTotal: false,
       isShared: true,
     })
@@ -130,7 +131,7 @@ export function getHistoryColumns(state: AppState, viewScope: ViewScope): Histor
     key: totalKey,
     label: viewScope.type === 'group' ? 'Total' : getScopeLabel(state, viewScope),
     level: viewScope.type,
-    color: CHART_COLORS[0],
+    color: chartColorForScope(state, viewScope),
     isTotal: true,
   })
 

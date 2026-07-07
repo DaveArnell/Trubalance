@@ -113,3 +113,19 @@ export function businessAccentForScope(state: AppState, scope: ViewScope): strin
   if (!businessId) return null
   return getBusinessAccentColor(state, businessId)
 }
+
+/** Chart line / swatch colour for a scope (group, business, or venue). */
+export function chartColorForScope(state: AppState, scope: ViewScope, fallbackIndex = 0): string {
+  if (scope.type === 'group') {
+    return getGroupAccentColor(state, scope.id)
+  }
+  if (scope.type === 'business') {
+    return getBusinessAccentColor(state, scope.id)
+  }
+  const venue = state.venues.find((entry) => entry.id === scope.id)
+  if (venue) {
+    if (isValidAccentColor(venue.accentColor)) return venue.accentColor
+    return getBusinessAccentColor(state, venue.businessId)
+  }
+  return BUSINESS_ACCENT_COLORS[Math.max(0, fallbackIndex) % BUSINESS_ACCENT_COLORS.length]!
+}
