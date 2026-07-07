@@ -308,7 +308,7 @@ export interface UseAppStateOptions {
 export function useAppState(options?: UseAppStateOptions) {
   const [state, setState] = useState<AppState>(() => resolveInitialAppState(options))
   const [viewScope, setViewScope] = useState<ViewScope>(() => {
-    const initial = options?.externalState ?? readBrowserAppState() ?? initialState
+    const initial = resolveInitialAppState(options)
     return resolveDefaultViewScope(initial, options?.defaultViewScope ?? defaultViewScope)
   })
   const [canUndo, setCanUndo] = useState(false)

@@ -15655,6 +15655,36 @@ tr.sheet-row--received td {
   margin-top: var(--space-3);
 }
 
+.data-export-danger-zone {
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid color-mix(in srgb, var(--status-red-text) 35%, transparent);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--status-red-text) 6%, transparent);
+}
+
+.data-export-danger-zone h3 {
+  margin: 0 0 var(--space-2);
+  font-size: 1rem;
+}
+
+.data-export-delete-confirm {
+  display: grid;
+  gap: var(--space-1);
+  max-width: 220px;
+  margin: var(--space-3) 0;
+}
+
+.data-export-danger-zone .admin-danger-btn,
+.admin-danger-btn {
+  color: #fca5a5 !important;
+}
+
+.admin-delete-error {
+  margin-top: var(--space-2);
+  color: var(--status-red-text);
+}
+
 /* Bank statement import wizard */
 .bank-import {
   margin-bottom: var(--space-5);

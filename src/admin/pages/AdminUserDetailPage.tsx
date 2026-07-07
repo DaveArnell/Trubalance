@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   adminCreateAdminNote,
+  adminDeleteUser,
   adminFetchAccessOverride,
   adminFetchAdminNotes,
   adminFetchUserDetail,
@@ -24,10 +25,12 @@ import type { AdminNote, AdminUserDetail, WorkspaceAccessOverride, WorkspaceAcce
 import { SUBSCRIPTION_TIERS, TIER_ORDER, type SubscriptionTierId } from '../../config/subscriptionTiers'
 import { computeUserHealth } from '../utils/userHealth'
 import { formatCurrency } from '../../utils/format'
+import { useAuth } from '../../contexts/AuthContext'
 
 export function AdminUserDetailPage() {
   const { userId } = useParams<{ userId: string }>()
   const navigate = useNavigate()
+  const { user: adminUser } = useAuth()
   const [user, setUser] = useState<AdminUserDetail | null>(null)
   const [notes, setNotes] = useState<AdminNote[]>([])
   const [noteDraft, setNoteDraft] = useState('')
@@ -37,6 +40,8 @@ export function AdminUserDetailPage() {
   const [loading, setLoading] = useState(true)
   const [savingNote, setSavingNote] = useState(false)
   const [savingAccess, setSavingAccess] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   const load = useCallback(async () => {
     if (!userId) return
@@ -97,6 +102,28 @@ export function AdminUserDetailPage() {
         lifetimeAccess: accessType === 'lifetime',
       }
     })
+  }
+
+  const handleDeleteAccount = async () => {
+    if (!userId || !user) return
+    if (user.isPlatformAdmin) {
+      setDeleteError('Remove platform admin access before deleting this account.')
+      return
+    }
+    const confirmed = window.confirm(
+      `Permanently delete ${user.fullName} (${user.email})?\n\nThis removes their workspace, balances, commitments, and login. This cannot be undone.`,
+    )
+    if (!confirmed) return
+
+    setDeleting(true)
+    setDeleteError(null)
+    const { error } = await adminDeleteUser(userId, adminUser?.id ?? 'local-dev')
+    setDeleting(false)
+    if (error) {
+      setDeleteError(error)
+      return
+    }
+    navigate('/platform-admin/users', { replace: true })
   }
 
   if (loading) return <p className="admin-loading muted">Loading user…</p>
@@ -437,9 +464,10 @@ export function AdminUserDetailPage() {
         <button type="button" className="btn-secondary btn-tiny" disabled>
           Extend trial
         </button>
-        <button type="button" className="btn-ghost btn-tiny admin-danger-btn" disabled>
-          Delete account
+        <button type="button" className="btn-ghost btn-tiny admin-danger-btn" disabled={deleting} onClick={handleDeleteAccount}>
+          {deleting ? 'Deleting…' : 'Delete account'}
         </button>
+        {deleteError && <p className="admin-delete-error muted">{deleteError}</p>}
         <button type="button" className="btn-primary btn-tiny" onClick={() => navigate('/app')}>
           View app (local)
         </button>

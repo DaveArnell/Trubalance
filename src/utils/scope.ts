@@ -130,6 +130,10 @@ function scopeExistsInState(state: AppState, scope: ViewScope): boolean {
   return state.venues.some((venue) => venue.id === scope.id)
 }
 
+function scopesMatch(a: ViewScope, b: ViewScope): boolean {
+  return a.type === b.type && a.id === b.id
+}
+
 /**
  * Default sidebar scope — group when multiple businesses, otherwise the top business (or venue).
  */
@@ -156,7 +160,7 @@ export function resolveDefaultViewScope(state: AppState, preferred?: ViewScope):
     return { type: 'venue', id: state.venues[0].id }
   }
 
-  return preferred ?? { type: 'business', id: '' }
+  return { type: 'business', id: '' }
 }
 
 export type ScopeOption = { level: ScopeLevel; id: string; label: string }
@@ -288,6 +292,24 @@ export function getScopeLevelLabel(level: ScopeLevel): string {
 
 /** Structured path for the current sidebar scope (group → business → venue). */
 export function getScopePathSegments(state: AppState, scope: ViewScope): ScopePathSegment[] {
+  return getScopePathSegmentsInner(state, scope, 0)
+}
+
+function fallbackScopePathSegments(state: AppState, scope: ViewScope): ScopePathSegment[] {
+  if (!scope.id) return []
+  return [
+    {
+      level: scope.type,
+      id: scope.id,
+      label: getScopeLabel(state, scope),
+      isActive: true,
+    },
+  ]
+}
+
+function getScopePathSegmentsInner(state: AppState, scope: ViewScope, depth: number): ScopePathSegment[] {
+  if (depth > 4) return fallbackScopePathSegments(state, scope)
+
   const singleBusiness = state.businesses.length <= 1
 
   if (scope.type === 'group') {
@@ -332,7 +354,9 @@ export function getScopePathSegments(state: AppState, scope: ViewScope): ScopePa
       })
     }
     if (segments.length > 0) return segments
-    return getScopePathSegments(state, resolveDefaultViewScope(state, scope))
+    const fallback = resolveDefaultViewScope(state)
+    if (scopesMatch(fallback, scope)) return fallbackScopePathSegments(state, scope)
+    return getScopePathSegmentsInner(state, fallback, depth + 1)
   }
 
   const venue = state.venues.find((v) => v.id === scope.id)
@@ -365,8 +389,9 @@ export function getScopePathSegments(state: AppState, scope: ViewScope): ScopePa
   }
   if (segments.length > 0) return segments
 
-  const fallback = resolveDefaultViewScope(state, scope)
-  return getScopePathSegments(state, fallback)
+  const fallback = resolveDefaultViewScope(state)
+  if (scopesMatch(fallback, scope)) return fallbackScopePathSegments(state, scope)
+  return getScopePathSegmentsInner(state, fallback, depth + 1)
 }
 
 /** Venue view: only costs assigned to that venue — not parent-business rollups. */

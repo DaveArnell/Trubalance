@@ -75,3 +75,13 @@ export function defaultAccessOverride(
     updatedAt: new Date().toISOString(),
   }
 }
+
+export function purgeAdminLocalDataForUser(userId: string) {
+  const notes = readJson<Record<string, AdminNote[]>>(NOTES_KEY, {})
+  delete notes[userId]
+  writeJson(NOTES_KEY, notes)
+
+  const access = readJson<Record<string, WorkspaceAccessOverride>>(ACCESS_KEY, {})
+  delete access[userId]
+  writeJson(ACCESS_KEY, access)
+}

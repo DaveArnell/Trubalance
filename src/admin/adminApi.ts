@@ -1,5 +1,7 @@
 import { isSupabaseConfigured, tryGetSupabase } from '../lib/supabase'
 import { getAppEnvironmentLabel } from '../lib/appEnvironment'
+import { deleteUserAccount } from '../services/accountDeletion'
+import { logAdminAction } from '../services/adminRepository'
 import { getAdminDataMode } from './services/adminDemoMode'
 import {
   fetchAdminAuditLog,
@@ -37,6 +39,7 @@ import {
   loadAccessOverride,
   loadAdminNotes,
   loadAllAdminNotes,
+  purgeAdminLocalDataForUser,
   saveAccessOverride,
 } from './services/adminLocalStorage'
 import { computeUserHealth, isUserRecentlyActive, onboardingPctFromUser } from './utils/userHealth'
@@ -699,6 +702,30 @@ export async function adminSaveAccessOverride(
   override: WorkspaceAccessOverride,
 ): Promise<WorkspaceAccessOverride> {
   return saveAccessOverride(override)
+}
+
+export async function adminDeleteUser(
+  userId: string,
+  adminUserId: string,
+): Promise<{ error: string | null }> {
+  if (await useMockData()) {
+    purgeAdminLocalDataForUser(userId)
+    return { error: null }
+  }
+
+  if (!isSupabaseConfigured) {
+    return { error: 'Supabase is not configured.' }
+  }
+
+  const detail = await adminFetchUserDetail(userId)
+  const { error } = await deleteUserAccount(userId)
+  if (error) return { error }
+
+  purgeAdminLocalDataForUser(userId)
+  await logAdminAction(adminUserId, 'delete_user', userId, detail?.workspaceId ?? undefined, {
+    email: detail?.email,
+  })
+  return { error: null }
 }
 
 export async function adminFetchProductAnalytics(): Promise<ProductAnalyticsSnapshot> {

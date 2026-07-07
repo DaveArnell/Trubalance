@@ -4,6 +4,7 @@ import type { AppState } from '../types'
 import { useAuth } from '../contexts/AuthContext'
 import { useWorkspace } from '../contexts/WorkspaceContext'
 import { isSupabaseConfigured } from '../lib/supabase'
+import { deleteUserAccount, finishSelfAccountDeletion } from '../services/accountDeletion'
 import { backupBrowserStateToSession, readSessionBackup, summarizeAppState } from '../utils/localStateStorage'
 import { parseImportedAppState } from '../utils/importAppState'
 
@@ -20,6 +21,8 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
   const [pendingImport, setPendingImport] = useState<AppState | null>(null)
   const [importing, setImporting] = useState(false)
   const [restoringBackup, setRestoringBackup] = useState(false)
+  const [deleteConfirm, setDeleteConfirm] = useState('')
+  const [deletingAccount, setDeletingAccount] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const sessionBackup = readSessionBackup()
   const sessionBackupSummary = sessionBackup ? summarizeAppState(sessionBackup) : null
@@ -117,6 +120,29 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
       setStatus(`Restore failed: ${err instanceof Error ? err.message : 'Unknown error'}.`)
     } finally {
       setRestoringBackup(false)
+    }
+  }
+
+  const handleDeleteAccount = async () => {
+    if (!signedIn || readOnly || deleteConfirm.trim().toUpperCase() !== 'DELETE') return
+    const confirmed = window.confirm(
+      'This permanently deletes your account, workspace, and all saved data. You will be signed out. Continue?',
+    )
+    if (!confirmed) return
+
+    setDeletingAccount(true)
+    setStatus(null)
+    try {
+      cancelPendingPersist()
+      const { error } = await deleteUserAccount()
+      if (error) {
+        setStatus(error)
+        return
+      }
+      await finishSelfAccountDeletion()
+    } catch (err) {
+      setStatus(err instanceof Error ? err.message : 'Could not delete your account.')
+      setDeletingAccount(false)
     }
   }
 
@@ -235,6 +261,37 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
           Read our <Link to="/privacy">Privacy policy</Link> and <Link to="/terms">Terms of service</Link>.
         </p>
       </div>
+
+      {signedIn && (
+        <article className="data-export-block data-export-danger-zone">
+          <h3>Delete your account and data</h3>
+          <p className="muted">
+            Under UK GDPR you can request erasure of your personal data. This permanently removes your
+            account, workspace, balances, commitments, and history from our servers. Download an export
+            first if you want a copy.
+          </p>
+          <label className="data-export-delete-confirm">
+            <span className="muted">Type DELETE to confirm</span>
+            <input
+              className="admin-input"
+              type="text"
+              value={deleteConfirm}
+              onChange={(e) => setDeleteConfirm(e.target.value)}
+              placeholder="DELETE"
+              disabled={readOnly || deletingAccount}
+              autoComplete="off"
+            />
+          </label>
+          <button
+            type="button"
+            className="btn-ghost btn-tiny admin-danger-btn"
+            disabled={readOnly || deletingAccount || deleteConfirm.trim().toUpperCase() !== 'DELETE'}
+            onClick={handleDeleteAccount}
+          >
+            {deletingAccount ? 'Deleting…' : 'Delete my account and all data'}
+          </button>
+        </article>
+      )}
 
       {pendingImport && pendingSummary && (
         <div className="data-export-import-confirm" role="alertdialog" aria-labelledby="import-confirm-title">
