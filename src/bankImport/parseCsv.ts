@@ -1,7 +1,8 @@
 import { newId } from '../utils/id'
-import { toAmount } from '../utils/amounts'
 import type { BankImportColumnKey, BankImportColumnMapping, ParsedBankTransaction } from './types'
 import { normalizeDescription } from './normalize'
+import { parseDateCell } from './parseDate'
+import { parseMoneyCell } from './parseMoney'
 
 function parseCsvLine(line: string): string[] {
   const cells: string[] = []
@@ -78,46 +79,6 @@ export function guessColumnMapping(headers: string[]): BankImportColumnMapping {
     moneyOut,
     balance,
   }
-}
-
-function parseDateCell(raw: string): string | null {
-  const value = raw.trim()
-  if (!value) return null
-
-  if (/^\d{4}-\d{2}-\d{2}/.test(value)) {
-    return value.slice(0, 10)
-  }
-
-  const slash = value.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/)
-  if (slash) {
-    const day = Number(slash[1])
-    const month = Number(slash[2])
-    let year = Number(slash[3])
-    if (year < 100) year += year >= 70 ? 1900 : 2000
-    if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
-      return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-    }
-  }
-
-  const parsed = new Date(value)
-  if (!Number.isNaN(parsed.getTime())) {
-    const y = parsed.getFullYear()
-    const m = String(parsed.getMonth() + 1).padStart(2, '0')
-    const d = String(parsed.getDate()).padStart(2, '0')
-    return `${y}-${m}-${d}`
-  }
-
-  return null
-}
-
-function parseMoneyCell(raw: string | undefined): number {
-  if (!raw?.trim()) return 0
-  const cleaned = raw.replace(/[£$,]/g, '').replace(/\s/g, '').trim()
-  if (!cleaned || cleaned === '-') return 0
-  const negative = cleaned.startsWith('(') && cleaned.endsWith(')')
-  const numeric = negative ? cleaned.slice(1, -1) : cleaned
-  const value = toAmount(Number(numeric))
-  return negative ? -Math.abs(value) : value
 }
 
 function cell(row: string[], index: number | undefined): string {

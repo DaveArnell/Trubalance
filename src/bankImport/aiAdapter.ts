@@ -4,7 +4,8 @@ import { detectTrendInsights } from './trendInsights'
 
 /**
  * Future AI enrichment hook.
- * Call an external API here to refine names, categories, or confidence — never auto-apply results.
+ * Call an external API here to refine names, categories, or recover from PDF layouts
+ * the table parser could not read — never auto-apply without review unless configured.
  */
 export interface BankImportAiAdapter {
   enrichSuggestions(input: BankImportAnalysisInput): Promise<BankImportAnalysisResult>

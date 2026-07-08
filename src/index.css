@@ -15316,6 +15316,22 @@ tr.sheet-row--received td {
   color: var(--text-muted);
 }
 
+.bank-import-rule-note {
+  margin-top: calc(-1 * var(--space-2));
+  font-size: 0.8rem;
+}
+
+.guided-setup-import-analysis {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid var(--border-subtle);
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
 .bank-import-min-amount-field {
   display: flex;
   flex-direction: column;
@@ -15417,6 +15433,53 @@ tr.sheet-row--received td {
   font-size: 0.82rem;
   line-height: 1.5;
   color: var(--text-secondary);
+}
+
+.setup-reserve-opt-in {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin: var(--space-4) 0;
+  padding: var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  background: linear-gradient(180deg, #fafbff 0%, #ffffff 100%);
+  cursor: pointer;
+}
+
+.setup-reserve-opt-in input {
+  margin-top: 4px;
+  width: auto;
+}
+
+.setup-reserve-opt-in strong {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--text-primary);
+}
+
+.setup-reserve-opt-in small {
+  display: block;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.setup-complete-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-5);
+  margin: 0 0 var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  background: var(--bg-subtle);
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.setup-complete-stats p {
+  margin: 0;
 }
 
 .forecast-daily-income-card {

@@ -51,6 +51,9 @@ export const SETUP_DATA_SOURCES: DataSourceOption[] = [
   },
 ]
 
+export const BANK_IMPORT_RULE_BASED_NOTE =
+  'We read PDF and CSV statements using column detection (Date, Description, Money in/out) and pattern matching for recurring costs — not AI. Optional AI can refine categories later; review mode lets you check everything first.'
+
 export const AUTO_SETUP_VALUE_PROPS = [
   'Name your group structure',
   'Add bank data (PDF or CSV today, bank link soon)',

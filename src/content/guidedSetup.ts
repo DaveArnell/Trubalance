@@ -51,6 +51,7 @@ export const AI_SETUP_STEPS = [
   { id: 'structure', label: 'Group structure' },
   { id: 'import', label: 'Upload statements' },
   { id: 'review', label: 'Review suggestions' },
+  { id: 'reserve', label: 'Reserve planner' },
   { id: 'complete', label: 'Your True Balance' },
 ] as const
 
@@ -58,6 +59,7 @@ export const AUTO_SETUP_STEPS = [
   { id: 'structure', label: 'Your structure' },
   { id: 'preferences', label: 'Income pattern' },
   { id: 'import', label: 'Bank data' },
+  { id: 'reserve', label: 'Reserve planner' },
   { id: 'complete', label: 'Ready' },
 ] as const
 
@@ -76,6 +78,73 @@ export const WHY_TRUE_BALANCE_CONTENT = {
 
 export const RESERVE_BUFFER_HINT =
   'Optional cushion in your reserve account if a bill comes in higher than expected. You can change this anytime.'
+
+export const RESERVE_PLANNER_SETUP_CONTENT = {
+  title: 'Reserve planner',
+  lead: 'Big bills like VAT, insurance, and corporation tax do not land every month — but you still need the money ready. The reserve planner helps you save a little each month so those bills never surprise you.',
+  bullets: [
+    'We add a reserve plan for each business in your group',
+    'Annual and quarterly costs from your bank data can go straight into the plan',
+    'A short monthly check-in keeps transfers on track (about 5 minutes)',
+  ],
+  optInLabel: 'Set up reserve planners for my businesses',
+  optInHint:
+    'Recommended if you have irregular or annual bills. You can turn this off and add reserve plans later in Settings.',
+  skipHint: 'You can add reserve planners anytime from the Reserve Planner page.',
+} as const
+
+export function formatSetupApplySummary(input: {
+  commitmentsCreated: number
+  reserveBillsCreated: number
+  receiptsCreated: number
+  statementsAnalysed: number
+  suggestionsFound: number
+  transactionCount?: number
+  autoAddCount?: number
+  skippedLowConfidence?: number
+  balancesUpdated: number
+  reservePlannersEnabled: boolean
+}): string {
+  const parts = [
+    input.commitmentsCreated > 0 ? `${input.commitmentsCreated} monthly costs` : null,
+    input.reserveBillsCreated > 0 ? `${input.reserveBillsCreated} reserve bills` : null,
+    input.receiptsCreated > 0 ? `${input.receiptsCreated} expected receipts` : null,
+  ].filter(Boolean)
+
+  if (parts.length > 0) {
+    const balanceNote =
+      input.balancesUpdated > 0
+        ? ` Closing balance applied to ${input.balancesUpdated} account${input.balancesUpdated === 1 ? '' : 's'}.`
+        : ''
+    return `Added ${parts.join(', ')} from your bank data.${balanceNote} Adjust anything in Settings.`
+  }
+
+  if (input.statementsAnalysed > 0 && input.transactionCount === 0) {
+    return 'We opened your statement but could not read any transactions. CSV exports usually work best; some PDF layouts are not supported yet.'
+  }
+
+  if (input.statementsAnalysed > 0 && input.suggestionsFound === 0) {
+    const txn =
+      input.transactionCount != null
+        ? ` We read ${input.transactionCount} transaction${input.transactionCount === 1 ? '' : 's'} but`
+        : ' We'
+    return `${txn.trim()} did not spot repeating payments (need at least 2–3 similar payments, ideally 12+ months of history). You can add costs manually or try a longer export.`
+  }
+
+  if (input.statementsAnalysed > 0 && (input.skippedLowConfidence ?? 0) > 0 && (input.autoAddCount ?? 0) === 0) {
+    return `We found ${input.suggestionsFound} recurring pattern${input.suggestionsFound === 1 ? '' : 's'} but none were confident enough to add automatically. Use “Review before adding” next time, or add items manually.`
+  }
+
+  if (input.statementsAnalysed > 0) {
+    return 'We analysed your statements but nothing was added automatically. Use Review setup or add items manually in Settings.'
+  }
+
+  if (input.reservePlannersEnabled) {
+    return 'Your structure and reserve planners are ready. Add bank statements in Settings to auto-fill costs, or enter them manually.'
+  }
+
+  return 'Your structure is ready. Add bank statements (PDF or CSV) in Settings to auto-fill costs, or enter them manually.'
+}
 
 export const STATEMENT_HISTORY_TIPS = [
   {

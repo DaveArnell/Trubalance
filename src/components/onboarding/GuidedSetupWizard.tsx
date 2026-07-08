@@ -9,15 +9,19 @@ import {
   GUIDED_SETUP_EDITABLE_NOTE,
   GUIDED_SETUP_PATH_OPTIONS,
   WHY_TRUE_BALANCE_CONTENT,
+  RESERVE_PLANNER_SETUP_CONTENT,
+  formatSetupApplySummary,
   type SetupWizardStepId,
   type GuidedSetupPath,
 } from '../../content/guidedSetup'
+import { BANK_IMPORT_RULE_BASED_NOTE } from '../../config/setupAutomation'
 import { dismissSetupOnboardingLocally, INCOME_PATTERN_HINTS } from '../../content/setupOnboarding'
 import { SetupOnboardingWizard } from './SetupOnboardingWizard'
 import { SetupOnboardingShell } from './SetupOnboardingShell'
 import { SetupDataSourcesPanel } from './SetupDataSourcesPanel'
 import { BankImportSuggestionReview } from '../bankImport/BankImportSuggestionReview'
 import { runAutoApplyFromImportResults } from '../../bankImport/autoApply'
+import { applyImportBalancesToAccounts } from '../../bankImport/importBalances'
 import { forecastDailyIncomeUpdatesFromImports } from '../../bankImport/forecastIncomeSync'
 import { analyzeBankTransactions } from '../../bankImport/aiAdapter'
 import { BankImportMinMonthlyField } from '../bankImport/BankImportMinMonthlyField'
@@ -41,7 +45,9 @@ import {
 import { BANK_STATEMENT_ACCEPT, parseBankStatementFile } from '../../bankImport/parseBankStatement'
 import type { BankImportColumnKey, BankImportColumnMapping, BankImportSuggestion } from '../../bankImport/types'
 import { historySpanMonths } from '../../bankImport/trendInsights'
+import { describeImportAnalysis, summarizeImportAnalysis } from '../../bankImport/summarizeImportAnalysis'
 import { formatCurrency } from '../../utils/format'
+import { calculateDashboard } from '../../utils/calculations'
 
 const COLUMN_LABELS: Record<BankImportColumnKey, string> = {
   date: 'Date',
@@ -436,6 +442,15 @@ function GuidedSetupAiWizard({
   const [uploadDragOver, setUploadDragOver] = useState(false)
   const [minMonthlyAmount, setMinMonthlyAmount] = useState(() => readBankImportMinMonthlyAmount())
   const structureHydratedRef = useRef(false)
+  const [setupReservePlanners, setSetupReservePlanners] = useState(true)
+  const [pendingAutoImportResults, setPendingAutoImportResults] = useState<AccountImportResult[] | null>(null)
+  const [pendingGuidedApply, setPendingGuidedApply] = useState(false)
+  const [setupFinalizePhase, setSetupFinalizePhase] = useState<'idle' | 'creating-reserve' | 'applying'>('idle')
+  const [setupStats, setSetupStats] = useState({
+    statementsAnalysed: 0,
+    suggestionsFound: 0,
+    balancesUpdated: 0,
+  })
 
   const accounts = useMemo(() => importableAccounts(state), [state.accounts])
   const stepIndex = setupSteps.findIndex((step) => step.id === aiStep)
@@ -518,7 +533,6 @@ function GuidedSetupAiWizard({
 
   const handlePreferencesContinue = () => {
     applyIncomePatternToBusinesses()
-    ensureAllReservePlanners()
     setAiStep('import')
   }
 
@@ -565,6 +579,12 @@ function GuidedSetupAiWizard({
       }
       const columnMapping = guessColumnMapping(parsed.headers)
       const transactions = mapRowsToTransactions(parsed.rows, columnMapping)
+      if (setupMode === 'auto' && transactions.length === 0) {
+        setImportError(
+          'We could not read transactions from that file. Try a CSV export from your bank, or a PDF with clear dates and amounts on each line.',
+        )
+        return
+      }
       if (setupMode === 'auto' && transactions.length > 0) {
         setImportError(null)
         await analyzeTransactionsForAccount(activeImportAccountId, transactions, file.name, columnMapping)
@@ -734,9 +754,127 @@ function GuidedSetupAiWizard({
     updateSuggestion(id, { status })
   }
 
-  const ensureReservePlanner = () => {
-    ensureAllReservePlanners()
+  const importAnalysis = useMemo(() => summarizeImportAnalysis(importResults), [importResults])
+
+  const finalizeAutoApply = (results: AccountImportResult[], reserveEnabled: boolean) => {
+    const analysis = summarizeImportAnalysis(results)
+    const balancesUpdated = applyImportBalancesToAccounts(results, actions)
+    const summary = runAutoApplyFromImportResults(state, results, actions)
+    setSetupStats({
+      statementsAnalysed: analysis.statementsAnalysed,
+      suggestionsFound: analysis.suggestionCount,
+      balancesUpdated,
+    })
+    setApplySummary(
+      formatSetupApplySummary({
+        commitmentsCreated: summary.commitmentsCreated,
+        reserveBillsCreated: summary.reserveBillsCreated,
+        receiptsCreated: summary.receiptsCreated,
+        statementsAnalysed: analysis.statementsAnalysed,
+        suggestionsFound: analysis.suggestionCount,
+        transactionCount: analysis.transactionCount,
+        autoAddCount: analysis.autoAddCount,
+        skippedLowConfidence: analysis.skippedLowConfidence,
+        balancesUpdated,
+        reservePlannersEnabled: reserveEnabled,
+      }),
+    )
+    if (summary.errors.length > 0) {
+      setImportError(summary.errors.join(' '))
+    }
+    setPendingAutoImportResults(null)
+    setSetupFinalizePhase('idle')
+    setAiStep('complete')
   }
+
+  const finalizeGuidedApply = () => {
+    const accepted = reviewSuggestions.filter(
+      (item) => item.status === 'accepted' || item.status === 'edited',
+    )
+
+    if (accepted.length === 0) {
+      setApplySummary(
+        formatSetupApplySummary({
+          commitmentsCreated: 0,
+          reserveBillsCreated: 0,
+          receiptsCreated: 0,
+          statementsAnalysed: setupStats.statementsAnalysed,
+          suggestionsFound: setupStats.suggestionsFound,
+          balancesUpdated: setupStats.balancesUpdated,
+          reservePlannersEnabled: setupReservePlanners,
+        }),
+      )
+      setPendingGuidedApply(false)
+      setSetupFinalizePhase('idle')
+      setAiStep('complete')
+      return
+    }
+
+    const byAccount = new Map<string, BankImportSuggestion[]>()
+    for (const suggestion of accepted) {
+      const accountId =
+        suggestion.sourceAccountId ??
+        importResults.find((item) =>
+          item.session.suggestions.some((s) => s.id === suggestion.id),
+        )?.accountId ??
+        accounts[0]?.id
+      if (!accountId) continue
+      const list = byAccount.get(accountId) ?? []
+      list.push(suggestion)
+      byAccount.set(accountId, list)
+    }
+
+    let commitmentsCreated = 0
+    let receiptsCreated = 0
+    let reserveBillsCreated = 0
+    const errors: string[] = []
+
+    for (const [accountId, suggestions] of byAccount) {
+      const result = applyBankImportSuggestions(state, accountId, suggestions, actions)
+      commitmentsCreated += result.commitmentsCreated
+      receiptsCreated += result.receiptsCreated
+      reserveBillsCreated += result.reserveBillsCreated
+      errors.push(...result.errors)
+    }
+
+    setApplySummary(
+      formatSetupApplySummary({
+        commitmentsCreated,
+        reserveBillsCreated,
+        receiptsCreated,
+        statementsAnalysed: setupStats.statementsAnalysed,
+        suggestionsFound: setupStats.suggestionsFound,
+        balancesUpdated: setupStats.balancesUpdated,
+        reservePlannersEnabled: setupReservePlanners,
+      }),
+    )
+    if (errors.length > 0) {
+      setImportError(errors.join(' '))
+    }
+    setPendingGuidedApply(false)
+    setSetupFinalizePhase('idle')
+    setAiStep('complete')
+  }
+
+  useEffect(() => {
+    if (setupFinalizePhase !== 'creating-reserve') return
+    const allReady =
+      !setupReservePlanners ||
+      state.businesses.every((biz) => state.reservePlanners.some((planner) => planner.businessId === biz.id))
+    if (!allReady) return
+    setSetupFinalizePhase('applying')
+  }, [setupFinalizePhase, setupReservePlanners, state.businesses, state.reservePlanners])
+
+  useEffect(() => {
+    if (setupFinalizePhase !== 'applying') return
+    if (pendingAutoImportResults) {
+      finalizeAutoApply(pendingAutoImportResults, setupReservePlanners)
+      return
+    }
+    if (pendingGuidedApply) {
+      finalizeGuidedApply()
+    }
+  }, [setupFinalizePhase, pendingAutoImportResults, pendingGuidedApply, setupReservePlanners])
 
   const handleAutoSetupComplete = async () => {
     setImportError(null)
@@ -775,90 +913,57 @@ function GuidedSetupAiWizard({
           setImportResults(results)
         }
       }
-      ensureAllReservePlanners()
-      const summary = runAutoApplyFromImportResults(state, results, actions)
-      const parts = [
-        summary.commitmentsCreated > 0 ? `${summary.commitmentsCreated} monthly costs` : null,
-        summary.reserveBillsCreated > 0 ? `${summary.reserveBillsCreated} reserve bills` : null,
-        summary.receiptsCreated > 0 ? `${summary.receiptsCreated} expected receipts` : null,
-      ].filter(Boolean)
-      setApplySummary(
-        parts.length > 0
-          ? `Auto setup added ${parts.join(', ')}. Adjust anything in Settings.`
-          : 'Your structure is ready. Add bank CSVs anytime in Settings to auto-fill costs.',
-      )
-      if (summary.errors.length > 0) {
-        setImportError(summary.errors.join(' '))
-      }
-      setAiStep('complete')
+
+      const analysed = results.filter((item) => !item.skipped && item.session.transactions.length > 0)
+      setSetupStats({
+        statementsAnalysed: analysed.length,
+        suggestionsFound: analysed.reduce((sum, item) => sum + item.session.suggestions.length, 0),
+        balancesUpdated: 0,
+      })
+      setPendingAutoImportResults(results)
+      setAiStep('reserve')
     } finally {
       setAutoProcessing(false)
     }
   }
 
-  const handleBuildTrueBalance = () => {
-    ensureReservePlanner()
+  const handleReserveContinue = () => {
+    if (setupReservePlanners) {
+      ensureAllReservePlanners()
+      setSetupFinalizePhase('creating-reserve')
+      return
+    }
+    setSetupFinalizePhase('applying')
+  }
 
+  const handleBuildTrueBalance = () => {
     for (const update of forecastDailyIncomeUpdatesFromImports(state, importResults)) {
       actions.setBusinessForecastDailyIncome(update.businessId, update.forecastDailyIncome)
     }
 
-    const accepted = reviewSuggestions.filter(
-      (item) => item.status === 'accepted' || item.status === 'edited',
-    )
-
-    if (accepted.length === 0) {
-      setApplySummary('Setup complete. You can add items manually anytime.')
-      setAiStep('complete')
-      return
-    }
-
-    const byAccount = new Map<string, BankImportSuggestion[]>()
-    for (const suggestion of accepted) {
-      const accountId =
-        suggestion.sourceAccountId ??
-        importResults.find((item) =>
-          item.session.suggestions.some((s) => s.id === suggestion.id),
-        )?.accountId ??
-        accounts[0]?.id
-      if (!accountId) continue
-      const list = byAccount.get(accountId) ?? []
-      list.push(suggestion)
-      byAccount.set(accountId, list)
-    }
-
-    let commitmentsCreated = 0
-    let receiptsCreated = 0
-    let reserveBillsCreated = 0
-    const errors: string[] = []
-
-    for (const [accountId, suggestions] of byAccount) {
-      const result = applyBankImportSuggestions(state, accountId, suggestions, actions)
-      commitmentsCreated += result.commitmentsCreated
-      receiptsCreated += result.receiptsCreated
-      reserveBillsCreated += result.reserveBillsCreated
-      errors.push(...result.errors)
-    }
-
-    const parts = [
-      commitmentsCreated > 0 ? `${commitmentsCreated} commitments` : null,
-      receiptsCreated > 0 ? `${receiptsCreated} receipts` : null,
-      reserveBillsCreated > 0 ? `${reserveBillsCreated} reserve bills` : null,
-    ].filter(Boolean)
-
-    setApplySummary(
-      parts.length > 0
-        ? `Created ${parts.join(', ')}. Everything remains editable.`
-        : 'Setup complete. You can add items manually anytime.',
-    )
-    if (errors.length > 0) {
-      setImportError(errors.join(' '))
-    }
-    setAiStep('complete')
+    const analysed = importResults.filter((item) => !item.skipped && item.session.transactions.length > 0)
+    const suggestionsFound = analysed.reduce((sum, item) => sum + item.session.suggestions.length, 0)
+    const balancesUpdated = applyImportBalancesToAccounts(importResults, actions)
+    setSetupStats({
+      statementsAnalysed: analysed.length,
+      suggestionsFound,
+      balancesUpdated,
+    })
+    setPendingGuidedApply(true)
+    setAiStep('reserve')
   }
 
   const importedCount = importResults.filter((item) => !item.skipped && item.session.suggestions.length > 0).length
   const activeAccount = accounts.find((account) => account.id === activeImportAccountId)
+
+  const setupMetrics = useMemo(() => {
+    const groupId = state.groups[0]?.id ?? state.businesses[0]?.groupId
+    if (!groupId) return metrics
+    return calculateDashboard(state, { type: 'group', id: groupId })
+  }, [state, metrics])
+
+  const showTrueBalanceReveal =
+    setupMetrics.cash > 0 || setupMetrics.committedFunds > 0 || setupMetrics.expectedReceipts > 0
 
   const contentWidth =
     aiStep === 'review' ? 'review' : aiStep === 'import' ? 'import' : 'default'
@@ -880,7 +985,10 @@ function GuidedSetupAiWizard({
             } else if (aiStep === 'preferences') setAiStep('structure')
             else if (aiStep === 'import') setAiStep(setupMode === 'auto' ? 'preferences' : 'structure')
             else if (aiStep === 'review') setAiStep('import')
-            else if (aiStep === 'complete') setAiStep(setupMode === 'auto' ? 'import' : 'review')
+            else if (aiStep === 'reserve') {
+              if (setupMode === 'auto') setAiStep('import')
+              else setAiStep('review')
+            } else if (aiStep === 'complete') setAiStep('reserve')
           }}
         >
           Back
@@ -918,6 +1026,16 @@ function GuidedSetupAiWizard({
         {aiStep === 'review' && (
           <button type="button" className="btn-primary" onClick={handleBuildTrueBalance}>
             Build True Balance
+          </button>
+        )}
+        {aiStep === 'reserve' && (
+          <button
+            type="button"
+            className="btn-primary"
+            disabled={setupFinalizePhase !== 'idle'}
+            onClick={handleReserveContinue}
+          >
+            {setupFinalizePhase === 'applying' ? 'Finishing…' : 'Continue'}
           </button>
         )}
         {aiStep === 'complete' && (
@@ -1069,8 +1187,9 @@ function GuidedSetupAiWizard({
               {setupMode === 'auto' ? (
                 <>
                   <p className="setup-onboarding-lead">
-                    Upload a bank statement (PDF or CSV) for each account. We analyse and build your setup automatically — no review step.
+                    Upload a bank statement (PDF or CSV) for each account. We scan for recurring payments and build your setup automatically — no review step.
                   </p>
+                  <p className="setup-onboarding-explain muted bank-import-rule-note">{BANK_IMPORT_RULE_BASED_NOTE}</p>
                   <SetupDataSourcesPanel
                     compact
                     onSelectCsv={() => fileInputRef.current?.click()}
@@ -1099,8 +1218,10 @@ function GuidedSetupAiWizard({
                           const result = importResults.find((item) => item.accountId === account.id)
                           const status = result?.skipped
                             ? 'Skipped'
-                            : result
-                              ? 'Imported'
+                            : result && result.session.transactions.length > 0
+                              ? result.session.suggestions.length > 0
+                                ? `${result.session.suggestions.length} found`
+                                : 'No recurring'
                               : account.id === activeImportAccountId
                                 ? 'Ready'
                                 : 'Pending'
@@ -1130,6 +1251,11 @@ function GuidedSetupAiWizard({
                         value={minMonthlyAmount}
                         onChange={setMinMonthlyAmount}
                       />
+                      {importAnalysis.statementsAnalysed > 0 && (
+                        <p className="guided-setup-import-analysis">
+                          {describeImportAnalysis(importAnalysis)}
+                        </p>
+                      )}
                     </div>
 
                     {activeAccount && (
@@ -1292,41 +1418,114 @@ function GuidedSetupAiWizard({
             </>
           )}
 
+          {aiStep === 'reserve' && (
+            <>
+              <h2 id="guided-ai-title">{RESERVE_PLANNER_SETUP_CONTENT.title}</h2>
+              <p className="setup-onboarding-explain">{RESERVE_PLANNER_SETUP_CONTENT.lead}</p>
+              <ul className="setup-why-bullets">
+                {RESERVE_PLANNER_SETUP_CONTENT.bullets.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+              <label className="setup-reserve-opt-in">
+                <input
+                  type="checkbox"
+                  checked={setupReservePlanners}
+                  onChange={(event) => setSetupReservePlanners(event.target.checked)}
+                />
+                <span>
+                  <strong>{RESERVE_PLANNER_SETUP_CONTENT.optInLabel}</strong>
+                  <small>{RESERVE_PLANNER_SETUP_CONTENT.optInHint}</small>
+                </span>
+              </label>
+              {!setupReservePlanners && (
+                <p className="setup-onboarding-explain muted">{RESERVE_PLANNER_SETUP_CONTENT.skipHint}</p>
+              )}
+              {setupMode === 'auto' && pendingAutoImportResults && (
+                <p className="bank-import-hint">
+                  {setupStats.statementsAnalysed > 0 ? (
+                    <>
+                      <strong>{setupStats.statementsAnalysed}</strong> statement
+                      {setupStats.statementsAnalysed === 1 ? '' : 's'} ready to process
+                      {setupStats.suggestionsFound > 0 && (
+                        <>
+                          {' '}
+                          · <strong>{setupStats.suggestionsFound}</strong> recurring items detected
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    <>No bank statements uploaded yet — we&apos;ll still set up your structure.</>
+                  )}
+                </p>
+              )}
+            </>
+          )}
+
           {aiStep === 'complete' && (
             <>
               <h2 id="guided-ai-title">Your True Balance is ready</h2>
               {applySummary && <p className="bank-import-success">{applySummary}</p>}
-              <p className="setup-onboarding-explain">
-                Your bank says one number, but now you can see what&apos;s genuinely available.
-              </p>
-              <div className="setup-onboarding-reveal">
-                <dl className="setup-reveal-math">
-                  <div>
-                    <dt>Cash in bank</dt>
-                    <dd>{formatCurrency(metrics.cash)}</dd>
-                  </div>
-                  <div>
-                    <dt>Already spoken for</dt>
-                    <dd>−{formatCurrency(metrics.committedFunds)}</dd>
-                  </div>
-                  {metrics.expectedReceipts > 0 && (
-                    <div>
-                      <dt>Expected in</dt>
-                      <dd>+{formatCurrency(metrics.expectedReceipts)}</dd>
-                    </div>
-                  )}
-                  <div className="setup-reveal-total">
-                    <dt>Your True Balance</dt>
-                    <dd>{formatCurrency(metrics.trueBalance)}</dd>
-                  </div>
-                </dl>
+              <div className="setup-complete-stats">
+                <p>
+                  <strong>{state.businesses.length}</strong> business
+                  {state.businesses.length === 1 ? '' : 'es'} in your group
+                </p>
+                {setupStats.statementsAnalysed > 0 && (
+                  <p>
+                    <strong>{setupStats.statementsAnalysed}</strong> bank statement
+                    {setupStats.statementsAnalysed === 1 ? '' : 's'} analysed
+                  </p>
+                )}
+                {setupReservePlanners && state.reservePlanners.length > 0 && (
+                  <p>
+                    <strong>{state.reservePlanners.length}</strong> reserve planner
+                    {state.reservePlanners.length === 1 ? '' : 's'} ready
+                  </p>
+                )}
               </div>
+              {showTrueBalanceReveal ? (
+                <>
+                  <p className="setup-onboarding-explain">
+                    Your bank says one number, but now you can see what&apos;s genuinely available across your group.
+                  </p>
+                  <div className="setup-onboarding-reveal">
+                    <dl className="setup-reveal-math">
+                      <div>
+                        <dt>Cash in bank</dt>
+                        <dd>{formatCurrency(setupMetrics.cash)}</dd>
+                      </div>
+                      <div>
+                        <dt>Already spoken for</dt>
+                        <dd>−{formatCurrency(setupMetrics.committedFunds)}</dd>
+                      </div>
+                      {setupMetrics.expectedReceipts > 0 && (
+                        <div>
+                          <dt>Expected in</dt>
+                          <dd>+{formatCurrency(setupMetrics.expectedReceipts)}</dd>
+                        </div>
+                      )}
+                      <div className="setup-reveal-total">
+                        <dt>Your True Balance</dt>
+                        <dd>{formatCurrency(setupMetrics.trueBalance)}</dd>
+                      </div>
+                    </dl>
+                  </div>
+                </>
+              ) : (
+                <p className="setup-onboarding-explain">
+                  <strong>Next step:</strong> enter your current bank balance on the dashboard (or import a statement with a
+                  balance column). Your True Balance will update as soon as the numbers are in.
+                </p>
+              )}
               <p className="setup-income-hint">
                 {INCOME_PATTERN_HINTS[incomePatternDraft]}
               </p>
               <p className="setup-onboarding-explain muted" style={{ marginTop: 'var(--space-2)' }}>
                 <strong>Your routine:</strong> Update your bank balance every day or two. Mark things paid as they go out.
-                Once a month, do the reserve check-in (5 minutes). The system handles the rest.
+                {setupReservePlanners
+                  ? ' Once a month, do the reserve check-in (5 minutes). The system handles the rest.'
+                  : ' Add reserve planners when you are ready for annual and quarterly bills.'}
               </p>
               <p className="setup-onboarding-explain">
                 Tap <strong>Show me how it works</strong> for a guided walkthrough of each page — or go straight to your dashboard.
