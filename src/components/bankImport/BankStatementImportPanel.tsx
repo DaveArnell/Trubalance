@@ -10,11 +10,8 @@ import {
   writeBankImportMinMonthlyAmount,
 } from '../../utils/bankImportPreferences'
 import { DEMO_BANK_CSV } from '../../bankImport/demoCsv'
-import {
-  guessColumnMapping,
-  mapRowsToTransactions,
-  parseCsvText,
-} from '../../bankImport/parseCsv'
+import { guessColumnMapping, mapRowsToTransactions } from '../../bankImport/parseCsv'
+import { BANK_STATEMENT_ACCEPT, parseBankStatementFile } from '../../bankImport/parseBankStatement'
 import type {
   BankImportColumnKey,
   BankImportColumnMapping,
@@ -82,18 +79,22 @@ export function BankStatementImportPanel({
 
   const previewRows = rows.slice(0, 4)
 
-  const loadCsv = (text: string, name: string) => {
-    const parsed = parseCsvText(text)
+  const loadStatement = async (file: File) => {
+    const parsed = await parseBankStatementFile(file)
     if (parsed.headers.length === 0 || parsed.rows.length === 0) {
-      setError('That file looks empty. Check it is a CSV with a header row.')
+      setError('That file looks empty. Check it is a bank statement with dates and amounts.')
       return
     }
     setError(null)
-    setFileName(name)
+    setFileName(file.name)
     setHeaders(parsed.headers)
     setRows(parsed.rows)
     setMapping(guessColumnMapping(parsed.headers))
     setStep('mapping')
+  }
+
+  const loadCsv = (text: string, name: string) => {
+    void loadStatement(new File([text], name, { type: 'text/csv' }))
   }
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -101,10 +102,9 @@ export function BankStatementImportPanel({
     event.target.value = ''
     if (!file) return
     try {
-      const text = await file.text()
-      loadCsv(text, file.name)
-    } catch {
-      setError('Could not read that file.')
+      await loadStatement(file)
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Could not read that file.')
     }
   }
 
@@ -199,11 +199,11 @@ export function BankStatementImportPanel({
         <div>
           <h3 className="bank-import-title">Bank statement import</h3>
           <p className="muted bank-import-lead">
-            Upload a CSV to detect recurring costs, receipts, and irregular bills. Review every
+            Upload a PDF or CSV to detect recurring costs, receipts, and irregular bills. Review every
             suggestion before anything is added — nothing is created automatically.
           </p>
         </div>
-        <span className="bank-import-badge">CSV only · Open Banking later</span>
+        <span className="bank-import-badge">PDF or CSV · Open Banking later</span>
       </header>
 
       <ol className="bank-import-steps" aria-label="Import progress">
@@ -289,13 +289,13 @@ export function BankStatementImportPanel({
       {step === 'upload' && (
         <div className="bank-import-panel">
           <p className="bank-import-hint">
-            Export a transaction list from your bank as CSV. We do not connect to your bank yet.
+            Export or save your bank statement as PDF or CSV. We do not connect to your bank yet.
           </p>
           <div className="bank-import-upload-row">
             <input
               ref={fileInputRef}
               type="file"
-              accept=".csv,text/csv"
+              accept={BANK_STATEMENT_ACCEPT}
               className="sr-only"
               onChange={handleFileChange}
             />
@@ -304,7 +304,7 @@ export function BankStatementImportPanel({
               className="btn-primary"
               onClick={() => fileInputRef.current?.click()}
             >
-              Choose CSV file
+              Choose file
             </button>
             <button type="button" className="btn-secondary" onClick={handleDemoCsv}>
               Try demo data

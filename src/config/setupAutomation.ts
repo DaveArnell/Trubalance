@@ -24,8 +24,8 @@ export const AUTO_APPLY_HIGH_CONFIDENCE = 70
 export const SETUP_DATA_SOURCES: DataSourceOption[] = [
   {
     id: 'csv',
-    title: 'Upload bank CSV',
-    description: 'Export transaction history from your bank and upload here. Works today.',
+    title: 'Bank statement (PDF or CSV)',
+    description: 'Upload a PDF export or CSV from your bank. Works today.',
     status: 'available',
   },
   {
@@ -53,7 +53,7 @@ export const SETUP_DATA_SOURCES: DataSourceOption[] = [
 
 export const AUTO_SETUP_VALUE_PROPS = [
   'Name your group structure',
-  'Add bank data (CSV today, bank link soon)',
+  'Add bank data (PDF or CSV today, bank link soon)',
   'We create monthly costs, reserve bills, and your forecast',
   'Adjust anything later in Settings',
 ] as const

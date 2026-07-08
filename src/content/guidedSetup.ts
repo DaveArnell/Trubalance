@@ -14,7 +14,7 @@ export const GUIDED_SETUP_PATH_OPTIONS = [
     lead: 'Name your businesses, add bank data, and True Balance builds monthly costs, reserve planner bills, and your forecast. Tweak anything later.',
     timeEstimate: 'About 2 minutes',
     highlights: [
-      'CSV upload works today; bank link coming soon',
+      'PDF or CSV bank statements work today',
       'No item-by-item review required',
       'Reserve planner and forecast filled automatically',
     ],
@@ -27,7 +27,7 @@ export const GUIDED_SETUP_PATH_OPTIONS = [
     lead: 'Upload your transaction history and review every recurring payment before it becomes a commitment or reserve bill.',
     timeEstimate: '5–10 minutes',
     highlights: [
-      'Upload a CSV for each bank account',
+      'Upload a PDF or CSV for each bank account',
       'Accept, edit, or ignore each suggestion',
       'Good if you want to verify everything first',
     ],
@@ -56,7 +56,7 @@ export const AI_SETUP_STEPS = [
 
 export const AUTO_SETUP_STEPS = [
   { id: 'structure', label: 'Your structure' },
-  { id: 'preferences', label: 'Preferences' },
+  { id: 'preferences', label: 'Income pattern' },
   { id: 'import', label: 'Bank data' },
   { id: 'complete', label: 'Ready' },
 ] as const

@@ -13,7 +13,7 @@ interface SetupOnboardingShellProps {
   currentStepIndex?: number
   /** Manual tour — app stays visible beside the sidebar */
   spotlight?: boolean
-  contentWidth?: 'default' | 'import' | 'review' | 'wide'
+  contentWidth?: 'default' | 'wide' | 'import' | 'review' | 'path-choice'
   onSkip: () => void
   skipLabel?: string
   footer?: ReactNode
@@ -101,7 +101,9 @@ export function SetupOnboardingShell({
     >
       {spotlight ? <div className="setup-flow-spotlight-shade" aria-hidden="true" /> : null}
 
-      <div className="setup-flow-layout">
+      <div
+        className={`setup-flow-layout${contentWidth === 'path-choice' ? ' setup-flow-layout--path-choice' : ''}`}
+      >
         <aside className="setup-flow-sidebar">
           <SetupFlowBrand />
 

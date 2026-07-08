@@ -31,7 +31,7 @@ export function SetupDataSourcesPanel({ onSelectCsv, compact = false }: SetupDat
               <p>{source.description}</p>
               {isCsv && onSelectCsv ? (
                 <button type="button" className="btn-secondary btn-tiny" onClick={onSelectCsv}>
-                  Upload CSV
+                  Upload file
                 </button>
               ) : null}
               {disabled ? (

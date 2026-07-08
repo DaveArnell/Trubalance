@@ -13976,6 +13976,61 @@ tr.sheet-row--received td {
   padding: clamp(28px, 4vw, 52px) clamp(24px, 4vw, 56px);
 }
 
+.setup-flow-main--path-choice .setup-flow-content {
+  max-width: none;
+  width: 100%;
+  padding: clamp(24px, 3vw, 48px) clamp(28px, 4vw, 56px);
+  display: flex;
+  flex-direction: column;
+}
+
+.setup-flow-page--path-choice {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.setup-flow-layout--path-choice {
+  grid-template-columns: minmax(260px, 300px) 1fr;
+}
+
+.setup-flow-layout--path-choice .setup-flow-sidebar-title {
+  font-size: clamp(1.35rem, 2vw, 1.75rem);
+}
+
+.setup-flow-layout--path-choice .setup-flow-sidebar-lead {
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.setup-income-pattern--spacious {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.setup-income-pattern--spacious .setup-income-option {
+  min-height: 120px;
+  padding: var(--space-4);
+}
+
+.setup-income-pattern--spacious .setup-income-option strong {
+  font-size: 1.05rem;
+}
+
+.setup-income-pattern--spacious .setup-income-option small {
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 768px) {
+  .setup-income-pattern--spacious {
+    grid-template-columns: 1fr;
+  }
+}
+
 .setup-flow-main--default .setup-flow-content {
   max-width: 52rem;
 }
@@ -14967,16 +15022,26 @@ tr.sheet-row--received td {
   padding: 2px 8px;
 }
 
+.guided-setup-path-grid.guided-setup-path-grid--flow {
+  display: grid;
+  padding: 0;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  flex: 1;
+  align-content: stretch;
+  min-height: 0;
+}
+
+@media (min-width: 720px) {
+  .guided-setup-path-grid.guided-setup-path-grid--flow {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 .guided-setup-path-grid--flow {
   padding: 0;
   grid-template-columns: 1fr;
   gap: var(--space-4);
-}
-
-@media (min-width: 900px) {
-  .guided-setup-path-grid--flow {
-    grid-template-columns: repeat(3, 1fr);
-  }
 }
 
 .guided-setup-path-icon {
@@ -14993,9 +15058,30 @@ tr.sheet-row--received td {
 
 .guided-setup-path-lead {
   margin: 0;
-  font-size: 0.86rem;
+  font-size: 0.95rem;
   color: var(--text-secondary);
   line-height: 1.55;
+}
+
+.setup-flow-page--path-choice .guided-setup-path-card h3 {
+  font-size: 1.2rem;
+}
+
+.setup-flow-page--path-choice .guided-setup-path-card {
+  padding: 24px 22px;
+  gap: 10px;
+  min-height: 100%;
+}
+
+.setup-flow-page--path-choice .guided-setup-path-card ul {
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.setup-flow-page--path-choice .guided-setup-path-icon {
+  width: 52px;
+  height: 52px;
+  font-size: 1.4rem;
 }
 
 .guided-setup-path-grid {

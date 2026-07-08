@@ -5,8 +5,8 @@ import { calculateDailyTradingEstimate } from '../bankImport/dailyIncome'
 import {
   guessColumnMapping,
   mapRowsToTransactions,
-  parseCsvText,
 } from '../bankImport/parseCsv'
+import { BANK_STATEMENT_ACCEPT, parseBankStatementFile } from '../bankImport/parseBankStatement'
 import type { BankImportColumnMapping } from '../bankImport/types'
 import { formatCurrency } from '../utils/format'
 import { getSteadyBusinessesForScope, getForecastDailyIncomeForScope } from '../utils/forwardCashFlow'
@@ -87,7 +87,7 @@ export function ForecastDailyIncomeCard({
     setReading(true)
     setUploadSummary(null)
     try {
-      const parsed = parseCsvText(await file.text())
+      const parsed = await parseBankStatementFile(file)
       if (parsed.headers.length === 0 || parsed.rows.length === 0) {
         setUploadError('That file looks empty.')
         return
@@ -107,7 +107,7 @@ export function ForecastDailyIncomeCard({
         <input
           ref={fileInputRef}
           type="file"
-          accept=".csv,text/csv"
+          accept={BANK_STATEMENT_ACCEPT}
           className="sr-only"
           onChange={async (event) => {
             const file = event.target.files?.[0]

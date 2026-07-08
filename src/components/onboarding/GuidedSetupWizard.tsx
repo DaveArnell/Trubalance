@@ -8,7 +8,6 @@ import {
   AUTO_SETUP_STEPS,
   GUIDED_SETUP_EDITABLE_NOTE,
   GUIDED_SETUP_PATH_OPTIONS,
-  RESERVE_BUFFER_HINT,
   WHY_TRUE_BALANCE_CONTENT,
   type SetupWizardStepId,
   type GuidedSetupPath,
@@ -32,8 +31,8 @@ import { DEMO_BANK_CSV } from '../../bankImport/demoCsv'
 import {
   guessColumnMapping,
   mapRowsToTransactions,
-  parseCsvText,
 } from '../../bankImport/parseCsv'
+import { BANK_STATEMENT_ACCEPT, parseBankStatementFile } from '../../bankImport/parseBankStatement'
 import type { BankImportColumnKey, BankImportColumnMapping, BankImportSuggestion } from '../../bankImport/types'
 import { historySpanMonths } from '../../bankImport/trendInsights'
 import { formatCurrency } from '../../utils/format'
@@ -265,16 +264,12 @@ function GuidedSetupPathChoice({
   return (
     <SetupOnboardingShell
       kicker="Get started"
-      sidebarTitle="Set up your workspace"
-      sidebarLead="Pick how much help you want. You can change everything later."
+      sidebarTitle="How would you like to set up?"
+      sidebarLead="Pick a path below. You can change everything later in Settings."
+      contentWidth="path-choice"
       onSkip={onDismiss}
     >
-      <div className="setup-flow-page">
-        <header className="setup-flow-page-header">
-          <h2 id="guided-setup-path-title">How would you like to set up?</h2>
-          <p className="setup-flow-page-lead">{GUIDED_SETUP_EDITABLE_NOTE}</p>
-        </header>
-
+      <div className="setup-flow-page setup-flow-page--path-choice">
         <div className="guided-setup-path-grid guided-setup-path-grid--flow">
           {GUIDED_SETUP_PATH_OPTIONS.map((option) => (
             <button
@@ -516,8 +511,8 @@ function GuidedSetupAiWizard({
   )
   const [businessDrafts, setBusinessDrafts] = useState<BusinessStructureDraft[]>([defaultBusinessDraft()])
   const [incomePatternDraft, setIncomePatternDraft] = useState<'steady' | 'lumpy'>('steady')
-  const [includeReserveBuffer, setIncludeReserveBuffer] = useState(false)
-  const [reserveBufferAmount, setReserveBufferAmount] = useState(500)
+  const [includeReserveBuffer] = useState(false)
+  const [reserveBufferAmount] = useState(0)
   const [pendingStructureAdvance, setPendingStructureAdvance] = useState(false)
   const [autoProcessing, setAutoProcessing] = useState(false)
 
@@ -638,17 +633,21 @@ function GuidedSetupAiWizard({
     setPendingStructureAdvance(true)
   }
 
-  const loadCsvForAccount = (text: string, name: string) => {
-    const parsed = parseCsvText(text)
+  const loadStatementForAccount = async (file: File) => {
+    const parsed = await parseBankStatementFile(file)
     if (parsed.headers.length === 0 || parsed.rows.length === 0) {
-      setImportError('That file looks empty. Check it is a CSV with a header row.')
+      setImportError('That file looks empty. Check it is a bank statement with dates and amounts.')
       return
     }
     setImportError(null)
-    setFileName(name)
+    setFileName(file.name)
     setHeaders(parsed.headers)
     setRows(parsed.rows)
     setMapping(guessColumnMapping(parsed.headers))
+  }
+
+  const loadCsvForAccount = (text: string, name: string) => {
+    void loadStatementForAccount(new File([text], name, { type: 'text/csv' }))
   }
 
   const promptAddBusiness = () => {
@@ -659,10 +658,9 @@ function GuidedSetupAiWizard({
   const handleUploadFile = async (file: File | undefined) => {
     if (!file || !activeImportAccountId) return
     try {
-      const text = await file.text()
-      const parsed = parseCsvText(text)
+      const parsed = await parseBankStatementFile(file)
       if (parsed.headers.length === 0 || parsed.rows.length === 0) {
-        setImportError('That file looks empty. Check it is a CSV with a header row.')
+        setImportError('That file looks empty. Check it is a bank statement with dates and amounts.')
         return
       }
       const columnMapping = guessColumnMapping(parsed.headers)
@@ -678,9 +676,13 @@ function GuidedSetupAiWizard({
         setActiveImportAccountId(nextAccount?.id ?? null)
         return
       }
-      loadCsvForAccount(text, file.name)
-    } catch {
-      setImportError('Could not read that file.')
+      setImportError(null)
+      setFileName(file.name)
+      setHeaders(parsed.headers)
+      setRows(parsed.rows)
+      setMapping(columnMapping)
+    } catch (error) {
+      setImportError(error instanceof Error ? error.message : 'Could not read that file.')
     }
   }
 
@@ -1223,12 +1225,12 @@ function GuidedSetupAiWizard({
 
           {aiStep === 'preferences' && (
             <>
-              <h2 id="guided-ai-title">Quick preferences</h2>
+              <h2 id="guided-ai-title">How does money come in?</h2>
               <p className="setup-onboarding-explain">
-                Two quick choices so auto setup matches how your business runs. You can change these later.
+                One quick choice so your forecast matches how you trade. You can change this in Settings later.
               </p>
-              <fieldset className="setup-income-pattern">
-                <legend>How does money come into your business?</legend>
+              <fieldset className="setup-income-pattern setup-income-pattern--spacious">
+                <legend className="sr-only">Income pattern</legend>
                 <label className={`setup-income-option${incomePatternDraft === 'steady' ? ' setup-income-option--active' : ''}`}>
                   <input
                     type="radio"
@@ -1239,7 +1241,7 @@ function GuidedSetupAiWizard({
                   />
                   <span>
                     <strong>Steady / daily</strong>
-                    <small>Retail, hospitality, trade — we forecast average daily takings</small>
+                    <small>Retail, hospitality, trade — money comes in most days</small>
                   </span>
                 </label>
                 <label className={`setup-income-option${incomePatternDraft === 'lumpy' ? ' setup-income-option--active' : ''}`}>
@@ -1256,38 +1258,6 @@ function GuidedSetupAiWizard({
                   </span>
                 </label>
               </fieldset>
-              <fieldset className="setup-reserve-buffer">
-                <legend>Reserve account buffer</legend>
-                <label className="structure-tree-toggle">
-                  <input
-                    type="checkbox"
-                    checked={includeReserveBuffer}
-                    onChange={(event) => setIncludeReserveBuffer(event.target.checked)}
-                  />
-                  <span>Keep extra money in reserve for bills that run over</span>
-                </label>
-                {includeReserveBuffer ? (
-                  <label className="forecast-daily-income-field" style={{ marginTop: '10px' }}>
-                    <span>Buffer amount</span>
-                    <div className="forecast-daily-income-input-row">
-                      <span className="forecast-daily-income-prefix">£</span>
-                      <input
-                        type="number"
-                        min={0}
-                        step={50}
-                        value={reserveBufferAmount}
-                        onChange={(event) => {
-                          const parsed = Number(event.target.value)
-                          if (Number.isFinite(parsed)) setReserveBufferAmount(parsed)
-                        }}
-                      />
-                    </div>
-                  </label>
-                ) : null}
-                <p className="muted" style={{ fontSize: '0.8rem', marginTop: '8px' }}>
-                  {RESERVE_BUFFER_HINT}
-                </p>
-              </fieldset>
             </>
           )}
 
@@ -1299,7 +1269,7 @@ function GuidedSetupAiWizard({
               {setupMode === 'auto' ? (
                 <>
                   <p className="setup-onboarding-lead">
-                    Upload a CSV for each account. We analyse and build your setup automatically — no review step.
+                    Upload a bank statement (PDF or CSV) for each account. We analyse and build your setup automatically — no review step.
                   </p>
                   <SetupDataSourcesPanel
                     compact
@@ -1308,7 +1278,7 @@ function GuidedSetupAiWizard({
                 </>
               ) : (
                 <p className="setup-onboarding-lead">
-                  Export a CSV from your bank for each account below. We will suggest recurring costs for you to approve.
+                  Upload a PDF or CSV bank statement for each account below. We will suggest recurring costs for you to approve.
                 </p>
               )}
 
@@ -1383,7 +1353,7 @@ function GuidedSetupAiWizard({
                         <input
                           ref={fileInputRef}
                           type="file"
-                          accept=".csv,text/csv"
+                          accept={BANK_STATEMENT_ACCEPT}
                           className="sr-only"
                           onChange={async (event) => {
                             const file = event.target.files?.[0]
@@ -1424,7 +1394,7 @@ function GuidedSetupAiWizard({
                                   />
                                 </svg>
                               </span>
-                              <strong>Drop CSV here or click to browse</strong>
+                              <strong>Drop PDF or CSV here, or click to browse</strong>
                               <span>
                                 Uploading for <em>{accountPathLabel(state, activeAccount)}</em>
                               </span>
