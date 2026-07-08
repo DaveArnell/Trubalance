@@ -27,6 +27,8 @@ export interface Business {
   accentColor?: string
   /** Steady = regular income; lumpy = irregular large payments (affects cash outlook guidance). */
   incomePattern?: IncomePattern
+  /** Average day-to-day margin on the forecast (income minus other outgoings, excluding big bills we set up). */
+  forecastDailyIncome?: number
 }
 
 export interface Venue {

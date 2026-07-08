@@ -6,6 +6,7 @@ import type {
   SuggestionFrequency,
 } from './types'
 import { groupKeyForDescription } from './normalize'
+import { passesMinMonthlyThreshold } from './importFilters'
 import {
   categorizeDescription,
   categoryDisplayName,
@@ -126,6 +127,7 @@ function buildReason(
 
 export function detectSuggestionsRuleBased(
   transactions: ParsedBankTransaction[],
+  options?: { minMonthlyAmount?: number },
 ): BankImportSuggestion[] {
   const groups = new Map<string, ParsedBankTransaction[]>()
 
@@ -169,6 +171,11 @@ export function detectSuggestionsRuleBased(
 
     const likelyDueDay = dayOfMonthFromDates(dates)
     const averageAmount = roundCurrency(amounts.reduce((sum, value) => sum + value, 0) / amounts.length)
+
+    if (!passesMinMonthlyThreshold(averageAmount, frequency, options?.minMonthlyAmount)) {
+      continue
+    }
+
     const suggestedName = titleCaseName(
       sample.description.length > 32 ? groupKeyForDescription(sample.description) : sample.description,
     )

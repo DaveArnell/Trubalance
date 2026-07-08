@@ -6,6 +6,7 @@ import { useSubscription } from '../contexts/SubscriptionContext'
 import {
   BUSINESS_ACCENT_COLORS,
   getBusinessAccentColor,
+  getVenueAccentColor,
   getGroupAccentColor,
   isValidAccentColor,
 } from '../utils/businessTheme'
@@ -378,21 +379,30 @@ function AccountLine({
 }
 
 function SiteCard({
+  state,
   venue,
   accounts,
   actions,
 }: {
+  state: AppState
   venue: Venue
   accounts: Account[]
   actions: AppActions
 }) {
+  const accent = getVenueAccentColor(state, venue.id)
   return (
     <article className="org-site-card">
-      <header className="org-site-header">
+      <header className="org-site-header" style={{ borderLeftColor: accent }}>
         <OrgIcon type="site" />
         <div className="org-entity-copy">
           <OrgName value={venue.name} onChange={(name) => actions.renameVenue(venue.id, name)} size="md" />
         </div>
+        <AccentColorPicker
+          value={venue.accentColor}
+          fallback={accent}
+          onChange={(color) => actions.setVenueAccentColor(venue.id, color)}
+          label={venue.name}
+        />
         <EntityActions
           addItems={[
             { label: 'Current account', onClick: () => actions.addAccount(venue.id, 'Current account', 'current') },
@@ -468,7 +478,7 @@ function BusinessCard({
           onChange={(color) => actions.setBusinessAccentColor(business.id, color)}
           label={business.name}
         />
-        <label className="org-income-pattern" title="Shapes Cash Outlook guidance. Steady = daily trade (forecast shows outgoings only). Irregular = invoiced/contract payments (forecast plots income too).">
+        <label className="org-income-pattern" title="Steady = day-to-day trading on forecast. Irregular = large dated receipts on forecast.">
           <span className="sr-only">Income pattern for {business.name}</span>
           <select
             value={business.incomePattern ?? 'steady'}
@@ -518,6 +528,7 @@ function BusinessCard({
               {venues.map((venue) => (
                 <SiteCard
                   key={venue.id}
+                  state={state}
                   venue={venue}
                   accounts={state.accounts.filter(
                     (a) => a.venueId === venue.id && a.active && a.type !== 'reserve',

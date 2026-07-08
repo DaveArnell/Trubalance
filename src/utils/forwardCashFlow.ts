@@ -42,7 +42,7 @@ import { addDays } from './trendProjection'
 
 const AUTO_PAY_DAYS = 1
 
-export type CashFlowEventCategory = 'receipt' | 'monthly_cost' | 'planned' | 'reserve_transfer'
+export type CashFlowEventCategory = 'receipt' | 'monthly_cost' | 'planned' | 'reserve_transfer' | 'daily_income'
 
 export interface CashFlowEvent {
   date: string
@@ -261,6 +261,62 @@ export function getIncomePatternForScope(state: AppState, scope: ViewScope): Inc
   )
   if (patterns.size === 1) return [...patterns][0]!
   return 'mixed'
+}
+
+/** Sum daily income for steady-pattern businesses in scope that have a forecast value set. */
+export function getForecastDailyIncomeForScope(state: AppState, scope: ViewScope): number {
+  const businessIds = getBusinessIdsForScope(state, scope)
+  return roundCurrency(
+    businessIds.reduce((sum, businessId) => {
+      const business = state.businesses.find((item) => item.id === businessId)
+      if (!business) return sum
+      if ((business.incomePattern ?? 'steady') !== 'steady') return sum
+      return sum + (business.forecastDailyIncome ?? 0)
+    }, 0),
+  )
+}
+
+export function getSteadyBusinessesForScope(
+  state: AppState,
+  scope: ViewScope,
+): Array<{ id: string; name: string; forecastDailyIncome?: number }> {
+  return getBusinessIdsForScope(state, scope)
+    .map((id) => state.businesses.find((business) => business.id === id))
+    .filter((business): business is NonNullable<typeof business> => Boolean(business))
+    .filter((business) => (business.incomePattern ?? 'steady') === 'steady')
+    .map((business) => ({
+      id: business.id,
+      name: business.name,
+      forecastDailyIncome: business.forecastDailyIncome,
+    }))
+}
+
+function buildDailyIncomeEvents(
+  dailyIncome: number,
+  today: Date,
+  endDate: Date,
+): CashFlowEvent[] {
+  if (dailyIncome === 0) return []
+
+  const events: CashFlowEvent[] = []
+  const todayKey = isoFromDate(today)
+  const endKey = isoFromDate(endDate)
+  let cursor = dateOnly(today)
+
+  while (isoFromDate(cursor) <= endKey) {
+    const dateKey = isoFromDate(cursor)
+    if (dateKey >= todayKey) {
+      events.push({
+        date: dateKey,
+        amount: dailyIncome,
+        label: 'Day-to-day margin',
+        category: 'daily_income',
+      })
+    }
+    cursor.setDate(cursor.getDate() + 1)
+  }
+
+  return events
 }
 
 function getCurrentAccountBalance(state: AppState, scope: ViewScope): number {
@@ -616,6 +672,7 @@ export function buildForwardCashFlowProjection(
   )
   rawEvents.push(...receiptEvents)
   rawEvents.push(...buildReserveTransferEvents(state, scope, today, endDate))
+  rawEvents.push(...buildDailyIncomeEvents(getForecastDailyIncomeForScope(state, scope), today, endDate))
 
   const eventsByDate = new Map<string, CashFlowEvent[]>()
   for (const event of rawEvents) {

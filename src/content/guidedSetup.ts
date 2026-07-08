@@ -1,22 +1,35 @@
 import type { SuggestionCategory, SuggestionDestination } from '../bankImport/types'
 
-export type GuidedSetupPath = 'choose' | 'ai' | 'manual'
+export type GuidedSetupPath = 'choose' | 'auto' | 'ai' | 'manual'
 
 export const GUIDED_SETUP_EDITABLE_NOTE =
-  'Nothing is locked. Everything can be changed later. Suggestions only become real data after you approve them.'
+  'Nothing is locked. Everything can be changed later. You can always review and edit in Settings.'
 
 export const GUIDED_SETUP_PATH_OPTIONS = [
   {
+    id: 'auto' as const,
+    title: 'Set it up for me',
+    badge: 'Fastest',
+    subtitle: 'Structure + bank data — we fill in the rest',
+    lead: 'Name your businesses, add bank data, and True Balance builds monthly costs, reserve planner bills, and your forecast. Tweak anything later.',
+    timeEstimate: 'About 2 minutes',
+    highlights: [
+      'CSV upload works today; bank link coming soon',
+      'No item-by-item review required',
+      'Reserve planner and forecast filled automatically',
+    ],
+  },
+  {
     id: 'ai' as const,
-    title: 'Let True Balance build it for me',
-    badge: 'Recommended',
-    subtitle: 'Good if you do not want to work everything out manually',
-    lead: 'Upload your transaction history and True Balance will look for recurring payments — monthly direct debits, subscriptions, and regular outgoings. It may also spot quarterly or annual bills based on patterns.',
-    timeEstimate: '2–5 minutes',
+    title: 'Review before adding',
+    badge: 'More control',
+    subtitle: 'Check each suggestion before it is added',
+    lead: 'Upload your transaction history and review every recurring payment before it becomes a commitment or reserve bill.',
+    timeEstimate: '5–10 minutes',
     highlights: [
       'Upload a CSV for each bank account',
-      'Review every suggestion before anything is added',
-      'Rename, edit or ignore anything we detect',
+      'Accept, edit, or ignore each suggestion',
+      'Good if you want to verify everything first',
     ],
   },
   {
@@ -35,32 +48,34 @@ export const GUIDED_SETUP_PATH_OPTIONS = [
 
 export const AI_SETUP_STEPS = [
   { id: 'why', label: 'Why True Balance' },
-  { id: 'structure', label: 'Business & accounts' },
+  { id: 'structure', label: 'Group structure' },
   { id: 'import', label: 'Upload statements' },
   { id: 'review', label: 'Review suggestions' },
   { id: 'complete', label: 'Your True Balance' },
 ] as const
 
-export const WHY_TRUE_BALANCE_CONTENT = {
-  title: 'What True Balance does for you',
-  paragraphs: [
-    'Your bank balance lies. Part of it already belongs to rent, payroll, and bills that haven\'t landed yet — and bigger bills like VAT and insurance are quietly building up in the background.',
-    'True Balance does two things:',
-  ],
-  pillars: [
-    {
-      heading: 'Know what\'s spoken for',
-      body: 'Every regular monthly cost accrues daily. At any point you can see exactly how much of your balance is already committed — and how much is genuinely yours to spend.',
-    },
-    {
-      heading: 'Plan for irregular bills',
-      body: 'The Reserve Planner calculates exactly how much to transfer into savings each month. When a big bill arrives, it tells you to draw the money back out. You don\'t calculate anything — just follow the monthly instruction.',
-    },
-  ],
-  closing: 'The result is one honest number you can trust every single day.',
-} as const
+export const AUTO_SETUP_STEPS = [
+  { id: 'structure', label: 'Your structure' },
+  { id: 'preferences', label: 'Preferences' },
+  { id: 'import', label: 'Bank data' },
+  { id: 'complete', label: 'Ready' },
+] as const
 
 export type AiSetupStepId = (typeof AI_SETUP_STEPS)[number]['id']
+export type AutoSetupStepId = (typeof AUTO_SETUP_STEPS)[number]['id']
+export type SetupWizardStepId = AiSetupStepId | AutoSetupStepId
+
+export const WHY_TRUE_BALANCE_CONTENT = {
+  title: 'One honest number',
+  lead: 'Your bank balance hides money already spoken for and bigger bills building in the background.',
+  bullets: [
+    'See what is committed vs genuinely available',
+    'Plan monthly savings for irregular bills like VAT and insurance',
+  ],
+} as const
+
+export const RESERVE_BUFFER_HINT =
+  'Optional cushion in your reserve account if a bill comes in higher than expected. You can change this anytime.'
 
 export const STATEMENT_HISTORY_TIPS = [
   {

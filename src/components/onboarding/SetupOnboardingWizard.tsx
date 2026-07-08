@@ -15,6 +15,7 @@ import { MANUAL_SETUP_REASSURANCE, WHY_TRUE_BALANCE_CONTENT } from '../../conten
 import { formatCurrency } from '../../utils/format'
 import { getCashAccounts, getAccountsForScope } from '../../utils/calculations'
 import type { PageId } from '../../navigation'
+import { SetupOnboardingShell } from './SetupOnboardingShell'
 
 interface SetupOnboardingWizardProps {
   state: AppState
@@ -28,9 +29,27 @@ interface SetupOnboardingWizardProps {
   onComplete: () => void
   onDismiss: () => void
   onBackToPathChoice?: () => void
+  /** Start the walkthrough at a specific step (e.g. after auto setup) */
+  startAtStepId?: string
 }
 
 type CommitmentDraft = { name: string; amount: string; dueDay: string; selected: boolean }
+
+const SETUP_STEP_NAV_LABELS: Record<string, string> = {
+  why: 'Introduction',
+  business: 'Structure',
+  cash: 'Balances',
+  committed: 'Commitments',
+  'committed-explain': 'Accruing',
+  'month-view': 'Month view',
+  'due-explain': 'Due costs',
+  'receipts-explain': 'Receipts',
+  reserve: 'Reserve',
+  'trends-explain': 'Trends',
+  'forecast-explain': 'Forecast',
+  reveal: 'True Balance',
+  accuracy: 'Your routine',
+}
 
 export function SetupOnboardingWizard({
   state,
@@ -41,15 +60,23 @@ export function SetupOnboardingWizard({
   onComplete,
   onDismiss,
   onBackToPathChoice,
+  startAtStepId,
 }: SetupOnboardingWizardProps) {
   const PROGRESS_KEY = 'trubalance-setup-step-index'
-  const [stepIndex, setStepIndex] = useState(() => {
+  const initialStepIndex = (() => {
+    if (startAtStepId) {
+      const idx = SETUP_ONBOARDING_STEPS.findIndex((item) => item.id === startAtStepId)
+      return idx >= 0 ? idx : 0
+    }
     try {
       const saved = localStorage.getItem(PROGRESS_KEY)
       const idx = saved ? parseInt(saved, 10) : 0
       return idx >= 0 && idx < SETUP_ONBOARDING_STEPS.length ? idx : 0
-    } catch { return 0 }
-  })
+    } catch {
+      return 0
+    }
+  })()
+  const [stepIndex, setStepIndex] = useState(initialStepIndex)
   const [businessName, setBusinessName] = useState('')
   const [venueName, setVenueName] = useState('')
   const [accountName, setAccountName] = useState('Current account')
@@ -82,38 +109,53 @@ export function SetupOnboardingWizard({
   }, [pendingBusinessAdvance, primaryBusiness])
 
   useEffect(() => {
-    if (step.spotlight && step.spotlight.includes('data-widget-id')) {
-      onNavigate('committed-funds')
+    if (step.page) {
+      if (step.id === 'reserve') {
+        const planner = state.reservePlanners.find((item) =>
+          primaryBusiness ? item.businessId === primaryBusiness.id : true,
+        )
+        if (planner) {
+          onNavigate('reserve-planner', planner.id)
+        } else {
+          onNavigate('committed-funds')
+        }
+      } else {
+        onNavigate(step.page)
+      }
     }
+
     if (step.id === 'month-view') {
       window.dispatchEvent(new CustomEvent('tb-set-accruing-view', { detail: 'period' }))
       return () => {
         window.dispatchEvent(new CustomEvent('tb-set-accruing-view', { detail: 'list' }))
       }
     }
-  }, [step.id])
-
-  const [panelPlacement, setPanelPlacement] = useState<'center' | 'left' | 'right'>('center')
+  }, [step.id, step.page, primaryBusiness?.id, state.reservePlanners, onNavigate])
 
   useEffect(() => {
-    const selector = step.spotlight
-    if (!selector) { setPanelPlacement('center'); return }
-    const el = document.querySelector(selector)
-    if (!el) { setPanelPlacement('center'); return }
-    el.setAttribute('data-onboarding-focus', 'true')
-    el.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+    const selector =
+      step.id === 'reserve' &&
+      !state.reservePlanners.some((item) =>
+        primaryBusiness ? item.businessId === primaryBusiness.id : true,
+      )
+        ? '[data-tour="nav-reserve-planner"]'
+        : step.spotlight
+    if (!selector) return
 
-    const rect = el.getBoundingClientRect()
-    const midX = rect.left + rect.width / 2
-    const vpWidth = window.innerWidth
-    if (step.explain) {
-      setPanelPlacement(midX < vpWidth * 0.5 ? 'right' : 'left')
-    } else {
-      setPanelPlacement(midX < vpWidth * 0.5 ? 'right' : 'left')
+    const applySpotlight = () => {
+      const el = document.querySelector(selector)
+      if (!el) return
+      el.setAttribute('data-onboarding-focus', 'true')
+      el.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
     }
 
-    return () => el.removeAttribute('data-onboarding-focus')
-  }, [step.id, step.spotlight])
+    const timer = window.setTimeout(applySpotlight, step.page ? 280 : 80)
+    return () => {
+      window.clearTimeout(timer)
+      const el = document.querySelector(selector)
+      el?.removeAttribute('data-onboarding-focus')
+    }
+  }, [step.id, step.spotlight, step.page, primaryBusiness?.id, state.reservePlanners])
 
   useEffect(() => {
     if (step.id !== 'cash') return
@@ -236,59 +278,70 @@ export function SetupOnboardingWizard({
   const trueBalance = metrics.trueBalance
   const exampleGap = Math.max(0, bankBalance - trueBalance)
 
+  const explainParagraphs = step.explain.split('\n\n')
+  const leadParagraph = explainParagraphs[0] ?? ''
+  const detailParagraphs = explainParagraphs.slice(1)
+
+  const footer = (
+    <>
+      <div className="setup-flow-footer-meta">
+        Step {stepIndex + 1} of {stepCount}
+      </div>
+      <div className="setup-onboarding-nav">
+        <button
+          type="button"
+          className="btn-secondary"
+          disabled={stepIndex === 0 && !onBackToPathChoice}
+          onClick={() => {
+            if (stepIndex === 0 && onBackToPathChoice) onBackToPathChoice()
+            else setStepIndex((i) => Math.max(0, i - 1))
+          }}
+        >
+          Back
+        </button>
+        {step.id !== 'reserve' && (
+          <button type="button" className="btn-primary" onClick={handleNext}>
+            {isLast ? 'Finish' : 'Continue'}
+          </button>
+        )}
+      </div>
+    </>
+  )
+
   const panel = (
-    <div className="setup-onboarding-root" role="presentation">
-      <div className="setup-onboarding-shade" aria-hidden="true" />
-
-      <aside className={`setup-onboarding-panel setup-onboarding-panel--wide${step.spotlight ? ` setup-onboarding-panel--${panelPlacement}` : ''}`} role="dialog" aria-labelledby="setup-onboarding-title">
-        <header className="setup-onboarding-header">
-          <div className="setup-onboarding-header-row">
-            <p className="setup-onboarding-kicker">
-              Getting started · {stepIndex + 1} / {stepCount}
-            </p>
-            <button type="button" className="btn-ghost btn-tiny setup-onboarding-skip" onClick={handleDismiss}>
-              Skip setup
-            </button>
-          </div>
-          <ol className="setup-onboarding-checklist" aria-label="Progress">
-            {SETUP_ONBOARDING_STEPS.map((item, index) => (
-              <li
-                key={item.id}
-                className={
-                  index < stepIndex
-                    ? 'setup-onboarding-check setup-onboarding-check--done'
-                    : index === stepIndex
-                      ? 'setup-onboarding-check setup-onboarding-check--active'
-                      : 'setup-onboarding-check'
-                }
-              >
-                <span className="setup-onboarding-check-dot" aria-hidden />
-              </li>
-            ))}
-          </ol>
-        </header>
-
-        <div className="setup-onboarding-body">
+    <SetupOnboardingShell
+      kicker={startAtStepId ? 'App walkthrough' : 'Getting started'}
+      sidebarTitle={step.title}
+      steps={SETUP_ONBOARDING_STEPS.map((item) => ({
+        id: item.id,
+        label: SETUP_STEP_NAV_LABELS[item.id] ?? item.title,
+      }))}
+      currentStepIndex={stepIndex}
+      spotlight={Boolean(step.spotlight)}
+      onSkip={handleDismiss}
+      skipLabel="Skip setup"
+      footer={footer}
+    >
+      <div key={step.id} className="setup-flow-step-panel">
+        <header className="setup-flow-page-header">
           <h2 id="setup-onboarding-title">{step.title}</h2>
-          {step.explain.split('\n\n').map((para, i) => (
-            <p key={i} className="setup-onboarding-explain">{para}</p>
-          ))}
-          {onBackToPathChoice && stepIndex === 0 && (
-            <p className="setup-onboarding-explain muted">{MANUAL_SETUP_REASSURANCE}</p>
-          )}
+          <p className="setup-flow-page-lead">{leadParagraph}</p>
+        </header>
+        {detailParagraphs.map((para, i) => (
+          <p key={i} className="setup-onboarding-explain">
+            {para}
+          </p>
+        ))}
+        {onBackToPathChoice && stepIndex === 0 && (
+          <p className="setup-onboarding-explain muted">{MANUAL_SETUP_REASSURANCE}</p>
+        )}
 
           {step.id === 'why' && (
-            <div className="setup-why-pillars">
-              {WHY_TRUE_BALANCE_CONTENT.pillars.map((pillar) => (
-                <div key={pillar.heading} className="setup-why-pillar">
-                  <h3>{pillar.heading}</h3>
-                  <p>{pillar.body}</p>
-                </div>
+            <ul className="setup-why-bullets">
+              {WHY_TRUE_BALANCE_CONTENT.bullets.map((item) => (
+                <li key={item}>{item}</li>
               ))}
-              <p className="setup-why-closing">
-                <strong>{WHY_TRUE_BALANCE_CONTENT.closing}</strong>
-              </p>
-            </div>
+            </ul>
           )}
 
           {step.id === 'business' && (
@@ -627,33 +680,8 @@ export function SetupOnboardingWizard({
               </li>
             </ul>
           )}
-        </div>
-
-        <footer className="setup-onboarding-footer">
-          <button type="button" className="btn-ghost btn-tiny" onClick={handleDismiss}>
-            Skip setup
-          </button>
-          <div className="setup-onboarding-nav">
-            <button
-              type="button"
-              className="btn-secondary btn-tiny"
-              disabled={stepIndex === 0 && !onBackToPathChoice}
-              onClick={() => {
-                if (stepIndex === 0 && onBackToPathChoice) onBackToPathChoice()
-                else setStepIndex((i) => Math.max(0, i - 1))
-              }}
-            >
-              Back
-            </button>
-            {step.id !== 'reserve' && (
-              <button type="button" className="btn-primary btn-tiny" onClick={handleNext}>
-                {isLast ? 'Finish' : 'Next'}
-              </button>
-            )}
-          </div>
-        </footer>
-      </aside>
-    </div>
+      </div>
+    </SetupOnboardingShell>
   )
 
   return createPortal(panel, document.body)

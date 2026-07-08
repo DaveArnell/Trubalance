@@ -1,10 +1,12 @@
 import { useMemo } from 'react'
 import type { AppState, GraphRange, IncomePattern, ViewScope } from '../types'
+import type { AppActions } from '../hooks/useAppState'
 import { formatCurrency } from '../utils/format'
 import { formatAxisCurrency, computeTrendYDomain } from '../utils/chartFormat'
 import {
   buildForwardCashFlowProjection,
   cashOutlookHorizonDays,
+  getForecastDailyIncomeForScope,
   getIncomePatternForScope,
   type CashFlowEvent,
 } from '../utils/forwardCashFlow'
@@ -12,6 +14,7 @@ import { formatProjectionDateLabel } from '../utils/trendProjection'
 import { getScopeItemLabel } from '../utils/scope'
 import { HelpButton } from './HelpButton'
 import { WIDGET_HELP } from '../content/livingDashboard'
+import { ForecastDailyIncomeCard } from './ForecastDailyIncomeCard'
 
 const PAD = { top: 20, right: 16, bottom: 48, left: 56 }
 
@@ -21,19 +24,23 @@ function incomePatternLabel(pattern: IncomePattern | 'mixed'): string {
   return 'Steady / daily income'
 }
 
-function incomePatternHint(pattern: IncomePattern | 'mixed'): string {
+function incomePatternHint(pattern: IncomePattern | 'mixed', dailyNet: number): string {
   if (pattern === 'lumpy') {
     return 'Best suited for this view — add expected receipts with dates so large payments show on the outlook alongside your scheduled costs.'
   }
   if (pattern === 'mixed') {
-    return 'Set income pattern per business in Settings → Structure for tailored guidance.'
+    return 'Set income pattern per business in Settings → Structure. Day-to-day trading applies to steady businesses only.'
   }
-  return 'This outlook shows scheduled outgoings only. Daily income is not plotted — your real balance will trend higher than shown here. Use the Trends page for a more accurate picture.'
+  if (dailyNet !== 0) {
+    return `Includes ${formatCurrency(dailyNet)}/day net trading (takings minus smaller costs). Big monthly bills and reserve items are on top of this — not double-counted.`
+  }
+  return 'Add day-to-day trading below from a bank CSV, or enter a net figure manually. This avoids showing full income without smaller day-to-day costs.'
 }
 
 function eventTone(category: CashFlowEvent['category']): string {
   switch (category) {
     case 'receipt':
+    case 'daily_income':
       return 'cash-outlook-event--in'
     case 'reserve_transfer':
       return 'cash-outlook-event--transfer'
@@ -47,6 +54,7 @@ interface CashOutlookPanelProps {
   viewScope: ViewScope
   graphRange: GraphRange
   onRangeChange?: (range: GraphRange) => void
+  actions?: Pick<AppActions, 'setBusinessForecastDailyIncome'>
   embedded?: boolean
   openHelp?: string | null
   setOpenHelp?: (id: string | null) => void
@@ -62,6 +70,7 @@ export function CashOutlookPanel({
   viewScope,
   graphRange,
   onRangeChange,
+  actions,
   embedded = false,
   openHelp = null,
   setOpenHelp = () => {},
@@ -92,6 +101,10 @@ export function CashOutlookPanel({
   )
 
   const incomePattern = getIncomePatternForScope(state, viewScope)
+  const dailyNet = useMemo(
+    () => getForecastDailyIncomeForScope(state, viewScope),
+    [state.businesses, viewScope],
+  )
 
   const chart = useMemo(() => {
     const width = 640
@@ -230,8 +243,12 @@ export function CashOutlookPanel({
       </p>
 
       <p className="cash-outlook-pattern muted">
-        <strong>{incomePatternLabel(incomePattern)}</strong> · {incomePatternHint(incomePattern)}
+        <strong>{incomePatternLabel(incomePattern)}</strong> · {incomePatternHint(incomePattern, dailyNet)}
       </p>
+
+      {actions ? (
+        <ForecastDailyIncomeCard state={state} viewScope={viewScope} actions={actions} />
+      ) : null}
 
       <div className="cash-outlook-chart-wrap">
         <svg

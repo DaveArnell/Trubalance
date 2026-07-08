@@ -14,7 +14,9 @@ export interface BankImportAiAdapter {
 export const ruleBasedBankImportAdapter: BankImportAiAdapter = {
   async enrichSuggestions(input) {
     return {
-      suggestions: detectSuggestionsRuleBased(input.transactions),
+      suggestions: detectSuggestionsRuleBased(input.transactions, {
+        minMonthlyAmount: input.minMonthlyAmount,
+      }),
       insights: detectTrendInsights(input.transactions),
       aiNotes: undefined,
     }

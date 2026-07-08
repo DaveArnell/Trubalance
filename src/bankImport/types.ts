@@ -95,6 +95,8 @@ export interface BankImportAnalysisInput {
   transactions: ParsedBankTransaction[]
   scopeLevel: ScopeLevel
   scopeId: string
+  /** Ignore recurring suggestions below this approximate monthly amount. */
+  minMonthlyAmount?: number
 }
 
 export interface BankImportAnalysisResult {

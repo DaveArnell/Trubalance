@@ -552,6 +552,30 @@ export function useAppState(options?: UseAppStateOptions) {
       businesses: s.businesses.map((b) => (b.id === id ? { ...b, incomePattern } : b)),
     }))
 
+  const setBusinessForecastDailyIncome = (id: string, forecastDailyIncome: number | null) =>
+    update((s) => ({
+      ...s,
+      businesses: s.businesses.map((b) =>
+        b.id === id
+          ? {
+              ...b,
+              forecastDailyIncome:
+                forecastDailyIncome != null && forecastDailyIncome !== 0
+                  ? forecastDailyIncome
+                  : undefined,
+            }
+          : b,
+      ),
+    }))
+
+  const setVenueAccentColor = (id: string, accentColor: string | null) =>
+    update((s) => ({
+      ...s,
+      venues: s.venues.map((v) =>
+        v.id === id ? { ...v, accentColor: accentColor ?? undefined } : v,
+      ),
+    }))
+
   const deleteBusiness = (id: string) => {
     const venueIds = state.venues.filter((v) => v.businessId === id).map((v) => v.id)
     update((s) => ({
@@ -1923,37 +1947,67 @@ export function useAppState(options?: UseAppStateOptions) {
   }
 
   const setupGuidedWorkspace = (input: {
-    businessName: string
-    venues: Array<{
+    groupName?: string
+    businesses: Array<{
       name: string
-      accounts: Array<{ name: string; type: AccountType }>
+      venues: Array<{
+        name: string
+        accounts: Array<{ name: string; type: AccountType }>
+      }>
+      businessAccounts?: Array<{ name: string; type: AccountType }>
     }>
-    businessAccounts?: Array<{ name: string; type: AccountType }>
   }) => {
-    const businessName = input.businessName.trim()
-    if (!businessName) return
+    const businessPayloads = input.businesses
+      .map((business) => ({ ...business, name: business.name.trim() }))
+      .filter((business) => business.name)
+    if (businessPayloads.length === 0) return
+
     update((s) => {
       if (s.businesses.length > 0) return s
       const groupId = newId()
-      const businessId = newId()
-      const groups = [...s.groups, { id: groupId, name: 'Group' }]
-      const businesses = [...s.businesses, { id: businessId, groupId, name: businessName }]
+      const groups = [
+        ...s.groups,
+        { id: groupId, name: input.groupName?.trim() || 'Group' },
+      ]
+      let businesses = [...s.businesses]
       let venues = [...s.venues]
       let accounts = [...s.accounts]
 
-      for (const venueDraft of input.venues) {
-        const venueName = venueDraft.name.trim()
-        if (!venueName) continue
-        const venueId = newId()
-        venues = [...venues, { id: venueId, businessId, name: venueName }]
-        for (const accountDraft of venueDraft.accounts) {
+      for (const businessDraft of businessPayloads) {
+        const businessId = newId()
+        businesses = [...businesses, { id: businessId, groupId, name: businessDraft.name }]
+
+        for (const venueDraft of businessDraft.venues) {
+          const venueName = venueDraft.name.trim()
+          if (!venueName) continue
+          const venueId = newId()
+          venues = [...venues, { id: venueId, businessId, name: venueName }]
+          for (const accountDraft of venueDraft.accounts) {
+            const accountName = accountDraft.name.trim()
+            if (!accountName) continue
+            accounts = [
+              ...accounts,
+              {
+                id: newId(),
+                venueId,
+                name: accountName,
+                type: accountDraft.type,
+                balance: 0,
+                active: true,
+                updatedAt: new Date().toISOString(),
+              },
+            ]
+          }
+        }
+
+        for (const accountDraft of businessDraft.businessAccounts ?? []) {
           const accountName = accountDraft.name.trim()
           if (!accountName) continue
           accounts = [
             ...accounts,
             {
               id: newId(),
-              venueId,
+              businessId,
               name: accountName,
               type: accountDraft.type,
               balance: 0,
@@ -1962,23 +2016,6 @@ export function useAppState(options?: UseAppStateOptions) {
             },
           ]
         }
-      }
-
-      for (const accountDraft of input.businessAccounts ?? []) {
-        const accountName = accountDraft.name.trim()
-        if (!accountName) continue
-        accounts = [
-          ...accounts,
-          {
-            id: newId(),
-            businessId,
-            name: accountName,
-            type: accountDraft.type,
-            balance: 0,
-            active: true,
-            updatedAt: new Date().toISOString(),
-          },
-        ]
       }
 
       return { ...s, groups, businesses, venues, accounts }
@@ -2002,9 +2039,11 @@ export function useAppState(options?: UseAppStateOptions) {
     renameBusiness,
     setBusinessAccentColor,
     setBusinessIncomePattern,
+    setBusinessForecastDailyIncome,
     deleteBusiness,
     addVenue,
     renameVenue,
+    setVenueAccentColor,
     deleteVenue,
     addAccount,
     addBusinessAccount,

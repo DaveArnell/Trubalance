@@ -33,7 +33,13 @@ function mapBusiness(row: Record<string, unknown>): Business {
 }
 
 function mapVenue(row: Record<string, unknown>): Venue {
-  return { id: String(row.id), businessId: String(row.business_id), name: String(row.name) }
+  const accentColor = row.accent_color ? String(row.accent_color) : undefined
+  return {
+    id: String(row.id),
+    businessId: String(row.business_id),
+    name: String(row.name),
+    ...(accentColor ? { accentColor } : {}),
+  }
 }
 
 function mapAccount(row: Record<string, unknown>): Account {
@@ -452,6 +458,7 @@ export async function saveWorkspaceState(
     business_id: v.businessId,
     name: v.name,
     sort_order: i,
+    accent_color: v.accentColor ?? null,
     ...ws,
   }))
   const accountRows = state.accounts.map((a) => ({

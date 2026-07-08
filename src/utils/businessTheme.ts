@@ -34,6 +34,15 @@ export function resolveScopeBusinessId(state: AppState, scope: ViewScope): strin
   return null
 }
 
+export function getVenueAccentColor(state: AppState, venueId: string): string {
+  const venue = state.venues.find((entry) => entry.id === venueId)
+  if (!venue) return BUSINESS_ACCENT_COLORS[0]
+  if (isValidAccentColor(venue.accentColor)) return venue.accentColor
+  const siblings = state.venues.filter((entry) => entry.businessId === venue.businessId)
+  const index = siblings.findIndex((entry) => entry.id === venueId)
+  return BUSINESS_ACCENT_COLORS[Math.max(0, index + 1) % BUSINESS_ACCENT_COLORS.length]!
+}
+
 export function getBusinessAccentColor(state: AppState, businessId: string): string {
   const business = state.businesses.find((entry) => entry.id === businessId)
   if (!business) return BUSINESS_ACCENT_COLORS[0]
@@ -90,6 +99,10 @@ export function scopeThemeStyle(state: AppState, scope: ViewScope): CSSPropertie
     return scopeAccentTokens(accent)
   }
 
+  if (scope.type === 'venue') {
+    return scopeAccentTokens(getVenueAccentColor(state, scope.id))
+  }
+
   const businessId = resolveScopeBusinessId(state, scope)
   if (!businessId) {
     return {
@@ -124,8 +137,7 @@ export function chartColorForScope(state: AppState, scope: ViewScope, fallbackIn
   }
   const venue = state.venues.find((entry) => entry.id === scope.id)
   if (venue) {
-    if (isValidAccentColor(venue.accentColor)) return venue.accentColor
-    return getBusinessAccentColor(state, venue.businessId)
+    return getVenueAccentColor(state, venue.id)
   }
   return BUSINESS_ACCENT_COLORS[Math.max(0, fallbackIndex) % BUSINESS_ACCENT_COLORS.length]!
 }
