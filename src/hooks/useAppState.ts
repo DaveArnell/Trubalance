@@ -50,6 +50,7 @@ import { applySnapshotMetricCorrection } from '../utils/snapshotCorrections'
 import type { HistoryMetricKey } from '../utils/historyTable'
 import { todayDateKey, getFreshness } from '../utils/snapshots'
 import { MONTHS, currentMonthIndex } from '../utils/format'
+import { syncGuidedStructureInState, type GuidedBusinessPayload } from '../utils/structureDraftSync'
 import { backupBrowserStateToSession, isUserOwnedWorkspace, readRawBrowserStateJson, statesMatchRoughly } from '../utils/localStateStorage'
 import { normalizeWorkspaceState } from '../utils/workspaceNormalize'
 import { DIARY_REMINDER_TEMPLATES } from '../content/businessHub'
@@ -2022,6 +2023,13 @@ export function useAppState(options?: UseAppStateOptions) {
     })
   }
 
+  const syncGuidedStructureFromDrafts = (payloads: GuidedBusinessPayload[]) => {
+    update((s) => {
+      const synced = syncGuidedStructureInState(s, payloads)
+      return { ...s, ...synced }
+    })
+  }
+
   return {
     state,
     viewScope,
@@ -2107,6 +2115,7 @@ export function useAppState(options?: UseAppStateOptions) {
     addDiaryReminderFromTemplate,
     setupMinimalWorkspace,
     setupGuidedWorkspace,
+    syncGuidedStructureFromDrafts,
   }
 }
 

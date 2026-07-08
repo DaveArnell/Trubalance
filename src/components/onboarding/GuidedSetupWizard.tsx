@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { AppActions } from '../../hooks/useAppState'
-import type { Account, AccountType, AppState, DashboardMetrics, ViewScope } from '../../types'
+import type { Account, AppState, DashboardMetrics, ViewScope } from '../../types'
 import type { PageId } from '../../navigation'
 import {
   AI_SETUP_STEPS,
@@ -20,10 +20,16 @@ import { BankImportSuggestionReview } from '../bankImport/BankImportSuggestionRe
 import { runAutoApplyFromImportResults } from '../../bankImport/autoApply'
 import { forecastDailyIncomeUpdatesFromImports } from '../../bankImport/forecastIncomeSync'
 import { analyzeBankTransactions } from '../../bankImport/aiAdapter'
+import { BankImportMinMonthlyField } from '../bankImport/BankImportMinMonthlyField'
+import { readBankImportMinMonthlyAmount } from '../../utils/bankImportPreferences'
 import {
-  readBankImportMinMonthlyAmount,
-  writeBankImportMinMonthlyAmount,
-} from '../../utils/bankImportPreferences'
+  businessDraftToPayload,
+  businessDraftsFromState,
+  defaultBusinessDraft,
+  defaultVenueDraft,
+  type BusinessStructureDraft,
+  type VenueStructureDraft,
+} from '../../utils/structureDraftSync'
 import { applyBankImportSuggestions, scopeForAccount } from '../../bankImport/applySuggestions'
 import type { AccountImportResult } from '../../bankImport/importCentre'
 import { mergeAccountImportInsights, mergeAccountImportSuggestions } from '../../bankImport/importCentre'
@@ -45,33 +51,6 @@ const COLUMN_LABELS: Record<BankImportColumnKey, string> = {
   balance: 'Balance (optional)',
 }
 
-interface VenueStructureDraft {
-  name: string
-  currentAccountName: string
-  includeSavings: boolean
-  savingsName: string
-  includeReserve: boolean
-  reserveName: string
-}
-
-interface BusinessStructureDraft {
-  name: string
-  singleSite: boolean
-  currentAccountName: string
-  includeBusinessSavings: boolean
-  businessSavingsName: string
-  venues: VenueStructureDraft[]
-}
-
-interface GuidedBusinessPayload {
-  name: string
-  venues: Array<{
-    name: string
-    accounts: Array<{ name: string; type: AccountType }>
-  }>
-  businessAccounts?: Array<{ name: string; type: AccountType }>
-}
-
 const BUSINESS_DRAFT_ACCENTS = ['var(--accent)', '#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
 
 interface GuidedSetupWizardProps {
@@ -82,80 +61,6 @@ interface GuidedSetupWizardProps {
   onNavigate: (pageId: PageId, reservePlannerId?: string | null) => void
   onComplete: () => void
   onDismiss: () => void
-}
-
-function defaultVenueDraft(): VenueStructureDraft {
-  return {
-    name: '',
-    currentAccountName: 'Current account',
-    includeSavings: false,
-    savingsName: 'Savings account',
-    includeReserve: false,
-    reserveName: 'Reserve account',
-  }
-}
-
-function defaultBusinessDraft(): BusinessStructureDraft {
-  return {
-    name: '',
-    singleSite: false,
-    currentAccountName: 'Current account',
-    includeBusinessSavings: false,
-    businessSavingsName: 'Savings account',
-    venues: [defaultVenueDraft()],
-  }
-}
-
-function businessDraftToPayload(draft: BusinessStructureDraft): GuidedBusinessPayload | null {
-  const name = draft.name.trim()
-  if (!name) return null
-
-  if (draft.singleSite) {
-    const businessAccounts: Array<{ name: string; type: AccountType }> = [
-      { name: draft.currentAccountName.trim() || 'Current account', type: 'current' },
-    ]
-    if (draft.includeBusinessSavings) {
-      businessAccounts.push({
-        name: draft.businessSavingsName.trim() || 'Savings account',
-        type: 'savings',
-      })
-    }
-    return { name, venues: [], businessAccounts }
-  }
-
-  const venuePayload = draft.venues
-    .filter((venue) => venue.name.trim())
-    .map((venue) => {
-      const accountList: Array<{ name: string; type: AccountType }> = [
-        { name: venue.currentAccountName.trim() || 'Current account', type: 'current' },
-      ]
-      if (venue.includeSavings) {
-        accountList.push({
-          name: venue.savingsName.trim() || 'Savings account',
-          type: 'savings',
-        })
-      }
-      if (venue.includeReserve) {
-        accountList.push({
-          name: venue.reserveName.trim() || 'Reserve account',
-          type: 'reserve',
-        })
-      }
-      return { name: venue.name.trim(), accounts: accountList }
-    })
-
-  const businessAccounts: Array<{ name: string; type: AccountType }> = []
-  if (draft.includeBusinessSavings) {
-    businessAccounts.push({
-      name: draft.businessSavingsName.trim() || 'Savings account',
-      type: 'savings',
-    })
-  }
-  if (venuePayload.length === 0 && !businessAccounts.some((account) => account.type === 'current')) {
-    businessAccounts.unshift({ name: 'Current account', type: 'current' })
-  }
-
-  return { name, venues: venuePayload, businessAccounts }
 }
 
 function importableAccounts(state: AppState): Account[] {
@@ -530,20 +435,24 @@ function GuidedSetupAiWizard({
   const [applySummary, setApplySummary] = useState<string | null>(null)
   const [uploadDragOver, setUploadDragOver] = useState(false)
   const [minMonthlyAmount, setMinMonthlyAmount] = useState(() => readBankImportMinMonthlyAmount())
+  const structureHydratedRef = useRef(false)
 
   const accounts = useMemo(() => importableAccounts(state), [state.accounts])
   const stepIndex = setupSteps.findIndex((step) => step.id === aiStep)
-  const business = state.businesses[0]
 
   useEffect(() => {
-    if (!pendingStructureAdvance || !business) return
+    if (!pendingStructureAdvance || state.businesses.length === 0) return
     setPendingStructureAdvance(false)
     if (setupMode !== 'auto') {
-      actions.setBusinessIncomePattern(business.id, incomePatternDraft)
+      for (const biz of state.businesses) {
+        actions.setBusinessIncomePattern(biz.id, incomePatternDraft)
+      }
     }
-    ensureBusinessHasImportableAccount(state, actions, business.id)
+    for (const biz of state.businesses) {
+      ensureBusinessHasImportableAccount(state, actions, biz.id)
+    }
     setAiStep(setupMode === 'auto' ? 'preferences' : 'import')
-  }, [pendingStructureAdvance, business, state, actions, incomePatternDraft, setupMode])
+  }, [pendingStructureAdvance, state.businesses, state, actions, incomePatternDraft, setupMode])
 
   const mergedSuggestions = useMemo(
     () => mergeAccountImportSuggestions(importResults),
@@ -554,6 +463,17 @@ function GuidedSetupAiWizard({
     () => mergeAccountImportInsights(importResults),
     [importResults],
   )
+
+  useEffect(() => {
+    if (aiStep !== 'structure') {
+      structureHydratedRef.current = false
+      return
+    }
+    if (state.businesses.length > 0 && !structureHydratedRef.current) {
+      setBusinessDrafts(businessDraftsFromState(state))
+      structureHydratedRef.current = true
+    }
+  }, [aiStep, state])
 
   useEffect(() => {
     if (aiStep === 'review') {
@@ -568,14 +488,6 @@ function GuidedSetupAiWizard({
       setActiveImportAccountId(accounts[0]!.id)
     }
   }, [aiStep, accounts, activeImportAccountId])
-
-  const advanceToImport = () => {
-    const targetBusiness = state.businesses[0]
-    if (targetBusiness) {
-      ensureBusinessHasImportableAccount(state, actions, targetBusiness.id)
-    }
-    setAiStep('import')
-  }
 
   const applyIncomePatternToBusinesses = () => {
     for (const biz of state.businesses) {
@@ -611,25 +523,18 @@ function GuidedSetupAiWizard({
   }
 
   const handleStructureSave = () => {
-    if (business) {
-      if (setupMode !== 'auto') {
-        actions.setBusinessIncomePattern(business.id, incomePatternDraft)
-      }
-      ensureBusinessHasImportableAccount(state, actions, business.id)
-      if (setupMode === 'auto') {
-        setAiStep('preferences')
-      } else {
-        advanceToImport()
-      }
+    const payloads = businessDrafts
+      .map(businessDraftToPayload)
+      .filter((item): item is NonNullable<ReturnType<typeof businessDraftToPayload>> => item !== null)
+    if (payloads.length === 0) return
+
+    if (state.businesses.length > 0) {
+      actions.syncGuidedStructureFromDrafts(payloads)
+      setPendingStructureAdvance(true)
       return
     }
 
-    const businesses = businessDrafts
-      .map(businessDraftToPayload)
-      .filter((item): item is GuidedBusinessPayload => item !== null)
-    if (businesses.length === 0) return
-
-    actions.setupGuidedWorkspace({ businesses })
+    actions.setupGuidedWorkspace({ businesses: payloads })
     setPendingStructureAdvance(true)
   }
 
@@ -648,11 +553,6 @@ function GuidedSetupAiWizard({
 
   const loadCsvForAccount = (text: string, name: string) => {
     void loadStatementForAccount(new File([text], name, { type: 'text/csv' }))
-  }
-
-  const promptAddBusiness = () => {
-    const name = prompt('Business name:')
-    if (name?.trim()) actions.addBusiness(undefined, name.trim(), true)
   }
 
   const handleUploadFile = async (file: File | undefined) => {
@@ -799,6 +699,7 @@ function GuidedSetupAiWizard({
 
   const skipCurrentImport = () => {
     if (!activeImportAccountId) return
+    const scope = scopeForAccount(state, activeImportAccountId)
     setImportResults((current) => {
       const without = current.filter((item) => item.accountId !== activeImportAccountId)
       return [
@@ -810,8 +711,8 @@ function GuidedSetupAiWizard({
           session: {
             transactions: [],
             suggestions: [],
-            scopeLevel: 'business',
-            scopeId: business?.id ?? '',
+            scopeLevel: scope?.scopeLevel ?? 'business',
+            scopeId: scope?.scopeId ?? '',
           },
         },
       ]
@@ -1064,130 +965,29 @@ function GuidedSetupAiWizard({
               <p className="setup-onboarding-explain">
                 Add each business in your group, then add venues and accounts under each one.
               </p>
-              {state.businesses.length > 0 ? (
-                <div className="structure-tree">
-                  <button
-                    type="button"
-                    className="btn-secondary btn-tiny structure-tree-add-btn"
-                    onClick={promptAddBusiness}
-                  >
-                    + Add another business
-                  </button>
-                  {state.businesses.map((biz) => {
-                    const bizVenues = state.venues.filter((v) => v.businessId === biz.id)
-                    const bizAccounts = state.accounts.filter(
-                      (a) => a.businessId === biz.id || bizVenues.some((v) => a.venueId === v.id),
-                    )
-                    return (
-                      <div key={biz.id} className="structure-tree-node structure-tree-node--business">
-                        <div className="structure-tree-node-head">
-                          <span className="structure-tree-swatch" style={{ background: biz.accentColor || 'var(--accent)' }} />
-                          <span className="structure-tree-node-label">{biz.name}</span>
-                          {state.businesses.length > 1 && (
-                            <button
-                              type="button"
-                              className="structure-tree-remove"
-                              title="Delete business"
-                              onClick={() => actions.deleteBusiness(biz.id)}
-                            >
-                              ×
-                            </button>
-                          )}
-                        </div>
-                        <div className="structure-tree-accounts">
-                          {bizAccounts
-                            .filter((a) => a.businessId === biz.id)
-                            .map((a) => (
-                              <span key={a.id} className="structure-tree-account-chip">
-                                {a.type === 'current' ? '🏦' : '💰'} {a.name}
-                              </span>
-                            ))}
-                        </div>
-                        {bizVenues.length > 0 && (
-                          <div className="structure-tree-children">
-                            {bizVenues.map((venue) => (
-                              <div key={venue.id} className="structure-tree-node structure-tree-node--venue">
-                                <div className="structure-tree-connector" />
-                                <div className="structure-tree-node-head">
-                                  <span className="structure-tree-swatch" style={{ background: venue.accentColor || '#6366f1' }} />
-                                  <span className="structure-tree-node-label">{venue.name}</span>
-                                  <button
-                                    type="button"
-                                    className="structure-tree-remove"
-                                    title="Remove venue"
-                                    onClick={() => actions.deleteVenue(venue.id)}
-                                  >
-                                    ×
-                                  </button>
-                                </div>
-                                <div className="structure-tree-accounts">
-                                  {state.accounts
-                                    .filter((a) => a.venueId === venue.id)
-                                    .map((a) => (
-                                      <span key={a.id} className="structure-tree-account-chip">
-                                        {a.type === 'current' ? '🏦' : '💰'} {a.name}
-                                      </span>
-                                    ))}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        <div className="structure-tree-add-actions">
-                          <button
-                            type="button"
-                            className="btn-ghost btn-tiny"
-                            onClick={() => {
-                              const name = prompt('Venue name:')
-                              if (name?.trim()) actions.addVenue(biz.id, name.trim())
-                            }}
-                          >
-                            + Venue
-                          </button>
-                          <button
-                            type="button"
-                            className="btn-ghost btn-tiny"
-                            onClick={() => actions.addBusinessAccount(biz.id, 'Current account', 'current')}
-                          >
-                            + Current
-                          </button>
-                          <button
-                            type="button"
-                            className="btn-ghost btn-tiny"
-                            onClick={() => actions.addBusinessAccount(biz.id, 'Savings account', 'savings')}
-                          >
-                            + Savings
-                          </button>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              ) : (
-                <div className="structure-tree structure-tree--editable structure-tree--group">
-                  <p className="structure-tree-group-label">Group</p>
-                  {businessDrafts.map((draft, index) => (
-                    <StructureBusinessDraftEditor
-                      key={index}
-                      draft={draft}
-                      index={index}
-                      totalBusinesses={businessDrafts.length}
-                      accentColor={BUSINESS_DRAFT_ACCENTS[index % BUSINESS_DRAFT_ACCENTS.length]!}
-                      onChange={(next) =>
-                        setBusinessDrafts((current) => current.map((row, i) => (i === index ? next : row)))
-                      }
-                      onRemove={() => setBusinessDrafts((current) => current.filter((_, i) => i !== index))}
-                    />
-                  ))}
-                  <button
-                    type="button"
-                    className="btn-secondary structure-tree-add-business-btn"
-                    onClick={() => setBusinessDrafts((current) => [...current, defaultBusinessDraft()])}
-                  >
-                    + Add another business
-                  </button>
-                </div>
-              )}
+              <div className="structure-tree structure-tree--editable structure-tree--group">
+                <p className="structure-tree-group-label">Group</p>
+                {businessDrafts.map((draft, index) => (
+                  <StructureBusinessDraftEditor
+                    key={index}
+                    draft={draft}
+                    index={index}
+                    totalBusinesses={businessDrafts.length}
+                    accentColor={BUSINESS_DRAFT_ACCENTS[index % BUSINESS_DRAFT_ACCENTS.length]!}
+                    onChange={(next) =>
+                      setBusinessDrafts((current) => current.map((row, i) => (i === index ? next : row)))
+                    }
+                    onRemove={() => setBusinessDrafts((current) => current.filter((_, i) => i !== index))}
+                  />
+                ))}
+                <button
+                  type="button"
+                  className="btn-secondary structure-tree-add-business-btn"
+                  onClick={() => setBusinessDrafts((current) => [...current, defaultBusinessDraft()])}
+                >
+                  + Add another business
+                </button>
+              </div>
 
               {setupMode === 'guided' ? (
               <fieldset className="setup-income-pattern">
@@ -1325,27 +1125,11 @@ function GuidedSetupAiWizard({
                       <p className="guided-setup-history-note">
                         12+ months of history works best. 24 months helps spot annual bills.
                       </p>
-                      <label className="bank-import-min-amount-field">
-                        <span>Minimum monthly amount</span>
-                        <div className="bank-import-min-amount-input">
-                          <span>£</span>
-                          <input
-                            type="number"
-                            min={0}
-                            step={1}
-                            inputMode="numeric"
-                            value={minMonthlyAmount > 0 ? minMonthlyAmount : ''}
-                            placeholder="0"
-                            onChange={(event) => {
-                              const parsed = Number(event.target.value)
-                              const next = Number.isFinite(parsed) && parsed > 0 ? parsed : 0
-                              setMinMonthlyAmount(next)
-                              writeBankImportMinMonthlyAmount(next)
-                            }}
-                          />
-                        </div>
-                        <small>Ignore recurring items below this average per month.</small>
-                      </label>
+                      <BankImportMinMonthlyField
+                        compact
+                        value={minMonthlyAmount}
+                        onChange={setMinMonthlyAmount}
+                      />
                     </div>
 
                     {activeAccount && (

@@ -5,10 +5,8 @@ import { getAccountBusinessId } from '../../utils/accounts'
 import { getScopeItemLabel } from '../../utils/scope'
 import { analyzeBankTransactions } from '../../bankImport/aiAdapter'
 import { applyBankImportSuggestions, scopeForAccount } from '../../bankImport/applySuggestions'
-import {
-  readBankImportMinMonthlyAmount,
-  writeBankImportMinMonthlyAmount,
-} from '../../utils/bankImportPreferences'
+import { BankImportMinMonthlyField } from './BankImportMinMonthlyField'
+import { readBankImportMinMonthlyAmount } from '../../utils/bankImportPreferences'
 import { DEMO_BANK_CSV } from '../../bankImport/demoCsv'
 import { guessColumnMapping, mapRowsToTransactions } from '../../bankImport/parseCsv'
 import { BANK_STATEMENT_ACCEPT, parseBankStatementFile } from '../../bankImport/parseBankStatement'
@@ -374,27 +372,11 @@ export function BankStatementImportPanel({
             </div>
           )}
 
-          <label className="bank-import-min-amount-field">
-            <span>Minimum monthly amount to suggest</span>
-            <div className="bank-import-min-amount-input">
-              <span>£</span>
-              <input
-                type="number"
-                min={0}
-                step={1}
-                inputMode="numeric"
-                value={minMonthlyAmount > 0 ? minMonthlyAmount : ''}
-                placeholder="0"
-                onChange={(event) => {
-                  const parsed = Number(event.target.value)
-                  const next = Number.isFinite(parsed) && parsed > 0 ? parsed : 0
-                  setMinMonthlyAmount(next)
-                  writeBankImportMinMonthlyAmount(next)
-                }}
-              />
-            </div>
-            <small>Recurring payments below this monthly average are skipped.</small>
-          </label>
+          <BankImportMinMonthlyField
+            label="Minimum monthly amount to suggest"
+            value={minMonthlyAmount}
+            onChange={setMinMonthlyAmount}
+          />
 
           <div className="bank-import-actions">
             <button type="button" className="btn-ghost" onClick={() => setStep('upload')}>
