@@ -102,7 +102,6 @@ export function buildPageWidgets(pageId: PageId, ctx: PageWidgetContext): Record
               viewScope={viewScope}
               graphRange={graphRange}
               onRangeChange={setGraphRange}
-              actions={actions}
               openHelp={openHelp}
               setOpenHelp={setOpenHelp}
             />
@@ -115,6 +114,7 @@ export function buildPageWidgets(pageId: PageId, ctx: PageWidgetContext): Record
               state={state}
               viewScope={viewScope}
               graphRange={graphRange}
+              actions={actions}
             />
           </div>
         ),

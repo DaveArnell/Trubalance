@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import type { AppState, GraphRange, ViewScope } from '../types'
+import type { AppActions } from '../hooks/useAppState'
 import { getScopeItemLabel } from '../utils/scope'
 import { formatCurrency, getCurrencySymbol, stripCurrencyInput } from '../utils/format'
 import { filterSnapshotsByRange } from '../utils/snapshots'
@@ -10,12 +11,14 @@ import {
   formatProjectionDateLabel,
   formatTrendRate,
 } from '../utils/trendProjection'
+import { ForecastDailyIncomeCard } from './ForecastDailyIncomeCard'
 
 interface TrendProjectionPanelProps {
   state: AppState
   viewScope: ViewScope
   graphRange: GraphRange
   embedded?: boolean
+  actions?: Pick<AppActions, 'setBusinessForecastDailyIncome'>
 }
 
 function trendDirectionLabel(direction: 'rising' | 'falling' | 'flat') {
@@ -29,6 +32,7 @@ export function TrendProjectionPanel({
   viewScope,
   graphRange,
   embedded = false,
+  actions,
 }: TrendProjectionPanelProps) {
   const [targetInput, setTargetInput] = useState('100000')
 
@@ -53,6 +57,14 @@ export function TrendProjectionPanel({
 
   const body = (
     <div className="trend-projection-body">
+      {actions ? (
+        <ForecastDailyIncomeCard
+          compact
+          state={state}
+          viewScope={viewScope}
+          actions={actions}
+        />
+      ) : null}
       {snapshots.length < 2 ? (
         <p className="trend-projection-empty muted">
           Record at least two balance snapshots to project a trend.

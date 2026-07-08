@@ -16,9 +16,15 @@ interface ForecastDailyIncomeCardProps {
   state: AppState
   viewScope: ViewScope
   actions: Pick<AppActions, 'setBusinessForecastDailyIncome'>
+  compact?: boolean
 }
 
-export function ForecastDailyIncomeCard({ state, viewScope, actions }: ForecastDailyIncomeCardProps) {
+export function ForecastDailyIncomeCard({
+  state,
+  viewScope,
+  actions,
+  compact = false,
+}: ForecastDailyIncomeCardProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const targetBusinessRef = useRef<string | null>(null)
   const [uploadError, setUploadError] = useState<string | null>(null)
@@ -35,6 +41,13 @@ export function ForecastDailyIncomeCard({ state, viewScope, actions }: ForecastD
   )
 
   if (steadyBusinesses.length === 0) {
+    if (compact) {
+      return (
+        <p className="forecast-daily-income-inline-muted muted">
+          Set income pattern to steady / daily in Settings → Structure to model day-to-day trading.
+        </p>
+      )
+    }
     return (
       <div className="forecast-daily-income-card forecast-daily-income-card--muted">
         <h3 className="forecast-daily-income-title">Day-to-day trading</h3>
@@ -62,7 +75,9 @@ export function ForecastDailyIncomeCard({ state, viewScope, actions }: ForecastD
         ? `${formatProjectionDateLabel(estimate.startDate)} to ${formatProjectionDateLabel(estimate.endDate)} (${estimate.daySpan} days)`
         : `${estimate.daySpan} days`
     setUploadSummary(
-      `From ${spanLabel}: in ${formatCurrency(estimate.averageDailyIncome)}/day, other out ${formatCurrency(estimate.averageDailyOtherOutgoings)}/day → net ${formatCurrency(estimate.averageDailyNetTrading)}/day on the chart. Big regular bills are separate.`,
+      compact
+        ? `Net ${formatCurrency(estimate.averageDailyNetTrading)}/day from ${spanLabel}.`
+        : `From ${spanLabel}: in ${formatCurrency(estimate.averageDailyIncome)}/day, other out ${formatCurrency(estimate.averageDailyOtherOutgoings)}/day → net ${formatCurrency(estimate.averageDailyNetTrading)}/day on the cash line. Big regular bills are separate.`,
     )
     setUploadError(null)
   }
@@ -86,6 +101,94 @@ export function ForecastDailyIncomeCard({ state, viewScope, actions }: ForecastD
     }
   }
 
+  if (compact) {
+    return (
+      <div className="forecast-daily-income-inline">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".csv,text/csv"
+          className="sr-only"
+          onChange={async (event) => {
+            const file = event.target.files?.[0]
+            event.target.value = ''
+            const businessId = targetBusinessRef.current
+            if (!businessId) return
+            await handleFile(file, businessId)
+          }}
+        />
+        <p className="forecast-daily-income-inline-label">
+          Net day-to-day margin
+          {steadyBusinesses.length > 1 ? (
+            <span className="forecast-daily-income-inline-total muted">
+              {' '}
+              · combined {formatCurrency(totalDailyNet)}/day
+            </span>
+          ) : null}
+        </p>
+        <div className="forecast-daily-income-inline-controls">
+          {steadyBusinesses.map((business) => (
+            <div key={business.id} className="forecast-daily-income-inline-row">
+              {steadyBusinesses.length > 1 ? (
+                <span className="forecast-daily-income-inline-business">{business.name}</span>
+              ) : null}
+              <div className="forecast-daily-income-input-row forecast-daily-income-input-row--compact">
+                <span className="forecast-daily-income-prefix">£</span>
+                <input
+                  type="number"
+                  step={0.01}
+                  inputMode="decimal"
+                  value={business.forecastDailyIncome ?? ''}
+                  placeholder="0"
+                  aria-label={
+                    steadyBusinesses.length > 1
+                      ? `${business.name} net day-to-day margin`
+                      : 'Net day-to-day margin per day'
+                  }
+                  onChange={(event) => {
+                    const raw = event.target.value
+                    if (raw === '') {
+                      actions.setBusinessForecastDailyIncome(business.id, null)
+                      return
+                    }
+                    const parsed = Number(raw)
+                    if (Number.isFinite(parsed)) {
+                      actions.setBusinessForecastDailyIncome(business.id, parsed)
+                    }
+                  }}
+                />
+                <span className="forecast-daily-income-suffix">/day</span>
+              </div>
+              <button
+                type="button"
+                className="btn-ghost btn-tiny"
+                disabled={reading}
+                title="Calculate from bank CSV"
+                onClick={() => {
+                  targetBusinessRef.current = business.id
+                  setUploadError(null)
+                  setUploadSummary(null)
+                  fileInputRef.current?.click()
+                }}
+              >
+                {reading && targetBusinessRef.current === business.id ? '…' : 'CSV'}
+              </button>
+            </div>
+          ))}
+        </div>
+        <p className="forecast-daily-income-inline-hint muted">
+          Baked into the cash outlook line — not shown as daily movements. Big bills stay separate.
+        </p>
+        {uploadError ? (
+          <p className="bank-import-error" role="alert">
+            {uploadError}
+          </p>
+        ) : null}
+        {uploadSummary ? <p className="bank-import-success">{uploadSummary}</p> : null}
+      </div>
+    )
+  }
+
   return (
     <div className="forecast-daily-income-card">
       <input
@@ -105,14 +208,12 @@ export function ForecastDailyIncomeCard({ state, viewScope, actions }: ForecastD
         <h3 className="forecast-daily-income-title">Day-to-day trading</h3>
         {steadyBusinesses.length > 1 ? (
           <p className="forecast-daily-income-total muted">
-            Combined on chart: <strong>{formatCurrency(totalDailyNet)}</strong> / day
+            Combined: <strong>{formatCurrency(totalDailyNet)}</strong> / day
           </p>
         ) : null}
       </div>
       <p className="forecast-daily-income-lead muted">
-        This is your average daily takings <em>minus</em> smaller day-to-day costs from your statements.
-        Rent, payroll, VAT and other big bills you set up separately are <strong>not</strong> included here — so
-        the outlook is not inflated.
+        Average daily takings minus smaller day-to-day costs. Big regular bills are separate.
       </p>
 
       <div className="forecast-daily-income-list">
@@ -157,7 +258,7 @@ export function ForecastDailyIncomeCard({ state, viewScope, actions }: ForecastD
                   fileInputRef.current?.click()
                 }}
               >
-                {reading && targetBusinessRef.current === business.id ? 'Reading…' : 'Calculate from CSV'}
+                {reading && targetBusinessRef.current === business.id ? 'Reading…' : 'CSV'}
               </button>
             </div>
           </div>

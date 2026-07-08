@@ -2472,7 +2472,11 @@ body.widget-canvas-resizing * {
 }
 
 .forecast-widget-shell--cash-outlook {
-  padding-top: 2rem;
+  padding-top: 0;
+}
+
+.forecast-widget-shell--projection {
+  padding-top: 0;
 }
 
 .forecast-projection-panel {
@@ -2781,17 +2785,27 @@ body.widget-canvas-resizing * {
 .cash-outlook-body {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 12px 14px 14px;
+  gap: 8px;
+  padding: 8px 10px 10px;
   min-height: 0;
   flex: 1;
   overflow: auto;
 }
 
+.widget-canvas[data-page-id='forecast'] .cash-outlook-body {
+  gap: 6px;
+  padding: 6px 8px 8px;
+}
+
 .cash-outlook-summary {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
+}
+
+.cash-outlook-summary--compact .cash-outlook-kpi {
+  padding: 7px 9px;
+  gap: 1px;
 }
 
 .cash-outlook-kpi {
@@ -2811,6 +2825,10 @@ body.widget-canvas-resizing * {
   color: var(--muted);
 }
 
+.cash-outlook-summary--compact .cash-outlook-kpi-value {
+  font-size: 0.92rem;
+}
+
 .cash-outlook-kpi-value {
   font-size: 1rem;
   font-variant-numeric: tabular-nums;
@@ -2826,8 +2844,8 @@ body.widget-canvas-resizing * {
 
 .cash-outlook-pattern {
   margin: 0;
-  font-size: 0.72rem;
-  line-height: 1.45;
+  font-size: 0.7rem;
+  line-height: 1.35;
 }
 
 .cash-outlook-date-range {
@@ -2993,27 +3011,34 @@ body.widget-canvas-resizing * {
 }
 
 .cash-outlook-events-title {
-  margin: 0;
-  font-size: 0.78rem;
+  margin: 0 0 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
 }
 
 .cash-outlook-event-list {
   list-style: none;
-  margin: 8px 0 0;
+  margin: 4px 0 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
+  max-height: 8.5rem;
+  overflow-y: auto;
+}
+
+.widget-canvas[data-page-id='forecast'] .cash-outlook-event-list {
+  max-height: 7rem;
 }
 
 .cash-outlook-event {
   display: grid;
-  grid-template-columns: 88px 1fr auto;
-  gap: 8px;
+  grid-template-columns: 4.5rem 1fr auto;
+  gap: 6px;
   align-items: center;
-  font-size: 0.72rem;
-  padding: 6px 8px;
-  border-radius: 8px;
+  font-size: 0.68rem;
+  padding: 4px 7px;
+  border-radius: 6px;
   background: rgba(15, 23, 42, 0.03);
 }
 
@@ -15337,6 +15362,101 @@ tr.sheet-row--received td {
   font-size: 1rem;
   font-weight: 700;
   color: var(--text-primary);
+}
+
+.forecast-daily-income-inline {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  background: var(--bg-subtle);
+}
+
+.forecast-daily-income-inline-label {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.forecast-daily-income-inline-total {
+  font-weight: 500;
+}
+
+.forecast-daily-income-inline-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.forecast-daily-income-inline-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+}
+
+.forecast-daily-income-inline-business {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  min-width: 4rem;
+}
+
+.forecast-daily-income-input-row--compact {
+  padding: 4px 8px;
+  gap: 4px;
+  border-radius: 8px;
+}
+
+.forecast-daily-income-input-row--compact input {
+  width: 4.5rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.forecast-daily-income-inline-hint {
+  margin: 0;
+  font-size: 0.65rem;
+  line-height: 1.35;
+}
+
+.forecast-daily-income-inline-muted {
+  margin: 0;
+  font-size: 0.68rem;
+  line-height: 1.35;
+}
+
+.widget-canvas[data-page-id='forecast'] .trend-projection-body {
+  padding: 0;
+  gap: 8px;
+}
+
+.widget-canvas[data-page-id='forecast'] .trend-projection-grid {
+  gap: 8px;
+}
+
+.widget-canvas[data-page-id='forecast'] .trend-projection-kpi-card,
+.widget-canvas[data-page-id='forecast'] .trend-projection-target-card {
+  padding: 8px 10px;
+}
+
+.widget-canvas[data-page-id='forecast'] .trend-projection-kpi-value {
+  font-size: 0.92rem;
+}
+
+.widget-canvas[data-page-id='forecast'] .trend-projection-outcome {
+  padding: 8px 10px;
+}
+
+.widget-canvas[data-page-id='forecast'] .forecast-projection-head {
+  padding: 0;
+}
+
+.widget-canvas[data-page-id='forecast'] .forecast-projection-lead {
+  display: none;
 }
 
 .setup-data-sources {

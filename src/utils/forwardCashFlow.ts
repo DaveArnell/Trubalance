@@ -64,6 +64,8 @@ export interface ForwardCashFlowProjection {
   openingCurrentBalance: number
   openingTrueBalance: number
   incomePattern: IncomePattern | 'mixed'
+  /** Net day-to-day margin baked into the cash line (not listed as daily movements). */
+  dailyTradingNet: number
   days: ForwardCashFlowDay[]
   events: CashFlowEvent[]
   unscheduledReceipts: { id: string; label: string; amount: number }[]
@@ -289,34 +291,6 @@ export function getSteadyBusinessesForScope(
       name: business.name,
       forecastDailyIncome: business.forecastDailyIncome,
     }))
-}
-
-function buildDailyIncomeEvents(
-  dailyIncome: number,
-  today: Date,
-  endDate: Date,
-): CashFlowEvent[] {
-  if (dailyIncome === 0) return []
-
-  const events: CashFlowEvent[] = []
-  const todayKey = isoFromDate(today)
-  const endKey = isoFromDate(endDate)
-  let cursor = dateOnly(today)
-
-  while (isoFromDate(cursor) <= endKey) {
-    const dateKey = isoFromDate(cursor)
-    if (dateKey >= todayKey) {
-      events.push({
-        date: dateKey,
-        amount: dailyIncome,
-        label: 'Day-to-day margin',
-        category: 'daily_income',
-      })
-    }
-    cursor.setDate(cursor.getDate() + 1)
-  }
-
-  return events
 }
 
 function getCurrentAccountBalance(state: AppState, scope: ViewScope): number {
@@ -672,7 +646,8 @@ export function buildForwardCashFlowProjection(
   )
   rawEvents.push(...receiptEvents)
   rawEvents.push(...buildReserveTransferEvents(state, scope, today, endDate))
-  rawEvents.push(...buildDailyIncomeEvents(getForecastDailyIncomeForScope(state, scope), today, endDate))
+
+  const dailyTradingNet = getForecastDailyIncomeForScope(state, scope)
 
   const eventsByDate = new Map<string, CashFlowEvent[]>()
   for (const event of rawEvents) {
@@ -738,6 +713,9 @@ export function buildForwardCashFlowProjection(
     for (const event of dayEvents) {
       balance += event.amount
     }
+    if (dailyTradingNet !== 0) {
+      balance = roundCurrency(balance + dailyTradingNet)
+    }
 
     if (startOfDayBalance < lowestBalance) {
       lowestBalance = startOfDayBalance
@@ -776,6 +754,7 @@ export function buildForwardCashFlowProjection(
     openingCurrentBalance,
     openingTrueBalance,
     incomePattern: getIncomePatternForScope(state, scope),
+    dailyTradingNet,
     days,
     events: allEvents,
     unscheduledReceipts: unscheduled,

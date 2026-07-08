@@ -1,6 +1,5 @@
 import { useMemo } from 'react'
 import type { AppState, GraphRange, IncomePattern, ViewScope } from '../types'
-import type { AppActions } from '../hooks/useAppState'
 import { formatCurrency } from '../utils/format'
 import { formatAxisCurrency, computeTrendYDomain } from '../utils/chartFormat'
 import {
@@ -14,15 +13,8 @@ import { formatProjectionDateLabel } from '../utils/trendProjection'
 import { getScopeItemLabel } from '../utils/scope'
 import { HelpButton } from './HelpButton'
 import { WIDGET_HELP } from '../content/livingDashboard'
-import { ForecastDailyIncomeCard } from './ForecastDailyIncomeCard'
 
 const PAD = { top: 20, right: 16, bottom: 48, left: 56 }
-
-function incomePatternLabel(pattern: IncomePattern | 'mixed'): string {
-  if (pattern === 'lumpy') return 'Lumpy / irregular income'
-  if (pattern === 'mixed') return 'Mixed income patterns'
-  return 'Steady / daily income'
-}
 
 function incomePatternHint(pattern: IncomePattern | 'mixed', dailyNet: number): string {
   if (pattern === 'lumpy') {
@@ -40,7 +32,6 @@ function incomePatternHint(pattern: IncomePattern | 'mixed', dailyNet: number): 
 function eventTone(category: CashFlowEvent['category']): string {
   switch (category) {
     case 'receipt':
-    case 'daily_income':
       return 'cash-outlook-event--in'
     case 'reserve_transfer':
       return 'cash-outlook-event--transfer'
@@ -49,12 +40,15 @@ function eventTone(category: CashFlowEvent['category']): string {
   }
 }
 
+function isVisibleOutlookEvent(event: CashFlowEvent): boolean {
+  return event.category !== 'daily_income'
+}
+
 interface CashOutlookPanelProps {
   state: AppState
   viewScope: ViewScope
   graphRange: GraphRange
   onRangeChange?: (range: GraphRange) => void
-  actions?: Pick<AppActions, 'setBusinessForecastDailyIncome'>
   embedded?: boolean
   openHelp?: string | null
   setOpenHelp?: (id: string | null) => void
@@ -70,7 +64,6 @@ export function CashOutlookPanel({
   viewScope,
   graphRange,
   onRangeChange,
-  actions,
   embedded = false,
   openHelp = null,
   setOpenHelp = () => {},
@@ -106,20 +99,19 @@ export function CashOutlookPanel({
     [state.businesses, viewScope],
   )
 
+  const visibleEvents = useMemo(
+    () => projection.events.filter(isVisibleOutlookEvent),
+    [projection.events],
+  )
+
   const chart = useMemo(() => {
     const width = 640
-    const height = 220
+    const height = 200
     const plotW = width - PAD.left - PAD.right
     const plotH = height - PAD.top - PAD.bottom
 
     const cashValues = projection.days.map((d) => d.balance)
-    const trueValues = projection.days.map((d) => d.trueBalance)
-    const showTrueBalance = projection.days.some(
-      (day) => Math.abs(day.trueBalance - day.balance) > 0.5,
-    )
-    const allValues = showTrueBalance
-      ? [projection.openingCurrentBalance, projection.openingTrueBalance, ...cashValues, ...trueValues]
-      : [projection.openingCurrentBalance, ...cashValues]
+    const allValues = [projection.openingCurrentBalance, ...cashValues]
     const minVal = Math.min(...allValues)
     const maxVal = Math.max(...allValues)
     const { yMin, yMax } = computeTrendYDomain(minVal, maxVal, 0.1)
@@ -131,16 +123,10 @@ export function CashOutlookPanel({
       .map((day, index) => `${xForIndex(index)},${yForValue(day.balance)}`)
       .join(' ')
 
-    const trueLinePoints = showTrueBalance
-      ? projection.days
-          .map((day, index) => `${xForIndex(index)},${yForValue(day.trueBalance)}`)
-          .join(' ')
-      : null
-
     const zeroY =
       yMin < 0 && yMax > 0 ? yForValue(0) : null
 
-    const eventMarkers = projection.events.map((event) => {
+    const eventMarkers = visibleEvents.map((event) => {
       const dayIndex = projection.days.findIndex((d) => d.date === event.date)
       if (dayIndex < 0) return null
       return {
@@ -176,8 +162,6 @@ export function CashOutlookPanel({
       plotW,
       plotH,
       linePoints,
-      trueLinePoints,
-      showTrueBalance,
       zeroY,
       eventMarkers,
       yTicks,
@@ -187,21 +171,20 @@ export function CashOutlookPanel({
       endDate,
       xTicks,
     }
-  }, [projection])
+  }, [projection, visibleEvents])
 
   const body = (
     <div className="cash-outlook-body">
-      <div className="cash-outlook-summary">
+      <div className="cash-outlook-summary cash-outlook-summary--compact">
         <div className="cash-outlook-kpi">
-          <span className="cash-outlook-kpi-label">Current account now</span>
+          <span className="cash-outlook-kpi-label">Cash now</span>
           <strong className="cash-outlook-kpi-value">{formatCurrency(projection.openingCurrentBalance)}</strong>
+          <span className="cash-outlook-kpi-meta muted">
+            True Balance {formatCurrency(projection.openingTrueBalance)}
+          </span>
         </div>
         <div className="cash-outlook-kpi">
-          <span className="cash-outlook-kpi-label">True Balance now</span>
-          <strong className="cash-outlook-kpi-value">{formatCurrency(projection.openingTrueBalance)}</strong>
-        </div>
-        <div className="cash-outlook-kpi">
-          <span className="cash-outlook-kpi-label">Lowest cash in outlook</span>
+          <span className="cash-outlook-kpi-label">Lowest in period</span>
           <strong
             className={`cash-outlook-kpi-value${projection.lowestBalance < 0 ? ' cash-outlook-kpi-value--danger' : ''}`}
           >
@@ -210,44 +193,18 @@ export function CashOutlookPanel({
           <span className="cash-outlook-kpi-meta muted">{formatProjectionDateLabel(projection.lowestBalanceDate)}</span>
         </div>
         <div className="cash-outlook-kpi">
-          <span className="cash-outlook-kpi-label">End of period (cash)</span>
+          <span className="cash-outlook-kpi-label">End of period</span>
           <strong className="cash-outlook-kpi-value">{formatCurrency(projection.endingBalance)}</strong>
-          <span className="cash-outlook-kpi-meta muted">
-            {formatProjectionDateLabel(chart.endDate)}
-          </span>
+          <span className="cash-outlook-kpi-meta muted">{formatProjectionDateLabel(chart.endDate)}</span>
         </div>
-        {chart.showTrueBalance ? (
-          <div className="cash-outlook-kpi">
-            <span className="cash-outlook-kpi-label">End of period (True Balance)</span>
-            <strong className="cash-outlook-kpi-value">{formatCurrency(projection.endingTrueBalance)}</strong>
-            <span className="cash-outlook-kpi-meta muted">
-              {formatProjectionDateLabel(chart.endDate)}
-            </span>
-          </div>
-        ) : null}
       </div>
 
-      <p className="cash-outlook-date-range" aria-hidden>
-        <span className="cash-outlook-date-range-from">
-          <span className="cash-outlook-date-range-tag">From</span>
-          {formatProjectionDateLabel(chart.startDate)}
-          <span className="cash-outlook-date-range-note">(today)</span>
-        </span>
-        <span className="cash-outlook-date-range-arrow" aria-hidden>
-          →
-        </span>
-        <span className="cash-outlook-date-range-to">
-          <span className="cash-outlook-date-range-tag">To</span>
-          {formatProjectionDateLabel(chart.endDate)}
-        </span>
-      </p>
-
-      <p className="cash-outlook-pattern muted">
-        <strong>{incomePatternLabel(incomePattern)}</strong> · {incomePatternHint(incomePattern, dailyNet)}
-      </p>
-
-      {actions ? (
-        <ForecastDailyIncomeCard state={state} viewScope={viewScope} actions={actions} />
+      {dailyNet !== 0 || incomePattern !== 'steady' ? (
+        <p className="cash-outlook-pattern muted">
+          {dailyNet !== 0
+            ? `Includes ${formatCurrency(dailyNet)}/day net trading in the cash line (not shown as daily movements).`
+            : incomePatternHint(incomePattern, dailyNet)}
+        </p>
       ) : null}
 
       <div className="cash-outlook-chart-wrap">
@@ -333,13 +290,6 @@ export function CashOutlookPanel({
           })}
 
           <polyline className="cash-outlook-line cash-outlook-line--cash" points={chart.linePoints} fill="none" />
-          {chart.trueLinePoints ? (
-            <polyline
-              className="cash-outlook-line cash-outlook-line--true-balance"
-              points={chart.trueLinePoints}
-              fill="none"
-            />
-          ) : null}
 
           {chart.eventMarkers.map(({ event, x, y }) => (
             <circle
@@ -359,24 +309,13 @@ export function CashOutlookPanel({
         </svg>
       </div>
 
-      {chart.showTrueBalance ? (
-        <p className="cash-outlook-chart-legend" aria-hidden>
-          <span className="cash-outlook-chart-legend--cash">
-            <i /> Current account
-          </span>
-          <span className="cash-outlook-chart-legend--true">
-            <i /> True Balance (cash − committed + expected)
-          </span>
-        </p>
-      ) : null}
-
       <div className="cash-outlook-events">
         <h3 className="cash-outlook-events-title">Scheduled movements</h3>
-        {projection.events.length === 0 ? (
+        {visibleEvents.length === 0 ? (
           <p className="muted cash-outlook-empty">No dated costs or receipts in this period.</p>
         ) : (
           <ul className="cash-outlook-event-list">
-            {projection.events.map((event) => (
+            {visibleEvents.map((event) => (
               <li key={`${event.date}-${event.label}-${event.amount}`} className={`cash-outlook-event ${eventTone(event.category)}`}>
                 <span className="cash-outlook-event-date">{formatProjectionDateLabel(event.date)}</span>
                 <span className="cash-outlook-event-label">{event.label}</span>
