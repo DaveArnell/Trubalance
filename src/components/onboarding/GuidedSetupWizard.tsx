@@ -76,11 +76,21 @@ interface GuidedSetupWizardProps {
   onDismiss: () => void
 }
 
+function businessHasVenueCurrentAccount(state: AppState, businessId: string): boolean {
+  for (const account of state.accounts) {
+    if (!account.active || account.type !== 'current' || !account.venueId) continue
+    const venue = state.venues.find((item) => item.id === account.venueId)
+    if (venue?.businessId === businessId) return true
+  }
+  return false
+}
+
 function ensureBusinessHasImportableAccount(
   state: AppState,
   actions: AppActions,
   businessId: string,
 ): void {
+  if (businessHasVenueCurrentAccount(state, businessId)) return
   if (businessHasImportableCashAccount(state, businessId)) return
   actions.addBusinessAccount(businessId, 'Current account', 'current')
 }
@@ -94,7 +104,13 @@ function accountPathLabel(state: AppState, account: Account): string {
         )
       : undefined
   const venue = account.venueId ? state.venues.find((item) => item.id === account.venueId) : undefined
-  return [business?.name, venue?.name, account.name].filter(Boolean).join(' → ')
+  if (venue) {
+    return [business?.name, venue.name, account.name].filter(Boolean).join(' → ')
+  }
+  if (business) {
+    return `${business.name} (business) → ${account.name}`
+  }
+  return account.name
 }
 
 function nextPendingImportAccountId(
@@ -438,6 +454,7 @@ function GuidedSetupAiWizard({
   const [minMonthlyAmount, setMinMonthlyAmount] = useState(() => readBankImportMinMonthlyAmount())
   const structureHydratedRef = useRef(false)
   const importResultsRef = useRef<AccountImportResult[]>([])
+  const minMonthlyReanalyzeSkipRef = useRef(true)
   const [importActivity, setImportActivity] = useState<
     | { phase: 'idle' }
     | { phase: 'parsing'; page: number; total: number }
@@ -524,6 +541,44 @@ function GuidedSetupAiWizard({
     if (hasValidActive) return
     setActiveImportAccountId(nextPendingImportAccountId(accounts, importResults))
   }, [aiStep, accounts, activeImportAccountId, importResults])
+
+  useEffect(() => {
+    if (aiStep !== 'import') return
+    if (minMonthlyReanalyzeSkipRef.current) {
+      minMonthlyReanalyzeSkipRef.current = false
+      return
+    }
+
+    const analysed = importResults.filter(
+      (item) => !item.skipped && item.session.transactions.length > 0,
+    )
+    if (analysed.length === 0) return
+
+    let cancelled = false
+    const timer = window.setTimeout(() => {
+      void (async () => {
+        setAnalyzing(true)
+        try {
+          for (const result of analysed) {
+            if (cancelled) return
+            await analyzeTransactionsForAccount(
+              result.accountId,
+              result.session.transactions,
+              result.fileName,
+              mapping,
+            )
+          }
+        } finally {
+          if (!cancelled) setAnalyzing(false)
+        }
+      })()
+    }, 400)
+
+    return () => {
+      cancelled = true
+      window.clearTimeout(timer)
+    }
+  }, [minMonthlyAmount])
 
   const advanceImportQueue = (results: AccountImportResult[]) => {
     setFileName('')
@@ -962,14 +1017,22 @@ function GuidedSetupAiWizard({
   const activeAccountResult = effectiveActiveImportAccountId
     ? importResults.find((item) => item.accountId === effectiveActiveImportAccountId)
     : undefined
-  const allAccountsProcessed =
-    accounts.length > 0 &&
-    accounts.every((account) => importResults.some((item) => item.accountId === account.id))
+  const pendingImportAccounts = accounts.filter(
+    (account) => !importResults.some((item) => item.accountId === account.id),
+  )
+  const hasAnalysedImport =
+    importAnalysis.statementsAnalysed > 0 && importAnalysis.transactionCount > 0
   const canAutoSetup =
-    allAccountsProcessed &&
-    importAnalysis.transactionCount > 0 &&
+    hasAnalysedImport &&
     setupFinalizePhase === 'idle' &&
-    !autoProcessing
+    !autoProcessing &&
+    !analyzing &&
+    importActivity.phase === 'idle'
+  const autoSetupBlockReason = !hasAnalysedImport
+    ? 'Upload a bank statement and wait for the analysis summary before continuing.'
+    : analyzing || importActivity.phase !== 'idle'
+      ? 'Still analysing your statement…'
+      : undefined
 
   const setupMetrics = useMemo(() => {
     const groupId = state.groups[0]?.id ?? state.businesses[0]?.groupId
@@ -1029,14 +1092,15 @@ function GuidedSetupAiWizard({
           <button
             type="button"
             className="btn-primary"
-            disabled={
-              !canAutoSetup || analyzing || importActivity.phase !== 'idle' || setupFinalizePhase !== 'idle'
-            }
+            disabled={!canAutoSetup}
+            title={!canAutoSetup ? autoSetupBlockReason ?? undefined : undefined}
             onClick={handleAutoSetupComplete}
           >
             {autoProcessing || setupFinalizePhase !== 'idle'
               ? 'Setting up…'
-              : 'Set up automatically'}
+              : analyzing
+                ? 'Re-analysing…'
+                : 'Set up automatically'}
           </button>
         )}
         {aiStep === 'import' && setupMode === 'guided' && (
@@ -1306,6 +1370,19 @@ function GuidedSetupAiWizard({
                           {describeImportAnalysis(importAnalysis)}
                         </p>
                       )}
+                      {analyzing && importAnalysis.statementsAnalysed > 0 && (
+                        <p className="bank-import-hint" role="status">
+                          Re-analysing with minimum monthly of{' '}
+                          {minMonthlyAmount > 0 ? formatCurrency(minMonthlyAmount) : '£0'}…
+                        </p>
+                      )}
+                      {pendingImportAccounts.length > 0 && hasAnalysedImport && (
+                        <p className="bank-import-hint guided-setup-import-optional-note">
+                          {pendingImportAccounts.length} account
+                          {pendingImportAccounts.length === 1 ? '' : 's'} still pending — optional if you
+                          only use one bank account. You can skip or upload now.
+                        </p>
+                      )}
                     </div>
 
                     {activeAccount ? (
@@ -1373,6 +1450,26 @@ function GuidedSetupAiWizard({
                           </div>
                         ) : headers.length === 0 ? (
                           <>
+                            {setupMode === 'auto' &&
+                            !activeAccountResult &&
+                            hasAnalysedImport &&
+                            activeAccount &&
+                            pendingImportAccounts.some((account) => account.id === activeAccount.id) ? (
+                              <div className="guided-setup-import-done guided-setup-import-done--skipped">
+                                <p className="guided-setup-import-done-kicker">Optional account</p>
+                                <p className="bank-import-hint">
+                                  No statement needed for <em>{accountPathLabel(state, activeAccount)}</em>{' '}
+                                  if this is the same bank account you already uploaded.
+                                </p>
+                                <button
+                                  type="button"
+                                  className="btn-secondary btn-tiny"
+                                  onClick={() => skipCurrentImport()}
+                                >
+                                  Skip this account
+                                </button>
+                              </div>
+                            ) : null}
                             <button
                               type="button"
                               className={`guided-setup-upload-zone${uploadDragOver ? ' is-dragover' : ''}`}

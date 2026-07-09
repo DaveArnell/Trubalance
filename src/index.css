@@ -6173,6 +6173,13 @@ textarea:focus {
   transform: scale(0.98);
 }
 
+.btn-primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
 .btn-secondary {
   border: 1px solid var(--border);
   background: var(--bg-surface-raised);
