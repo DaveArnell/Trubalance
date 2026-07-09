@@ -94,6 +94,10 @@ export function SetupOnboardingWizard({
   const isLast = stepIndex >= stepCount - 1
 
   useEffect(() => {
+    if (step.page) onNavigate(step.page)
+  }, [step.id, step.page, onNavigate])
+
+  useEffect(() => {
     try { localStorage.setItem(PROGRESS_KEY, String(stepIndex)) } catch { /* */ }
   }, [stepIndex])
 

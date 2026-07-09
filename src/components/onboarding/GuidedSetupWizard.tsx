@@ -197,7 +197,7 @@ function GuidedSetupPathChoice({
             <button
               key={option.id}
               type="button"
-              className={`guided-setup-path-card${option.id === 'auto' ? ' guided-setup-path-card--recommended' : ''}`}
+              className={`guided-setup-path-card${option.id === 'manual' ? ' guided-setup-path-card--recommended' : ''}`}
               onClick={() => onSelect(option.id)}
             >
               <span className="guided-setup-path-icon" aria-hidden="true">

@@ -29,12 +29,6 @@ function dayOfMonthFromDates(dates: string[]): number | undefined {
   return Math.round(median(days))
 }
 
-function monthIndexFromDates(dates: string[]): number | undefined {
-  const months = dates.map((date) => Number(date.slice(5, 7))).filter((m) => m >= 1 && m <= 12)
-  if (months.length === 0) return undefined
-  return Math.round(median(months))
-}
-
 function detectFrequency(dates: string[]): SuggestionFrequency {
   if (dates.length < 2) return 'one_off'
 
@@ -166,7 +160,7 @@ export function detectSuggestionsRuleBased(
     const amounts = bucket.map((item) => Math.abs(item.amount))
     const dates = bucket.map((item) => item.date)
     const frequency = detectFrequency(dates)
-    if (!['monthly', 'weekly', 'quarterly', 'annual'].includes(frequency)) continue
+    if (frequency !== 'monthly') continue
     if (bucket.length < minimumOccurrencesForFrequency(frequency)) continue
 
     const sample = bucket[0]!
@@ -205,7 +199,7 @@ export function detectSuggestionsRuleBased(
       averageAmount,
       frequency,
       likelyDueDay,
-      likelyDueMonth: frequency === 'annual' ? monthIndexFromDates(dates) : undefined,
+      likelyDueMonth: undefined,
       confidence,
       reason: buildReason(
         bucket.length,

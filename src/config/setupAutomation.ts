@@ -52,7 +52,7 @@ export const SETUP_DATA_SOURCES: DataSourceOption[] = [
 ]
 
 export const BANK_IMPORT_RULE_BASED_NOTE =
-  'We read PDF and CSV statements and look for the same outgoing payment at least 3 times on a monthly pattern. Only confident monthly costs are added automatically — annual, quarterly, and unclear items stay for you to review in Settings. Set minimum monthly to 0 to include smaller subscriptions.'
+  'Bank statements show payments that already happened. We only look for the same outgoing payment at least 3 times on a monthly pattern, and add those as regular monthly outgoings (accruing costs) — never as due bills, reserve items, or expected receipts.'
 
 export const AUTO_SETUP_VALUE_PROPS = [
   'Name your group structure',

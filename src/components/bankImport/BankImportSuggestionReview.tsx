@@ -103,8 +103,8 @@ export function BankImportSuggestionReview({
                     {suggestion.likelyDueDay ? ` · around day ${suggestion.likelyDueDay}` : ''}
                     {dueMonth ? ` · likely ${dueMonth}` : ''}
                   </p>
-                  {destination === 'reserve_bill' && (
-                    <p className="bank-import-suggestion-tag">Suggested reserve planner item</p>
+                  {destination === 'building_commitment' && (
+                    <p className="bank-import-suggestion-tag">Regular monthly outgoing</p>
                   )}
                 </div>
                 <div className="bank-import-confidence">

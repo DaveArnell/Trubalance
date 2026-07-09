@@ -24,10 +24,13 @@ export function canAutoApplySuggestion(suggestion: BankImportSuggestion): boolea
     suggestion.isInflow ||
     suggestion.destination === 'expected_receipt' ||
     suggestion.destination === 'reserve_bill' ||
-    suggestion.destination === 'planned_commitment'
+    suggestion.destination === 'planned_commitment' ||
+    suggestion.destination === 'due_commitment'
   ) {
     return false
   }
+
+  if (suggestion.destination !== 'building_commitment') return false
 
   if (!AUTO_APPLY_FREQUENCIES.has(suggestion.frequency)) return false
   if (suggestion.confidence < AUTO_APPLY_MIN_CONFIDENCE) return false

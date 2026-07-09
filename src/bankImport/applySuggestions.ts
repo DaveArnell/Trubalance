@@ -2,7 +2,6 @@ import type { AppState, ScopeLevel } from '../types'
 import type { AppActions } from '../hooks/useAppState'
 import { roundCurrency, toAmount } from '../utils/amounts'
 import { getAccountBusinessId } from '../utils/accounts'
-import { MONTHS } from '../utils/format'
 import type {
   BankImportApplyResult,
   BankImportSuggestion,
@@ -44,29 +43,6 @@ function effectiveAmount(suggestion: BankImportSuggestion): number {
   return roundCurrency(suggestion.editedAmount ?? suggestion.averageAmount)
 }
 
-function monthKeyFromIndex(index: number | undefined): string {
-  if (!index || index < 1 || index > 12) return 'Jan'
-  return MONTHS[index - 1]!
-}
-
-function buildReserveMonthAmounts(suggestion: BankImportSuggestion): Record<string, number> {
-  const amount = effectiveAmount(suggestion)
-  const month = monthKeyFromIndex(suggestion.likelyDueMonth)
-  if (suggestion.frequency === 'annual') {
-    return { [month]: amount }
-  }
-  if (suggestion.frequency === 'quarterly') {
-    const start = suggestion.likelyDueMonth ?? 1
-    const keys = [0, 3, 6, 9].map((offset) => MONTHS[(start - 1 + offset) % 12]!)
-    return Object.fromEntries(keys.map((key) => [key, amount]))
-  }
-  return { [month]: amount }
-}
-
-function findReservePlanner(state: AppState, businessId: string) {
-  return state.reservePlanners.find((planner) => planner.businessId === businessId)
-}
-
 export function applyBankImportSuggestions(
   state: AppState,
   accountId: string,
@@ -98,97 +74,28 @@ export function applyBankImportSuggestions(
       continue
     }
 
+    // Historic statement lines identify regular monthly outgoings only — not due bills or reserve items.
+    if (suggestion.frequency !== 'monthly') {
+      result.ignored++
+      continue
+    }
+
     const name = effectiveName(suggestion)
     const amount = effectiveAmount(suggestion)
-    const note = `From bank import. ${suggestion.reason}`
+    const note = `From bank import (historic pattern). ${suggestion.reason}`
 
     try {
-      if (destination === 'expected_receipt') {
-        actions.addReceipt({
-          name,
-          amount,
-          scopeLevel: scope.scopeLevel,
-          scopeId: scope.scopeId,
-          notes: note,
-          receiptTiming: suggestion.frequency === 'monthly' ? 'accrual' : 'lump',
-        })
-        result.receiptsCreated++
-        continue
-      }
-
-      if (destination === 'reserve_bill') {
-        const businessId = getAccountBusinessId(state, state.accounts.find((a) => a.id === accountId)!)
-        const planner = businessId ? findReservePlanner(state, businessId) : undefined
-        if (!planner) {
-          actions.addCommitment({
-            name,
-            schedule: suggestion.frequency === 'annual' ? 'planned' : 'monthly',
-            amount,
-            dueDayOfMonth: suggestion.likelyDueDay ?? 28,
-            plannedDueDate:
-              suggestion.frequency === 'annual' && suggestion.likelyDueMonth
-                ? `${new Date().getFullYear()}-${String(suggestion.likelyDueMonth).padStart(2, '0')}-${String(suggestion.likelyDueDay ?? 28).padStart(2, '0')}`
-                : undefined,
-            fundingMethod: suggestion.frequency === 'annual' ? 'accrue_until_due' : undefined,
-            scopeLevel: scope.scopeLevel,
-            scopeId: scope.scopeId,
-            status: 'healthy',
-            linkedAccountId: accountId,
-            notes: `${note} (no reserve planner — added as commitment)`,
-          })
-          result.commitmentsCreated++
-          continue
-        }
-
-        actions.addReserveBill({
-          plannerId: planner.id,
-          name,
-          monthAmounts: buildReserveMonthAmounts(suggestion),
-          monthDueDays: suggestion.likelyDueDay
-            ? Object.fromEntries(
-                Object.keys(buildReserveMonthAmounts(suggestion)).map((month) => [
-                  month,
-                  suggestion.likelyDueDay!,
-                ]),
-              )
-            : undefined,
-          notes: note,
-          venueId: scope.scopeLevel === 'venue' ? scope.scopeId : undefined,
-        })
-        result.reserveBillsCreated++
-        continue
-      }
-
-      const isPlanned = destination === 'planned_commitment'
-
-      if (isPlanned) {
-        const dueMonth = suggestion.likelyDueMonth ?? new Date().getMonth() + 1
-        const dueDay = suggestion.likelyDueDay ?? 28
-        actions.addCommitment({
-          name,
-          schedule: 'planned',
-          amount,
-          plannedDueDate: `${new Date().getFullYear()}-${String(dueMonth).padStart(2, '0')}-${String(dueDay).padStart(2, '0')}`,
-          fundingMethod: 'accrue_until_due',
-          scopeLevel: scope.scopeLevel,
-          scopeId: scope.scopeId,
-          status: 'healthy',
-          linkedAccountId: accountId,
-          notes: note,
-        })
-      } else {
-        actions.addCommitment({
-          name,
-          schedule: 'monthly',
-          amount,
-          dueDayOfMonth: suggestion.likelyDueDay ?? 28,
-          scopeLevel: scope.scopeLevel,
-          scopeId: scope.scopeId,
-          status: 'healthy',
-          linkedAccountId: accountId,
-          notes: note,
-        })
-      }
+      actions.addCommitment({
+        name,
+        schedule: 'monthly',
+        amount,
+        dueDayOfMonth: suggestion.likelyDueDay ?? 28,
+        scopeLevel: scope.scopeLevel,
+        scopeId: scope.scopeId,
+        status: 'healthy',
+        linkedAccountId: accountId,
+        notes: note,
+      })
       result.commitmentsCreated++
     } catch (error) {
       result.errors.push(

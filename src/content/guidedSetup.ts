@@ -7,41 +7,41 @@ export const GUIDED_SETUP_EDITABLE_NOTE =
 
 export const GUIDED_SETUP_PATH_OPTIONS = [
   {
+    id: 'manual' as const,
+    title: 'Manual setup',
+    badge: 'Recommended',
+    subtitle: 'Enter your numbers yourself',
+    lead: 'Add your business, bank balances, and regular monthly costs step by step. Best if you already know your bills or want full control from the start.',
+    timeEstimate: '15–20 minutes',
+    highlights: [
+      'Same end result as assisted setup',
+      'No bank statement guessing',
+      'You can import statements later in Settings when ready',
+    ],
+  },
+  {
     id: 'auto' as const,
     title: 'Set it up for me',
-    badge: 'Fastest',
-    subtitle: 'Structure + bank data — we fill in the rest',
-    lead: 'Name your businesses, add bank data, and True Balance builds monthly costs, reserve planner bills, and your forecast. Tweak anything later.',
+    badge: 'Preview',
+    subtitle: 'Bank import — still being improved',
+    lead: 'Upload a statement and we suggest regular monthly outgoings from your history. Only confident monthly patterns are added — not due bills or one-offs.',
     timeEstimate: 'About 2 minutes',
     highlights: [
-      'PDF or CSV bank statements work today',
-      'No item-by-item review required',
-      'Reserve planner and forecast filled automatically',
+      'PDF or CSV bank statements',
+      'Adds regular monthly costs only',
+      'Review and edit everything in Settings afterwards',
     ],
   },
   {
     id: 'ai' as const,
     title: 'Review before adding',
-    badge: 'More control',
-    subtitle: 'Check each suggestion before it is added',
-    lead: 'Upload your transaction history and review every recurring payment before it becomes a commitment or reserve bill.',
+    subtitle: 'Check each suggestion first',
+    lead: 'Upload your transaction history and approve each regular monthly outgoing before it is added.',
     timeEstimate: '5–10 minutes',
     highlights: [
       'Upload a PDF or CSV for each bank account',
       'Accept, edit, or ignore each suggestion',
-      'Good if you want to verify everything first',
-    ],
-  },
-  {
-    id: 'manual' as const,
-    title: 'Manual setup',
-    subtitle: 'Good if you already know your numbers',
-    lead: 'Prefer to enter everything yourself? Add accounts, committed funds, and reserve planner items step by step.',
-    timeEstimate: '20–30 minutes',
-    highlights: [
-      'Same end result as assisted setup',
-      'Full control from the start',
-      'You can still import statements later in Settings',
+      'Monthly outgoings only — no due bills from history',
     ],
   },
 ] as const
@@ -159,17 +159,13 @@ export const STATEMENT_HISTORY_TIPS = [
   },
 ] as const
 
-/** All destinations shown in review — user must confirm. */
+/** Shown in bank import review — historic statements only feed monthly accruing costs. */
 export const SUGGESTION_DESTINATION_OPTIONS: {
   value: SuggestionDestination
   label: string
 }[] = [
-  { value: 'building_commitment', label: 'Building commitment' },
-  { value: 'due_commitment', label: 'Due commitment' },
-  { value: 'planned_commitment', label: 'Planned commitment' },
-  { value: 'reserve_bill', label: 'Reserve planner bill' },
-  { value: 'expected_receipt', label: 'Expected receipt' },
-  { value: 'ignore', label: 'Ignore / not relevant' },
+  { value: 'building_commitment', label: 'Regular monthly outgoing' },
+  { value: 'ignore', label: 'Ignore' },
 ]
 
 /** Shown on low-confidence suggestions during review. */

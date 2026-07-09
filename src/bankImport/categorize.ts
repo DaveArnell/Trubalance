@@ -85,6 +85,10 @@ export function categorizeDescription(description: string, isInflow: boolean): C
   return { category: 'supplier', label: 'Supplier / cost', score: 0 }
 }
 
+/**
+ * Bank statements show payments that already happened.
+ * We only suggest regular monthly outgoings for the accruing costs table — never due bills or reserve items.
+ */
 export function suggestDestination(
   category: SuggestionCategory,
   frequency: SuggestionFrequency,
@@ -92,30 +96,21 @@ export function suggestDestination(
 ): SuggestionDestination {
   if (category === 'transfer') return 'ignore'
   if (category === 'customer_receipt') return 'ignore'
-
-  if (isInflow) {
-    // Historic statement credits are not forward-looking expected receipts.
-    return 'ignore'
-  }
-
-  if (frequency === 'quarterly' || frequency === 'annual') {
-    return 'reserve_bill'
-  }
-
-  if (frequency === 'one_off' || frequency === 'irregular' || frequency === 'weekly') {
-    return 'ignore'
-  }
-
-  if (category === 'payroll' || category === 'rent' || category === 'utilities') {
-    return 'building_commitment'
-  }
-
+  if (isInflow) return 'ignore'
+  if (frequency !== 'monthly') return 'ignore'
   return 'building_commitment'
 }
 
-/** Normalise legacy destination values. */
+/** Normalise legacy destination values to monthly accruing costs. */
 export function normalizeDestination(destination: SuggestionDestination): SuggestionDestination {
-  if (destination === 'commitment') return 'building_commitment'
+  if (
+    destination === 'commitment' ||
+    destination === 'building_commitment' ||
+    destination === 'due_commitment' ||
+    destination === 'planned_commitment'
+  ) {
+    return 'building_commitment'
+  }
   return destination
 }
 
@@ -130,11 +125,7 @@ export function categoryDisplayName(category: SuggestionCategory): string {
 export function destinationDisplayName(destination: SuggestionDestination): string {
   switch (normalizeDestination(destination)) {
     case 'building_commitment':
-      return 'Building commitment'
-    case 'due_commitment':
-      return 'Due commitment'
-    case 'planned_commitment':
-      return 'Planned commitment'
+      return 'Regular monthly outgoing'
     case 'reserve_bill':
       return 'Reserve planner bill'
     case 'expected_receipt':
@@ -142,16 +133,21 @@ export function destinationDisplayName(destination: SuggestionDestination): stri
     case 'ignore':
       return 'Ignore / not relevant'
     default:
-      return 'Commitment'
+      return 'Regular monthly outgoing'
   }
 }
 
+export const BANK_IMPORT_DESTINATION_OPTIONS: {
+  value: SuggestionDestination
+  label: string
+}[] = [
+  { value: 'building_commitment', label: 'Regular monthly outgoing' },
+  { value: 'ignore', label: 'Ignore' },
+]
+
+/** @deprecated Use BANK_IMPORT_DESTINATION_OPTIONS in bank import UI. */
 export const ALL_SUGGESTION_DESTINATIONS: SuggestionDestination[] = [
   'building_commitment',
-  'due_commitment',
-  'planned_commitment',
-  'reserve_bill',
-  'expected_receipt',
   'ignore',
 ]
 
