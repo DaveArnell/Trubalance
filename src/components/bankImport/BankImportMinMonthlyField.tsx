@@ -42,7 +42,7 @@ export function BankImportMinMonthlyField({
           }}
         />
       </div>
-      <small>Recurring items below this monthly average are ignored.</small>
+      <small>Outgoing payments below this monthly average are skipped. Use 0 to include everything.</small>
     </label>
   )
 }

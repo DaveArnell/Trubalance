@@ -1216,9 +1216,15 @@ function GuidedSetupAiWizard({
               {setupMode === 'auto' ? (
                 <>
                   <p className="setup-onboarding-lead">
-                    Upload a bank statement (PDF or CSV) for each account. We scan for recurring payments and build your setup automatically — no review step.
+                    Upload a bank statement (PDF or CSV) for each account. We scan for repeating outgoing payments — monthly costs, quarterly and annual bills — and build your setup automatically.
                   </p>
                   <p className="setup-onboarding-explain muted bank-import-rule-note">{BANK_IMPORT_RULE_BASED_NOTE}</p>
+                  {minMonthlyAmount >= 100 ? (
+                    <p className="bank-import-hint" role="status">
+                      Minimum monthly is set to {formatCurrency(minMonthlyAmount)} — most bills under that are hidden.
+                      Lower it to <strong>0</strong> to include smaller subscriptions.
+                    </p>
+                  ) : null}
                   <SetupDataSourcesPanel
                     compact
                     onUpload={() => fileInputRef.current?.click()}

@@ -1,7 +1,7 @@
 const MIN_MONTHLY_KEY = 'trubalance.bankImport.minMonthlyAmount'
 
 export const BANK_IMPORT_MIN_MONTHLY_HELP =
-  'When we scan your statement we look for payments that repeat. Items averaging less than this per month are skipped — useful to hide small subscriptions and surface meaningful bills like rent or payroll. Leave at 0 to show everything.'
+  'When scanning your statement we only suggest recurring outgoing payments (rent, payroll, subscriptions, etc.). Items averaging less than this per month are skipped — useful to hide small noise. Leave at 0 to include everything; £200+ often hides most real bills.'
 
 export function readBankImportMinMonthlyAmount(): number {
   if (typeof window === 'undefined') return 0

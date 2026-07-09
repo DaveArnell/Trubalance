@@ -107,7 +107,6 @@ export function formatSetupApplySummary(input: {
   const parts = [
     input.commitmentsCreated > 0 ? `${input.commitmentsCreated} monthly costs` : null,
     input.reserveBillsCreated > 0 ? `${input.reserveBillsCreated} reserve bills` : null,
-    input.receiptsCreated > 0 ? `${input.receiptsCreated} expected receipts` : null,
   ].filter(Boolean)
 
   if (parts.length > 0) {
@@ -127,7 +126,7 @@ export function formatSetupApplySummary(input: {
       input.transactionCount != null
         ? ` We read ${input.transactionCount} transaction${input.transactionCount === 1 ? '' : 's'} but`
         : ' We'
-    return `${txn.trim()} did not spot repeating payments (need at least 2–3 similar payments, ideally 12+ months of history). You can add costs manually or try a longer export.`
+    return `${txn.trim()} did not spot repeating outgoing payments (need at least 2 similar payments to the same payee). Try lowering the minimum monthly filter to 0, or add costs manually.`
   }
 
   if (input.statementsAnalysed > 0 && (input.skippedLowConfidence ?? 0) > 0 && (input.autoAddCount ?? 0) === 0) {

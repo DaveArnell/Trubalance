@@ -17,7 +17,11 @@ export interface AutoApplySummary {
 
 export function autoAcceptSuggestions(suggestions: BankImportSuggestion[]): BankImportSuggestion[] {
   return suggestions.map((suggestion) => {
-    if (suggestion.destination === 'ignore') {
+    if (
+      suggestion.destination === 'ignore' ||
+      suggestion.isInflow ||
+      suggestion.destination === 'expected_receipt'
+    ) {
       return { ...suggestion, status: 'ignored' }
     }
     if (suggestion.confidence < AUTO_APPLY_MIN_CONFIDENCE) {

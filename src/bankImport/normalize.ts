@@ -2,6 +2,7 @@
 export function normalizeDescription(description: string): string {
   return description
     .toUpperCase()
+    .replace(/^\s*(DD|DDR|SO|STO|FPI|FPO|BGC|BP|VIS|POS|CHQ|DEB|CR|FT|FASTER\s+PAYMENT)\s+/i, '')
     .replace(/\d{6,}/g, ' ')
     .replace(/[^A-Z0-9\s]/g, ' ')
     .replace(/\s+/g, ' ')

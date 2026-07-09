@@ -143,18 +143,18 @@ export function detectSuggestionsRuleBased(
   for (const [, items] of groups) {
     if (items.length === 0) continue
 
-    const inflows = items.filter((item) => item.amount > 0)
     const outflows = items.filter((item) => item.amount < 0)
-    const bucket = inflows.length >= outflows.length ? inflows : outflows
-    if (bucket.length === 0) continue
+    if (outflows.length === 0) continue
 
-    const isInflow = bucket[0]!.amount > 0
+    const bucket = outflows
+    const isInflow = false
     const amounts = bucket.map((item) => Math.abs(item.amount))
     const dates = bucket.map((item) => item.date)
     const frequency = detectFrequency(dates)
     const sample = bucket[0]!
     const categoryMatch = categorizeDescription(sample.description, isInflow)
     const destination = suggestDestination(categoryMatch.category, frequency, isInflow)
+    if (destination === 'ignore') continue
 
     let confidence = 30 + Math.min(bucket.length, 8) * 6
     confidence += categoryMatch.score
@@ -162,7 +162,6 @@ export function detectSuggestionsRuleBased(
     if (frequency === 'monthly' || frequency === 'quarterly' || frequency === 'annual') {
       confidence += 10
     }
-    if (destination === 'ignore') confidence = Math.min(confidence, 40)
     confidence = Math.min(95, Math.max(15, confidence))
 
     if (bucket.length === 1 && frequency === 'one_off' && confidence < 45) {

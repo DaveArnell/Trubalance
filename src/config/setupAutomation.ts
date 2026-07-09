@@ -52,7 +52,7 @@ export const SETUP_DATA_SOURCES: DataSourceOption[] = [
 ]
 
 export const BANK_IMPORT_RULE_BASED_NOTE =
-  'We read PDF and CSV statements using column detection (Date, Description, Money in/out) and pattern matching for recurring costs — not AI. Optional AI can refine categories later; review mode lets you check everything first.'
+  'We read PDF and CSV statements using column detection (Date, Description, Money in/out) and look for repeating outgoing payments — monthly costs, quarterly/annual bills, and one-offs. Historic credits are not added as expected receipts. Set minimum monthly to 0 to include smaller subscriptions.'
 
 export const AUTO_SETUP_VALUE_PROPS = [
   'Name your group structure',

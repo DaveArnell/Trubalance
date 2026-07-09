@@ -54,7 +54,7 @@ const RULES: { category: SuggestionCategory; label: string; patterns: RegExp[] }
   {
     category: 'transfer',
     label: 'Transfer',
-    patterns: [/TRANSFER/, /TFR/, /FASTER PAYMENT/, /INTERNAL/, /SWEEP/],
+    patterns: [/TRANSFER/, /TFR/, /FASTER PAYMENT/, /INTERNAL/, /SWEEP/, /\bTO\s+ACCOUNT\b/, /\bFROM\s+ACCOUNT\b/],
   },
   {
     category: 'customer_receipt',
@@ -87,7 +87,8 @@ export function suggestDestination(
   if (category === 'transfer') return 'ignore'
 
   if (isInflow) {
-    return 'expected_receipt'
+    // Historic statement credits are not forward-looking expected receipts.
+    return 'ignore'
   }
 
   if (frequency === 'quarterly' || frequency === 'annual' || frequency === 'irregular') {
