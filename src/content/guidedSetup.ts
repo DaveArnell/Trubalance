@@ -134,7 +134,7 @@ export function formatSetupApplySummary(input: {
   }
 
   if (input.statementsAnalysed > 0 && (input.skippedLowConfidence ?? 0) > 0 && (input.autoAddCount ?? 0) === 0) {
-    return `We found ${input.suggestionsFound} recurring pattern${input.suggestionsFound === 1 ? '' : 's'} but none were confident enough to add automatically. Use “Review before adding” next time, or add items manually.`
+    return `We found ${input.suggestionsFound} repeating payment${input.suggestionsFound === 1 ? '' : 's'} but none were clear enough monthly costs to add automatically. Review them in Settings → Bank import, or add monthly costs manually in Committed Funds.`
   }
 
   if (input.statementsAnalysed > 0) {

@@ -16,7 +16,7 @@ export interface DataSourceOption {
 }
 
 /** Minimum confidence before auto-apply accepts a detected item (0–100). */
-export const AUTO_APPLY_MIN_CONFIDENCE = 55
+export const AUTO_APPLY_MIN_CONFIDENCE = 70
 
 /** Suggestions below this confidence are never auto-applied even in auto mode. */
 export const AUTO_APPLY_HIGH_CONFIDENCE = 70
@@ -52,7 +52,7 @@ export const SETUP_DATA_SOURCES: DataSourceOption[] = [
 ]
 
 export const BANK_IMPORT_RULE_BASED_NOTE =
-  'We read PDF and CSV statements using column detection (Date, Description, Money in/out) and look for repeating outgoing payments — monthly costs, quarterly/annual bills, and one-offs. Historic credits are not added as expected receipts. Set minimum monthly to 0 to include smaller subscriptions.'
+  'We read PDF and CSV statements and look for the same outgoing payment at least 3 times on a monthly pattern. Only confident monthly costs are added automatically — annual, quarterly, and unclear items stay for you to review in Settings. Set minimum monthly to 0 to include smaller subscriptions.'
 
 export const AUTO_SETUP_VALUE_PROPS = [
   'Name your group structure',

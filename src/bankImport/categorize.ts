@@ -91,25 +91,26 @@ export function suggestDestination(
   isInflow: boolean,
 ): SuggestionDestination {
   if (category === 'transfer') return 'ignore'
+  if (category === 'customer_receipt') return 'ignore'
 
   if (isInflow) {
     // Historic statement credits are not forward-looking expected receipts.
     return 'ignore'
   }
 
-  if (frequency === 'quarterly' || frequency === 'annual' || frequency === 'irregular') {
+  if (frequency === 'quarterly' || frequency === 'annual') {
     return 'reserve_bill'
   }
 
-  if (frequency === 'one_off') {
-    return 'planned_commitment'
+  if (frequency === 'one_off' || frequency === 'irregular' || frequency === 'weekly') {
+    return 'ignore'
   }
 
   if (category === 'payroll' || category === 'rent' || category === 'utilities') {
     return 'building_commitment'
   }
 
-  return 'due_commitment'
+  return 'building_commitment'
 }
 
 /** Normalise legacy destination values. */

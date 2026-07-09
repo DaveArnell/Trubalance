@@ -1,5 +1,5 @@
 import type { AccountImportResult } from './importCentre'
-import { AUTO_APPLY_MIN_CONFIDENCE } from '../config/setupAutomation'
+import { canAutoApplySuggestion } from './autoApply'
 import { countParsedOutflows } from './inferAmounts'
 
 export interface ImportAnalysisSummary {
@@ -42,11 +42,11 @@ export function summarizeImportAnalysis(results: AccountImportResult[]): ImportA
         summary.skippedIgnored++
         continue
       }
-      if (suggestion.confidence < AUTO_APPLY_MIN_CONFIDENCE) {
+      if (canAutoApplySuggestion(suggestion)) {
+        summary.autoAddCount++
+      } else {
         summary.skippedLowConfidence++
-        continue
       }
-      summary.autoAddCount++
     }
   }
 
@@ -68,7 +68,9 @@ export function describeImportAnalysis(summary: ImportAnalysisSummary): string {
   ]
 
   if (summary.autoAddCount > 0) {
-    parts.push(`${summary.autoAddCount} will be added automatically`)
+    parts.push(`${summary.autoAddCount} confident monthly cost${summary.autoAddCount === 1 ? '' : 's'} will be added automatically`)
+  } else if (summary.suggestionCount > 0) {
+    parts.push('review patterns in Settings before adding')
   }
 
   return parts.join(' · ')

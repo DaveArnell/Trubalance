@@ -125,6 +125,21 @@ function buildReason(
   return `We found ${count} payment${count === 1 ? '' : 's'} to ${payeeName} ${spanPart}${duePart}, with an average value of ${avg}.${categoryPart}`
 }
 
+function minimumOccurrencesForFrequency(frequency: SuggestionFrequency): number {
+  switch (frequency) {
+    case 'monthly':
+      return 3
+    case 'weekly':
+      return 4
+    case 'quarterly':
+      return 3
+    case 'annual':
+      return 2
+    default:
+      return Number.POSITIVE_INFINITY
+  }
+}
+
 export function detectSuggestionsRuleBased(
   transactions: ParsedBankTransaction[],
   options?: { minMonthlyAmount?: number },
@@ -151,6 +166,9 @@ export function detectSuggestionsRuleBased(
     const amounts = bucket.map((item) => Math.abs(item.amount))
     const dates = bucket.map((item) => item.date)
     const frequency = detectFrequency(dates)
+    if (!['monthly', 'weekly', 'quarterly', 'annual'].includes(frequency)) continue
+    if (bucket.length < minimumOccurrencesForFrequency(frequency)) continue
+
     const sample = bucket[0]!
     const categoryMatch = categorizeDescription(sample.description, isInflow)
     const destination = suggestDestination(categoryMatch.category, frequency, isInflow)
@@ -167,7 +185,7 @@ export function detectSuggestionsRuleBased(
     const likelyDueDay = dayOfMonthFromDates(dates)
     const averageAmount = roundCurrency(amounts.reduce((sum, value) => sum + value, 0) / amounts.length)
 
-    if (bucket.length === 1 && frequency === 'one_off' && confidence < 45 && averageAmount < 150) {
+    if (bucket.length === 1 && averageAmount < 150) {
       continue
     }
 

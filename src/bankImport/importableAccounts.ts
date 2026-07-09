@@ -1,5 +1,15 @@
 import type { Account, AppState } from '../types'
 
+function accountBusinessId(state: AppState, account: Account): string | undefined {
+  if (account.businessId) return account.businessId
+  if (!account.venueId) return undefined
+  return state.venues.find((venue) => venue.id === account.venueId)?.businessId
+}
+
+function businessHasVenues(state: AppState, businessId: string): boolean {
+  return state.venues.some((venue) => venue.businessId === businessId)
+}
+
 /** Businesses that already have a current account on a venue (not business-level). */
 function businessIdsWithVenueCurrent(state: AppState): Set<string> {
   const ids = new Set<string>()
@@ -13,7 +23,8 @@ function businessIdsWithVenueCurrent(state: AppState): Set<string> {
 
 /**
  * Cash accounts that need their own bank statement upload.
- * Hides duplicate business-level current accounts when a venue already has one.
+ * Single-site businesses only show the business-level account.
+ * Multi-site hides duplicate business-level current accounts when a venue already has one.
  */
 export function getImportableAccounts(state: AppState): Account[] {
   const venueCurrentBusinesses = businessIdsWithVenueCurrent(state)
@@ -21,6 +32,15 @@ export function getImportableAccounts(state: AppState): Account[] {
   return state.accounts.filter((account) => {
     if (!account.active) return false
     if (account.type !== 'current' && account.type !== 'savings') return false
+    if (!account.businessId && !account.venueId) return false
+
+    const businessId = accountBusinessId(state, account)
+    if (!businessId) return false
+
+    if (!businessHasVenues(state, businessId)) {
+      return Boolean(account.businessId && !account.venueId)
+    }
+
     if (
       !account.venueId &&
       account.businessId &&
@@ -29,15 +49,11 @@ export function getImportableAccounts(state: AppState): Account[] {
     ) {
       return false
     }
+
     return true
   })
 }
 
 export function businessHasImportableCashAccount(state: AppState, businessId: string): boolean {
-  return getImportableAccounts(state).some((account) => {
-    if (account.businessId === businessId && !account.venueId) return true
-    if (!account.venueId) return false
-    const venue = state.venues.find((venue) => venue.id === account.venueId)
-    return venue?.businessId === businessId
-  })
+  return getImportableAccounts(state).some((account) => accountBusinessId(state, account) === businessId)
 }

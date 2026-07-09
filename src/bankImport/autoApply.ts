@@ -15,20 +15,32 @@ export interface AutoApplySummary {
   errors: string[]
 }
 
+const AUTO_APPLY_FREQUENCIES = new Set<BankImportSuggestion['frequency']>(['monthly'])
+
+/** Whether auto setup may create this item without user review. */
+export function canAutoApplySuggestion(suggestion: BankImportSuggestion): boolean {
+  if (
+    suggestion.destination === 'ignore' ||
+    suggestion.isInflow ||
+    suggestion.destination === 'expected_receipt' ||
+    suggestion.destination === 'reserve_bill' ||
+    suggestion.destination === 'planned_commitment'
+  ) {
+    return false
+  }
+
+  if (!AUTO_APPLY_FREQUENCIES.has(suggestion.frequency)) return false
+  if (suggestion.confidence < AUTO_APPLY_MIN_CONFIDENCE) return false
+  if (suggestion.transactionIds.length < 3) return false
+
+  return true
+}
+
 export function autoAcceptSuggestions(suggestions: BankImportSuggestion[]): BankImportSuggestion[] {
-  return suggestions.map((suggestion) => {
-    if (
-      suggestion.destination === 'ignore' ||
-      suggestion.isInflow ||
-      suggestion.destination === 'expected_receipt'
-    ) {
-      return { ...suggestion, status: 'ignored' }
-    }
-    if (suggestion.confidence < AUTO_APPLY_MIN_CONFIDENCE) {
-      return { ...suggestion, status: 'ignored' }
-    }
-    return { ...suggestion, status: 'accepted' }
-  })
+  return suggestions.map((suggestion) => ({
+    ...suggestion,
+    status: canAutoApplySuggestion(suggestion) ? 'accepted' : 'ignored',
+  }))
 }
 
 export function summarizeAutoApply(results: BankImportApplyResult[]): Omit<AutoApplySummary, 'accepted'> {

@@ -460,7 +460,7 @@ function GuidedSetupAiWizard({
     | { phase: 'parsing'; page: number; total: number }
     | { phase: 'analyzing'; transactionCount: number }
   >({ phase: 'idle' })
-  const [setupReservePlanners, setSetupReservePlanners] = useState(true)
+  const [setupReservePlanners, setSetupReservePlanners] = useState(false)
   const [pendingAutoImportResults, setPendingAutoImportResults] = useState<AccountImportResult[] | null>(null)
   const [pendingGuidedApply, setPendingGuidedApply] = useState(false)
   const [setupFinalizePhase, setSetupFinalizePhase] = useState<'idle' | 'creating-reserve' | 'applying'>('idle')
