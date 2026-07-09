@@ -13786,19 +13786,6 @@ tr.sheet-row--received td {
   }
 }
 
-.setup-flow-step-panel--data-entry {
-  max-width: 32rem !important;
-}
-
-.setup-flow-step-panel--data-entry .setup-flow-page-header {
-  text-align: left;
-}
-
-.setup-flow-step-panel--data-entry .setup-flow-page-lead {
-  text-align: left;
-  margin-inline: 0;
-}
-
 .setup-flow-root {
   position: fixed;
   inset: 0;
@@ -14089,31 +14076,26 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .setup-flow-main--default .setup-flow-step-panel {
-  width: min(100%, 46rem);
-  max-width: 46rem;
-  margin: 0;
-  justify-self: center;
-}
-
-.setup-flow-main--default .setup-flow-step-panel:not(.setup-flow-step-panel--data-entry) {
   width: min(100%, 52rem);
   max-width: 52rem;
+  margin: 0;
+  justify-self: center;
   text-align: center;
 }
 
-.setup-flow-main--default .setup-flow-step-panel:not(.setup-flow-step-panel--data-entry) .setup-flow-page-header h2 {
+.setup-flow-main--default .setup-flow-step-panel .setup-flow-page-header h2 {
   font-size: clamp(2rem, 4.5vw, 3rem);
   line-height: 1.15;
   margin-bottom: clamp(16px, 2.5vh, 28px);
 }
 
-.setup-flow-main--default .setup-flow-step-panel:not(.setup-flow-step-panel--data-entry) .setup-flow-page-lead {
+.setup-flow-main--default .setup-flow-step-panel .setup-flow-page-lead {
   max-width: none;
   font-size: clamp(1.1rem, 2vw, 1.35rem);
   line-height: 1.65;
 }
 
-.setup-flow-main--default .setup-flow-step-panel:not(.setup-flow-step-panel--data-entry) .setup-onboarding-explain {
+.setup-flow-main--default .setup-flow-step-panel .setup-onboarding-explain {
   font-size: clamp(1rem, 1.6vw, 1.2rem);
   line-height: 1.7;
   max-width: 44rem;
@@ -14121,12 +14103,16 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   text-align: center;
 }
 
-.setup-flow-main--default .setup-flow-step-panel--data-entry,
-.setup-flow-main--default .setup-flow-step-panel:has(.setup-onboarding-form),
-.setup-flow-main--default .setup-flow-step-panel:has(.setup-onboarding-quick-grid) {
-  width: min(100%, 34rem);
-  max-width: 34rem;
+.setup-flow-main--default .setup-flow-step-panel .setup-onboarding-form,
+.setup-flow-main--default .setup-flow-step-panel .structure-tree,
+.setup-flow-main--default .setup-flow-step-panel .setup-income-pattern,
+.setup-flow-main--default .setup-flow-step-panel .setup-onboarding-quick-grid,
+.setup-flow-main--default .setup-flow-step-panel .setup-onboarding-reveal,
+.setup-flow-main--default .setup-flow-step-panel .setup-edu-visual,
+.setup-flow-main--default .setup-flow-step-panel .setup-onboarding-actions-stack {
   text-align: left;
+  width: 100%;
+  margin-inline: auto;
 }
 
 .setup-flow-main--path-choice .setup-flow-content {
@@ -14165,17 +14151,17 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .setup-income-pattern--spacious .setup-income-option {
-  min-height: 120px;
-  padding: var(--space-4);
+  min-height: clamp(100px, 14vh, 140px);
+  padding: clamp(18px, 2.5vw, 24px);
 }
 
 .setup-income-pattern--spacious .setup-income-option strong {
-  font-size: 1.05rem;
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
 }
 
 .setup-income-pattern--spacious .setup-income-option small {
-  font-size: 0.88rem;
-  line-height: 1.45;
+  font-size: clamp(0.88rem, 1.2vw, 0.98rem);
+  line-height: 1.5;
 }
 
 @media (max-width: 768px) {
@@ -14184,18 +14170,25 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   }
 }
 
-.setup-flow-main--default .setup-flow-step-panel:has(.setup-onboarding-form) .setup-flow-page-header,
-.setup-flow-main--default .setup-flow-step-panel:has(.setup-onboarding-quick-grid) .setup-flow-page-header,
-.setup-flow-main--default .setup-flow-step-panel:has(.setup-onboarding-form) .setup-flow-page-lead,
-.setup-flow-main--default .setup-flow-step-panel:has(.setup-onboarding-quick-grid) .setup-flow-page-lead,
-.setup-flow-main--default .setup-flow-step-panel:has(.setup-onboarding-form) .setup-onboarding-explain,
-.setup-flow-main--default .setup-flow-step-panel:has(.setup-onboarding-quick-grid) .setup-onboarding-explain {
-  text-align: left;
-}
-
 .setup-flow-main--wide .setup-flow-content,
 .setup-flow-main--import .setup-flow-content {
-  max-width: 64rem;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  width: 100%;
+  min-height: 0;
+  max-width: none;
+  padding: clamp(40px, 6vh, 80px) clamp(48px, 8vw, 12vw);
+  box-sizing: border-box;
+}
+
+.setup-flow-main--wide .setup-flow-step-panel,
+.setup-flow-main--import .setup-flow-step-panel {
+  width: min(100%, 52rem);
+  max-width: 52rem;
+  margin: 0;
+  justify-self: center;
+  text-align: center;
 }
 
 .setup-flow-main--review .setup-flow-content {
@@ -15351,8 +15344,8 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   color: var(--text-primary);
 }
 
-.setup-flow-main--default .setup-flow-step-panel:not(.setup-flow-step-panel--data-entry) .setup-onboarding-explain,
-.setup-flow-main--default .setup-flow-step-panel:not(.setup-flow-step-panel--data-entry) .setup-onboarding-lead {
+.setup-flow-main--default .setup-flow-step-panel .setup-onboarding-explain,
+.setup-flow-main--default .setup-flow-step-panel .setup-onboarding-lead {
   max-width: none;
   font-size: clamp(1rem, 1.6vw, 1.2rem);
   line-height: 1.7;
@@ -15375,23 +15368,72 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .setup-flow-main--default .setup-flow-step-panel:has(.structure-tree),
 .setup-flow-main--default .setup-flow-step-panel:has(.setup-onboarding-reveal),
-.setup-flow-main--default .setup-flow-step-panel:has(.setup-edu-visual) {
-  max-width: 46rem;
+.setup-flow-main--default .setup-flow-step-panel:has(.setup-edu-visual),
+.setup-flow-main--default .setup-flow-step-panel:has(.setup-onboarding-form) {
+  width: min(100%, 52rem);
+  max-width: 52rem;
+}
+
+.setup-flow-step-panel .setup-income-pattern {
+  margin-top: clamp(20px, 3vh, 32px);
+}
+
+.setup-flow-step-panel .setup-income-pattern legend {
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
+  margin-bottom: clamp(12px, 1.5vh, 16px);
+}
+
+.setup-flow-step-panel .setup-income-option {
+  padding: clamp(16px, 2.5vw, 22px) clamp(18px, 2.5vw, 24px);
+  margin-bottom: clamp(10px, 1.5vh, 14px);
+}
+
+.setup-flow-step-panel .setup-income-option strong {
+  font-size: clamp(0.95rem, 1.4vw, 1.1rem);
+}
+
+.setup-flow-step-panel .setup-income-option small {
+  font-size: clamp(0.85rem, 1.2vw, 0.95rem);
+  line-height: 1.5;
+}
+
+.setup-flow-step-panel .structure-tree-node-label {
+  font-size: clamp(1rem, 1.4vw, 1.15rem);
+}
+
+.setup-flow-step-panel .structure-tree-account-chip {
+  font-size: clamp(0.85rem, 1.2vw, 0.95rem);
+  padding: 6px 12px;
+}
+
+.setup-flow-step-panel .structure-tree-add-btn,
+.setup-flow-step-panel .structure-tree-add-business-btn {
+  font-size: clamp(0.9rem, 1.3vw, 1rem);
+  min-height: 44px;
 }
 
 .setup-onboarding-form--balances {
-  margin-top: var(--space-4);
-  padding: var(--space-4);
+  margin-top: clamp(20px, 3vh, 32px);
+  padding: clamp(18px, 2.5vw, 24px);
   border-radius: 14px;
   background: #fff;
   border: 1px solid var(--border-subtle);
   box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);
 }
 
+.setup-flow-step-panel .setup-field--balance > span {
+  font-size: clamp(0.95rem, 1.3vw, 1.05rem);
+}
+
+.setup-flow-step-panel .setup-balance-input {
+  font-size: clamp(1.05rem, 1.6vw, 1.2rem) !important;
+  padding: 12px 14px !important;
+}
+
 .setup-onboarding-form-hint {
   margin: 0 0 var(--space-4);
-  font-size: 0.88rem;
-  line-height: 1.5;
+  font-size: clamp(0.95rem, 1.3vw, 1.05rem);
+  line-height: 1.55;
   color: var(--text-muted);
 }
 
@@ -15438,14 +15480,6 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   outline: none;
   box-shadow: inset 0 0 0 2px var(--accent);
 }
-.setup-flow-main--default .structure-tree,
-.setup-flow-main--default .setup-onboarding-reveal,
-.setup-flow-main--default .setup-edu-visual,
-.setup-flow-main--default .setup-onboarding-actions-stack {
-  text-align: left;
-}
-
-.setup-flow-step-panel .setup-onboarding-explain,
 .setup-flow-step-panel .setup-onboarding-lead {
   max-width: 42rem;
 }

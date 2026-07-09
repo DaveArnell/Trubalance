@@ -320,14 +320,14 @@ export function SetupOnboardingWizard({
       }))}
       currentStepIndex={stepIndex}
       spotlight={false}
-      contentWidth={DATA_ENTRY_STEPS.has(step.id) ? 'wide' : 'default'}
+      contentWidth="default"
       onSkip={handleDismiss}
       skipLabel="Skip setup"
       footer={footer}
     >
       <div
         key={step.id}
-        className={`setup-flow-step-panel${DATA_ENTRY_STEPS.has(step.id) ? ' setup-flow-step-panel--data-entry' : ''}`}
+        className="setup-flow-step-panel"
       >
         <header className="setup-flow-page-header">
           <h2 id="setup-onboarding-title">{step.title}</h2>
