@@ -14711,31 +14711,33 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   align-items: center;
 }
 
-/* Accrual animation */
+/* Accrual animation — one synced cycle: fill → due → pay → regrow */
 .setup-accrual-anim {
+  --accrual-cycle: 5.5s;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
-  padding: 16px 0 8px;
+  gap: clamp(20px, 4vw, 36px);
+  padding: clamp(16px, 2.5vh, 24px) 0 clamp(8px, 1.5vh, 12px);
   width: 100%;
-  max-width: 320px;
+  max-width: min(100%, 420px);
 }
 
 .setup-accrual-stage {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .setup-accrual-bar-track {
-  width: 36px;
-  height: 64px;
-  border-radius: 4px;
+  width: clamp(44px, 7vw, 56px);
+  height: clamp(76px, 12vh, 104px);
+  border-radius: 8px;
   background: #ede9fe;
   position: relative;
   overflow: hidden;
+  border: 1px solid #ddd6fe;
 }
 
 .setup-accrual-bar {
@@ -14743,97 +14745,148 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   bottom: 0;
   left: 0;
   right: 0;
-  border-radius: 4px 4px 0 0;
+  height: 0;
+  border-radius: 6px 6px 0 0;
   background: linear-gradient(180deg, #7c3aed 0%, #a78bfa 100%);
-  animation: accrual-grow 4s linear infinite;
+  animation: accrual-grow var(--accrual-cycle) linear infinite;
 }
 
 @keyframes accrual-grow {
   0% { height: 0%; }
-  46% { height: 100%; }
-  48% { height: 0%; }
-  100% { height: 96%; }
+  42% { height: 100%; }
+  42.1% { height: 0%; }
+  58% { height: 18%; }
+  72% { height: 18%; }
+  72.1% { height: 0%; }
+  100% { height: 0%; }
 }
 
 .setup-accrual-arrow {
+  position: relative;
   color: #64748b;
   display: flex;
   align-items: center;
-  animation: accrual-arrow-pulse 4s ease-in-out infinite;
+  width: 40px;
+  animation: accrual-arrow-pulse var(--accrual-cycle) ease-in-out infinite;
+}
+
+.setup-accrual-transfer-dot {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  margin-top: -5px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #7c3aed 0%, #a78bfa 100%);
+  box-shadow: 0 0 0 2px #fff;
+  opacity: 0;
+  animation: accrual-transfer-dot var(--accrual-cycle) ease-in-out infinite;
+}
+
+@keyframes accrual-transfer-dot {
+  0%, 40% { opacity: 0; transform: translateX(0) scale(0.6); }
+  42% { opacity: 1; transform: translateX(0) scale(1); }
+  48% { opacity: 1; transform: translateX(28px) scale(1); }
+  52%, 100% { opacity: 0; transform: translateX(28px) scale(0.6); }
 }
 
 @keyframes accrual-arrow-pulse {
-  0%, 42% { opacity: 0.3; transform: translateX(0); }
-  46%, 50% { opacity: 1; transform: translateX(3px); }
-  54%, 100% { opacity: 0.3; transform: translateX(0); }
+  0%, 40% { opacity: 0.25; transform: translateX(0); }
+  42%, 50% { opacity: 1; transform: translateX(2px); }
+  54%, 100% { opacity: 0.35; transform: translateX(0); }
 }
 
 .setup-accrual-stage--right {
   position: relative;
-  min-height: 80px;
+  min-height: clamp(88px, 14vh, 116px);
+  justify-content: flex-start;
 }
 
 .setup-accrual-due-box {
-  width: 54px;
-  height: 54px;
-  border-radius: 8px;
+  position: relative;
+  width: clamp(58px, 10vw, 72px);
+  height: clamp(58px, 10vw, 72px);
+  border-radius: 10px;
   background: #fef3c7;
   border: 2px solid #fbbf24;
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: accrual-due-pop 4s ease-in-out infinite;
+  opacity: 0;
+  transform: scale(0.55);
+  animation: accrual-due-pop var(--accrual-cycle) ease-in-out infinite;
 }
 
 @keyframes accrual-due-pop {
-  0%, 45% { opacity: 0; transform: scale(0.6); }
-  48% { opacity: 1; transform: scale(1.05); }
-  50%, 72% { opacity: 1; transform: scale(1); }
-  76% { opacity: 0; transform: scale(0.8); }
-  100% { opacity: 0; transform: scale(0.6); }
+  0%, 41% { opacity: 0; transform: scale(0.55); }
+  44% { opacity: 1; transform: scale(1.08); }
+  48%, 68% { opacity: 1; transform: scale(1); }
+  76%, 100% { opacity: 0; transform: scale(0.85); }
 }
 
 .setup-accrual-due-text {
-  font-size: 0.78rem;
+  font-size: clamp(0.78rem, 1.2vw, 0.92rem);
   font-weight: 700;
   color: #92400e;
 }
 
 .setup-accrual-paid-pop {
   position: absolute;
-  top: -4px;
-  right: -10px;
-  font-size: 0.65rem;
+  top: -8px;
+  right: -12px;
+  font-size: clamp(0.62rem, 1vw, 0.72rem);
   font-weight: 700;
   color: #16a34a;
   background: #dcfce7;
   border: 1px solid #86efac;
-  border-radius: 4px;
-  padding: 1px 5px;
-  animation: accrual-paid-flash 4s ease-in-out infinite;
+  border-radius: 6px;
+  padding: 2px 7px;
+  opacity: 0;
+  transform: scale(0.5) translateY(4px);
+  animation: accrual-paid-flash var(--accrual-cycle) ease-in-out infinite;
 }
 
 @keyframes accrual-paid-flash {
-  0%, 70% { opacity: 0; transform: scale(0.5) translateY(4px); }
-  74% { opacity: 1; transform: scale(1.1) translateY(-2px); }
-  78%, 82% { opacity: 1; transform: scale(1) translateY(0); }
-  86%, 100% { opacity: 0; transform: scale(0.8) translateY(4px); }
+  0%, 64% { opacity: 0; transform: scale(0.5) translateY(4px); }
+  68% { opacity: 1; transform: scale(1.12) translateY(-2px); }
+  72%, 74% { opacity: 1; transform: scale(1) translateY(0); }
+  78%, 100% { opacity: 0; transform: scale(0.8) translateY(4px); }
 }
 
 .setup-accrual-label {
-  font-size: 0.68rem;
+  font-size: clamp(0.72rem, 1.1vw, 0.85rem);
   color: #64748b;
   text-align: center;
   white-space: nowrap;
 }
 
 .setup-accrual-caption {
-  font-size: 0.75rem;
+  font-size: clamp(0.85rem, 1.3vw, 0.98rem);
   color: #475569;
   text-align: center;
-  max-width: 300px;
-  margin-top: 10px;
-  line-height: 1.4;
+  max-width: 36rem;
+  margin-top: clamp(12px, 2vh, 18px);
+  line-height: 1.55;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .setup-accrual-bar,
+  .setup-accrual-arrow,
+  .setup-accrual-transfer-dot,
+  .setup-accrual-due-box,
+  .setup-accrual-paid-pop {
+    animation: none;
+  }
+
+  .setup-accrual-bar {
+    height: 72%;
+  }
+
+  .setup-accrual-due-box {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .setup-edu-funding-options {

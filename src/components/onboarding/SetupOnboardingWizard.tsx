@@ -604,7 +604,7 @@ export function SetupOnboardingWizard({
 
           {step.id === 'committed-explain' && (
             <div className="setup-edu-visual setup-edu-visual--centered">
-              <div className="setup-accrual-anim">
+              <div className="setup-accrual-anim" aria-hidden="true">
                 <div className="setup-accrual-stage setup-accrual-stage--left">
                   <div className="setup-accrual-bar-track">
                     <div className="setup-accrual-bar setup-accrual-bar--grow" />
@@ -612,13 +612,23 @@ export function SetupOnboardingWizard({
                   <span className="setup-accrual-label">Building up</span>
                 </div>
                 <div className="setup-accrual-arrow">
-                  <svg width="32" height="16" viewBox="0 0 32 16"><path d="M0 8h26m0 0l-5-5m5 5l-5 5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  <span className="setup-accrual-transfer-dot" />
+                  <svg width="32" height="16" viewBox="0 0 32 16" aria-hidden="true">
+                    <path
+                      d="M0 8h26m0 0l-5-5m5 5l-5 5"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
                 </div>
                 <div className="setup-accrual-stage setup-accrual-stage--right">
                   <div className="setup-accrual-due-box">
                     <span className="setup-accrual-due-text">Due</span>
+                    <span className="setup-accrual-paid-pop">Paid</span>
                   </div>
-                  <span className="setup-accrual-paid-pop">Paid</span>
                   <span className="setup-accrual-label">Stays until paid</span>
                 </div>
               </div>
