@@ -14694,7 +14694,100 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .setup-onboarding-actions-stack {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  align-items: center;
+  gap: clamp(10px, 1.5vh, 14px);
+  width: 100%;
+  margin-top: clamp(20px, 3vh, 28px);
+}
+
+.setup-onboarding-actions-stack .btn-primary,
+.setup-onboarding-actions-stack .btn-ghost {
+  min-width: min(100%, 20rem);
+}
+
+.setup-widget-preview {
+  width: 100%;
+  margin-top: clamp(20px, 3vh, 32px);
+  border-radius: 14px;
+  border: 1px solid var(--border-subtle);
+  background: #fff;
+  box-shadow: 0 10px 36px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+}
+
+.setup-widget-preview--tall .setup-widget-preview-body {
+  max-height: min(56vh, 560px);
+}
+
+.setup-widget-preview-chrome {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.setup-widget-preview-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.12);
+  color: #4338ca;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.setup-widget-preview-source {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.setup-widget-preview-body {
+  max-height: min(48vh, 480px);
+  overflow: auto;
+  padding: clamp(8px, 1.2vw, 12px);
+}
+
+.setup-widget-preview-body .card {
+  border: none;
+  box-shadow: none;
+  margin: 0;
+}
+
+.setup-widget-preview-body .card-head-actions .btn-ghost,
+.setup-widget-preview-body .card-head-actions button:not(.help-button) {
+  pointer-events: none;
+  opacity: 0.45;
+}
+
+.setup-widget-preview-empty {
+  padding: var(--space-4);
+  text-align: center;
+}
+
+.setup-routine-list {
+  display: grid;
+  gap: clamp(12px, 2vh, 16px);
+  width: 100%;
+  margin: clamp(24px, 4vh, 36px) 0 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+
+.setup-routine-list li {
+  padding: clamp(14px, 2vw, 18px) clamp(16px, 2.5vw, 22px);
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid var(--border-subtle);
+  font-size: clamp(0.95rem, 1.4vw, 1.1rem);
+  line-height: 1.55;
+  color: var(--text-secondary);
 }
 
 .setup-edu-visual {

@@ -17,6 +17,7 @@ import { getCashAccounts } from '../../utils/calculations'
 import { scopeForAccount } from '../../bankImport/applySuggestions'
 import type { PageId } from '../../navigation'
 import { SetupOnboardingShell } from './SetupOnboardingShell'
+import { SetupWidgetPreview } from './SetupWidgetPreview'
 
 interface SetupOnboardingWizardProps {
   state: AppState
@@ -51,9 +52,6 @@ const SETUP_STEP_NAV_LABELS: Record<string, string> = {
   reveal: 'True Balance',
   accuracy: 'Your routine',
 }
-
-/** Steps where the user enters data — never dim the app or highlight widgets behind the overlay. */
-const DATA_ENTRY_STEPS = new Set(['business', 'cash', 'committed', 'reserve'])
 
 export function SetupOnboardingWizard({
   state,
@@ -99,20 +97,6 @@ export function SetupOnboardingWizard({
     try { localStorage.setItem(PROGRESS_KEY, String(stepIndex)) } catch { /* */ }
   }, [stepIndex])
 
-  useEffect(() => {
-    document.querySelectorAll('[data-onboarding-focus]').forEach((el) => {
-      el.removeAttribute('data-onboarding-focus')
-    })
-    document.body.classList.remove('setup-onboarding-spotlight-active')
-  }, [stepIndex])
-
-  useEffect(() => {
-    document.querySelectorAll('[data-onboarding-focus]').forEach((el) => {
-      el.removeAttribute('data-onboarding-focus')
-    })
-    document.body.classList.remove('setup-onboarding-spotlight-active')
-  }, [])
-
   const primaryBusiness = state.businesses[0]
   const cashAccounts = useMemo(
     () => getCashAccounts(state.accounts.filter((account) => account.active)),
@@ -127,28 +111,18 @@ export function SetupOnboardingWizard({
   }, [pendingBusinessAdvance, primaryBusiness])
 
   useEffect(() => {
-    if (!step.page || DATA_ENTRY_STEPS.has(step.id)) return
+    document.querySelectorAll('[data-onboarding-focus]').forEach((el) => {
+      el.removeAttribute('data-onboarding-focus')
+    })
+    document.body.classList.remove('setup-onboarding-spotlight-active')
+  }, [stepIndex])
 
-    if (step.id === 'reserve') {
-      const planner = state.reservePlanners.find((item) =>
-        primaryBusiness ? item.businessId === primaryBusiness.id : true,
-      )
-      if (planner) {
-        onNavigate('reserve-planner', planner.id)
-      } else {
-        onNavigate('committed-funds')
-      }
-    } else {
-      onNavigate(step.page)
-    }
-
-    if (step.id === 'month-view') {
-      window.dispatchEvent(new CustomEvent('tb-set-accruing-view', { detail: 'period' }))
-      return () => {
-        window.dispatchEvent(new CustomEvent('tb-set-accruing-view', { detail: 'list' }))
-      }
-    }
-  }, [step.id, step.page, primaryBusiness?.id, state.reservePlanners, onNavigate])
+  useEffect(() => {
+    document.querySelectorAll('[data-onboarding-focus]').forEach((el) => {
+      el.removeAttribute('data-onboarding-focus')
+    })
+    document.body.classList.remove('setup-onboarding-spotlight-active')
+  }, [])
 
   useEffect(() => {
     if (step.id !== 'cash') return
@@ -232,23 +206,24 @@ export function SetupOnboardingWizard({
 
   const handleReserveSetup = () => {
     const businessId = primaryBusiness?.id
+    let plannerId: string | null = null
     if (businessId) {
       const existingPlanner = state.reservePlanners.find((p) => p.businessId === businessId)
       if (!existingPlanner) {
-        const plannerId = actions.addReservePlanner({
-          name: `${primaryBusiness.name} Reserve Plan`,
+        plannerId = actions.addReservePlanner({
+          name: `${primaryBusiness!.name} Reserve Plan`,
           businessId,
           bufferAmount: 0,
           actualBalance: 0,
         })
-        onNavigate('reserve-planner', plannerId)
       } else {
-        onNavigate('reserve-planner', existingPlanner.id)
+        plannerId = existingPlanner.id
       }
-    } else {
-      onNavigate('reserve-planner')
     }
-    setStepIndex((i) => i + 1)
+    try { localStorage.removeItem(PROGRESS_KEY) } catch { /* */ }
+    dismissSetupOnboardingLocally()
+    onNavigate('reserve-planner', plannerId)
+    onDismiss()
   }
 
   const handleReserveSkip = () => {
@@ -640,35 +615,29 @@ export function SetupOnboardingWizard({
             </div>
           )}
 
-          {step.id === 'due-explain' && (
-            <div className="setup-edu-visual">
-              <div className="setup-edu-funding-options">
-                <div className="setup-edu-funding-option">
-                  <div className="setup-edu-funding-bar setup-edu-funding-bar--immediate" />
-                  <span>Deduct now</span>
-                </div>
-                <div className="setup-edu-funding-option">
-                  <div className="setup-edu-funding-bar setup-edu-funding-bar--accrual" />
-                  <span>Build up</span>
-                </div>
-                <div className="setup-edu-funding-option">
-                  <div className="setup-edu-funding-bar setup-edu-funding-bar--hybrid" />
-                  <span>Part + build</span>
-                </div>
-              </div>
-            </div>
-          )}
+          {step.id === 'month-view' && <SetupWidgetPreview previewId="month-view" />}
+
+          {step.id === 'due-explain' && <SetupWidgetPreview previewId="due" />}
+
+          {step.id === 'receipts-explain' && <SetupWidgetPreview previewId="receipts" />}
 
           {step.id === 'reserve' && (
-            <div className="setup-onboarding-actions-stack">
-              <button type="button" className="btn-primary" onClick={handleReserveSetup}>
-                Set up Reserve Planner now
-              </button>
-              <button type="button" className="btn-ghost" onClick={handleReserveSkip}>
-                I&apos;ll do this later
-              </button>
-            </div>
+            <>
+              <SetupWidgetPreview previewId="reserve" />
+              <div className="setup-onboarding-actions-stack">
+                <button type="button" className="btn-primary" onClick={handleReserveSetup}>
+                  Set up Reserve Planner now
+                </button>
+                <button type="button" className="btn-ghost" onClick={handleReserveSkip}>
+                  I&apos;ll do this later
+                </button>
+              </div>
+            </>
           )}
+
+          {step.id === 'trends-explain' && <SetupWidgetPreview previewId="trends" />}
+
+          {step.id === 'forecast-explain' && <SetupWidgetPreview previewId="forecast" />}
 
           {step.id === 'reveal' && (
             <div className="setup-onboarding-reveal">
@@ -706,7 +675,7 @@ export function SetupOnboardingWizard({
           )}
 
           {step.id === 'accuracy' && (
-            <ul className="setup-accuracy-list">
+            <ul className="setup-routine-list">
               {QUICK_HABITS.map((habit) => (
                 <li key={habit}>{habit}</li>
               ))}
