@@ -30,6 +30,7 @@ import { calculateDashboard } from './utils/calculations'
 import { buildBreakdownColumns } from './utils/breakdownTable'
 import { getPlannerDisplayName, summarizeReservePlanner, getReservePlannerIdForScope } from './utils/reserveCalculations'
 import { getScopeLabel, getSidebarScopePickerOptions } from './utils/scope'
+import { usePageMeta } from './hooks/usePageMeta'
 import { ViewingScopeBar } from './components/ViewingScopeBar'
 import { ViewingScopePicker } from './components/ViewingScopePicker'
 import { scopeThemeBusinessId, scopeThemeStyle } from './utils/businessTheme'
@@ -222,7 +223,30 @@ function AppShellInner({
       return { ...meta, kicker: getPlannerDisplayName(app.state, activeReserveSummary.planner) }
     }
     return meta
-  }, [activePage, activeReserveSummary])
+  }, [activePage, activeReserveSummary, app.state])
+
+  const documentTitle = useMemo(() => {
+    if (activePage === 'reserve-planner' && activeReserveSummary) {
+      return `${pageMeta.label} — ${getPlannerDisplayName(app.state, activeReserveSummary.planner)}`
+    }
+    if (isDemoSession && demoMode?.scenario) {
+      return `${pageMeta.label} — ${demoMode.scenario.title} (Demo)`
+    }
+    return pageMeta.label
+  }, [
+    activePage,
+    activeReserveSummary,
+    demoMode?.scenario,
+    isDemoSession,
+    pageMeta.label,
+    app.state,
+  ])
+
+  usePageMeta({
+    title: documentTitle,
+    description: `${pageMeta.label} in True Balance — cash clarity for UK business owners.`,
+    path: '/app',
+  })
 
   useEffect(() => {
     if (activeRoute.page !== 'reserve-planner') return
