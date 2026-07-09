@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import {
   MarketingFooter,
@@ -18,6 +18,9 @@ import {
   FOUNDER_PROGRAM_FOOTNOTE,
   FOUNDER_PROGRAM_HEADLINE,
 } from '../config/founderProgram'
+import { HOME_SEO } from '../content/marketingSeo'
+import { usePageMeta } from '../hooks/usePageMeta'
+import { homePageJsonLd, MarketingJsonLd } from '../components/marketing/MarketingJsonLd'
 
 const HERO_BENEFITS = [
   'Know exactly what your business can safely spend.',
@@ -78,6 +81,8 @@ const STEPS = [
 ] as const
 
 export function LandingPage() {
+  usePageMeta(HOME_SEO)
+  const jsonLd = useMemo(() => homePageJsonLd(), [])
   useEffect(() => {
     const hash = window.location.hash.replace('#', '')
     if (!hash) return
@@ -87,6 +92,7 @@ export function LandingPage() {
 
   return (
     <MarketingShell>
+      <MarketingJsonLd data={jsonLd} />
       <MarketingHeader />
 
       <main className="marketing-main marketing-main--pop">

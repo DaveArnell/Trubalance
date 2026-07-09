@@ -99,6 +99,7 @@ export function formatSetupApplySummary(input: {
   statementsAnalysed: number
   suggestionsFound: number
   transactionCount?: number
+  outflowCount?: number
   autoAddCount?: number
   skippedLowConfidence?: number
   balancesUpdated: number
@@ -122,11 +123,14 @@ export function formatSetupApplySummary(input: {
   }
 
   if (input.statementsAnalysed > 0 && input.suggestionsFound === 0) {
+    if ((input.transactionCount ?? 0) > 0 && input.outflowCount === 0) {
+      return `We read ${input.transactionCount} line${input.transactionCount === 1 ? '' : 's'} from your statement but none were recognised as payments out — amounts may have been misread from the PDF. Try exporting CSV from your bank, or re-upload the PDF after this update.`
+    }
     const txn =
       input.transactionCount != null
-        ? ` We read ${input.transactionCount} transaction${input.transactionCount === 1 ? '' : 's'} but`
+        ? ` We read ${input.transactionCount} transaction${input.transactionCount === 1 ? '' : 's'} (${input.outflowCount ?? 0} outgoing) but`
         : ' We'
-    return `${txn.trim()} did not spot repeating outgoing payments (need at least 2 similar payments to the same payee). Try lowering the minimum monthly filter to 0, or add costs manually.`
+    return `${txn.trim()} did not spot repeating outgoing payments (need at least 2 similar payments to the same payee). Try minimum monthly 0 to include smaller costs, or add items manually.`
   }
 
   if (input.statementsAnalysed > 0 && (input.skippedLowConfidence ?? 0) > 0 && (input.autoAddCount ?? 0) === 0) {

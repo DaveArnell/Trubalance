@@ -4,7 +4,7 @@ import {
   calculateDashboard,
   getAccountsForScope,
   getCommitmentsForScope,
-  getReceiptsForScope,
+  getReceiptsContributingOnDate,
   getReservePlannersForScope,
 } from './calculations'
 import {
@@ -12,7 +12,7 @@ import {
   getAccruedAmount,
   getDerivedDueRowStatus,
 } from './commitmentCalculations'
-import { getEffectiveReceiptAmount, receiptContributesOnDate } from './receiptCalculations'
+import { getEffectiveReceiptAmount } from './receiptCalculations'
 import { buildReserveAccruingRows, buildReserveDueRows } from './reserveCalculations'
 import { newId } from './id'
 import { roundCurrency, toAmount } from './amounts'
@@ -57,9 +57,7 @@ export function captureHistoryRecord(
   const reserveDueRows = buildReserveDueRows(state, scope, referenceDate)
   const views = buildCommitmentViews(commitments, reserveRows, reserveDueRows, referenceDate)
   const accounts = getAccountsForScope(state, scope)
-  const receipts = getReceiptsForScope(state, scope).filter((receipt) =>
-    receiptContributesOnDate(receipt, date),
-  )
+  const receipts = getReceiptsContributingOnDate(state, scope, date)
   const planners = getReservePlannersForScope(state, scope)
 
   const cash = roundCurrency(accounts.reduce((sum, account) => sum + account.balance, 0))

@@ -1,7 +1,8 @@
 import type { AppState, ViewScope } from '../types'
-import { getCommitmentsForScope, getReceiptsForScope } from './calculations'
+import { getCommitmentsForScope, getReceiptsContributingOnDate } from './calculations'
 import { sumCommittedFunds } from './commitmentCalculations'
 import { getEffectiveReceiptAmount } from './receiptCalculations'
+import { dateToKey } from './referenceDate'
 import { buildReserveAccruingRows, buildReserveDueRows } from './reserveCalculations'
 
 export function computeExpectedReceiptsAt(
@@ -9,7 +10,7 @@ export function computeExpectedReceiptsAt(
   scope: ViewScope,
   referenceDate: Date,
 ): number {
-  const receipts = getReceiptsForScope(state, scope)
+  const receipts = getReceiptsContributingOnDate(state, scope, dateToKey(referenceDate))
   return receipts.reduce((sum, receipt) => sum + getEffectiveReceiptAmount(receipt, referenceDate), 0)
 }
 

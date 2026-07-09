@@ -1,4 +1,10 @@
 User-agent: *
 Allow: /
+Disallow: /app
+Disallow: /demo
+Disallow: /login
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /platform-admin
 
 Sitemap: https://truebalanceapp.io/sitemap.xml

@@ -101,10 +101,28 @@ export function getReceiptActiveFromDateKey(receipt: ExpectedReceipt): string {
   return '1970-01-01'
 }
 
-export function receiptContributesOnDate(receipt: ExpectedReceipt, dateKey: string): boolean {
+/** Calendar day this receipt stopped accruing in expected receipts (when cash was received). */
+export function getReceiptReceivedDateKey(
+  receipt: ExpectedReceipt,
+  fallbackDate: Date = getReferenceDate(),
+): string | null {
+  if (!receipt.received) return null
+  if (receipt.receivedDate) return receipt.receivedDate
+  return dateToKey(fallbackDate)
+}
+
+export function receiptContributesOnDate(
+  receipt: ExpectedReceipt,
+  dateKey: string,
+  referenceDate: Date = getReferenceDate(),
+): boolean {
   const start = getReceiptStartDateKey(receipt)
-  if (!start) return false
-  return dateKey >= start
+  if (!start || dateKey < start) return false
+
+  const receivedOn = getReceiptReceivedDateKey(receipt, referenceDate)
+  if (receivedOn && dateKey >= receivedOn) return false
+
+  return true
 }
 
 /** Target amount for a calendar month, respecting per-period overrides. */
@@ -136,7 +154,8 @@ export function getReceiptDailyAccrualRate(
   receipt: ExpectedReceipt,
   referenceDate: Date = getReferenceDate(),
 ): number {
-  if (getReceiptTiming(receipt) !== 'accrual' || receipt.received) return 0
+  if (getReceiptTiming(receipt) !== 'accrual') return 0
+  if (getReceiptReceivedDateKey(receipt, referenceDate)) return 0
   const window = resolveReceiptAccrualWindow(receipt, referenceDate)
   if (!window) return 0
   const target = getReceiptPeriodAmount(receipt, window.period)
@@ -146,16 +165,14 @@ export function getReceiptDailyAccrualRate(
 }
 
 /**
- * How much of this receipt counts toward True Balance on a given date.
- * Lump: full amount from Start until received (no Start = no effect — avoids spikes on new rows).
+ * Accrued amount as if the receipt were still open on referenceDate (ignores received status).
+ * Lump: full amount from Start (no Start = no effect — avoids spikes on new rows).
  * Build up: accrues daily from Start to Expected.
  */
-export function getEffectiveReceiptAmount(
+export function getReceiptAccruedAmountAt(
   receipt: ExpectedReceipt,
   referenceDate: Date = getReferenceDate(),
 ): number {
-  if (receipt.received) return 0
-
   const timing = getReceiptTiming(receipt)
   const today = dateOnly(referenceDate)
 
@@ -178,6 +195,24 @@ export function getEffectiveReceiptAmount(
   if (totalDays <= 0) return target
   const elapsed = daysBetween(window.start, today)
   return target * Math.min(1, elapsed / totalDays)
+}
+
+/**
+ * How much of this receipt counts toward True Balance on a given date.
+ * Active receipts accrue until marked received; from receivedDate onward the amount is zero
+ * (cash should be in the current account instead). Dates before receivedDate keep their accrual.
+ */
+export function getEffectiveReceiptAmount(
+  receipt: ExpectedReceipt,
+  referenceDate: Date = getReferenceDate(),
+): number {
+  const receivedOn = getReceiptReceivedDateKey(receipt, referenceDate)
+  if (receivedOn) {
+    const asOfKey = dateToKey(dateOnly(referenceDate))
+    if (asOfKey >= receivedOn) return 0
+  }
+
+  return getReceiptAccruedAmountAt(receipt, referenceDate)
 }
 
 export function getReceiptDeleteFromDateKey(receipt: ExpectedReceipt): string {

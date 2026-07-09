@@ -246,6 +246,7 @@ function AppShellInner({
     title: documentTitle,
     description: `${pageMeta.label} in True Balance — cash clarity for UK business owners.`,
     path: '/app',
+    noindex: true,
   })
 
   useEffect(() => {

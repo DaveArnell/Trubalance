@@ -8,6 +8,8 @@ import {
   FOUNDER_PROGRAM_FOOTNOTE,
   FOUNDER_PROGRAM_HEADLINE,
 } from '../config/founderProgram'
+import { LOGIN_SEO, SIGNUP_SEO } from '../content/marketingSeo'
+import { usePageMeta } from '../hooks/usePageMeta'
 
 interface AuthFormProps {
   mode: 'login' | 'signup'
@@ -217,6 +219,7 @@ export function AuthForm({ mode }: AuthFormProps) {
 }
 
 export function LoginPage() {
+  usePageMeta(LOGIN_SEO)
   return (
     <MarketingShell>
       <MarketingHeader />
@@ -234,6 +237,7 @@ export function LoginPage() {
 }
 
 export function SignupPage() {
+  usePageMeta(SIGNUP_SEO)
   return (
     <MarketingShell>
       <MarketingHeader />
@@ -251,6 +255,12 @@ export function SignupPage() {
 }
 
 export function ForgotPasswordPage() {
+  usePageMeta({
+    title: 'Forgot password',
+    description: 'Reset your True Balance password.',
+    path: '/forgot-password',
+    noindex: true,
+  })
   const { resetPassword } = useAuth()
   const [email, setEmail] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -328,6 +338,12 @@ export function ForgotPasswordPage() {
 }
 
 export function ResetPasswordPage() {
+  usePageMeta({
+    title: 'Reset password',
+    description: 'Choose a new True Balance password.',
+    path: '/reset-password',
+    noindex: true,
+  })
   const { updatePassword } = useAuth()
   const navigate = useNavigate()
   const [password, setPassword] = useState('')

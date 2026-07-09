@@ -2,12 +2,19 @@ import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { isSupabaseConfigured } from '../../lib/supabase'
+import { usePageMeta } from '../../hooks/usePageMeta'
 import { ADMIN_NAV } from '../navigation'
 import { AdminDataModeBanner } from './AdminUi'
 import { getAdminDataMode, setAdminDataMode, type AdminDataMode } from '../services/adminDemoMode'
 import '../admin.css'
 
 export function AdminLayout() {
+  usePageMeta({
+    title: 'Platform admin',
+    description: 'True Balance platform administration.',
+    path: '/platform-admin',
+    noindex: true,
+  })
   const { signOut } = useAuth()
   const supabaseConnected = isSupabaseConfigured
   const [dataMode, setDataMode] = useState<AdminDataMode>(getAdminDataMode)

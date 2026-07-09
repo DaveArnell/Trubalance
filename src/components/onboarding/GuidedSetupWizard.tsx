@@ -808,6 +808,7 @@ function GuidedSetupAiWizard({
         statementsAnalysed: analysis.statementsAnalysed,
         suggestionsFound: analysis.suggestionCount,
         transactionCount: analysis.transactionCount,
+        outflowCount: analysis.outflowCount,
         autoAddCount: analysis.autoAddCount,
         skippedLowConfidence: analysis.skippedLowConfidence,
         balancesUpdated,

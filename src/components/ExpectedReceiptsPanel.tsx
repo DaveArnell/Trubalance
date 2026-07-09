@@ -35,8 +35,9 @@ export function ExpectedReceiptsPanel({
   const visibleReceipts = useMemo(
     () =>
       sortByOrder(
-        state.expectedReceipts.filter((r) =>
-          itemMatchesScope(state, viewScope, r.scopeLevel, r.scopeId),
+        state.expectedReceipts.filter(
+          (r) =>
+            !r.received && itemMatchesScope(state, viewScope, r.scopeLevel, r.scopeId),
         ),
         (r) => r.sortOrder,
       ),
@@ -45,7 +46,9 @@ export function ExpectedReceiptsPanel({
   const outOfScopeReceipts = useMemo(
     () =>
       state.expectedReceipts.filter(
-        (receipt) => !itemMatchesScope(state, viewScope, receipt.scopeLevel, receipt.scopeId),
+        (receipt) =>
+          !receipt.received &&
+          !itemMatchesScope(state, viewScope, receipt.scopeLevel, receipt.scopeId),
       ),
     [state.expectedReceipts, state, viewScope],
   )

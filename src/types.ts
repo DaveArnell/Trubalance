@@ -152,6 +152,8 @@ export interface ExpectedReceipt {
   scopeId: string
   notes?: string
   received: boolean
+  /** ISO date (YYYY-MM-DD) when marked received — stops future accrual but preserves history before this day. */
+  receivedDate?: string
   sortOrder?: number
 }
 

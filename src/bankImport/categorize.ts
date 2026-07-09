@@ -54,7 +54,13 @@ const RULES: { category: SuggestionCategory; label: string; patterns: RegExp[] }
   {
     category: 'transfer',
     label: 'Transfer',
-    patterns: [/TRANSFER/, /TFR/, /FASTER PAYMENT/, /INTERNAL/, /SWEEP/, /\bTO\s+ACCOUNT\b/, /\bFROM\s+ACCOUNT\b/],
+    patterns: [
+      /INTERNAL\s+TRANSFER/,
+      /\bSWEEP\b/,
+      /\bTFR\b.*\b(?:SAV|SAVINGS|RESERVE)\b/,
+      /\bTO\s+(?:SAV|SAVINGS)\b/,
+      /\bFROM\s+(?:SAV|SAVINGS)\b/,
+    ],
   },
   {
     category: 'customer_receipt',

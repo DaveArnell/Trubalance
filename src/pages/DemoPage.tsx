@@ -9,8 +9,11 @@ import {
   DEFAULT_DEMO_SCENARIO_ID,
   DEMO_SCENARIOS,
 } from '../data/demoScenarios'
+import { DEMO_SEO } from '../content/marketingSeo'
+import { usePageMeta } from '../hooks/usePageMeta'
 
 export function DemoPage() {
+  usePageMeta(DEMO_SEO)
   const { scenarioId } = useParams<{ scenarioId?: string }>()
   const navigate = useNavigate()
   const { profile } = useAuth()

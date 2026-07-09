@@ -2,14 +2,18 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { MarketingFooter, MarketingHeader, MarketingShell } from '../../components/marketing/MarketingLayout'
 import { CompanyLegalNotice } from '../../components/marketing/CompanyLegalNotice'
+import { usePageMeta } from '../../hooks/usePageMeta'
 
 interface LegalPageLayoutProps {
   title: string
   updated: string
+  description: string
+  path: string
   children: ReactNode
 }
 
-export function LegalPageLayout({ title, updated, children }: LegalPageLayoutProps) {
+export function LegalPageLayout({ title, updated, description, path, children }: LegalPageLayoutProps) {
+  usePageMeta({ title, description, path })
   return (
     <MarketingShell>
       <MarketingHeader />

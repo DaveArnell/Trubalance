@@ -1,6 +1,7 @@
 import { extractPdfTextItems } from './pdfTextExtract'
 import { parsePdfTableRows, parsedPdfRowsToStatementRows } from './pdfTableParser'
 import { parseDateCell } from './parseDate'
+import { inferDirectionFromDescription } from './inferAmounts'
 import { looksLikeMoney, parseMoneyCell } from './parseMoney'
 
 const DATE_START =
@@ -43,7 +44,12 @@ function parsePdfLine(line: string): string[] | null {
     const balance = amounts[amounts.length - 1]!
     const movement = amounts[amounts.length - 2]!
     const value = movement.replace(/[()£,\s]/g, '')
-    const isOut = movement.includes('(') || value.startsWith('-')
+    let isOut = movement.includes('(') || value.startsWith('-')
+    if (!isOut && !movement.includes('(') && !value.startsWith('-')) {
+      const direction = inferDirectionFromDescription(description)
+      if (direction === 'out') isOut = true
+      else if (direction === 'in') isOut = false
+    }
     return [
       isoDate,
       description,
@@ -55,7 +61,12 @@ function parsePdfLine(line: string): string[] | null {
 
   const movement = amounts[0]!
   const value = movement.replace(/[()£,\s]/g, '')
-  const isOut = movement.includes('(') || value.startsWith('-')
+  let isOut = movement.includes('(') || value.startsWith('-')
+  if (!isOut) {
+    const direction = inferDirectionFromDescription(description)
+    if (direction === 'out') isOut = true
+    else if (direction === 'in') isOut = false
+  }
   return [isoDate, description, isOut ? '' : movement, isOut ? movement.replace(/[()]/g, '') : '']
 }
 
@@ -98,8 +109,16 @@ export async function parsePdfBankStatement(
   const tableResult = tableRows.length > 0 ? parsedPdfRowsToStatementRows(tableRows) : null
   const fallback = parsePdfLinesFallback(linesFromItems(items))
 
+  function parseScore(result: { rows: string[][] } | null): number {
+    if (!result) return 0
+    return countParsableMoneyCells(result.rows) + result.rows.length * 0.01
+  }
+
+  const tableScore = parseScore(tableResult)
+  const fallbackScore = parseScore(fallback)
+
   const best =
-    tableResult && tableResult.rows.length >= fallback.rows.length
+    tableResult && tableScore >= fallbackScore
       ? tableResult
       : fallback.rows.length > 0
         ? fallback

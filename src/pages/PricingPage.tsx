@@ -1,8 +1,11 @@
 import { Link } from 'react-router-dom'
 import { MarketingFooter, MarketingHeader, MarketingShell } from '../components/marketing/MarketingLayout'
 import { PricingSection } from '../components/marketing/PricingSection'
+import { PRICING_SEO } from '../content/marketingSeo'
+import { usePageMeta } from '../hooks/usePageMeta'
 
 export function PricingPage() {
+  usePageMeta(PRICING_SEO)
   return (
     <MarketingShell>
       <MarketingHeader />

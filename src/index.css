@@ -2139,7 +2139,33 @@ body.widget-canvas-resizing * {
   overflow: hidden;
 }
 
-.widget-canvas[data-page-id='forecast'] .cash-outlook-body,
+.widget-canvas[data-page-id='forecast'] .cash-outlook-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.widget-canvas[data-page-id='forecast'] .cash-outlook-summary,
+.widget-canvas[data-page-id='forecast'] .cash-outlook-pattern,
+.widget-canvas[data-page-id='forecast'] .cash-outlook-chart-wrap {
+  flex-shrink: 0;
+}
+
+.widget-canvas[data-page-id='forecast'] .cash-outlook-events {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.widget-canvas[data-page-id='forecast'] .cash-outlook-events-title,
+.widget-canvas[data-page-id='forecast'] .cash-outlook-unscheduled {
+  flex-shrink: 0;
+}
+
 .widget-canvas[data-page-id='forecast'] .trend-projection-body {
   flex: 1;
   min-height: 0;
@@ -3028,7 +3054,12 @@ body.widget-canvas-resizing * {
 }
 
 .widget-canvas[data-page-id='forecast'] .cash-outlook-event-list {
-  max-height: 7rem;
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
 }
 
 .cash-outlook-event {

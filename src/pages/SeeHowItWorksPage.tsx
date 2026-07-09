@@ -5,8 +5,11 @@ import {
   MarketingShell,
 } from '../components/marketing/MarketingLayout'
 import { DEMO_SCENARIOS } from '../data/demoScenarios'
+import { SEE_HOW_SEO } from '../content/marketingSeo'
+import { usePageMeta } from '../hooks/usePageMeta'
 
 export function SeeHowItWorksPage() {
+  usePageMeta(SEE_HOW_SEO)
   return (
     <MarketingShell>
       <MarketingHeader />

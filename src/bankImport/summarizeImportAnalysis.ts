@@ -1,10 +1,12 @@
 import type { AccountImportResult } from './importCentre'
 import { AUTO_APPLY_MIN_CONFIDENCE } from '../config/setupAutomation'
+import { countParsedOutflows } from './inferAmounts'
 
 export interface ImportAnalysisSummary {
   statementsAnalysed: number
   statementsSkipped: number
   transactionCount: number
+  outflowCount: number
   suggestionCount: number
   autoAddCount: number
   skippedLowConfidence: number
@@ -16,6 +18,7 @@ export function summarizeImportAnalysis(results: AccountImportResult[]): ImportA
     statementsAnalysed: 0,
     statementsSkipped: 0,
     transactionCount: 0,
+    outflowCount: 0,
     suggestionCount: 0,
     autoAddCount: 0,
     skippedLowConfidence: 0,
@@ -31,6 +34,7 @@ export function summarizeImportAnalysis(results: AccountImportResult[]): ImportA
 
     summary.statementsAnalysed++
     summary.transactionCount += result.session.transactions.length
+    summary.outflowCount += countParsedOutflows(result.session.transactions)
 
     for (const suggestion of result.session.suggestions) {
       summary.suggestionCount++

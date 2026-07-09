@@ -41,7 +41,7 @@ import {
   itemMatchesSharedColumnScope,
 } from './scope'
 import { sumAccountBalances } from './amounts'
-import { getEffectiveReceiptAmount } from './receiptCalculations'
+import { getEffectiveReceiptAmount, receiptContributesOnDate } from './receiptCalculations'
 import { FRESHNESS_ENCOURAGEMENT } from '../content/livingDashboard'
 import { filterRemindersForScope, getDiaryAttentionBuckets } from './businessHub'
 import { getPlannersNeedingMonthlyCheckIn } from './reserveCheckIn'
@@ -128,6 +128,16 @@ export function getCommitmentsForColumnScope(state: AppState, scope: ViewScope):
 export function getReceiptsForScope(state: AppState, scope: ViewScope) {
   const receipts = state.expectedReceipts.filter(
     (r) => !r.received && itemMatchesScope(state, scope, r.scopeLevel, r.scopeId),
+  )
+  return sortByOrder(receipts, (r) => r.sortOrder)
+}
+
+/** Receipts that still count toward True Balance on a calendar day (includes received items before receivedDate). */
+export function getReceiptsContributingOnDate(state: AppState, scope: ViewScope, dateKey: string) {
+  const receipts = state.expectedReceipts.filter(
+    (r) =>
+      itemMatchesScope(state, scope, r.scopeLevel, r.scopeId) &&
+      receiptContributesOnDate(r, dateKey),
   )
   return sortByOrder(receipts, (r) => r.sortOrder)
 }

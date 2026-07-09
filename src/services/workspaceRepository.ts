@@ -137,6 +137,7 @@ function mapReceipt(row: Record<string, unknown>): ExpectedReceipt {
     scopeId: String(row.scope_id),
     notes: row.notes ? String(row.notes) : undefined,
     received: Boolean(row.received),
+    receivedDate: row.received_date ? toDateOnly(String(row.received_date)) : undefined,
     sortOrder: row.sort_order != null ? Number(row.sort_order) : undefined,
   }
 }
@@ -511,6 +512,7 @@ export async function saveWorkspaceState(
     scope_id: r.scopeId,
     notes: r.notes ?? null,
     received: r.received,
+    received_date: serializeReceiptDateField(r.receivedDate),
     sort_order: r.sortOrder ?? i,
     created_at: r.createdAt ?? null,
     ...ws,

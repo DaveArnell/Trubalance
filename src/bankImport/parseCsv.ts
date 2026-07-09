@@ -3,6 +3,7 @@ import type { BankImportColumnKey, BankImportColumnMapping, ParsedBankTransactio
 import { normalizeDescription } from './normalize'
 import { parseDateCell } from './parseDate'
 import { parseMoneyCell } from './parseMoney'
+import { inferAmountsFromRunningBalance, resolveSignedAmount } from './inferAmounts'
 
 function parseCsvLine(line: string): string[] {
   const cells: string[] = []
@@ -104,22 +105,25 @@ export function mapRowsToTransactions(
     moneyIn = Math.abs(moneyIn)
     moneyOut = Math.abs(moneyOut)
 
-    if (moneyIn === 0 && moneyOut === 0) continue
-
     const balanceRaw = mapping.balance !== undefined ? cell(row, mapping.balance) : ''
     const balance = balanceRaw ? parseMoneyCell(balanceRaw) : undefined
+
+    const amount = resolveSignedAmount(description, moneyIn, moneyOut)
+    if (amount === 0 && balance == null) continue
 
     transactions.push({
       id: newId(),
       date,
       description: description.trim(),
-      moneyIn: Math.abs(moneyIn),
-      moneyOut: Math.abs(moneyOut),
-      amount: moneyIn > 0 ? moneyIn : -moneyOut,
+      moneyIn: amount > 0 ? Math.abs(amount) : 0,
+      moneyOut: amount < 0 ? Math.abs(amount) : 0,
+      amount,
       balance: balance || undefined,
       normalizedDescription: normalizeDescription(description),
     })
   }
 
-  return transactions.sort((a, b) => a.date.localeCompare(b.date))
+  return inferAmountsFromRunningBalance(
+    transactions.sort((a, b) => a.date.localeCompare(b.date)),
+  )
 }

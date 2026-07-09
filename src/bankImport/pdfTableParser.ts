@@ -29,8 +29,8 @@ export interface ParsedPdfRow {
 const HEADER_LABELS: Record<TableColumnKey, RegExp[]> = {
   date: [/^date$/i],
   description: [/^description$/i, /^transaction$/i, /^details$/i, /^narrative$/i],
-  moneyIn: [/^money\s*in$/i, /^paid\s*in$/i, /^credit$/i, /^credits$/i],
-  moneyOut: [/^money\s*out$/i, /^paid\s*out$/i, /^debit$/i, /^debits$/i],
+  moneyIn: [/^money\s*in(\s*\([^)]*\))?$/i, /^paid\s*in$/i, /^credit$/i, /^credits$/i],
+  moneyOut: [/^money\s*out(\s*\([^)]*\))?$/i, /^paid\s*out$/i, /^debit$/i, /^debits$/i],
   balance: [/^balance$/i, /^running\s*balance$/i],
   amount: [/^amount$/i],
 }
@@ -44,6 +44,14 @@ function isHeaderLabel(text: string): boolean {
 }
 
 function itemCenter(item: PdfTextItem): number {
+  if (item.width > 0) return item.x + item.width / 2
+  return item.x
+}
+
+/** Right edge for amounts (UK statements right-align money columns). */
+function itemAssignX(item: PdfTextItem): number {
+  if (looksLikeMoney(item.text) && item.width > 0) return item.x + item.width
+  if (item.width > 0) return item.x + item.width / 2
   return item.x
 }
 
@@ -135,7 +143,7 @@ function assignRowToCells(row: PdfTextItem[], columns: TableColumn[]): Record<Ta
   }
 
   for (const item of row) {
-    const x = itemCenter(item)
+    const x = itemAssignX(item)
     let column = columns.find((col) => x >= col.xMin && x < col.xMax)
     if (!column) {
       column = columns.reduce(
@@ -168,7 +176,7 @@ interface DraftTransaction {
 function finishDraft(draft: DraftTransaction): ParsedPdfRow | null {
   const description = draft.description.replace(/\s+/g, ' ').trim()
   if (!draft.date || !description) return null
-  if (!draft.moneyIn && !draft.moneyOut) return null
+  if (!draft.moneyIn && !draft.moneyOut && !looksLikeMoney(draft.balance)) return null
   return { ...draft, description }
 }
 

@@ -1,9 +1,15 @@
 import { LegalPageLayout } from './LegalPageLayout'
 import { COMPANY_INFO } from '../../content/companyInfo'
+import { PRIVACY_SEO } from '../../content/marketingSeo'
 
 export function PrivacyPage() {
   return (
-    <LegalPageLayout title="Privacy policy" updated="5 July 2026">
+    <LegalPageLayout
+      title="Privacy policy"
+      updated="5 July 2026"
+      description={PRIVACY_SEO.description}
+      path={PRIVACY_SEO.path}
+    >
       <p>
         {COMPANY_INFO.productName} (&quot;the service&quot;) is owned and operated by{' '}
         {COMPANY_INFO.legalName} (&quot;we&quot;, &quot;us&quot;). We help you understand what cash is

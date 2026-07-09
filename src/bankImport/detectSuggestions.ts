@@ -164,12 +164,12 @@ export function detectSuggestionsRuleBased(
     }
     confidence = Math.min(95, Math.max(15, confidence))
 
-    if (bucket.length === 1 && frequency === 'one_off' && confidence < 45) {
-      continue
-    }
-
     const likelyDueDay = dayOfMonthFromDates(dates)
     const averageAmount = roundCurrency(amounts.reduce((sum, value) => sum + value, 0) / amounts.length)
+
+    if (bucket.length === 1 && frequency === 'one_off' && confidence < 45 && averageAmount < 150) {
+      continue
+    }
 
     if (!passesMinMonthlyThreshold(averageAmount, frequency, options?.minMonthlyAmount)) {
       continue

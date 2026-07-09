@@ -1,9 +1,15 @@
 import { LegalPageLayout } from './LegalPageLayout'
 import { COMPANY_INFO } from '../../content/companyInfo'
+import { TERMS_SEO } from '../../content/marketingSeo'
 
 export function TermsPage() {
   return (
-    <LegalPageLayout title="Terms of service" updated="5 July 2026">
+    <LegalPageLayout
+      title="Terms of service"
+      updated="5 July 2026"
+      description={TERMS_SEO.description}
+      path={TERMS_SEO.path}
+    >
       <p>
         These terms govern your use of {COMPANY_INFO.productName} (&quot;the service&quot;), operated
         by {COMPANY_INFO.legalName}. By creating an account or using the service, you agree to them.

@@ -25,7 +25,7 @@ import {
   propagateSnapshotMetricDelta,
   refreshAllSnapshotMetrics,
 } from '../utils/snapshotRebuild'
-import { getReceiptRebuildFromDateKey, getReceiptDeleteFromDateKey } from '../utils/receiptCalculations'
+import { getReceiptRebuildFromDateKey, getReceiptDeleteFromDateKey, getReceiptActiveFromDateKey } from '../utils/receiptCalculations'
 import { captureHistoryRecord, upsertDailyHistoryRecord } from '../utils/historyCapture'
 import { getStoredHistoryRecordIdsForDay, getSnapshotIdsForDayInViewScope, repairEmptySnapshotChangedAccounts, scopeInViewTree } from '../utils/historyRebuild'
 import { calculateDashboard, getCommitmentsForScope } from '../utils/calculations'
@@ -1024,16 +1024,17 @@ export function useAppState(options?: UseAppStateOptions) {
     update((s) => {
       const existing = s.expectedReceipts.find((r) => r.id === id)
       if (!existing) return s
+      const receivedDate = todayDateKey()
       const nextState: AppState = {
         ...s,
         expectedReceipts: s.expectedReceipts.map((r) =>
-          r.id === id ? { ...r, received: true } : r,
+          r.id === id ? { ...r, received: true, receivedDate } : r,
         ),
       }
       return refreshSnapshotsForScopes(
         nextState,
         getScopesForReceipt(nextState, existing),
-        todayDateKey(),
+        getReceiptActiveFromDateKey(existing),
         new Date().toISOString(),
       )
     })
@@ -1062,6 +1063,7 @@ export function useAppState(options?: UseAppStateOptions) {
         ...source,
         id: newId(),
         received: false,
+        receivedDate: undefined,
         createdAt: todayDateKey(),
         sortOrder: nextSortOrder(s.expectedReceipts),
       }

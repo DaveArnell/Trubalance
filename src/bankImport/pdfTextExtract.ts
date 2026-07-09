@@ -7,6 +7,7 @@ export interface PdfTextItem {
   text: string
   x: number
   y: number
+  width: number
 }
 
 const Y_TOLERANCE = 5
@@ -33,6 +34,7 @@ export async function extractPdfTextItems(
         text,
         x: transform[4] ?? 0,
         y: Math.round(transform[5] ?? 0),
+        width: typeof raw.width === 'number' ? raw.width : 0,
       })
     }
   }
