@@ -220,10 +220,12 @@ export function LoginPage() {
   return (
     <MarketingShell>
       <MarketingHeader />
-      <div className="auth-layout">
-        <AuthAside mode="login" />
-        <div className="auth-main">
-          <AuthForm mode="login" />
+      <div className="auth-layout-wrap">
+        <div className="auth-layout">
+          <AuthAside mode="login" />
+          <div className="auth-main">
+            <AuthForm mode="login" />
+          </div>
         </div>
       </div>
       <MarketingFooter />
@@ -235,10 +237,12 @@ export function SignupPage() {
   return (
     <MarketingShell>
       <MarketingHeader />
-      <div className="auth-layout">
-        <AuthAside mode="signup" />
-        <div className="auth-main">
-          <AuthForm mode="signup" />
+      <div className="auth-layout-wrap">
+        <div className="auth-layout">
+          <AuthAside mode="signup" />
+          <div className="auth-main">
+            <AuthForm mode="signup" />
+          </div>
         </div>
       </div>
       <MarketingFooter />
@@ -272,9 +276,10 @@ export function ForgotPasswordPage() {
   return (
     <MarketingShell>
       <MarketingHeader />
-      <div className="auth-layout">
-        <div className="auth-main">
-          <div className="auth-card">
+      <div className="auth-layout-wrap">
+        <div className="auth-layout auth-layout--solo">
+          <div className="auth-main auth-main--solo">
+            <div className="auth-card">
             {sent ? (
               <>
                 <h1>Check your email</h1>
@@ -313,6 +318,7 @@ export function ForgotPasswordPage() {
                 </p>
               </>
             )}
+            </div>
           </div>
         </div>
       </div>
@@ -358,18 +364,20 @@ export function ResetPasswordPage() {
     return (
       <MarketingShell>
         <MarketingHeader />
-        <div className="auth-layout">
-          <div className="auth-main">
-            <div className="auth-card">
-              <h1>Password updated</h1>
-              <p className="muted">Your password has been changed. You can now log in with your new password.</p>
-              <button
-                type="button"
-                className="btn-primary btn-large"
-                onClick={() => navigate('/app')}
-              >
-                Go to dashboard
-              </button>
+        <div className="auth-layout-wrap">
+          <div className="auth-layout auth-layout--solo">
+            <div className="auth-main auth-main--solo">
+              <div className="auth-card">
+                <h1>Password updated</h1>
+                <p className="muted">Your password has been changed. You can now log in with your new password.</p>
+                <button
+                  type="button"
+                  className="btn-primary btn-large"
+                  onClick={() => navigate('/app')}
+                >
+                  Go to dashboard
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -381,9 +389,10 @@ export function ResetPasswordPage() {
   return (
     <MarketingShell>
       <MarketingHeader />
-      <div className="auth-layout">
-        <div className="auth-main">
-          <div className="auth-card">
+      <div className="auth-layout-wrap">
+        <div className="auth-layout auth-layout--solo">
+          <div className="auth-main auth-main--solo">
+            <div className="auth-card">
             <h1>Set a new password</h1>
             <p className="auth-card-lead muted">Choose a new password for your True Balance account.</p>
             {error && <p className="auth-error">{error}</p>}
@@ -413,6 +422,7 @@ export function ResetPasswordPage() {
                 {loading ? 'Updating…' : 'Update password'}
               </button>
             </form>
+            </div>
           </div>
         </div>
       </div>

@@ -48,6 +48,9 @@ import { historySpanMonths } from '../../bankImport/trendInsights'
 import { describeImportAnalysis, summarizeImportAnalysis } from '../../bankImport/summarizeImportAnalysis'
 import { formatCurrency } from '../../utils/format'
 import { calculateDashboard } from '../../utils/calculations'
+import { useTour } from '../../contexts/TourContext'
+import { latestClosingBalanceFromTransactions } from '../../bankImport/importBalances'
+import { getScopeLabel } from '../../utils/scope'
 
 const COLUMN_LABELS: Record<BankImportColumnKey, string> = {
   date: 'Date',
@@ -103,25 +106,26 @@ function accountPathLabel(state: AppState, account: Account): string {
   return [business?.name, venue?.name, account.name].filter(Boolean).join(' → ')
 }
 
+function nextPendingImportAccountId(
+  accounts: Account[],
+  importResults: AccountImportResult[],
+): string | null {
+  return (
+    accounts.find((account) => !importResults.some((item) => item.accountId === account.id))?.id ??
+    null
+  )
+}
+
 export function GuidedSetupWizard(props: GuidedSetupWizardProps) {
   const { onComplete, onDismiss } = props
+  const { startSetupTour } = useTour()
   const [path, setPath] = useState<GuidedSetupPath>('choose')
-  const [appWalkthrough, setAppWalkthrough] = useState(false)
   const primaryBusiness = props.state.businesses[0]
 
-  if (appWalkthrough) {
-    return createPortal(
-      <SetupOnboardingWizard
-        {...props}
-        startAtStepId="cash"
-        onComplete={() => {
-          dismissSetupOnboardingLocally()
-          onComplete()
-        }}
-        onDismiss={onDismiss}
-      />,
-      document.body,
-    )
+  const handleStartAppWalkthrough = () => {
+    dismissSetupOnboardingLocally()
+    onComplete()
+    window.setTimeout(() => startSetupTour(), 120)
   }
 
   if (path === 'manual') {
@@ -139,7 +143,7 @@ export function GuidedSetupWizard(props: GuidedSetupWizardProps) {
           dismissSetupOnboardingLocally()
           onComplete()
         }}
-        onStartWalkthrough={() => setAppWalkthrough(true)}
+        onStartWalkthrough={handleStartAppWalkthrough}
         onDismiss={onDismiss}
       />,
       document.body,
@@ -442,6 +446,12 @@ function GuidedSetupAiWizard({
   const [uploadDragOver, setUploadDragOver] = useState(false)
   const [minMonthlyAmount, setMinMonthlyAmount] = useState(() => readBankImportMinMonthlyAmount())
   const structureHydratedRef = useRef(false)
+  const importResultsRef = useRef<AccountImportResult[]>([])
+  const [importActivity, setImportActivity] = useState<
+    | { phase: 'idle' }
+    | { phase: 'parsing'; page: number; total: number }
+    | { phase: 'analyzing'; transactionCount: number }
+  >({ phase: 'idle' })
   const [setupReservePlanners, setSetupReservePlanners] = useState(true)
   const [pendingAutoImportResults, setPendingAutoImportResults] = useState<AccountImportResult[] | null>(null)
   const [pendingGuidedApply, setPendingGuidedApply] = useState(false)
@@ -454,6 +464,24 @@ function GuidedSetupAiWizard({
 
   const accounts = useMemo(() => importableAccounts(state), [state.accounts])
   const stepIndex = setupSteps.findIndex((step) => step.id === aiStep)
+
+  useEffect(() => {
+    importResultsRef.current = importResults
+  }, [importResults])
+
+  const effectiveActiveImportAccountId =
+    activeImportAccountId &&
+    accounts.some((account) => account.id === activeImportAccountId)
+      ? activeImportAccountId
+      : nextPendingImportAccountId(accounts, importResults)
+
+  const replaceImportResults = (updater: (current: AccountImportResult[]) => AccountImportResult[]) => {
+    setImportResults((current) => {
+      const next = updater(current)
+      importResultsRef.current = next
+      return next
+    })
+  }
 
   useEffect(() => {
     if (!pendingStructureAdvance || state.businesses.length === 0) return
@@ -499,10 +527,19 @@ function GuidedSetupAiWizard({
   useEffect(() => {
     if (aiStep !== 'import') return
     if (accounts.length === 0) return
-    if (!activeImportAccountId || !accounts.some((account) => account.id === activeImportAccountId)) {
-      setActiveImportAccountId(accounts[0]!.id)
-    }
-  }, [aiStep, accounts, activeImportAccountId])
+    const hasValidActive =
+      activeImportAccountId !== null &&
+      accounts.some((account) => account.id === activeImportAccountId)
+    if (hasValidActive) return
+    setActiveImportAccountId(nextPendingImportAccountId(accounts, importResults))
+  }, [aiStep, accounts, activeImportAccountId, importResults])
+
+  const advanceImportQueue = (results: AccountImportResult[]) => {
+    setFileName('')
+    setHeaders([])
+    setRows([])
+    setActiveImportAccountId(nextPendingImportAccountId(accounts, results))
+  }
 
   const applyIncomePatternToBusinesses = () => {
     for (const biz of state.businesses) {
@@ -570,38 +607,58 @@ function GuidedSetupAiWizard({
   }
 
   const handleUploadFile = async (file: File | undefined) => {
-    if (!file || !activeImportAccountId) return
+    const accountId = effectiveActiveImportAccountId
+    if (!file || !accountId) {
+      if (!accountId && file) {
+        setImportError('Select an account on the left before uploading.')
+      }
+      return
+    }
     try {
-      const parsed = await parseBankStatementFile(file)
+      setImportError(null)
+      setImportActivity({ phase: 'parsing', page: 0, total: 0 })
+      const parsed = await parseBankStatementFile(file, (page, total) => {
+        setImportActivity({ phase: 'parsing', page, total })
+      })
       if (parsed.headers.length === 0 || parsed.rows.length === 0) {
+        setImportActivity({ phase: 'idle' })
         setImportError('That file looks empty. Check it is a bank statement with dates and amounts.')
         return
       }
       const columnMapping = guessColumnMapping(parsed.headers)
       const transactions = mapRowsToTransactions(parsed.rows, columnMapping)
-      if (setupMode === 'auto' && transactions.length === 0) {
+
+      if (transactions.length > 0) {
+        setImportActivity({ phase: 'analyzing', transactionCount: transactions.length })
+        const nextResults = await analyzeTransactionsForAccount(
+          accountId,
+          transactions,
+          file.name,
+          columnMapping,
+        )
+        setImportActivity({ phase: 'idle' })
+        if (nextResults) advanceImportQueue(nextResults)
+        return
+      }
+
+      if (setupMode === 'auto') {
+        setImportActivity({ phase: 'idle' })
         setImportError(
-          'We could not read transactions from that file. Try a CSV export from your bank, or a PDF with clear dates and amounts on each line.',
+          `Read ${parsed.rows.length} row${parsed.rows.length === 1 ? '' : 's'} from the PDF but could not match dates and amounts. Try exporting CSV from your bank if this keeps happening.`,
         )
         return
       }
-      if (setupMode === 'auto' && transactions.length > 0) {
-        setImportError(null)
-        await analyzeTransactionsForAccount(activeImportAccountId, transactions, file.name, columnMapping)
-        const nextAccount = accounts.find(
-          (account) =>
-            account.id !== activeImportAccountId &&
-            !importResults.some((item) => item.accountId === account.id),
-        )
-        setActiveImportAccountId(nextAccount?.id ?? null)
-        return
-      }
-      setImportError(null)
+
+      setImportActivity({ phase: 'idle' })
+      setImportError(
+        `Read ${parsed.rows.length} row${parsed.rows.length === 1 ? '' : 's'} but could not match dates and amounts automatically. Adjust the column mapping below if needed.`,
+      )
       setFileName(file.name)
       setHeaders(parsed.headers)
       setRows(parsed.rows)
       setMapping(columnMapping)
     } catch (error) {
+      setImportActivity({ phase: 'idle' })
       setImportError(error instanceof Error ? error.message : 'Could not read that file.')
     }
   }
@@ -611,9 +668,12 @@ function GuidedSetupAiWizard({
     parsedTransactions: ReturnType<typeof mapRowsToTransactions>,
     sourceFileName: string,
     columnMapping: BankImportColumnMapping,
-  ) => {
+  ): Promise<AccountImportResult[] | null> => {
     const scope = scopeForAccount(state, accountId)
-    if (!scope) return
+    if (!scope) {
+      setImportError('Could not link this account to a business. Go back to structure and check your setup.')
+      return null
+    }
     setAnalyzing(true)
     try {
       const result = await analyzeBankTransactions({
@@ -626,9 +686,10 @@ function GuidedSetupAiWizard({
         ...suggestion,
         sourceAccountId: accountId,
       }))
-      setImportResults((current) => {
+      let nextResults: AccountImportResult[] = []
+      replaceImportResults((current) => {
         const without = current.filter((item) => item.accountId !== accountId)
-        return [
+        nextResults = [
           ...without,
           {
             accountId,
@@ -642,11 +703,10 @@ function GuidedSetupAiWizard({
             },
           },
         ]
+        return nextResults
       })
-      setFileName('')
-      setHeaders([])
-      setRows([])
       setMapping(columnMapping)
+      return nextResults
     } finally {
       setAnalyzing(false)
     }
@@ -667,62 +727,22 @@ function GuidedSetupAiWizard({
       setImportError('No transactions found. Check your column mapping.')
       return
     }
-    const scope = scopeForAccount(state, activeImportAccountId)
-    if (!scope) {
-      setImportError('Could not determine scope for this account.')
-      return
-    }
-    setAnalyzing(true)
-    try {
-      const result = await analyzeBankTransactions({
-        transactions: parsed,
-        scopeLevel: scope.scopeLevel,
-        scopeId: scope.scopeId,
-        minMonthlyAmount: minMonthlyAmount > 0 ? minMonthlyAmount : undefined,
-      })
-      const taggedSuggestions = result.suggestions.map((suggestion) => ({
-        ...suggestion,
-        sourceAccountId: activeImportAccountId,
-      }))
-      setImportResults((current) => {
-        const without = current.filter((item) => item.accountId !== activeImportAccountId)
-        return [
-          ...without,
-          {
-            accountId: activeImportAccountId,
-            fileName,
-            insights: result.insights,
-            session: {
-              transactions: parsed,
-              suggestions: taggedSuggestions,
-              scopeLevel: scope.scopeLevel,
-              scopeId: scope.scopeId,
-            },
-          },
-        ]
-      })
-      setFileName('')
-      setHeaders([])
-      setRows([])
-      const nextAccount = accounts.find(
-        (account) =>
-          account.id !== activeImportAccountId &&
-          !importResults.some(
-            (item) => item.accountId === account.id && item.accountId !== activeImportAccountId,
-          ),
-      )
-      setActiveImportAccountId(nextAccount?.id ?? null)
-    } finally {
-      setAnalyzing(false)
-    }
+    const nextResults = await analyzeTransactionsForAccount(
+      activeImportAccountId,
+      parsed,
+      fileName,
+      mapping,
+    )
+    if (nextResults) advanceImportQueue(nextResults)
   }
 
   const skipCurrentImport = () => {
     if (!activeImportAccountId) return
     const scope = scopeForAccount(state, activeImportAccountId)
-    setImportResults((current) => {
+    let nextResults: AccountImportResult[] = []
+    replaceImportResults((current) => {
       const without = current.filter((item) => item.accountId !== activeImportAccountId)
-      return [
+      nextResults = [
         ...without,
         {
           accountId: activeImportAccountId,
@@ -736,12 +756,9 @@ function GuidedSetupAiWizard({
           },
         },
       ]
+      return nextResults
     })
-    setFileName('')
-    setHeaders([])
-    setRows([])
-    const nextAccount = accounts.find((account) => account.id !== activeImportAccountId)
-    setActiveImportAccountId(nextAccount?.id ?? null)
+    advanceImportQueue(nextResults)
   }
 
   const updateSuggestion = (id: string, patch: Partial<BankImportSuggestion>) => {
@@ -758,7 +775,25 @@ function GuidedSetupAiWizard({
 
   const finalizeAutoApply = (results: AccountImportResult[], reserveEnabled: boolean) => {
     const analysis = summarizeImportAnalysis(results)
-    const balancesUpdated = applyImportBalancesToAccounts(results, actions)
+    let balancesUpdated = 0
+
+    for (const result of results) {
+      if (result.skipped) continue
+      const balance = latestClosingBalanceFromTransactions(result.session.transactions)
+      if (balance == null) continue
+      const scope = scopeForAccount(state, result.accountId)
+      if (!scope) continue
+      const viewScope = { type: scope.scopeLevel, id: scope.scopeId } as ViewScope
+      const { updated } = actions.saveBalanceUpdate(
+        viewScope,
+        getScopeLabel(state, viewScope),
+        [{ accountId: result.accountId, balance }],
+        'Imported from bank statement',
+        true,
+      )
+      if (updated > 0) balancesUpdated++
+    }
+
     const summary = runAutoApplyFromImportResults(state, results, actions)
     setSetupStats({
       statementsAnalysed: analysis.statementsAnalysed,
@@ -867,63 +902,40 @@ function GuidedSetupAiWizard({
 
   useEffect(() => {
     if (setupFinalizePhase !== 'applying') return
-    if (pendingAutoImportResults) {
-      finalizeAutoApply(pendingAutoImportResults, setupReservePlanners)
-      return
-    }
+    if (pendingAutoImportResults === null) return
+    finalizeAutoApply(pendingAutoImportResults, setupReservePlanners)
     if (pendingGuidedApply) {
       finalizeGuidedApply()
     }
+    setAutoProcessing(false)
   }, [setupFinalizePhase, pendingAutoImportResults, pendingGuidedApply, setupReservePlanners])
 
   const handleAutoSetupComplete = async () => {
+    const currentResults = importResultsRef.current
+    const analysis = summarizeImportAnalysis(currentResults)
+    if (analysis.transactionCount === 0) {
+      setImportError(
+        'No transactions were imported yet. Upload a bank statement and wait for the summary to show how many transactions were read before continuing.',
+      )
+      return
+    }
+
     setImportError(null)
     setAutoProcessing(true)
-    try {
-      let results = importResults
-      if (activeImportAccountId && headers.length > 0 && rows.length > 0) {
-        const parsed = mapRowsToTransactions(rows, mapping)
-        const scope = scopeForAccount(state, activeImportAccountId)
-        if (parsed.length > 0 && scope) {
-          const result = await analyzeBankTransactions({
-            transactions: parsed,
-            scopeLevel: scope.scopeLevel,
-            scopeId: scope.scopeId,
-            minMonthlyAmount: minMonthlyAmount > 0 ? minMonthlyAmount : undefined,
-          })
-          const taggedSuggestions = result.suggestions.map((suggestion) => ({
-            ...suggestion,
-            sourceAccountId: activeImportAccountId,
-          }))
-          const without = results.filter((item) => item.accountId !== activeImportAccountId)
-          results = [
-            ...without,
-            {
-              accountId: activeImportAccountId,
-              fileName,
-              insights: result.insights,
-              session: {
-                transactions: parsed,
-                suggestions: taggedSuggestions,
-                scopeLevel: scope.scopeLevel,
-                scopeId: scope.scopeId,
-              },
-            },
-          ]
-          setImportResults(results)
-        }
-      }
+    setPendingAutoImportResults(currentResults)
 
-      const analysed = results.filter((item) => !item.skipped && item.session.transactions.length > 0)
-      setSetupStats({
-        statementsAnalysed: analysed.length,
-        suggestionsFound: analysed.reduce((sum, item) => sum + item.session.suggestions.length, 0),
-        balancesUpdated: 0,
-      })
-      setPendingAutoImportResults(results)
-      setAiStep('reserve')
-    } finally {
+    try {
+      if (setupReservePlanners) {
+        ensureAllReservePlanners()
+        setSetupFinalizePhase('creating-reserve')
+        return
+      }
+      setSetupFinalizePhase('applying')
+    } catch (error) {
       setAutoProcessing(false)
+      setPendingAutoImportResults(null)
+      setSetupFinalizePhase('idle')
+      setImportError(error instanceof Error ? error.message : 'Setup failed. Try again.')
     }
   }
 
@@ -953,8 +965,19 @@ function GuidedSetupAiWizard({
     setAiStep('reserve')
   }
 
-  const importedCount = importResults.filter((item) => !item.skipped && item.session.suggestions.length > 0).length
-  const activeAccount = accounts.find((account) => account.id === activeImportAccountId)
+  const importedCount = importResults.filter((item) => !item.skipped && item.session.transactions.length > 0).length
+  const activeAccount = accounts.find((account) => account.id === effectiveActiveImportAccountId)
+  const activeAccountResult = effectiveActiveImportAccountId
+    ? importResults.find((item) => item.accountId === effectiveActiveImportAccountId)
+    : undefined
+  const allAccountsProcessed =
+    accounts.length > 0 &&
+    accounts.every((account) => importResults.some((item) => item.accountId === account.id))
+  const canAutoSetup =
+    allAccountsProcessed &&
+    importAnalysis.transactionCount > 0 &&
+    setupFinalizePhase === 'idle' &&
+    !autoProcessing
 
   const setupMetrics = useMemo(() => {
     const groupId = state.groups[0]?.id ?? state.businesses[0]?.groupId
@@ -988,7 +1011,9 @@ function GuidedSetupAiWizard({
             else if (aiStep === 'reserve') {
               if (setupMode === 'auto') setAiStep('import')
               else setAiStep('review')
-            } else if (aiStep === 'complete') setAiStep('reserve')
+            } else if (aiStep === 'complete') {
+              setAiStep(setupMode === 'auto' ? 'import' : 'reserve')
+            }
           }}
         >
           Back
@@ -1012,10 +1037,14 @@ function GuidedSetupAiWizard({
           <button
             type="button"
             className="btn-primary"
-            disabled={autoProcessing || analyzing}
+            disabled={
+              !canAutoSetup || analyzing || importActivity.phase !== 'idle' || setupFinalizePhase !== 'idle'
+            }
             onClick={handleAutoSetupComplete}
           >
-            {autoProcessing ? 'Setting up…' : 'Set up automatically'}
+            {autoProcessing || setupFinalizePhase !== 'idle'
+              ? 'Setting up…'
+              : 'Set up automatically'}
           </button>
         )}
         {aiStep === 'import' && setupMode === 'guided' && (
@@ -1192,12 +1221,24 @@ function GuidedSetupAiWizard({
                   <p className="setup-onboarding-explain muted bank-import-rule-note">{BANK_IMPORT_RULE_BASED_NOTE}</p>
                   <SetupDataSourcesPanel
                     compact
-                    onSelectCsv={() => fileInputRef.current?.click()}
+                    onUpload={() => fileInputRef.current?.click()}
                   />
                 </>
               ) : (
                 <p className="setup-onboarding-lead">
-                  Upload a PDF or CSV bank statement for each account below. We will suggest recurring costs for you to approve.
+                  Upload a PDF or CSV bank statement for each account below. We read it automatically and suggest recurring costs for you to approve — column mapping is only needed if the file format is unusual.
+                </p>
+              )}
+
+              {importActivity.phase === 'parsing' && importActivity.total > 0 && (
+                <p className="bank-import-hint" role="status">
+                  Reading PDF… page {importActivity.page} of {importActivity.total}
+                </p>
+              )}
+              {importActivity.phase === 'analyzing' && (
+                <p className="bank-import-hint" role="status">
+                  Analysing {importActivity.transactionCount.toLocaleString()} transaction
+                  {importActivity.transactionCount === 1 ? '' : 's'}…
                 </p>
               )}
 
@@ -1210,6 +1251,17 @@ function GuidedSetupAiWizard({
                 </div>
               ) : (
                 <>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept={BANK_STATEMENT_ACCEPT}
+                    className="sr-only"
+                    onChange={async (event) => {
+                      const file = event.target.files?.[0]
+                      event.target.value = ''
+                      await handleUploadFile(file)
+                    }}
+                  />
                   <div className="guided-setup-import-layout">
                     <div className="guided-setup-import-sidebar">
                       <p className="guided-setup-import-sidebar-label">Your accounts</p>
@@ -1221,7 +1273,7 @@ function GuidedSetupAiWizard({
                             : result && result.session.transactions.length > 0
                               ? result.session.suggestions.length > 0
                                 ? `${result.session.suggestions.length} found`
-                                : 'No recurring'
+                                : 'Analysed'
                               : account.id === activeImportAccountId
                                 ? 'Ready'
                                 : 'Pending'
@@ -1258,25 +1310,75 @@ function GuidedSetupAiWizard({
                       )}
                     </div>
 
-                    {activeAccount && (
+                    {activeAccount ? (
                       <div className="guided-setup-import-main">
-                        <input
-                          ref={fileInputRef}
-                          type="file"
-                          accept={BANK_STATEMENT_ACCEPT}
-                          className="sr-only"
-                          onChange={async (event) => {
-                            const file = event.target.files?.[0]
-                            event.target.value = ''
-                            await handleUploadFile(file)
-                          }}
-                        />
-
-                        {headers.length === 0 ? (
+                        {activeAccountResult &&
+                        !activeAccountResult.skipped &&
+                        activeAccountResult.session.transactions.length > 0 ? (
+                          <div className="guided-setup-import-done">
+                            <p className="guided-setup-import-done-kicker">Statement analysed</p>
+                            <h3>{activeAccountResult.fileName || 'Bank statement'}</h3>
+                            <p className="bank-import-hint">
+                              <strong>
+                                {activeAccountResult.session.transactions.length.toLocaleString()}
+                              </strong>{' '}
+                              transaction
+                              {activeAccountResult.session.transactions.length === 1 ? '' : 's'} · about{' '}
+                              <strong>
+                                {historySpanMonths(activeAccountResult.session.transactions)}
+                              </strong>{' '}
+                              months of history
+                              {activeAccountResult.session.suggestions.length > 0 && (
+                                <>
+                                  {' '}
+                                  · <strong>{activeAccountResult.session.suggestions.length}</strong>{' '}
+                                  recurring suggestion
+                                  {activeAccountResult.session.suggestions.length === 1 ? '' : 's'}
+                                </>
+                              )}
+                            </p>
+                            <div className="guided-setup-upload-actions">
+                              <button
+                                type="button"
+                                className="btn-secondary btn-tiny"
+                                onClick={() => {
+                                  replaceImportResults((current) =>
+                                    current.filter((item) => item.accountId !== activeAccount.id),
+                                  )
+                                  setFileName('')
+                                  setHeaders([])
+                                  setRows([])
+                                  setImportError(null)
+                                }}
+                              >
+                                Upload a different file
+                              </button>
+                            </div>
+                          </div>
+                        ) : activeAccountResult?.skipped ? (
+                          <div className="guided-setup-import-done guided-setup-import-done--skipped">
+                            <p className="guided-setup-import-done-kicker">Skipped</p>
+                            <p className="bank-import-hint">
+                              No statement uploaded for <em>{accountPathLabel(state, activeAccount)}</em>.
+                            </p>
+                            <button
+                              type="button"
+                              className="btn-secondary btn-tiny"
+                              onClick={() => {
+                                replaceImportResults((current) =>
+                                  current.filter((item) => item.accountId !== activeAccount.id),
+                                )
+                              }}
+                            >
+                              Upload a statement
+                            </button>
+                          </div>
+                        ) : headers.length === 0 ? (
                           <>
                             <button
                               type="button"
                               className={`guided-setup-upload-zone${uploadDragOver ? ' is-dragover' : ''}`}
+                              disabled={importActivity.phase !== 'idle' || analyzing}
                               onClick={() => fileInputRef.current?.click()}
                               onDragEnter={(event) => {
                                 event.preventDefault()
@@ -1329,9 +1431,25 @@ function GuidedSetupAiWizard({
                               {rows.length > 0 && (
                                 <>
                                   {' '}
-                                  · about {historySpanMonths(mapRowsToTransactions(rows, mapping))} months of history
+                                  · {rows.length.toLocaleString()} row{rows.length === 1 ? '' : 's'}
+                                  {(() => {
+                                    const parsed = mapRowsToTransactions(rows, mapping)
+                                    if (parsed.length === 0) return null
+                                    return (
+                                      <>
+                                        {' '}
+                                        · {parsed.length.toLocaleString()} transaction
+                                        {parsed.length === 1 ? '' : 's'} · about{' '}
+                                        {historySpanMonths(parsed)} months of history
+                                      </>
+                                    )
+                                  })()}
                                 </>
                               )}
+                            </p>
+                            <p className="setup-onboarding-explain muted">
+                              We could not read every row automatically. Adjust the mapping below if needed, then
+                              analyse.
                             </p>
                             <div className="bank-import-mapping-grid">
                               {(Object.keys(COLUMN_LABELS) as BankImportColumnKey[]).map((key) => (
@@ -1368,6 +1486,7 @@ function GuidedSetupAiWizard({
                                   setFileName('')
                                   setHeaders([])
                                   setRows([])
+                                  setImportError(null)
                                 }}
                               >
                                 Choose different file
@@ -1384,13 +1503,50 @@ function GuidedSetupAiWizard({
                           </div>
                         )}
                       </div>
-                    )}
+                    ) : importResults.length > 0 ? (
+                      <div className="guided-setup-import-main">
+                        <div className="guided-setup-import-done">
+                          <p className="guided-setup-import-done-kicker">All accounts processed</p>
+                          <h3>{setupMode === 'auto' ? 'Ready to set up' : 'Ready to review'}</h3>
+                          <p className="bank-import-hint">{describeImportAnalysis(importAnalysis)}</p>
+                          <p className="setup-onboarding-explain muted">
+                            {setupMode === 'auto' ? (
+                              <>
+                                Click <strong>Set up automatically</strong> below to add recurring costs, apply your
+                                closing balance, and finish setup.
+                              </>
+                            ) : (
+                              <>
+                                Use <strong>Continue to review</strong> below to approve recurring costs before they are
+                                added.
+                              </>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    ) : null}
                   </div>
 
                   {importError && (
                     <p className="bank-import-error" role="alert">
                       {importError}
                     </p>
+                  )}
+
+                  {setupMode === 'auto' && (
+                    <div className="guided-setup-auto-reserve">
+                      <label className="setup-reserve-opt-in">
+                        <input
+                          type="checkbox"
+                          checked={setupReservePlanners}
+                          onChange={(event) => setSetupReservePlanners(event.target.checked)}
+                        />
+                        <span>
+                          <strong>{RESERVE_PLANNER_SETUP_CONTENT.optInLabel}</strong>
+                          <small>{RESERVE_PLANNER_SETUP_CONTENT.optInHint}</small>
+                        </span>
+                      </label>
+                    </div>
                   )}
                 </>
               )}

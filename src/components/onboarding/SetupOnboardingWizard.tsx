@@ -13,7 +13,8 @@ import {
 import { QUICK_HABITS } from '../../content/livingDashboard'
 import { MANUAL_SETUP_REASSURANCE, WHY_TRUE_BALANCE_CONTENT } from '../../content/guidedSetup'
 import { formatCurrency } from '../../utils/format'
-import { getCashAccounts, getAccountsForScope } from '../../utils/calculations'
+import { getCashAccounts } from '../../utils/calculations'
+import { scopeForAccount } from '../../bankImport/applySuggestions'
 import type { PageId } from '../../navigation'
 import { SetupOnboardingShell } from './SetupOnboardingShell'
 
@@ -51,9 +52,12 @@ const SETUP_STEP_NAV_LABELS: Record<string, string> = {
   accuracy: 'Your routine',
 }
 
+/** Steps where the user enters data — never dim the app or highlight widgets behind the overlay. */
+const DATA_ENTRY_STEPS = new Set(['business', 'cash', 'committed', 'reserve'])
+
 export function SetupOnboardingWizard({
   state,
-  viewScope,
+  viewScope: _viewScope,
   metrics,
   actions,
   onNavigate,
@@ -95,10 +99,24 @@ export function SetupOnboardingWizard({
     try { localStorage.setItem(PROGRESS_KEY, String(stepIndex)) } catch { /* */ }
   }, [stepIndex])
 
+  useEffect(() => {
+    document.querySelectorAll('[data-onboarding-focus]').forEach((el) => {
+      el.removeAttribute('data-onboarding-focus')
+    })
+    document.body.classList.remove('setup-onboarding-spotlight-active')
+  }, [stepIndex])
+
+  useEffect(() => {
+    document.querySelectorAll('[data-onboarding-focus]').forEach((el) => {
+      el.removeAttribute('data-onboarding-focus')
+    })
+    document.body.classList.remove('setup-onboarding-spotlight-active')
+  }, [])
+
   const primaryBusiness = state.businesses[0]
   const cashAccounts = useMemo(
-    () => getCashAccounts(getAccountsForScope(state, viewScope)),
-    [state, viewScope],
+    () => getCashAccounts(state.accounts.filter((account) => account.active)),
+    [state.accounts],
   )
 
   useEffect(() => {
@@ -109,19 +127,19 @@ export function SetupOnboardingWizard({
   }, [pendingBusinessAdvance, primaryBusiness])
 
   useEffect(() => {
-    if (step.page) {
-      if (step.id === 'reserve') {
-        const planner = state.reservePlanners.find((item) =>
-          primaryBusiness ? item.businessId === primaryBusiness.id : true,
-        )
-        if (planner) {
-          onNavigate('reserve-planner', planner.id)
-        } else {
-          onNavigate('committed-funds')
-        }
+    if (!step.page || DATA_ENTRY_STEPS.has(step.id)) return
+
+    if (step.id === 'reserve') {
+      const planner = state.reservePlanners.find((item) =>
+        primaryBusiness ? item.businessId === primaryBusiness.id : true,
+      )
+      if (planner) {
+        onNavigate('reserve-planner', planner.id)
       } else {
-        onNavigate(step.page)
+        onNavigate('committed-funds')
       }
+    } else {
+      onNavigate(step.page)
     }
 
     if (step.id === 'month-view') {
@@ -131,31 +149,6 @@ export function SetupOnboardingWizard({
       }
     }
   }, [step.id, step.page, primaryBusiness?.id, state.reservePlanners, onNavigate])
-
-  useEffect(() => {
-    const selector =
-      step.id === 'reserve' &&
-      !state.reservePlanners.some((item) =>
-        primaryBusiness ? item.businessId === primaryBusiness.id : true,
-      )
-        ? '[data-tour="nav-reserve-planner"]'
-        : step.spotlight
-    if (!selector) return
-
-    const applySpotlight = () => {
-      const el = document.querySelector(selector)
-      if (!el) return
-      el.setAttribute('data-onboarding-focus', 'true')
-      el.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
-    }
-
-    const timer = window.setTimeout(applySpotlight, step.page ? 280 : 80)
-    return () => {
-      window.clearTimeout(timer)
-      const el = document.querySelector(selector)
-      el?.removeAttribute('data-onboarding-focus')
-    }
-  }, [step.id, step.spotlight, step.page, primaryBusiness?.id, state.reservePlanners])
 
   useEffect(() => {
     if (step.id !== 'cash') return
@@ -199,8 +192,18 @@ export function SetupOnboardingWizard({
       .filter((c): c is { accountId: string; balance: number } => Boolean(c))
 
     if (changes.length > 0) {
-      const scopeLabel = getScopeLabel(state, viewScope)
-      actions.saveBalanceUpdate(viewScope, scopeLabel, changes, undefined, true)
+      for (const change of changes) {
+        const scope = scopeForAccount(state, change.accountId)
+        if (!scope) continue
+        const accountScope = { type: scope.scopeLevel, id: scope.scopeId } as ViewScope
+        actions.saveBalanceUpdate(
+          accountScope,
+          getScopeLabel(state, accountScope),
+          [change],
+          undefined,
+          true,
+        )
+      }
     }
     setStepIndex((i) => i + 1)
   }
@@ -311,18 +314,21 @@ export function SetupOnboardingWizard({
   const panel = (
     <SetupOnboardingShell
       kicker={startAtStepId ? 'App walkthrough' : 'Getting started'}
-      sidebarTitle={step.title}
       steps={SETUP_ONBOARDING_STEPS.map((item) => ({
         id: item.id,
         label: SETUP_STEP_NAV_LABELS[item.id] ?? item.title,
       }))}
       currentStepIndex={stepIndex}
-      spotlight={Boolean(step.spotlight)}
+      spotlight={false}
+      contentWidth={DATA_ENTRY_STEPS.has(step.id) ? 'wide' : 'default'}
       onSkip={handleDismiss}
       skipLabel="Skip setup"
       footer={footer}
     >
-      <div key={step.id} className="setup-flow-step-panel">
+      <div
+        key={step.id}
+        className={`setup-flow-step-panel${DATA_ENTRY_STEPS.has(step.id) ? ' setup-flow-step-panel--data-entry' : ''}`}
+      >
         <header className="setup-flow-page-header">
           <h2 id="setup-onboarding-title">{step.title}</h2>
           <p className="setup-flow-page-lead">{leadParagraph}</p>
@@ -488,24 +494,47 @@ export function SetupOnboardingWizard({
           )}
 
           {step.id === 'cash' && (
-            <div className="setup-onboarding-form">
+            <div className="setup-onboarding-form setup-onboarding-form--balances">
+              <p className="setup-onboarding-form-hint">
+                Enter what you see in your bank app right now — you can update this any time from the dashboard.
+              </p>
               {cashAccounts.length === 0 ? (
                 <p className="muted">Add a business first, then enter balances here.</p>
               ) : (
-                cashAccounts.map((account) => (
-                  <label key={account.id} className="setup-field setup-field--row">
-                    <span>{account.name}</span>
-                    <input
-                      className="sheet-input"
-                      type="number"
-                      step="0.01"
-                      value={balanceDrafts[account.id] ?? ''}
-                      onChange={(e) =>
-                        setBalanceDrafts((d) => ({ ...d, [account.id]: e.target.value }))
-                      }
-                    />
-                  </label>
-                ))
+                cashAccounts.map((account) => {
+                  const venue = account.venueId
+                    ? state.venues.find((item) => item.id === account.venueId)
+                    : undefined
+                  const business = account.businessId
+                    ? state.businesses.find((item) => item.id === account.businessId)
+                    : venue
+                      ? state.businesses.find((item) => item.id === venue.businessId)
+                      : undefined
+                  const accountLabel = [business?.name, venue?.name, account.name]
+                    .filter(Boolean)
+                    .join(' → ')
+                  return (
+                    <label key={account.id} className="setup-field setup-field--row setup-field--balance">
+                      <span>{accountLabel}</span>
+                      <div className="setup-balance-input-wrap">
+                        <span className="setup-balance-currency" aria-hidden="true">
+                          £
+                        </span>
+                        <input
+                          className="sheet-input setup-balance-input"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          placeholder="0.00"
+                          value={balanceDrafts[account.id] ?? ''}
+                          onChange={(e) =>
+                            setBalanceDrafts((d) => ({ ...d, [account.id]: e.target.value }))
+                          }
+                        />
+                      </div>
+                    </label>
+                  )
+                })
               )}
             </div>
           )}

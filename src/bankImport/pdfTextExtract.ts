@@ -9,14 +9,18 @@ export interface PdfTextItem {
   y: number
 }
 
-const Y_TOLERANCE = 4
+const Y_TOLERANCE = 5
 
-export async function extractPdfTextItems(file: File): Promise<PdfTextItem[]> {
+export async function extractPdfTextItems(
+  file: File,
+  onProgress?: (page: number, total: number) => void,
+): Promise<PdfTextItem[]> {
   const buffer = await file.arrayBuffer()
   const pdf = await getDocument({ data: buffer }).promise
   const items: PdfTextItem[] = []
 
   for (let pageNum = 1; pageNum <= pdf.numPages; pageNum += 1) {
+    onProgress?.(pageNum, pdf.numPages)
     const page = await pdf.getPage(pageNum)
     const content = await page.getTextContent()
 

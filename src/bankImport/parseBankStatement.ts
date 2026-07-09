@@ -10,9 +10,10 @@ export function isPdfBankStatement(file: File): boolean {
 
 export async function parseBankStatementFile(
   file: File,
+  onProgress?: (page: number, total: number) => void,
 ): Promise<{ headers: string[]; rows: string[][] }> {
   if (isPdfBankStatement(file)) {
-    return parsePdfBankStatement(file)
+    return parsePdfBankStatement(file, onProgress)
   }
   const text = await file.text()
   return parseCsvText(text)

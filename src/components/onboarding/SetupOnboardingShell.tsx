@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useEffect, type ReactNode } from 'react'
 
 export interface SetupFlowStep {
   id: string
@@ -13,7 +13,7 @@ interface SetupOnboardingShellProps {
   currentStepIndex?: number
   /** Manual tour — app stays visible beside the sidebar */
   spotlight?: boolean
-  contentWidth?: 'default' | 'wide' | 'import' | 'review' | 'path-choice'
+  contentWidth?: 'default' | 'wide' | 'import' | 'review' | 'path-choice' | 'spotlight'
   onSkip: () => void
   skipLabel?: string
   footer?: ReactNode
@@ -94,6 +94,14 @@ export function SetupOnboardingShell({
   footer,
   children,
 }: SetupOnboardingShellProps) {
+  useEffect(() => {
+    if (!spotlight) return
+    document.body.classList.add('setup-onboarding-spotlight-active')
+    return () => {
+      document.body.classList.remove('setup-onboarding-spotlight-active')
+    }
+  }, [spotlight])
+
   return (
     <div
       className={`setup-flow-root${spotlight ? ' setup-flow-root--spotlight' : ''}`}

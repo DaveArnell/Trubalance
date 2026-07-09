@@ -100,14 +100,9 @@ export function mapRowsToTransactions(
     let moneyIn = parseMoneyCell(cell(row, mapping.moneyIn))
     let moneyOut = parseMoneyCell(cell(row, mapping.moneyOut))
 
-    if (moneyIn < 0) {
-      moneyOut += Math.abs(moneyIn)
-      moneyIn = 0
-    }
-    if (moneyOut < 0) {
-      moneyIn += Math.abs(moneyOut)
-      moneyOut = 0
-    }
+    // UK statements often show outflows as negative in the Money out column.
+    moneyIn = Math.abs(moneyIn)
+    moneyOut = Math.abs(moneyOut)
 
     if (moneyIn === 0 && moneyOut === 0) continue
 

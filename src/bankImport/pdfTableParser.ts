@@ -48,17 +48,51 @@ function itemCenter(item: PdfTextItem): number {
 }
 
 function detectHeaderColumns(row: PdfTextItem[]): TableColumn[] | null {
+  const sorted = [...row].sort((a, b) => a.x - b.x)
   const matches: Array<{ key: TableColumnKey; x: number }> = []
 
-  for (const item of row) {
-    const label = item.text.trim()
+  const tryAddMatch = (text: string, x: number) => {
+    const label = text.replace(/\s+/g, ' ').trim()
+    if (!label) return false
     for (const [key, patterns] of Object.entries(HEADER_LABELS) as Array<
       [TableColumnKey, RegExp[]]
     >) {
+      if (matches.some((item) => item.key === key)) continue
       if (patterns.some((pattern) => pattern.test(label))) {
-        matches.push({ key, x: itemCenter(item) })
-        break
+        matches.push({ key, x })
+        return true
       }
+    }
+    return false
+  }
+
+  for (let i = 0; i < sorted.length; i++) {
+    const item = sorted[i]!
+    if (tryAddMatch(item.text, itemCenter(item))) continue
+    const next = sorted[i + 1]
+    if (next) {
+      const combined = `${item.text} ${next.text}`
+      if (tryAddMatch(combined, (itemCenter(item) + itemCenter(next)) / 2)) {
+        i += 1
+      }
+    }
+  }
+
+  const line = rowText(row)
+  if (line) {
+    const linePatterns: Array<{ key: TableColumnKey; pattern: RegExp }> = [
+      { key: 'date', pattern: /\bdate\b/i },
+      { key: 'description', pattern: /\b(description|transaction|details)\b/i },
+      { key: 'moneyIn', pattern: /\bmoney\s*in\b/i },
+      { key: 'moneyOut', pattern: /\bmoney\s*out\b/i },
+      { key: 'balance', pattern: /\bbalance\b/i },
+      { key: 'amount', pattern: /\bamount\b/i },
+    ]
+    for (const { key, pattern } of linePatterns) {
+      if (matches.some((item) => item.key === key)) continue
+      if (!pattern.test(line)) continue
+      const item = sorted.find((entry) => pattern.test(entry.text)) ?? sorted[0]
+      if (item) matches.push({ key, x: itemCenter(item) })
     }
   }
 
@@ -77,13 +111,13 @@ function detectHeaderColumns(row: PdfTextItem[]): TableColumn[] | null {
     if (!unique.has(match.key)) unique.set(match.key, match.x)
   }
 
-  const sorted = [...unique.entries()]
+  const sortedColumns = [...unique.entries()]
     .map(([key, xCenter]) => ({ key, xCenter }))
     .sort((a, b) => a.xCenter - b.xCenter)
 
-  return sorted.map((column, index) => {
-    const prev = sorted[index - 1]
-    const next = sorted[index + 1]
+  return sortedColumns.map((column, index) => {
+    const prev = sortedColumns[index - 1]
+    const next = sortedColumns[index + 1]
     const xMin = prev ? (prev.xCenter + column.xCenter) / 2 : column.xCenter - 50
     const xMax = next ? (column.xCenter + next.xCenter) / 2 : column.xCenter + 240
     return { key: column.key, xCenter: column.xCenter, xMin, xMax }
@@ -167,8 +201,17 @@ export function parsePdfTableRows(items: PdfTextItem[]): ParsedPdfRow[] {
 
     const header = detectHeaderColumns(row)
     if (header) {
-      columns = header
-      continue
+      const probe = assignRowToCells(row, header)
+      const probeDate = parseDateCell(probe.date)
+      const probeHasMoney =
+        looksLikeMoney(probe.moneyIn) ||
+        looksLikeMoney(probe.moneyOut) ||
+        looksLikeMoney(probe.balance) ||
+        looksLikeMoney(probe.amount)
+      if (!(probeDate && probeHasMoney)) {
+        columns = header
+        continue
+      }
     }
     if (!columns) continue
     if (row.every((item) => isHeaderLabel(item.text))) continue

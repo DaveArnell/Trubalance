@@ -28,17 +28,13 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     id: 'cash',
     title: 'Now add the money you can see.',
     explain:
-      'Enter the current balances for your accounts. This is your starting point — True Balance compares this number against what\'s committed to tell you what\'s genuinely yours.',
-    page: 'committed-funds',
-    spotlight: '[data-tour="overview-balances"]',
+      'Enter the current balances for your accounts below. This is your starting point — True Balance compares this number against what\'s committed to tell you what\'s genuinely yours.',
   },
   {
     id: 'committed',
     title: "Now let's account for money that's already spoken for.",
     explain:
-      'Your bank balance includes money that\'s already committed — rent building up, payroll accruing, subscriptions ticking over. Adding these here means True Balance can subtract them daily, so you always know the real picture rather than the number your bank shows.',
-    page: 'committed-funds',
-    spotlight: '[data-widget-id="committed-funds"]',
+      'Your bank balance includes money that\'s already committed — rent building up, payroll accruing, subscriptions ticking over. Tick the regular bills you recognise below, or add them later in the app.',
   },
   {
     id: 'committed-explain',

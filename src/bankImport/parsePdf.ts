@@ -91,22 +91,27 @@ function linesFromItems(items: PdfTextItem[]): string[] {
 
 export async function parsePdfBankStatement(
   file: File,
+  onProgress?: (page: number, total: number) => void,
 ): Promise<{ headers: string[]; rows: string[][] }> {
-  const items = await extractPdfTextItems(file)
+  const items = await extractPdfTextItems(file, onProgress)
   const tableRows = parsePdfTableRows(items)
-
-  if (tableRows.length > 0) {
-    return parsedPdfRowsToStatementRows(tableRows)
-  }
-
+  const tableResult = tableRows.length > 0 ? parsedPdfRowsToStatementRows(tableRows) : null
   const fallback = parsePdfLinesFallback(linesFromItems(items))
-  if (fallback.rows.length === 0) {
+
+  const best =
+    tableResult && tableResult.rows.length >= fallback.rows.length
+      ? tableResult
+      : fallback.rows.length > 0
+        ? fallback
+        : tableResult
+
+  if (!best || best.rows.length === 0) {
     throw new Error(
       'Could not read transactions from that PDF. Try exporting CSV from your bank, or a statement with Date, Description, and Money in/out columns.',
     )
   }
 
-  return fallback
+  return best
 }
 
 export function countParsableMoneyCells(rows: string[][]): number {

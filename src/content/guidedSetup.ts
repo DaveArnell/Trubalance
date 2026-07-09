@@ -59,7 +59,6 @@ export const AUTO_SETUP_STEPS = [
   { id: 'structure', label: 'Your structure' },
   { id: 'preferences', label: 'Income pattern' },
   { id: 'import', label: 'Bank data' },
-  { id: 'reserve', label: 'Reserve planner' },
   { id: 'complete', label: 'Ready' },
 ] as const
 

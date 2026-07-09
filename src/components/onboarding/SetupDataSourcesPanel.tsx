@@ -2,10 +2,16 @@ import { SETUP_DATA_SOURCES } from '../../config/setupAutomation'
 
 interface SetupDataSourcesPanelProps {
   onSelectCsv?: () => void
+  onUpload?: () => void
   compact?: boolean
 }
 
-export function SetupDataSourcesPanel({ onSelectCsv, compact = false }: SetupDataSourcesPanelProps) {
+export function SetupDataSourcesPanel({
+  onSelectCsv,
+  onUpload,
+  compact = false,
+}: SetupDataSourcesPanelProps) {
+  const triggerUpload = onUpload ?? onSelectCsv
   return (
     <div className={`setup-data-sources${compact ? ' setup-data-sources--compact' : ''}`}>
       <p className="setup-data-sources-lead">
@@ -29,8 +35,8 @@ export function SetupDataSourcesPanel({ onSelectCsv, compact = false }: SetupDat
                 )}
               </div>
               <p>{source.description}</p>
-              {isCsv && onSelectCsv ? (
-                <button type="button" className="btn-secondary btn-tiny" onClick={onSelectCsv}>
+              {isCsv && triggerUpload ? (
+                <button type="button" className="btn-secondary btn-tiny" onClick={triggerUpload}>
                   Upload file
                 </button>
               ) : null}
