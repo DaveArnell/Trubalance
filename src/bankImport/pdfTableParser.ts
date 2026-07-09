@@ -36,7 +36,10 @@ const HEADER_LABELS: Record<TableColumnKey, RegExp[]> = {
 }
 
 const SKIP_ROW =
-  /^(page\s+\d+\s+of\s+\d+|showing\s+\d+\s+transactions|available balance|last night|overdraft limit|card number|pending debit|sort code|account number|statement period|transaction types)/i
+  /^(page\s+\d+\s+of\s+\d+|showing\s+\d+\s+transactions|available balance|last night|overdraft limit|card number|pending debit|sort code|account number|statement period|transaction types|pending debit card transactions|pending card transactions)/i
+
+const PENDING_SECTION =
+  /\bpending\s+(debit\s+)?card\s+transactions\b/i
 
 function isHeaderLabel(text: string): boolean {
   const label = text.trim()
@@ -202,10 +205,24 @@ export function parsePdfTableRows(items: PdfTextItem[]): ParsedPdfRow[] {
   const output: ParsedPdfRow[] = []
   let draft: DraftTransaction | null = null
   let pendingDatePrefix = ''
+  let skipPendingSection = false
+
+  const flushDraft = () => {
+    const finished = draft ? finishDraft(draft) : null
+    draft = null
+    pendingDatePrefix = ''
+    if (finished) output.push(finished)
+  }
 
   for (const row of rows) {
     const line = rowText(row)
     if (!line || SKIP_ROW.test(line)) continue
+
+    if (PENDING_SECTION.test(line)) {
+      flushDraft()
+      skipPendingSection = true
+      continue
+    }
 
     const header = detectHeaderColumns(row)
     if (header) {
@@ -217,10 +234,13 @@ export function parsePdfTableRows(items: PdfTextItem[]): ParsedPdfRow[] {
         looksLikeMoney(probe.balance) ||
         looksLikeMoney(probe.amount)
       if (!(probeDate && probeHasMoney)) {
+        flushDraft()
+        skipPendingSection = false
         columns = header
         continue
       }
     }
+    if (skipPendingSection) continue
     if (!columns) continue
     if (row.every((item) => isHeaderLabel(item.text))) continue
 
@@ -250,8 +270,7 @@ export function parsePdfTableRows(items: PdfTextItem[]): ParsedPdfRow[] {
     const description = cells.description.trim()
 
     if (date && hasAmount) {
-      const finished = draft ? finishDraft(draft) : null
-      if (finished) output.push(finished)
+      flushDraft()
       draft = {
         date,
         description,
@@ -263,8 +282,7 @@ export function parsePdfTableRows(items: PdfTextItem[]): ParsedPdfRow[] {
     }
 
     if (date && description && !hasAmount) {
-      const finished = draft ? finishDraft(draft) : null
-      if (finished) output.push(finished)
+      flushDraft()
       draft = {
         date,
         description,
@@ -285,8 +303,7 @@ export function parsePdfTableRows(items: PdfTextItem[]): ParsedPdfRow[] {
     }
   }
 
-  const finished = draft ? finishDraft(draft) : null
-  if (finished) output.push(finished)
+  flushDraft()
 
   const seen = new Set<string>()
   return output.filter((row) => {

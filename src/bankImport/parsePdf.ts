@@ -1,4 +1,4 @@
-import { extractPdfTextItems } from './pdfTextExtract'
+import { clusterPdfItemsIntoRows, extractPdfTextItems, rowText } from './pdfTextExtract'
 import { parsePdfTableRows, parsedPdfRowsToStatementRows } from './pdfTableParser'
 import { parseDateCell } from './parseDate'
 import { inferDirectionFromDescription } from './inferAmounts'
@@ -88,15 +88,8 @@ function parsePdfLinesFallback(lines: string[]): { headers: string[]; rows: stri
 import type { PdfTextItem } from './pdfTextExtract'
 
 function linesFromItems(items: PdfTextItem[]): string[] {
-  const buckets = new Map<number, string[]>()
-  for (const item of items) {
-    const list = buckets.get(item.y) ?? []
-    list.push(item.text)
-    buckets.set(item.y, list)
-  }
-  return [...buckets.keys()]
-    .sort((a, b) => b - a)
-    .map((y) => normalizeLineText((buckets.get(y) ?? []).join(' ')))
+  return clusterPdfItemsIntoRows(items)
+    .map((row) => normalizeLineText(rowText(row)))
     .filter(Boolean)
 }
 

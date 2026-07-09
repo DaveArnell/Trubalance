@@ -8,6 +8,8 @@ export interface PdfTextItem {
   x: number
   y: number
   width: number
+  /** 1-based page index — PDF Y coords reset on every page. */
+  page: number
 }
 
 const Y_TOLERANCE = 5
@@ -35,6 +37,7 @@ export async function extractPdfTextItems(
         x: transform[4] ?? 0,
         y: Math.round(transform[5] ?? 0),
         width: typeof raw.width === 'number' ? raw.width : 0,
+        page: pageNum,
       })
     }
   }
@@ -42,7 +45,7 @@ export async function extractPdfTextItems(
   return items
 }
 
-export function clusterPdfItemsIntoRows(items: PdfTextItem[]): PdfTextItem[][] {
+function clusterPageItemsIntoRows(items: PdfTextItem[]): PdfTextItem[][] {
   const sorted = [...items].sort((a, b) => b.y - a.y || a.x - b.x)
   const rows: PdfTextItem[][] = []
 
@@ -56,6 +59,23 @@ export function clusterPdfItemsIntoRows(items: PdfTextItem[]): PdfTextItem[][] {
   }
 
   return rows.map((row) => row.sort((a, b) => a.x - b.x))
+}
+
+/** Cluster text items into visual rows, never merging across PDF pages. */
+export function clusterPdfItemsIntoRows(items: PdfTextItem[]): PdfTextItem[][] {
+  const byPage = new Map<number, PdfTextItem[]>()
+  for (const item of items) {
+    const page = item.page || 1
+    const list = byPage.get(page) ?? []
+    list.push(item)
+    byPage.set(page, list)
+  }
+
+  const rows: PdfTextItem[][] = []
+  for (const page of [...byPage.keys()].sort((a, b) => a - b)) {
+    rows.push(...clusterPageItemsIntoRows(byPage.get(page)!))
+  }
+  return rows
 }
 
 export function rowText(row: PdfTextItem[]): string {
