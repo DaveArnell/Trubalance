@@ -51,6 +51,10 @@ import { calculateDashboard } from '../../utils/calculations'
 import { useTour } from '../../contexts/TourContext'
 import { latestClosingBalanceFromTransactions } from '../../bankImport/importBalances'
 import { getScopeLabel } from '../../utils/scope'
+import {
+  getImportableAccounts,
+  businessHasImportableCashAccount,
+} from '../../bankImport/importableAccounts'
 
 const COLUMN_LABELS: Record<BankImportColumnKey, string> = {
   date: 'Date',
@@ -72,26 +76,13 @@ interface GuidedSetupWizardProps {
   onDismiss: () => void
 }
 
-function importableAccounts(state: AppState): Account[] {
-  return state.accounts.filter(
-    (account) => account.active && (account.type === 'current' || account.type === 'savings'),
-  )
-}
-
 function ensureBusinessHasImportableAccount(
   state: AppState,
   actions: AppActions,
   businessId: string,
 ): void {
-  const hasImportable = importableAccounts(state).some(
-    (account) =>
-      account.businessId === businessId ||
-      (account.venueId &&
-        state.venues.find((venue) => venue.id === account.venueId)?.businessId === businessId),
-  )
-  if (!hasImportable) {
-    actions.addBusinessAccount(businessId, 'Current account', 'current')
-  }
+  if (businessHasImportableCashAccount(state, businessId)) return
+  actions.addBusinessAccount(businessId, 'Current account', 'current')
 }
 
 function accountPathLabel(state: AppState, account: Account): string {
@@ -462,7 +453,7 @@ function GuidedSetupAiWizard({
     balancesUpdated: 0,
   })
 
-  const accounts = useMemo(() => importableAccounts(state), [state.accounts])
+  const accounts = useMemo(() => getImportableAccounts(state), [state.accounts, state.venues])
   const stepIndex = setupSteps.findIndex((step) => step.id === aiStep)
 
   useEffect(() => {

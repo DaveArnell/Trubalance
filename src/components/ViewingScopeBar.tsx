@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react'
 import type { AppState, ViewScope } from '../types'
 import { getBusinessAccentColor, resolveScopeBusinessId } from '../utils/businessTheme'
-import { getScopeLevelLabel, getScopePathSegments } from '../utils/scope'
+import { getScopeLevelLabel, getScopePathSegments, getScopeLabel, hasMultipleViewScopes } from '../utils/scope'
 
 interface ViewingScopeBarProps {
   state: AppState
@@ -18,7 +18,25 @@ function segmentAccent(state: AppState, viewScope: ViewScope, isActive: boolean)
 }
 
 export function ViewingScopeBar({ state, viewScope, variant = 'full' }: ViewingScopeBarProps) {
+  const multiScope = hasMultipleViewScopes(state)
   const segments = getScopePathSegments(state, viewScope)
+
+  if (!multiScope) {
+    const label = getScopeLabel(state, viewScope)
+    const businessId = resolveScopeBusinessId(state, viewScope)
+    const accent = businessId ? getBusinessAccentColor(state, businessId) : undefined
+    return (
+      <div
+        className={`viewing-scope-bar viewing-scope-bar--${variant} viewing-scope-bar--simple`}
+        aria-label={`Viewing ${label}`}
+      >
+        {accent ? (
+          <span className="viewing-scope-simple-swatch" style={{ background: accent }} aria-hidden />
+        ) : null}
+        <span className="viewing-scope-simple-name">{label}</span>
+      </div>
+    )
+  }
 
   return (
     <div

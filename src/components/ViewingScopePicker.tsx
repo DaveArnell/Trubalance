@@ -1,10 +1,6 @@
 import { useMemo } from 'react'
 import type { AppState, ViewScope } from '../types'
-import {
-  getSidebarScopePickerOptions,
-  parseScopePickerValue,
-  scopePickerValue,
-} from '../utils/scope'
+import { getSidebarScopePickerOptions, hasMultipleViewScopes, parseScopePickerValue, scopePickerValue } from '../utils/scope'
 
 interface ViewingScopePickerProps {
   state: AppState
@@ -16,7 +12,7 @@ export function ViewingScopePicker({ state, viewScope, onSelect }: ViewingScopeP
   const options = useMemo(() => getSidebarScopePickerOptions(state), [state])
   const value = scopePickerValue(viewScope)
 
-  if (options.length <= 1) return null
+  if (!hasMultipleViewScopes(state)) return null
 
   return (
     <label className="viewing-scope-picker">

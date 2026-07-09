@@ -29,7 +29,7 @@ import type { WorkspaceSubscription } from './types/subscription'
 import { calculateDashboard } from './utils/calculations'
 import { buildBreakdownColumns } from './utils/breakdownTable'
 import { getPlannerDisplayName, summarizeReservePlanner, getReservePlannerIdForScope } from './utils/reserveCalculations'
-import { getScopeLabel, getSidebarScopePickerOptions } from './utils/scope'
+import { getScopeLabel, hasMultipleViewScopes } from './utils/scope'
 import { usePageMeta } from './hooks/usePageMeta'
 import { ViewingScopeBar } from './components/ViewingScopeBar'
 import { ViewingScopePicker } from './components/ViewingScopePicker'
@@ -180,7 +180,7 @@ function AppShellInner({
     [app.state, app.viewScope],
   )
   const showScopePicker = useMemo(
-    () => getSidebarScopePickerOptions(app.state).length > 1,
+    () => hasMultipleViewScopes(app.state),
     [app.state],
   )
 

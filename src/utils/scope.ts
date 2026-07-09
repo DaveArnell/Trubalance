@@ -505,3 +505,8 @@ export function parseScopePickerValue(value: string): ViewScope | null {
   if (!id) return null
   return { type, id }
 }
+
+/** True when the user can switch between group, business, or venue views. */
+export function hasMultipleViewScopes(state: AppState): boolean {
+  return getSidebarScopePickerOptions(state).length > 1
+}

@@ -1,5 +1,5 @@
 import type { AppState, ViewScope } from '../types'
-import { getGroupIdForScope, getScopeBreadcrumb, getScopeLabel } from '../utils/scope'
+import { getGroupIdForScope, getScopeBreadcrumb, getScopeLabel, hasMultipleViewScopes } from '../utils/scope'
 import { getBusinessAccentColor, resolveScopeBusinessId } from '../utils/businessTheme'
 import { abbreviateScopeName } from '../utils/sidebarLayout'
 
@@ -64,6 +64,7 @@ export function SidebarScopeTree({
   const activeBusinessId = resolveScopeBusinessId(state, viewScope)
   const currentLabel = getScopeLabel(state, viewScope)
   const breadcrumb = getScopeBreadcrumb(state, viewScope)
+  const multiScope = hasMultipleViewScopes(state)
 
   const renderBusinessNode = (business: typeof state.businesses[number]) => {
     const venues = state.venues.filter((v) => v.businessId === business.id)
@@ -142,7 +143,7 @@ export function SidebarScopeTree({
       aria-label="Viewing scope"
       data-tour="sidebar-scope"
     >
-      {!compact && <p className="sidebar-scope-heading">Viewing</p>}
+      {!compact && multiScope && <p className="sidebar-scope-heading">Viewing</p>}
       <p
         className={`sidebar-scope-current${compact ? ' sidebar-scope-current--compact' : ''}`}
         title={breadcrumb}
@@ -157,6 +158,7 @@ export function SidebarScopeTree({
         {compact ? abbreviateScopeName(currentLabel, 4) : currentLabel}
       </p>
 
+      {multiScope ? (
       <ul className={`scope-tree${compact ? ' scope-tree--compact' : ''}`}>
         {state.groups.map((group) => {
           const businesses = state.businesses.filter((b) => b.groupId === group.id)
@@ -195,6 +197,7 @@ export function SidebarScopeTree({
 
         {renderUngroupedBusinesses()}
       </ul>
+      ) : null}
     </section>
   )
 }

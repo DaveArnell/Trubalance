@@ -3652,6 +3652,26 @@ body.widget-canvas-resizing * {
   min-width: 0;
 }
 
+.viewing-scope-bar--simple {
+  gap: 8px;
+}
+
+.viewing-scope-simple-swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.viewing-scope-simple-name {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .viewing-scope-bar-heading {
   font-size: 0.58rem;
   font-weight: 700;

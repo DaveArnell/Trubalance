@@ -18,6 +18,7 @@ import type {
 } from '../../bankImport/types'
 import type { ImportTrendInsight } from '../../bankImport/trendInsights'
 import { historySpanMonths } from '../../bankImport/trendInsights'
+import { getImportableAccounts } from '../../bankImport/importableAccounts'
 import {
   BankImportSuggestionReview,
   countAcceptedSuggestions,
@@ -67,13 +68,7 @@ export function BankStatementImportPanel({
   const [error, setError] = useState<string | null>(null)
   const [minMonthlyAmount, setMinMonthlyAmount] = useState(() => readBankImportMinMonthlyAmount())
 
-  const cashAccounts = useMemo(
-    () =>
-      state.accounts.filter(
-        (account) => account.active && (account.type === 'current' || account.type === 'savings'),
-      ),
-    [state.accounts],
-  )
+  const cashAccounts = useMemo(() => getImportableAccounts(state), [state.accounts, state.venues])
 
   const previewRows = rows.slice(0, 4)
 
