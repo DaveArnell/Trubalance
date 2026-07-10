@@ -15269,15 +15269,12 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   align-items: center;
 }
 
-.setup-onboarding-nav--reserve {
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-.setup-onboarding-nav--reserve .btn-ghost {
-  min-height: 40px;
-  padding-inline: 14px;
-  font-size: 0.88rem;
+.setup-onboarding-nav-cta {
+  min-height: 44px;
+  padding-inline: 22px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.28);
 }
 
 .setup-reserve-step {
@@ -15285,18 +15282,17 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   margin-top: clamp(16px, 2.5vh, 24px);
 }
 
-.setup-reserve-cta {
-  display: block;
-  width: min(100%, 22rem);
-  margin: 0 auto clamp(20px, 3vh, 28px);
-  min-height: 48px;
-  font-size: clamp(0.95rem, 1.3vw, 1.05rem);
+.setup-reserve-yours-hint {
+  margin: 0 0 clamp(16px, 2.5vh, 22px);
+  font-size: clamp(0.92rem, 1.25vw, 1rem);
+  line-height: 1.55;
+  color: var(--text-muted);
+  text-align: left;
 }
 
-.setup-reserve-example-label {
-  text-align: center;
-  font-size: 0.82rem;
-  margin: 0 0 8px;
+.setup-reserve-yours-hint strong {
+  color: var(--text);
+  font-weight: 600;
 }
 
 .setup-reserve-inline {
@@ -15814,12 +15810,17 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .setup-field--balance > span {
   font-weight: 600;
   min-width: 8rem;
+  flex: 1;
+}
+
+.setup-field--balance .setup-balance-input-wrap {
+  flex: 0 0 auto;
+  width: min(14rem, 42vw);
 }
 
 .setup-balance-input-wrap {
   display: flex;
   align-items: stretch;
-  flex: 1;
   min-width: 0;
   border: 1px solid var(--border-subtle);
   border-radius: 10px;
@@ -15828,6 +15829,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .setup-balance-currency {
+  flex: 0 0 auto;
   padding: 0 12px;
   font-size: 0.95rem;
   font-weight: 600;
@@ -15841,11 +15843,22 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .setup-balance-input {
   flex: 1;
   min-width: 0;
-  border: none !important;
-  background: transparent !important;
+  width: 100%;
+  border: none;
+  background: transparent;
+  box-shadow: none;
   font-size: 1.05rem;
   font-weight: 600;
-  padding: 10px 12px !important;
+  text-align: right;
+  padding: 10px 12px;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.setup-balance-input::-webkit-outer-spin-button,
+.setup-balance-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .setup-balance-input:focus {

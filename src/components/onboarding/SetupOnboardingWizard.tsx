@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { AppActions } from '../../hooks/useAppState'
 import type { AppState, DashboardMetrics, IncomePattern, ViewScope } from '../../types'
@@ -104,8 +104,8 @@ export function SetupOnboardingWizard({
   ])
   const [pendingBusinessAdvance, setPendingBusinessAdvance] = useState(false)
   const [structureError, setStructureError] = useState<string | null>(null)
-  const [reserveInlineOpen, setReserveInlineOpen] = useState(false)
   const [openHelp, setOpenHelp] = useState<string | null>(null)
+  const reservePanelRef = useRef<HTMLDivElement>(null)
 
   const step = SETUP_ONBOARDING_STEPS[stepIndex]!
   const stepCount = SETUP_ONBOARDING_STEPS.length
@@ -116,10 +116,6 @@ export function SetupOnboardingWizard({
     if (!step.page || step.id === 'reserve') return
     onNavigate(step.page)
   }, [step.id, step.page, onNavigate])
-
-  useEffect(() => {
-    if (step.id !== 'reserve') setReserveInlineOpen(false)
-  }, [step.id])
 
   useEffect(() => {
     const content = document.querySelector('.setup-flow-content')
@@ -144,6 +140,16 @@ export function SetupOnboardingWizard({
     () => (primaryBusiness ? ({ type: 'business' as const, id: primaryBusiness.id }) : _viewScope),
     [primaryBusiness, _viewScope],
   )
+
+  useEffect(() => {
+    if (step.id !== 'reserve' || !primaryBusiness || onboardingReservePlanner) return
+    actions.addReservePlanner({
+      name: `${primaryBusiness.name} Reserve Plan`,
+      businessId: primaryBusiness.id,
+      bufferAmount: 0,
+      actualBalance: 0,
+    })
+  }, [step.id, primaryBusiness, onboardingReservePlanner, actions])
 
   useEffect(() => {
     if (!pendingBusinessAdvance || !primaryBusiness) return
@@ -292,29 +298,24 @@ export function SetupOnboardingWizard({
     }
   }
 
-  const handleReserveBegin = () => {
+  const handleReserveFocus = () => {
     const businessId = primaryBusiness?.id
     if (businessId && !onboardingReservePlanner) {
       actions.addReservePlanner({
-        name: `${primaryBusiness!.name} Reserve Plan`,
+        name: `${primaryBusiness.name} Reserve Plan`,
         businessId,
         bufferAmount: 0,
         actualBalance: 0,
       })
     }
-    setReserveInlineOpen(true)
-  }
-
-  const handleReserveContinue = () => {
-    setReserveInlineOpen(false)
-    setStepIndex((i) => i + 1)
+    reservePanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    const focusable = reservePanelRef.current?.querySelector<HTMLElement>(
+      'input, button, select, textarea, [tabindex]:not([tabindex="-1"])',
+    )
+    focusable?.focus()
   }
 
   const handleBack = () => {
-    if (step.id === 'reserve' && reserveInlineOpen) {
-      setReserveInlineOpen(false)
-      return
-    }
     setStepIndex((i) => Math.max(0, i - 1))
   }
 
@@ -363,33 +364,23 @@ export function SetupOnboardingWizard({
       <div className="setup-flow-footer-meta">
         Step {stepIndex + 1} of {stepCount}
       </div>
-      <div className="setup-onboarding-nav setup-onboarding-nav--reserve">
+      <div className="setup-onboarding-nav">
         <button
           type="button"
           className="btn-secondary"
-          disabled={stepIndex === 0 && !(step.id === 'reserve' && reserveInlineOpen)}
+          disabled={stepIndex === 0}
           onClick={handleBack}
         >
           Back
         </button>
         {step.id === 'reserve' ? (
-          <>
-            <button type="button" className="btn-ghost" onClick={handleReserveContinue}>
-              I&apos;ll do this later
-            </button>
-            <button
-              type="button"
-              className="btn-primary"
-              onClick={reserveInlineOpen ? handleReserveContinue : handleReserveBegin}
-            >
-              {reserveInlineOpen ? 'Continue' : 'Set up yours now'}
-            </button>
-          </>
-        ) : (
-          <button type="button" className="btn-primary" onClick={handleNext}>
-            {isLast ? 'Finish' : 'Continue'}
+          <button type="button" className="btn-primary setup-onboarding-nav-cta" onClick={handleReserveFocus}>
+            Set up now
           </button>
-        )}
+        ) : null}
+        <button type="button" className="btn-primary" onClick={handleNext}>
+          {isLast ? 'Finish' : 'Continue'}
+        </button>
       </div>
     </>
   )
@@ -508,7 +499,7 @@ export function SetupOnboardingWizard({
                           £
                         </span>
                         <input
-                          className="sheet-input setup-balance-input"
+                          className="setup-balance-input"
                           type="number"
                           step="0.01"
                           min="0"
@@ -823,34 +814,27 @@ export function SetupOnboardingWizard({
           {step.id === 'month-view' && <SetupWidgetPreview previewId="month-view" />}
 
           {step.id === 'reserve' && (
-            <div className="setup-reserve-step">
-              {!reserveInlineOpen && (
-                <>
-                  <button type="button" className="btn-primary setup-reserve-cta" onClick={handleReserveBegin}>
-                    Set up yours now
-                  </button>
-                  <p className="setup-reserve-example-label muted">Example — yours starts blank</p>
-                  <SetupWidgetPreview previewId="reserve" />
-                </>
-              )}
-              {reserveInlineOpen && (
+            <div className="setup-reserve-step" ref={reservePanelRef}>
+              <p className="setup-reserve-yours-hint">
+                This is your reserve plan for <strong>{primaryBusiness?.name ?? 'your business'}</strong> — add
+                your buffer and bills below. Everything you enter here saves to your account.
+              </p>
+              {onboardingReserveSummary ? (
                 <div className="setup-reserve-inline">
-                  {onboardingReserveSummary ? (
-                    <ReservePlannerPanel
-                      state={state}
-                      viewScope={onboardingReserveScope}
-                      summary={onboardingReserveSummary}
-                      reserveRouteId={onboardingReservePlanner?.id ?? null}
-                      actions={actions}
-                      openHelp={openHelp}
-                      setOpenHelp={setOpenHelp}
-                      onPlannerDeleted={() => undefined}
-                      onPlannerCreated={() => undefined}
-                    />
-                  ) : (
-                    <p className="muted setup-reserve-inline-loading">Preparing your reserve plan…</p>
-                  )}
+                  <ReservePlannerPanel
+                    state={state}
+                    viewScope={onboardingReserveScope}
+                    summary={onboardingReserveSummary}
+                    reserveRouteId={onboardingReservePlanner?.id ?? null}
+                    actions={actions}
+                    openHelp={openHelp}
+                    setOpenHelp={setOpenHelp}
+                    onPlannerDeleted={() => undefined}
+                    onPlannerCreated={() => undefined}
+                  />
                 </div>
+              ) : (
+                <p className="muted setup-reserve-inline-loading">Preparing your reserve plan…</p>
               )}
             </div>
           )}
