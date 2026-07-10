@@ -131,12 +131,10 @@ function ReserveMonthFlowBar({
   const [operatingDraft, setOperatingDraft] = useState(() =>
     confirmation?.operatingBalanceBefore != null
       ? String(confirmation.operatingBalanceBefore)
-      : suggestedOperatingBalance
-        ? String(suggestedOperatingBalance)
-        : '',
+      : String(suggestedOperatingBalance),
   )
   const [reserveDraft, setReserveDraft] = useState(() =>
-    confirmation ? String(confirmation.balance) : suggestedReserveBalance ? String(suggestedReserveBalance) : '',
+    confirmation ? String(confirmation.balance) : String(suggestedReserveBalance),
   )
   const [transferDone, setTransferDone] = useState(() => confirmation?.transferDone ?? !needsTransfer)
   const userEditedRef = useRef(false)
@@ -147,8 +145,8 @@ function ReserveMonthFlowBar({
       return
     }
     if (userEditedRef.current) return
-    setOperatingDraft(suggestedOperatingBalance ? String(suggestedOperatingBalance) : '')
-    setReserveDraft(suggestedReserveBalance ? String(suggestedReserveBalance) : '')
+    setOperatingDraft(String(suggestedOperatingBalance))
+    setReserveDraft(String(suggestedReserveBalance))
     setTransferDone(!needsTransfer)
   }, [confirmation, suggestedOperatingBalance, suggestedReserveBalance, needsTransfer])
 

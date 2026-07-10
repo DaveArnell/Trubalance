@@ -560,7 +560,7 @@ function AppShellInner({
 
           {!isDemoSession && <TrialBanner />}
           {!isDemoSession && <PostTrialNotice />}
-          {!isDemoSession && (
+          {!isDemoSession && activePage !== 'reserve-planner' && (
             <MonthlyReserveCheckIn
               state={app.state}
               viewScope={app.viewScope}

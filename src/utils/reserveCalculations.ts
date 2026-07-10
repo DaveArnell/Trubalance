@@ -814,6 +814,7 @@ export function getReserveBalanceForTransfer(
   const hasConfirmation = Boolean(planner.monthConfirmations?.[monthKey])
 
   if (isCurrentMonth && !hasConfirmation) {
+    if (isReservePlannerUnconfigured(planner)) return planner.actualBalance ?? 0
     return getPlannerActualBalance(state, planner)
   }
 
@@ -949,6 +950,13 @@ function getLatestConfirmationBeforeMonth(
   return null
 }
 
+/** Planner has no bills and no monthly confirmations yet — still in initial setup. */
+export function isReservePlannerUnconfigured(planner: ReservePlanner): boolean {
+  if (planner.bills.length > 0) return false
+  const confirmations = planner.monthConfirmations
+  return !confirmations || Object.keys(confirmations).length === 0
+}
+
 /** Default "Current" field for a month check-in — carried forward from the prior month. */
 export function getSuggestedOperatingBalanceForMonth(
   state: AppState,
@@ -965,6 +973,7 @@ export function getSuggestedOperatingBalanceForMonth(
     )
     if (carried != null) return carried
   }
+  if (isReservePlannerUnconfigured(planner)) return 0
   return getPlannerOperatingBalance(state, planner)
 }
 

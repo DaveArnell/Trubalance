@@ -15,34 +15,18 @@ import { WHY_TRUE_BALANCE_CONTENT } from '../../content/guidedSetup'
 import { formatCurrency } from '../../utils/format'
 import { getOnboardingCashAccounts } from '../../utils/calculations'
 import { scopeForAccount } from '../../bankImport/applySuggestions'
+import { summarizeReservePlanner } from '../../utils/reserveCalculations'
 import type { PageId } from '../../navigation'
 import { SetupOnboardingShell } from './SetupOnboardingShell'
 import { SetupWidgetPreview } from './SetupWidgetPreview'
 import { SetupStructureTree } from './SetupStructureTree'
+import { ReservePlannerPanel } from '../ReservePlannerPanel'
 
 interface SetupOnboardingWizardProps {
   state: AppState
   viewScope: ViewScope
   metrics: DashboardMetrics
-  actions: Pick<
-    AppActions,
-    | 'setupMinimalWorkspace'
-    | 'saveBalanceUpdate'
-    | 'addCommitment'
-    | 'setBusinessIncomePattern'
-    | 'addBusiness'
-    | 'deleteBusiness'
-    | 'renameBusiness'
-    | 'addVenue'
-    | 'deleteVenue'
-    | 'renameVenue'
-    | 'addBusinessAccount'
-    | 'addBusinessSavingsAccount'
-    | 'addAccount'
-    | 'renameAccount'
-    | 'deactivateAccount'
-    | 'addReservePlanner'
-  >
+  actions: AppActions
   onNavigate: (pageId: PageId, reservePlannerId?: string | null) => void
   onComplete: () => void
   onDismiss: () => void
@@ -112,6 +96,8 @@ export function SetupOnboardingWizard({
   )
   const [pendingBusinessAdvance, setPendingBusinessAdvance] = useState(false)
   const [structureError, setStructureError] = useState<string | null>(null)
+  const [reserveInlineOpen, setReserveInlineOpen] = useState(false)
+  const [openHelp, setOpenHelp] = useState<string | null>(null)
 
   const step = SETUP_ONBOARDING_STEPS[stepIndex]!
   const stepCount = SETUP_ONBOARDING_STEPS.length
@@ -119,8 +105,13 @@ export function SetupOnboardingWizard({
   const usesWideLayout = PREVIEW_STEP_IDS.has(step.id)
 
   useEffect(() => {
-    if (step.page) onNavigate(step.page)
+    if (!step.page || step.id === 'reserve') return
+    onNavigate(step.page)
   }, [step.id, step.page, onNavigate])
+
+  useEffect(() => {
+    if (step.id !== 'reserve') setReserveInlineOpen(false)
+  }, [step.id])
 
   useEffect(() => {
     const content = document.querySelector('.setup-flow-content')
@@ -133,6 +124,18 @@ export function SetupOnboardingWizard({
 
   const primaryBusiness = state.businesses[0]
   const cashAccounts = useMemo(() => getOnboardingCashAccounts(state), [state])
+  const onboardingReservePlanner = useMemo(() => {
+    if (!primaryBusiness) return null
+    return state.reservePlanners.find((planner) => planner.businessId === primaryBusiness.id) ?? null
+  }, [state.reservePlanners, primaryBusiness])
+  const onboardingReserveSummary = useMemo(() => {
+    if (!onboardingReservePlanner) return null
+    return summarizeReservePlanner(state, onboardingReservePlanner)
+  }, [state, onboardingReservePlanner])
+  const onboardingReserveScope = useMemo(
+    () => (primaryBusiness ? ({ type: 'business' as const, id: primaryBusiness.id }) : _viewScope),
+    [primaryBusiness, _viewScope],
+  )
 
   useEffect(() => {
     if (!pendingBusinessAdvance || !primaryBusiness) return
@@ -243,30 +246,30 @@ export function SetupOnboardingWizard({
     setStepIndex((i) => i + 1)
   }
 
-  const handleReserveSetup = () => {
+  const handleReserveBegin = () => {
     const businessId = primaryBusiness?.id
-    let plannerId: string | null = null
-    if (businessId) {
-      const existingPlanner = state.reservePlanners.find((p) => p.businessId === businessId)
-      if (!existingPlanner) {
-        plannerId = actions.addReservePlanner({
-          name: `${primaryBusiness!.name} Reserve Plan`,
-          businessId,
-          bufferAmount: 0,
-          actualBalance: 0,
-        })
-      } else {
-        plannerId = existingPlanner.id
-      }
+    if (businessId && !onboardingReservePlanner) {
+      actions.addReservePlanner({
+        name: `${primaryBusiness!.name} Reserve Plan`,
+        businessId,
+        bufferAmount: 0,
+        actualBalance: 0,
+      })
     }
-    try { localStorage.removeItem(PROGRESS_KEY) } catch { /* */ }
-    dismissSetupOnboardingLocally()
-    onNavigate('reserve-planner', plannerId)
-    onDismiss()
+    setReserveInlineOpen(true)
   }
 
-  const handleReserveSkip = () => {
+  const handleReserveContinue = () => {
+    setReserveInlineOpen(false)
     setStepIndex((i) => i + 1)
+  }
+
+  const handleBack = () => {
+    if (step.id === 'reserve' && reserveInlineOpen) {
+      setReserveInlineOpen(false)
+      return
+    }
+    setStepIndex((i) => Math.max(0, i - 1))
   }
 
   const handleNext = () => {
@@ -304,16 +307,29 @@ export function SetupOnboardingWizard({
       <div className="setup-flow-footer-meta">
         Step {stepIndex + 1} of {stepCount}
       </div>
-      <div className="setup-onboarding-nav">
+      <div className="setup-onboarding-nav setup-onboarding-nav--reserve">
         <button
           type="button"
           className="btn-secondary"
-          disabled={stepIndex === 0}
-          onClick={() => setStepIndex((i) => Math.max(0, i - 1))}
+          disabled={stepIndex === 0 && !(step.id === 'reserve' && reserveInlineOpen)}
+          onClick={handleBack}
         >
           Back
         </button>
-        {step.id !== 'reserve' && (
+        {step.id === 'reserve' ? (
+          <>
+            <button type="button" className="btn-ghost" onClick={handleReserveContinue}>
+              I&apos;ll do this later
+            </button>
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={reserveInlineOpen ? handleReserveContinue : handleReserveBegin}
+            >
+              {reserveInlineOpen ? 'Continue' : 'Set up yours now'}
+            </button>
+          </>
+        ) : (
           <button type="button" className="btn-primary" onClick={handleNext}>
             {isLast ? 'Finish' : 'Continue'}
           </button>
@@ -562,17 +578,36 @@ export function SetupOnboardingWizard({
           {step.id === 'receipts-explain' && <SetupWidgetPreview previewId="receipts" />}
 
           {step.id === 'reserve' && (
-            <>
-              <SetupWidgetPreview previewId="reserve" />
-              <div className="setup-onboarding-actions-stack">
-                <button type="button" className="btn-primary" onClick={handleReserveSetup}>
-                  Set up Reserve Planner now
-                </button>
-                <button type="button" className="btn-ghost" onClick={handleReserveSkip}>
-                  I&apos;ll do this later
-                </button>
-              </div>
-            </>
+            <div className="setup-reserve-step">
+              {!reserveInlineOpen && (
+                <>
+                  <button type="button" className="btn-primary setup-reserve-cta" onClick={handleReserveBegin}>
+                    Set up yours now
+                  </button>
+                  <p className="setup-reserve-example-label muted">Example — yours starts blank</p>
+                  <SetupWidgetPreview previewId="reserve" />
+                </>
+              )}
+              {reserveInlineOpen && (
+                <div className="setup-reserve-inline">
+                  {onboardingReserveSummary ? (
+                    <ReservePlannerPanel
+                      state={state}
+                      viewScope={onboardingReserveScope}
+                      summary={onboardingReserveSummary}
+                      reserveRouteId={onboardingReservePlanner?.id ?? null}
+                      actions={actions}
+                      openHelp={openHelp}
+                      setOpenHelp={setOpenHelp}
+                      onPlannerDeleted={() => undefined}
+                      onPlannerCreated={() => undefined}
+                    />
+                  ) : (
+                    <p className="muted setup-reserve-inline-loading">Preparing your reserve plan…</p>
+                  )}
+                </div>
+              )}
+            </div>
           )}
 
           {step.id === 'trends-explain' && <SetupWidgetPreview previewId="trends" />}

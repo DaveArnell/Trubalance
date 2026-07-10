@@ -8369,14 +8369,16 @@ textarea:focus {
 }
 
 .reserve-empty-row {
-  text-align: left !important;
+  text-align: center !important;
   color: var(--text-muted);
-  padding: var(--space-3) var(--space-2) !important;
+  padding: var(--space-4) var(--space-2) !important;
 }
 
 .reserve-empty-guidance {
   font-style: normal;
   max-width: 36rem;
+  margin-inline: auto;
+  text-align: center;
 }
 
 .reserve-empty-guidance p {
@@ -8386,10 +8388,13 @@ textarea:focus {
 }
 
 .reserve-empty-guidance ol {
-  margin: 8px 0 0;
-  padding-left: 1.2rem;
+  margin: 8px auto 0;
+  padding-left: 0;
+  list-style-position: inside;
   font-size: 0.8rem;
   line-height: 1.6;
+  text-align: center;
+  max-width: 28rem;
 }
 
 .reserve-empty-guidance li {
@@ -15213,6 +15218,48 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .setup-onboarding-nav {
   display: flex;
   gap: 8px;
+  align-items: center;
+}
+
+.setup-onboarding-nav--reserve {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.setup-onboarding-nav--reserve .btn-ghost {
+  min-height: 40px;
+  padding-inline: 14px;
+  font-size: 0.88rem;
+}
+
+.setup-reserve-step {
+  width: 100%;
+  margin-top: clamp(16px, 2.5vh, 24px);
+}
+
+.setup-reserve-cta {
+  display: block;
+  width: min(100%, 22rem);
+  margin: 0 auto clamp(20px, 3vh, 28px);
+  min-height: 48px;
+  font-size: clamp(0.95rem, 1.3vw, 1.05rem);
+}
+
+.setup-reserve-example-label {
+  text-align: center;
+  font-size: 0.82rem;
+  margin: 0 0 8px;
+}
+
+.setup-reserve-inline {
+  width: 100%;
+  margin-top: clamp(12px, 2vh, 20px);
+  text-align: left;
+}
+
+.setup-reserve-inline-loading {
+  text-align: center;
+  padding: var(--space-4);
 }
 
 .setup-onboarding-nav .btn-primary,
