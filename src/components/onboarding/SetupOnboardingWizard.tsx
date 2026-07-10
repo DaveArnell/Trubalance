@@ -13,11 +13,12 @@ import {
 import { QUICK_HABITS } from '../../content/livingDashboard'
 import { WHY_TRUE_BALANCE_CONTENT } from '../../content/guidedSetup'
 import { formatCurrency } from '../../utils/format'
-import { getCashAccounts } from '../../utils/calculations'
+import { getOnboardingCashAccounts } from '../../utils/calculations'
 import { scopeForAccount } from '../../bankImport/applySuggestions'
 import type { PageId } from '../../navigation'
 import { SetupOnboardingShell } from './SetupOnboardingShell'
 import { SetupWidgetPreview } from './SetupWidgetPreview'
+import { SetupStructureTree } from './SetupStructureTree'
 
 interface SetupOnboardingWizardProps {
   state: AppState
@@ -25,7 +26,22 @@ interface SetupOnboardingWizardProps {
   metrics: DashboardMetrics
   actions: Pick<
     AppActions,
-    'setupMinimalWorkspace' | 'saveBalanceUpdate' | 'addCommitment' | 'setBusinessIncomePattern' | 'addBusiness' | 'addReservePlanner'
+    | 'setupMinimalWorkspace'
+    | 'saveBalanceUpdate'
+    | 'addCommitment'
+    | 'setBusinessIncomePattern'
+    | 'addBusiness'
+    | 'deleteBusiness'
+    | 'renameBusiness'
+    | 'addVenue'
+    | 'deleteVenue'
+    | 'renameVenue'
+    | 'addBusinessAccount'
+    | 'addBusinessSavingsAccount'
+    | 'addAccount'
+    | 'renameAccount'
+    | 'deactivateAccount'
+    | 'addReservePlanner'
   >
   onNavigate: (pageId: PageId, reservePlannerId?: string | null) => void
   onComplete: () => void
@@ -35,6 +51,15 @@ interface SetupOnboardingWizardProps {
 }
 
 type CommitmentDraft = { name: string; amount: string; dueDay: string; selected: boolean }
+
+const PREVIEW_STEP_IDS = new Set([
+  'month-view',
+  'due-explain',
+  'receipts-explain',
+  'reserve',
+  'trends-explain',
+  'forecast-explain',
+])
 
 const SETUP_STEP_NAV_LABELS: Record<string, string> = {
   why: 'Introduction',
@@ -86,24 +111,28 @@ export function SetupOnboardingWizard({
     QUICK_COMMITMENT_TEMPLATES.map((t) => ({ name: t.name, amount: '', dueDay: '', selected: false })),
   )
   const [pendingBusinessAdvance, setPendingBusinessAdvance] = useState(false)
+  const [structureError, setStructureError] = useState<string | null>(null)
 
   const step = SETUP_ONBOARDING_STEPS[stepIndex]!
   const stepCount = SETUP_ONBOARDING_STEPS.length
   const isLast = stepIndex >= stepCount - 1
+  const usesWideLayout = PREVIEW_STEP_IDS.has(step.id)
 
   useEffect(() => {
     if (step.page) onNavigate(step.page)
   }, [step.id, step.page, onNavigate])
 
   useEffect(() => {
+    const content = document.querySelector('.setup-flow-content')
+    if (content instanceof HTMLElement) content.scrollTop = 0
+  }, [stepIndex])
+
+  useEffect(() => {
     try { localStorage.setItem(PROGRESS_KEY, String(stepIndex)) } catch { /* */ }
   }, [stepIndex])
 
   const primaryBusiness = state.businesses[0]
-  const cashAccounts = useMemo(
-    () => getCashAccounts(state.accounts.filter((account) => account.active)),
-    [state.accounts],
-  )
+  const cashAccounts = useMemo(() => getOnboardingCashAccounts(state), [state])
 
   useEffect(() => {
     if (!pendingBusinessAdvance || !primaryBusiness) return
@@ -142,12 +171,20 @@ export function SetupOnboardingWizard({
   }
 
   const handleBusinessNext = () => {
+    setStructureError(null)
     if (primaryBusiness) {
+      if (cashAccounts.length === 0) {
+        setStructureError('Add at least one current or savings account before continuing.')
+        return
+      }
       actions.setBusinessIncomePattern(primaryBusiness.id, incomePatternDraft)
       setStepIndex((i) => i + 1)
       return
     }
-    if (!businessName.trim()) return
+    if (!businessName.trim()) {
+      setStructureError('Enter a business name to continue.')
+      return
+    }
     actions.setupMinimalWorkspace({
       businessName: businessName.trim(),
       venueName: venueName.trim() || undefined,
@@ -294,14 +331,14 @@ export function SetupOnboardingWizard({
       }))}
       currentStepIndex={stepIndex}
       spotlight={false}
-      contentWidth="default"
+      contentWidth={usesWideLayout ? 'wide' : 'default'}
       onSkip={handleDismiss}
       skipLabel="Skip setup"
       footer={footer}
     >
       <div
         key={step.id}
-        className="setup-flow-step-panel"
+        className={`setup-flow-step-panel${usesWideLayout ? ' setup-flow-step-panel--preview' : ''}`}
       >
         <header className="setup-flow-page-header">
           <h2 id="setup-onboarding-title">{step.title}</h2>
@@ -323,114 +360,21 @@ export function SetupOnboardingWizard({
 
           {step.id === 'business' && (
             <div className="setup-onboarding-form">
-              {primaryBusiness ? (
-                <div className="structure-tree">
-                  {state.businesses.map((biz) => (
-                    <div key={biz.id} className="structure-tree-node structure-tree-node--business">
-                      <div className="structure-tree-node-head">
-                        <span className="structure-tree-swatch" style={{ background: biz.accentColor || 'var(--accent)' }} />
-                        <span className="structure-tree-node-label">{biz.name}</span>
-                      </div>
-                      <div className="structure-tree-accounts">
-                        {state.accounts
-                          .filter((a) => a.businessId === biz.id && !a.venueId)
-                          .map((a) => (
-                            <span key={a.id} className="structure-tree-account-chip">
-                              {a.type === 'current' ? '🏦' : '💰'} {a.name}
-                            </span>
-                          ))}
-                      </div>
-                      {state.venues.filter((v) => v.businessId === biz.id).length > 0 && (
-                        <div className="structure-tree-children">
-                          {state.venues.filter((v) => v.businessId === biz.id).map((venue) => (
-                            <div key={venue.id} className="structure-tree-node structure-tree-node--venue">
-                              <div className="structure-tree-connector" />
-                              <div className="structure-tree-node-head">
-                                <span className="structure-tree-swatch" style={{ background: venue.accentColor || '#6366f1' }} />
-                                <span className="structure-tree-node-label">{venue.name}</span>
-                              </div>
-                              <div className="structure-tree-accounts">
-                                {state.accounts
-                                  .filter((a) => a.venueId === venue.id)
-                                  .map((a) => (
-                                    <span key={a.id} className="structure-tree-account-chip">
-                                      {a.type === 'current' ? '🏦' : '💰'} {a.name}
-                                    </span>
-                                  ))}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    className="structure-tree-add-btn"
-                    onClick={() => {
-                      const name = `Business ${state.businesses.length + 1}`
-                      actions.addBusiness(undefined, name, true)
-                    }}
-                  >
-                    + Add another business
-                  </button>
-                  <p className="muted" style={{ marginTop: '8px', fontSize: '0.78rem' }}>
-                    You can rename, add venues, or reorganise in Settings anytime.
-                  </p>
-                </div>
-              ) : (
-                <div className="structure-tree structure-tree--editable">
-                  <div className="structure-tree-node structure-tree-node--business">
-                    <div className="structure-tree-node-head">
-                      <span className="structure-tree-swatch" style={{ background: 'var(--accent)' }} />
-                      <input
-                        className="structure-tree-name-input"
-                        value={businessName}
-                        onChange={(e) => setBusinessName(e.target.value)}
-                        placeholder="Your business name"
-                        autoFocus
-                      />
-                    </div>
-                    <div className="structure-tree-accounts structure-tree-accounts--editable">
-                      <div className="structure-tree-account-row">
-                        <span className="structure-tree-account-icon">🏦</span>
-                        <input
-                          className="structure-tree-name-input structure-tree-name-input--small"
-                          value={accountName}
-                          onChange={(e) => setAccountName(e.target.value)}
-                          placeholder="Current account name"
-                        />
-                      </div>
-                    </div>
-                    {venueName ? (
-                      <div className="structure-tree-children">
-                        <div className="structure-tree-node structure-tree-node--venue">
-                          <div className="structure-tree-connector" />
-                          <div className="structure-tree-node-head">
-                            <span className="structure-tree-swatch" style={{ background: '#6366f1' }} />
-                            <input
-                              className="structure-tree-name-input structure-tree-name-input--small"
-                              value={venueName}
-                              onChange={(e) => setVenueName(e.target.value)}
-                              placeholder="Site / venue name"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        className="structure-tree-add-btn"
-                        onClick={() => setVenueName('Site 1')}
-                      >
-                        + Add a venue / site
-                      </button>
-                    )}
-                  </div>
-                  <p className="muted" style={{ marginTop: '12px', fontSize: '0.78rem' }}>
-                    Keep it simple — one business, one account. You can add more later.
-                  </p>
-                </div>
+              <SetupStructureTree
+                state={state}
+                actions={actions}
+                draft={{ businessName, venueName, accountName }}
+                onDraftChange={(patch) => {
+                  if (patch.businessName !== undefined) setBusinessName(patch.businessName)
+                  if (patch.venueName !== undefined) setVenueName(patch.venueName)
+                  if (patch.accountName !== undefined) setAccountName(patch.accountName)
+                  if (structureError) setStructureError(null)
+                }}
+              />
+              {structureError && (
+                <p className="setup-onboarding-form-error" role="alert">
+                  {structureError}
+                </p>
               )}
               <fieldset className="setup-income-pattern">
                 <legend>How does money come into your business?</legend>
@@ -604,9 +548,9 @@ export function SetupOnboardingWizard({
                 </div>
               </div>
               <p className="setup-accrual-caption">
-                Each bill builds up daily — it never stops. Once the date hits, the full amount
-                moves to Due. You mark it paid when it leaves your account. Meanwhile, it&apos;s
-                already building up again from day one.
+                The bar never stops — it builds from empty to full every cycle. When it hits the top,
+                the full amount moves to Due. You mark it Paid midway through the next build-up, but
+                accrual for the new period is already running underneath.
               </p>
             </div>
           )}

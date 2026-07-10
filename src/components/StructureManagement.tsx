@@ -458,7 +458,7 @@ function BusinessCard({
   const addItems = [
     { label: 'Current account', onClick: () => actions.addBusinessAccount(business.id, 'Current account', 'current') },
     { label: 'Savings account', onClick: () => actions.addBusinessSavingsAccount(business.id, 'Savings account') },
-    { label: 'Venue / site', onClick: () => actions.addVenue(business.id, 'New site') },
+    { label: 'Venue / site', onClick: () => actions.addVenue(business.id, 'New site', true) },
   ]
 
   return (

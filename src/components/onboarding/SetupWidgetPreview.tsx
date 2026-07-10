@@ -125,13 +125,23 @@ function PreviewFrame({
   meta,
   children,
   tall = false,
+  wide = false,
 }: {
   meta: DemoScenarioMeta
   children: ReactNode
   tall?: boolean
+  wide?: boolean
 }) {
   return (
-    <div className={`setup-widget-preview${tall ? ' setup-widget-preview--tall' : ''}`}>
+    <div
+      className={[
+        'setup-widget-preview',
+        tall ? 'setup-widget-preview--tall' : '',
+        wide ? 'setup-widget-preview--wide' : '',
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    >
       <div className="setup-widget-preview-chrome">
         <span className="setup-widget-preview-badge">Example</span>
         <span className="setup-widget-preview-source">{meta.title}</span>
@@ -220,7 +230,11 @@ export function SetupWidgetPreview({ previewId }: SetupWidgetPreviewProps) {
 
   return (
     <DemoModeProvider scenario={bundle.meta} onScenarioChange={noop} canEditDemo={false}>
-      <PreviewFrame meta={bundle.meta} tall={previewId === 'reserve' || previewId === 'trends'}>
+      <PreviewFrame
+        meta={bundle.meta}
+        tall={previewId === 'reserve' || previewId === 'trends'}
+        wide={previewId === 'reserve'}
+      >
         {content}
       </PreviewFrame>
     </DemoModeProvider>

@@ -22,7 +22,7 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     id: 'business',
     title: "Let's set up what you want to track.",
     explain:
-      'This is the foundation — everything else hangs off your business structure. Start simple: one business, one account. You can add more sites, accounts, and businesses later.',
+      'This is the foundation — everything else hangs off your business structure. Add businesses, venues, and accounts here. You can always change this later in Settings.',
   },
   {
     id: 'cash',

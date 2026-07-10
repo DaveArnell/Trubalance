@@ -593,8 +593,28 @@ export function useAppState(options?: UseAppStateOptions) {
   }
 
   // Venues
-  const addVenue = (businessId: string, name: string) =>
-    update((s) => ({ ...s, venues: [...s.venues, { id: newId(), businessId, name }] }))
+  const addVenue = (businessId: string, name: string, createDefaultAccount = false) =>
+    update((s) => {
+      const venueId = newId()
+      const venues = [...s.venues, { id: venueId, businessId, name }]
+      if (!createDefaultAccount) return { ...s, venues }
+      return {
+        ...s,
+        venues,
+        accounts: [
+          ...s.accounts,
+          {
+            id: newId(),
+            venueId,
+            name: 'Current account',
+            type: 'current' as const,
+            balance: 0,
+            active: true,
+            updatedAt: new Date().toISOString(),
+          },
+        ],
+      }
+    })
 
   const renameVenue = (id: string, name: string) =>
     update((s) => ({ ...s, venues: s.venues.map((v) => (v.id === id ? { ...v, name } : v)) }))
@@ -1914,7 +1934,9 @@ export function useAppState(options?: UseAppStateOptions) {
       const groups = [...s.groups, { id: groupId, name: 'Group' }]
       const businesses = [...s.businesses, { id: businessId, groupId, name: businessName }]
       let venues = [...s.venues]
-      let accounts = [...s.accounts]
+      let accounts = s.accounts.map((account) =>
+        !account.businessId && !account.venueId ? { ...account, active: false } : account,
+      )
       const venueLabel = input.venueName?.trim()
       if (venueLabel) {
         const venueId = newId()

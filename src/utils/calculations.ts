@@ -77,6 +77,24 @@ export function getCashAccounts(accounts: Account[]): Account[] {
   return accounts.filter((a) => a.type === 'current' || a.type === 'savings')
 }
 
+/** Account belongs to a business or venue that still exists in the workspace. */
+export function isAccountInWorkspaceStructure(state: AppState, account: Account): boolean {
+  if (account.venueId) {
+    return state.venues.some((venue) => venue.id === account.venueId)
+  }
+  if (account.businessId) {
+    return state.businesses.some((business) => business.id === account.businessId)
+  }
+  return false
+}
+
+/** Cash accounts tied to the current structure — excludes orphaned legacy rows. */
+export function getOnboardingCashAccounts(state: AppState): Account[] {
+  return getCashAccounts(
+    state.accounts.filter((account) => account.active && isAccountInWorkspaceStructure(state, account)),
+  )
+}
+
 export function groupAccountsForDisplay(
   state: AppState,
   scope: ViewScope,
