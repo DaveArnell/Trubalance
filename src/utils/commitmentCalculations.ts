@@ -206,8 +206,14 @@ export function buildMarkPaidPatch(
   const paidOn = dateToKey(referenceDate)
 
   if (occurrences.length === 0) {
-    const period = getActiveAccrualPeriod(commitment, referenceDate) ?? getReferenceDateKey().slice(0, 7)
-    const expected = getAccruedAmount(commitment, referenceDate)
+    const period =
+      commitment.schedule === 'planned'
+        ? (commitment.plannedDueDate?.slice(0, 7) ?? getReferenceDateKey().slice(0, 7))
+        : (getActiveAccrualPeriod(commitment, referenceDate) ?? getReferenceDateKey().slice(0, 7))
+    const expected =
+      commitment.schedule === 'planned'
+        ? getPlannedCommittedAmount(commitment, referenceDate)
+        : getAccruedAmount(commitment, referenceDate)
     const actual = options.paidAmount != null ? toAmount(options.paidAmount) : expected
     paidPeriodAmounts[period] = roundCurrency(actual)
     paidPeriodDates[period] = paidOn
@@ -331,6 +337,11 @@ function periodHasPaidRecord(commitment: Commitment, period: string): boolean {
 }
 
 function getPeriodDueDateKey(commitment: Commitment, period: string): string | null {
+  if (commitment.schedule === 'planned' && commitment.plannedDueDate) {
+    const plannedPeriod = commitment.plannedDueDate.slice(0, 7)
+    if (plannedPeriod === period) return commitment.plannedDueDate.slice(0, 10)
+  }
+
   const [year, month] = period.split('-').map(Number)
   if (!year || !month) return null
   const dueDay = commitment.dueDayOfMonth ?? 28
@@ -757,12 +768,35 @@ export function sortDueRows(rows: CommitmentDueRow[], referenceDate: Date = getR
 }
 
 /** Amount this due row contributes to committed / due totals. */
+/** Whether a planned cost is paid as of a calendar day (handles legacy wrong-period marks). */
+export function isPlannedCommitmentPaidAsOf(
+  commitment: Commitment,
+  referenceDate: Date = getReferenceDate(),
+): boolean {
+  if (commitment.schedule !== 'planned') return false
+
+  const plannedPeriod = commitment.plannedDueDate?.slice(0, 7)
+  if (plannedPeriod && isCommitmentPaidForPeriod(commitment, plannedPeriod, referenceDate)) {
+    return true
+  }
+
+  for (const period of Object.keys(commitment.paidPeriodAmounts ?? {})) {
+    if (isCommitmentPaidForPeriod(commitment, period, referenceDate)) return true
+  }
+
+  return false
+}
+
 export function getDueRowCommittedAmount(
   row: CommitmentDueRow,
   referenceDate: Date = getReferenceDate(),
 ): number {
   if (row.reserveTransferDirection === 'from_reserve') return 0
   if (row.reserveTransferDirection === 'to_reserve') return row.amount
+
+  if (row.commitment.schedule === 'planned') {
+    if (isPlannedCommitmentPaidAsOf(row.commitment, referenceDate)) return 0
+  }
 
   const kind = getDueRowKind(row, referenceDate)
   if (kind === 'monthly' || kind === 'reserve' || kind === 'planned-due') {
@@ -951,7 +985,10 @@ export function getAccrualTooltip(commitment: Commitment): string {
 }
 
 export function getEffectiveCommittedAmount(commitment: Commitment, referenceDate: Date = getReferenceDate()): number {
-  if (commitment.schedule === 'planned') return getPlannedCommittedAmount(commitment, referenceDate)
+  if (commitment.schedule === 'planned') {
+    if (isPlannedCommitmentPaidAsOf(commitment, referenceDate)) return 0
+    return getPlannedCommittedAmount(commitment, referenceDate)
+  }
   const dueOccurrences = getCommitmentDueOccurrences(commitment, referenceDate)
   if (dueOccurrences.length > 0) {
     return getCommitmentDueRowAmount(commitment, dueOccurrences)
@@ -990,6 +1027,7 @@ export function buildCommitmentViews(
 
   const plannedDueRows: CommitmentDueRow[] = planned
     .filter((commitment) => !isPlannedDismissedFromDue(commitment))
+    .filter((commitment) => !isPlannedCommitmentPaidAsOf(commitment, referenceDate))
     .map((commitment) => ({
     id: `planned-${commitment.id}`,
     commitment,
@@ -1044,7 +1082,7 @@ export function summarizeCommittedFundsBreakdown(
 ): CommittedFundsBreakdown {
   const outstandingDue = sumDueRowAmounts(views.due, referenceDate)
   const outstandingPlanned = views.planned.reduce(
-    (sum, c) => sum + getPlannedCommittedAmount(c, referenceDate),
+    (sum, c) => sum + getEffectiveCommittedAmount(c, referenceDate),
     0,
   )
   const accruedMonthly = views.monthly.reduce((sum, commitment) => {
