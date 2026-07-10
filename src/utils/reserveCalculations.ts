@@ -17,7 +17,8 @@ import { getAccountBusinessId } from './accounts'
 import { currentPeriod } from './commitmentCalculations'
 import { MONTHS, currentMonthIndex, formatCurrency } from './format'
 import { getBusinessIdsForScope, getVenueIdsForScope } from './scope'
-import { getReferenceDate } from './referenceDate'
+import { dateToKey, getReferenceDate } from './referenceDate'
+import { todayDateKey } from './snapshots'
 import { sortByOrder } from './sortOrder'
 
 export function getPlannerDisplayName(state: AppState, planner: ReservePlanner): string {
@@ -157,10 +158,24 @@ export function clearReserveDueAmountOverridesForPeriods(
   return Object.keys(next).length > 0 ? { duePeriodAmountOverrides: next } : { duePeriodAmountOverrides: undefined }
 }
 
-export function isReserveBillPaidThisPeriod(bill: ReserveBill, period: string = currentPeriod()): boolean {
+export function isReserveBillPaidThisPeriod(
+  bill: ReserveBill,
+  period: string,
+  referenceDate: Date = getReferenceDate(),
+): boolean {
   if (!bill.lastPaidPeriod) return false
+
+  const periodKey = period.slice(0, 7)
   const paidThrough = bill.lastPaidPeriod.slice(0, 7)
-  return paidThrough >= period.slice(0, 7)
+  if (periodKey > paidThrough) return false
+  if (periodKey < paidThrough) return true
+
+  if (bill.lastPaidOnDate) {
+    return dateToKey(referenceDate) >= bill.lastPaidOnDate
+  }
+
+  // Legacy marks without a pay date: only treat as paid from real today onward.
+  return dateToKey(referenceDate) >= todayDateKey()
 }
 
 export function isReserveBillDismissedThisPeriod(bill: ReserveBill, period: string = currentPeriod()): boolean {

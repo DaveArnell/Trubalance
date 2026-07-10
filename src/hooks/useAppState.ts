@@ -1321,6 +1321,7 @@ export function useAppState(options?: UseAppStateOptions) {
                     ? {
                         ...b,
                         lastPaidPeriod: latest,
+                        lastPaidOnDate: todayDateKey(),
                         ...clearReserveDueAmountOverridesForPeriods(b, periodsToClear),
                       }
                     : b,

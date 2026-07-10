@@ -195,7 +195,7 @@ function collectReserveBillSettlements(
       const scheduledPeriods = new Set<string>()
       const schedulePeriod = (period: string, month: string, year: number, monthIndex: number) => {
         if (scheduledPeriods.has(period)) return
-        if (isReserveBillPaidThisPeriod(bill, period) || isReserveBillDismissedThisPeriod(bill, period)) return
+        if (isReserveBillPaidThisPeriod(bill, period, today) || isReserveBillDismissedThisPeriod(bill, period)) return
         if (getReserveDueOccurrenceAmount(bill, period, month) <= 0) return
 
         const dueDay = getBillDueDay(bill, month)

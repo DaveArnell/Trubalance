@@ -169,6 +169,8 @@ export interface ReserveBill {
   venueId?: string
   notes?: string
   lastPaidPeriod?: string
+  /** ISO date (YYYY-MM-DD) when marked paid — stops future accrual but preserves history before this day. */
+  lastPaidOnDate?: string
   dismissedDuePeriods?: string[]
   acknowledgedDuePeriods?: string[]
   sortOrder?: number

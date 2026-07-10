@@ -160,6 +160,7 @@ function mapBill(row: Record<string, unknown>): ReserveBill {
     venueId: row.venue_id ? String(row.venue_id) : undefined,
     notes: row.notes ? String(row.notes) : undefined,
     lastPaidPeriod: row.last_paid_period ? String(row.last_paid_period) : undefined,
+    lastPaidOnDate: row.last_paid_on_date ? toDateOnly(String(row.last_paid_on_date)) : undefined,
     dismissedDuePeriods: Array.isArray(row.dismissed_due_periods)
       ? row.dismissed_due_periods.map(String)
       : undefined,
@@ -539,6 +540,7 @@ export async function saveWorkspaceState(
     venue_id: b.venueId ?? null,
       notes: b.notes ?? null,
       last_paid_period: b.lastPaidPeriod ?? null,
+      last_paid_on_date: b.lastPaidOnDate ?? null,
       dismissed_due_periods: b.dismissedDuePeriods ?? [],
       acknowledged_due_periods: b.acknowledgedDuePeriods ?? [],
       sort_order: b.sortOrder ?? i,
