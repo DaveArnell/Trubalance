@@ -965,9 +965,10 @@ function getLatestConfirmationBeforeMonth(
   return null
 }
 
-/** Planner has no bills and no monthly confirmations yet — still in initial setup. */
+/** Planner has no bills, buffer, or monthly confirmations yet — still in initial setup. */
 export function isReservePlannerUnconfigured(planner: ReservePlanner): boolean {
   if (planner.bills.length > 0) return false
+  if ((planner.bufferAmount ?? 0) > 0) return false
   const confirmations = planner.monthConfirmations
   return !confirmations || Object.keys(confirmations).length === 0
 }
