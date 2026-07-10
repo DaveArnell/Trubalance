@@ -17135,6 +17135,17 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   margin-top: 4px;
 }
 
+.auth-google-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.auth-google-icon {
+  flex-shrink: 0;
+}
+
 .auth-card .btn-primary.btn-large:not(.auth-submit) {
   display: block;
   width: fit-content;
