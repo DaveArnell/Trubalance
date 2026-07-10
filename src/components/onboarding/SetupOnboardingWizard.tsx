@@ -35,6 +35,8 @@ interface SetupOnboardingWizardProps {
 }
 
 type CommitmentDraft = { name: string; amount: string; dueDay: string; selected: boolean }
+type PlannedDueDraft = { name: string; amount: string; dueDate: string; selected: boolean }
+type ReceiptDraft = { name: string; amount: string; expectedDate: string; selected: boolean }
 
 const PREVIEW_STEP_IDS = new Set([
   'month-view',
@@ -94,6 +96,12 @@ export function SetupOnboardingWizard({
   const [commitmentDrafts, setCommitmentDrafts] = useState<CommitmentDraft[]>(() =>
     QUICK_COMMITMENT_TEMPLATES.map((t) => ({ name: t.name, amount: '', dueDay: '', selected: false })),
   )
+  const [dueDrafts, setDueDrafts] = useState<PlannedDueDraft[]>([
+    { name: '', amount: '', dueDate: '', selected: false },
+  ])
+  const [receiptDrafts, setReceiptDrafts] = useState<ReceiptDraft[]>([
+    { name: '', amount: '', expectedDate: '', selected: false },
+  ])
   const [pendingBusinessAdvance, setPendingBusinessAdvance] = useState(false)
   const [structureError, setStructureError] = useState<string | null>(null)
   const [reserveInlineOpen, setReserveInlineOpen] = useState(false)
@@ -246,6 +254,44 @@ export function SetupOnboardingWizard({
     setStepIndex((i) => i + 1)
   }
 
+  const handleDueDraftsSave = () => {
+    const businessId = primaryBusiness?.id
+    if (!businessId) return
+    for (const draft of dueDrafts) {
+      if (!draft.selected) continue
+      const amount = roundCurrency(toAmount(draft.amount))
+      if (amount <= 0 || !draft.name.trim() || !draft.dueDate) continue
+      actions.addCommitment({
+        name: draft.name.trim(),
+        schedule: 'planned',
+        amount,
+        plannedDueDate: draft.dueDate,
+        fundingMethod: 'accrue_until_due',
+        scopeLevel: 'business',
+        scopeId: businessId,
+        status: 'healthy',
+      })
+    }
+  }
+
+  const handleReceiptDraftsSave = () => {
+    const businessId = primaryBusiness?.id
+    if (!businessId) return
+    for (const draft of receiptDrafts) {
+      if (!draft.selected) continue
+      const amount = roundCurrency(toAmount(draft.amount))
+      if (amount <= 0 || !draft.name.trim()) continue
+      actions.addReceipt({
+        name: draft.name.trim(),
+        amount,
+        expectedDate: draft.expectedDate || undefined,
+        receiptTiming: 'accrual',
+        scopeLevel: 'business',
+        scopeId: businessId,
+      })
+    }
+  }
+
   const handleReserveBegin = () => {
     const businessId = primaryBusiness?.id
     if (businessId && !onboardingReservePlanner) {
@@ -283,6 +329,16 @@ export function SetupOnboardingWizard({
     }
     if (step.id === 'committed') {
       handleCommittedNext()
+      return
+    }
+    if (step.id === 'due-explain') {
+      handleDueDraftsSave()
+      setStepIndex((i) => i + 1)
+      return
+    }
+    if (step.id === 'receipts-explain') {
+      handleReceiptDraftsSave()
+      setStepIndex((i) => i + 1)
       return
     }
     if (isLast) {
@@ -493,42 +549,50 @@ export function SetupOnboardingWizard({
                   </label>
                   {draft.selected && (
                     <div className="setup-quick-fields">
-                      <input
-                        className="sheet-input setup-quick-amount"
-                        type="number"
-                        step="0.01"
-                        placeholder="Monthly £"
-                        value={draft.amount}
-                        onChange={(e) =>
-                          setCommitmentDrafts((rows) =>
-                            rows.map((row, i) =>
-                              i === index ? { ...row, amount: e.target.value } : row,
-                            ),
-                          )
-                        }
-                      />
-                      <input
-                        className="sheet-input setup-quick-day"
-                        type="number"
-                        min="1"
-                        max="31"
-                        placeholder="Day"
-                        title="Day of month it's due (1–31)"
-                        value={draft.dueDay}
-                        onChange={(e) =>
-                          setCommitmentDrafts((rows) =>
-                            rows.map((row, i) =>
-                              i === index ? { ...row, dueDay: e.target.value } : row,
-                            ),
-                          )
-                        }
-                      />
+                      <label className="setup-quick-field">
+                        <span>Monthly amount</span>
+                        <input
+                          className="sheet-input setup-quick-amount"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          placeholder="0.00"
+                          value={draft.amount}
+                          onChange={(e) =>
+                            setCommitmentDrafts((rows) =>
+                              rows.map((row, i) =>
+                                i === index ? { ...row, amount: e.target.value } : row,
+                              ),
+                            )
+                          }
+                        />
+                      </label>
+                      <label className="setup-quick-field setup-quick-field--day">
+                        <span>Day paid each month</span>
+                        <input
+                          className="sheet-input setup-quick-day"
+                          type="number"
+                          min="1"
+                          max="31"
+                          placeholder="28"
+                          aria-label={`Day of month ${draft.name} is paid`}
+                          value={draft.dueDay}
+                          onChange={(e) =>
+                            setCommitmentDrafts((rows) =>
+                              rows.map((row, i) =>
+                                i === index ? { ...row, dueDay: e.target.value } : row,
+                              ),
+                            )
+                          }
+                        />
+                      </label>
                     </div>
                   )}
                 </div>
               ))}
-              <p className="setup-onboarding-hint muted">
-                Tick what applies, enter the monthly amount and which day it leaves your account.
+              <p className="setup-onboarding-hint">
+                Tick what applies. Enter the <strong>monthly amount</strong> and the{' '}
+                <strong>day it leaves your account</strong> each month (e.g. 28 for the 28th).
               </p>
             </div>
           )}
@@ -571,11 +635,192 @@ export function SetupOnboardingWizard({
             </div>
           )}
 
+          {step.id === 'due-explain' && (
+            <>
+              <div className="setup-onboarding-form setup-onboarding-form--quick-add">
+                <p className="setup-onboarding-form-hint">
+                  Optional — add one-off or irregular costs you already know about (tax bills, deposits,
+                  equipment). You can add more later in the app.
+                </p>
+                {dueDrafts.map((draft, index) => (
+                  <div
+                    key={`due-${index}`}
+                    className={`setup-quick-item${draft.selected ? ' setup-quick-item--on' : ''}`}
+                  >
+                    <label className="setup-quick-toggle">
+                      <input
+                        type="checkbox"
+                        checked={draft.selected}
+                        onChange={(e) =>
+                          setDueDrafts((rows) =>
+                            rows.map((row, i) =>
+                              i === index ? { ...row, selected: e.target.checked } : row,
+                            ),
+                          )
+                        }
+                      />
+                      <input
+                        className="sheet-input setup-quick-name"
+                        type="text"
+                        placeholder="e.g. Corporation tax"
+                        value={draft.name}
+                        onChange={(e) =>
+                          setDueDrafts((rows) =>
+                            rows.map((row, i) =>
+                              i === index ? { ...row, name: e.target.value, selected: true } : row,
+                            ),
+                          )
+                        }
+                      />
+                    </label>
+                    {draft.selected && (
+                      <div className="setup-quick-fields">
+                        <label className="setup-quick-field">
+                          <span>Amount</span>
+                          <input
+                            className="sheet-input setup-quick-amount"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            placeholder="0.00"
+                            value={draft.amount}
+                            onChange={(e) =>
+                              setDueDrafts((rows) =>
+                                rows.map((row, i) =>
+                                  i === index ? { ...row, amount: e.target.value } : row,
+                                ),
+                              )
+                            }
+                          />
+                        </label>
+                        <label className="setup-quick-field setup-quick-field--date">
+                          <span>Due date</span>
+                          <input
+                            className="sheet-input setup-quick-date"
+                            type="date"
+                            value={draft.dueDate}
+                            onChange={(e) =>
+                              setDueDrafts((rows) =>
+                                rows.map((row, i) =>
+                                  i === index ? { ...row, dueDate: e.target.value } : row,
+                                ),
+                              )
+                            }
+                          />
+                        </label>
+                      </div>
+                    )}
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  className="btn-ghost btn-tiny setup-quick-add-row"
+                  onClick={() =>
+                    setDueDrafts((rows) => [...rows, { name: '', amount: '', dueDate: '', selected: false }])
+                  }
+                >
+                  + Add another planned cost
+                </button>
+              </div>
+              <SetupWidgetPreview previewId="due" />
+            </>
+          )}
+
+          {step.id === 'receipts-explain' && (
+            <>
+              <div className="setup-onboarding-form setup-onboarding-form--quick-add">
+                <p className="setup-onboarding-form-hint">
+                  Optional — money you&apos;re expecting in (invoices sent, grants, refunds). Skip if
+                  nothing applies yet.
+                </p>
+                {receiptDrafts.map((draft, index) => (
+                  <div
+                    key={`receipt-${index}`}
+                    className={`setup-quick-item${draft.selected ? ' setup-quick-item--on' : ''}`}
+                  >
+                    <label className="setup-quick-toggle">
+                      <input
+                        type="checkbox"
+                        checked={draft.selected}
+                        onChange={(e) =>
+                          setReceiptDrafts((rows) =>
+                            rows.map((row, i) =>
+                              i === index ? { ...row, selected: e.target.checked } : row,
+                            ),
+                          )
+                        }
+                      />
+                      <input
+                        className="sheet-input setup-quick-name"
+                        type="text"
+                        placeholder="e.g. Client invoice"
+                        value={draft.name}
+                        onChange={(e) =>
+                          setReceiptDrafts((rows) =>
+                            rows.map((row, i) =>
+                              i === index ? { ...row, name: e.target.value, selected: true } : row,
+                            ),
+                          )
+                        }
+                      />
+                    </label>
+                    {draft.selected && (
+                      <div className="setup-quick-fields">
+                        <label className="setup-quick-field">
+                          <span>Amount</span>
+                          <input
+                            className="sheet-input setup-quick-amount"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            placeholder="0.00"
+                            value={draft.amount}
+                            onChange={(e) =>
+                              setReceiptDrafts((rows) =>
+                                rows.map((row, i) =>
+                                  i === index ? { ...row, amount: e.target.value } : row,
+                                ),
+                              )
+                            }
+                          />
+                        </label>
+                        <label className="setup-quick-field setup-quick-field--date">
+                          <span>Expected by</span>
+                          <input
+                            className="sheet-input setup-quick-date"
+                            type="date"
+                            value={draft.expectedDate}
+                            onChange={(e) =>
+                              setReceiptDrafts((rows) =>
+                                rows.map((row, i) =>
+                                  i === index ? { ...row, expectedDate: e.target.value } : row,
+                                ),
+                              )
+                            }
+                          />
+                        </label>
+                      </div>
+                    )}
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  className="btn-ghost btn-tiny setup-quick-add-row"
+                  onClick={() =>
+                    setReceiptDrafts((rows) => [
+                      ...rows,
+                      { name: '', amount: '', expectedDate: '', selected: false },
+                    ])
+                  }
+                >
+                  + Add another expected receipt
+                </button>
+              </div>
+              <SetupWidgetPreview previewId="receipts" />
+            </>
+          )}
+
           {step.id === 'month-view' && <SetupWidgetPreview previewId="month-view" />}
-
-          {step.id === 'due-explain' && <SetupWidgetPreview previewId="due" />}
-
-          {step.id === 'receipts-explain' && <SetupWidgetPreview previewId="receipts" />}
 
           {step.id === 'reserve' && (
             <div className="setup-reserve-step">
