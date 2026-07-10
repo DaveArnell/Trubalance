@@ -9,6 +9,7 @@ import {
   fetchAdminUsers,
   fetchPayments,
   fetchRecentEvents,
+  fetchSetupFunnelEvents,
   fetchWorkspaceEngagementMetrics,
 } from '../services/adminRepository'
 import {
@@ -70,6 +71,7 @@ import type {
   WorkspaceAccessOverride,
   WorkspaceInspectorData,
 } from './types'
+import { buildSetupFunnelSnapshot, emptySetupFunnelSnapshot } from './utils/setupFunnelStats'
 
 const DEFAULT_PAGE_SIZE = 25
 
@@ -745,6 +747,7 @@ export async function adminFetchProductAnalytics(): Promise<ProductAnalyticsSnap
     reserveRes,
     snapshotsRes,
     receiptsRes,
+    funnelEvents,
   ] = await Promise.all([
     supabase.from('profiles').select('id', { count: 'exact', head: true }),
     supabase.from('workspaces').select('id', { count: 'exact', head: true }),
@@ -755,9 +758,13 @@ export async function adminFetchProductAnalytics(): Promise<ProductAnalyticsSnap
     supabase.from('reserve_planners').select('id', { count: 'exact', head: true }),
     supabase.from('balance_snapshots').select('id', { count: 'exact', head: true }),
     supabase.from('expected_receipts').select('id', { count: 'exact', head: true }),
+    fetchSetupFunnelEvents(),
   ])
 
   const totalUsers = usersRes.count ?? 0
+  const setupFunnel = funnelEvents.length > 0 ? buildSetupFunnelSnapshot(funnelEvents) : emptySetupFunnelSnapshot()
+  const onboardingCompletionRate =
+    setupFunnel.usersStarted > 0 ? setupFunnel.usersCompleted / setupFunnel.usersStarted : 0
   return {
     totalUsers,
     activeUsers: totalUsers,
@@ -774,7 +781,7 @@ export async function adminFetchProductAnalytics(): Promise<ProductAnalyticsSnap
     usersWithStaleBalances: 0,
     usersWithNoCommittedFunds: 0,
     usersWithNoReservePlanner: 0,
-    onboardingCompletionRate: 0,
+    onboardingCompletionRate,
     dailySignups: [],
     featureUsage: [
       { feature: 'Balance updates', count: snapshotsRes.count ?? 0 },
@@ -784,6 +791,7 @@ export async function adminFetchProductAnalytics(): Promise<ProductAnalyticsSnap
       { feature: 'Accounts', count: accountsRes.count ?? 0 },
       { feature: 'Venues', count: venuesRes.count ?? 0 },
     ],
+    setupFunnel,
   }
 }
 

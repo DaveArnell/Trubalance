@@ -142,6 +142,11 @@ function AppShellInner({
     return () => window.clearTimeout(timer)
   }, [shouldOfferSetup])
 
+  useEffect(() => {
+    if (!setupWizardOpen || !user?.id) return
+    void trackEvent('setup_started', user.id)
+  }, [setupWizardOpen, user?.id])
+
   const handleSetupComplete = async () => {
     setSetupWizardOpen(false)
     if (user?.id && !onboardingCompleted) {

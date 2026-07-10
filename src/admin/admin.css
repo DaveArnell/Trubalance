@@ -660,6 +660,24 @@
   background: linear-gradient(90deg, #0f766e, #14b8a6);
 }
 
+.admin-setup-funnel-list {
+  margin-top: var(--space-3);
+}
+
+.admin-setup-funnel-drop {
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+
+.admin-setup-funnel-skips {
+  margin-top: var(--space-3);
+}
+
+.admin-section-lead {
+  margin: 0 0 var(--space-2);
+  font-size: 0.82rem;
+}
+
 .admin-support-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);

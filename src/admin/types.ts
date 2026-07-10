@@ -209,6 +209,23 @@ export interface ProductAnalyticsSnapshot {
   onboardingCompletionRate: number
   dailySignups: Array<{ date: string; count: number }>
   featureUsage: Array<{ feature: string; count: number }>
+  setupFunnel: SetupFunnelSnapshot
+}
+
+export interface SetupFunnelStepStat {
+  stepId: string
+  label: string
+  usersReached: number
+  pctOfStarted: number
+  dropOffFromPrevious: number
+}
+
+export interface SetupFunnelSnapshot {
+  usersStarted: number
+  usersCompleted: number
+  usersDismissed: number
+  steps: SetupFunnelStepStat[]
+  dismissByStep: Array<{ stepId: string; label: string; count: number }>
 }
 
 export interface AdminUserDetail extends AdminUserListItem {

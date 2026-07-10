@@ -1,4 +1,5 @@
 import type { SubscriptionTierId } from '../config/subscriptionTiers'
+import { SETUP_ONBOARDING_STEP_LABELS, SETUP_ONBOARDING_STEPS } from '../content/setupOnboarding'
 import { computeUserHealth, onboardingPctFromUser } from './utils/userHealth'
 import type {
   AdminActivityRow,
@@ -15,6 +16,7 @@ import type {
   PlatformOverviewStats,
   PlatformSettings,
   ProductAnalyticsSnapshot,
+  SetupFunnelSnapshot,
   QrCodeRow,
   SubscriptionStatus,
   SupportTicketRow,
@@ -221,6 +223,36 @@ export function getEmptyProductAnalytics(): ProductAnalyticsSnapshot {
     onboardingCompletionRate: 0,
     dailySignups: [],
     featureUsage: [],
+    setupFunnel: getMockSetupFunnel(0),
+  }
+}
+
+function getMockSetupFunnel(usersStarted: number): SetupFunnelSnapshot {
+  const steps = SETUP_ONBOARDING_STEPS.map((step, index) => {
+    const usersReached = usersStarted === 0 ? 0 : Math.max(0, usersStarted - index * 2)
+    const previousReached =
+      index === 0 ? usersStarted : Math.max(0, usersStarted - (index - 1) * 2)
+    return {
+      stepId: step.id,
+      label: SETUP_ONBOARDING_STEP_LABELS[step.id] ?? step.title,
+      usersReached,
+      pctOfStarted: usersStarted > 0 ? Math.round((usersReached / usersStarted) * 100) : 0,
+      dropOffFromPrevious: Math.max(0, previousReached - usersReached),
+    }
+  })
+
+  return {
+    usersStarted,
+    usersCompleted: usersStarted === 0 ? 0 : Math.max(0, usersStarted - SETUP_ONBOARDING_STEPS.length * 2),
+    usersDismissed: usersStarted === 0 ? 0 : 4,
+    steps,
+    dismissByStep:
+      usersStarted === 0
+        ? []
+        : [
+            { stepId: 'reserve', label: 'Reserve', count: 2 },
+            { stepId: 'committed', label: 'Commitments', count: 1 },
+          ],
   }
 }
 
@@ -491,6 +523,7 @@ export function getMockProductAnalytics(): ProductAnalyticsSnapshot {
       { feature: 'Balance updates', count: 1840 },
       { feature: 'Reports', count: 96 },
     ],
+    setupFunnel: getMockSetupFunnel(28),
   }
 }
 

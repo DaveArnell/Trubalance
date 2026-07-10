@@ -7,6 +7,7 @@ import { toAmount, roundCurrency } from '../../utils/amounts'
 import {
   INCOME_PATTERN_HINTS,
   QUICK_COMMITMENT_TEMPLATES,
+  SETUP_ONBOARDING_STEP_LABELS,
   SETUP_ONBOARDING_STEPS,
   dismissSetupOnboardingLocally,
 } from '../../content/setupOnboarding'
@@ -21,6 +22,8 @@ import { SetupOnboardingShell } from './SetupOnboardingShell'
 import { SetupWidgetPreview } from './SetupWidgetPreview'
 import { SetupStructureTree } from './SetupStructureTree'
 import { ReservePlannerPanel } from '../ReservePlannerPanel'
+import { useAuth } from '../../contexts/AuthContext'
+import { trackEvent } from '../../services/eventTracking'
 
 interface SetupOnboardingWizardProps {
   state: AppState
@@ -47,22 +50,6 @@ const PREVIEW_STEP_IDS = new Set([
   'forecast-explain',
 ])
 
-const SETUP_STEP_NAV_LABELS: Record<string, string> = {
-  why: 'Introduction',
-  business: 'Structure',
-  cash: 'Balances',
-  committed: 'Commitments',
-  'committed-explain': 'Accruing',
-  'month-view': 'Month view',
-  'due-explain': 'Due costs',
-  'receipts-explain': 'Receipts',
-  reserve: 'Reserve',
-  'trends-explain': 'Trends',
-  'forecast-explain': 'Forecast',
-  reveal: 'True Balance',
-  accuracy: 'Your routine',
-}
-
 export function SetupOnboardingWizard({
   state,
   viewScope: _viewScope,
@@ -73,6 +60,7 @@ export function SetupOnboardingWizard({
   onDismiss,
   startAtStepId,
 }: SetupOnboardingWizardProps) {
+  const { user } = useAuth()
   const PROGRESS_KEY = 'trubalance-setup-step-index'
   const initialStepIndex = (() => {
     if (startAtStepId) {
@@ -125,6 +113,17 @@ export function SetupOnboardingWizard({
   useEffect(() => {
     try { localStorage.setItem(PROGRESS_KEY, String(stepIndex)) } catch { /* */ }
   }, [stepIndex])
+
+  useEffect(() => {
+    if (!user?.id) return
+    const currentStep = SETUP_ONBOARDING_STEPS[stepIndex]
+    if (!currentStep) return
+    void trackEvent('setup_step_view', user.id, undefined, {
+      stepId: currentStep.id,
+      stepIndex,
+      stepLabel: SETUP_ONBOARDING_STEP_LABELS[currentStep.id] ?? currentStep.title,
+    })
+  }, [stepIndex, user?.id])
 
   const primaryBusiness = state.businesses[0]
   const cashAccounts = useMemo(() => getOnboardingCashAccounts(state), [state])
@@ -182,6 +181,13 @@ export function SetupOnboardingWizard({
   }, [step.id, cashAccounts])
 
   const handleDismiss = () => {
+    if (user?.id) {
+      void trackEvent('setup_step_dismiss', user.id, undefined, {
+        stepId: step.id,
+        stepIndex,
+        stepLabel: SETUP_ONBOARDING_STEP_LABELS[step.id] ?? step.title,
+      })
+    }
     try { localStorage.removeItem(PROGRESS_KEY) } catch { /* */ }
     dismissSetupOnboardingLocally()
     onDismiss()
@@ -390,7 +396,7 @@ export function SetupOnboardingWizard({
       kicker={startAtStepId ? 'App walkthrough' : 'Getting started'}
       steps={SETUP_ONBOARDING_STEPS.map((item) => ({
         id: item.id,
-        label: SETUP_STEP_NAV_LABELS[item.id] ?? item.title,
+        label: SETUP_ONBOARDING_STEP_LABELS[item.id] ?? item.title,
       }))}
       currentStepIndex={stepIndex}
       spotlight={false}

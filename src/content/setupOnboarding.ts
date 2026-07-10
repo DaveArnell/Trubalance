@@ -129,6 +129,23 @@ export const QUICK_COMMITMENT_TEMPLATES = [
   { id: 'other', name: 'Other' },
 ] as const
 
+/** Short labels for setup wizard nav and admin funnel reporting. */
+export const SETUP_ONBOARDING_STEP_LABELS: Record<string, string> = {
+  why: 'Introduction',
+  business: 'Structure',
+  cash: 'Balances',
+  committed: 'Commitments',
+  'committed-explain': 'Accruing',
+  'month-view': 'Month view',
+  'due-explain': 'Due costs',
+  'receipts-explain': 'Receipts',
+  reserve: 'Reserve',
+  'trends-explain': 'Trends',
+  'forecast-explain': 'Forecast',
+  reveal: 'True Balance',
+  accuracy: 'Your routine',
+}
+
 export const SETUP_ONBOARDING_DISMISSED_KEY = 'trubalance-setup-onboarding-dismissed-v1'
 
 export function wasSetupOnboardingDismissed(): boolean {

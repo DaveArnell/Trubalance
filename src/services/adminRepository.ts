@@ -379,6 +379,32 @@ export async function fetchUserEvents(userId: string, limit = 50): Promise<UserE
   })
 }
 
+export interface SetupFunnelEventRow {
+  userId: string
+  eventType: string
+  metadata: Record<string, unknown> | null
+}
+
+export async function fetchSetupFunnelEvents(): Promise<SetupFunnelEventRow[]> {
+  const supabase = tryGetSupabase()
+  if (!supabase) return []
+
+  const { data } = await supabase
+    .from('user_events')
+    .select('user_id, event_type, metadata')
+    .in('event_type', ['setup_started', 'setup_step_view', 'setup_step_dismiss', 'onboarding_complete'])
+    .limit(10000)
+
+  return (data ?? []).map((row) => {
+    const raw = row as Record<string, unknown>
+    return {
+      userId: String(raw.user_id),
+      eventType: String(raw.event_type),
+      metadata: (raw.metadata as Record<string, unknown>) ?? null,
+    }
+  })
+}
+
 export interface WorkspaceSummary {
   workspaceId: string
   workspaceName: string
