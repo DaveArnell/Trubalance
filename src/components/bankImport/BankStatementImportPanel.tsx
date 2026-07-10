@@ -19,6 +19,7 @@ import type {
 import type { ImportTrendInsight } from '../../bankImport/trendInsights'
 import { historySpanMonths } from '../../bankImport/trendInsights'
 import { getImportableAccounts } from '../../bankImport/importableAccounts'
+import { BANK_IMPORT_ENABLED } from '../../config/setupAutomation'
 import {
   BankImportSuggestionReview,
   countAcceptedSuggestions,
@@ -53,6 +54,27 @@ export function BankStatementImportPanel({
   actions,
   embedded = false,
 }: BankStatementImportPanelProps) {
+  if (!BANK_IMPORT_ENABLED) {
+    return (
+      <div className={`bank-import-coming-soon${embedded ? ' bank-import-coming-soon--embedded' : ''}`}>
+        <div className="setup-data-source-card setup-data-source-card--soon">
+          <div className="setup-data-source-head">
+            <h3>Bank statement import</h3>
+            <span className="setup-data-source-badge">Coming soon</span>
+          </div>
+          <p>
+            Upload a PDF or CSV and we&apos;ll suggest regular monthly outgoings from your history.
+            For now, add your monthly costs manually in <strong>Committed Funds</strong> during setup
+            or any time in Settings.
+          </p>
+          <p className="setup-data-source-foot muted">
+            Open banking, Xero, and QuickBooks connections will use the same flow when they launch.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [step, setStep] = useState<WizardStep>('account')
   const [accountId, setAccountId] = useState(state.accounts.find((a) => a.active)?.id ?? '')

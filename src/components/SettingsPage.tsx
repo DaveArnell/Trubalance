@@ -27,7 +27,7 @@ const SECTIONS: {
   {
     id: 'data',
     label: 'Your data',
-    lead: 'Backups, restore from file, bank statement import, and where your workspace is stored.',
+    lead: 'Backups, restore from file, and where your workspace is stored.',
   },
   {
     id: 'structure',

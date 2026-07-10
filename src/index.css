@@ -17512,6 +17512,14 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   margin-bottom: var(--space-4);
 }
 
+.bank-import-coming-soon {
+  margin-bottom: var(--space-4);
+}
+
+.bank-import-coming-soon--embedded .setup-data-source-card {
+  margin-bottom: var(--space-4);
+}
+
 .bank-import-title {
   margin: 0 0 var(--space-2);
   font-size: 1.1rem;

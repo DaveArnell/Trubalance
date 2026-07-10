@@ -4,24 +4,26 @@ Manual steps and verification before going live on **truebalanceapp.io**. Code t
 
 ---
 
-## Bank import (PDF / Lloyds statements)
+## Bank import (PDF / CSV)
 
-**Code (in repo — re-upload PDF after deploy):**
+**Status: deferred — coming soon**
 
-- [x] Running-balance sign inference — fixes debits misread as credits from PDF column bleed
-- [x] PDF column mapping uses text width (right-aligned amounts)
-- [x] UK transaction type codes (DD, SO, FPO, etc.) infer direction in fallback parser
-- [x] Transfer detection narrowed — supplier Faster Payments no longer auto-ignored
-- [x] Large one-off payments no longer dropped when only 2 occurrences appear
-- [x] Clearer message when transactions parse but zero outflows detected (misread PDF)
+Bank statement import is disabled in the app (`BANK_IMPORT_ENABLED = false`). Onboarding is **manual only** until detection quality is ready. Re-enable in `src/config/setupAutomation.ts` when ready to test again.
 
-**You should verify:**
+**Code retained for later:**
 
-- [ ] Re-upload your 2-year Lloyds PDF with **minimum monthly = 0** first
-- [ ] Confirm transaction count and outgoing count in the import summary look realistic
-- [ ] Spot-check a few known large bills (rent, payroll, HMRC) appear as suggestions
+- PDF/CSV parsing pipeline in `src/bankImport/`
+- Import UI in Settings shows a “Coming soon” card
+
+**Before re-enabling:**
+
+- [ ] Re-test Lloyds PDF with minimum monthly = 0
+- [ ] Confirm only clear monthly patterns are suggested (no due/reserve items from history)
+- [ ] Manual onboarding verified end-to-end
 
 ---
+
+## Bank import (archived notes)
 
 ## SEO
 

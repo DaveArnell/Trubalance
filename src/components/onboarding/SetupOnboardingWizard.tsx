@@ -11,7 +11,7 @@ import {
   dismissSetupOnboardingLocally,
 } from '../../content/setupOnboarding'
 import { QUICK_HABITS } from '../../content/livingDashboard'
-import { MANUAL_SETUP_REASSURANCE, WHY_TRUE_BALANCE_CONTENT } from '../../content/guidedSetup'
+import { WHY_TRUE_BALANCE_CONTENT } from '../../content/guidedSetup'
 import { formatCurrency } from '../../utils/format'
 import { getCashAccounts } from '../../utils/calculations'
 import { scopeForAccount } from '../../bankImport/applySuggestions'
@@ -30,8 +30,7 @@ interface SetupOnboardingWizardProps {
   onNavigate: (pageId: PageId, reservePlannerId?: string | null) => void
   onComplete: () => void
   onDismiss: () => void
-  onBackToPathChoice?: () => void
-  /** Start the walkthrough at a specific step (e.g. after auto setup) */
+  /** Start the walkthrough at a specific step */
   startAtStepId?: string
 }
 
@@ -61,7 +60,6 @@ export function SetupOnboardingWizard({
   onNavigate,
   onComplete,
   onDismiss,
-  onBackToPathChoice,
   startAtStepId,
 }: SetupOnboardingWizardProps) {
   const PROGRESS_KEY = 'trubalance-setup-step-index'
@@ -273,11 +271,8 @@ export function SetupOnboardingWizard({
         <button
           type="button"
           className="btn-secondary"
-          disabled={stepIndex === 0 && !onBackToPathChoice}
-          onClick={() => {
-            if (stepIndex === 0 && onBackToPathChoice) onBackToPathChoice()
-            else setStepIndex((i) => Math.max(0, i - 1))
-          }}
+          disabled={stepIndex === 0}
+          onClick={() => setStepIndex((i) => Math.max(0, i - 1))}
         >
           Back
         </button>
@@ -317,9 +312,6 @@ export function SetupOnboardingWizard({
             {para}
           </p>
         ))}
-        {onBackToPathChoice && stepIndex === 0 && (
-          <p className="setup-onboarding-explain muted">{MANUAL_SETUP_REASSURANCE}</p>
-        )}
 
           {step.id === 'why' && (
             <ul className="setup-why-bullets">

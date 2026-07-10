@@ -1,7 +1,10 @@
 /**
  * Setup automation roadmap and policies.
- * CSV auto-apply ships today; bank / accounting links are staged behind feature flags.
+ * Bank import is disabled until detection quality is ready for production.
  */
+
+/** When false, onboarding and Settings hide bank statement import behind "Coming soon". */
+export const BANK_IMPORT_ENABLED = false
 
 export type SetupAutomationMode = 'auto' | 'guided' | 'manual'
 
@@ -25,8 +28,9 @@ export const SETUP_DATA_SOURCES: DataSourceOption[] = [
   {
     id: 'csv',
     title: 'Bank statement (PDF or CSV)',
-    description: 'Upload a PDF export or CSV from your bank. Works today.',
-    status: 'available',
+    description: 'Upload a statement and we suggest regular monthly outgoings from your history.',
+    status: 'coming_soon',
+    etaLabel: 'Coming soon',
   },
   {
     id: 'open_banking',
