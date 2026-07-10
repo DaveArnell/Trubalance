@@ -83,6 +83,7 @@ const previewReserveActions = {
   copyReservePlannerBillsFrom: noop,
   reorderReserveBills: noop,
   confirmReserveMonth: noop,
+  markReserveBillUnpaid: noop,
 } satisfies Pick<
   AppActions,
   | 'addReservePlanner'
@@ -95,6 +96,7 @@ const previewReserveActions = {
   | 'copyReservePlannerBillsFrom'
   | 'reorderReserveBills'
   | 'confirmReserveMonth'
+  | 'markReserveBillUnpaid'
 >
 
 interface SetupWidgetPreviewProps {

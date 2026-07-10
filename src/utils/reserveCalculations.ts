@@ -205,7 +205,7 @@ export function getUnpaidReserveBillDueOccurrences(
     const amount = getReserveDueOccurrenceAmount(bill, period, month)
     if (amount <= 0) continue
 
-    if (isReserveBillPaidThisPeriod(bill, period)) continue
+    if (isReserveBillPaidThisPeriod(bill, period, referenceDate)) continue
     if (isReserveBillDismissedThisPeriod(bill, period)) continue
 
     results.push({

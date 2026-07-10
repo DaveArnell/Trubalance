@@ -7,13 +7,14 @@ import { backfillScopeSnapshots } from './snapshotRollup'
 import { refreshAllSnapshotMetrics } from './snapshotRebuild'
 
 /** Backfill missing scope snapshots and align stored metrics after load or import. */
-export function normalizeWorkspaceStateForDisplay(state: AppState): AppState {
+export function normalizeWorkspaceStateForDisplay(state: AppState, now = new Date().toISOString()): AppState {
   const grouped = ensureGroupStructure(state)
   const repaired = repairEmptySnapshotChangedAccounts(grouped)
-  if (repaired.workspaceOrigin === 'builtin-demo') {
-    return applyDemoOperatingSnapshot(repaired, getReferenceDate())
+  const refreshed = refreshAllSnapshotMetrics(repaired, now)
+  if (refreshed.workspaceOrigin === 'builtin-demo') {
+    return applyDemoOperatingSnapshot(refreshed, getReferenceDate())
   }
-  return repaired
+  return refreshed
 }
 
 /** Backfill missing scope snapshots and align stored metrics after load or import. */

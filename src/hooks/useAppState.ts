@@ -1340,6 +1340,43 @@ export function useAppState(options?: UseAppStateOptions) {
     })
   }
 
+  const markReserveBillUnpaid = (plannerId: string, billId: string) => {
+    requestImmediatePersist()
+    update((s) => {
+      const planner = s.reservePlanners.find((p) => p.id === plannerId)
+      const bill = planner?.bills.find((b) => b.id === billId)
+      if (!planner || !bill) return s
+
+      const fromDate = bill.lastPaidOnDate ?? todayDateKey()
+      const nextState: AppState = {
+        ...s,
+        reservePlanners: s.reservePlanners.map((p) =>
+          p.id === plannerId
+            ? {
+                ...p,
+                bills: p.bills.map((b) =>
+                  b.id === billId
+                    ? {
+                        ...b,
+                        lastPaidPeriod: undefined,
+                        lastPaidOnDate: undefined,
+                      }
+                    : b,
+                ),
+              }
+            : p,
+        ),
+      }
+
+      return refreshSnapshotsForScopes(
+        nextState,
+        getScopesForReservePlanner(nextState, planner),
+        fromDate,
+        new Date().toISOString(),
+      )
+    })
+  }
+
   const dismissReserveBillDue = (plannerId: string, billId: string) => {
     requestImmediatePersist()
     update((s) => {
@@ -2114,6 +2151,7 @@ export function useAppState(options?: UseAppStateOptions) {
     reorderReserveBills,
     reorderDueRows,
     markReserveBillPaid,
+    markReserveBillUnpaid,
     dismissReserveBillDue,
     confirmReserveMonth,
     resetToDemo,
