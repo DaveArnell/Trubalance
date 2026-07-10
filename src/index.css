@@ -14237,7 +14237,8 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .setup-flow-main--wide .setup-flow-content,
 .setup-flow-main--import .setup-flow-content,
-.setup-flow-main--review .setup-flow-content {
+.setup-flow-main--review .setup-flow-content,
+.setup-flow-main--reserve .setup-flow-content {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -14251,11 +14252,23 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .setup-flow-main--wide .setup-flow-step-panel,
 .setup-flow-main--import .setup-flow-step-panel,
-.setup-flow-main--review .setup-flow-step-panel {
+.setup-flow-main--review .setup-flow-step-panel,
+.setup-flow-main--reserve .setup-flow-step-panel {
   width: 100%;
   max-width: none;
   margin: 0;
   text-align: left;
+}
+
+.setup-flow-main--reserve .setup-flow-step-panel--reserve {
+  max-width: none;
+  width: 100%;
+}
+
+.setup-flow-main--reserve .setup-flow-page-header,
+.setup-flow-main--reserve .setup-onboarding-explain,
+.setup-flow-main--reserve .setup-reserve-yours-hint {
+  max-width: 48rem;
 }
 
 .setup-flow-main--wide .setup-flow-step-panel--preview {
@@ -14830,6 +14843,45 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   padding: 9px 10px !important;
 }
 
+.setup-quick-funding {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--bg-subtle);
+}
+
+.setup-quick-funding legend {
+  padding: 0 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.setup-quick-funding-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.setup-quick-funding-option strong {
+  display: block;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.setup-quick-funding-option small {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
 .setup-quick-add-row {
   margin-top: 8px;
 }
@@ -15299,6 +15351,29 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   width: 100%;
   margin-top: clamp(12px, 2vh, 20px);
   text-align: left;
+}
+
+.setup-reserve-inline .reserve-sheet-wrap {
+  overflow-x: auto;
+}
+
+.setup-reserve-inline .reserve-box,
+.setup-reserve-inline #reserve-planner {
+  width: 100%;
+  min-width: 0;
+}
+
+.setup-reserve-inline .reserve-sheet-table .reserve-month-col,
+.setup-reserve-inline .reserve-sheet-table td.reserve-month-cell,
+.setup-reserve-inline .reserve-sheet-table .reserve-balance-cell {
+  min-width: 3.4rem;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.setup-reserve-inline .reserve-sheet-table .reserve-total-col--annual,
+.setup-reserve-inline .reserve-sheet-table .reserve-total-col--monthly {
+  min-width: 4.5rem;
 }
 
 .setup-reserve-inline-loading {

@@ -97,22 +97,76 @@ export function AdminPagination({
 
 export function AdminPlaceholderChart({ label, values }: { label: string; values: number[] }) {
   const max = Math.max(...values, 1)
+  const total = values.reduce((sum, value) => sum + value, 0)
   return (
     <div className="admin-mini-chart" aria-label={label}>
       <p className="admin-mini-chart-label">{label}</p>
-      <div className="admin-mini-chart-bars">
-        {values.map((v, i) => (
-          <div
-            key={i}
-            className="admin-mini-chart-bar"
-            style={{ height: `${Math.max(8, (v / max) * 100)}%` }}
-            title={String(v)}
-          />
-        ))}
-      </div>
+      {total === 0 ? (
+        <p className="admin-mini-chart-empty muted">No data in this period yet.</p>
+      ) : (
+        <div className="admin-mini-chart-bars">
+          {values.map((v, i) => (
+            <div
+              key={i}
+              className="admin-mini-chart-bar"
+              style={{ height: `${Math.max(8, (v / max) * 100)}%` }}
+              title={String(v)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
+
+export function AdminSignupTrendChart({
+  series,
+}: {
+  series: Array<{ date: string; count: number }>
+}) {
+  const max = Math.max(...series.map((row) => row.count), 1)
+  const total = series.reduce((sum, row) => sum + row.count, 0)
+
+  return (
+    <div className="admin-mini-chart" aria-label="Daily signups over the last 14 days">
+      <p className="admin-mini-chart-label">Daily signups (last 14 days)</p>
+      {total === 0 ? (
+        <p className="admin-mini-chart-empty muted">No signups in the last 14 days yet.</p>
+      ) : (
+        <div className="admin-mini-chart-bars admin-mini-chart-bars--labeled">
+          {series.map((row) => (
+            <div key={row.date} className="admin-mini-chart-column">
+              <div
+                className="admin-mini-chart-bar"
+                style={{ height: `${Math.max(8, (row.count / max) * 100)}%` }}
+                title={`${row.date}: ${row.count}`}
+              />
+              <span className="admin-mini-chart-day">{row.date.slice(8)}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function buildDailySignupSeries(
+  users: Array<{ createdAt: string }>,
+  days = 14,
+): Array<{ date: string; count: number }> {
+  const series: Array<{ date: string; count: number }> = []
+  for (let offset = days - 1; offset >= 0; offset -= 1) {
+    const day = new Date()
+    day.setHours(0, 0, 0, 0)
+    day.setDate(day.getDate() - offset)
+    const key = day.toISOString().slice(0, 10)
+    const count = users.filter((user) => user.createdAt.slice(0, 10) === key).length
+    series.push({ date: key, count })
+  }
+  return series
+}
+
+export { buildDailySignupSeries }
 
 export function AdminEmptyState({ message }: { message: string }) {
   return <p className="admin-empty muted">{message}</p>

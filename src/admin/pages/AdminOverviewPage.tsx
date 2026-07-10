@@ -3,10 +3,11 @@ import { Link } from 'react-router-dom'
 import { adminFetchOverview, adminFetchUsers } from '../adminApi'
 import {
   AdminPageHeader,
-  AdminPlaceholderChart,
+  AdminSignupTrendChart,
   AdminSection,
   AdminStatCard,
   AdminStatGrid,
+  buildDailySignupSeries,
   HealthStatusBadge,
   RiskBadge,
 } from '../components/AdminUi'
@@ -49,6 +50,7 @@ export function AdminOverviewPage() {
   const recentSignups = [...allUsers]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 8)
+  const signupTrend = buildDailySignupSeries(allUsers)
 
   return (
     <div className="admin-page">
@@ -75,10 +77,7 @@ export function AdminOverviewPage() {
       </div>
 
       <AdminSection title="Signup trend (14 days)">
-        <AdminPlaceholderChart
-          label="Daily signups"
-          values={[2, 1, 3, 2, 4, 1, 2, 3, 2, 5, 3, 2, 4, stats.newUsersToday]}
-        />
+        <AdminSignupTrendChart series={signupTrend} />
       </AdminSection>
     </div>
   )

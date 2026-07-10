@@ -534,6 +534,33 @@
   background: linear-gradient(180deg, #14b8a6 0%, #0f766e 100%);
 }
 
+.admin-mini-chart-empty {
+  margin: 0;
+  font-size: 0.82rem;
+}
+
+.admin-mini-chart-bars--labeled {
+  align-items: flex-end;
+}
+
+.admin-mini-chart-column {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.admin-mini-chart-column .admin-mini-chart-bar {
+  width: 100%;
+}
+
+.admin-mini-chart-day {
+  font-size: 0.62rem;
+  color: #71717a;
+}
+
 .admin-detail-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));

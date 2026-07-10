@@ -13,7 +13,7 @@ interface SetupOnboardingShellProps {
   currentStepIndex?: number
   /** Manual tour — app stays visible beside the sidebar */
   spotlight?: boolean
-  contentWidth?: 'default' | 'wide' | 'import' | 'review' | 'path-choice' | 'spotlight'
+  contentWidth?: 'default' | 'wide' | 'import' | 'review' | 'path-choice' | 'spotlight' | 'reserve'
   onSkip: () => void
   skipLabel?: string
   footer?: ReactNode

@@ -81,7 +81,7 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     id: 'trends-explain',
     title: 'Track your progress over time.',
     explain:
-      'The Trends page shows your real balance, committed costs, and True Balance plotted over time. You can see whether your business is heading up or down at a glance.\n\nOne important detail: when you change a payment amount (say rent goes up), True Balance recalculates historically from when the accrual started. This means your graphs stay accurate — no sudden spikes or corrections, just a smooth updated picture of reality.\n\nKeep your bank balance fresh (every day or two) and Trends becomes your most powerful tool for spotting problems early.',
+      'The Trends page shows your real balance, committed costs, and True Balance plotted over time. You can see whether your business is heading up or down at a glance.\n\nTrends get more useful the longer you use True Balance. You will not see the full picture from day one — it takes regular balance updates and a few weeks of history before the trajectory of your business really reveals itself. Keep going: the more faithfully you update balances and mark items paid, the more accurate and trustworthy these charts become.\n\nWhen you change a payment amount (say rent goes up), True Balance recalculates historically from when the accrual started. This means your graphs stay accurate — no sudden spikes or corrections, just a smooth updated picture of reality.',
     page: 'trends',
     spotlight: '[data-widget-id="trends-chart"]',
   },

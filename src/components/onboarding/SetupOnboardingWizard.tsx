@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { AppActions } from '../../hooks/useAppState'
-import type { AppState, DashboardMetrics, IncomePattern, ViewScope } from '../../types'
+import type { AppState, DashboardMetrics, IncomePattern, PlannedFundingMethod, ViewScope } from '../../types'
 import { getScopeLabel } from '../../utils/scope'
 import { toAmount, roundCurrency } from '../../utils/amounts'
 import {
@@ -38,14 +38,19 @@ interface SetupOnboardingWizardProps {
 }
 
 type CommitmentDraft = { name: string; amount: string; dueDay: string; selected: boolean }
-type PlannedDueDraft = { name: string; amount: string; dueDate: string; selected: boolean }
+type PlannedDueDraft = {
+  name: string
+  amount: string
+  dueDate: string
+  selected: boolean
+  fundingMethod: PlannedFundingMethod
+}
 type ReceiptDraft = { name: string; amount: string; expectedDate: string; selected: boolean }
 
 const PREVIEW_STEP_IDS = new Set([
   'month-view',
   'due-explain',
   'receipts-explain',
-  'reserve',
   'trends-explain',
   'forecast-explain',
 ])
@@ -85,7 +90,7 @@ export function SetupOnboardingWizard({
     QUICK_COMMITMENT_TEMPLATES.map((t) => ({ name: t.name, amount: '', dueDay: '', selected: false })),
   )
   const [dueDrafts, setDueDrafts] = useState<PlannedDueDraft[]>([
-    { name: '', amount: '', dueDate: '', selected: false },
+    { name: '', amount: '', dueDate: '', selected: false, fundingMethod: 'accrue_until_due' },
   ])
   const [receiptDrafts, setReceiptDrafts] = useState<ReceiptDraft[]>([
     { name: '', amount: '', expectedDate: '', selected: false },
@@ -93,12 +98,15 @@ export function SetupOnboardingWizard({
   const [pendingBusinessAdvance, setPendingBusinessAdvance] = useState(false)
   const [structureError, setStructureError] = useState<string | null>(null)
   const [openHelp, setOpenHelp] = useState<string | null>(null)
+  const [reserveSetupStarted, setReserveSetupStarted] = useState(false)
   const reservePanelRef = useRef<HTMLDivElement>(null)
 
   const step = SETUP_ONBOARDING_STEPS[stepIndex]!
   const stepCount = SETUP_ONBOARDING_STEPS.length
   const isLast = stepIndex >= stepCount - 1
+  const isReserveStep = step.id === 'reserve'
   const usesWideLayout = PREVIEW_STEP_IDS.has(step.id)
+  const contentWidth = isReserveStep ? 'reserve' : usesWideLayout ? 'wide' : 'default'
 
   useEffect(() => {
     if (!step.page || step.id === 'reserve') return
@@ -141,21 +149,17 @@ export function SetupOnboardingWizard({
   )
 
   useEffect(() => {
-    if (step.id !== 'reserve' || !primaryBusiness || onboardingReservePlanner) return
-    actions.addReservePlanner({
-      name: `${primaryBusiness.name} Reserve Plan`,
-      businessId: primaryBusiness.id,
-      bufferAmount: 0,
-      actualBalance: 0,
-    })
-  }, [step.id, primaryBusiness, onboardingReservePlanner, actions])
+    if (step.id !== 'reserve') {
+      setReserveSetupStarted(false)
+    }
+  }, [step.id])
 
   useEffect(() => {
     if (!pendingBusinessAdvance || !primaryBusiness) return
     setPendingBusinessAdvance(false)
     actions.setBusinessIncomePattern(primaryBusiness.id, incomePatternDraft)
     setStepIndex((i) => i + 1)
-  }, [pendingBusinessAdvance, primaryBusiness])
+  }, [pendingBusinessAdvance, primaryBusiness, actions, incomePatternDraft])
 
   useEffect(() => {
     document.querySelectorAll('[data-onboarding-focus]').forEach((el) => {
@@ -278,7 +282,7 @@ export function SetupOnboardingWizard({
         schedule: 'planned',
         amount,
         plannedDueDate: draft.dueDate,
-        fundingMethod: 'accrue_until_due',
+        fundingMethod: draft.fundingMethod,
         scopeLevel: 'business',
         scopeId: businessId,
         status: 'healthy',
@@ -306,7 +310,9 @@ export function SetupOnboardingWizard({
 
   const handleReserveFocus = () => {
     const businessId = primaryBusiness?.id
-    if (businessId && !onboardingReservePlanner) {
+    if (!businessId) return
+    setReserveSetupStarted(true)
+    if (!onboardingReservePlanner) {
       actions.addReservePlanner({
         name: `${primaryBusiness.name} Reserve Plan`,
         businessId,
@@ -314,11 +320,13 @@ export function SetupOnboardingWizard({
         actualBalance: 0,
       })
     }
-    reservePanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    const focusable = reservePanelRef.current?.querySelector<HTMLElement>(
-      'input, button, select, textarea, [tabindex]:not([tabindex="-1"])',
-    )
-    focusable?.focus()
+    window.setTimeout(() => {
+      reservePanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      const focusable = reservePanelRef.current?.querySelector<HTMLElement>(
+        'input, button, select, textarea, [tabindex]:not([tabindex="-1"])',
+      )
+      focusable?.focus()
+    }, 80)
   }
 
   const handleBack = () => {
@@ -400,14 +408,16 @@ export function SetupOnboardingWizard({
       }))}
       currentStepIndex={stepIndex}
       spotlight={false}
-      contentWidth={usesWideLayout ? 'wide' : 'default'}
+      contentWidth={contentWidth}
       onSkip={handleDismiss}
       skipLabel="Skip setup"
       footer={footer}
     >
       <div
         key={step.id}
-        className={`setup-flow-step-panel${usesWideLayout ? ' setup-flow-step-panel--preview' : ''}`}
+        className={`setup-flow-step-panel${
+          usesWideLayout ? ' setup-flow-step-panel--preview' : ''
+        }${isReserveStep ? ' setup-flow-step-panel--reserve' : ''}`}
       >
         <header className="setup-flow-page-header">
           <h2 id="setup-onboarding-title">{step.title}</h2>
@@ -705,6 +715,45 @@ export function SetupOnboardingWizard({
                             }
                           />
                         </label>
+                        <fieldset className="setup-quick-funding">
+                          <legend>How should this affect True Balance?</legend>
+                          <label className="setup-quick-funding-option">
+                            <input
+                              type="radio"
+                              name={`due-funding-${index}`}
+                              checked={draft.fundingMethod === 'immediate'}
+                              onChange={() =>
+                                setDueDrafts((rows) =>
+                                  rows.map((row, i) =>
+                                    i === index ? { ...row, fundingMethod: 'immediate' } : row,
+                                  ),
+                                )
+                              }
+                            />
+                            <span>
+                              <strong>Reserve the full amount now</strong>
+                              <small>Deduct from True Balance straight away</small>
+                            </span>
+                          </label>
+                          <label className="setup-quick-funding-option">
+                            <input
+                              type="radio"
+                              name={`due-funding-${index}`}
+                              checked={draft.fundingMethod === 'accrue_until_due'}
+                              onChange={() =>
+                                setDueDrafts((rows) =>
+                                  rows.map((row, i) =>
+                                    i === index ? { ...row, fundingMethod: 'accrue_until_due' } : row,
+                                  ),
+                                )
+                              }
+                            />
+                            <span>
+                              <strong>Build it up until the due date</strong>
+                              <small>Spread the amount evenly from today</small>
+                            </span>
+                          </label>
+                        </fieldset>
                       </div>
                     )}
                   </div>
@@ -713,7 +762,10 @@ export function SetupOnboardingWizard({
                   type="button"
                   className="btn-ghost btn-tiny setup-quick-add-row"
                   onClick={() =>
-                    setDueDrafts((rows) => [...rows, { name: '', amount: '', dueDate: '', selected: false }])
+                    setDueDrafts((rows) => [
+                      ...rows,
+                      { name: '', amount: '', dueDate: '', selected: false, fundingMethod: 'accrue_until_due' },
+                    ])
                   }
                 >
                   + Add another planned cost
@@ -821,26 +873,39 @@ export function SetupOnboardingWizard({
 
           {step.id === 'reserve' && (
             <div className="setup-reserve-step" ref={reservePanelRef}>
-              <p className="setup-reserve-yours-hint">
-                This is your reserve plan for <strong>{primaryBusiness?.name ?? 'your business'}</strong> — add
-                your buffer and bills below. Everything you enter here saves to your account.
-              </p>
-              {onboardingReserveSummary ? (
-                <div className="setup-reserve-inline">
-                  <ReservePlannerPanel
-                    state={state}
-                    viewScope={onboardingReserveScope}
-                    summary={onboardingReserveSummary}
-                    reserveRouteId={onboardingReservePlanner?.id ?? null}
-                    actions={actions}
-                    openHelp={openHelp}
-                    setOpenHelp={setOpenHelp}
-                    onPlannerDeleted={() => undefined}
-                    onPlannerCreated={() => undefined}
-                  />
-                </div>
+              {!reserveSetupStarted ? (
+                <>
+                  <p className="setup-reserve-yours-hint">
+                    See how the Reserve Planner works with a quick example, then click{' '}
+                    <strong>Set up now</strong> in the footer to start your own plan for{' '}
+                    <strong>{primaryBusiness?.name ?? 'your business'}</strong>.
+                  </p>
+                  <SetupWidgetPreview previewId="reserve" />
+                </>
               ) : (
-                <p className="muted setup-reserve-inline-loading">Preparing your reserve plan…</p>
+                <>
+                  <p className="setup-reserve-yours-hint">
+                    This is your reserve plan for <strong>{primaryBusiness?.name ?? 'your business'}</strong> —
+                    add your buffer and bills below. Everything you enter here saves to your account.
+                  </p>
+                  {onboardingReserveSummary ? (
+                    <div className="setup-reserve-inline">
+                      <ReservePlannerPanel
+                        state={state}
+                        viewScope={onboardingReserveScope}
+                        summary={onboardingReserveSummary}
+                        reserveRouteId={onboardingReservePlanner?.id ?? null}
+                        actions={actions}
+                        openHelp={openHelp}
+                        setOpenHelp={setOpenHelp}
+                        onPlannerDeleted={() => undefined}
+                        onPlannerCreated={() => undefined}
+                      />
+                    </div>
+                  ) : (
+                    <p className="muted setup-reserve-inline-loading">Preparing your reserve plan…</p>
+                  )}
+                </>
               )}
             </div>
           )}
