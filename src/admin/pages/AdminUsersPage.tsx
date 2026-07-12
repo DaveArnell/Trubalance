@@ -150,7 +150,7 @@ export function AdminUsersPage() {
                   <td>{user.lifetimeAccess ? 'Yes' : '—'}</td>
                   <td>{user.isPlatformAdmin ? 'Yes' : '—'}</td>
                   <td>
-                    <Link to={`/platform-admin/users/${user.id}`} className="btn-secondary btn-tiny">
+                    <Link to={`/vocatio-admin/users/${user.id}`} className="btn-secondary btn-tiny">
                       View
                     </Link>
                   </td>

@@ -130,7 +130,7 @@ function TrialPipelinePanel({ users }: { users: AdminUserListItem[] }) {
         <ul className="admin-pipeline-list">
           {withDaysLeft.slice(0, 10).map((u) => (
             <li key={u.id} className="admin-pipeline-row">
-              <Link to={`/platform-admin/users/${u.id}`} className="admin-link">
+              <Link to={`/vocatio-admin/users/${u.id}`} className="admin-link">
                 {u.fullName || u.email}
               </Link>
               <span className="admin-pipeline-tier">{u.subscriptionTier}</span>
@@ -143,7 +143,7 @@ function TrialPipelinePanel({ users }: { users: AdminUserListItem[] }) {
         </ul>
       )}
 
-      <Link to="/platform-admin/subscriptions" className="admin-panel-link">
+      <Link to="/vocatio-admin/subscriptions" className="admin-panel-link">
         View all subscriptions →
       </Link>
     </section>
@@ -162,7 +162,7 @@ function RecentSignupsPanel({ users }: { users: AdminUserListItem[] }) {
             <li key={u.id}>
               <span className="admin-activity-icon" aria-hidden>＋</span>
               <div>
-                <Link to={`/platform-admin/users/${u.id}`} className="admin-link">
+                <Link to={`/vocatio-admin/users/${u.id}`} className="admin-link">
                   <p className="admin-activity-title">{u.fullName || u.email}</p>
                 </Link>
                 <p className="muted admin-activity-sub">
@@ -174,7 +174,7 @@ function RecentSignupsPanel({ users }: { users: AdminUserListItem[] }) {
           ))}
         </ul>
       )}
-      <Link to="/platform-admin/users" className="admin-panel-link">
+      <Link to="/vocatio-admin/users" className="admin-panel-link">
         View all users →
       </Link>
     </section>
@@ -192,7 +192,7 @@ function AtRiskPanel({ users }: { users: AdminUserHealthRow[] }) {
           {users.map((user) => (
             <li key={user.userId}>
               <div>
-                <Link to={`/platform-admin/users/${user.userId}`} className="admin-link">
+                <Link to={`/vocatio-admin/users/${user.userId}`} className="admin-link">
                   <p className="admin-activity-title">{user.fullName}</p>
                 </Link>
                 <p className="muted admin-activity-sub">{user.workspaceName}</p>
@@ -205,7 +205,7 @@ function AtRiskPanel({ users }: { users: AdminUserHealthRow[] }) {
           ))}
         </ul>
       )}
-      <Link to="/platform-admin/user-health" className="admin-panel-link">
+      <Link to="/vocatio-admin/user-health" className="admin-panel-link">
         Open User Health →
       </Link>
     </section>
@@ -224,7 +224,7 @@ function NotesPanel({ notes }: { notes: AdminNote[] }) {
             <li key={note.id}>
               <p>{note.text}</p>
               <span className="muted">
-                <Link to={`/platform-admin/users/${note.userId}`} className="admin-link">
+                <Link to={`/vocatio-admin/users/${note.userId}`} className="admin-link">
                   View user
                 </Link>{' '}
                 · {new Date(note.createdAt).toLocaleDateString()}

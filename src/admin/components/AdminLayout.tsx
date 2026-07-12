@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
+import { useAdminAuth } from '../../contexts/AdminAuthContext'
 import { isSupabaseConfigured } from '../../lib/supabase'
 import { usePageMeta } from '../../hooks/usePageMeta'
 import { ADMIN_NAV } from '../navigation'
@@ -12,10 +13,11 @@ export function AdminLayout() {
   usePageMeta({
     title: 'Platform admin',
     description: 'True Balance platform administration.',
-    path: '/platform-admin',
+    path: '/vocatio-admin',
     noindex: true,
   })
   const { signOut } = useAuth()
+  const { logoutAdmin, email, expiresAt } = useAdminAuth()
   const supabaseConnected = isSupabaseConfigured
   const [dataMode, setDataMode] = useState<AdminDataMode>(getAdminDataMode)
 
@@ -34,7 +36,7 @@ export function AdminLayout() {
     <div className="admin-shell">
       <aside className="admin-sidebar">
         <div className="admin-sidebar-brand">
-          <Link to="/platform-admin" className="admin-sidebar-logo">
+          <Link to="/vocatio-admin" className="admin-sidebar-logo">
             <span className="admin-sidebar-mark" aria-hidden />
             <span>
               <strong>True Balance</strong>
@@ -49,7 +51,7 @@ export function AdminLayout() {
             <NavLink
               key={item.id}
               to={item.path}
-              end={item.path === '/platform-admin'}
+              end={item.path === '/vocatio-admin'}
               className={({ isActive }) => `admin-sidebar-link${isActive ? ' admin-sidebar-link--active' : ''}`}
             >
               <span className="admin-sidebar-icon" aria-hidden>
@@ -75,13 +77,28 @@ export function AdminLayout() {
         </nav>
 
         <div className="admin-sidebar-foot">
+          {email && (
+            <p className="admin-sidebar-session muted">
+              {email}
+              {expiresAt ? ` · session until ${new Date(expiresAt).toLocaleTimeString()}` : ''}
+            </p>
+          )}
           <Link to="/app" className="admin-sidebar-link admin-sidebar-link--muted">
             ← Open app
           </Link>
           {supabaseConnected && (
-            <button type="button" className="admin-sidebar-link admin-sidebar-link--button" onClick={() => signOut()}>
-              Log out
-            </button>
+            <>
+              <button
+                type="button"
+                className="admin-sidebar-link admin-sidebar-link--button"
+                onClick={() => void logoutAdmin()}
+              >
+                End admin session
+              </button>
+              <button type="button" className="admin-sidebar-link admin-sidebar-link--button" onClick={() => signOut()}>
+                Log out completely
+              </button>
+            </>
           )}
         </div>
       </aside>

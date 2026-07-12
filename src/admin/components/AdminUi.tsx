@@ -258,7 +258,7 @@ export function AdminUserCell({
 }) {
   return (
     <div className="admin-user-cell">
-      <Link to={`/platform-admin/users/${userId}`} className="admin-user-cell-name">
+      <Link to={`/vocatio-admin/users/${userId}`} className="admin-user-cell-name">
         {name}
       </Link>
       <span className="admin-user-cell-email">{email}</span>

@@ -40,6 +40,8 @@ export function AdminUserDetailPage() {
   const [loading, setLoading] = useState(true)
   const [savingNote, setSavingNote] = useState(false)
   const [savingAccess, setSavingAccess] = useState(false)
+  const [accessSaveMessage, setAccessSaveMessage] = useState<string | null>(null)
+  const [accessSaveError, setAccessSaveError] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
 
@@ -82,10 +84,20 @@ export function AdminUserDetailPage() {
   const handleSaveAccess = async () => {
     if (!access) return
     setSavingAccess(true)
-    const saved = await adminSaveAccessOverride(access)
-    setAccess(saved)
-    await load()
-    setSavingAccess(false)
+    setAccessSaveMessage(null)
+    setAccessSaveError(null)
+    try {
+      const saved = await adminSaveAccessOverride(access)
+      setAccess(saved)
+      await load()
+      setAccessSaveMessage('Saved to the server. The user may need to refresh the app to see changes.')
+    } catch (error) {
+      setAccessSaveError(
+        error instanceof Error ? error.message : 'Could not save access settings',
+      )
+    } finally {
+      setSavingAccess(false)
+    }
   }
 
   const patchAccess = (patch: Partial<WorkspaceAccessOverride>) => {
@@ -95,11 +107,15 @@ export function AdminUserDetailPage() {
   const applyAccessType = (accessType: WorkspaceAccessType) => {
     setAccess((current) => {
       if (!current) return current
+      const lifetimeAccess = accessType === 'lifetime'
+      const betaTester = accessType === 'beta_tester'
       return {
         ...current,
         accessType,
-        betaTester: accessType === 'beta_tester',
-        lifetimeAccess: accessType === 'lifetime',
+        betaTester,
+        lifetimeAccess,
+        subscriptionPlan: lifetimeAccess || betaTester ? 'group' : current.subscriptionPlan,
+        trialEndsAt: lifetimeAccess ? null : current.trialEndsAt,
       }
     })
   }
@@ -123,7 +139,7 @@ export function AdminUserDetailPage() {
       setDeleteError(error)
       return
     }
-    navigate('/platform-admin/users', { replace: true })
+    navigate('/vocatio-admin/users', { replace: true })
   }
 
   if (loading) return <p className="admin-loading muted">Loading user…</p>
@@ -131,7 +147,7 @@ export function AdminUserDetailPage() {
     return (
       <div className="admin-page">
         <p className="muted">User not found.</p>
-        <Link to="/platform-admin/users">← Back to users</Link>
+        <Link to="/vocatio-admin/users">← Back to users</Link>
       </div>
     )
   }
@@ -152,10 +168,10 @@ export function AdminUserDetailPage() {
         description={`${user.email} · ${user.workspaceName ?? 'No workspace'}`}
         actions={
           <>
-            <Link to="/platform-admin/users" className="btn-ghost btn-tiny">
+            <Link to="/vocatio-admin/users" className="btn-ghost btn-tiny">
               ← Users
             </Link>
-            <Link to="/platform-admin/user-health" className="btn-ghost btn-tiny">
+            <Link to="/vocatio-admin/user-health" className="btn-ghost btn-tiny">
               User health
             </Link>
             <button type="button" className="btn-secondary btn-tiny" disabled title="Coming soon">
@@ -257,13 +273,24 @@ export function AdminUserDetailPage() {
                 <input
                   type="checkbox"
                   checked={access.lifetimeAccess}
-                  onChange={(e) => patchAccess({ lifetimeAccess: e.target.checked })}
+                  onChange={(e) => {
+                    const lifetimeAccess = e.target.checked
+                    patchAccess({
+                      lifetimeAccess,
+                      accessType: lifetimeAccess ? 'lifetime' : access.accessType === 'lifetime' ? 'normal_trial' : access.accessType,
+                      subscriptionPlan: lifetimeAccess ? 'group' : access.subscriptionPlan,
+                      trialEndsAt: lifetimeAccess ? null : access.trialEndsAt,
+                    })
+                  }}
                 />
                 <span>Lifetime access</span>
               </label>
               <p className="muted admin-detail-hint">
-                Saved locally for now. Will sync to Supabase when billing is connected.
+                Lifetime and beta access unlock the full Group plan with no trial expiry. Changes
+                are saved on the server immediately.
               </p>
+              {accessSaveError && <p className="auth-error">{accessSaveError}</p>}
+              {accessSaveMessage && <p className="muted">{accessSaveMessage}</p>}
               <button
                 type="button"
                 className="btn-primary btn-tiny"

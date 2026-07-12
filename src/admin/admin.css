@@ -1100,3 +1100,45 @@
   margin: 2px 0 0;
   font-size: 0.78rem;
 }
+
+.admin-auth-card {
+  width: min(28rem, 92vw);
+}
+
+.admin-auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: var(--space-4) 0;
+}
+
+.admin-auth-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.85rem;
+}
+
+.admin-auth-form input {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font: inherit;
+}
+
+.admin-auth-google {
+  width: 100%;
+  margin-bottom: var(--space-2);
+}
+
+.admin-auth-secret {
+  word-break: break-all;
+  font-size: 0.82rem;
+}
+
+.admin-sidebar-session {
+  margin: 0 0 var(--space-2);
+  padding: 0 var(--space-2);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}

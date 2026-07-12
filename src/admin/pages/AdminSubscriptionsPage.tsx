@@ -93,7 +93,7 @@ export function AdminSubscriptionsPage() {
                       <button type="button" className="btn-ghost btn-tiny" disabled>
                         Extend trial
                       </button>
-                      <Link to={`/platform-admin/users/${row.userId}`} className="btn-secondary btn-tiny">
+                      <Link to={`/vocatio-admin/users/${row.userId}`} className="btn-secondary btn-tiny">
                         User
                       </Link>
                     </div>

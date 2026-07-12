@@ -132,7 +132,7 @@ export function Sidebar({
 }: SidebarProps) {
   const demoMode = useDemoMode()
   const editReadOnly = useEditReadOnly()
-  const { user, profile, isAdmin, isImpersonating, signOut, configured } = useAuth()
+  const { user, profile, signOut, configured } = useAuth()
   const { collapsed, toggleCollapsed } = useSidebarCollapsed()
   const showCollapsed = collapsed && !isMobile
   const plannerIds = state.reservePlanners.map((p) => p.id)
@@ -431,15 +431,6 @@ export function Sidebar({
           <Link to="/" className="sidebar-account-link" title={showCollapsed ? 'Home' : undefined}>
             {showCollapsed ? '⌂' : 'Home'}
           </Link>
-          {isAdmin && !isImpersonating && (
-            <Link
-              to="/platform-admin"
-              className="sidebar-account-link"
-              title={showCollapsed ? 'Platform admin' : undefined}
-            >
-              {showCollapsed ? '⚙' : 'Platform admin'}
-            </Link>
-          )}
           {configured && user && !demoMode ? (
             <button
               type="button"

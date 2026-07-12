@@ -40,8 +40,8 @@ export function isBillingExempt(subscription: WorkspaceSubscription): boolean {
 }
 
 export function isTrialActive(subscription: WorkspaceSubscription, now = new Date()): boolean {
-  if (!subscription.trialEndsAt) return false
   if (subscription.status !== 'trialing') return false
+  if (!subscription.trialEndsAt) return true
   return new Date(subscription.trialEndsAt) > now
 }
 

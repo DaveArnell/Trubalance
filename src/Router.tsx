@@ -13,7 +13,7 @@ import { SeeHowItWorksPage } from './pages/SeeHowItWorksPage'
 import { TrueBalanceMethodPage } from './pages/TrueBalanceMethodPage'
 import { BlogIndexPage } from './pages/BlogIndexPage'
 import { BlogPostPage } from './pages/BlogPostPage'
-import { PlatformAdminShell } from './admin/PlatformAdminShell'
+import { VocatioAdminShell, PlatformAdminShell } from './admin/PlatformAdminShell'
 import { isSupabaseConfigured } from './lib/supabase'
 
 export function AppRouter() {
@@ -37,6 +37,7 @@ export function AppRouter() {
             <Route path="/demo" element={<DemoPage />} />
             <Route path="/demo/:scenarioId" element={<DemoPage />} />
             <Route path="/app/*" element={<AppPage />} />
+            <Route path="/vocatio-admin/*" element={<VocatioAdminShell />} />
             <Route path="/platform-admin/*" element={<PlatformAdminShell />} />
             <Route
               path="*"

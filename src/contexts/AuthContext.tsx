@@ -9,7 +9,6 @@ import {
 } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
 import { getSupabase, isSupabaseConfigured, tryGetSupabase } from '../lib/supabase'
-import { isLocalDevMode } from '../lib/devMode'
 import { clearLocalUserData } from '../utils/localStateStorage'
 import { fetchProfile, logAdminAction, type UserProfile } from '../services/adminRepository'
 import { trackEvent, updateLastSignIn, recordSessionActivity } from '../services/eventTracking'
@@ -68,8 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [impersonation, setImpersonation] = useState<ImpersonationTarget | null>(() => loadImpersonation())
 
   const user = session?.user ?? null
-  const isAdmin =
-    isLocalDevMode() || profile?.role === 'admin' || profile?.role === 'super_admin'
+  const isAdmin = false
   const effectiveUserId = impersonation?.userId ?? user?.id ?? null
   const isImpersonating = Boolean(impersonation)
 
@@ -187,16 +185,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const startImpersonation = useCallback(
-    async (target: ImpersonationTarget) => {
-      if (!isAdmin || !user?.id) return
-      saveImpersonation(target)
-      setImpersonation(target)
-      await logAdminAction(user.id, 'impersonate_start', target.userId, target.workspaceId ?? undefined, {
-        email: target.email,
-      })
-      await trackEvent('admin_impersonate', user.id, target.workspaceId, { targetUserId: target.userId })
+    async (_target: ImpersonationTarget) => {
+      return
     },
-    [isAdmin, user?.id],
+    [],
   )
 
   const stopImpersonation = useCallback(() => {

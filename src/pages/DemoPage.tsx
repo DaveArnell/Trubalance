@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ReferenceDateProvider } from '../contexts/ReferenceDateContext'
 import { DemoModeProvider } from '../contexts/DemoModeContext'
-import { useAuth } from '../contexts/AuthContext'
 import { AppShell } from '../App'
 import {
   buildDemoScenarioState,
@@ -16,11 +15,10 @@ export function DemoPage() {
   usePageMeta(DEMO_SEO)
   const { scenarioId } = useParams<{ scenarioId?: string }>()
   const navigate = useNavigate()
-  const { profile } = useAuth()
   const resolvedId = scenarioId ?? DEFAULT_DEMO_SCENARIO_ID
 
   const { meta, state: initialState } = useMemo(() => buildDemoScenarioState(resolvedId), [resolvedId])
-  const canEditDemo = profile?.role === 'super_admin'
+  const canEditDemo = false
   const [demoState, setDemoState] = useState(initialState)
   const [loadedScenarioId, setLoadedScenarioId] = useState(resolvedId)
 

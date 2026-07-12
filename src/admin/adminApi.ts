@@ -35,14 +35,13 @@ import {
   getMockWorkspaceInspector,
 } from './mockData'
 import {
-  addAdminNote,
-  defaultAccessOverride,
-  loadAccessOverride,
-  loadAdminNotes,
-  loadAllAdminNotes,
-  purgeAdminLocalDataForUser,
-  saveAccessOverride,
-} from './services/adminLocalStorage'
+  createServerAdminNote,
+  fetchPlatformAdminUserIds,
+  fetchRecentServerAdminNotes,
+  fetchServerAccessOverride,
+  fetchServerAdminNotes,
+  saveServerAccessOverride,
+} from '../services/adminPlatformRepository'
 import { computeUserHealth, isUserRecentlyActive, onboardingPctFromUser } from './utils/userHealth'
 import type {
   AdminActivityRow,
@@ -72,6 +71,7 @@ import type {
   WorkspaceInspectorData,
 } from './types'
 import { buildSetupFunnelSnapshot, emptySetupFunnelSnapshot } from './utils/setupFunnelStats'
+import { loadAllAdminNotes as loadMockAdminNotes } from './services/adminLocalStorage'
 
 const DEFAULT_PAGE_SIZE = 25
 
@@ -140,7 +140,7 @@ export async function adminFetchOverview(): Promise<{
       usersAtRisk: health
         .filter((r) => r.riskStatus === 'high' || r.healthStatus === 'red')
         .slice(0, 8),
-      recentNotes: loadAllAdminNotes().slice(0, 6),
+      recentNotes: loadMockAdminNotes().slice(0, 6),
     }
   }
 
@@ -149,7 +149,7 @@ export async function adminFetchOverview(): Promise<{
       stats: getEmptyOverviewStats(),
       recentActivity: [],
       usersAtRisk: [],
-      recentNotes: loadAllAdminNotes().slice(0, 6),
+      recentNotes: loadMockAdminNotes().slice(0, 6),
     }
   }
 
@@ -190,7 +190,7 @@ export async function adminFetchOverview(): Promise<{
     usersAtRisk: (await adminFetchUserHealth({ page: 1, pageSize: 200 }))
       .items.filter((r) => r.riskStatus === 'high' || r.healthStatus === 'red' || r.healthStatus === 'orange')
       .slice(0, 8),
-    recentNotes: loadAllAdminNotes().slice(0, 6),
+    recentNotes: await fetchRecentServerAdminNotes(6),
   }
 }
 
@@ -198,6 +198,8 @@ async function enrichUsersWithWorkspaceData(
   users: Awaited<ReturnType<typeof fetchAdminUsers>>['items'],
 ): Promise<AdminUserListItem[]> {
   const supabase = tryGetSupabase()
+  const platformAdminIds = supabase ? await fetchPlatformAdminUserIds() : new Set<string>()
+
   return Promise.all(
     users.map(async (u) => {
       let businessCount = 0
@@ -208,12 +210,22 @@ async function enrichUsersWithWorkspaceData(
       let reservePlannerCount = 0
       let lastBalanceUpdateAt: string | null = null
       let hasGroup = false
+      let lifetimeAccess = false
+      let betaTester = false
+      let trialEndsAt: string | null = null
+      let subscriptionTier = (u.plan !== 'free' ? u.plan : 'solo') as AdminUserListItem['subscriptionTier']
+      let subscriptionStatus = u.subscriptionStatus as AdminUserListItem['subscriptionStatus']
 
       if (supabase && u.workspaceId) {
-        const [{ data: businesses }, { count: gCount }, engagement] = await Promise.all([
+        const [{ data: businesses }, { count: gCount }, engagement, workspaceRes] = await Promise.all([
           supabase.from('businesses').select('id, name').eq('workspace_id', u.workspaceId),
           supabase.from('groups').select('id', { count: 'exact', head: true }).eq('workspace_id', u.workspaceId),
           fetchWorkspaceEngagementMetrics(u.workspaceId),
+          supabase
+            .from('workspaces')
+            .select('subscription_tier, trial_ends_at, lifetime_access, beta_tester, admin_tier_override')
+            .eq('id', u.workspaceId)
+            .maybeSingle(),
         ])
         if (businesses) {
           businessCount = businesses.length
@@ -225,32 +237,37 @@ async function enrichUsersWithWorkspaceData(
         commitmentCount = engagement.commitmentCount
         reservePlannerCount = engagement.reservePlannerCount
         lastBalanceUpdateAt = engagement.lastBalanceUpdateAt
+
+        if (workspaceRes.data) {
+          lifetimeAccess = Boolean(workspaceRes.data.lifetime_access)
+          betaTester = Boolean(workspaceRes.data.beta_tester)
+          trialEndsAt = workspaceRes.data.trial_ends_at
+            ? String(workspaceRes.data.trial_ends_at)
+            : null
+          subscriptionTier =
+            (workspaceRes.data.admin_tier_override as AdminUserListItem['subscriptionTier']) ||
+            (workspaceRes.data.subscription_tier as AdminUserListItem['subscriptionTier']) ||
+            subscriptionTier
+          if (lifetimeAccess) subscriptionStatus = 'lifetime'
+          else if (u.subscriptionStatus === 'active') subscriptionStatus = 'active'
+          else if (trialEndsAt && new Date(trialEndsAt) > new Date()) subscriptionStatus = 'trialing'
+          else if (u.subscriptionStatus === 'canceled' || u.subscriptionStatus === 'expired') {
+            subscriptionStatus = u.subscriptionStatus as AdminUserListItem['subscriptionStatus']
+          }
+        }
       }
 
-      const override = loadAccessOverride(u.id)
-      const tierFromUsage =
-        hasGroup || businessCount > 1 ? 'group' : 'solo'
-
-      const resolvedTier = override?.subscriptionPlan
-        ?? (u.plan !== 'free' ? u.plan : tierFromUsage)
-      const resolvedStatus = override
-        ? (override.accessType === 'lifetime' ? 'lifetime'
-          : override.accessType === 'paid' ? 'active'
-          : override.accessType === 'cancelled' ? 'canceled'
-          : 'trialing')
-        : (u.subscriptionStatus === 'trialing' || u.subscriptionStatus === 'free')
-          ? 'trialing'
-          : u.subscriptionStatus
-
+      const tierFromUsage = hasGroup || businessCount > 1 ? 'group' : 'solo'
+      const resolvedTier = subscriptionTier || tierFromUsage
       const lastLoginAt = u.lastSignInAt
 
       return {
         id: u.id,
         fullName: u.fullName,
         email: u.email,
-        subscriptionTier: resolvedTier as AdminUserListItem['subscriptionTier'],
-        subscriptionStatus: resolvedStatus as AdminUserListItem['subscriptionStatus'],
-        trialEndsAt: override?.trialEndsAt ?? null,
+        subscriptionTier: resolvedTier,
+        subscriptionStatus,
+        trialEndsAt,
         businessCount,
         businessNames,
         workspaceName: u.workspaceName,
@@ -258,9 +275,9 @@ async function enrichUsersWithWorkspaceData(
         lastBalanceUpdateAt,
         createdAt: u.createdAt,
         isActive: isUserRecentlyActive(lastLoginAt, lastBalanceUpdateAt),
-        lifetimeAccess: override?.lifetimeAccess ?? false,
-        betaTester: override?.betaTester ?? false,
-        isPlatformAdmin: u.role === 'admin' || u.role === 'super_admin',
+        lifetimeAccess,
+        betaTester,
+        isPlatformAdmin: platformAdminIds.has(u.id),
         venueCount,
         accountCount,
         commitmentCount,
@@ -348,6 +365,7 @@ export async function adminFetchUserDetail(userId: string): Promise<AdminUserDet
   if (await useMockData()) {
     const detail = getMockUserById(userId)
     if (!detail) return null
+    const { loadAccessOverride } = await import('./services/adminLocalStorage')
     const override = loadAccessOverride(userId)
     if (override) {
       return {
@@ -380,7 +398,9 @@ export async function adminFetchUserDetail(userId: string): Promise<AdminUserDet
 
   const { data: workspace } = await supabase
     .from('workspaces')
-    .select('id, name, plan')
+    .select(
+      'id, name, plan, subscription_tier, trial_ends_at, lifetime_access, beta_tester, admin_tier_override',
+    )
     .eq('owner_id', userId)
     .limit(1)
     .maybeSingle()
@@ -423,22 +443,26 @@ export async function adminFetchUserDetail(userId: string): Promise<AdminUserDet
     expectedReceiptCount = recCount ?? 0
   }
 
-  const tierFromUsage =
-    hasGroup || businessCount > 1 ? 'group' : 'solo'
+  const tierFromUsage = hasGroup || businessCount > 1 ? 'group' : 'solo'
+  const platformAdminIds = await fetchPlatformAdminUserIds()
 
-  const override = loadAccessOverride(userId)
-
-  const resolvedTier = override?.subscriptionPlan
-    ?? (workspace?.plan !== 'free' ? workspace?.plan : tierFromUsage)
-  const resolvedStatus = override
-    ? (override.accessType === 'lifetime' ? 'lifetime'
-      : override.accessType === 'paid' ? 'active'
-      : override.accessType === 'cancelled' ? 'canceled'
-      : 'trialing')
-    : 'trialing'
-  const resolvedLifetime = override?.lifetimeAccess ?? false
-  const resolvedBeta = override?.betaTester ?? false
-  const resolvedTrialEnds = override?.trialEndsAt ?? null
+  const resolvedTier =
+    (workspace?.admin_tier_override as AdminUserDetail['subscriptionTier']) ||
+    (workspace?.subscription_tier as AdminUserDetail['subscriptionTier']) ||
+    (workspace?.plan !== 'free' ? workspace?.plan : tierFromUsage)
+  const resolvedLifetime = Boolean(workspace?.lifetime_access)
+  const resolvedBeta = Boolean(workspace?.beta_tester)
+  const resolvedTrialEnds = workspace?.trial_ends_at ? String(workspace.trial_ends_at) : null
+  let resolvedStatus: AdminUserDetail['subscriptionStatus'] = 'trialing'
+  if (resolvedLifetime) resolvedStatus = 'lifetime'
+  else {
+    const { data: sub } = workspace?.id
+      ? await supabase.from('subscriptions').select('status').eq('workspace_id', workspace.id).maybeSingle()
+      : { data: null }
+    if (sub?.status === 'active') resolvedStatus = 'active'
+    else if (resolvedTrialEnds && new Date(resolvedTrialEnds) > new Date()) resolvedStatus = 'trialing'
+    else if (sub?.status === 'canceled') resolvedStatus = 'canceled'
+  }
   const onboardingCompleted = Boolean(profileRow.onboarding_completed)
   const onboardingPct = onboardingPctFromUser({
     businessCount,
@@ -465,7 +489,7 @@ export async function adminFetchUserDetail(userId: string): Promise<AdminUserDet
     isActive: isUserRecentlyActive(lastLoginAt, lastBalanceUpdateAt),
     lifetimeAccess: resolvedLifetime,
     betaTester: resolvedBeta,
-    isPlatformAdmin: profileRow.role === 'admin' || profileRow.role === 'super_admin',
+    isPlatformAdmin: platformAdminIds.has(String(profileRow.id)),
     phone: null,
     emailVerified: true,
     onboardingCompleted,
@@ -490,7 +514,7 @@ export async function adminFetchUserDetail(userId: string): Promise<AdminUserDet
     recentReports: [],
     emailHistory: [],
     supportTickets: [],
-    adminNotes: loadAdminNotes(userId).map((note) => note.text).join('\n'),
+    adminNotes: (await fetchServerAdminNotes(userId)).map((note) => note.text).join('\n'),
     subscriptionRenewalAt: null,
     stripeCustomerId: null,
     stripeSubscriptionId: null,
@@ -592,7 +616,7 @@ function daysSince(dateStr: string): number {
 }
 
 export async function adminFetchUserTimeline(userId: string): Promise<UserTimelineEvent[]> {
-  const storedNotes = loadAdminNotes(userId)
+  const storedNotes = await fetchServerAdminNotes(userId)
   const noteEvents: UserTimelineEvent[] = storedNotes.map((n) => ({
     id: n.id,
     type: 'admin_note_added',
@@ -683,27 +707,72 @@ export async function adminFetchWorkspaceInspector(
 }
 
 export async function adminFetchAdminNotes(userId: string): Promise<AdminNote[]> {
-  return loadAdminNotes(userId)
+  if (await useMockData()) {
+    const { loadAdminNotes } = await import('./services/adminLocalStorage')
+    return loadAdminNotes(userId)
+  }
+  return fetchServerAdminNotes(userId)
 }
 
 export async function adminCreateAdminNote(userId: string, text: string): Promise<AdminNote> {
-  return addAdminNote(userId, text)
+  if (await useMockData()) {
+    const { addAdminNote } = await import('./services/adminLocalStorage')
+    return addAdminNote(userId, text)
+  }
+  return createServerAdminNote(userId, text)
 }
 
 export async function adminFetchAccessOverride(userId: string): Promise<WorkspaceAccessOverride> {
-  const stored = loadAccessOverride(userId)
+  if (await useMockData()) {
+    const { loadAccessOverride, defaultAccessOverride } = await import('./services/adminLocalStorage')
+    const stored = loadAccessOverride(userId)
+    if (stored) return stored
+    const user = await adminFetchUserDetail(userId)
+    if (!user) return defaultAccessOverride(userId, 'solo', null)
+    return defaultAccessOverride(userId, user.subscriptionTier, user.trialEndsAt)
+  }
+
+  const stored = await fetchServerAccessOverride(userId)
   if (stored) return stored
   const user = await adminFetchUserDetail(userId)
   if (!user) {
-    return defaultAccessOverride(userId, 'solo', null)
+    return {
+      userId,
+      accessType: 'normal_trial',
+      subscriptionPlan: 'solo',
+      betaTester: false,
+      lifetimeAccess: false,
+      trialEndsAt: null,
+      updatedAt: new Date().toISOString(),
+    }
   }
-  return defaultAccessOverride(userId, user.subscriptionTier, user.trialEndsAt)
+  return {
+    userId,
+    accessType: user.lifetimeAccess
+      ? 'lifetime'
+      : user.betaTester
+        ? 'beta_tester'
+        : user.subscriptionStatus === 'active'
+          ? 'paid'
+          : user.subscriptionStatus === 'canceled'
+            ? 'cancelled'
+            : 'normal_trial',
+    subscriptionPlan: user.subscriptionTier,
+    betaTester: user.betaTester,
+    lifetimeAccess: user.lifetimeAccess,
+    trialEndsAt: user.trialEndsAt,
+    updatedAt: new Date().toISOString(),
+  }
 }
 
 export async function adminSaveAccessOverride(
   override: WorkspaceAccessOverride,
 ): Promise<WorkspaceAccessOverride> {
-  return saveAccessOverride(override)
+  if (await useMockData()) {
+    const { saveAccessOverride } = await import('./services/adminLocalStorage')
+    return saveAccessOverride(override)
+  }
+  return saveServerAccessOverride(override)
 }
 
 export async function adminDeleteUser(
@@ -711,6 +780,7 @@ export async function adminDeleteUser(
   adminUserId: string,
 ): Promise<{ error: string | null }> {
   if (await useMockData()) {
+    const { purgeAdminLocalDataForUser } = await import('./services/adminLocalStorage')
     purgeAdminLocalDataForUser(userId)
     return { error: null }
   }
@@ -723,7 +793,6 @@ export async function adminDeleteUser(
   const { error } = await deleteUserAccount(userId)
   if (error) return { error }
 
-  purgeAdminLocalDataForUser(userId)
   await logAdminAction(adminUserId, 'delete_user', userId, detail?.workspaceId ?? undefined, {
     email: detail?.email,
   })

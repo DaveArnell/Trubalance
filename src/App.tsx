@@ -597,7 +597,7 @@ function AppShellInner({
               <button type="button" className="btn-ghost btn-tiny" onClick={stopImpersonation}>
                 Exit view
               </button>
-              <Link to="/platform-admin" className="btn-ghost btn-tiny">
+              <Link to="/vocatio-admin" className="btn-ghost btn-tiny">
                 Back to admin
               </Link>
             </div>

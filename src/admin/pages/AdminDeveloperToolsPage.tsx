@@ -47,9 +47,9 @@ export function AdminDeveloperToolsPage() {
       hint: 'Run all files in supabase/migrations/ on each Supabase project',
     },
     {
-      label: 'Admin role assigned',
+      label: 'Vocatio admin enrolled',
       ok: info.supabaseConfigured,
-      hint: 'UPDATE profiles SET role = super_admin for your email after signup',
+      hint: 'Insert your @vocatio.io user into platform_admins, deploy admin-auth, complete 2FA at /vocatio-admin',
     },
     {
       label: 'Users & workspaces (live data)',
