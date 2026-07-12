@@ -711,7 +711,28 @@ export async function restoreStateToWorkspace(workspaceId: string, state: AppSta
   await saveWorkspaceState(workspaceId, state, { allowEmptyDeletes: true })
 }
 
-function mapWorkspaceSubscriptionRow(row: Record<string, unknown>): WorkspaceSubscription {
+function mapStripeStatus(raw: string | null | undefined): SubscriptionStatus {
+  switch (raw) {
+    case 'active':
+      return 'active'
+    case 'trialing':
+      return 'trialing'
+    case 'past_due':
+      return 'past_due'
+    case 'canceled':
+    case 'cancelled':
+    case 'unpaid':
+    case 'incomplete_expired':
+      return 'expired'
+    default:
+      return 'trialing'
+  }
+}
+
+function mapWorkspaceSubscriptionRow(
+  row: Record<string, unknown>,
+  subscriptionRow?: Record<string, unknown> | null,
+): WorkspaceSubscription {
   const tierId = (row.subscription_tier as SubscriptionTierId) || 'solo'
   const lifetimeAccess = Boolean(row.lifetime_access)
   const betaTester = Boolean(row.beta_tester)
@@ -719,31 +740,53 @@ function mapWorkspaceSubscriptionRow(row: Record<string, unknown>): WorkspaceSub
   const adminOverride = row.admin_tier_override
     ? (String(row.admin_tier_override) as SubscriptionTierId)
     : null
+  const gracePeriodEndsAt =
+    (subscriptionRow?.grace_period_ends_at as string | null | undefined) ??
+    (row.grace_period_ends_at ? String(row.grace_period_ends_at) : null)
 
   let status: SubscriptionStatus = 'trialing'
   if (lifetimeAccess || betaTester) {
     status = 'active'
+  } else if (subscriptionRow?.status) {
+    status = mapStripeStatus(String(subscriptionRow.status))
+    if (status === 'past_due' && gracePeriodEndsAt && new Date(gracePeriodEndsAt) > new Date()) {
+      status = 'grace_period'
+    }
   } else if (trialEndsAt && new Date(trialEndsAt) <= new Date()) {
     status = 'expired'
   }
 
+  const billingIntervalRaw =
+    subscriptionRow?.billing_interval ?? row.billing_interval
+  const billingInterval =
+    billingIntervalRaw === 'monthly' || billingIntervalRaw === 'annual'
+      ? billingIntervalRaw
+      : null
+
+  const paidTier = subscriptionRow?.tier
+    ? (String(subscriptionRow.tier) as SubscriptionTierId)
+    : tierId
+
   return {
-    tierId,
+    tierId: paidTier,
     status,
     trialEndsAt: lifetimeAccess ? null : trialEndsAt,
     lifetimeAccess,
     betaTester,
     adminTierOverride: adminOverride,
     stripeCustomerId: row.stripe_customer_id ? String(row.stripe_customer_id) : null,
-    stripeSubscriptionId: null,
-    currentPeriodStart: null,
-    currentPeriodEnd: null,
-    cancelAtPeriodEnd: false,
-    gracePeriodEndsAt: row.grace_period_ends_at ? String(row.grace_period_ends_at) : null,
-    billingInterval:
-      row.billing_interval === 'monthly' || row.billing_interval === 'annual'
-        ? row.billing_interval
-        : null,
+    stripeSubscriptionId: subscriptionRow?.stripe_subscription_id
+      ? String(subscriptionRow.stripe_subscription_id)
+      : null,
+    currentPeriodStart: subscriptionRow?.current_period_start
+      ? String(subscriptionRow.current_period_start)
+      : null,
+    currentPeriodEnd: subscriptionRow?.current_period_end
+      ? String(subscriptionRow.current_period_end)
+      : null,
+    cancelAtPeriodEnd: Boolean(subscriptionRow?.cancel_at_period_end),
+    gracePeriodEndsAt: gracePeriodEndsAt ? String(gracePeriodEndsAt) : null,
+    billingInterval,
   }
 }
 
@@ -754,13 +797,26 @@ export async function loadWorkspaceSubscription(workspaceId: string): Promise<Wo
   const { data, error } = await supabase
     .from('workspaces')
     .select(
-      'subscription_tier, trial_ends_at, lifetime_access, beta_tester, admin_tier_override, grace_period_ends_at, billing_interval, stripe_customer_id',
+      `subscription_tier, trial_ends_at, lifetime_access, beta_tester, admin_tier_override,
+       grace_period_ends_at, billing_interval, stripe_customer_id,
+       subscriptions (
+         stripe_subscription_id, stripe_price_id, status, tier,
+         current_period_start, current_period_end, cancel_at_period_end,
+         grace_period_ends_at, billing_interval
+       )`,
     )
     .eq('id', workspaceId)
     .maybeSingle()
 
   if (error || !data) return null
-  return mapWorkspaceSubscriptionRow(data as Record<string, unknown>)
+
+  const row = data as Record<string, unknown>
+  const subscriptions = row.subscriptions
+  const subscriptionRow = Array.isArray(subscriptions)
+    ? (subscriptions[0] as Record<string, unknown> | undefined)
+    : (subscriptions as Record<string, unknown> | null | undefined)
+
+  return mapWorkspaceSubscriptionRow(row, subscriptionRow ?? null)
 }
 
 export async function getFounderSpotsRemaining(): Promise<number | null> {

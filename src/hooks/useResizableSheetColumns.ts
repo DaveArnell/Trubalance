@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react'
-import { useDemoReadOnly } from '../contexts/DemoModeContext'
+import { useEditReadOnly } from '../hooks/useEditReadOnly'
 
 export type SheetColumnSpec = {
   id: string
@@ -249,11 +249,11 @@ export function useResizableSheetColumns(
   columns: SheetColumnSpec[],
   storageKey: string,
 ) {
-  const demoReadOnly = useDemoReadOnly()
+  const editReadOnly = useEditReadOnly()
   const mins = useRef(columns.map((column) => column.minWidth))
   const defaults = useRef(columns.map((column) => column.defaultWidth))
   const [widths, setWidths] = useState<number[]>(() => {
-    if (demoReadOnly) return defaults.current
+    if (editReadOnly) return defaults.current
     const stored = loadStoredWidths(storageKey, columns)
     return stored ?? defaults.current
   })
@@ -317,7 +317,7 @@ export function useResizableSheetColumns(
 
   const startResize = useCallback(
     (index: number, startX: number) => {
-      if (demoReadOnly) return
+      if (editReadOnly) return
       if (columns[index]?.resizable === false || columns[index]?.fixed) return
 
       isManualResizeRef.current = true
@@ -348,7 +348,7 @@ export function useResizableSheetColumns(
         )
         widthsRef.current = final
         setWidths(final)
-        if (!demoReadOnly) {
+        if (!editReadOnly) {
           saveStoredWidths(storageKey, columns, final)
           saveStoredProportions(storageKey, columns, final)
           proportionsRef.current = loadStoredProportions(storageKey)
@@ -359,8 +359,9 @@ export function useResizableSheetColumns(
       document.addEventListener('mousemove', onMove)
       document.addEventListener('mouseup', onUp)
     },
-    [columns, demoReadOnly, getContainerWidth, storageKey],
+    [columns, editReadOnly, getContainerWidth, storageKey],
   )
 
   return { widths, startResize }
 }
+

@@ -11,7 +11,7 @@ import {
   alignStackedColumnWidgets,
 } from '../utils/widgetLayout'
 import { reflowFillLayout } from '../utils/widgetLayoutReflow'
-import { useDemoReadOnly } from '../contexts/DemoModeContext'
+import { useEditReadOnly } from '../hooks/useEditReadOnly'
 
 function normalizeOrder(layout: PageWidgetLayout): PageWidgetLayout {
   return [...layout]
@@ -20,22 +20,22 @@ function normalizeOrder(layout: PageWidgetLayout): PageWidgetLayout {
 }
 
 export function useWidgetLayout(pageId: PageId) {
-  const demoReadOnly = useDemoReadOnly()
+  const editReadOnly = useEditReadOnly()
   const [layout, setLayout] = useState<PageWidgetLayout>(() =>
-    demoReadOnly ? defaultPageWidgetLayout(pageId) : loadPageWidgetLayout(pageId),
+    editReadOnly ? defaultPageWidgetLayout(pageId) : loadPageWidgetLayout(pageId),
   )
 
   useEffect(() => {
-    setLayout(demoReadOnly ? defaultPageWidgetLayout(pageId) : loadPageWidgetLayout(pageId))
-  }, [pageId, demoReadOnly])
+    setLayout(editReadOnly ? defaultPageWidgetLayout(pageId) : loadPageWidgetLayout(pageId))
+  }, [pageId, editReadOnly])
 
   const persist = useCallback(
     (next: PageWidgetLayout) => {
       const normalized = normalizeOrder(next)
       setLayout(normalized)
-      if (!demoReadOnly) savePageWidgetLayout(pageId, normalized)
+      if (!editReadOnly) savePageWidgetLayout(pageId, normalized)
     },
-    [pageId, demoReadOnly],
+    [pageId, editReadOnly],
   )
 
   const setVisible = useCallback(
@@ -139,7 +139,7 @@ export function useWidgetLayout(pageId: PageId) {
   )
 
   const resetLayout = useCallback(() => {
-    const defaults = demoReadOnly
+    const defaults = editReadOnly
       ? defaultPageWidgetLayout(pageId)
       : resetPageWidgetLayout(pageId)
     const visibleItems = defaults.filter((item) => item.visible)
@@ -151,11 +151,11 @@ export function useWidgetLayout(pageId: PageId) {
         return rect ? { ...item, ...clampWidgetRect(rect) } : item
       })
       setLayout(reflowed)
-      if (!demoReadOnly) savePageWidgetLayout(pageId, reflowed)
+      if (!editReadOnly) savePageWidgetLayout(pageId, reflowed)
       return
     }
     setLayout(defaults)
-  }, [pageId, demoReadOnly])
+  }, [pageId, editReadOnly])
 
   return {
     layout,
@@ -168,3 +168,4 @@ export function useWidgetLayout(pageId: PageId) {
     resetLayout,
   }
 }
+

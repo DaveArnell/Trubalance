@@ -1,10 +1,11 @@
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import {
   MarketingFooter,
   MarketingHeader,
   MarketingShell,
 } from '../components/marketing/MarketingLayout'
 import { BLOG_CATEGORIES, BLOG_POSTS } from '../content/blogPosts'
+import { METHOD_BLOG_CATEGORY } from '../content/trueBalanceMethod'
 import { usePageMeta } from '../hooks/usePageMeta'
 
 function formatBlogDate(iso: string): string {
@@ -16,14 +17,19 @@ function formatBlogDate(iso: string): string {
 }
 
 export function BlogIndexPage() {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const activeCategory = searchParams.get('category')
+
   usePageMeta({
     title: 'Blog — Cash clarity & UK small business finance guides',
     description:
-      'Guides on True Balance, cash flow forecasting, VAT reserves, and UK small business finance. Compare tools, plan tax, and know what you can actually spend.',
-    path: '/blog',
+      'Guides on the True Balance Method, cash flow, VAT reserves, and UK small business finance — written for owners who need clear answers.',
+    path: activeCategory ? `/blog?category=${encodeURIComponent(activeCategory)}` : '/blog',
   })
 
-  const sorted = [...BLOG_POSTS].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
+  const sorted = [...BLOG_POSTS]
+    .filter((post) => !activeCategory || post.category === activeCategory)
+    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
 
   return (
     <MarketingShell>
@@ -35,10 +41,13 @@ export function BlogIndexPage() {
             <p className="marketing-eyebrow marketing-eyebrow--vivid">Resources</p>
             <h1>Cash clarity for UK business owners</h1>
             <p className="blog-index-lead">
-              Practical guides on True Balance, cash flow, tax reserves, and how we compare to
-              spreadsheets and other tools — written for search and for owners who need answers fast.
+              Practical guides on the True Balance Method, cash flow, tax reserves, and how True
+              Balance compares to spreadsheets and accounting software.
             </p>
             <div className="blog-index-cta">
+              <Link to="/true-balance-method" className="btn-secondary">
+                The True Balance Method
+              </Link>
               <Link to="/signup" className="btn-primary">
                 Start free trial
               </Link>
@@ -49,12 +58,33 @@ export function BlogIndexPage() {
           </header>
 
           <div className="blog-category-tags" aria-label="Categories">
+            <button
+              type="button"
+              className={`blog-category-tag blog-category-tag--button${activeCategory ? '' : ' blog-category-tag--active'}`}
+              onClick={() => setSearchParams({})}
+            >
+              All
+            </button>
             {BLOG_CATEGORIES.map((category) => (
-              <span key={category} className="blog-category-tag">
+              <button
+                key={category}
+                type="button"
+                className={`blog-category-tag blog-category-tag--button${
+                  activeCategory === category ? ' blog-category-tag--active' : ''
+                }`}
+                onClick={() => setSearchParams({ category })}
+              >
                 {category}
-              </span>
+              </button>
             ))}
           </div>
+
+          {activeCategory === METHOD_BLOG_CATEGORY && (
+            <p className="blog-index-category-note muted">
+              Educational articles about the True Balance Method — how to see what is genuinely
+              available and keep a calm financial routine.
+            </p>
+          )}
 
           <div className="blog-index-grid">
             {sorted.map((post) => (

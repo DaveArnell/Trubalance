@@ -103,10 +103,10 @@ export function LandingAppPreview({ variant = 'section' }: LandingAppPreviewProp
       <div className="marketing-section-inner">
         <div className="marketing-section-head marketing-section-head--center">
           <p className="marketing-eyebrow marketing-eyebrow--vivid">Live demo snapshot</p>
-          <h2 id="landing-preview-heading">See available cash, not just bank balance</h2>
+          <h2 id="landing-preview-heading">Your real position — not just your bank balance</h2>
           <p className="marketing-section-lead">
-            A quick look at the numbers that drive decisions: bank balance, committed money, and
-            True Balance in a real demo workspace.
+            A quick look at what True Balance shows: bank balance, committed money already
+            accounted for, and what is genuinely available to spend.
           </p>
         </div>
 

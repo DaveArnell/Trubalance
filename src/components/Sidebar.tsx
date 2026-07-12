@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type DragEvent, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { useDemoMode, useDemoReadOnly } from '../contexts/DemoModeContext'
+import { useDemoMode } from '../contexts/DemoModeContext'
+import { useEditReadOnly } from '../hooks/useEditReadOnly'
 import type { AppState, ViewScope } from '../types'
 import type { AppRoute, PageId } from '../navigation'
 import { buildHash, RESERVE_PLANNER_CREATE_ROUTE } from '../navigation'
@@ -124,7 +125,7 @@ export function Sidebar({
   onNavigate,
 }: SidebarProps) {
   const demoMode = useDemoMode()
-  const demoReadOnly = useDemoReadOnly()
+  const editReadOnly = useEditReadOnly()
   const { user, profile, isAdmin, isImpersonating, signOut, configured } = useAuth()
   const { collapsed, toggleCollapsed } = useSidebarCollapsed()
   const plannerIds = state.reservePlanners.map((p) => p.id)
@@ -245,7 +246,7 @@ export function Sidebar({
                   itemId={pageKey(page.id)}
                   className="sidebar-nav-item--top"
                   compact={collapsed}
-                  reorderable={!demoReadOnly}
+                  reorderable={!editReadOnly}
                   isDragging={draggingKey === pageKey(page.id)}
                   dragOver={dragOverKey === pageKey(page.id) && draggingKey !== pageKey(page.id)}
                   onDragStart={() => setDraggingKey(pageKey(page.id))}
@@ -292,7 +293,7 @@ export function Sidebar({
                             key={planner.id}
                             itemId={plannerKey(planner.id)}
                             className="sidebar-submenu-item"
-                            reorderable={!demoReadOnly}
+                            reorderable={!editReadOnly}
                             isDragging={draggingKey === plannerKey(planner.id)}
                             dragOver={
                               dragOverKey === plannerKey(planner.id) &&
@@ -351,7 +352,7 @@ export function Sidebar({
                 key={page.id}
                 itemId={pageKey(page.id)}
                 compact={collapsed}
-                reorderable={!demoReadOnly}
+                reorderable={!editReadOnly}
                 isDragging={draggingKey === pageKey(page.id)}
                 dragOver={dragOverKey === pageKey(page.id) && draggingKey !== pageKey(page.id)}
                 onDragStart={() => setDraggingKey(pageKey(page.id))}
@@ -436,3 +437,4 @@ export function Sidebar({
     </aside>
   )
 }
+

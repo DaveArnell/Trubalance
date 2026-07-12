@@ -1,4 +1,4 @@
-import type { BlogSection } from '../../content/blogPosts'
+import type { BlogSection } from '../../content/blogTypes'
 
 export function BlogProse({ sections }: { sections: BlogSection[] }) {
   return (

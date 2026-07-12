@@ -1,6 +1,6 @@
 import { useMemo, useState, Fragment } from 'react'
 import type { AppState, Commitment, CommitmentViews, PlannedFundingMethod, ScopeLevel, ViewScope } from '../../types'
-import { useDemoReadOnly } from '../../contexts/DemoModeContext'
+import { useEditReadOnly } from '../../hooks/useEditReadOnly'
 import { getCommitmentScopeOptionsForView, getDefaultCommitmentScope, getReserveBillScopeOptionsForView } from '../../utils/scope'
 import {
   buildDueRowSections,
@@ -84,7 +84,7 @@ export function DuePanel({
   setOpenHelp,
   onOpenReservePlanner,
 }: DuePanelProps) {
-  const demoReadOnly = useDemoReadOnly()
+  const editReadOnly = useEditReadOnly()
   const [fundingDraft, setFundingDraft] = useState<PlannedFundingDraft | null>(null)
   const [pendingPlannedPatch, setPendingPlannedPatch] = useState<{
     id: string
@@ -118,7 +118,7 @@ export function DuePanel({
   const orderedCellIds = useMemo(() => dueEditableCellIds(visibleDueRows), [visibleDueRows])
   const { activeCell, activate, deactivate, makeTabHandler } = useSheetCellNavigation(orderedCellIds)
   const tryActivate = (cellId: string) => {
-    if (!demoReadOnly) activate(cellId)
+    if (!editReadOnly) activate(cellId)
   }
   const dueReorder = useSheetRowReorder(dueRowIds, (orderedIds) => {
     const items = orderedIds.map((id) => {
@@ -350,7 +350,7 @@ export function DuePanel({
           </tbody>
         </table>
         <div className="card-actions">
-          {!demoReadOnly && (
+          {!editReadOnly && (
             <button type="button" className="btn-secondary btn-tiny" onClick={addPlannedRow}>
               + Add planned
             </button>
@@ -370,7 +370,7 @@ export function DuePanel({
             <PlatformSheetTable widths={widths} preferenceClasses={prefClasses}>
               <thead>
                 <tr>
-                  {!demoReadOnly && <SheetDragHeader />}
+                  {!editReadOnly && <SheetDragHeader />}
                   <ResizableSheetHeader columnIndex={1} onResizeStart={startResize}>
                     Name
                   </ResizableSheetHeader>
@@ -434,12 +434,12 @@ export function DuePanel({
                         return (
                           <tr
                             key={row.id}
-                            {...(demoReadOnly ? {} : rowProps)}
+                            {...(editReadOnly ? {} : rowProps)}
                             className={[rowProps.className, `sheet-due-row--${rowKind}`]
                               .filter(Boolean)
                               .join(' ')}
                           >
-                        {!demoReadOnly && (
+                        {!editReadOnly && (
                           <SheetDragCell rowId={row.id} getHandleProps={dueReorder.getHandleProps} />
                         )}
                         {isReserveTransfer ? (
@@ -479,7 +479,7 @@ export function DuePanel({
                             scopeId={item.scopeId}
                             options={reserveBillScopeOptions}
                             commitmentScope
-                            readOnly={demoReadOnly}
+                            readOnly={editReadOnly}
                             isActive={activeCell === `due-${row.id}-scope`}
                             onActivate={() => tryActivate(`due-${row.id}-scope`)}
                             onDeactivate={deactivate}
@@ -500,7 +500,7 @@ export function DuePanel({
                             scopeId={item.scopeId}
                             options={options}
                             commitmentScope
-                            readOnly={demoReadOnly}
+                            readOnly={editReadOnly}
                             isActive={activeCell === `due-${item.id}-scope`}
                             onActivate={() => tryActivate(`due-${item.id}-scope`)}
                             onDeactivate={deactivate}
@@ -713,3 +713,4 @@ export function DuePanel({
     </section>
   )
 }
+

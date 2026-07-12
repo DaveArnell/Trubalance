@@ -8,14 +8,19 @@ import { dirname, join } from 'node:path'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const blogSource = readFileSync(join(root, 'src/content/blogPosts.ts'), 'utf8')
+const methodBlogSource = readFileSync(join(root, 'src/content/methodBlogPosts.ts'), 'utf8')
 const site = 'https://truebalanceapp.io'
 
-const slugs = [...blogSource.matchAll(/slug:\s*'([^']+)'/g)].map((match) => match[1])
+const slugs = [
+  ...blogSource.matchAll(/slug:\s*'([^']+)'/g),
+  ...methodBlogSource.matchAll(/slug:\s*'([^']+)'/g),
+].map((match) => match[1])
 
 const staticPages = [
   { loc: '/', priority: '1.0', changefreq: 'weekly' },
   { loc: '/pricing', priority: '0.9', changefreq: 'monthly' },
   { loc: '/see-how-it-works', priority: '0.9', changefreq: 'monthly' },
+  { loc: '/true-balance-method', priority: '0.9', changefreq: 'monthly' },
   { loc: '/signup', priority: '0.9', changefreq: 'monthly' },
   { loc: '/blog', priority: '0.9', changefreq: 'weekly' },
   { loc: '/privacy', priority: '0.3', changefreq: 'yearly' },

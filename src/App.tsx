@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback } from 'react'
+import { useEffect, useMemo, useState, useCallback, useRef, type ComponentProps, type MutableRefObject } from 'react'
 import { Link } from 'react-router-dom'
 import { ReferenceDateProvider, useReferenceDate } from './contexts/ReferenceDateContext'
 import { TablePreferencesProvider } from './contexts/TablePreferencesContext'
@@ -24,7 +24,7 @@ import {
   type AppRoute,
   type PageId,
 } from './navigation'
-import type { AppState, GraphRange, ViewScope, AttentionItem } from './types'
+import type { GraphRange, ViewScope, AttentionItem } from './types'
 import type { WorkspaceSubscription } from './types/subscription'
 import { calculateDashboard } from './utils/calculations'
 import { buildBreakdownColumns } from './utils/breakdownTable'
@@ -37,11 +37,12 @@ import { scopeThemeBusinessId, scopeThemeStyle } from './utils/businessTheme'
 import { defaultViewScope as initialDefaultViewScope } from './data/initialState'
 import { formatSnapshotDateLong } from './utils/snapshots'
 import { SubscriptionProvider, useSubscription } from './contexts/SubscriptionContext'
-import { PostTrialNotice, TrialBanner, UpgradePrompt } from './components/UpgradePrompt'
+import { PostTrialNotice, ReadOnlyLockBanner, TrialBanner, TrialWarningModal, UpgradePrompt } from './components/UpgradePrompt'
 import { MonthlyReserveCheckIn } from './components/MonthlyReserveCheckIn'
 import { trackEvent } from './services/eventTracking'
 import { showsDemoDataBanner } from './utils/localStateStorage'
-import { useDemoMode, useDemoReadOnly } from './contexts/DemoModeContext'
+import { useDemoMode } from './contexts/DemoModeContext'
+import { useEditReadOnly } from './hooks/useEditReadOnly'
 
 export interface AppShellProps extends UseAppStateOptions {
   isInteractiveDemo?: boolean
@@ -70,27 +71,101 @@ function AppTourBridge({ activePage }: { activePage: PageId }) {
   return null
 }
 
-function SubscriptionTierEnforcer({
-  state,
-  dissolveGroup,
-  disabled,
+function SubscriptionReadOnlyBridge({ readOnlyRef }: { readOnlyRef: MutableRefObject<boolean> }) {
+  const { subscriptionReadOnly } = useSubscription()
+  readOnlyRef.current = subscriptionReadOnly
+  return null
+}
+
+function UndoKeyboardShortcuts({
+  canUndo,
+  canRedo,
+  onUndo,
+  onRedo,
 }: {
-  state: AppState
-  dissolveGroup: (id: string) => void
-  disabled?: boolean
+  canUndo: boolean
+  canRedo: boolean
+  onUndo: () => void
+  onRedo: () => void
 }) {
-  const { effectiveTierId } = useSubscription()
+  const editReadOnly = useEditReadOnly()
 
   useEffect(() => {
-    if (disabled) return
-    if (effectiveTierId === 'business' && state.groups.length > 0) {
-      for (const group of state.groups) {
-        dissolveGroup(group.id)
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (editReadOnly) return
+      if (!(e.ctrlKey || e.metaKey)) return
+      const target = e.target
+      if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        (target instanceof HTMLElement && target.isContentEditable)
+      ) {
+        return
       }
+      const key = e.key.toLowerCase()
+      const isUndo = key === 'z' && !e.shiftKey
+      const isRedo = (key === 'z' && e.shiftKey) || key === 'y'
+      if (!isUndo && !isRedo) return
+
+      e.preventDefault()
+      if (isUndo && canUndo) onUndo()
+      if (isRedo && canRedo) onRedo()
     }
-  }, [disabled, effectiveTierId, state.groups.length, dissolveGroup])
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [canRedo, canUndo, editReadOnly, onRedo, onUndo])
 
   return null
+}
+
+function UndoRedoButtons({
+  canUndo,
+  canRedo,
+  onUndo,
+  onRedo,
+}: {
+  canUndo: boolean
+  canRedo: boolean
+  onUndo: () => void
+  onRedo: () => void
+}) {
+  const editReadOnly = useEditReadOnly()
+  if (editReadOnly) return null
+
+  return (
+    <>
+      <button
+        type="button"
+        className="btn-secondary btn-tiny undo-btn"
+        onClick={onUndo}
+        title="Undo last change (Ctrl+Z)"
+        disabled={!canUndo}
+      >
+        ↩ Undo
+      </button>
+      <button
+        type="button"
+        className="btn-secondary btn-tiny undo-btn"
+        onClick={onRedo}
+        title="Redo last undone change (Ctrl+Shift+Z)"
+        disabled={!canRedo}
+      >
+        ↪ Redo
+      </button>
+    </>
+  )
+}
+
+function OverviewStripEditable(props: ComponentProps<typeof OverviewStrip>) {
+  const editReadOnly = useEditReadOnly()
+  const { onBalanceSave, ...rest } = props
+  return (
+    <OverviewStrip
+      {...rest}
+      readOnly={editReadOnly}
+      onBalanceSave={editReadOnly ? undefined : onBalanceSave}
+    />
+  )
 }
 
 function AppShellInner({
@@ -107,7 +182,8 @@ function AppShellInner({
   remoteSubscription,
 }: AppShellProps) {
   const demoMode = useDemoMode()
-  const demoReadOnly = useDemoReadOnly()
+  const demoReadOnly = demoMode != null && !demoMode.canEditDemo
+  const subscriptionReadOnlyRef = useRef(false)
   const isDemoSession = isInteractiveDemo || demoMode != null
   const { user, profile, isImpersonating, impersonation, stopImpersonation, refreshProfile } = useAuth()
   const { workspaceId: ctxWorkspaceId, importedFromLocal } = useWorkspace()
@@ -120,7 +196,8 @@ function AppShellInner({
     remotePersist,
     skipLocalPersist,
     defaultViewScope,
-    readOnly,
+    readOnly: (readOnly ?? false) || demoReadOnly,
+    readOnlyRef: subscriptionReadOnlyRef,
   })
   const { isSimulated, simulatedDateKey, clearSimulatedDate, referenceDateKey } = useReferenceDate()
   const [activeRoute, setActiveRoute] = useActiveRoute()
@@ -188,31 +265,6 @@ function AppShellInner({
     () => hasMultipleViewScopes(app.state),
     [app.state],
   )
-
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (readOnly || demoReadOnly) return
-      if (!(e.ctrlKey || e.metaKey)) return
-      const target = e.target
-      if (
-        target instanceof HTMLInputElement ||
-        target instanceof HTMLTextAreaElement ||
-        (target instanceof HTMLElement && target.isContentEditable)
-      ) {
-        return
-      }
-      const key = e.key.toLowerCase()
-      const isUndo = key === 'z' && !e.shiftKey
-      const isRedo = (key === 'z' && e.shiftKey) || key === 'y'
-      if (!isUndo && !isRedo) return
-
-      e.preventDefault()
-      if (isUndo && app.canUndo) app.undo()
-      if (isRedo && app.canRedo) app.redo()
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [app.canRedo, app.canUndo, app.redo, app.undo, demoReadOnly, readOnly])
 
   const viewName = getScopeLabel(app.state, app.viewScope)
 
@@ -474,12 +526,14 @@ function AppShellInner({
       onOnboardingComplete={refreshProfile}
     >
       <TablePreferencesProvider>
-        <AppTourBridge activePage={activePage} />
-        <SubscriptionTierEnforcer
-          state={app.state}
-          dissolveGroup={app.dissolveGroup}
-          disabled={isDemoSession}
+        <SubscriptionReadOnlyBridge readOnlyRef={subscriptionReadOnlyRef} />
+        <UndoKeyboardShortcuts
+          canUndo={app.canUndo}
+          canRedo={app.canRedo}
+          onUndo={app.undo}
+          onRedo={app.redo}
         />
+        <AppTourBridge activePage={activePage} />
         <GuidedTour />
         {setupWizardOpen && !isDemoSession && (
           <GuidedSetupWizard
@@ -493,6 +547,7 @@ function AppShellInner({
           />
         )}
         <UpgradePrompt />
+        <TrialWarningModal />
         <div
           className="app-shell"
           style={scopeTheme}
@@ -564,6 +619,7 @@ function AppShellInner({
           )}
 
           {!isDemoSession && <TrialBanner />}
+          {!isDemoSession && <ReadOnlyLockBanner />}
           {!isDemoSession && <PostTrialNotice />}
           {!isDemoSession && activePage !== 'reserve-planner' && (
             <MonthlyReserveCheckIn
@@ -614,33 +670,17 @@ function AppShellInner({
                       Start free trial
                     </Link>
                   )}
-                  {!readOnly && (
-                    <>
-                      <button
-                        type="button"
-                        className="btn-secondary btn-tiny undo-btn"
-                        onClick={app.undo}
-                        title="Undo last change (Ctrl+Z)"
-                        disabled={!app.canUndo}
-                      >
-                        ↩ Undo
-                      </button>
-                      <button
-                        type="button"
-                        className="btn-secondary btn-tiny undo-btn"
-                        onClick={app.redo}
-                        title="Redo last undone change (Ctrl+Shift+Z)"
-                        disabled={!app.canRedo}
-                      >
-                        ↪ Redo
-                      </button>
-                    </>
-                  )}
+                  <UndoRedoButtons
+                    canUndo={app.canUndo}
+                    canRedo={app.canRedo}
+                    onUndo={app.undo}
+                    onRedo={app.redo}
+                  />
                 </div>
               </div>
             </header>
 
-            <OverviewStrip
+            <OverviewStripEditable
               metrics={metrics}
               attentionItems={metrics.attentionItems}
               onNotificationClick={handleNotificationClick}
@@ -652,8 +692,7 @@ function AppShellInner({
               breakdownColumns={breakdownColumns}
               size={overviewSize}
               onSizeChange={setOverviewSize}
-              readOnly={demoReadOnly}
-              onBalanceSave={demoReadOnly ? undefined : handleBalanceSave}
+              onBalanceSave={handleBalanceSave}
             />
           </div>
 

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, type MutableRefObject } from 'react'
 import { defaultViewScope, initialState } from '../data/initialState'
 import type {
   AccountType,
@@ -303,7 +303,10 @@ export interface UseAppStateOptions {
   skipLocalPersist?: boolean
   /** Initial scope when hydrating external state (e.g. interactive demo). */
   defaultViewScope?: ViewScope
+  /** When true, block all state mutations (impersonation, demo, or unpaid subscription). */
   readOnly?: boolean
+  /** Dynamic read-only flag updated each render (e.g. subscription lock). */
+  readOnlyRef?: MutableRefObject<boolean>
 }
 
 export function useAppState(options?: UseAppStateOptions) {
@@ -418,7 +421,7 @@ export function useAppState(options?: UseAppStateOptions) {
 
   const update = useCallback(
     (fn: (prev: AppState) => AppState) => {
-      if (options?.readOnly) return
+      if (options?.readOnly || options?.readOnlyRef?.current) return
       setState((prev) => {
         const next = fn(prev)
         if (next === prev) return prev
@@ -428,7 +431,7 @@ export function useAppState(options?: UseAppStateOptions) {
         return next
       })
     },
-    [pushUndo, options?.readOnly],
+    [pushUndo, options?.readOnly, options?.readOnlyRef],
   )
 
   const undo = useCallback(() => {

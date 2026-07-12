@@ -1,10 +1,17 @@
 /** SEO copy for public marketing routes (used with usePageMeta). */
 
 export const HOME_SEO = {
-  title: 'True Balance — Cash clarity for UK business owners',
+  title: 'True Balance — The True Balance Method for UK business owners',
   description:
-    'True Balance shows what cash is genuinely yours after commitments, VAT, tax reserves, and expected receipts. Built for UK small business owners.',
+    'A simple financial management method for seeing what your business can genuinely afford — committed money, virtual reserves and realistic receipts. True Balance automates it.',
   path: '/',
+} as const
+
+export const METHOD_SEO = {
+  title: 'The True Balance Method — Manage money from what is genuinely available',
+  description:
+    'Your bank balance is not your available cash. Learn the True Balance Method: account for commitments, build virtual reserves, and make calmer day-to-day financial decisions.',
+  path: '/true-balance-method',
 } as const
 
 export const PRICING_SEO = {

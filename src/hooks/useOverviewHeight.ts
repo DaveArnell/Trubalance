@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
-import { useDemoReadOnly } from '../contexts/DemoModeContext'
+import { useEditReadOnly } from '../hooks/useEditReadOnly'
 
 const STORAGE_KEY = 'trubalance-overview-height-v2'
 export const OVERVIEW_HEIGHT_MIN = 56
@@ -29,9 +29,9 @@ function persistHeight(height: number) {
 
 /** Vertical size of the pinned True Balance overview (drag bottom edge). */
 export function useOverviewHeight() {
-  const demoReadOnly = useDemoReadOnly()
+  const editReadOnly = useEditReadOnly()
   const [height, setHeight] = useState(() =>
-    demoReadOnly ? OVERVIEW_HEIGHT_DEFAULT : readStoredHeight(),
+    editReadOnly ? OVERVIEW_HEIGHT_DEFAULT : readStoredHeight(),
   )
   const draggingRef = useRef(false)
   const startYRef = useRef(0)
@@ -54,14 +54,14 @@ export function useOverviewHeight() {
     window.removeEventListener('pointermove', onPointerMove)
     window.removeEventListener('pointerup', endDrag)
     setHeight((current) => {
-      if (!demoReadOnly) persistHeight(current)
+      if (!editReadOnly) persistHeight(current)
       return current
     })
-  }, [demoReadOnly, onPointerMove])
+  }, [editReadOnly, onPointerMove])
 
   const startHeightDrag = useCallback(
     (event: ReactPointerEvent<HTMLElement>) => {
-      if (demoReadOnly) return
+      if (editReadOnly) return
       event.preventDefault()
       draggingRef.current = true
       startYRef.current = event.clientY
@@ -70,16 +70,17 @@ export function useOverviewHeight() {
       window.addEventListener('pointermove', onPointerMove)
       window.addEventListener('pointerup', endDrag)
     },
-    [demoReadOnly, endDrag, height, onPointerMove],
+    [editReadOnly, endDrag, height, onPointerMove],
   )
 
   const resetHeight = useCallback(() => {
-    if (demoReadOnly) return
+    if (editReadOnly) return
     setHeight(OVERVIEW_HEIGHT_DEFAULT)
     persistHeight(OVERVIEW_HEIGHT_DEFAULT)
-  }, [demoReadOnly])
+  }, [editReadOnly])
 
   useEffect(() => () => endDrag(), [endDrag])
 
   return { height, setHeight, startHeightDrag, resetHeight }
 }
+

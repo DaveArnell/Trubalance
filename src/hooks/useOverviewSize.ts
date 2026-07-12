@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { useDemoReadOnly } from '../contexts/DemoModeContext'
+import { useEditReadOnly } from '../hooks/useEditReadOnly'
 
 export type OverviewSize = 'default' | 'detailed'
 
@@ -24,12 +24,12 @@ function readStoredSize(): OverviewSize {
 }
 
 export function useOverviewSize() {
-  const demoReadOnly = useDemoReadOnly()
-  const [size, setSize] = useState<OverviewSize>(() => (demoReadOnly ? 'default' : readStoredSize()))
+  const editReadOnly = useEditReadOnly()
+  const [size, setSize] = useState<OverviewSize>(() => (editReadOnly ? 'default' : readStoredSize()))
 
   const setOverviewSize = useCallback(
     (next: OverviewSize) => {
-      if (demoReadOnly) return
+      if (editReadOnly) return
       setSize(next)
       try {
         localStorage.setItem(STORAGE_KEY, next)
@@ -38,8 +38,9 @@ export function useOverviewSize() {
         /* ignore */
       }
     },
-    [demoReadOnly],
+    [editReadOnly],
   )
 
-  return { size, setOverviewSize, demoReadOnly }
+  return { size, setOverviewSize, editReadOnly }
 }
+

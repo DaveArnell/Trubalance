@@ -1,5 +1,4 @@
 import type { AccountImportResult } from './importCentre'
-import { canAutoApplySuggestion } from './autoApply'
 import { countParsedOutflows } from './inferAmounts'
 
 export interface ImportAnalysisSummary {
@@ -8,8 +7,7 @@ export interface ImportAnalysisSummary {
   transactionCount: number
   outflowCount: number
   suggestionCount: number
-  autoAddCount: number
-  skippedLowConfidence: number
+  pendingReviewCount: number
   skippedIgnored: number
 }
 
@@ -20,8 +18,7 @@ export function summarizeImportAnalysis(results: AccountImportResult[]): ImportA
     transactionCount: 0,
     outflowCount: 0,
     suggestionCount: 0,
-    autoAddCount: 0,
-    skippedLowConfidence: 0,
+    pendingReviewCount: 0,
     skippedIgnored: 0,
   }
 
@@ -42,11 +39,7 @@ export function summarizeImportAnalysis(results: AccountImportResult[]): ImportA
         summary.skippedIgnored++
         continue
       }
-      if (canAutoApplySuggestion(suggestion)) {
-        summary.autoAddCount++
-      } else {
-        summary.skippedLowConfidence++
-      }
+      summary.pendingReviewCount++
     }
   }
 
@@ -67,10 +60,8 @@ export function describeImportAnalysis(summary: ImportAnalysisSummary): string {
     `${summary.suggestionCount} recurring pattern${summary.suggestionCount === 1 ? '' : 's'} found`,
   ]
 
-  if (summary.autoAddCount > 0) {
-    parts.push(`${summary.autoAddCount} confident monthly cost${summary.autoAddCount === 1 ? '' : 's'} will be added automatically`)
-  } else if (summary.suggestionCount > 0) {
-    parts.push('review patterns in Settings before adding')
+  if (summary.pendingReviewCount > 0) {
+    parts.push('review suggestions before adding anything')
   }
 
   return parts.join(' · ')

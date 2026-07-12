@@ -1,9 +1,10 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { AppState } from '../../types'
 import type { AppActions } from '../../hooks/useAppState'
 import { getAccountBusinessId } from '../../utils/accounts'
 import { getScopeItemLabel } from '../../utils/scope'
-import { analyzeBankTransactions } from '../../bankImport/aiAdapter'
+import { analyzeBankTransactions, getBankImportAiStatus } from '../../bankImport/aiAdapter'
+import type { BankImportAiHealth } from '../../services/bankImportApi'
 import { applyBankImportSuggestions, scopeForAccount } from '../../bankImport/applySuggestions'
 import { BankImportMinMonthlyField } from './BankImportMinMonthlyField'
 import { readBankImportMinMonthlyAmount } from '../../utils/bankImportPreferences'
@@ -19,13 +20,13 @@ import type {
 import type { ImportTrendInsight } from '../../bankImport/trendInsights'
 import { historySpanMonths } from '../../bankImport/trendInsights'
 import { getImportableAccounts } from '../../bankImport/importableAccounts'
-import { BANK_IMPORT_ENABLED } from '../../config/setupAutomation'
+import { BANK_IMPORT_NOTE } from '../../config/setupAutomation'
 import {
   BankImportSuggestionReview,
   countAcceptedSuggestions,
 } from './BankImportSuggestionReview'
 
-type WizardStep = 'account' | 'upload' | 'mapping' | 'review' | 'done'
+type WizardStep = 'account' | 'upload' | 'mapping' | 'extract' | 'review' | 'done'
 
 const COLUMN_LABELS: Record<BankImportColumnKey, string> = {
   date: 'Date',
@@ -54,27 +55,6 @@ export function BankStatementImportPanel({
   actions,
   embedded = false,
 }: BankStatementImportPanelProps) {
-  if (!BANK_IMPORT_ENABLED) {
-    return (
-      <div className={`bank-import-coming-soon${embedded ? ' bank-import-coming-soon--embedded' : ''}`}>
-        <div className="setup-data-source-card setup-data-source-card--soon">
-          <div className="setup-data-source-head">
-            <h3>Bank statement import</h3>
-            <span className="setup-data-source-badge">Coming soon</span>
-          </div>
-          <p>
-            Upload a PDF or CSV and we&apos;ll suggest regular monthly outgoings from your history.
-            For now, add your monthly costs manually in <strong>Committed Funds</strong> during setup
-            or any time in Settings.
-          </p>
-          <p className="setup-data-source-foot muted">
-            Open banking, Xero, and QuickBooks connections will use the same flow when they launch.
-          </p>
-        </div>
-      </div>
-    )
-  }
-
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [step, setStep] = useState<WizardStep>('account')
   const [accountId, setAccountId] = useState(state.accounts.find((a) => a.active)?.id ?? '')
@@ -89,6 +69,12 @@ export function BankStatementImportPanel({
   const [applySummary, setApplySummary] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [minMonthlyAmount, setMinMonthlyAmount] = useState(() => readBankImportMinMonthlyAmount())
+  const [aiHealth, setAiHealth] = useState<BankImportAiHealth | null>(null)
+  const [aiNotes, setAiNotes] = useState<string | null>(null)
+
+  useEffect(() => {
+    void getBankImportAiStatus().then(setAiHealth)
+  }, [])
 
   const cashAccounts = useMemo(() => getImportableAccounts(state), [state.accounts, state.venues])
 
@@ -127,32 +113,50 @@ export function BankStatementImportPanel({
     loadCsv(DEMO_BANK_CSV, 'demo-statement.csv')
   }
 
-  const handleParseAndAnalyze = async () => {
+  const handleContinueToExtract = () => {
     setError(null)
     const parsed = mapRowsToTransactions(rows, mapping)
     if (parsed.length === 0) {
       setError('No transactions found. Check your column mapping and try again.')
       return
     }
+    setTransactions(parsed)
+    setStep('extract')
+  }
 
+  const handleRunAiAnalysis = async () => {
     const scope = scopeForAccount(state, accountId)
     if (!scope) {
       setError('Select an account linked to a business or venue.')
       return
     }
 
-    setTransactions(parsed)
     setAnalyzing(true)
+    setError(null)
+    setAiNotes(null)
     try {
-      const result = await analyzeBankTransactions({
-        transactions: parsed,
-        scopeLevel: scope.scopeLevel,
-        scopeId: scope.scopeId,
-        minMonthlyAmount: minMonthlyAmount > 0 ? minMonthlyAmount : undefined,
-      })
+      const result = await analyzeBankTransactions(
+        {
+          transactions,
+          scopeLevel: scope.scopeLevel,
+          scopeId: scope.scopeId,
+          minMonthlyAmount: minMonthlyAmount > 0 ? minMonthlyAmount : undefined,
+        },
+        { sourceAccountId: accountId, fileName },
+      )
+
+      if (!result.aiConfigured || result.suggestions.length === 0) {
+        setAiNotes(
+          result.aiNotes ??
+            'AI could not suggest anything. Check OpenAI is connected in Supabase, or add costs manually.',
+        )
+      }
+
       setSuggestions(result.suggestions)
       setInsights(result.insights ?? [])
       setStep('review')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Analysis failed.')
     } finally {
       setAnalyzing(false)
     }
@@ -213,29 +217,37 @@ export function BankStatementImportPanel({
       <header className="bank-import-header">
         <div>
           <h3 className="bank-import-title">Bank statement import</h3>
-          <p className="muted bank-import-lead">
-            Upload a PDF or CSV to detect recurring costs, receipts, and irregular bills. Review every
-            suggestion before anything is added — nothing is created automatically.
-          </p>
+          <p className="muted bank-import-lead">{BANK_IMPORT_NOTE}</p>
         </div>
-        <span className="bank-import-badge">PDF or CSV · Open Banking later</span>
+        <span className="bank-import-badge">CSV or PDF · AI assisted</span>
       </header>
 
+      {aiHealth && (
+        <p
+          className={`bank-import-ai-status${aiHealth.ok ? ' bank-import-ai-status--ok' : ' bank-import-ai-status--off'}`}
+          role="status"
+        >
+          {aiHealth.message}
+        </p>
+      )}
+
       <ol className="bank-import-steps" aria-label="Import progress">
-        {(['account', 'upload', 'mapping', 'review', 'done'] as WizardStep[]).map((key, index) => {
+        {(['account', 'upload', 'mapping', 'extract', 'review', 'done'] as WizardStep[]).map((key, index) => {
           const labels: Record<WizardStep, string> = {
             account: 'Account',
             upload: 'Upload',
             mapping: 'Map columns',
+            extract: 'Check rows',
             review: 'Review',
             done: 'Done',
           }
           const active =
             step === key ||
             (step === 'done' && key === 'done') ||
-            (['mapping', 'review', 'done'].includes(step) && key === 'account') ||
-            (['review', 'done'].includes(step) && key === 'upload') ||
-            (['review', 'done'].includes(step) && key === 'mapping')
+            (['mapping', 'extract', 'review', 'done'].includes(step) && key === 'account') ||
+            (['extract', 'review', 'done'].includes(step) && key === 'upload') ||
+            (['extract', 'review', 'done'].includes(step) && key === 'mapping') ||
+            (['review', 'done'].includes(step) && key === 'extract')
           const current = step === key
           return (
             <li
@@ -304,7 +316,7 @@ export function BankStatementImportPanel({
       {step === 'upload' && (
         <div className="bank-import-panel">
           <p className="bank-import-hint">
-            Export or save your bank statement as PDF or CSV. We do not connect to your bank yet.
+            CSV exports from your bank usually work best. PDF also supported.
           </p>
           <div className="bank-import-upload-row">
             <input
@@ -402,10 +414,52 @@ export function BankStatementImportPanel({
             <button
               type="button"
               className="btn-primary"
-              disabled={analyzing}
-              onClick={handleParseAndAnalyze}
+              onClick={handleContinueToExtract}
             >
-              {analyzing ? 'Analysing…' : 'Analyse transactions'}
+              Continue
+            </button>
+          </div>
+        </div>
+      )}
+
+      {step === 'extract' && (
+        <div className="bank-import-panel">
+          <p className="bank-import-hint">
+            We read <strong>{transactions.length}</strong> transactions from <strong>{fileName}</strong>.
+            Check the sample below, then run AI analysis.
+          </p>
+          <div className="bank-import-preview-wrap">
+            <table className="bank-import-preview">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Description</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {transactions.slice(0, 8).map((row) => (
+                  <tr key={row.id}>
+                    <td>{row.date}</td>
+                    <td>{row.description}</td>
+                    <td>{row.amount}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {aiNotes && <p className="bank-import-error" role="alert">{aiNotes}</p>}
+          <div className="bank-import-actions">
+            <button type="button" className="btn-ghost" onClick={() => setStep('mapping')}>
+              Back
+            </button>
+            <button
+              type="button"
+              className="btn-primary"
+              disabled={analyzing || aiHealth?.ok === false}
+              onClick={() => void handleRunAiAnalysis()}
+            >
+              {analyzing ? 'Analysing with AI…' : 'Analyse with AI'}
             </button>
           </div>
         </div>
@@ -428,7 +482,7 @@ export function BankStatementImportPanel({
           />
 
           <div className="bank-import-actions">
-            <button type="button" className="btn-ghost" onClick={() => setStep('mapping')}>
+            <button type="button" className="btn-ghost" onClick={() => setStep('extract')}>
               Back
             </button>
             <button
@@ -447,8 +501,8 @@ export function BankStatementImportPanel({
         <div className="bank-import-panel">
           {applySummary && <p className="bank-import-success">{applySummary}</p>}
           <p className="muted">
-            Open Banking and AI-assisted categorisation can plug in later — suggestions will still
-            require your approval.
+            Nothing is added without your approval. You can import another statement or add anything
+            missed manually in Committed Funds.
           </p>
           <div className="bank-import-actions">
             <button type="button" className="btn-primary" onClick={resetWizard}>

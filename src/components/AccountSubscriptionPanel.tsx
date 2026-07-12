@@ -8,6 +8,8 @@ import {
   recommendTierForWorkspace,
   type SubscriptionTierId,
 } from '../config/subscriptionTiers'
+import { ManageBillingButton } from './UpgradePrompt'
+import { isBillingConfigured } from '../services/billingApi'
 import { useAuth } from '../contexts/AuthContext'
 import { useSubscription } from '../contexts/SubscriptionContext'
 import { summarizeAppState } from '../utils/localStateStorage'
@@ -156,23 +158,42 @@ export function AccountSubscriptionPanel({ state, embedded = false }: AccountSub
 
       <article className="account-plan-block">
         <h4>Billing & invoices</h4>
-        <p className="muted">
-          Online payments are not live yet. Compare plans and see pricing on our pricing page. When
-          billing starts, you will manage your subscription here and download invoices.
-        </p>
+        {isBillingConfigured() ? (
+          <>
+            <p className="muted">
+              Manage your subscription, update payment details, and download invoices from the billing
+              portal.
+            </p>
+            <div className="account-plan-actions">
+              <ManageBillingButton />
+              <Link to="/pricing" className="btn-secondary btn-tiny">
+                Full plan comparison
+              </Link>
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="muted">
+              Online payments are being connected. Compare plans and see pricing on our pricing page.
+              When billing is live, you will manage your subscription here and download invoices.
+            </p>
+            <div className="account-plan-actions">
+              <Link to="/pricing#billing" className="btn-primary btn-tiny">
+                View pricing
+              </Link>
+              <Link to="/pricing" className="btn-secondary btn-tiny">
+                Full plan comparison
+              </Link>
+            </div>
+          </>
+        )}
         {user?.email && (
           <p className="muted account-plan-email">
             Signed in as <strong>{user.email}</strong> · workspace <strong>{summary.label}</strong>
           </p>
         )}
-        <div className="account-plan-actions">
-          <Link to="/pricing#billing" className="btn-primary btn-tiny">
-            Manage billing
-          </Link>
-          <Link to="/pricing" className="btn-secondary btn-tiny">
-            Full plan comparison
-          </Link>
-          {!fullAccess && (
+        {!fullAccess && (
+          <div className="account-plan-actions">
             <button
               type="button"
               className="btn-ghost btn-tiny"
@@ -186,8 +207,8 @@ export function AccountSubscriptionPanel({ state, embedded = false }: AccountSub
             >
               See upgrade options
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </article>
     </>
   )

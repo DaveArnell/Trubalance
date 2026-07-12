@@ -116,6 +116,7 @@ export function MarketingFooter() {
             <Link to="/#features">Features</Link>
             <Link to="/#how-it-works">How it works</Link>
             <Link to="/#pricing">Pricing</Link>
+            <Link to="/true-balance-method">The method</Link>
             <Link to="/blog">Blog</Link>
             <Link to="/see-how-it-works">Demo</Link>
             {!isSupabaseConfigured && <Link to="/app">Try locally</Link>}

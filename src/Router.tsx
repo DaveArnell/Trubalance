@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
+import { CookieNotice } from './components/CookieNotice'
 import { WorkspaceProvider } from './contexts/WorkspaceContext'
 import { LandingPage } from './pages/LandingPage'
 import { PricingPage } from './pages/PricingPage'
@@ -9,6 +10,7 @@ import { TermsPage } from './pages/legal/TermsPage'
 import { AppPage } from './pages/AppPage'
 import { DemoPage } from './pages/DemoPage'
 import { SeeHowItWorksPage } from './pages/SeeHowItWorksPage'
+import { TrueBalanceMethodPage } from './pages/TrueBalanceMethodPage'
 import { BlogIndexPage } from './pages/BlogIndexPage'
 import { BlogPostPage } from './pages/BlogPostPage'
 import { PlatformAdminShell } from './admin/PlatformAdminShell'
@@ -29,6 +31,7 @@ export function AppRouter() {
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/see-how-it-works" element={<SeeHowItWorksPage />} />
+            <Route path="/true-balance-method" element={<TrueBalanceMethodPage />} />
             <Route path="/blog" element={<BlogIndexPage />} />
             <Route path="/blog/:slug" element={<BlogPostPage />} />
             <Route path="/demo" element={<DemoPage />} />
@@ -41,6 +44,7 @@ export function AppRouter() {
             />
           </Routes>
         </WorkspaceProvider>
+        <CookieNotice />
       </AuthProvider>
     </BrowserRouter>
   )

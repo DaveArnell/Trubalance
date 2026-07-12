@@ -50,9 +50,54 @@ export function isGracePeriodActive(subscription: WorkspaceSubscription, now = n
   return new Date(subscription.gracePeriodEndsAt) > now
 }
 
+export function hasActiveBilling(subscription: WorkspaceSubscription, now = new Date()): boolean {
+  if (isBillingExempt(subscription)) return true
+  if (subscription.status === 'active') return true
+  if (subscription.status === 'grace_period') return true
+  if (isGracePeriodActive(subscription, now)) return true
+  return false
+}
+
+/** Whether the workspace can be edited (not view-only). */
+export function canEditWorkspace(subscription: WorkspaceSubscription, now = new Date()): boolean {
+  if (isBillingExempt(subscription)) return true
+  if (isTrialActive(subscription, now)) return true
+  if (subscription.status === 'active') return true
+  if (subscription.status === 'grace_period') return true
+  if (isGracePeriodActive(subscription, now)) return true
+  return false
+}
+
+export function isSubscriptionReadOnly(subscription: WorkspaceSubscription, now = new Date()): boolean {
+  return !canEditWorkspace(subscription, now)
+}
+
 /** Full feature access during trial or lifetime/beta. */
 export function hasFullTrialAccess(subscription: WorkspaceSubscription, now = new Date()): boolean {
   return isBillingExempt(subscription) || isTrialActive(subscription, now)
+}
+
+export type TrialWarningLevel = 'none' | '7days' | '3days' | '1day' | 'expired'
+
+export function getTrialWarningLevel(
+  subscription: WorkspaceSubscription,
+  now = new Date(),
+): TrialWarningLevel {
+  if (isBillingExempt(subscription)) return 'none'
+  if (subscription.status === 'active') return 'none'
+  if (!subscription.trialEndsAt) return 'none'
+
+  const trialEnd = new Date(subscription.trialEndsAt)
+  if (trialEnd <= now) return 'expired'
+
+  if (!isTrialActive(subscription, now)) return 'none'
+
+  const days = trialDaysRemaining(subscription, now)
+  if (days == null) return 'none'
+  if (days <= 1) return '1day'
+  if (days <= 3) return '3days'
+  if (days <= 7) return '7days'
+  return 'none'
 }
 
 export function subscribedTier(subscription: WorkspaceSubscription): SubscriptionTierId {
@@ -63,6 +108,7 @@ export function subscribedTier(subscription: WorkspaceSubscription): Subscriptio
 /**
  * Tier used for limit and feature checks after trial.
  * During trial / lifetime / beta → group (all features).
+ * After trial, paid/grace workspaces keep capacity for what they built; unpaid → paid tier only.
  */
 export function effectiveTier(
   subscription: WorkspaceSubscription,
@@ -71,8 +117,10 @@ export function effectiveTier(
 ): SubscriptionTierId {
   if (hasFullTrialAccess(subscription, now)) return 'group'
   const paid = subscribedTier(subscription)
-  const required = minimumTierForUsage(usage)
-  return maxTier(paid, required)
+  if (hasActiveBilling(subscription, now)) {
+    return maxTier(paid, minimumTierForUsage(usage))
+  }
+  return paid
 }
 
 export function getLimit(

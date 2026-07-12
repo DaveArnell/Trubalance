@@ -21,11 +21,14 @@ import {
   checkFeature,
   checkLimit,
   effectiveTier,
+  getTrialWarningLevel,
   hasFeature,
   hasFullTrialAccess,
+  isSubscriptionReadOnly,
   isTrialActive,
   subscriptionNeedsUpgrade,
   trialDaysRemaining,
+  type TrialWarningLevel,
 } from '../utils/subscriptionAccess'
 import { isLocalDevMode } from '../lib/devMode'
 
@@ -36,6 +39,8 @@ interface SubscriptionContextValue {
   trialActive: boolean
   trialDaysLeft: number | null
   fullAccess: boolean
+  subscriptionReadOnly: boolean
+  trialWarningLevel: TrialWarningLevel
   updateSubscription: (patch: Partial<WorkspaceSubscription>) => void
   requestLimit: (limit: SubscriptionLimitKey, nextCount: number) => boolean
   requestFeature: (feature: SubscriptionFeatureFlag) => boolean
@@ -85,6 +90,8 @@ export function SubscriptionProvider({
   const trialActive = isTrialActive(subscription, now)
   const trialDaysLeft = trialDaysRemaining(subscription, now)
   const fullAccess = hasFullTrialAccess(subscription, now)
+  const subscriptionReadOnly = isSubscriptionReadOnly(subscription, now)
+  const trialWarningLevel = getTrialWarningLevel(subscription, now)
   const postTrialNotice = subscriptionNeedsUpgrade(subscription, usage, now)
 
   const updateSubscription = useCallback((patch: Partial<WorkspaceSubscription>) => {
@@ -103,6 +110,14 @@ export function SubscriptionProvider({
 
   const requestLimit = useCallback(
     (limit: SubscriptionLimitKey, nextCount: number) => {
+      if (subscriptionReadOnly) {
+        openUpgrade(
+          subscription.tierId,
+          'Your trial has ended',
+          'Choose a plan to keep editing your workspace. You can still view everything until you subscribe.',
+        )
+        return false
+      }
       const result = checkLimit(subscription, usage, limit, nextCount, now)
       if (!result.allowed && result.requiredTier && result.headline && result.message) {
         openUpgrade(result.requiredTier, result.headline, result.message)
@@ -110,11 +125,19 @@ export function SubscriptionProvider({
       }
       return true
     },
-    [subscription, usage, now, openUpgrade],
+    [subscription, subscriptionReadOnly, usage, now, openUpgrade],
   )
 
   const requestFeature = useCallback(
     (feature: SubscriptionFeatureFlag) => {
+      if (subscriptionReadOnly) {
+        openUpgrade(
+          subscription.tierId,
+          'Your trial has ended',
+          'Choose a plan to keep editing your workspace. You can still view everything until you subscribe.',
+        )
+        return false
+      }
       const result = checkFeature(subscription, usage, feature, now)
       if (!result.allowed && result.requiredTier && result.headline && result.message) {
         openUpgrade(result.requiredTier, result.headline, result.message)
@@ -122,7 +145,7 @@ export function SubscriptionProvider({
       }
       return true
     },
-    [subscription, usage, now, openUpgrade],
+    [subscription, subscriptionReadOnly, usage, now, openUpgrade],
   )
 
   const canUseFeature = useCallback(
@@ -138,6 +161,8 @@ export function SubscriptionProvider({
       trialActive,
       trialDaysLeft,
       fullAccess,
+      subscriptionReadOnly,
+      trialWarningLevel,
       updateSubscription,
       requestLimit,
       requestFeature,
@@ -154,6 +179,8 @@ export function SubscriptionProvider({
       trialActive,
       trialDaysLeft,
       fullAccess,
+      subscriptionReadOnly,
+      trialWarningLevel,
       updateSubscription,
       requestLimit,
       requestFeature,
@@ -172,6 +199,10 @@ export function useSubscription() {
   const ctx = useContext(SubscriptionContext)
   if (!ctx) throw new Error('useSubscription must be used within SubscriptionProvider')
   return ctx
+}
+
+export function useSubscriptionOptional() {
+  return useContext(SubscriptionContext)
 }
 
 export function formatUpgradeTierLabel(tierId: SubscriptionTierId): string {

@@ -8,10 +8,10 @@ import {
   saveNavOrder,
   savePlannerNavOrder,
 } from '../utils/navLayout'
-import { useDemoReadOnly } from '../contexts/DemoModeContext'
+import { useEditReadOnly } from '../hooks/useEditReadOnly'
 
 export function useNavLayout(plannerIds: string[]) {
-  const demoReadOnly = useDemoReadOnly()
+  const editReadOnly = useEditReadOnly()
   const [order, setOrder] = useState<PageId[]>(() => loadNavOrder())
   const [plannerOrder, setPlannerOrder] = useState<string[]>(() => loadPlannerNavOrder(plannerIds))
 
@@ -26,17 +26,17 @@ export function useNavLayout(plannerIds: string[]) {
   const persist = useCallback(
     (next: PageId[]) => {
       setOrder(next)
-      if (!demoReadOnly) saveNavOrder(next)
+      if (!editReadOnly) saveNavOrder(next)
     },
-    [demoReadOnly],
+    [editReadOnly],
   )
 
   const persistPlanners = useCallback(
     (next: string[]) => {
       setPlannerOrder(next)
-      if (!demoReadOnly) savePlannerNavOrder(next)
+      if (!editReadOnly) savePlannerNavOrder(next)
     },
-    [demoReadOnly],
+    [editReadOnly],
   )
 
   const moveItem = useCallback(
@@ -88,3 +88,4 @@ export function useNavLayout(plannerIds: string[]) {
     resetLayout,
   }
 }
+

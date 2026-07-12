@@ -9,7 +9,7 @@ import {
 import { formatCurrency } from '../utils/format'
 import { getReserveAccrualTooltip } from '../utils/reserveCalculations'
 import type { AppActions } from '../hooks/useAppState'
-import { useDemoReadOnly } from '../contexts/DemoModeContext'
+import { useEditReadOnly } from '../hooks/useEditReadOnly'
 import { useMonthlyCostGroupCollapse } from '../hooks/useMonthlyCostGroupCollapse'
 import { flattenMonthlyCostTree } from '../utils/monthlyCostGrouping'
 import { monthlyCostEditableCellIds, useSheetCellNavigation } from '../utils/sheetCellNavigation'
@@ -50,7 +50,7 @@ export function CommittedFundsPanel({
   openHelp,
   setOpenHelp,
 }: CommittedFundsPanelProps) {
-  const demoReadOnly = useDemoReadOnly()
+  const editReadOnly = useEditReadOnly()
   const [viewMode, setViewMode] = useState<AccruingViewMode>('list')
   const [pendingDueDayChange, setPendingDueDayChange] = useState<{
     commitmentId: string
@@ -270,7 +270,7 @@ export function CommittedFundsPanel({
                     {allExpanded ? 'Collapse all' : 'Expand all'}
                   </button>
                 )}
-                {!demoReadOnly && (
+                {!editReadOnly && (
                 <button type="button" className="btn-secondary btn-tiny" onClick={addMonthlyRow}>
                   + Add
                 </button>
@@ -285,7 +285,7 @@ export function CommittedFundsPanel({
                   <PlatformSheetTable widths={widths} preferenceClasses={prefClasses}>
                     <thead>
                       <tr>
-                        {!demoReadOnly && <SheetDragHeader />}
+                        {!editReadOnly && <SheetDragHeader />}
                         <ResizableSheetHeader columnIndex={1} onResizeStart={startResize}>
                           Name
                         </ResizableSheetHeader>
@@ -312,7 +312,7 @@ export function CommittedFundsPanel({
                         <ResizableSheetHeader columnIndex={6} onResizeStart={startResize} className="sheet-num">
                           Per day
                         </ResizableSheetHeader>
-                        {!demoReadOnly && (
+                        {!editReadOnly && (
                         <ResizableSheetHeader columnIndex={7} onResizeStart={startResize} className="sheet-actions" />
                         )}
                       </tr>
@@ -327,13 +327,13 @@ export function CommittedFundsPanel({
                         scopeOptions={options}
                         activeCell={activeCell}
                         onActivate={(id) => {
-                          if (!demoReadOnly) activate(id)
+                          if (!editReadOnly) activate(id)
                         }}
                         onDeactivate={deactivate}
                         makeTabHandler={makeTabHandler}
                         onSaveDueDay={saveMonthlyDueDay}
                         actions={actions}
-                        readOnly={demoReadOnly}
+                        readOnly={editReadOnly}
                       />
                       {reserveAccrualRows.map((row) => {
                         const { commitment: item, accruedAmount } = row
@@ -393,3 +393,4 @@ export function CommittedFundsPanel({
     </section>
   )
 }
+

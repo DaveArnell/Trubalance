@@ -56,6 +56,13 @@ export type SuggestionDestination =
 
 export type ImportSuggestionStatus = 'pending' | 'accepted' | 'edited' | 'ignored'
 
+export type BankImportReviewSection =
+  | 'monthly_accruing'
+  | 'reserve_planner'
+  | 'expected_receipt'
+  | 'manual_review'
+  | 'excluded'
+
 export interface BankImportSuggestion {
   id: string
   suggestedName: string
@@ -77,6 +84,10 @@ export interface BankImportSuggestion {
   editedAmount?: number
   editedDestination?: SuggestionDestination
   isInflow: boolean
+  /** AI review bucket */
+  reviewSection?: BankImportReviewSection
+  aiEvidence?: { date: string; description: string; amount: number }[]
+  expectedReceiptDate?: string
 }
 
 export interface BankImportSession {
@@ -103,8 +114,9 @@ export interface BankImportAnalysisResult {
   suggestions: BankImportSuggestion[]
   /** Trend insights only — never auto-applied. */
   insights?: ImportTrendInsight[]
-  /** Reserved for a future AI pass — empty when using rules only. */
   aiNotes?: string
+  aiConfigured?: boolean
+  analysisPeriod?: { start_date: string; end_date: string; months_covered: number }
 }
 
 export interface BankImportApplyResult {

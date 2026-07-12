@@ -2,6 +2,8 @@ import type { AppState, ScopeLevel } from '../types'
 import type { AppActions } from '../hooks/useAppState'
 import { roundCurrency, toAmount } from '../utils/amounts'
 import { getAccountBusinessId } from '../utils/accounts'
+import { currentPeriod } from '../utils/commitmentCalculations'
+import { getReservePlannerIdForScope } from '../utils/reserveCalculations'
 import type {
   BankImportApplyResult,
   BankImportSuggestion,
@@ -43,6 +45,12 @@ function effectiveAmount(suggestion: BankImportSuggestion): number {
   return roundCurrency(suggestion.editedAmount ?? suggestion.averageAmount)
 }
 
+function viewScopeFromLevel(scopeLevel: ScopeLevel, scopeId: string) {
+  if (scopeLevel === 'venue') return { type: 'venue' as const, id: scopeId }
+  if (scopeLevel === 'business') return { type: 'business' as const, id: scopeId }
+  return { type: 'group' as const, id: scopeId }
+}
+
 export function applyBankImportSuggestions(
   state: AppState,
   accountId: string,
@@ -67,36 +75,78 @@ export function applyBankImportSuggestions(
     (item) => item.status === 'accepted' || item.status === 'edited',
   )
 
+  const periodKey = currentPeriod()
+
   for (const suggestion of accepted) {
+    if (suggestion.reviewSection === 'excluded' || suggestion.reviewSection === 'manual_review') {
+      result.ignored++
+      continue
+    }
+
     const destination = effectiveDestination(suggestion)
     if (destination === 'ignore') {
       result.ignored++
       continue
     }
 
-    // Historic statement lines identify regular monthly outgoings only — not due bills or reserve items.
-    if (suggestion.frequency !== 'monthly') {
-      result.ignored++
-      continue
-    }
-
     const name = effectiveName(suggestion)
     const amount = effectiveAmount(suggestion)
-    const note = `From bank import (historic pattern). ${suggestion.reason}`
+    const note = `From bank statement import. ${suggestion.reason}`
 
     try {
-      actions.addCommitment({
-        name,
-        schedule: 'monthly',
-        amount,
-        dueDayOfMonth: suggestion.likelyDueDay ?? 28,
-        scopeLevel: scope.scopeLevel,
-        scopeId: scope.scopeId,
-        status: 'healthy',
-        linkedAccountId: accountId,
-        notes: note,
-      })
-      result.commitmentsCreated++
+      if (destination === 'expected_receipt' || suggestion.reviewSection === 'expected_receipt') {
+        actions.addReceipt({
+          name,
+          amount,
+          expectedDate: suggestion.expectedReceiptDate,
+          receiptTiming: 'lump',
+          scopeLevel: scope.scopeLevel,
+          scopeId: scope.scopeId,
+          notes: note,
+        })
+        result.receiptsCreated++
+        continue
+      }
+
+      if (destination === 'reserve_bill' || suggestion.reviewSection === 'reserve_planner') {
+        const plannerId = getReservePlannerIdForScope(
+          state,
+          viewScopeFromLevel(scope.scopeLevel, scope.scopeId),
+        )
+        if (!plannerId) {
+          result.errors.push(
+            `Could not add "${name}" to Reserve Planner — create a reserve planner for this business first.`,
+          )
+          continue
+        }
+        actions.addReserveBill({
+          plannerId,
+          name,
+          monthAmounts: { [periodKey]: amount },
+          notes: note,
+          venueId: scope.scopeLevel === 'venue' ? scope.scopeId : undefined,
+        })
+        result.reserveBillsCreated++
+        continue
+      }
+
+      if (destination === 'building_commitment' || suggestion.reviewSection === 'monthly_accruing') {
+        actions.addCommitment({
+          name,
+          schedule: 'monthly',
+          amount,
+          dueDayOfMonth: suggestion.likelyDueDay ?? 28,
+          scopeLevel: scope.scopeLevel,
+          scopeId: scope.scopeId,
+          status: 'healthy',
+          linkedAccountId: accountId,
+          notes: note,
+        })
+        result.commitmentsCreated++
+        continue
+      }
+
+      result.ignored++
     } catch (error) {
       result.errors.push(
         `Could not create "${name}": ${error instanceof Error ? error.message : 'Unknown error'}`,

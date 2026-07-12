@@ -1,42 +1,74 @@
 import type { BankImportAnalysisInput, BankImportAnalysisResult } from './types'
-import { detectSuggestionsRuleBased } from './detectSuggestions'
-import { detectTrendInsights } from './trendInsights'
+import { mapAiAnalysisToSuggestions } from './mapAiSuggestions'
+import { analysisPeriodFromTransactions, prepareTransactionGroups } from './prepareForAi'
+import { analyzeBankImportWithAi, checkBankImportAiHealth } from '../services/bankImportApi'
+import { isSupabaseConfigured } from '../lib/supabase'
 
-/**
- * Future AI enrichment hook.
- * Call an external API here to refine names, categories, or recover from PDF layouts
- * the table parser could not read — never auto-apply without review unless configured.
- */
 export interface BankImportAiAdapter {
-  enrichSuggestions(input: BankImportAnalysisInput): Promise<BankImportAnalysisResult>
+  enrichSuggestions(
+    input: BankImportAnalysisInput,
+    options?: { sourceAccountId?: string; fileName?: string },
+  ): Promise<BankImportAnalysisResult>
 }
 
-/** Rule-based analysis only — safe default until an AI adapter is configured. */
-export const ruleBasedBankImportAdapter: BankImportAiAdapter = {
-  async enrichSuggestions(input) {
+export const serverAiBankImportAdapter: BankImportAiAdapter = {
+  async enrichSuggestions(input, options) {
+    const health = await checkBankImportAiHealth()
+    if (!health.ok) {
+      return {
+        suggestions: [],
+        aiConfigured: health.configured,
+        aiNotes: health.message,
+      }
+    }
+
+    const groups = prepareTransactionGroups(input.transactions)
+    const analysisPeriod = analysisPeriodFromTransactions(input.transactions)
+
+    const analysis = await analyzeBankImportWithAi({
+      groups,
+      analysisPeriod,
+      scopeLevel: input.scopeLevel,
+      scopeId: input.scopeId,
+      fileName: options?.fileName,
+    })
+
     return {
-      suggestions: detectSuggestionsRuleBased(input.transactions, {
-        minMonthlyAmount: input.minMonthlyAmount,
+      suggestions: mapAiAnalysisToSuggestions(analysis, {
+        sourceAccountId: options?.sourceAccountId,
       }),
-      insights: detectTrendInsights(input.transactions),
-      aiNotes: undefined,
+      aiConfigured: true,
+      analysisPeriod: analysis.analysis_period,
+      aiNotes: `Analysed ${input.transactions.length} transactions across ${analysis.analysis_period.months_covered} month(s). Review each suggestion before adding.`,
     }
   },
 }
 
-let activeAdapter: BankImportAiAdapter = ruleBasedBankImportAdapter
+let activeAdapter: BankImportAiAdapter = serverAiBankImportAdapter
 
 export function getBankImportAiAdapter(): BankImportAiAdapter {
   return activeAdapter
 }
 
-/** Swap in an API-backed adapter when ready (e.g. from env or admin settings). */
 export function setBankImportAiAdapter(adapter: BankImportAiAdapter) {
   activeAdapter = adapter
 }
 
 export async function analyzeBankTransactions(
   input: BankImportAnalysisInput,
+  options?: { sourceAccountId?: string; fileName?: string },
 ): Promise<BankImportAnalysisResult> {
-  return getBankImportAiAdapter().enrichSuggestions(input)
+  if (!isSupabaseConfigured) {
+    return {
+      suggestions: [],
+      aiConfigured: false,
+      aiNotes:
+        'AI statement analysis needs a signed-in cloud account. Add costs manually, or connect Supabase.',
+    }
+  }
+  return getBankImportAiAdapter().enrichSuggestions(input, options)
+}
+
+export async function getBankImportAiStatus() {
+  return checkBankImportAiHealth()
 }

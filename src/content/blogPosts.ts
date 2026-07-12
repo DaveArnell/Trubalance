@@ -1,25 +1,9 @@
-export type BlogSection =
-  | { type: 'p'; text: string }
-  | { type: 'h2'; text: string }
-  | { type: 'h3'; text: string }
-  | { type: 'ul'; items: string[] }
-  | { type: 'faq'; heading?: string; items: { q: string; a: string }[] }
+import { METHOD_BLOG_POSTS } from './methodBlogPosts'
+import type { BlogPost } from './blogTypes'
 
-export interface BlogPost {
-  slug: string
-  title: string
-  metaDescription: string
-  keywords: string[]
-  publishedAt: string
-  updatedAt: string
-  category: string
-  readMinutes: number
-  excerpt: string
-  sections: BlogSection[]
-  relatedSlugs: string[]
-}
+export type { BlogPost, BlogSection } from './blogTypes'
 
-export const BLOG_POSTS: BlogPost[] = [
+const CORE_BLOG_POSTS: BlogPost[] = [
   {
     slug: 'what-is-true-balance',
     title: 'What Is True Balance? Cash Clarity for UK Business Owners',
@@ -626,6 +610,8 @@ export const BLOG_POSTS: BlogPost[] = [
   },
 ]
 
+export const BLOG_POSTS: BlogPost[] = [...CORE_BLOG_POSTS, ...METHOD_BLOG_POSTS]
+
 export function getBlogPost(slug: string): BlogPost | undefined {
   return BLOG_POSTS.find((post) => post.slug === slug)
 }
@@ -639,3 +625,7 @@ export function getRelatedPosts(slug: string): BlogPost[] {
 }
 
 export const BLOG_CATEGORIES = [...new Set(BLOG_POSTS.map((post) => post.category))].sort()
+
+export function getBlogPostsByCategory(category: string): BlogPost[] {
+  return BLOG_POSTS.filter((post) => post.category === category)
+}

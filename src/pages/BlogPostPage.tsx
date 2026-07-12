@@ -8,6 +8,7 @@ import {
 } from '../components/marketing/MarketingLayout'
 import { COMPANY_INFO } from '../content/companyInfo'
 import { getBlogPost, getRelatedPosts } from '../content/blogPosts'
+import { METHOD_BLOG_CATEGORY } from '../content/trueBalanceMethod'
 import { usePageMeta } from '../hooks/usePageMeta'
 
 function formatBlogDate(iso: string): string {
@@ -120,12 +121,27 @@ export function BlogPostPage() {
           <BlogProse sections={post.sections} />
 
           <aside className="blog-cta-box">
-            <h2>See True Balance in action</h2>
-            <p>
-              Explore a demo business with realistic figures, or start a free trial — no payment
-              details required.
-            </p>
+            {post.category === METHOD_BLOG_CATEGORY ? (
+              <>
+                <h2>Follow the method in software</h2>
+                <p>
+                  True Balance automates the True Balance Method — committed money, virtual reserves
+                  and your live position, without spreadsheet logic.
+                </p>
+              </>
+            ) : (
+              <>
+                <h2>See True Balance in action</h2>
+                <p>
+                  Explore a demo business with realistic figures, or start a free trial — no payment
+                  details required.
+                </p>
+              </>
+            )}
             <div className="blog-index-cta">
+              <Link to="/true-balance-method" className="btn-ghost">
+                The method
+              </Link>
               <Link to="/see-how-it-works" className="btn-primary">
                 Try demo
               </Link>

@@ -6,7 +6,7 @@ export function PrivacyPage() {
   return (
     <LegalPageLayout
       title="Privacy policy"
-      updated="5 July 2026"
+      updated="10 July 2026"
       description={PRIVACY_SEO.description}
       path={PRIVACY_SEO.path}
     >
@@ -93,11 +93,28 @@ export function PrivacyPage() {
         if you believe your data protection rights have been violated.
       </p>
 
-      <h2>Cookies and local storage</h2>
+      <h2 id="cookies">Cookies and local storage</h2>
       <p>
-        We use browser local storage to remember your workspace and display preferences. Authentication
-        may use session cookies or similar tokens from our auth provider. These are necessary for the
-        app to function.
+        True Balance does not use advertising cookies or third-party analytics trackers (such as Google
+        Analytics). We use only what is needed to run the service:
+      </p>
+      <ul>
+        <li>
+          <strong>Authentication</strong> — session tokens from our auth provider so you stay signed in
+          securely.
+        </li>
+        <li>
+          <strong>Local storage</strong> — to remember your workspace, layout preferences, and similar
+          settings on your device.
+        </li>
+        <li>
+          <strong>Payment</strong> — if you subscribe, Stripe may set cookies when you complete checkout
+          on their secure pages.
+        </li>
+      </ul>
+      <p>
+        These are strictly necessary for the app to function. We do not sell data from cookies or use
+        them for advertising profiles.
       </p>
 
       <h2>Changes</h2>

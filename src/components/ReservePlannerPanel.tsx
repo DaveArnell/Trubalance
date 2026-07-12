@@ -22,7 +22,7 @@ import {
 } from '../utils/reserveCalculations'
 import { getReserveBillScopeOptionsForView } from '../utils/scope'
 import type { AppActions } from '../hooks/useAppState'
-import { useDemoReadOnly } from '../contexts/DemoModeContext'
+import { useEditReadOnly } from '../hooks/useEditReadOnly'
 import { useSheetRowReorder } from '../hooks/useSheetRowReorder'
 import { formatCurrency, getCurrencySymbol } from '../utils/format'
 import { ReservePlanChart } from './ReservePlanChart'
@@ -804,17 +804,17 @@ export function ReservePlannerPanel({
   onPlannerDeleted,
   onPlannerCreated,
 }: ReservePlannerPanelProps) {
-  const demoReadOnly = useDemoReadOnly()
+  const editReadOnly = useEditReadOnly()
   const [activeCell, setActiveCell] = useState<string | null>(null)
   const sheetWrapRef = useRef<HTMLDivElement>(null)
-  const sheetColumns = useMemo(() => reserveSheetColumnsForMode(demoReadOnly), [demoReadOnly])
+  const sheetColumns = useMemo(() => reserveSheetColumnsForMode(editReadOnly), [editReadOnly])
   const { widths: columnWidths } = useResizableSheetColumns(
     sheetWrapRef,
     sheetColumns,
     'reserve-planner',
   )
   const activateCell = (cellId: string) => {
-    if (demoReadOnly) return
+    if (editReadOnly) return
     setActiveCell(cellId)
   }
   const [showCreateForm, setShowCreateForm] = useState(false)
@@ -920,12 +920,12 @@ export function ReservePlannerPanel({
               value={planner.name}
               onChange={(e) => actions.updateReservePlanner(planner.id, { name: e.target.value })}
               aria-label="Reserve plan label"
-              readOnly={demoReadOnly}
+              readOnly={editReadOnly}
             />
           )}
         </div>
         <div className="card-actions">
-          {!demoReadOnly && (
+          {!editReadOnly && (
           <button
             type="button"
             className="btn-ghost btn-tiny reserve-delete-btn"
@@ -967,7 +967,7 @@ export function ReservePlannerPanel({
                       actions.updateReservePlanner(planner.id, { bufferAmount: Number(e.target.value) })
                     }
                     title="The reserve should not drop below this amount across the year"
-                    readOnly={demoReadOnly}
+                    readOnly={editReadOnly}
                   />
                 </label>
                 <div
@@ -996,12 +996,12 @@ export function ReservePlannerPanel({
                   onConfirm={(input) =>
                     actions.confirmReserveMonth(planner.id, currentMonthEnd.month, input)
                   }
-                  readOnly={demoReadOnly}
+                  readOnly={editReadOnly}
                 />
               </div>
 
               <div className="reserve-planner-top-actions" data-tour="reserve-planner-bills">
-                {!demoReadOnly && otherPlanners.length > 0 && (
+                {!editReadOnly && otherPlanners.length > 0 && (
                   <select
                     className="reserve-copy-from-select"
                     defaultValue=""
@@ -1023,7 +1023,7 @@ export function ReservePlannerPanel({
                     ))}
                   </select>
                 )}
-                {!demoReadOnly && (
+                {!editReadOnly && (
                 <button
                   type="button"
                   className="btn-secondary btn-tiny"
@@ -1049,8 +1049,8 @@ export function ReservePlannerPanel({
                 <SheetColGroup widths={columnWidths} />
                 <thead>
                   <tr>
-                    {!demoReadOnly && <SheetDragHeader />}
-                    {!demoReadOnly && <th className="sheet-actions" />}
+                    {!editReadOnly && <SheetDragHeader />}
+                    {!editReadOnly && <th className="sheet-actions" />}
                     <th className="sheet-label-col reserve-bill-col">Bill</th>
                     <th className="reserve-scope-col">Applies to</th>
                     {MONTHS.map((month, idx) => (
@@ -1087,11 +1087,11 @@ export function ReservePlannerPanel({
                     const bill = planner.bills.find((b) => b.id === row.billId)!
                     const rowProps = billReorder.getRowProps(row.billId, index)
                     return (
-                      <tr key={row.billId} {...(demoReadOnly ? {} : rowProps)}>
-                        {!demoReadOnly && (
+                      <tr key={row.billId} {...(editReadOnly ? {} : rowProps)}>
+                        {!editReadOnly && (
                           <SheetDragCell rowId={row.billId} getHandleProps={billReorder.getHandleProps} />
                         )}
-                        {!demoReadOnly && (
+                        {!editReadOnly && (
                         <td className="sheet-actions">
                           {bill.lastPaidPeriod ? (
                             <button
@@ -1129,7 +1129,7 @@ export function ReservePlannerPanel({
                           businessId={planner.businessId}
                           viewScope={viewScope}
                           bill={bill}
-                          readOnly={demoReadOnly}
+                          readOnly={editReadOnly}
                           isActive={activeCell === `${bill.id}-scope`}
                           onActivate={() => activateCell(`${bill.id}-scope`)}
                           onDeactivate={() => setActiveCell(null)}
@@ -1171,8 +1171,8 @@ export function ReservePlannerPanel({
                 </tbody>
                 <tfoot>
                   <tr className="reserve-balance-row">
-                    {!demoReadOnly && <td className="sheet-drag-col" />}
-                    {!demoReadOnly && <td className="sheet-actions" />}
+                    {!editReadOnly && <td className="sheet-drag-col" />}
+                    {!editReadOnly && <td className="sheet-actions" />}
                     <td className="sheet-row-label reserve-bill-col">
                       Reserve balance
                       <span className="sheet-row-hint">Planned after bills</span>
@@ -1185,7 +1185,7 @@ export function ReservePlannerPanel({
                         currentMonthIdx={currentMonthIdx}
                         currentActualBalance={suggestedReserveBalance}
                         onAdjustCurrentBalance={
-                          !demoReadOnly && monthEnd.monthIndex === currentMonthIdx
+                          !editReadOnly && monthEnd.monthIndex === currentMonthIdx
                             ? (balance) => {
                                 const confirmation = monthEnd.confirmation
                                 actions.confirmReserveMonth(planner.id, monthEnd.month, {
@@ -1202,8 +1202,8 @@ export function ReservePlannerPanel({
                     <td className="reserve-total-col reserve-total-col--monthly" />
                   </tr>
                   <tr className="reserve-plan-chart-row" data-tour="reserve-planner-chart">
-                    {!demoReadOnly && <td className="sheet-drag-col" />}
-                    {!demoReadOnly && <td className="sheet-actions" />}
+                    {!editReadOnly && <td className="sheet-drag-col" />}
+                    {!editReadOnly && <td className="sheet-actions" />}
                     <td colSpan={2} className="reserve-plan-chart-label">
                       <span className="reserve-plan-chart-title">Balance outlook</span>
                       <span className="sheet-row-hint">Bills &amp; planned balance</span>
@@ -1228,3 +1228,4 @@ export function ReservePlannerPanel({
     </section>
   )
 }
+
