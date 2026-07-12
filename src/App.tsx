@@ -17,6 +17,7 @@ import { markOnboardingComplete } from './services/adminRepository'
 import { isStagingEnvironment } from './lib/appEnvironment'
 import { useAppState, type UseAppStateOptions } from './hooks/useAppState'
 import { Sidebar } from './components/Sidebar'
+import { useMobileNav } from './hooks/useMobileNav'
 import {
   getPageMeta,
   navigateToRoute,
@@ -202,6 +203,7 @@ function AppShellInner({
   const { isSimulated, simulatedDateKey, clearSimulatedDate, referenceDateKey } = useReferenceDate()
   const [activeRoute, setActiveRoute] = useActiveRoute()
   const [reserveMenuOpen, setReserveMenuOpen] = useState(false)
+  const { isMobile, mobileNavOpen, closeMobileNav, toggleMobileNav } = useMobileNav()
   const [openHelp, setOpenHelp] = useState<string | null>(null)
   const [graphRange, setGraphRange] = useState<GraphRange>('90d')
   const [trendsFocusScope, setTrendsFocusScope] = useState<ViewScope | null>(null)
@@ -563,7 +565,19 @@ function AppShellInner({
           reserveMenuOpen={reserveMenuOpen}
           setReserveMenuOpen={setReserveMenuOpen}
           onNavigate={goToRoute}
+          isMobile={isMobile}
+          mobileOpen={mobileNavOpen}
+          onMobileClose={closeMobileNav}
         />
+
+        {isMobile && mobileNavOpen && (
+          <button
+            type="button"
+            className="mobile-nav-backdrop"
+            onClick={closeMobileNav}
+            aria-label="Close menu"
+          />
+        )}
 
         <main className="main-content">
           {isStagingEnvironment() && (
@@ -648,6 +662,17 @@ function AppShellInner({
           <div className="main-pinned">
             <header className="top-bar" data-tour="top-bar">
               <div className="top-bar-inner">
+                {isMobile && (
+                  <button
+                    type="button"
+                    className="mobile-menu-btn"
+                    onClick={toggleMobileNav}
+                    aria-label={mobileNavOpen ? 'Close menu' : 'Open menu'}
+                    aria-expanded={mobileNavOpen}
+                  >
+                    <span className="mobile-menu-btn-icon" aria-hidden="true" />
+                  </button>
+                )}
                 <div className="top-bar-scope-block">
                   <p className="top-kicker">{pageMeta.label}</p>
                   {showScopePicker ? (
@@ -662,7 +687,10 @@ function AppShellInner({
                 </div>
                 <div className="top-bar-actions">
                   <TourMenuButton onSetupGuide={() => setSetupWizardOpen(true)} />
-                  <Link to={isDemoSession ? '/see-how-it-works' : '/'} className="btn-ghost btn-tiny">
+                  <Link
+                    to={isDemoSession ? '/see-how-it-works' : '/'}
+                    className="btn-ghost btn-tiny top-bar-home-link"
+                  >
                     {isDemoSession ? 'All demos' : 'Home'}
                   </Link>
                   {isDemoSession && !user && (

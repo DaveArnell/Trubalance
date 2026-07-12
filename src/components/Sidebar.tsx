@@ -21,6 +21,9 @@ interface SidebarProps {
   reserveMenuOpen: boolean
   setReserveMenuOpen: (open: boolean | ((value: boolean) => boolean)) => void
   onNavigate: (pageId: PageId, reservePlannerId?: string | null) => void
+  isMobile?: boolean
+  mobileOpen?: boolean
+  onMobileClose?: () => void
 }
 
 function startDrag(e: DragEvent, key: string, onDragStart: () => void) {
@@ -123,11 +126,15 @@ export function Sidebar({
   reserveMenuOpen,
   setReserveMenuOpen,
   onNavigate,
+  isMobile = false,
+  mobileOpen = false,
+  onMobileClose,
 }: SidebarProps) {
   const demoMode = useDemoMode()
   const editReadOnly = useEditReadOnly()
   const { user, profile, isAdmin, isImpersonating, signOut, configured } = useAuth()
   const { collapsed, toggleCollapsed } = useSidebarCollapsed()
+  const showCollapsed = collapsed && !isMobile
   const plannerIds = state.reservePlanners.map((p) => p.id)
   const { order, orderedPlannerIds, moveItem, movePlannerItem } = useNavLayout(plannerIds)
   const [draggingKey, setDraggingKey] = useState<string | null>(null)
@@ -149,7 +156,7 @@ export function Sidebar({
   const plannerKey = (id: string) => `planner:${id}`
 
   const reserveFlyout =
-    collapsed && reserveMenuOpen ? (
+    showCollapsed && reserveMenuOpen ? (
       <div className="sidebar-flyout" role="menu" aria-label="Reserve plans">
         <p className="sidebar-flyout-title">Reserve Planner</p>
         {orderedPlanners.map((planner) => (
@@ -162,7 +169,7 @@ export function Sidebar({
             role="menuitem"
             onClick={(e) => {
               e.preventDefault()
-              onNavigate('reserve-planner', planner.id)
+              handleNavigate('reserve-planner', planner.id)
               setReserveMenuOpen(false)
             }}
           >
@@ -177,7 +184,7 @@ export function Sidebar({
           role="menuitem"
           onClick={(e) => {
             e.preventDefault()
-            onNavigate('reserve-planner', RESERVE_PLANNER_CREATE_ROUTE)
+            handleNavigate('reserve-planner', RESERVE_PLANNER_CREATE_ROUTE)
             setReserveMenuOpen(false)
           }}
         >
@@ -189,7 +196,7 @@ export function Sidebar({
   const sidebarRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
-    if (!collapsed || !reserveMenuOpen) return
+    if (!showCollapsed || !reserveMenuOpen) return
 
     const handlePointerDown = (event: PointerEvent) => {
       const target = event.target as Node
@@ -199,38 +206,65 @@ export function Sidebar({
 
     document.addEventListener('pointerdown', handlePointerDown)
     return () => document.removeEventListener('pointerdown', handlePointerDown)
-  }, [collapsed, reserveMenuOpen, setReserveMenuOpen])
+  }, [showCollapsed, reserveMenuOpen, setReserveMenuOpen])
+
+  const handleSelectScope = (scope: ViewScope) => {
+    onSelectScope(scope)
+    if (isMobile) onMobileClose?.()
+  }
+
+  const handleNavigate = (pageId: PageId, reservePlannerId?: string | null) => {
+    onNavigate(pageId, reservePlannerId)
+    if (isMobile) onMobileClose?.()
+  }
 
   return (
-    <aside ref={sidebarRef} className={`sidebar${collapsed ? ' sidebar--collapsed' : ''}`}>
+    <aside
+      ref={sidebarRef}
+      className={`sidebar${showCollapsed ? ' sidebar--collapsed' : ''}${
+        isMobile && mobileOpen ? ' sidebar--mobile-open' : ''
+      }`}
+      aria-hidden={isMobile && !mobileOpen ? true : undefined}
+    >
       <div className="sidebar-brand">
         <span className="brand-mark" aria-hidden="true">
           TB
         </span>
-        {!collapsed && (
+        {!showCollapsed && (
           <div>
             <h1>True Balance</h1>
             <p className="brand-tagline">Financial clarity</p>
           </div>
         )}
-        <button
-          type="button"
-          className="sidebar-collapse-btn"
-          onClick={toggleCollapsed}
-          aria-expanded={!collapsed}
-          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        >
-          {collapsed ? '›' : '‹'}
-        </button>
+        {isMobile ? (
+          <button
+            type="button"
+            className="sidebar-mobile-close-btn"
+            onClick={onMobileClose}
+            aria-label="Close menu"
+          >
+            ×
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="sidebar-collapse-btn"
+            onClick={toggleCollapsed}
+            aria-expanded={!showCollapsed}
+            aria-label={showCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            title={showCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {showCollapsed ? '›' : '‹'}
+          </button>
+        )}
       </div>
 
       <div className="sidebar-body">
         <SidebarScopeTree
           state={state}
           viewScope={viewScope}
-          onSelect={onSelectScope}
-          compact={collapsed}
+          onSelect={handleSelectScope}
+          compact={showCollapsed}
         />
 
         <div className="sidebar-divider" aria-hidden="true" />
@@ -245,7 +279,7 @@ export function Sidebar({
                   key={page.id}
                   itemId={pageKey(page.id)}
                   className="sidebar-nav-item--top"
-                  compact={collapsed}
+                  compact={showCollapsed}
                   reorderable={!editReadOnly}
                   isDragging={draggingKey === pageKey(page.id)}
                   dragOver={dragOverKey === pageKey(page.id) && draggingKey !== pageKey(page.id)}
@@ -259,14 +293,14 @@ export function Sidebar({
                     finishDrag()
                   }}
                 >
-                  <div className={`sidebar-group${collapsed ? ' sidebar-group--compact' : ''}`}>
+                  <div className={`sidebar-group${showCollapsed ? ' sidebar-group--compact' : ''}`}>
                     <a
                       href={buildHash('reserve-planner')}
                       className={`sidebar-link${onReservePage ? ' active' : ''}`}
                       data-tour="nav-reserve-planner"
                       aria-current={onReservePage ? 'page' : undefined}
                       aria-expanded={reserveMenuOpen}
-                      title={collapsed ? page.label : undefined}
+                      title={showCollapsed ? page.label : undefined}
                       onClick={(e) => {
                         e.preventDefault()
                         setReserveMenuOpen((open) => !open)
@@ -275,18 +309,18 @@ export function Sidebar({
                             scopePlannerId ??
                             activeRoute.reservePlannerId ??
                             orderedPlanners[0].id
-                          onNavigate('reserve-planner', targetId)
+                          handleNavigate('reserve-planner', targetId)
                         } else {
-                          onNavigate('reserve-planner')
+                          handleNavigate('reserve-planner')
                         }
                       }}
                     >
                       <span className="sidebar-nav-icon" aria-hidden>
                         {page.icon}
                       </span>
-                      {!collapsed && page.label}
+                      {!showCollapsed && page.label}
                     </a>
-                    {!collapsed && (reserveMenuOpen || onReservePage) && (
+                    {!showCollapsed && (reserveMenuOpen || onReservePage) && (
                       <div className="sidebar-submenu">
                         {orderedPlanners.map((planner, subIndex) => (
                           <NavDragShell
@@ -319,7 +353,7 @@ export function Sidebar({
                               }
                               onClick={(e) => {
                                 e.preventDefault()
-                                onNavigate('reserve-planner', planner.id)
+                                handleNavigate('reserve-planner', planner.id)
                               }}
                             >
                               {getPlannerDisplayName(state, planner)}
@@ -335,7 +369,7 @@ export function Sidebar({
                           }`}
                           onClick={(e) => {
                             e.preventDefault()
-                            onNavigate('reserve-planner', RESERVE_PLANNER_CREATE_ROUTE)
+                            handleNavigate('reserve-planner', RESERVE_PLANNER_CREATE_ROUTE)
                           }}
                         >
                           + New plan
@@ -351,7 +385,7 @@ export function Sidebar({
               <NavDragShell
                 key={page.id}
                 itemId={pageKey(page.id)}
-                compact={collapsed}
+                compact={showCollapsed}
                 reorderable={!editReadOnly}
                 isDragging={draggingKey === pageKey(page.id)}
                 dragOver={dragOverKey === pageKey(page.id) && draggingKey !== pageKey(page.id)}
@@ -370,16 +404,16 @@ export function Sidebar({
                   className={`sidebar-link${activePage === page.id ? ' active' : ''}`}
                   aria-current={activePage === page.id ? 'page' : undefined}
                   data-tour={page.id === 'settings' ? 'nav-settings' : undefined}
-                  title={collapsed ? page.label : undefined}
+                  title={showCollapsed ? page.label : undefined}
                   onClick={(e) => {
                     e.preventDefault()
-                    onNavigate(page.id)
+                    handleNavigate(page.id)
                   }}
                 >
                   <span className="sidebar-nav-icon" aria-hidden>
                     {page.icon}
                   </span>
-                  {!collapsed && page.label}
+                  {!showCollapsed && page.label}
                 </a>
               </NavDragShell>
             )
@@ -387,44 +421,44 @@ export function Sidebar({
         </nav>
       </div>
 
-      <div className={`sidebar-account${collapsed ? ' sidebar-account--compact' : ''}`}>
-        {!collapsed && profile?.email && (
+      <div className={`sidebar-account${showCollapsed ? ' sidebar-account--compact' : ''}`}>
+        {!showCollapsed && profile?.email && (
           <p className="sidebar-account-email" title={profile.email}>
             {profile.email}
           </p>
         )}
         <div className="sidebar-account-actions">
-          <Link to="/" className="sidebar-account-link" title={collapsed ? 'Home' : undefined}>
-            {collapsed ? '⌂' : 'Home'}
+          <Link to="/" className="sidebar-account-link" title={showCollapsed ? 'Home' : undefined}>
+            {showCollapsed ? '⌂' : 'Home'}
           </Link>
           {isAdmin && !isImpersonating && (
             <Link
               to="/platform-admin"
               className="sidebar-account-link"
-              title={collapsed ? 'Platform admin' : undefined}
+              title={showCollapsed ? 'Platform admin' : undefined}
             >
-              {collapsed ? '⚙' : 'Platform admin'}
+              {showCollapsed ? '⚙' : 'Platform admin'}
             </Link>
           )}
           {configured && user && !demoMode ? (
             <button
               type="button"
               className="sidebar-account-link sidebar-account-logout"
-              title={collapsed ? 'Log out' : undefined}
+              title={showCollapsed ? 'Log out' : undefined}
               onClick={() => signOut()}
             >
-              {collapsed ? '⎋' : 'Log out'}
+              {showCollapsed ? '⎋' : 'Log out'}
             </button>
           ) : (
             !user && (
               demoMode ? (
-                <Link to="/signup" className="sidebar-account-link" title={collapsed ? 'Start trial' : undefined}>
-                  {collapsed ? '★' : 'Start free trial'}
+                <Link to="/signup" className="sidebar-account-link" title={showCollapsed ? 'Start trial' : undefined}>
+                  {showCollapsed ? '★' : 'Start free trial'}
                 </Link>
               ) : (
                 configured && (
-                  <Link to="/login" className="sidebar-account-link" title={collapsed ? 'Log in' : undefined}>
-                    {collapsed ? '→' : 'Log in'}
+                  <Link to="/login" className="sidebar-account-link" title={showCollapsed ? 'Log in' : undefined}>
+                    {showCollapsed ? '→' : 'Log in'}
                   </Link>
                 )
               )

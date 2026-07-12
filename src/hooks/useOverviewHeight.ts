@@ -1,21 +1,37 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { useEditReadOnly } from '../hooks/useEditReadOnly'
+import { MOBILE_LAYOUT_MQ } from './useMobileNav'
 
 const STORAGE_KEY = 'trubalance-overview-height-v2'
 export const OVERVIEW_HEIGHT_MIN = 56
 export const OVERVIEW_HEIGHT_MAX = 340
 export const OVERVIEW_HEIGHT_DEFAULT = 210
+export const OVERVIEW_HEIGHT_MOBILE_MAX = 150
+export const OVERVIEW_HEIGHT_MOBILE_DEFAULT = 120
+
+function isMobileViewport(): boolean {
+  return typeof window !== 'undefined' && window.matchMedia(MOBILE_LAYOUT_MQ).matches
+}
+
+function clampHeight(value: number): number {
+  const max = isMobileViewport() ? OVERVIEW_HEIGHT_MOBILE_MAX : OVERVIEW_HEIGHT_MAX
+  return Math.min(max, Math.max(OVERVIEW_HEIGHT_MIN, Math.round(value)))
+}
 
 function readStoredHeight(): number {
   try {
     const legacy = localStorage.getItem('trubalance-overview-height')
     const raw = localStorage.getItem(STORAGE_KEY) ?? legacy
-    if (!raw) return OVERVIEW_HEIGHT_DEFAULT
+    if (!raw) {
+      return isMobileViewport() ? OVERVIEW_HEIGHT_MOBILE_DEFAULT : OVERVIEW_HEIGHT_DEFAULT
+    }
     const value = Number(raw)
-    if (!Number.isFinite(value)) return OVERVIEW_HEIGHT_DEFAULT
-    return Math.min(OVERVIEW_HEIGHT_MAX, Math.max(OVERVIEW_HEIGHT_MIN, Math.round(value)))
+    if (!Number.isFinite(value)) {
+      return isMobileViewport() ? OVERVIEW_HEIGHT_MOBILE_DEFAULT : OVERVIEW_HEIGHT_DEFAULT
+    }
+    return clampHeight(value)
   } catch {
-    return OVERVIEW_HEIGHT_DEFAULT
+    return isMobileViewport() ? OVERVIEW_HEIGHT_MOBILE_DEFAULT : OVERVIEW_HEIGHT_DEFAULT
   }
 }
 
@@ -40,10 +56,7 @@ export function useOverviewHeight() {
   const onPointerMove = useCallback((event: PointerEvent) => {
     if (!draggingRef.current) return
     const delta = event.clientY - startYRef.current
-    const next = Math.min(
-      OVERVIEW_HEIGHT_MAX,
-      Math.max(OVERVIEW_HEIGHT_MIN, startHeightRef.current + delta),
-    )
+    const next = clampHeight(startHeightRef.current + delta)
     setHeight(next)
   }, [])
 
@@ -80,6 +93,14 @@ export function useOverviewHeight() {
   }, [editReadOnly])
 
   useEffect(() => () => endDrag(), [endDrag])
+
+  useEffect(() => {
+    const mq = window.matchMedia(MOBILE_LAYOUT_MQ)
+    const onChange = () => setHeight((current) => clampHeight(current))
+    onChange()
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
 
   return { height, setHeight, startHeightDrag, resetHeight }
 }
