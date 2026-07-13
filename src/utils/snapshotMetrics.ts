@@ -31,13 +31,6 @@ export function getEffectiveSnapshotMetric(
     return saved[metric]
   }
 
-  if (
-    isPersistedSnapshot(snapshot) &&
-    computed === 0 &&
-    snapshot[metric] !== 0
-  ) {
-    return snapshot[metric]
-  }
   return computed
 }
 

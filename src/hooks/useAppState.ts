@@ -22,7 +22,6 @@ import {
   getCommitmentHistoricCorrectionFromDateKey,
   getCommitmentRebuildFromDateKey,
   getCommitmentRebuildFromPeriodOverridePatch,
-  propagateSnapshotMetricDelta,
   refreshAllSnapshotMetrics,
 } from '../utils/snapshotRebuild'
 import { getReceiptRebuildFromDateKey, getReceiptDeleteFromDateKey, getReceiptActiveFromDateKey } from '../utils/receiptCalculations'
@@ -47,6 +46,7 @@ import { nextSortOrder, sortByOrder } from '../utils/sortOrder'
 import { toAmount, roundCurrency } from '../utils/amounts'
 import { newId } from '../utils/id'
 import { applySnapshotMetricCorrection } from '../utils/snapshotCorrections'
+import { getEffectiveSnapshotMetric } from '../utils/snapshotMetrics'
 import type { HistoryMetricKey } from '../utils/historyTable'
 import { todayDateKey, getFreshness } from '../utils/snapshots'
 import { MONTHS, currentMonthIndex } from '../utils/format'
@@ -1631,11 +1631,10 @@ export function useAppState(options?: UseAppStateOptions) {
       const target = s.snapshots.find((snap) => snap.id === snapshotId)
       if (!target) return s
 
-      const oldValue = target[metric]
+      const oldValue = getEffectiveSnapshotMetric(s, target, metric)
       const rounded = roundCurrency(newValue)
       if (rounded === oldValue) return s
 
-      const now = new Date().toISOString()
       const delta = rounded - oldValue
       const pairedMetric =
         metric === 'trueBalance'
@@ -1644,17 +1643,30 @@ export function useAppState(options?: UseAppStateOptions) {
             ? 'trueBalance'
             : null
 
-      let snapshots = s.snapshots.map((snap) => {
+      const snapshots = s.snapshots.map((snap) => {
         if (snap.id !== snapshotId) return snap
+
         const corrected = applySnapshotMetricCorrection(snap, metric, rounded)
-        if (!pairedMetric) return corrected
+        const recordedValues = {
+          ...corrected.recordedValues,
+          [metric]: snap.recordedValues?.[metric] ?? oldValue,
+        }
+
+        if (!pairedMetric) {
+          return { ...corrected, recordedValues }
+        }
+
+        const oldPairedValue = getEffectiveSnapshotMetric(s, target, pairedMetric)
+        const newPairedValue = roundCurrency(oldPairedValue - delta)
         return {
           ...corrected,
-          [pairedMetric]: roundCurrency(snap[pairedMetric] - delta),
+          [pairedMetric]: newPairedValue,
+          recordedValues: {
+            ...recordedValues,
+            [pairedMetric]: snap.recordedValues?.[pairedMetric] ?? oldPairedValue,
+          },
         }
       })
-
-      snapshots = propagateSnapshotMetricDelta(snapshots, target, metric, delta, s, now)
 
       return { ...s, snapshots }
     })
