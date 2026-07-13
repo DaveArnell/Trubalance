@@ -3,6 +3,7 @@ import { getSupabase, isSupabaseConfigured } from '../lib/supabase'
 export type AdminAuthState =
   | 'unconfigured'
   | 'unauthenticated'
+  | 'wrong_account'
   | 'not_enrolled'
   | 'needs_2fa'
   | 'ready'
@@ -12,6 +13,10 @@ export interface AdminAuthStatus {
   email?: string
   expiresAt?: string
   message?: string
+}
+
+function isVocatioEmail(email: string | null | undefined): boolean {
+  return Boolean(email?.toLowerCase().endsWith('@vocatio.io'))
 }
 
 async function callAdminAuth(body: Record<string, unknown>): Promise<AdminAuthStatus & { error?: string }> {
@@ -28,6 +33,18 @@ async function callAdminAuth(body: Record<string, unknown>): Promise<AdminAuthSt
     return { state: 'unauthenticated' }
   }
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (user?.email && !isVocatioEmail(user.email)) {
+    return {
+      state: 'wrong_account',
+      email: user.email,
+      error: `You are signed in as ${user.email}. Admin requires an @vocatio.io account.`,
+    }
+  }
+
   const url = import.meta.env.VITE_SUPABASE_URL as string
   const response = await fetch(`${url}/functions/v1/admin-auth`, {
     method: 'POST',
@@ -41,11 +58,11 @@ async function callAdminAuth(body: Record<string, unknown>): Promise<AdminAuthSt
 
   const payload = (await response.json()) as Record<string, unknown>
   if (!response.ok) {
-    const currentState = String(payload.state ?? 'needs_2fa') as AdminAuthState
+    const state = String(payload.state ?? 'unauthenticated') as AdminAuthState
     return {
-      state: currentState === 'ready' ? 'needs_2fa' : currentState,
+      state: state === 'ready' ? 'needs_2fa' : state,
       error: String(payload.error ?? 'Admin authentication failed'),
-      email: payload.email ? String(payload.email) : undefined,
+      email: payload.email ? String(payload.email) : user?.email ?? undefined,
       message: payload.message ? String(payload.message) : undefined,
     }
   }
@@ -59,7 +76,7 @@ async function callAdminAuth(body: Record<string, unknown>): Promise<AdminAuthSt
   }
 }
 
-export function fetchAdminAuthStatus(): Promise<AdminAuthStatus> {
+export function fetchAdminAuthStatus(): Promise<AdminAuthStatus & { error?: string }> {
   return callAdminAuth({ action: 'status' })
 }
 

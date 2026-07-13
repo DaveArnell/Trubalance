@@ -62,8 +62,12 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     setState(status.state)
     setEmail(status.email ?? user.email ?? null)
     setExpiresAt(status.expiresAt ?? null)
-    if (status.message && status.state === 'not_enrolled') {
+    if (status.error) {
+      setError(status.error)
+    } else if (status.message && status.state === 'not_enrolled') {
       setError(status.message)
+    } else {
+      setError(null)
     }
     setLoading(false)
   }, [configured, user])

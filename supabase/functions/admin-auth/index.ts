@@ -6,6 +6,7 @@ const corsHeaders = {
 }
 
 const SESSION_DAYS = Number(Deno.env.get('ADMIN_SESSION_DAYS') ?? '30')
+const CODE_MINUTES = 10
 const ADMIN_EMAIL_DOMAIN = '@vocatio.io'
 
 function jsonResponse(body: unknown, status = 200) {
@@ -21,6 +22,22 @@ function isVocatioEmail(email: string): boolean {
 
 function sessionExpiry(): string {
   return new Date(Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000).toISOString()
+}
+
+function codeExpiry(): string {
+  return new Date(Date.now() + CODE_MINUTES * 60 * 1000).toISOString()
+}
+
+function generateCode(): string {
+  return String(Math.floor(100000 + Math.random() * 900000))
+}
+
+async function hashCode(code: string): Promise<string> {
+  const data = new TextEncoder().encode(code)
+  const hash = await crypto.subtle.digest('SHA-256', data)
+  return Array.from(new Uint8Array(hash))
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('')
 }
 
 async function getAuthedUser(req: Request) {
@@ -50,60 +67,55 @@ async function getAuthedUser(req: Request) {
   }
 
   if (!isVocatioEmail(user.email)) {
-    return { error: jsonResponse({ error: 'Access denied' }, 403) }
+    return jsonResponse(
+      {
+        state: 'wrong_account',
+        error: 'Admin access requires an @vocatio.io account. Sign out and sign in with your Vocatio email.',
+      },
+      403,
+    )
   }
 
-  return { user, userClient, adminClient, supabaseUrl, anonKey }
+  return { user, userClient, adminClient }
 }
 
-async function sendEmailOtp(supabaseUrl: string, anonKey: string, email: string) {
-  const response = await fetch(`${supabaseUrl}/auth/v1/otp`, {
+async function sendAdminCodeEmail(to: string, code: string): Promise<{ error?: string }> {
+  const resendKey = Deno.env.get('RESEND_API_KEY')
+  const from = Deno.env.get('ADMIN_FROM_EMAIL') ?? 'True Balance Admin <onboarding@resend.dev>'
+
+  if (!resendKey) {
+    return {
+      error:
+        'Admin email is not configured. Add RESEND_API_KEY to Supabase → Edge Functions → Secrets.',
+    }
+  }
+
+  const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
-      apikey: anonKey,
+      Authorization: `Bearer ${resendKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      email,
-      create_user: false,
+      from,
+      to: [to],
+      subject: 'Your True Balance admin code',
+      html: `
+        <p>Your admin verification code is:</p>
+        <p style="font-size:28px;font-weight:bold;letter-spacing:4px;margin:16px 0">${code}</p>
+        <p>This code expires in ${CODE_MINUTES} minutes.</p>
+        <p>If you did not request this, you can ignore this email.</p>
+      `,
     }),
   })
 
   if (!response.ok) {
     const payload = await response.json().catch(() => ({}))
-    const message = String((payload as { msg?: string; error_description?: string }).msg ??
-      (payload as { error_description?: string }).error_description ??
-      'Could not send email code')
+    const message = String((payload as { message?: string }).message ?? 'Could not send admin email')
     return { error: message }
   }
 
-  return { ok: true }
-}
-
-async function verifyEmailOtp(
-  supabaseUrl: string,
-  anonKey: string,
-  email: string,
-  code: string,
-) {
-  const response = await fetch(`${supabaseUrl}/auth/v1/verify`, {
-    method: 'POST',
-    headers: {
-      apikey: anonKey,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      email,
-      token: code,
-      type: 'email',
-    }),
-  })
-
-  if (!response.ok) {
-    return { error: 'Invalid or expired code. Request a new one.' }
-  }
-
-  return { ok: true }
+  return {}
 }
 
 async function createAdminSession(
@@ -151,9 +163,12 @@ Deno.serve(async (req) => {
 
   const action = String(body.action ?? 'status')
   const authed = await getAuthedUser(req)
-  if ('error' in authed) return authed.error
+  if ('error' in authed) {
+    if (authed.error instanceof Response) return authed.error
+    return authed.error
+  }
 
-  const { user, adminClient, supabaseUrl, anonKey } = authed
+  const { user, adminClient } = authed
 
   const { data: platformAdmin, error: adminError } = await adminClient
     .from('platform_admins')
@@ -193,20 +208,35 @@ Deno.serve(async (req) => {
     return jsonResponse({
       state: 'needs_2fa',
       email: platformAdmin.email,
-      message: 'Enter the 6-digit code sent to your email.',
+      message: 'We will email a 6-digit code to your @vocatio.io address.',
     })
   }
 
   if (action === 'send_code') {
-    const sent = await sendEmailOtp(supabaseUrl, anonKey, platformAdmin.email)
+    const code = generateCode()
+    const codeHash = await hashCode(code)
+
+    await adminClient.from('admin_email_codes').delete().eq('user_id', user.id)
+
+    const { error: insertError } = await adminClient.from('admin_email_codes').insert({
+      user_id: user.id,
+      code_hash: codeHash,
+      expires_at: codeExpiry(),
+    })
+
+    if (insertError) {
+      return jsonResponse({ error: insertError.message }, 500)
+    }
+
+    const sent = await sendAdminCodeEmail(platformAdmin.email, code)
     if (sent.error) {
-      return jsonResponse({ error: sent.error }, 500)
+      return jsonResponse({ error: sent.error, state: 'needs_2fa', email: platformAdmin.email }, 500)
     }
 
     return jsonResponse({
       state: 'needs_2fa',
       email: platformAdmin.email,
-      message: `A 6-digit code was sent to ${platformAdmin.email}. It expires in a few minutes.`,
+      message: `A 6-digit code was sent to ${platformAdmin.email}. It expires in ${CODE_MINUTES} minutes.`,
     })
   }
 
@@ -216,10 +246,30 @@ Deno.serve(async (req) => {
       return jsonResponse({ error: 'Enter the 6-digit code from your email' }, 400)
     }
 
-    const verified = await verifyEmailOtp(supabaseUrl, anonKey, platformAdmin.email, code)
-    if (verified.error) {
-      return jsonResponse({ error: verified.error }, 401)
+    const codeHash = await hashCode(code)
+    const { data: storedCode, error: codeError } = await adminClient
+      .from('admin_email_codes')
+      .select('id, expires_at, used_at')
+      .eq('user_id', user.id)
+      .eq('code_hash', codeHash)
+      .is('used_at', null)
+      .gt('expires_at', new Date().toISOString())
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (codeError) {
+      return jsonResponse({ error: codeError.message }, 500)
     }
+
+    if (!storedCode) {
+      return jsonResponse({ error: 'Invalid or expired code. Request a new one.' }, 401)
+    }
+
+    await adminClient
+      .from('admin_email_codes')
+      .update({ used_at: new Date().toISOString() })
+      .eq('id', storedCode.id)
 
     const session = await createAdminSession(adminClient, platformAdmin.id, user.id)
     if (session.error) {

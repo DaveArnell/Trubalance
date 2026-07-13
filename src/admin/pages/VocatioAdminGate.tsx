@@ -1,10 +1,15 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { getSupabase, isSupabaseConfigured } from '../../lib/supabase'
 import { useAdminAuth } from '../../contexts/AdminAuthContext'
 import { useAuth } from '../../contexts/AuthContext'
 
+function isVocatioEmail(email: string): boolean {
+  return email.toLowerCase().endsWith('@vocatio.io')
+}
+
 export function VocatioAdminGate() {
-  const { signIn, signInWithGoogle } = useAuth()
+  const { signIn, signOut } = useAuth()
   const {
     loading,
     state,
@@ -24,15 +29,29 @@ export function VocatioAdminGate() {
   const [codeSent, setCodeSent] = useState(false)
 
   useEffect(() => {
-    if (state === 'needs_2fa' && !codeSent) {
-      void (async () => {
-        setBusy(true)
-        const sent = await sendEmailCode()
-        if (sent) setCodeSent(true)
-        setBusy(false)
-      })()
-    }
-  }, [state, codeSent, sendEmailCode])
+    if (state !== 'needs_2fa' || codeSent || error) return
+    void (async () => {
+      setBusy(true)
+      const sent = await sendEmailCode()
+      if (sent) setCodeSent(true)
+      setBusy(false)
+    })()
+  }, [state, codeSent, error, sendEmailCode])
+
+  const handleGoogleSignIn = async () => {
+    if (!isSupabaseConfigured) return
+    setBusy(true)
+    setFormError(null)
+    const supabase = getSupabase()
+    const { error: oauthError } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/vocatio-admin`,
+      },
+    })
+    if (oauthError) setFormError(oauthError.message)
+    setBusy(false)
+  }
 
   if (loading) {
     return (
@@ -56,26 +75,55 @@ export function VocatioAdminGate() {
     )
   }
 
+  if (state === 'wrong_account') {
+    return (
+      <div className="admin-gate">
+        <div className="auth-card admin-auth-card">
+          <h1>Wrong account</h1>
+          <p className="muted">
+            You are signed in as <strong>{email}</strong>. Admin only works with an{' '}
+            <strong>@vocatio.io</strong> account such as <strong>admin@vocatio.io</strong>.
+          </p>
+          {error && <p className="auth-error">{error}</p>}
+          <button
+            type="button"
+            className="btn-primary"
+            disabled={busy}
+            onClick={async () => {
+              setBusy(true)
+              await signOut()
+              setBusy(false)
+            }}
+          >
+            Sign out and try again
+          </button>
+          <Link to="/app" className="btn-ghost btn-tiny">
+            ← Back to True Balance
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
   if (state === 'unauthenticated') {
     const handleSignIn = async (event: React.FormEvent) => {
       event.preventDefault()
+      const trimmedEmail = emailInput.trim()
+      if (!isVocatioEmail(trimmedEmail)) {
+        setFormError('Use your @vocatio.io email for admin access.')
+        return
+      }
+
       setBusy(true)
       setFormError(null)
-      const result = await signIn(emailInput.trim(), password)
+      const result = await signIn(trimmedEmail, password)
       if (result.error) {
         setFormError(result.error)
         setBusy(false)
         return
       }
+      setCodeSent(false)
       await refresh()
-      setBusy(false)
-    }
-
-    const handleGoogle = async () => {
-      setBusy(true)
-      setFormError(null)
-      const result = await signInWithGoogle()
-      if (result.error) setFormError(result.error)
       setBusy(false)
     }
 
@@ -84,8 +132,8 @@ export function VocatioAdminGate() {
         <div className="auth-card admin-auth-card">
           <h1>Vocatio admin</h1>
           <p className="muted">
-            Sign in with your <strong>@vocatio.io</strong> account. Customer logins cannot access this
-            area.
+            Sign in with your <strong>@vocatio.io</strong> account. Your personal True Balance login
+            cannot access this area.
           </p>
           <form onSubmit={handleSignIn} className="admin-auth-form">
             <label>
@@ -95,7 +143,7 @@ export function VocatioAdminGate() {
                 autoComplete="username"
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
-                placeholder="you@vocatio.io"
+                placeholder="admin@vocatio.io"
                 required
               />
             </label>
@@ -114,7 +162,7 @@ export function VocatioAdminGate() {
               {busy ? 'Signing in…' : 'Sign in'}
             </button>
           </form>
-          <button type="button" className="btn-ghost admin-auth-google" onClick={handleGoogle} disabled={busy}>
+          <button type="button" className="btn-ghost admin-auth-google" onClick={handleGoogleSignIn} disabled={busy}>
             Continue with Google
           </button>
           <Link to="/" className="btn-ghost btn-tiny">
@@ -134,9 +182,18 @@ export function VocatioAdminGate() {
             {error ??
               'This Vocatio account is not enrolled for platform admin. Ask an existing operator to add you in Supabase.'}
           </p>
-          <Link to="/app" className="btn-secondary">
-            ← Back to app
-          </Link>
+          <button
+            type="button"
+            className="btn-secondary"
+            disabled={busy}
+            onClick={async () => {
+              setBusy(true)
+              await signOut()
+              setBusy(false)
+            }}
+          >
+            Sign out
+          </button>
         </div>
       </div>
     )
@@ -148,8 +205,8 @@ export function VocatioAdminGate() {
         <div className="auth-card admin-auth-card">
           <h1>Confirm it&apos;s you</h1>
           <p className="muted">
-            Signed in as <strong>{email}</strong>. We sent a 6-digit code to your email. Enter it below
-            to unlock admin for 30 days on this browser.
+            Signed in as <strong>{email}</strong>. Enter the 6-digit code we email to that address to
+            unlock admin for 30 days on this browser.
           </p>
           {infoMessage && <p className="muted">{infoMessage}</p>}
           <form
