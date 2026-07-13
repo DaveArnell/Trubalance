@@ -147,24 +147,43 @@ export async function fetchAdminUsers(
   }
 
   const from = (page - 1) * pageSize
-  const to = from + pageSize - 1
+  const searchTrimmed = search.trim()
 
-  let query = supabase
-    .from('profiles')
-    .select('*', { count: 'exact' })
-    .order('created_at', { ascending: false })
-    .range(from, to)
+  // Prefer SECURITY DEFINER RPC so platform admins see every profile (RLS often only allows own row).
+  const { data: rpcPayload, error: rpcError } = await supabase.rpc('admin_list_profiles', {
+    p_search: searchTrimmed,
+    p_limit: pageSize,
+    p_offset: from,
+  })
 
-  if (search.trim()) {
-    query = query.or(`email.ilike.%${search.trim()}%,full_name.ilike.%${search.trim()}%`)
+  let rows: Record<string, unknown>[] = []
+  let total = 0
+
+  if (!rpcError && rpcPayload && typeof rpcPayload === 'object') {
+    const payload = rpcPayload as { total?: number; items?: Record<string, unknown>[] }
+    rows = Array.isArray(payload.items) ? payload.items : []
+    total = Number(payload.total ?? rows.length)
+  } else {
+    // Fallback for DBs that have not run migration 017 yet
+    const to = from + pageSize - 1
+    let query = supabase
+      .from('profiles')
+      .select('*', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(from, to)
+
+    if (searchTrimmed) {
+      query = query.or(`email.ilike.%${searchTrimmed}%,full_name.ilike.%${searchTrimmed}%`)
+    }
+
+    const { data, count, error } = await query
+    if (error) throw error
+    rows = (data ?? []) as Record<string, unknown>[]
+    total = count ?? 0
   }
 
-  const { data, count, error } = await query
-  if (error) throw error
-
   const items: AdminUserRow[] = await Promise.all(
-    (data ?? []).map(async (row) => {
-      const raw = row as Record<string, unknown>
+    rows.map(async (raw) => {
       const profile = mapProfile(raw)
 
       const { data: workspace } = await supabase
@@ -207,7 +226,7 @@ export async function fetchAdminUsers(
     }),
   )
 
-  return { items, total: count ?? 0, page, pageSize }
+  return { items, total, page, pageSize }
 }
 
 export async function fetchPayments(
