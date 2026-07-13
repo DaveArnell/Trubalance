@@ -1,0 +1,19 @@
+---
+description: Automatically push and deploy after completing user-requested work
+alwaysApply: true
+---
+
+# Auto deploy
+
+When the user asks you to implement, fix, or change something in this project:
+
+1. Complete the code change and verify the build passes (`npm run build`).
+2. **Commit and push to `main`** without waiting to be asked — unless the user explicitly says not to deploy or not to commit in that message.
+3. **Deploy to production** after pushing:
+   - Frontend: `npx vercel --prod --yes` from the project root (Vercel is connected to this repo).
+   - Supabase edge functions: when `supabase/functions/**` changes, run `npx supabase functions deploy <name>`.
+4. Briefly tell the user what was deployed and that they should hard-refresh (Ctrl+Shift+R) to see it live.
+
+Do not skip deploy because a previous push exists — confirm production is current or redeploy.
+
+SQL migrations still require the user to run scripts in Supabase SQL Editor unless they ask you to handle only code deploy.
