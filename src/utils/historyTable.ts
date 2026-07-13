@@ -318,3 +318,36 @@ export function buildHistoryTable(
 
   return { columns, rows }
 }
+
+/**
+ * Parent-scope chart lines should match the balance log Total column (rollup of children),
+ * not a separately saved group/business snapshot that can drift after child corrections.
+ */
+export function alignSnapshotsWithBalanceLogRollup(
+  state: AppState,
+  viewScope: ViewScope,
+  graphRange: GraphRange,
+  scope: ViewScope,
+  snapshots: BalanceSnapshot[],
+  metric: HistoryMetricKey,
+): BalanceSnapshot[] {
+  if (scope.type !== viewScope.type || scope.id !== viewScope.id) {
+    return snapshots
+  }
+
+  const columns = getHistoryColumns(state, viewScope)
+  const hasChildColumns = columns.some((col) => !col.isTotal && !col.isShared)
+  if (!hasChildColumns) return snapshots
+
+  const totalKey = scopeKey(viewScope)
+  const { rows } = buildHistoryTable(state, viewScope, graphRange, metric, 'daily')
+  const rolledUpByDate = new Map(
+    rows.map((row) => [row.date, row.values[totalKey]?.value ?? null]),
+  )
+
+  return snapshots.map((snap) => {
+    const rolled = rolledUpByDate.get(snap.date)
+    if (rolled == null) return snap
+    return { ...snap, [metric]: rolled }
+  })
+}

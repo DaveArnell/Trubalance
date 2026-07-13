@@ -11,6 +11,7 @@ import {
   formatSnapshotDateLong,
 } from '../utils/snapshots'
 import { getEffectiveSnapshotsForScope } from '../utils/scopeSnapshotSeries'
+import { alignSnapshotsWithBalanceLogRollup } from '../utils/historyTable'
 import {
   addDays,
   buildSmoothedTrendSeries,
@@ -206,9 +207,17 @@ export function TrendChart({
         getEffectiveSnapshotsForScope(state, opt.scope, viewScope),
         graphRange,
       )
-      const effectiveSnaps = snaps.map((snap) => withEffectiveSnapshotMetrics(state, snap))
+      let effectiveSnaps = snaps.map((snap) => withEffectiveSnapshotMetrics(state, snap))
 
       for (const metric of activeMetricKeys) {
+        effectiveSnaps = alignSnapshotsWithBalanceLogRollup(
+          state,
+          viewScope,
+          graphRange,
+          opt.scope,
+          effectiveSnaps,
+          metric,
+        )
         effectiveSnaps.forEach((s) => {
           dateSet.add(s.date)
           allValues.push(getMetricValue(state, s, metric))
