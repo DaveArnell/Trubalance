@@ -13,6 +13,7 @@ import { roundCurrency } from './amounts'
 import { getAccountsForScope } from './calculations'
 import { newId } from './id'
 import { getChartScopeTreeOptions } from './chartScopes'
+import { isSnapshotMetricCorrected } from './snapshotCorrections'
 import { computeScopeMetricsAtDate, buildSnapshotAccountChangesForScopeDate, getHistoryDatesForViewScope, rebuildHistoryRecordsFromDate } from './historyRebuild'
 import {
   getBusinessIdsForScope,
@@ -259,10 +260,20 @@ export function ensureDailySnapshotAtDate(
     scopeType: scope.type,
     scopeId: scope.id,
     viewName: getScopeLabel(workingState, scope),
-    cash: metrics.cash,
-    committedFunds: metrics.committedFunds,
-    expectedReceipts: metrics.expectedReceipts,
-    trueBalance: metrics.trueBalance,
+    cash:
+      existing && isSnapshotMetricCorrected(existing, 'cash') ? existing.cash : metrics.cash,
+    committedFunds:
+      existing && isSnapshotMetricCorrected(existing, 'committedFunds')
+        ? existing.committedFunds
+        : metrics.committedFunds,
+    expectedReceipts:
+      existing && isSnapshotMetricCorrected(existing, 'expectedReceipts')
+        ? existing.expectedReceipts
+        : metrics.expectedReceipts,
+    trueBalance:
+      existing && isSnapshotMetricCorrected(existing, 'trueBalance')
+        ? existing.trueBalance
+        : metrics.trueBalance,
     note,
     noteSource,
     freshness: getFreshness(0),

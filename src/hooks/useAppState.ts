@@ -326,6 +326,15 @@ export function useAppState(options?: UseAppStateOptions) {
   const lastHydrateKeyRef = useRef<string | null>(null)
   const prevWorkspaceIdRef = useRef<string | null | undefined>(undefined)
   const persistImmediateRef = useRef(false)
+  const stateRef = useRef(state)
+  stateRef.current = state
+
+  useEffect(() => {
+    return () => {
+      if (!options?.remotePersist || options?.skipLocalPersist || !options?.onStateChange) return
+      options.onStateChange(stateRef.current, { immediate: true })
+    }
+  }, [options?.remotePersist, options?.onStateChange, options?.skipLocalPersist])
 
   useEffect(() => {
     if (!options?.remotePersist) {
@@ -1626,7 +1635,8 @@ export function useAppState(options?: UseAppStateOptions) {
       return { ...s, snapshots: [...s.snapshots, snapshot] }
     })
 
-  const correctSnapshotMetric = (snapshotId: string, metric: HistoryMetricKey, newValue: number) =>
+  const correctSnapshotMetric = (snapshotId: string, metric: HistoryMetricKey, newValue: number) => {
+    persistImmediateRef.current = true
     update((s) => {
       const target = s.snapshots.find((snap) => snap.id === snapshotId)
       if (!target) return s
@@ -1668,18 +1678,22 @@ export function useAppState(options?: UseAppStateOptions) {
         }
       })
 
-      return { ...s, snapshots }
+      return { ...s, snapshots, workspaceOrigin: s.workspaceOrigin ?? 'user' }
     })
+  }
 
-  const deleteSnapshot = (id: string) =>
+  const deleteSnapshot = (id: string) => {
+    persistImmediateRef.current = true
     update((s) => ({
       ...s,
       snapshots: s.snapshots.filter((snap) => snap.id !== id),
     }))
+  }
 
   const deleteSnapshots = (ids: string[]) => {
     const idSet = new Set(ids)
     if (idSet.size === 0) return
+    persistImmediateRef.current = true
     update((s) => ({
       ...s,
       snapshots: s.snapshots.filter((snap) => !idSet.has(snap.id)),
