@@ -428,8 +428,12 @@ export function Sidebar({
           </p>
         )}
         <div className="sidebar-account-actions">
-          <Link to="/" className="sidebar-account-link" title={showCollapsed ? 'Home' : undefined}>
-            {showCollapsed ? '⌂' : 'Home'}
+          <Link
+            to={demoMode ? '/see-how-it-works' : '/'}
+            className="sidebar-account-link"
+            title={showCollapsed ? (demoMode ? 'Exit demo' : 'Home') : undefined}
+          >
+            {showCollapsed ? '⌂' : demoMode ? 'Exit demo' : 'Home'}
           </Link>
           {configured && user && !demoMode ? (
             <button

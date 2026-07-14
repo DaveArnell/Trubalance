@@ -32,6 +32,12 @@ export const COMMITTED_MONTHLY_COLUMNS: SheetColumnSpec[] = [
   actions,
 ]
 
+/** Hide drag + actions columns in view-only demos so headers and rows stay aligned. */
+export function committedMonthlyColumnsForMode(readOnlyLayout: boolean): SheetColumnSpec[] {
+  if (!readOnlyLayout) return COMMITTED_MONTHLY_COLUMNS
+  return COMMITTED_MONTHLY_COLUMNS.filter((column) => column.id !== 'drag' && column.id !== 'actions')
+}
+
 export const COMMITTED_PLANNED_COLUMNS: SheetColumnSpec[] = [
   drag,
   name,

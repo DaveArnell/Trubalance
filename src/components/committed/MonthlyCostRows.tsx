@@ -82,10 +82,12 @@ function MonthlyCostGroupRow({
   flat,
   collapsed,
   onToggle,
+  readOnly,
 }: {
   flat: Extract<FlatMonthlyCostRow, { kind: 'group' }>
   collapsed: boolean
   onToggle: (id: string) => void
+  readOnly?: boolean
 }) {
   const { node, depth } = flat
   const title = groupTitle(node)
@@ -95,7 +97,7 @@ function MonthlyCostGroupRow({
 
   return (
     <tr className={rowClass}>
-      <td className={`sheet-drag-col ${fillClass}`} />
+      {!readOnly && <td className={`sheet-drag-col ${fillClass}`} />}
       <td
         className={`sheet-cell-readonly sheet-group-name ${fillClass}`}
         style={{ paddingLeft: `${6 + depth * 10}px` }}
@@ -112,7 +114,7 @@ function MonthlyCostGroupRow({
         {formatCurrency(node.accruedTotal)}
       </td>
       <td className={`sheet-num sheet-cell-computed ${fillClass}`}>{formatCurrency(node.dailyTotal)}</td>
-      <td className={`sheet-actions ${fillClass}`} />
+      {!readOnly && <td className={`sheet-actions ${fillClass}`} />}
     </tr>
   )
 }
@@ -296,6 +298,7 @@ export function MonthlyCostRows({
               flat={flat}
               collapsed={collapsedGroups.has(flat.node.id)}
               onToggle={onToggleGroup}
+              readOnly={readOnly}
             />
           )
         }

@@ -3425,6 +3425,10 @@ body.widget-canvas-resizing * {
     display: none;
   }
 
+  .interactive-demo-shell .top-bar-home-link {
+    display: inline-flex;
+  }
+
   .top-bar-user {
     gap: var(--space-1);
   }

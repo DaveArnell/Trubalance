@@ -19,7 +19,7 @@ import { ordinalDay, ReadOnlyCell, SheetDragHeader, DailyAccrualCell } from './c
 import { MonthlyCostRows } from './committed/MonthlyCostRows'
 import { MonthlyCostPeriodView } from './committed/MonthlyCostPeriodView'
 import { PlatformSheetTable, PlatformSheetWrap, ResizableSheetHeader } from './PlatformSheetWrap'
-import { COMMITTED_MONTHLY_COLUMNS } from '../utils/sheetColumnSpecs'
+import { committedMonthlyColumnsForMode } from '../utils/sheetColumnSpecs'
 import { getCommitmentDueOccurrences, getAccruingRowDailyRate } from '../utils/commitmentCalculations'
 import { ConfirmDialog } from './ConfirmDialog'
 
@@ -280,36 +280,47 @@ export function CommittedFundsPanel({
             {!hasRows ? (
               <p className="muted">No monthly costs yet.</p>
             ) : (
-              <PlatformSheetWrap storageKey="committed-monthly" columns={COMMITTED_MONTHLY_COLUMNS}>
+              <PlatformSheetWrap
+                storageKey={editReadOnly ? 'committed-monthly-readonly' : 'committed-monthly'}
+                columns={committedMonthlyColumnsForMode(editReadOnly)}
+              >
                 {({ widths, startResize, prefClasses }) => (
                   <PlatformSheetTable widths={widths} preferenceClasses={prefClasses}>
                     <thead>
                       <tr>
                         {!editReadOnly && <SheetDragHeader />}
-                        <ResizableSheetHeader columnIndex={1} onResizeStart={startResize}>
+                        <ResizableSheetHeader columnIndex={editReadOnly ? 0 : 1} onResizeStart={startResize}>
                           Name
                         </ResizableSheetHeader>
                         <ResizableSheetHeader
-                          columnIndex={2}
+                          columnIndex={editReadOnly ? 1 : 2}
                           onResizeStart={startResize}
                           className="committed-scope-col"
                         >
                           Applies to
                         </ResizableSheetHeader>
-                        <ResizableSheetHeader columnIndex={3} onResizeStart={startResize}>
+                        <ResizableSheetHeader columnIndex={editReadOnly ? 2 : 3} onResizeStart={startResize}>
                           Due day
                         </ResizableSheetHeader>
-                        <ResizableSheetHeader columnIndex={4} onResizeStart={startResize} className="sheet-num">
+                        <ResizableSheetHeader
+                          columnIndex={editReadOnly ? 3 : 4}
+                          onResizeStart={startResize}
+                          className="sheet-num"
+                        >
                           Monthly
                         </ResizableSheetHeader>
                         <ResizableSheetHeader
-                          columnIndex={5}
+                          columnIndex={editReadOnly ? 4 : 5}
                           onResizeStart={startResize}
                           className="sheet-num sheet-col-emphasis"
                         >
                           Accrued
                         </ResizableSheetHeader>
-                        <ResizableSheetHeader columnIndex={6} onResizeStart={startResize} className="sheet-num">
+                        <ResizableSheetHeader
+                          columnIndex={editReadOnly ? 5 : 6}
+                          onResizeStart={startResize}
+                          className="sheet-num"
+                        >
                           Per day
                         </ResizableSheetHeader>
                         {!editReadOnly && (
@@ -339,7 +350,7 @@ export function CommittedFundsPanel({
                         const { commitment: item, accruedAmount } = row
                         return (
                           <tr key={item.id} className="sheet-row-computed sheet-row--reserve">
-                            <td className="sheet-drag-col sheet-cell--reserve" />
+                            {!editReadOnly && <td className="sheet-drag-col sheet-cell--reserve" />}
                             <td
                               className="sheet-cell-readonly sheet-cell--reserve"
                               title="Edit in Reserve Planner"
@@ -366,6 +377,7 @@ export function CommittedFundsPanel({
                             <td className="sheet-num sheet-cell-computed sheet-cell--reserve">
                               <DailyAccrualCell row={row} />
                             </td>
+                            {!editReadOnly && (
                             <td className="sheet-actions">
                               <a
                                 className="btn-ghost btn-tiny"
@@ -379,6 +391,7 @@ export function CommittedFundsPanel({
                                 Plan
                               </a>
                             </td>
+                            )}
                           </tr>
                         )
                       })}
