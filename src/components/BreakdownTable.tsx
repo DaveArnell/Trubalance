@@ -512,7 +512,7 @@ export function BreakdownTable({
             <td colSpan={columns.length + 1} />
           </tr>
           <tr className="sheet-row-final">
-            <td className="sheet-row-label">TOTAL</td>
+            <td className="sheet-row-label">TRUE BALANCE</td>
             {columns.map((col) => (
               <Cell
                 key={col.key}
