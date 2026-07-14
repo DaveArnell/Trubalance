@@ -89,8 +89,8 @@ export function TrueBalanceMethodPage() {
             <div className="method-edu-section-head">
               <h2 id="method-habits-heading">Two simple habits</h2>
               <p className="method-edu-section-lead">
-                The Method is intentionally simple. Follow these two routines and leave the heavy
-                maths to the software.
+                The Method is intentionally simple. Keep light daily logging, follow the monthly
+                Reserve Planner — and leave the heavy maths to the software.
               </p>
             </div>
             <div className="method-edu-habits">
@@ -102,6 +102,11 @@ export function TrueBalanceMethodPage() {
                   </p>
                   <h3>{habit.lead}</h3>
                   <p>{habit.body}</p>
+                  <ul className="method-edu-habit-tasks">
+                    {habit.tasks.map((task) => (
+                      <li key={task}>{task}</li>
+                    ))}
+                  </ul>
                 </article>
               ))}
             </div>
@@ -255,8 +260,8 @@ export function TrueBalanceMethodPage() {
               <Link to="/signup" className="btn-primary btn-large">
                 Start your free trial
               </Link>
-              <Link to="/see-how-it-works" className="btn-secondary btn-large">
-                See the routine →
+              <Link to="/how-it-works" className="btn-secondary btn-large">
+                See how it works →
               </Link>
             </div>
           </div>

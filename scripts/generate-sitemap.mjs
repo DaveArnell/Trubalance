@@ -23,6 +23,7 @@ const uniqueSlugs = [...new Set(slugs)]
 const staticPages = [
   { loc: '/', priority: '1.0', changefreq: 'weekly' },
   { loc: '/pricing', priority: '0.9', changefreq: 'monthly' },
+  { loc: '/how-it-works', priority: '0.9', changefreq: 'monthly' },
   { loc: '/see-how-it-works', priority: '0.9', changefreq: 'monthly' },
   { loc: '/true-balance-method', priority: '0.9', changefreq: 'monthly' },
   { loc: '/signup', priority: '0.9', changefreq: 'monthly' },

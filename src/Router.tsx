@@ -9,6 +9,7 @@ import { PrivacyPage } from './pages/legal/PrivacyPage'
 import { TermsPage } from './pages/legal/TermsPage'
 import { AppPage } from './pages/AppPage'
 import { DemoPage } from './pages/DemoPage'
+import { HowItWorksPage } from './pages/HowItWorksPage'
 import { SeeHowItWorksPage } from './pages/SeeHowItWorksPage'
 import { TrueBalanceMethodPage } from './pages/TrueBalanceMethodPage'
 import { BlogIndexPage } from './pages/BlogIndexPage'
@@ -30,6 +31,7 @@ export function AppRouter() {
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/terms" element={<TermsPage />} />
+            <Route path="/how-it-works" element={<HowItWorksPage />} />
             <Route path="/see-how-it-works" element={<SeeHowItWorksPage />} />
             <Route path="/true-balance-method" element={<TrueBalanceMethodPage />} />
             <Route path="/blog" element={<BlogIndexPage />} />

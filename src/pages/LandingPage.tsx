@@ -28,9 +28,9 @@ import { usePageMeta } from '../hooks/usePageMeta'
 import { homePageJsonLd, MarketingJsonLd } from '../components/marketing/MarketingJsonLd'
 
 const HERO_BENEFITS = [
-  'Check one number each day — your True Balance.',
+  'Keep balances and payments current with light daily logging.',
   'Fund VAT, tax and irregular bills through the Reserve Planner.',
-  'Decide with confidence — not from the bank app alone.',
+  'Decide from your True Balance — not the bank app alone.',
 ] as const
 
 const HERO_CALLOUT = {
@@ -110,7 +110,7 @@ export function LandingPage() {
                   Claim your spot
                 </Link>
                 <Link to="/see-how-it-works" className="btn-secondary btn-large marketing-cta-secondary--pop">
-                  See how it works
+                  Try demo
                 </Link>
               </div>
               <p className="marketing-hero-note muted">
@@ -153,8 +153,8 @@ export function LandingPage() {
               <p className="marketing-eyebrow marketing-eyebrow--vivid">How the software automates the Method</p>
               <h2>The app does the heavy lifting</h2>
               <p className="marketing-section-lead">
-                You follow two simple habits. True Balance keeps accruals, the Reserve Planner and your
-                decision number current in the background.
+                You keep light daily logging and a monthly Reserve Planner review. True Balance accrues
+                commitments and keeps your decision number current in the background.
               </p>
             </div>
             <div className="marketing-feature-grid marketing-feature-grid--pop marketing-feature-grid--compact">
@@ -182,8 +182,8 @@ export function LandingPage() {
               <p className="marketing-eyebrow marketing-eyebrow--vivid">The routine</p>
               <h2>A simple financial routine — not a software course</h2>
               <p className="marketing-section-lead">
-                Set up once, then live the Method: daily True Balance checks and a monthly Reserve
-                Planner review.
+                Set up once, then live the Method: light daily logging and a monthly Reserve Planner
+                review.
               </p>
             </div>
             <ol className="marketing-steps-grid marketing-steps-grid--pop">
@@ -196,25 +196,25 @@ export function LandingPage() {
               ))}
             </ol>
             <p className="marketing-tour-note">
-              Full seven-step journey, then try it in a live demo business.{' '}
-              <Link to="/see-how-it-works">See how it works →</Link>
+              Full seven-step journey on the how it works page.{' '}
+              <Link to="/how-it-works">See how it works →</Link>
             </p>
           </div>
         </section>
 
         <section id="product-video" className="marketing-demo-band">
           <div className="marketing-demo-band-inner">
-            <h2>See the Method in a live business</h2>
+            <h2>Try it live</h2>
             <p>
               Explore Summit Leisure, Cornerstone Coffee, or Riverside Building — fully set up so you
               can see accruals, the Reserve Planner and True Balance in action. No signup.
             </p>
             <div className="marketing-cta-row marketing-cta-row--center">
               <Link to="/see-how-it-works" className="btn-primary btn-large">
-                See how it works
+                Try demo
               </Link>
-              <Link to={METHOD_PAGE_PATH} className="btn-secondary btn-large">
-                Read the Method
+              <Link to="/how-it-works" className="btn-secondary btn-large">
+                How it works
               </Link>
             </div>
           </div>

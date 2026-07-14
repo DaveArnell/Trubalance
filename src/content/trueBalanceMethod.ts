@@ -17,16 +17,29 @@ export const METHOD_TWO_HABITS = [
   {
     id: 'daily',
     title: 'Daily',
-    time: '30 seconds',
-    lead: 'Open True Balance. Check one number. Your True Balance.',
-    body: 'Make spending decisions from that number instead of your bank balance.',
+    time: 'Light logging',
+    lead: 'Keep True Balance current — then decide from it.',
+    body: 'A short update keeps the Method honest. Then use your True Balance for spending decisions, not the bank app alone.',
+    tasks: [
+      'Update your bank balances',
+      'Mark payments as paid when they leave the account',
+      'Add or change obligations when something in the business changes',
+      'Add planned new payments when you know they are coming',
+      'Check your True Balance before you spend',
+    ],
   },
   {
     id: 'monthly',
     title: 'Monthly',
-    time: '5 minutes',
+    time: 'About 5 minutes',
     lead: 'Open the Reserve Planner and follow the recommended transfer.',
     body: 'The app already knows every annual and irregular bill, which month it is due, and what your reserve account should contain. Confirm the transfer — in or out — and the plan stays on track.',
+    tasks: [
+      'Open the Reserve Planner',
+      'Review the recommended transfer (into or out of the reserve)',
+      'Confirm the transfer in the bank',
+      'Mark it done in True Balance',
+    ],
   },
 ] as const
 
@@ -106,8 +119,8 @@ export const METHOD_CUSTOMER_JOURNEY = [
   },
   {
     step: '05',
-    title: 'Check your True Balance each day',
-    body: 'About 30 seconds. One number for spending decisions — not the bank app alone.',
+    title: 'Keep it current each day',
+    body: 'Update bank balances, mark payments paid, and adjust obligations or planned payments when something changes — then decide from your True Balance.',
   },
   {
     step: '06',
@@ -117,7 +130,7 @@ export const METHOD_CUSTOMER_JOURNEY = [
   {
     step: '07',
     title: 'Repeat',
-    body: 'Small daily awareness. Small monthly housekeeping. Continuous financial clarity.',
+    body: 'Light daily logging. Monthly Reserve Planner. Continuous financial clarity.',
   },
 ] as const
 
@@ -140,10 +153,11 @@ export const METHOD_SOFTWARE_HELPS = [
 
 /** @deprecated Prefer METHOD_TWO_HABITS / METHOD_THREE_PRINCIPLES. */
 export const METHOD_ROUTINE_HABITS = [
-  'Check your True Balance each day',
+  'Update your bank balances',
+  'Mark payments as paid',
+  'Add or change obligations and planned payments when needed',
+  'Check your True Balance before spending decisions',
   'Follow the monthly Reserve Planner recommendation',
-  'Refresh balances when money moves',
-  'Add or edit commitments when something changes',
 ] as const
 
 /** @deprecated Prefer METHOD_THREE_PRINCIPLES — kept for older references. */
@@ -180,10 +194,11 @@ export const METHOD_WORKED_EXAMPLE = {
 
 /** @deprecated Prefer METHOD_TWO_HABITS. */
 export const METHOD_ONGOING_ROUTINE = [
-  'Check your True Balance each day (about 30 seconds).',
-  'Once a month, follow the Reserve Planner transfer recommendation (about 5 minutes).',
-  'Refresh balances and mark payments paid when money moves.',
-  'Add or edit commitments when something in the business changes.',
+  'Update your bank balances regularly.',
+  'Mark payments as paid when they leave the account.',
+  'Add or change obligations and planned payments when something changes.',
+  'Check your True Balance before spending decisions.',
+  'Once a month, follow the Reserve Planner transfer recommendation.',
 ] as const
 
 export const METHOD_FOR_ACCOUNTANTS = [

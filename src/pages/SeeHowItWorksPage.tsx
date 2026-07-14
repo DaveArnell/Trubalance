@@ -5,7 +5,7 @@ import {
   MarketingShell,
 } from '../components/marketing/MarketingLayout'
 import { DEMO_SCENARIOS } from '../data/demoScenarios'
-import { METHOD_CUSTOMER_JOURNEY, METHOD_PAGE_PATH } from '../content/trueBalanceMethod'
+import { METHOD_PAGE_PATH } from '../content/trueBalanceMethod'
 import { SEE_HOW_SEO } from '../content/marketingSeo'
 import { usePageMeta } from '../hooks/usePageMeta'
 
@@ -19,46 +19,17 @@ export function SeeHowItWorksPage() {
         <section className="demo-scenarios-section demo-scenarios-section--landing">
           <div className="marketing-section-inner">
             <div className="marketing-section-head marketing-section-head--center demo-scenarios-head">
-              <p className="marketing-eyebrow">How it works</p>
-              <h1>Learn a simple financial routine</h1>
-              <p className="marketing-section-lead">
-                The True Balance Method is not a long software course. Connect the business, keep two
-                habits, and let the app run the maths.
-              </p>
-              <p className="marketing-section-lead muted">
-                Want the full explanation first?{' '}
-                <Link to={METHOD_PAGE_PATH}>Read the True Balance Method</Link>.
-              </p>
-            </div>
-
-            <ol className="marketing-journey-list">
-              {METHOD_CUSTOMER_JOURNEY.map((item) => (
-                <li key={item.step} className="marketing-journey-item">
-                  <span className="marketing-journey-step">{item.step}</span>
-                  <div>
-                    <h2>{item.title}</h2>
-                    <p>{item.body}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-
-            <div className="demo-scenarios-footer demo-scenarios-footer--mid">
-              <Link to="/signup" className="btn-primary btn-large">
-                Follow the Method in your business
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        <section className="demo-scenarios-section">
-          <div className="marketing-section-inner">
-            <div className="marketing-section-head marketing-section-head--center demo-scenarios-head">
-              <p className="marketing-eyebrow">Try it live</p>
-              <h2>See the Method in a sample business</h2>
+              <p className="marketing-eyebrow">Try demo</p>
+              <h1>Try it live</h1>
               <p className="marketing-section-lead">
                 Explore a fully set-up workspace — continuous accrual, Reserve Planner and one True
                 Balance — without signing up.
+              </p>
+              <p className="marketing-section-lead muted">
+                Prefer the routine first?{' '}
+                <Link to="/how-it-works">See how it works</Link>
+                {' · '}
+                <Link to={METHOD_PAGE_PATH}>Read the Method</Link>.
               </p>
             </div>
 
@@ -66,7 +37,7 @@ export function SeeHowItWorksPage() {
               {DEMO_SCENARIOS.map((scenario) => (
                 <article key={scenario.id} className="demo-scenario-card">
                   <p className="demo-scenario-type">{scenario.businessType}</p>
-                  <h3>{scenario.title}</h3>
+                  <h2>{scenario.title}</h2>
                   <p className="demo-scenario-subtitle">{scenario.subtitle}</p>
                   <p className="demo-scenario-history muted">{scenario.historyLabel}</p>
                   <p>{scenario.description}</p>
@@ -83,6 +54,12 @@ export function SeeHowItWorksPage() {
                   </Link>
                 </article>
               ))}
+            </div>
+
+            <div className="demo-scenarios-footer">
+              <Link to="/signup" className="btn-secondary btn-large">
+                Follow the Method in your business
+              </Link>
             </div>
           </div>
         </section>

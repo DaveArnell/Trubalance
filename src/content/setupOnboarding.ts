@@ -105,7 +105,7 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     id: 'accuracy',
     title: 'Keep it alive — here\'s your routine.',
     explain:
-      'True Balance works best when it\'s fresh. Update your bank balance every day or two (takes 30 seconds). Mark things paid as they go out. Once a month, do the reserve check-in — it takes about 5 minutes and keeps your big bills on track. That\'s it. The system handles the rest.',
+      'True Balance works best when it\'s fresh. Update your bank balances regularly, mark payments as paid, and add or change obligations when something shifts. Once a month, do the Reserve Planner check-in — about 5 minutes — so big bills stay on track. That\'s it. The system handles the rest.',
     page: 'committed-funds',
     spotlight: '[data-tour="overview-balances"]',
   },

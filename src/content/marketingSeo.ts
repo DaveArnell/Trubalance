@@ -3,7 +3,7 @@
 export const HOME_SEO = {
   title: 'True Balance — Follow the True Balance Method',
   description:
-    'A financial management system for UK business owners. Check your True Balance daily, fund irregular bills with the Reserve Planner monthly, and decide with confidence — not from the bank app alone.',
+    'A financial management system for UK business owners. Keep light daily logging, fund irregular bills with the Reserve Planner monthly, and decide from your True Balance — not the bank app alone.',
   path: '/',
 } as const
 
@@ -21,10 +21,17 @@ export const PRICING_SEO = {
   path: '/pricing',
 } as const
 
-export const SEE_HOW_SEO = {
+export const HOW_IT_WORKS_SEO = {
   title: 'How it works — The True Balance Method routine',
   description:
-    'Seven steps to follow the True Balance Method: connect your business, build commitments and the Reserve Planner, check True Balance daily, and confirm the monthly transfer.',
+    'Seven steps to follow the True Balance Method: connect your business, add commitments, build the Reserve Planner, keep light daily logging, and confirm the monthly transfer.',
+  path: '/how-it-works',
+} as const
+
+export const SEE_HOW_SEO = {
+  title: 'Try demo — Live True Balance Method businesses',
+  description:
+    'Explore the True Balance Method in live demo workspaces: continuous accrual, Reserve Planner and one True Balance. Trades, café and leisure examples.',
   path: '/see-how-it-works',
 } as const
 

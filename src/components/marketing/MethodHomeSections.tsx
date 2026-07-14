@@ -55,7 +55,7 @@ export function MethodHomeSections() {
             <p className="marketing-eyebrow marketing-eyebrow--vivid">Two simple habits</p>
             <h2 id="method-habits-heading">This is how you follow the Method</h2>
             <p className="marketing-section-lead">
-              Intentionally light. Not constant maintenance — a 30-second daily check and a five-minute
+              Not constant maintenance — light daily logging to keep the position honest, and a short
               monthly Reserve Planner review.
             </p>
           </div>
@@ -68,6 +68,11 @@ export function MethodHomeSections() {
                 </p>
                 <h3>{habit.lead}</h3>
                 <p>{habit.body}</p>
+                <ul className="marketing-method-habit-tasks">
+                  {habit.tasks.map((task) => (
+                    <li key={task}>{task}</li>
+                  ))}
+                </ul>
               </article>
             ))}
           </div>
