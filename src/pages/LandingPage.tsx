@@ -109,15 +109,15 @@ export function LandingPage() {
           <div className="marketing-hero-blob marketing-hero-blob--3" aria-hidden />
           <div className="marketing-hero-inner marketing-hero-inner--pop">
             <div className="marketing-hero-copy">
-              <p className="marketing-eyebrow marketing-eyebrow--vivid">The True Balance Method</p>
+              <p className="marketing-eyebrow marketing-eyebrow--vivid">Financial management for business owners</p>
               <Link to={METHOD_PAGE_PATH} className="marketing-method-badge">
-                Learn the Method →
+                Full Method guide →
               </Link>
-              <h1>Your bank balance is not your available cash.</h1>
+              <h1>What is the True Balance Method?</h1>
               <p className="marketing-lead">
-                The True Balance Method is a simple financial management system: recognise commitments
-                as they build, reserve for irregular bills, and decide from one number you can trust.
-                True Balance software is the easiest way to follow it every day.
+                A simple system for knowing what your business can genuinely afford — by accruing
+                monthly costs every day, reserving for VAT and irregular bills, and deciding from
+                one stable number. The software is the easiest way to follow it every day.
               </p>
               <p className="marketing-hero-callout" role="note">
                 <strong>{HERO_CALLOUT.emphasis}</strong> {HERO_CALLOUT.rest}
