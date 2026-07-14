@@ -11431,10 +11431,119 @@ tr.sheet-row--received td {
   text-decoration: underline;
 }
 
+.marketing-method-principles--compact {
+  margin-top: 36px;
+}
+
+.marketing-method-habits {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  max-width: 52rem;
+  margin: 0 auto;
+}
+
+.marketing-method-habit-card {
+  padding: 24px 22px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #fff;
+}
+
+.marketing-method-habit-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 12px;
+}
+
+.marketing-method-habit-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+.marketing-method-habit-time {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.marketing-method-habit-card h3 {
+  margin: 0 0 10px;
+  font-size: 1.15rem;
+  line-height: 1.35;
+}
+
+.marketing-method-habit-card p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.marketing-journey-list {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  max-width: 40rem;
+  display: grid;
+  gap: 18px;
+}
+
+.marketing-journey-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 16px;
+  align-items: start;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.marketing-journey-item:last-child {
+  border-bottom: none;
+}
+
+.marketing-journey-step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--accent-text);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.marketing-journey-item h2 {
+  margin: 0 0 6px;
+  font-size: 1.15rem;
+}
+
+.marketing-journey-item p {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.demo-scenarios-footer--mid {
+  margin-top: 32px;
+  margin-bottom: 8px;
+}
+
 @media (max-width: 800px) {
   .marketing-method-principles {
     grid-template-columns: 1fr;
     gap: 24px;
+  }
+
+  .marketing-method-habits {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -11681,6 +11790,53 @@ tr.sheet-row--received td {
   margin: 0;
   font-size: 0.95rem;
   line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.method-edu-habits {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.method-edu-habit-card {
+  padding: 24px 22px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: #fff;
+  box-shadow: var(--shadow-xs);
+}
+
+.method-edu-habit-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+.method-edu-habit-time {
+  letter-spacing: 0;
+  text-transform: none;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.method-edu-habit-card h3 {
+  margin: 0 0 10px;
+  font-size: 1.2rem;
+  line-height: 1.35;
+}
+
+.method-edu-habit-card p {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.55;
   color: var(--text-secondary);
 }
 
@@ -11938,6 +12094,7 @@ tr.sheet-row--received td {
 
 @media (max-width: 900px) {
   .method-edu-principles,
+  .method-edu-habits,
   .method-edu-benefit-grid,
   .method-edu-software-grid,
   .method-edu-compare {

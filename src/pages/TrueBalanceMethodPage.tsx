@@ -10,9 +10,10 @@ import {
   METHOD_MANTRA,
   METHOD_PAGE_SUBTITLE,
   METHOD_PAGE_TITLE,
-  METHOD_ROUTINE_HABITS,
+  METHOD_RESERVE_PLANNER,
   METHOD_SOFTWARE_HELPS,
   METHOD_THREE_PRINCIPLES,
+  METHOD_TWO_HABITS,
   METHOD_WHY_IT_WORKS,
 } from '../content/trueBalanceMethod'
 import { METHOD_SEO } from '../content/marketingSeo'
@@ -26,73 +27,93 @@ export function TrueBalanceMethodPage() {
       <MarketingHeader />
 
       <main className="marketing-main marketing-method-page">
-        {/* Hero */}
         <header className="method-edu-hero">
           <div className="method-edu-inner">
-            <p className="marketing-eyebrow marketing-eyebrow--vivid">Financial management</p>
+            <p className="marketing-eyebrow marketing-eyebrow--vivid">Financial management system</p>
             <h1>{METHOD_PAGE_TITLE}</h1>
             <p className="method-edu-hero-lead">{METHOD_PAGE_SUBTITLE}</p>
             <p className="method-edu-mantra">{METHOD_MANTRA}</p>
           </div>
         </header>
 
-        {/* Opening — the problem */}
         <section className="method-edu-section" aria-labelledby="method-problem-heading">
           <div className="method-edu-inner method-edu-inner--narrow">
-            <h2 id="method-problem-heading">The problem with the bank balance</h2>
+            <h2 id="method-problem-heading">Why bank balances mislead</h2>
             <p className="method-edu-prose">
-              Almost every business owner knows their bank balance. Far fewer know how much of that
-              money is genuinely available.
+              Business owners often make financial decisions using their bank balance. A bank balance
+              only tells you where your money is — not how much of it is genuinely available.
             </p>
             <div className="method-edu-callout">
               <p>
-                A bank balance includes money already committed to payroll, VAT, tax, rent,
-                subscriptions, finance payments and future obligations. It can look healthy one day
-                and dangerously low the next.
+                It already includes money committed to payroll, rent, utilities, subscriptions,
+                finance, VAT, corporation tax, insurance, quarterly bills and other obligations.
               </p>
               <p>
-                <strong>Nothing actually changed. The timing of payments changed.</strong>
+                <strong>That is why the balance swings through the month.</strong> Nothing fundamental
+                changed — the timing of payments did.
               </p>
             </div>
             <p className="method-edu-prose">
-              The True Balance Method removes those swings by recognising financial commitments as
-              they build up — rather than waiting until they leave the bank account.
+              The True Balance Method removes those swings by recognising costs as they build, funding
+              irregular bills monthly through the Reserve Planner, and giving you one stable decision
+              number.
             </p>
           </div>
         </section>
 
-        {/* Goal */}
         <section className="method-edu-section method-edu-section--tint" aria-labelledby="method-goal-heading">
           <div className="method-edu-inner method-edu-inner--narrow">
             <h2 id="method-goal-heading">The goal</h2>
             <p className="method-edu-prose method-edu-prose--lead">
-              Give business owners one realistic financial position they can trust every day.
+              One realistic financial position you can trust every day — your True Balance.
             </p>
             <div className="method-edu-compare">
               <div className="method-edu-compare-card method-edu-compare-card--muted">
                 <p className="method-edu-compare-label">Without the method</p>
                 <p className="method-edu-compare-quote">“Can I afford this?”</p>
-                <p className="method-edu-compare-note">A guessing game every time something comes up.</p>
+                <p className="method-edu-compare-note">A guessing off the bank app every time.</p>
               </div>
               <div className="method-edu-compare-card method-edu-compare-card--accent">
                 <p className="method-edu-compare-label">With the method</p>
                 <p className="method-edu-compare-quote">You already know.</p>
                 <p className="method-edu-compare-note">
-                  Decisions use your True Balance — the position that is genuinely available.
+                  Decisions use your True Balance — what is genuinely available.
                 </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Three principles */}
-        <section className="method-edu-section" aria-labelledby="method-principles-heading">
+        <section className="method-edu-section" aria-labelledby="method-habits-heading">
           <div className="method-edu-inner">
             <div className="method-edu-section-head">
-              <h2 id="method-principles-heading">The three principles</h2>
+              <h2 id="method-habits-heading">Two simple habits</h2>
               <p className="method-edu-section-lead">
-                A practical system for available business cash — whether you keep it on a spreadsheet
-                or in software.
+                The Method is intentionally simple. Follow these two routines and leave the heavy
+                maths to the software.
+              </p>
+            </div>
+            <div className="method-edu-habits">
+              {METHOD_TWO_HABITS.map((habit) => (
+                <article key={habit.id} className="method-edu-habit-card">
+                  <p className="method-edu-habit-meta">
+                    <span>{habit.title}</span>
+                    <span className="method-edu-habit-time">{habit.time}</span>
+                  </p>
+                  <h3>{habit.lead}</h3>
+                  <p>{habit.body}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="method-edu-section method-edu-section--tint" aria-labelledby="method-maths-heading">
+          <div className="method-edu-inner">
+            <div className="method-edu-section-head">
+              <h2 id="method-maths-heading">How the maths works</h2>
+              <p className="method-edu-section-lead">
+                Short version — continuous accrual, the Reserve Planner, and one decision number.
               </p>
             </div>
             <div className="method-edu-principles">
@@ -115,7 +136,32 @@ export function TrueBalanceMethodPage() {
           </div>
         </section>
 
-        {/* Worked example */}
+        <section className="method-edu-section" aria-labelledby="method-reserve-heading">
+          <div className="method-edu-inner method-edu-inner--narrow">
+            <h2 id="method-reserve-heading">{METHOD_RESERVE_PLANNER.title}</h2>
+            <div className="method-edu-callout">
+              <p>
+                <strong>{METHOD_RESERVE_PLANNER.notSavings}</strong>
+              </p>
+            </div>
+            <ol className="method-edu-timeline">
+              {METHOD_RESERVE_PLANNER.steps.map((step, index) => (
+                <li key={step}>
+                  <span className="method-edu-timeline-step" aria-hidden>
+                    {index + 1}
+                  </span>
+                  <span>{step}</span>
+                </li>
+              ))}
+            </ol>
+            <p className="method-edu-prose">
+              This is not simply “save the same amount every month.” It is a living annual funding
+              plan that can move money into the reserve — or back out — so the position stays correct
+              as obligations change through the year.
+            </p>
+          </div>
+        </section>
+
         <section className="method-edu-section method-edu-section--tint" aria-labelledby="method-example-heading">
           <div className="method-edu-inner method-edu-inner--narrow">
             <div className="method-edu-section-head">
@@ -126,14 +172,13 @@ export function TrueBalanceMethodPage() {
             </div>
             <MethodWorkedExample />
             <p className="method-edu-prose method-edu-example-note">
-              Each adjustment is explicit: monthly costs already building, irregular bills being
-              reserved, and only receipts you can realistically rely on. The result —{' '}
-              <strong>True Balance</strong> — is the number for day-to-day spending decisions.
+              Monthly costs already building, irregular bills funded through the Reserve Planner, and
+              only receipts you can realistically rely on. The result — <strong>True Balance</strong>{' '}
+              — is the number for day-to-day spending decisions.
             </p>
           </div>
         </section>
 
-        {/* Why this works */}
         <section className="method-edu-section" aria-labelledby="method-why-heading">
           <div className="method-edu-inner">
             <div className="method-edu-section-head">
@@ -150,44 +195,13 @@ export function TrueBalanceMethodPage() {
           </div>
         </section>
 
-        {/* Keeping it up to date */}
-        <section className="method-edu-section method-edu-section--tint" aria-labelledby="method-routine-heading">
-          <div className="method-edu-inner method-edu-inner--narrow">
-            <h2 id="method-routine-heading">Keeping it up to date</h2>
-            <p className="method-edu-prose">
-              After initial setup, the routine is deliberately simple. This is not software that
-              demands constant maintenance.
-            </p>
-            <ol className="method-edu-timeline">
-              {METHOD_ROUTINE_HABITS.map((habit, index) => (
-                <li key={habit}>
-                  <span className="method-edu-timeline-step" aria-hidden>
-                    {index + 1}
-                  </span>
-                  <span>{habit}</span>
-                </li>
-              ))}
-            </ol>
-            <div className="method-edu-callout method-edu-callout--quiet">
-              <p>
-                <strong>Small daily awareness. Small monthly housekeeping. Continuous financial
-                clarity.</strong>
-              </p>
-              <p>
-                Everything else — daily accruals, reserve build-up, and your True Balance — updates
-                in the background when you use the software to follow the method.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* How software helps — AFTER the method */}
-        <section className="method-edu-section" aria-labelledby="method-software-heading">
+        <section className="method-edu-section method-edu-section--tint" aria-labelledby="method-software-heading">
           <div className="method-edu-inner">
             <div className="method-edu-section-head">
-              <h2 id="method-software-heading">How True Balance helps</h2>
+              <h2 id="method-software-heading">How the software automates the Method</h2>
               <p className="method-edu-section-lead">
-                The method stands on its own. The software is the easiest way to put it into practice.
+                The Method stands on its own. The True Balance app is the easiest way to follow it
+                every day.
               </p>
             </div>
             <div className="method-edu-software-grid">
@@ -202,8 +216,9 @@ export function TrueBalanceMethodPage() {
               <div className="method-edu-software-card method-edu-software-card--aside">
                 <h3>What it is not</h3>
                 <p>
-                  True Balance is not another bookkeeping package. It sits alongside accounting
-                  software and turns financial information into practical day-to-day decisions.
+                  Not another bookkeeping package. Bookkeeping tells you what happened. The True
+                  Balance Method helps you decide what to do next — alongside your accountant’s
+                  software.
                 </p>
                 <p className="muted method-edu-disclaimer">
                   It does not provide regulated financial, tax or accounting advice. Always take
@@ -214,13 +229,12 @@ export function TrueBalanceMethodPage() {
           </div>
         </section>
 
-        {/* Accountants */}
-        <section className="method-edu-section method-edu-section--tint" aria-labelledby="method-accountants-heading">
+        <section className="method-edu-section" aria-labelledby="method-accountants-heading">
           <div className="method-edu-inner method-edu-inner--narrow">
             <h2 id="method-accountants-heading">For accountants</h2>
             <p className="method-edu-prose">
-              The True Balance Method is something an accountant can recommend to a client — clearer
-              day-to-day visibility between formal reports.
+              The True Balance Method is something an accountant can recommend — clearer day-to-day
+              visibility between formal reports.
             </p>
             <ul className="method-edu-plain-list">
               {METHOD_FOR_ACCOUNTANTS.map((point) => (
@@ -230,20 +244,19 @@ export function TrueBalanceMethodPage() {
           </div>
         </section>
 
-        {/* CTA */}
         <section className="method-edu-cta" aria-labelledby="method-cta-heading">
           <div className="method-edu-inner method-edu-inner--narrow">
-            <h2 id="method-cta-heading">Ready to try the True Balance Method?</h2>
+            <h2 id="method-cta-heading">Ready to follow the Method?</h2>
             <p>
-              Instead of maintaining spreadsheets and manual calculations, let True Balance keep
-              everything up to date for you.
+              Use the True Balance app so accruals, the Reserve Planner and your True Balance stay
+              current — without the spreadsheet.
             </p>
             <div className="marketing-cta-row">
               <Link to="/signup" className="btn-primary btn-large">
                 Start your free trial
               </Link>
               <Link to="/see-how-it-works" className="btn-secondary btn-large">
-                See how True Balance works →
+                See the routine →
               </Link>
             </div>
           </div>

@@ -58,8 +58,8 @@ export function DemoPage() {
               </select>
             </label>
             <p className="interactive-demo-banner-message">
-              Exploring the True Balance Method in a sample business — accruals, reserves and one
-              decision number.
+              Exploring the True Balance Method — daily True Balance, continuous accrual and the
+              Reserve Planner in a sample business.
             </p>
             <div className="interactive-demo-banner-actions">
               {canEditDemo && (

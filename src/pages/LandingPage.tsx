@@ -13,7 +13,10 @@ import { MarketingBrowserFrame } from '../components/marketing/MarketingBrowserF
 import { CompanyLegalNotice } from '../components/marketing/CompanyLegalNotice'
 import { MethodHomeSections } from '../components/marketing/MethodHomeSections'
 import { PricingSection } from '../components/marketing/PricingSection'
-import { METHOD_PAGE_PATH } from '../content/trueBalanceMethod'
+import {
+  METHOD_CUSTOMER_JOURNEY,
+  METHOD_PAGE_PATH,
+} from '../content/trueBalanceMethod'
 import { isSupabaseConfigured } from '../lib/supabase'
 import {
   FOUNDER_PROGRAM_BODY,
@@ -25,9 +28,9 @@ import { usePageMeta } from '../hooks/usePageMeta'
 import { homePageJsonLd, MarketingJsonLd } from '../components/marketing/MarketingJsonLd'
 
 const HERO_BENEFITS = [
-  'Continuous accrual — monthly costs build every day, not only on payday.',
-  'Reserve planning — VAT, tax and irregular bills stop becoming surprises.',
-  'One decision number — spend from your True Balance, not the bank app alone.',
+  'Check one number each day — your True Balance.',
+  'Fund VAT, tax and irregular bills through the Reserve Planner.',
+  'Decide with confidence — not from the bank app alone.',
 ] as const
 
 const HERO_CALLOUT = {
@@ -35,57 +38,28 @@ const HERO_CALLOUT = {
   rest: 'Manage it from your True Balance.',
 } as const
 
-const PILLARS = [
-  {
-    accent: 'indigo',
-    title: 'Continuous accrual',
-    body: 'Payroll, rent, utilities and subscriptions build every day. The Method keeps tomorrow’s obligations in today’s position — so the bank balance stops swinging wildly through the month.',
-  },
-  {
-    accent: 'violet',
-    title: 'Reserve planning',
-    body: 'VAT, corporation tax, insurance and other irregular bills are spread ahead of time. Small amounts reserved steadily — instead of one large scramble on payment day.',
-  },
-] as const
-
-const FEATURES = [
+const SOFTWARE_FEATURES = [
   {
     icon: '◈',
-    title: 'One Decision Number',
-    body: 'Your True Balance is the continuously updated figure for spending decisions — after accruals, reserves and realistic receipts.',
+    title: 'One True Balance',
+    body: 'A continuously updated figure for spending decisions — after accruals, the Reserve Planner and realistic receipts.',
     accent: 'indigo',
   },
   {
     icon: '▤',
-    title: 'Continuous Accrual in practice',
-    body: 'Monthly costs accrue every day automatically. You stop pretending payday is the first time those costs exist.',
+    title: 'Continuous accrual',
+    body: 'Monthly commitments build every day automatically. Payday stops being a surprise.',
     accent: 'orange',
   },
   {
     icon: '◷',
-    title: 'Reserve Planning in practice',
-    body: 'Irregular bills become manageable set-asides. VAT and tax stop catching the business out every quarter.',
+    title: 'Reserve Planner',
+    body: 'Annual and irregular bills become a month-by-month funding plan — with an exact transfer to confirm.',
     accent: 'violet',
   },
 ] as const
 
-const STEPS = [
-  {
-    step: '01',
-    title: 'Set up the Method once',
-    body: 'Add accounts, monthly commitments and reserves for irregular bills. Start simple — detail can grow with you.',
-  },
-  {
-    step: '02',
-    title: 'Keep a light routine',
-    body: 'Refresh balances, mark payments paid, adjust when something changes. Everything else updates in the background.',
-  },
-  {
-    step: '03',
-    title: 'Decide from your True Balance',
-    body: 'Use one stable number for purchases, hires and quiet months — not a bank balance that hides money already spoken for.',
-  },
-] as const
+const JOURNEY_TEASER = METHOD_CUSTOMER_JOURNEY.slice(0, 3)
 
 export function LandingPage() {
   usePageMeta(HOME_SEO)
@@ -109,15 +83,16 @@ export function LandingPage() {
           <div className="marketing-hero-blob marketing-hero-blob--3" aria-hidden />
           <div className="marketing-hero-inner marketing-hero-inner--pop">
             <div className="marketing-hero-copy">
-              <p className="marketing-eyebrow marketing-eyebrow--vivid">Financial management for business owners</p>
+              <p className="marketing-eyebrow marketing-eyebrow--vivid">
+                A financial management system for business owners
+              </p>
               <Link to={METHOD_PAGE_PATH} className="marketing-method-badge">
                 Full Method guide →
               </Link>
-              <h1>What is the True Balance Method?</h1>
+              <h1>Follow the True Balance Method with the True Balance app</h1>
               <p className="marketing-lead">
-                A simple system for knowing what your business can genuinely afford — by accruing
-                monthly costs every day, reserving for VAT and irregular bills, and deciding from
-                one stable number. The software is the easiest way to follow it every day.
+                Your bank balance only shows where money sits. The True Balance Method shows what is
+                genuinely available — then the app keeps that Method current every day.
               </p>
               <p className="marketing-hero-callout" role="note">
                 <strong>{HERO_CALLOUT.emphasis}</strong> {HERO_CALLOUT.rest}
@@ -164,53 +139,26 @@ export function LandingPage() {
               Not accounting software. Not bookkeeping. Not forecasting.
             </p>
             <p className="marketing-position-detail">
-              A financial management method first — continuous accrual, reserve planning, and one
-              decision number. The software automates the calculations so the Method stays current
-              without a spreadsheet.
+              A financial management system first. Bookkeeping tells you what happened. The True
+              Balance Method helps you decide what to do next — and the software automates it.
             </p>
           </div>
         </section>
 
-        <LandingAppPreview />
-
         <MethodHomeSections />
-
-        <section id="what-it-does" className="marketing-pillars-section marketing-pillars-section--pop">
-          <div className="marketing-section-inner">
-            <div className="marketing-section-head marketing-section-head--center">
-              <p className="marketing-eyebrow marketing-eyebrow--vivid">Core idea</p>
-              <h2>How the Method removes the swings</h2>
-              <p className="marketing-section-lead">
-                Accounting software records what happened. The True Balance Method shows what you can
-                safely do next — because money already spoken for is part of today’s picture.
-              </p>
-            </div>
-            <div className="marketing-pillars-grid marketing-pillars-grid--pop">
-              {PILLARS.map((pillar) => (
-                <article
-                  key={pillar.title}
-                  className={`marketing-pillar-card marketing-pillar-card--pop marketing-pillar-card--${pillar.accent}`}
-                >
-                  <h3>{pillar.title}</h3>
-                  <p>{pillar.body}</p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
 
         <section id="features" className="marketing-features-section marketing-features-section--pop">
           <div className="marketing-section-inner">
             <div className="marketing-section-head marketing-section-head--center">
-              <p className="marketing-eyebrow marketing-eyebrow--vivid">How the software follows the Method</p>
-              <h2>The Method in practice</h2>
+              <p className="marketing-eyebrow marketing-eyebrow--vivid">How the software automates the Method</p>
+              <h2>The app does the heavy lifting</h2>
               <p className="marketing-section-lead">
-                True Balance automates the three principles — so you get continuous financial clarity
-                without rebuilding the maths yourself.
+                You follow two simple habits. True Balance keeps accruals, the Reserve Planner and your
+                decision number current in the background.
               </p>
             </div>
             <div className="marketing-feature-grid marketing-feature-grid--pop marketing-feature-grid--compact">
-              {FEATURES.map((feature) => (
+              {SOFTWARE_FEATURES.map((feature) => (
                 <article
                   key={feature.title}
                   className={`marketing-feature-card marketing-feature-card--pop marketing-feature-card--${feature.accent}`}
@@ -226,14 +174,20 @@ export function LandingPage() {
           </div>
         </section>
 
+        <LandingAppPreview />
+
         <section id="how-it-works" className="marketing-how-section marketing-how-section--pop">
           <div className="marketing-section-inner">
             <div className="marketing-section-head marketing-section-head--center">
-              <p className="marketing-eyebrow marketing-eyebrow--vivid">How it works</p>
-              <h2>Follow the Method in three steps</h2>
+              <p className="marketing-eyebrow marketing-eyebrow--vivid">The routine</p>
+              <h2>A simple financial routine — not a software course</h2>
+              <p className="marketing-section-lead">
+                Set up once, then live the Method: daily True Balance checks and a monthly Reserve
+                Planner review.
+              </p>
             </div>
             <ol className="marketing-steps-grid marketing-steps-grid--pop">
-              {STEPS.map((step) => (
+              {JOURNEY_TEASER.map((step) => (
                 <li key={step.step} className="marketing-step-card marketing-step-card--pop">
                   <span className="marketing-step-num">{step.step}</span>
                   <h3>{step.title}</h3>
@@ -242,8 +196,8 @@ export function LandingPage() {
               ))}
             </ol>
             <p className="marketing-tour-note">
-              When you first log in, a guided setup walks you through your business, balances and
-              commitments on the dashboard. Replay page tours anytime from the <strong>?</strong> icons.
+              Full seven-step journey, then try it in a live demo business.{' '}
+              <Link to="/see-how-it-works">See how it works →</Link>
             </p>
           </div>
         </section>
@@ -253,11 +207,11 @@ export function LandingPage() {
             <h2>See the Method in a live business</h2>
             <p>
               Explore Summit Leisure, Cornerstone Coffee, or Riverside Building — fully set up so you
-              can see accruals, reserves and True Balance in action. No signup.
+              can see accruals, the Reserve Planner and True Balance in action. No signup.
             </p>
             <div className="marketing-cta-row marketing-cta-row--center">
               <Link to="/see-how-it-works" className="btn-primary btn-large">
-                Open demo
+                See how it works
               </Link>
               <Link to={METHOD_PAGE_PATH} className="btn-secondary btn-large">
                 Read the Method
@@ -274,8 +228,8 @@ export function LandingPage() {
               <p className="marketing-section-lead">
                 For over 17 years I have run businesses and, despite accounting software, still needed
                 a clearer answer: what is already committed, what should be reserved, and what is
-                genuinely available. The True Balance Method is that system. The software keeps it
-                current without the spreadsheet.
+                genuinely available. The True Balance Method is that system. The app keeps it current
+                without the spreadsheet.
               </p>
             </div>
           </div>
@@ -291,10 +245,10 @@ export function LandingPage() {
 
         <section className="marketing-cta-band marketing-cta-band--pop">
           <div className="marketing-cta-band-inner">
-            <h2>Ready to try the True Balance Method?</h2>
+            <h2>Ready to follow the True Balance Method?</h2>
             <p>
-              {FOUNDER_PROGRAM_HEADLINE}. Start following the Method in software — help shape it
-              before public launch.
+              {FOUNDER_PROGRAM_HEADLINE}. Start in the True Balance app — help shape it before public
+              launch.
             </p>
             <div className="marketing-cta-row marketing-cta-row--center">
               <Link to="/signup" className="btn-primary btn-large marketing-cta-btn-on-dark">

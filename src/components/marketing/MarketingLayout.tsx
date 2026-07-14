@@ -7,7 +7,7 @@ import { FOUNDER_PROGRAM_FOOTNOTE, FOUNDER_PROGRAM_HEADLINE } from '../../config
 import { CompanyLegalNotice } from './CompanyLegalNotice'
 
 const NAV = [
-  { id: 'true-balance-method', label: 'Principles' },
+  { id: 'two-habits', label: 'Habits' },
   { id: 'how-it-works', label: 'How it works' },
   { id: 'pricing', label: 'Pricing' },
 ] as const
@@ -115,7 +115,7 @@ export function MarketingFooter() {
           </div>
           <div>
             <p className="marketing-footer-heading">Product</p>
-            <Link to="/#true-balance-method">Principles</Link>
+            <Link to="/#two-habits">Habits</Link>
             <Link to="/#how-it-works">How it works</Link>
             <Link to="/#pricing">Pricing</Link>
             <Link to="/true-balance-method">The Method</Link>

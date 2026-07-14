@@ -41,9 +41,9 @@ export function BlogIndexPage() {
             <p className="marketing-eyebrow marketing-eyebrow--vivid">Learn the Method</p>
             <h1>Teaching the True Balance Method</h1>
             <p className="blog-index-lead">
-              Practical articles on why your bank balance is not spending money, how costs should
-              accrue every day, reserve planning for VAT and tax, and how financial management
-              differs from bookkeeping. The software is the easiest way to follow it.
+              Why your bank balance is not spending money, why costs should accrue every day, how the
+              Reserve Planner funds annual bills, and the two habits every business owner can keep.
+              The True Balance app is the easiest way to follow the Method.
             </p>
             <div className="blog-index-cta">
               <Link to="/true-balance-method" className="btn-primary">

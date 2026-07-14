@@ -1,30 +1,30 @@
 /** SEO copy for public marketing routes (used with usePageMeta). */
 
 export const HOME_SEO = {
-  title: 'True Balance — The True Balance Method for UK business owners',
+  title: 'True Balance — Follow the True Balance Method',
   description:
-    'A simple financial management method for seeing what your business can genuinely afford — committed money, virtual reserves and realistic receipts. True Balance automates it.',
+    'A financial management system for UK business owners. Check your True Balance daily, fund irregular bills with the Reserve Planner monthly, and decide with confidence — not from the bank app alone.',
   path: '/',
 } as const
 
 export const METHOD_SEO = {
-  title: 'The True Balance Method — Bank balance vs available cash',
+  title: 'The True Balance Method — Daily habits & Reserve Planner',
   description:
-    'A practical financial management system for UK business owners: continuous accrual, reserve planning for VAT and tax, and one True Balance for spending decisions. Complements accounting software.',
+    'Learn the True Balance Method: why bank balances mislead, how continuous accrual works, how the Reserve Planner funds annual bills, and the two habits that keep it current.',
   path: '/true-balance-method',
 } as const
 
 export const PRICING_SEO = {
   title: 'Pricing — Follow the True Balance Method',
   description:
-    'Plans for running the True Balance Method in software. Founder access during early access — full features, no payment details required yet.',
+    'Plans for following the True Balance Method in the True Balance app. Founder access during early access — full features, no payment details required yet.',
   path: '/pricing',
 } as const
 
 export const SEE_HOW_SEO = {
-  title: 'See the Method — Try demo businesses',
+  title: 'How it works — The True Balance Method routine',
   description:
-    'Explore the True Balance Method in live demo workspaces: continuous accrual, reserve planning and one True Balance. Trades, café and leisure examples.',
+    'Seven steps to follow the True Balance Method: connect your business, build commitments and the Reserve Planner, check True Balance daily, and confirm the monthly transfer.',
   path: '/see-how-it-works',
 } as const
 
