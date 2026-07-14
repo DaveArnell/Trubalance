@@ -21,9 +21,9 @@ export function BlogIndexPage() {
   const activeCategory = searchParams.get('category')
 
   usePageMeta({
-    title: 'Blog — Cash clarity & UK small business finance guides',
+    title: 'Blog — Bank balance isn’t available cash | True Balance',
     description:
-      'Guides on the True Balance Method, cash flow, VAT reserves, and UK small business finance — written for owners who need clear answers.',
+      'Cornerstone guides for UK owners: bank balance isn’t your money, available cash, VAT reserves, and True Balance vs accounting software.',
     path: activeCategory ? `/blog?category=${encodeURIComponent(activeCategory)}` : '/blog',
   })
 
@@ -41,8 +41,8 @@ export function BlogIndexPage() {
             <p className="marketing-eyebrow marketing-eyebrow--vivid">Resources</p>
             <h1>Cash clarity for UK business owners</h1>
             <p className="blog-index-lead">
-              Practical guides on the True Balance Method, cash flow, tax reserves, and how True
-              Balance compares to spreadsheets and accounting software.
+              Own the idea that bank balance isn’t available cash. Guides on committed money, VAT
+              reserves, and why accounting software isn’t designed to tell you what you can spend.
             </p>
             <div className="blog-index-cta">
               <Link to="/true-balance-method" className="btn-secondary">

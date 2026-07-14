@@ -9,12 +9,16 @@ import { dirname, join } from 'node:path'
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const blogSource = readFileSync(join(root, 'src/content/blogPosts.ts'), 'utf8')
 const methodBlogSource = readFileSync(join(root, 'src/content/methodBlogPosts.ts'), 'utf8')
+const cornerstoneBlogSource = readFileSync(join(root, 'src/content/cornerstoneBlogPosts.ts'), 'utf8')
 const site = 'https://truebalanceapp.io'
 
 const slugs = [
+  ...cornerstoneBlogSource.matchAll(/slug:\s*'([^']+)'/g),
   ...blogSource.matchAll(/slug:\s*'([^']+)'/g),
   ...methodBlogSource.matchAll(/slug:\s*'([^']+)'/g),
 ].map((match) => match[1])
+
+const uniqueSlugs = [...new Set(slugs)]
 
 const staticPages = [
   { loc: '/', priority: '1.0', changefreq: 'weekly' },
@@ -27,7 +31,7 @@ const staticPages = [
   { loc: '/terms', priority: '0.3', changefreq: 'yearly' },
 ]
 
-const blogPages = slugs.map((slug) => ({
+const blogPages = uniqueSlugs.map((slug) => ({
   loc: `/blog/${slug}`,
   priority: '0.8',
   changefreq: 'monthly',

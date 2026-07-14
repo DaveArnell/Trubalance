@@ -1,4 +1,5 @@
 import { METHOD_BLOG_POSTS } from './methodBlogPosts'
+import { CORNERSTONE_BLOG_POSTS } from './cornerstoneBlogPosts'
 import type { BlogPost } from './blogTypes'
 
 export type { BlogPost, BlogSection } from './blogTypes'
@@ -292,17 +293,27 @@ const CORE_BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: 'true-balance-vs-accounting-software',
-    title: 'True Balance vs Xero, FreeAgent & QuickBooks',
+    title: 'True Balance vs Accounting Software',
     metaDescription:
-      'True Balance is not accounting software. See how it complements Xero, FreeAgent, and QuickBooks for UK cash clarity.',
-    keywords: ['True Balance vs Xero', 'FreeAgent cash flow', 'accounting software UK', 'cash clarity'],
+      'True Balance vs accounting software: why Xero, FreeAgent and QuickBooks don’t answer what you can spend — and how they work together.',
+    keywords: [
+      'True Balance vs accounting software',
+      'True Balance vs Xero',
+      'FreeAgent cash flow',
+      'accounting software UK',
+      'what can I spend',
+    ],
     publishedAt: '2026-06-15',
-    updatedAt: '2026-07-06',
+    updatedAt: '2026-07-14',
     category: 'Comparisons',
     readMinutes: 6,
     excerpt:
       'You still need accounting software for filings. You need something else for Tuesday morning spending decisions.',
-    relatedSlugs: ['what-is-true-balance', 'cash-flow-vs-profit-uk-small-business'],
+    relatedSlugs: [
+      'why-accounting-software-doesnt-tell-you-what-you-can-spend',
+      'what-is-true-balance',
+      'bank-balance-isnt-your-money',
+    ],
     sections: [
       {
         type: 'p',
@@ -336,7 +347,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'Use both: accounting software for compliance, True Balance for operational cash decisions.',
+        text: 'Use both: accounting software for compliance, True Balance for operational cash decisions. That separation — True Balance vs accounting software as complements, not rivals — is the niche.',
       },
     ],
   },
@@ -610,7 +621,11 @@ const CORE_BLOG_POSTS: BlogPost[] = [
   },
 ]
 
-export const BLOG_POSTS: BlogPost[] = [...CORE_BLOG_POSTS, ...METHOD_BLOG_POSTS]
+export const BLOG_POSTS: BlogPost[] = [
+  ...CORNERSTONE_BLOG_POSTS,
+  ...CORE_BLOG_POSTS,
+  ...METHOD_BLOG_POSTS,
+]
 
 export function getBlogPost(slug: string): BlogPost | undefined {
   return BLOG_POSTS.find((post) => post.slug === slug)
