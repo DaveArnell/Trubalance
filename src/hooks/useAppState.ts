@@ -22,6 +22,7 @@ import {
   getCommitmentHistoricCorrectionFromDateKey,
   getCommitmentRebuildFromDateKey,
   getCommitmentRebuildFromPeriodOverridePatch,
+  propagateSnapshotMetricDelta,
   refreshAllSnapshotMetrics,
 } from '../utils/snapshotRebuild'
 import { getReceiptRebuildFromDateKey, getReceiptDeleteFromDateKey, getReceiptActiveFromDateKey } from '../utils/receiptCalculations'
@@ -41,7 +42,7 @@ import {
   countDueRowsNeedingAttention,
   getDerivedDueRowStatus,
 } from '../utils/commitmentCalculations'
-import { DEFAULT_RESERVE_BILL_DUE_DAY, getUnpaidReserveBillDueOccurrences, buildReserveAccruingRows, buildReserveDueRows, clearReserveDueAmountOverridesForPeriods } from '../utils/reserveCalculations'
+import { DEFAULT_RESERVE_BILL_DUE_DAY, getUnpaidReserveBillDueOccurrences, buildReserveAccruingRows, buildReserveDueRows, clearReserveDueAmountOverridesForPeriods, resolveReserveMarkPaidFromDateKey } from '../utils/reserveCalculations'
 import { nextSortOrder, sortByOrder } from '../utils/sortOrder'
 import { toAmount, roundCurrency } from '../utils/amounts'
 import { newId } from '../utils/id'
@@ -873,10 +874,11 @@ export function useAppState(options?: UseAppStateOptions) {
         }
       }
 
+      const paidFromDates = Object.values(merged.paidPeriodDates ?? {}).sort()
       const fromDate = amountCorrected
         ? getCommitmentRebuildFromPeriodOverridePatch(commitment, merged) ??
           getCommitmentHistoricCorrectionFromDateKey(merged)
-        : todayDateKey()
+        : paidFromDates[0] ?? todayDateKey()
 
       const nextState: AppState = {
         ...s,
@@ -1320,7 +1322,9 @@ export function useAppState(options?: UseAppStateOptions) {
         ...occurrences.map((entry) => entry.period),
         occurrences[0]?.period,
       ].filter((period, index, list): period is string => Boolean(period) && list.indexOf(period) === index)
-      if (!planner) return s
+      if (!planner || !bill) return s
+
+      const paidFrom = resolveReserveMarkPaidFromDateKey(bill, latest)
 
       const nextState: AppState = {
         ...s,
@@ -1333,7 +1337,7 @@ export function useAppState(options?: UseAppStateOptions) {
                     ? {
                         ...b,
                         lastPaidPeriod: latest,
-                        lastPaidOnDate: todayDateKey(),
+                        lastPaidOnDate: paidFrom,
                         ...clearReserveDueAmountOverridesForPeriods(b, periodsToClear),
                       }
                     : b,
@@ -1346,7 +1350,7 @@ export function useAppState(options?: UseAppStateOptions) {
       return refreshSnapshotsForScopes(
         nextState,
         getScopesForReservePlanner(nextState, planner),
-        todayDateKey(),
+        paidFrom,
         new Date().toISOString(),
       )
     })
@@ -1652,8 +1656,9 @@ export function useAppState(options?: UseAppStateOptions) {
           : metric === 'committedFunds'
             ? 'trueBalance'
             : null
+      const now = new Date().toISOString()
 
-      const snapshots = s.snapshots.map((snap) => {
+      let snapshots = s.snapshots.map((snap) => {
         if (snap.id !== snapshotId) return snap
 
         const corrected = applySnapshotMetricCorrection(snap, metric, rounded)
@@ -1663,7 +1668,7 @@ export function useAppState(options?: UseAppStateOptions) {
         }
 
         if (!pairedMetric) {
-          return { ...corrected, recordedValues }
+          return { ...corrected, recordedValues, updatedAt: now }
         }
 
         const oldPairedValue = getEffectiveSnapshotMetric(s, target, pairedMetric)
@@ -1675,8 +1680,14 @@ export function useAppState(options?: UseAppStateOptions) {
             ...recordedValues,
             [pairedMetric]: snap.recordedValues?.[pairedMetric] ?? oldPairedValue,
           },
+          updatedAt: now,
         }
       })
+
+      const correctedTarget = snapshots.find((snap) => snap.id === snapshotId)
+      if (correctedTarget) {
+        snapshots = propagateSnapshotMetricDelta(snapshots, correctedTarget, metric, delta, s, now)
+      }
 
       return { ...s, snapshots, workspaceOrigin: s.workspaceOrigin ?? 'user' }
     })

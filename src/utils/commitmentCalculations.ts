@@ -215,8 +215,9 @@ export function buildMarkPaidPatch(
         ? getPlannedCommittedAmount(commitment, referenceDate)
         : getAccruedAmount(commitment, referenceDate)
     const actual = options.paidAmount != null ? toAmount(options.paidAmount) : expected
+    const dueKey = getPeriodDueDateKey(commitment, period)
     paidPeriodAmounts[period] = roundCurrency(actual)
-    paidPeriodDates[period] = paidOn
+    paidPeriodDates[period] = dueKey && dueKey <= paidOn ? dueKey : paidOn
     return {
       lastPaidPeriod: period,
       paidPeriodAmounts,
@@ -241,8 +242,9 @@ export function buildMarkPaidPatch(
     } else {
       share = roundCurrency(actualTotal / occurrences.length)
     }
+    const dueKey = getPeriodDueDateKey(commitment, occurrence.period)
     paidPeriodAmounts[occurrence.period] = roundCurrency(share)
-    paidPeriodDates[occurrence.period] = paidOn
+    paidPeriodDates[occurrence.period] = dueKey && dueKey <= paidOn ? dueKey : paidOn
     remaining = roundCurrency(remaining - share)
   })
 

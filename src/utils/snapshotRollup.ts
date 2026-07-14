@@ -279,8 +279,8 @@ export function ensureDailySnapshotAtDate(
     freshness: getFreshness(0),
     changedAccounts: mergedChanges,
     updatedAt: now,
-    recordedValues: scopeChanges.length > 0 ? undefined : existing?.recordedValues,
-    correctedAt: scopeChanges.length > 0 ? undefined : existing?.correctedAt,
+    recordedValues: existing?.recordedValues,
+    correctedAt: existing?.correctedAt,
   }
 
   if (existingIdx >= 0) {

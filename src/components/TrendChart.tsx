@@ -119,12 +119,10 @@ function evenlySpacedDateKeys(minDate: string, maxDate: string, count: number): 
   return keys
 }
 
-function getMetricValue(
-  state: AppState,
-  snapshot: BalanceSnapshot,
-  metric: MetricKey,
-): number {
-  return getEffectiveSnapshotMetric(state, snapshot, metric)
+function getMetricValue(snapshot: BalanceSnapshot, metric: MetricKey): number {
+  // After withEffectiveSnapshotMetrics + alignSnapshotsWithBalanceLogRollup, use baked-in values.
+  // Re-calling getEffectiveSnapshotMetric would ignore History child rollups and wipe corrections.
+  return snapshot[metric]
 }
 
 export function TrendChart({
@@ -220,7 +218,7 @@ export function TrendChart({
         )
         effectiveSnaps.forEach((s) => {
           dateSet.add(s.date)
-          allValues.push(getMetricValue(state, s, metric))
+          allValues.push(getMetricValue(s, metric))
         })
 
         const label =
@@ -363,7 +361,7 @@ export function TrendChart({
         .map((p) => ({
           ...p,
           x: xForDate(p.date),
-          y: yForValue(getMetricValue(state, p.snapshot, entry.metric)),
+          y: yForValue(getMetricValue(p.snapshot, entry.metric)),
         }))
     }
 
@@ -806,7 +804,7 @@ export function TrendChart({
                 {hoverRows.map((row) => (
                   <p key={row.key}>
                     <span className="chart-hover-swatch" style={{ background: row.color }} />
-                    {row.label}: {formatCurrency(getMetricValue(state, row.point.snapshot, row.metric))}
+                    {row.label}: {formatCurrency(getMetricValue(row.point.snapshot, row.metric))}
                   </p>
                 ))}
                 {hoverDayNote && <p className="chart-hover-note">{hoverDayNote}</p>}
@@ -843,7 +841,7 @@ export function TrendChart({
               {activeMetricKeys.length === 1 ? (
                 <p>
                   {metricConfig[activeMetricKeys[0]!].label}:{' '}
-                  {formatCurrency(getMetricValue(state, detailSnapshot, activeMetricKeys[0]!))}
+                  {formatCurrency(getMetricValue(detailSnapshot, activeMetricKeys[0]!))}
                 </p>
               ) : null}
               <p>True Balance: {formatCurrency(getEffectiveSnapshotMetric(state, detailSnapshot, 'trueBalance'))}</p>

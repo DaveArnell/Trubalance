@@ -158,6 +158,33 @@ export function clearReserveDueAmountOverridesForPeriods(
   return Object.keys(next).length > 0 ? { duePeriodAmountOverrides: next } : { duePeriodAmountOverrides: undefined }
 }
 
+/** Calendar due date for a reserve bill in a YYYY-MM period. */
+export function getReserveBillPeriodDueDateKey(bill: ReserveBill, period: string): string | null {
+  const [yearStr, monthStr] = period.split('-')
+  const year = Number(yearStr)
+  const monthIndex = Number(monthStr) - 1
+  if (!year || monthIndex < 0 || monthIndex > 11) return null
+  const month = MONTHS[monthIndex]!
+  const dueDay = getBillDueDay(bill, month)
+  const lastDay = new Date(year, monthIndex + 1, 0).getDate()
+  const day = Math.min(Math.max(1, dueDay), lastDay)
+  return dateToKey(new Date(year, monthIndex, day))
+}
+
+/**
+ * When marking a reserve bill paid, count it paid from the due day (not click day).
+ * That stops True Balance double-counting after the bank balance already dropped.
+ */
+export function resolveReserveMarkPaidFromDateKey(
+  bill: ReserveBill,
+  period: string,
+  referenceToday: string = todayDateKey(),
+): string {
+  const dueKey = getReserveBillPeriodDueDateKey(bill, period)
+  if (!dueKey) return referenceToday
+  return dueKey <= referenceToday ? dueKey : referenceToday
+}
+
 export function isReserveBillPaidThisPeriod(
   bill: ReserveBill,
   period: string,
@@ -174,7 +201,9 @@ export function isReserveBillPaidThisPeriod(
     return dateToKey(referenceDate) >= bill.lastPaidOnDate
   }
 
-  // Legacy marks without a pay date: only treat as paid from real today onward.
+  // Legacy marks without a pay date: treat as paid from the bill's due day for that period.
+  const dueKey = getReserveBillPeriodDueDateKey(bill, period)
+  if (dueKey) return dateToKey(referenceDate) >= dueKey
   return dateToKey(referenceDate) >= todayDateKey()
 }
 
