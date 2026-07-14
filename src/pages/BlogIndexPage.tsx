@@ -21,9 +21,9 @@ export function BlogIndexPage() {
   const activeCategory = searchParams.get('category')
 
   usePageMeta({
-    title: 'Blog — Bank balance isn’t available cash | True Balance',
+    title: 'Blog — Learn the True Balance Method | True Balance',
     description:
-      'Cornerstone guides for UK owners: bank balance isn’t your money, available cash, VAT reserves, and True Balance vs accounting software.',
+      'Articles teaching the True Balance Method: bank balance isn’t available cash, continuous accrual, VAT reserves, and financial management vs accounting software.',
     path: activeCategory ? `/blog?category=${encodeURIComponent(activeCategory)}` : '/blog',
   })
 
@@ -38,21 +38,22 @@ export function BlogIndexPage() {
       <main className="blog-page">
         <div className="blog-page-inner">
           <header className="blog-index-header">
-            <p className="marketing-eyebrow marketing-eyebrow--vivid">Resources</p>
-            <h1>Cash clarity for UK business owners</h1>
+            <p className="marketing-eyebrow marketing-eyebrow--vivid">Learn the Method</p>
+            <h1>Teaching the True Balance Method</h1>
             <p className="blog-index-lead">
-              Own the idea that bank balance isn’t available cash. Guides on committed money, VAT
-              reserves, and why accounting software isn’t designed to tell you what you can spend.
+              Practical articles on why your bank balance is not spending money, how costs should
+              accrue every day, reserve planning for VAT and tax, and how financial management
+              differs from bookkeeping. The software is the easiest way to follow it.
             </p>
             <div className="blog-index-cta">
-              <Link to="/true-balance-method" className="btn-secondary">
+              <Link to="/true-balance-method" className="btn-primary">
                 The True Balance Method
               </Link>
-              <Link to="/signup" className="btn-primary">
-                Start free trial
-              </Link>
               <Link to="/see-how-it-works" className="btn-secondary">
-                Try demo
+                See it in a demo
+              </Link>
+              <Link to="/signup" className="btn-secondary">
+                Follow it in software
               </Link>
             </div>
           </header>

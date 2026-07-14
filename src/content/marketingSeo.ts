@@ -15,16 +15,16 @@ export const METHOD_SEO = {
 } as const
 
 export const PRICING_SEO = {
-  title: 'Pricing — Founder lifetime access',
+  title: 'Pricing — Follow the True Balance Method',
   description:
-    'True Balance pricing for UK small businesses. Founder lifetime access during early access — full features, no payment details required yet.',
+    'Plans for running the True Balance Method in software. Founder access during early access — full features, no payment details required yet.',
   path: '/pricing',
 } as const
 
 export const SEE_HOW_SEO = {
-  title: 'See how it works — Try demo businesses',
+  title: 'See the Method — Try demo businesses',
   description:
-    'Explore True Balance with realistic demo workspaces: trades, café, leisure group, and more. See cash outlook, commitments, and reserves in action.',
+    'Explore the True Balance Method in live demo workspaces: continuous accrual, reserve planning and one True Balance. Trades, café and leisure examples.',
   path: '/see-how-it-works',
 } as const
 
@@ -50,15 +50,15 @@ export const LOGIN_SEO = {
 } as const
 
 export const SIGNUP_SEO = {
-  title: 'Sign up — Start free',
+  title: 'Sign up — Follow the True Balance Method',
   description:
-    'Create your True Balance account. Founder lifetime access during early access — cash clarity for UK small business owners.',
+    'Create your True Balance account and follow the Method in software. Founder access during early access for UK small business owners.',
   path: '/signup',
 } as const
 
 export const DEMO_SEO = {
-  title: 'Demo',
-  description: 'Interactive True Balance demo workspace.',
+  title: 'Demo — True Balance Method in a sample business',
+  description: 'Interactive demo of the True Balance Method: accruals, reserves and one decision number.',
   path: '/demo',
   noindex: true,
 } as const

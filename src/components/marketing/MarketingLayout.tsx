@@ -7,7 +7,7 @@ import { FOUNDER_PROGRAM_FOOTNOTE, FOUNDER_PROGRAM_HEADLINE } from '../../config
 import { CompanyLegalNotice } from './CompanyLegalNotice'
 
 const NAV = [
-  { id: 'features', label: 'Features' },
+  { id: 'true-balance-method', label: 'Principles' },
   { id: 'how-it-works', label: 'How it works' },
   { id: 'pricing', label: 'Pricing' },
 ] as const
@@ -102,7 +102,7 @@ export function MarketingFooter() {
             True Balance
           </Link>
           <p className="marketing-footer-tagline">
-            Know what is genuinely yours, not just what is in the account.
+            Do not manage your business from your bank balance. Manage it from your True Balance.
           </p>
           <CompanyLegalNotice variant="footer" />
         </div>
@@ -115,10 +115,10 @@ export function MarketingFooter() {
           </div>
           <div>
             <p className="marketing-footer-heading">Product</p>
-            <Link to="/#features">Features</Link>
+            <Link to="/#true-balance-method">Principles</Link>
             <Link to="/#how-it-works">How it works</Link>
             <Link to="/#pricing">Pricing</Link>
-            <Link to="/true-balance-method">The method</Link>
+            <Link to="/true-balance-method">The Method</Link>
             <Link to="/blog">Blog</Link>
             <Link to="/see-how-it-works">Demo</Link>
             {!isSupabaseConfigured && <Link to="/app">Try locally</Link>}

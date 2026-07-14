@@ -61,10 +61,10 @@ export const TRIAL_DAYS = 90
 export const ANNUAL_SAVINGS_COPY = 'Pay annually and get 2 months free.'
 
 export const PRICING_HEADLINE =
-  'Start free. Only pay when True Balance becomes part of how you manage your money.'
+  'Follow the True Balance Method in software — start free.'
 
 export const PRICING_SUBHEADLINE =
-  'Every plan includes the full True Balance dashboard. We recommend the right plan based on what you set up — you do not need to decide upfront.'
+  'Every plan is for running the Method continuously: accruals, reserves and one True Balance. We recommend the right plan from what you set up — you do not need to decide upfront.'
 
 export const PRICING_FOOTNOTE =
   'Not sure which plan you need? Start your free trial and build your business first. True Balance will tell you when you are ready for the next level.'

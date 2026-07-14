@@ -1,12 +1,16 @@
+import { METHOD_WORKED_EXAMPLE } from '../../content/trueBalanceMethod'
+
 /**
- * Static hero explainer — the core idea at a glance before the animated demo.
+ * Static hero explainer — same numbers as the Method page, compact form.
  */
 export function HeroBalanceEquation() {
+  const { bankBalance, committed, expectedReceipts, trueBalance } = METHOD_WORKED_EXAMPLE
+
   return (
     <div
       className="hero-balance-equation"
       role="img"
-      aria-label="Bank balance £42,500 minus committed money £18,200 equals True Balance £24,300"
+      aria-label={`Bank balance ${bankBalance} minus committed money ${committed} plus expected receipts ${expectedReceipts} equals True Balance ${trueBalance}`}
     >
       <div className="hero-balance-equation-row hero-balance-equation-row--bank">
         <div className="hero-balance-equation-term">
@@ -18,7 +22,7 @@ export function HeroBalanceEquation() {
             <p className="hero-balance-equation-hint">What your bank shows</p>
           </div>
         </div>
-        <p className="hero-balance-equation-value">£42,500</p>
+        <p className="hero-balance-equation-value">{bankBalance}</p>
       </div>
 
       <p className="hero-balance-equation-operator" aria-hidden>
@@ -32,10 +36,27 @@ export function HeroBalanceEquation() {
           </span>
           <div>
             <p className="hero-balance-equation-label">Committed money</p>
-            <p className="hero-balance-equation-hint">Payroll, VAT, tax, annual and quarterly bills</p>
+            <p className="hero-balance-equation-hint">Monthly accruals + reserves building</p>
           </div>
         </div>
-        <p className="hero-balance-equation-value">£18,200</p>
+        <p className="hero-balance-equation-value">{committed}</p>
+      </div>
+
+      <p className="hero-balance-equation-operator" aria-hidden>
+        +
+      </p>
+
+      <div className="hero-balance-equation-row hero-balance-equation-row--receipts">
+        <div className="hero-balance-equation-term">
+          <span className="hero-balance-equation-icon hero-balance-equation-icon--receipts" aria-hidden>
+            ↗
+          </span>
+          <div>
+            <p className="hero-balance-equation-label">Expected receipts</p>
+            <p className="hero-balance-equation-hint">Money you are realistically still owed</p>
+          </div>
+        </div>
+        <p className="hero-balance-equation-value">{expectedReceipts}</p>
       </div>
 
       <p className="hero-balance-equation-operator hero-balance-equation-operator--equals" aria-hidden>
@@ -49,10 +70,10 @@ export function HeroBalanceEquation() {
           </span>
           <div>
             <p className="hero-balance-equation-label">True Balance</p>
-            <p className="hero-balance-equation-hint">Genuinely yours to spend</p>
+            <p className="hero-balance-equation-hint">What you can actually spend</p>
           </div>
         </div>
-        <p className="hero-balance-equation-value hero-balance-equation-value--true">£24,300</p>
+        <p className="hero-balance-equation-value hero-balance-equation-value--true">{trueBalance}</p>
       </div>
     </div>
   )

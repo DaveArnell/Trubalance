@@ -57,6 +57,10 @@ export function DemoPage() {
                 ))}
               </select>
             </label>
+            <p className="interactive-demo-banner-message">
+              Exploring the True Balance Method in a sample business — accruals, reserves and one
+              decision number.
+            </p>
             <div className="interactive-demo-banner-actions">
               {canEditDemo && (
                 <span className="interactive-demo-admin-hint">Admin edit mode</span>

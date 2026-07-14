@@ -5,6 +5,7 @@ import {
   MarketingShell,
 } from '../components/marketing/MarketingLayout'
 import { DEMO_SCENARIOS } from '../data/demoScenarios'
+import { METHOD_PAGE_PATH } from '../content/trueBalanceMethod'
 import { SEE_HOW_SEO } from '../content/marketingSeo'
 import { usePageMeta } from '../hooks/usePageMeta'
 
@@ -18,11 +19,15 @@ export function SeeHowItWorksPage() {
         <section className="demo-scenarios-section demo-scenarios-section--landing">
           <div className="marketing-section-inner">
             <div className="marketing-section-head marketing-section-head--center demo-scenarios-head">
-              <p className="marketing-eyebrow">Try demo</p>
-              <h1>Pick an example business</h1>
+              <p className="marketing-eyebrow">Try the Method live</p>
+              <h1>See the Method in a live business</h1>
               <p className="marketing-section-lead">
-                Explore a fully set-up workspace with realistic figures — navigate every page and
-                switch between business types.
+                Explore a fully set-up workspace and watch continuous accrual, reserve planning and
+                one True Balance in action — without signing up.
+              </p>
+              <p className="marketing-section-lead muted">
+                Prefer the explanation first?{' '}
+                <Link to={METHOD_PAGE_PATH}>Read the True Balance Method</Link>.
               </p>
             </div>
 
@@ -51,7 +56,7 @@ export function SeeHowItWorksPage() {
 
             <div className="demo-scenarios-footer">
               <Link to="/signup" className="btn-secondary btn-large">
-                Start your free 3-month trial
+                Follow the Method in your business
               </Link>
             </div>
           </div>

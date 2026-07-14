@@ -45,7 +45,7 @@ export function homePageJsonLd() {
       name: COMPANY_INFO.productName,
       url: COMPANY_INFO.website,
       description:
-        'Cash clarity for UK small business owners — know what is genuinely yours after commitments and tax reserves.',
+        'The True Balance Method for UK business owners — manage from available cash after accruals and reserves, not the bank balance alone.',
       publisher: { '@type': 'Organization', name: COMPANY_INFO.legalName },
     },
     {

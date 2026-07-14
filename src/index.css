@@ -11387,6 +11387,57 @@ tr.sheet-row--received td {
   color: var(--text-secondary);
 }
 
+.marketing-method-principles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  margin: 0 0 36px;
+}
+
+.marketing-method-principle {
+  padding: 4px 0;
+}
+
+.marketing-method-principle h3 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+}
+
+.marketing-method-principle-lead {
+  margin: 0 0 8px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.marketing-method-principle p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.marketing-method-more {
+  margin: 12px 0 0;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.marketing-method-more a {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.marketing-method-more a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 800px) {
+  .marketing-method-principles {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
 .marketing-method-routine {
   max-width: 40rem;
   margin: 0 auto;
@@ -18214,6 +18265,15 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   border-bottom: 1px solid rgba(99, 102, 241, 0.2);
   font-size: 0.84rem;
   flex-shrink: 0;
+}
+
+.interactive-demo-banner-message {
+  flex: 1 1 14rem;
+  margin: 0;
+  min-width: 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--text-secondary);
 }
 
 .interactive-demo-banner-actions {

@@ -24,7 +24,7 @@ function AuthAside({ mode }: { mode: 'login' | 'signup' }) {
         <p className="auth-aside-lead">
           {mode === 'login'
             ? 'Pick up where you left off — balances, commitments, and reserves in one place.'
-            : `${FOUNDER_PROGRAM_HEADLINE}. ${FOUNDER_PROGRAM_BODY}`}
+            : `Follow the True Balance Method in software. ${FOUNDER_PROGRAM_HEADLINE}. ${FOUNDER_PROGRAM_BODY}`}
         </p>
         <ul className="auth-aside-points">
           <li>{FOUNDER_PROGRAM_HEADLINE}</li>
