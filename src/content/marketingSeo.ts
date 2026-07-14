@@ -8,9 +8,9 @@ export const HOME_SEO = {
 } as const
 
 export const METHOD_SEO = {
-  title: 'The True Balance Method — Manage money from what is genuinely available',
+  title: 'The True Balance Method — Bank balance vs available cash',
   description:
-    'Your bank balance is not your available cash. Learn the True Balance Method: account for commitments, build virtual reserves, and make calmer day-to-day financial decisions.',
+    'A practical financial management system for UK business owners: continuous accrual, reserve planning for VAT and tax, and one True Balance for spending decisions. Complements accounting software.',
   path: '/true-balance-method',
 } as const
 

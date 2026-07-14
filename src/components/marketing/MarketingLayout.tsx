@@ -12,6 +12,7 @@ const NAV = [
   { id: 'pricing', label: 'Pricing' },
 ] as const
 
+const METHOD_NAV = { to: '/true-balance-method', label: 'The Method' } as const
 const DEMO_NAV = { to: '/see-how-it-works', label: 'Try demo' } as const
 const BLOG_NAV = { to: '/blog', label: 'Blog' } as const
 
@@ -65,6 +66,7 @@ export function MarketingHeader() {
               </Link>
             ),
           )}
+          <Link to={METHOD_NAV.to}>{METHOD_NAV.label}</Link>
           <Link to={DEMO_NAV.to}>{DEMO_NAV.label}</Link>
           <Link to={BLOG_NAV.to}>{BLOG_NAV.label}</Link>
         </nav>
