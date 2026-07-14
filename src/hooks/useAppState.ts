@@ -131,7 +131,10 @@ function migrateBill(raw: Record<string, unknown>): ReserveBill {
     venueId: bill.venueId,
     notes: bill.notes,
     lastPaidPeriod: bill.lastPaidPeriod,
+    lastPaidOnDate: bill.lastPaidOnDate,
     dismissedDuePeriods: bill.dismissedDuePeriods,
+    acknowledgedDuePeriods: bill.acknowledgedDuePeriods,
+    sortOrder: bill.sortOrder,
   }
 }
 
@@ -438,6 +441,9 @@ export function useAppState(options?: UseAppStateOptions) {
         pushUndo(prev)
         redoStackRef.current = []
         setCanRedo(false)
+        // Keep stateRef current inside the updater so an immediate unmount (e.g. navigate
+        // to homepage) still flushes the latest paid/ unpaid change, not a stale snapshot.
+        stateRef.current = next
         return next
       })
     },

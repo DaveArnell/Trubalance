@@ -239,32 +239,50 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
   const flushSave = useCallback(async () => {
     if (!workspaceId || readOnly || !isSupabaseConfigured || !persistEnabledRef.current) return
-    const state = pendingStateRef.current
-    if (!state) return
-    pendingStateRef.current = null
-    await saveWorkspaceState(workspaceId, state, {
-      allowEmptyDeletes: allowEmptyDeletesRef.current,
-      tableEmptyDeletes: buildSafeTableEmptyDeletes(state, {
-        loaded: loadedStateRef.current,
-        previous: lastPersistedStateRef.current,
-        allowAll: allowEmptyDeletesRef.current,
-      }),
-    })
-    lastPersistedStateRef.current = state
-    setInitialRemoteState(state)
+
+    while (pendingStateRef.current) {
+      const state = pendingStateRef.current
+      pendingStateRef.current = null
+      try {
+        await saveWorkspaceState(workspaceId, state, {
+          allowEmptyDeletes: allowEmptyDeletesRef.current,
+          tableEmptyDeletes: buildSafeTableEmptyDeletes(state, {
+            loaded: loadedStateRef.current,
+            previous: lastPersistedStateRef.current,
+            allowAll: allowEmptyDeletesRef.current,
+          }),
+        })
+        if (pendingStateRef.current == null) {
+          lastPersistedStateRef.current = state
+          setInitialRemoteState(state)
+        }
+      } catch (error) {
+        console.warn('[WorkspaceContext] save failed:', error)
+        if (pendingStateRef.current == null) pendingStateRef.current = state
+        break
+      }
+    }
   }, [workspaceId, readOnly])
+
+  const saveChainRef = useRef(Promise.resolve())
 
   const persistState = useCallback(
     (state: AppState, options?: { immediate?: boolean }) => {
       if (!remoteEnabled || readOnly || !workspaceId || !persistEnabledRef.current) return
       pendingStateRef.current = state
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+      const run = () => {
+        saveChainRef.current = saveChainRef.current
+          .catch(() => undefined)
+          .then(() => flushSave())
+        return saveChainRef.current
+      }
       if (options?.immediate) {
-        void flushSave()
+        void run()
         return
       }
       saveTimerRef.current = setTimeout(() => {
-        flushSave()
+        void run()
       }, SAVE_DEBOUNCE_MS)
     },
     [remoteEnabled, readOnly, workspaceId, flushSave],

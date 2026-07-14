@@ -624,8 +624,15 @@ export async function saveWorkspaceState(
   ] as const
 
   const EXTENDED_COLUMNS = [
-    'preserved_due_periods', 'paid_period_dates',
-    'receipt_timing', 'accrual_start_date', 'period_amount_overrides',
+    'preserved_due_periods',
+    'paid_period_dates',
+    'receipt_timing',
+    'accrual_start_date',
+    'period_amount_overrides',
+    // Optional / later migrations — retry without these so core paid flags still save
+    'last_paid_on_date',
+    'due_period_amount_overrides',
+    'acknowledged_due_periods',
   ]
 
   for (const table of tables) {
