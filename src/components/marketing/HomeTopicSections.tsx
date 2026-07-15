@@ -27,7 +27,7 @@ const HOME_TOPICS = [
   {
     eyebrow: 'Fit',
     title: 'Who it is for',
-    body: 'For business owners who want clarity on what the bank balance is made up of — with or without bookkeeping software. Plus a “probably not for you” list.',
+    body: 'For business owners who want clarity on what the bank balance is made up of — with or without bookkeeping software.',
     to: '/who-its-for',
     cta: 'Check if it fits',
   },
@@ -63,10 +63,6 @@ export function HomeTopicSections() {
           <div className="marketing-section-head marketing-section-head--center">
             <p className="marketing-eyebrow marketing-eyebrow--vivid">Explore</p>
             <h2 id="home-overview-heading">Learn the Method. Then choose your next step.</h2>
-            <p className="marketing-section-lead">
-              Everything below opens a focused page — so the homepage stays clear instead of blending
-              into one long scroll.
-            </p>
           </div>
 
           <div className="marketing-home-topic-grid">

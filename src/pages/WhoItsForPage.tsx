@@ -25,7 +25,7 @@ export function WhoItsForPage() {
               <h1>Who is the True Balance Method for?</h1>
               <p className="marketing-section-lead">
                 Built for owners who already run a business — and still want a clearer read of the
-                money in the bank. Use this page to see if it fits.
+                money in the bank.
               </p>
             </div>
 
