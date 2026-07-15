@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { toAmount, roundCurrency } from '../../utils/amounts'
 import { formatCurrency, getCurrencySymbol } from '../../utils/format'
@@ -19,6 +19,8 @@ export function MarkPaidConfirmModal({
   const expectedRounded = roundCurrency(expectedTotal)
   const [value, setValue] = useState(() => String(expectedRounded))
   const [error, setError] = useState('')
+  /** Only dismiss when press and release both start on the backdrop — not after selecting text in the amount field. */
+  const backdropPointerDown = useRef(false)
 
   useEffect(() => {
     setValue(String(expectedRounded))
@@ -47,13 +49,23 @@ export function MarkPaidConfirmModal({
     Number.isFinite(enteredRounded) && enteredRounded !== expectedRounded
 
   return createPortal(
-    <div className="snapshot-correction-backdrop" onClick={onCancel}>
+    <div
+      className="snapshot-correction-backdrop"
+      onPointerDown={(e) => {
+        backdropPointerDown.current = e.target === e.currentTarget
+      }}
+      onClick={(e) => {
+        if (backdropPointerDown.current && e.target === e.currentTarget) onCancel()
+        backdropPointerDown.current = false
+      }}
+    >
       <div
         className="snapshot-correction-modal"
         role="dialog"
         aria-modal="true"
         aria-labelledby="mark-paid-confirm-title"
         onClick={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
       >
         <h3 id="mark-paid-confirm-title">Confirm payment</h3>
         <p className="snapshot-correction-subtitle">
@@ -76,6 +88,7 @@ export function MarkPaidConfirmModal({
               inputMode="decimal"
               value={value}
               autoFocus
+              onFocus={(e) => e.currentTarget.select()}
               onChange={(e) => {
                 setValue(e.target.value)
                 setError('')
