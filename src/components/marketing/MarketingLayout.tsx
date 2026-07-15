@@ -1,20 +1,21 @@
-import { type ReactNode, useCallback } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { type ReactNode } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { isSupabaseConfigured } from '../../lib/supabase'
 import { COMPANY_INFO } from '../../content/companyInfo'
 import { FOUNDER_PROGRAM_FOOTNOTE, FOUNDER_PROGRAM_HEADLINE } from '../../config/founderProgram'
 import { CompanyLegalNotice } from './CompanyLegalNotice'
 
-const NAV = [
-  { id: 'two-habits', label: 'Habits' },
-  { id: 'pricing', label: 'Pricing' },
+/** All primary nav items are full pages — keeps the site map clear. */
+const PRIMARY_NAV = [
+  { to: '/true-balance-method', label: 'The Method' },
+  { to: '/how-it-works', label: 'How it works' },
+  { to: '/habits', label: 'Habits' },
+  { to: '/who-its-for', label: 'Who it’s for' },
+  { to: '/pricing', label: 'Pricing' },
+  { to: '/see-how-it-works', label: 'Try demo' },
+  { to: '/blog', label: 'Blog' },
 ] as const
-
-const HOW_IT_WORKS_NAV = { to: '/how-it-works', label: 'How it works' } as const
-const METHOD_NAV = { to: '/true-balance-method', label: 'The Method' } as const
-const DEMO_NAV = { to: '/see-how-it-works', label: 'Try demo' } as const
-const BLOG_NAV = { to: '/blog', label: 'Blog' } as const
 
 export function scrollToMarketingSection(id: string) {
   const shell = document.querySelector('.marketing-shell')
@@ -33,18 +34,7 @@ export function MarketingShell({ children }: { children: ReactNode }) {
 }
 
 export function MarketingHeader() {
-  const location = useLocation()
-  const isLanding = location.pathname === '/'
   const { user, loading } = useAuth()
-
-  const handleNav = useCallback(
-    (id: string) => (event: React.MouseEvent) => {
-      if (!isLanding) return
-      event.preventDefault()
-      scrollToMarketingSection(id)
-    },
-    [isLanding],
-  )
 
   return (
     <header className="marketing-header">
@@ -55,21 +45,11 @@ export function MarketingHeader() {
         </Link>
 
         <nav className="marketing-nav" aria-label="Main">
-          {NAV.map((item) =>
-            isLanding ? (
-              <a key={item.id} href={`#${item.id}`} onClick={handleNav(item.id)}>
-                {item.label}
-              </a>
-            ) : (
-              <Link key={item.id} to={`/#${item.id}`}>
-                {item.label}
-              </Link>
-            ),
-          )}
-          <Link to={HOW_IT_WORKS_NAV.to}>{HOW_IT_WORKS_NAV.label}</Link>
-          <Link to={METHOD_NAV.to}>{METHOD_NAV.label}</Link>
-          <Link to={DEMO_NAV.to}>{DEMO_NAV.label}</Link>
-          <Link to={BLOG_NAV.to}>{BLOG_NAV.label}</Link>
+          {PRIMARY_NAV.map((item) => (
+            <Link key={item.to} to={item.to}>
+              {item.label}
+            </Link>
+          ))}
         </nav>
 
         <div className="marketing-header-cta">
@@ -115,19 +95,20 @@ export function MarketingFooter() {
             <span className="marketing-footer-plain">Vocatio.io</span>
           </div>
           <div>
-            <p className="marketing-footer-heading">Product</p>
-            <Link to="/#two-habits">Habits</Link>
-            <Link to="/how-it-works">How it works</Link>
-            <Link to="/#pricing">Pricing</Link>
+            <p className="marketing-footer-heading">Learn</p>
             <Link to="/true-balance-method">The Method</Link>
+            <Link to="/how-it-works">How it works</Link>
+            <Link to="/habits">Habits</Link>
+            <Link to="/who-its-for">Who it’s for</Link>
             <Link to="/blog">Blog</Link>
-            <Link to="/see-how-it-works">Demo</Link>
-            {!isSupabaseConfigured && <Link to="/app">Try locally</Link>}
           </div>
           <div>
-            <p className="marketing-footer-heading">Account</p>
+            <p className="marketing-footer-heading">Product</p>
+            <Link to="/pricing">Pricing</Link>
+            <Link to="/see-how-it-works">Try demo</Link>
             <Link to="/signup">Start free trial</Link>
             <Link to="/login">Log in</Link>
+            {!isSupabaseConfigured && <Link to="/app">Try locally</Link>}
           </div>
           <div>
             <p className="marketing-footer-heading">Legal</p>

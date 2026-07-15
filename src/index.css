@@ -11017,7 +11017,10 @@ tr.sheet-row--received td {
 .marketing-nav {
   display: flex;
   align-items: center;
-  gap: 28px;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 16px;
+  max-width: min(720px, 52vw);
 }
 
 .marketing-nav a {
@@ -11530,6 +11533,75 @@ tr.sheet-row--received td {
   line-height: 1.5;
 }
 
+.marketing-method-habits--page,
+.marketing-method-audience--page {
+  margin-top: 8px;
+}
+
+.marketing-home-overview {
+  padding: 64px 24px 40px;
+  border-top: 1px solid var(--border);
+  background: #fff;
+}
+
+.marketing-home-topic-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  max-width: 60rem;
+  margin: 0 auto;
+}
+
+.marketing-home-topic-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 22px 20px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: linear-gradient(180deg, #fafbff 0%, #fff 70%);
+  min-height: 100%;
+}
+
+.marketing-home-topic-eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+.marketing-home-topic-card h3 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.marketing-home-topic-card p {
+  margin: 0;
+  flex: 1;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.marketing-home-topic-link {
+  margin-top: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--accent-text);
+}
+
+.marketing-home-topic-link:hover {
+  text-decoration: underline;
+}
+
+.marketing-home-equation-band {
+  background: #f8fafc;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
 .marketing-method-principles--compact {
   margin-top: 36px;
 }
@@ -11645,6 +11717,12 @@ tr.sheet-row--received td {
   margin-bottom: 8px;
 }
 
+@media (max-width: 1100px) {
+  .marketing-home-topic-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 800px) {
   .marketing-method-principles {
     grid-template-columns: 1fr;
@@ -11653,7 +11731,8 @@ tr.sheet-row--received td {
 
   .marketing-method-habits,
   .marketing-method-compare,
-  .marketing-method-audience {
+  .marketing-method-audience,
+  .marketing-home-topic-grid {
     grid-template-columns: 1fr;
   }
 }

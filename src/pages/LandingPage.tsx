@@ -8,15 +8,10 @@ import {
 } from '../components/marketing/MarketingLayout'
 import { HeroBalanceEquation } from '../components/marketing/HeroBalanceEquation'
 import { HeroBalanceVisual } from '../components/marketing/HeroBalanceVisual'
-import { LandingAppPreview } from '../components/marketing/LandingAppPreview'
 import { MarketingBrowserFrame } from '../components/marketing/MarketingBrowserFrame'
 import { CompanyLegalNotice } from '../components/marketing/CompanyLegalNotice'
-import { MethodHomeSections } from '../components/marketing/MethodHomeSections'
-import { PricingSection } from '../components/marketing/PricingSection'
-import {
-  METHOD_CUSTOMER_JOURNEY,
-  METHOD_PAGE_PATH,
-} from '../content/trueBalanceMethod'
+import { HomeTopicSections } from '../components/marketing/HomeTopicSections'
+import { METHOD_PAGE_PATH } from '../content/trueBalanceMethod'
 import { isSupabaseConfigured } from '../lib/supabase'
 import { FOUNDER_PROGRAM_HEADLINE } from '../config/founderProgram'
 import { HOME_SEO } from '../content/marketingSeo'
@@ -28,29 +23,6 @@ const HERO_BENEFITS = [
   'See money building for VAT, payroll, suppliers and future bills.',
   'See what is left in the business after that — every day.',
 ] as const
-
-const SOFTWARE_FEATURES = [
-  {
-    icon: '◈',
-    title: 'One clear picture',
-    body: 'A continuously updated True Balance after accruals, the Reserve Planner and realistic receipts — so you know what the bank figure is made of.',
-    accent: 'indigo',
-  },
-  {
-    icon: '▤',
-    title: 'Continuous accrual',
-    body: 'Monthly commitments build every day automatically. You see them in the position before payday arrives.',
-    accent: 'orange',
-  },
-  {
-    icon: '◷',
-    title: 'Reserve Planner',
-    body: 'Annual and irregular bills become a month-by-month funding plan — with an exact transfer to confirm.',
-    accent: 'violet',
-  },
-] as const
-
-const JOURNEY_TEASER = METHOD_CUSTOMER_JOURNEY.slice(0, 3)
 
 export function LandingPage() {
   usePageMeta(HOME_SEO)
@@ -98,9 +70,7 @@ export function LandingPage() {
                   Try demo
                 </Link>
               </div>
-              <p className="marketing-hero-note muted">
-                No payment details required to start.
-              </p>
+              <p className="marketing-hero-note muted">No payment details required to start.</p>
               {!isSupabaseConfigured && (
                 <p className="marketing-config-hint">
                   Cloud signup needs Supabase in <code>.env.local</code>, or{' '}
@@ -130,80 +100,7 @@ export function LandingPage() {
           </div>
         </section>
 
-        <MethodHomeSections />
-
-        <section id="features" className="marketing-features-section marketing-features-section--pop">
-          <div className="marketing-section-inner">
-            <div className="marketing-section-head marketing-section-head--center">
-              <p className="marketing-eyebrow marketing-eyebrow--vivid">How the software helps</p>
-              <h2>The app keeps the Method current</h2>
-              <p className="marketing-section-lead">
-                You follow a light routine. True Balance accrues commitments, runs the Reserve Planner,
-                and updates the picture of what your money is made up of.
-              </p>
-            </div>
-            <div className="marketing-feature-grid marketing-feature-grid--pop marketing-feature-grid--compact">
-              {SOFTWARE_FEATURES.map((feature) => (
-                <article
-                  key={feature.title}
-                  className={`marketing-feature-card marketing-feature-card--pop marketing-feature-card--${feature.accent}`}
-                >
-                  <span className="marketing-feature-icon" aria-hidden>
-                    {feature.icon}
-                  </span>
-                  <h3>{feature.title}</h3>
-                  <p>{feature.body}</p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <LandingAppPreview />
-
-        <section id="how-it-works" className="marketing-how-section marketing-how-section--pop">
-          <div className="marketing-section-inner">
-            <div className="marketing-section-head marketing-section-head--center">
-              <p className="marketing-eyebrow marketing-eyebrow--vivid">Getting started</p>
-              <h2>Set up once. Live the Method.</h2>
-              <p className="marketing-section-lead">
-                Connect the business, add commitments and the Reserve Planner — then follow the daily
-                and monthly routine.
-              </p>
-            </div>
-            <ol className="marketing-steps-grid marketing-steps-grid--pop">
-              {JOURNEY_TEASER.map((step) => (
-                <li key={step.step} className="marketing-step-card marketing-step-card--pop">
-                  <span className="marketing-step-num">{step.step}</span>
-                  <h3>{step.title}</h3>
-                  <p>{step.body}</p>
-                </li>
-              ))}
-            </ol>
-            <p className="marketing-tour-note">
-              Full seven-step journey on the how it works page.{' '}
-              <Link to="/how-it-works">See how it works →</Link>
-            </p>
-          </div>
-        </section>
-
-        <section id="product-video" className="marketing-demo-band">
-          <div className="marketing-demo-band-inner">
-            <h2>Try it live</h2>
-            <p>
-              Explore Summit Leisure, Cornerstone Coffee, or Riverside Building — fully set up so you
-              can see accruals, the Reserve Planner and True Balance in action. No signup.
-            </p>
-            <div className="marketing-cta-row marketing-cta-row--center">
-              <Link to="/see-how-it-works" className="btn-primary btn-large">
-                Try demo
-              </Link>
-              <Link to="/how-it-works" className="btn-secondary btn-large">
-                How it works
-              </Link>
-            </div>
-          </div>
-        </section>
+        <HomeTopicSections />
 
         <section className="marketing-company-band" aria-label="Why True Balance exists">
           <div className="marketing-section-inner">
@@ -219,8 +116,6 @@ export function LandingPage() {
             </div>
           </div>
         </section>
-
-        <PricingSection />
 
         <section className="marketing-company-band" aria-label="Company information">
           <div className="marketing-section-inner">
@@ -239,8 +134,8 @@ export function LandingPage() {
               <Link to="/signup" className="btn-primary btn-large marketing-cta-btn-on-dark">
                 Get started
               </Link>
-              <Link to="/login" className="btn-ghost btn-large marketing-cta-ghost">
-                I already have an account
+              <Link to="/pricing" className="btn-ghost btn-large marketing-cta-ghost">
+                View pricing
               </Link>
             </div>
           </div>

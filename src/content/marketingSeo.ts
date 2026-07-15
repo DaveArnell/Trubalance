@@ -28,6 +28,20 @@ export const HOW_IT_WORKS_SEO = {
   path: '/how-it-works',
 } as const
 
+export const HABITS_SEO = {
+  title: 'Habits — Daily logging & monthly Reserve Planner',
+  description:
+    'The True Balance Method routine: light daily logging to keep balances and obligations current, and a short monthly Reserve Planner review.',
+  path: '/habits',
+} as const
+
+export const WHO_FOR_SEO = {
+  title: 'Who it’s for — True Balance Method',
+  description:
+    'Who the True Balance Method is designed for — and who it is probably not for. Built for UK business owners who want clarity without becoming accountants.',
+  path: '/who-its-for',
+} as const
+
 export const SEE_HOW_SEO = {
   title: 'Try demo — Live True Balance Method businesses',
   description:
