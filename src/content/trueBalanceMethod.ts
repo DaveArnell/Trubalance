@@ -42,7 +42,7 @@ export const METHOD_WHY_COMPARE = {
 } as const
 
 export const METHOD_WHO_FOR = [
-  'already use bookkeeping software but still lean on spreadsheets',
+  'run a business and need a clearer read of the money in the bank — whether or not they use bookkeeping software',
   'sometimes wonder how much of the bank balance is already spoken for',
   'deal with VAT, payroll, annual bills and future commitments',
   'want clearer finances without becoming an accountant',
@@ -53,7 +53,7 @@ export const METHOD_WHO_NOT_FOR = [
   'You already have a finance department.',
   'Your accountant already produces daily management information.',
   'Your business has very few financial commitments.',
-  'You simply need bookkeeping software.',
+  'You are only looking for bookkeeping or accounting software.',
 ] as const
 
 /** Primary marketing spine — two simple habits. */

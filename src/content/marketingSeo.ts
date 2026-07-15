@@ -38,7 +38,7 @@ export const HABITS_SEO = {
 export const WHO_FOR_SEO = {
   title: 'Who it’s for — True Balance Method',
   description:
-    'Who the True Balance Method is designed for — and who it is probably not for. Built for UK business owners who want clarity without becoming accountants.',
+    'Who the True Balance Method is designed for — and who it is probably not for. Clarity for UK business owners, whether or not they already use bookkeeping software.',
   path: '/who-its-for',
 } as const
 

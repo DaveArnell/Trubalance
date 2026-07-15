@@ -27,7 +27,7 @@ const HOME_TOPICS = [
   {
     eyebrow: 'Fit',
     title: 'Who it is for',
-    body: 'For owners who use bookkeeping but still lean on spreadsheets — and want clarity without becoming an accountant. Plus a “probably not for you” list.',
+    body: 'For business owners who want clarity on what the bank balance is made up of — with or without bookkeeping software. Plus a “probably not for you” list.',
     to: '/who-its-for',
     cta: 'Check if it fits',
   },
