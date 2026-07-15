@@ -54,7 +54,6 @@ interface ReservePlannerPanelProps {
     | 'copyReservePlannerBillsFrom'
     | 'reorderReserveBills'
     | 'confirmReserveMonth'
-    | 'markReserveBillUnpaid'
   >
   openHelp: string | null
   setOpenHelp: (id: string | null) => void
@@ -1093,16 +1092,6 @@ export function ReservePlannerPanel({
                         )}
                         {!editReadOnly && (
                         <td className="sheet-actions">
-                          {bill.lastPaidPeriod ? (
-                            <button
-                              type="button"
-                              className="btn-ghost btn-tiny"
-                              title="Mark this bill unpaid again"
-                              onClick={() => actions.markReserveBillUnpaid(planner.id, bill.id)}
-                            >
-                              Undo paid
-                            </button>
-                          ) : null}
                           <DuplicateRowButton onClick={() => actions.duplicateReserveBill(planner.id, bill.id)} />
                           <button
                             type="button"
