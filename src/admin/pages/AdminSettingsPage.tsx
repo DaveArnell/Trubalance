@@ -54,8 +54,13 @@ export function AdminSettingsPage() {
             <input className="admin-input" type="number" step="0.01" defaultValue={settings.soloPriceGbp} />
           </label>
           <label className="admin-field-block">
-            <span>Business price (£/month)</span>
-            <input className="admin-input" type="number" step="0.01" defaultValue={settings.businessPriceGbp} />
+            <span>Multi-site price (£/month)</span>
+            <input
+              className="admin-input"
+              type="number"
+              step="0.01"
+              defaultValue={settings.multiPriceGbp}
+            />
           </label>
           <label className="admin-field-block">
             <span>Group price (£/month)</span>

@@ -269,9 +269,9 @@ export interface AppState {
   historyRecords: HistoryRecord[]
   /** User annotations for a calendar day — shown on trends and balance log. */
   dayNotes: DayNote[]
-  /** Important company numbers & references — Business plan feature. */
+  /** Important company numbers & references — Business Group feature. */
   businessReferenceProfiles: BusinessReferenceProfile[]
-  /** Business diary reminders — Business plan feature. */
+  /** Business diary reminders — Business Group feature. */
   diaryReminders: DiaryReminder[]
   /** Set when loading built-in demo or restoring a user export. */
   workspaceOrigin?: 'builtin-demo' | 'user'

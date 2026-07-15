@@ -44,7 +44,13 @@ Deno.serve(async (req) => {
 
     const body = await req.json()
     const priceId = String(body.priceId ?? '')
-    const tierId = String(body.tierId ?? 'solo')
+    const rawTier = String(body.tierId ?? 'solo')
+    const tierId =
+      rawTier === 'multi' || rawTier === 'group'
+        ? rawTier
+        : rawTier === 'business' || rawTier === 'professional'
+          ? 'multi'
+          : 'solo'
     const billingInterval = body.billingInterval === 'annual' ? 'annual' : 'monthly'
     const deferUntilTrialEnd = body.deferUntilTrialEnd !== false
 

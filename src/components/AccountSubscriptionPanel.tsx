@@ -28,11 +28,14 @@ function formatTrialEnd(iso: string | null): string | null {
   }
 }
 
-function businessLimitLabel(tierId: SubscriptionTierId): string {
-  const cap = SUBSCRIPTION_TIERS[tierId].limits.businesses
-  if (cap == null) return 'Unlimited businesses'
-  if (cap === 1) return '1 business'
-  return `Up to ${cap} businesses`
+function planLimitSummary(tierId: SubscriptionTierId): string {
+  const tier = SUBSCRIPTION_TIERS[tierId]
+  const biz = tier.limits.businesses
+  const venues = tier.limits.venues
+  const bizLabel = biz == null ? 'Unlimited businesses' : biz === 1 ? '1 business' : `Up to ${biz} businesses`
+  if (venues === 0) return `${bizLabel} · no venues`
+  if (venues == null) return `${bizLabel} · unlimited venues`
+  return `${bizLabel} · up to ${venues} venues`
 }
 
 interface AccountSubscriptionPanelProps {
@@ -57,11 +60,11 @@ export function AccountSubscriptionPanel({ state, embedded = false }: AccountSub
   }, [trialActive, trialDaysLeft])
 
   const verdictDetail =
-    usage.businesses <= 1
-      ? 'You are tracking one business — the Solo plan is the right fit when your trial ends.'
-      : recommendedTierId === 'group'
-        ? `You are running ${usage.businesses} companies as a group — ${recommendedTier.name} includes the group-wide view, Business Hub, and unlimited companies.`
-        : `You have ${usage.businesses} companies. The Business plan lets you switch between them. Upgrade to Group for a rolled-up view across all companies.`
+    recommendedTierId === 'group'
+      ? `You are running ${usage.businesses} companies — Business Group includes switching between them, group reporting, and unlimited venues.`
+      : recommendedTierId === 'multi'
+        ? `You have one business with ${usage.venues} venue${usage.venues === 1 ? '' : 's'} — Multi-site Business fits that structure.`
+        : 'You are tracking one business without separate venues — Solo Business is the right fit when your trial ends.'
 
   const body = (
     <>
@@ -69,19 +72,19 @@ export function AccountSubscriptionPanel({ state, embedded = false }: AccountSub
         <p className="account-plan-verdict-eyebrow">Recommended plan</p>
         <p className="account-plan-verdict-name">{recommendedTier.name}</p>
         <p className="account-plan-verdict-why">{verdictDetail}</p>
-        {usage.businesses > 1 && (
+        {(usage.venues > 0 || usage.businesses > 1) && (
           <dl className="account-plan-compare-note">
             <div>
-              <dt>Business plan</dt>
-              <dd>
-                {businessLimitLabel('business')} — switch between companies separately. No Business Hub.
-              </dd>
+              <dt>Solo Business</dt>
+              <dd>One company, no venues — accounts on the business itself.</dd>
             </div>
             <div>
-              <dt>Group plan</dt>
-              <dd>
-                Group roll-up in the sidebar, Business Hub (references & diary), unlimited companies.
-              </dd>
+              <dt>Multi-site Business</dt>
+              <dd>One company with unlimited venues and a consolidated view across those sites.</dd>
+            </div>
+            <div>
+              <dt>Business Group</dt>
+              <dd>Unlimited companies, group reporting, Business Hub.</dd>
             </div>
           </dl>
         )}
@@ -144,7 +147,7 @@ export function AccountSubscriptionPanel({ state, embedded = false }: AccountSub
               </p>
               <p className="account-plan-tier-for muted">{tier.perfectFor}</p>
               <p className="account-plan-tier-limit">
-                <strong>{businessLimitLabel(tierId)}</strong>
+                <strong>{planLimitSummary(tierId)}</strong>
               </p>
               <ul className="account-plan-tier-features">
                 {tier.marketingFeatures.map((item) => (

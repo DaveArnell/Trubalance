@@ -1,3 +1,4 @@
+import { normalizeTierId } from '../config/subscriptionTiers'
 import { isSupabaseConfigured, tryGetSupabase } from '../lib/supabase'
 import { getAppEnvironmentLabel } from '../lib/appEnvironment'
 import { deleteUserAccount } from '../services/accountDeletion'
@@ -257,8 +258,9 @@ async function enrichUsersWithWorkspaceData(
         }
       }
 
-      const tierFromUsage = hasGroup || businessCount > 1 ? 'group' : 'solo'
-      const resolvedTier = subscriptionTier || tierFromUsage
+      const tierFromUsage =
+        hasGroup || businessCount > 1 ? 'group' : venueCount > 0 ? 'multi' : 'solo'
+      const resolvedTier = normalizeTierId(subscriptionTier || tierFromUsage)
       const lastLoginAt = u.lastSignInAt
 
       return {
@@ -443,13 +445,17 @@ export async function adminFetchUserDetail(userId: string): Promise<AdminUserDet
     expectedReceiptCount = recCount ?? 0
   }
 
-  const tierFromUsage = hasGroup || businessCount > 1 ? 'group' : 'solo'
+  const tierFromUsage =
+    hasGroup || businessCount > 1 ? 'group' : venueCount > 0 ? 'multi' : 'solo'
   const platformAdminIds = await fetchPlatformAdminUserIds()
 
   const resolvedTier =
-    (workspace?.admin_tier_override as AdminUserDetail['subscriptionTier']) ||
-    (workspace?.subscription_tier as AdminUserDetail['subscriptionTier']) ||
-    (workspace?.plan !== 'free' ? workspace?.plan : tierFromUsage)
+    normalizeTierId(
+      (workspace?.admin_tier_override as string) ||
+        (workspace?.subscription_tier as string) ||
+        (workspace?.plan !== 'free' ? (workspace?.plan as string) : null) ||
+        tierFromUsage,
+    )
   const resolvedLifetime = Boolean(workspace?.lifetime_access)
   const resolvedBeta = Boolean(workspace?.beta_tester)
   const resolvedTrialEnds = workspace?.trial_ends_at ? String(workspace.trial_ends_at) : null

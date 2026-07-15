@@ -9,6 +9,7 @@ import { useNavLayout } from '../hooks/useNavLayout'
 import { getOrderedPages } from '../utils/navLayout'
 import { getPlannerDisplayName, getReservePlannerIdForScope } from '../utils/reserveCalculations'
 import { SidebarScopeTree } from './SidebarScopeTree'
+import { useSubscription } from '../contexts/SubscriptionContext'
 import { useAuth } from '../contexts/AuthContext'
 import { useSidebarCollapsed } from '../hooks/useSidebarCollapsed'
 
@@ -133,6 +134,7 @@ export function Sidebar({
   const demoMode = useDemoMode()
   const editReadOnly = useEditReadOnly()
   const { user, profile, signOut, configured } = useAuth()
+  const { requestFeature } = useSubscription()
   const { collapsed, toggleCollapsed } = useSidebarCollapsed()
   const showCollapsed = collapsed && !isMobile
   const plannerIds = state.reservePlanners.map((p) => p.id)
@@ -209,6 +211,7 @@ export function Sidebar({
   }, [showCollapsed, reserveMenuOpen, setReserveMenuOpen])
 
   const handleSelectScope = (scope: ViewScope) => {
+    if (scope.type === 'group' && !requestFeature('groupReporting')) return
     onSelectScope(scope)
     if (isMobile) onMobileClose?.()
   }

@@ -5,7 +5,8 @@ const GRACE_DAYS = 7
 
 function tierFromMetadata(meta: Stripe.Metadata | null | undefined): string {
   const tier = meta?.tier_id
-  if (tier === 'business' || tier === 'group') return tier
+  if (tier === 'multi' || tier === 'group') return tier
+  if (tier === 'business') return 'multi'
   return 'solo'
 }
 

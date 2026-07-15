@@ -1,9 +1,12 @@
 /**
  * Central subscription configuration.
  * Update pricing, limits, and feature flags here — do not hardcode elsewhere.
+ *
+ * IDs: solo | multi | group (display names differ).
+ * Legacy paid tier `business` is normalised to `multi` on read / in SQL migration 019.
  */
 
-export type SubscriptionTierId = 'solo' | 'business' | 'group'
+export type SubscriptionTierId = 'solo' | 'multi' | 'group'
 
 export type SubscriptionFeatureFlag =
   | 'sharedWorkspace'
@@ -22,7 +25,7 @@ export type SubscriptionFeatureFlag =
   | 'prioritySupport'
   | 'adminFeatures'
 
-/** Limits enforced after trial — only `businesses` gates public plan tiers. */
+/** Limits enforced after trial — `businesses` and `venues` gate public plan tiers. */
 export type SubscriptionLimitKey =
   | 'workspaces'
   | 'businesses'
@@ -61,13 +64,13 @@ export const TRIAL_DAYS = 90
 export const ANNUAL_SAVINGS_COPY = 'Pay annually and get 2 months free.'
 
 export const PRICING_HEADLINE =
-  'Follow the True Balance Method with the True Balance app — start free.'
+  'Plans that grow with how your business is structured.'
 
 export const PRICING_SUBHEADLINE =
-  'Every plan runs the Method continuously: daily True Balance checks, Reserve Planner recommendations, and continuous accrual. We recommend the right plan from what you set up.'
+  'Start with one business. Add venues when you expand. Move to Business Group when you operate more than one company. Every plan follows the True Balance Method.'
 
 export const PRICING_FOOTNOTE =
-  'Not sure which plan you need? Start your free trial and build your business first. True Balance will tell you when you are ready for the next level.'
+  'Not sure which plan you need? Start free and set up however you like. After your trial, we recommend the plan that matches what you have built.'
 
 export function formatPriceGbp(amount: number): string {
   return `£${amount.toFixed(2)}`
@@ -85,7 +88,15 @@ export function formatTierPriceMonthly(tierId: SubscriptionTierId): string {
   return `${formatPriceGbp(SUBSCRIPTION_TIERS[tierId].priceMonthlyGbp)}/month`
 }
 
-export const TIER_ORDER: SubscriptionTierId[] = ['solo', 'business', 'group']
+export const TIER_ORDER: SubscriptionTierId[] = ['solo', 'multi', 'group']
+
+/** Map legacy Stripe/DB value `business` → `multi`. */
+export function normalizeTierId(raw: string | null | undefined): SubscriptionTierId {
+  if (raw === 'multi' || raw === 'group' || raw === 'solo') return raw
+  if (raw === 'business' || raw === 'professional') return 'multi'
+  if (raw === 'enterprise') return 'group'
+  return 'solo'
+}
 
 export function tierRank(tier: SubscriptionTierId): number {
   return TIER_ORDER.indexOf(tier)
@@ -93,14 +104,6 @@ export function tierRank(tier: SubscriptionTierId): number {
 
 export function maxTier(a: SubscriptionTierId, b: SubscriptionTierId): SubscriptionTierId {
   return tierRank(a) >= tierRank(b) ? a : b
-}
-
-const UNLIMITED_RESOURCE_LIMITS: Omit<SubscriptionTierLimits, 'businesses' | 'workspaces' | 'users'> = {
-  venues: null,
-  accounts: null,
-  reservePlanners: null,
-  commitments: null,
-  expectedReceipts: null,
 }
 
 const SOLO_FEATURES: Record<SubscriptionFeatureFlag, boolean> = {
@@ -121,100 +124,127 @@ const SOLO_FEATURES: Record<SubscriptionFeatureFlag, boolean> = {
   adminFeatures: false,
 }
 
+/** Multi-site: one business, venues roll up in that business view — not group reporting. */
+const MULTI_FEATURES: Record<SubscriptionFeatureFlag, boolean> = {
+  ...SOLO_FEATURES,
+  businessReporting: true,
+  advancedReports: true,
+}
+
+/** Business Group: unlimited companies + consolidated group reporting and Hub. */
+const GROUP_FEATURES: Record<SubscriptionFeatureFlag, boolean> = {
+  ...MULTI_FEATURES,
+  companyReferenceVault: true,
+  businessDiary: true,
+  consolidatedDashboards: true,
+  groupReporting: true,
+  consolidatedFinancialHealth: true,
+  multiCompanyRollups: true,
+}
+
 export const SUBSCRIPTION_TIERS: Record<SubscriptionTierId, SubscriptionTierDefinition> = {
   solo: {
     id: 'solo',
-    name: 'Solo',
-    priceMonthlyGbp: 4.99,
-    priceAnnualGbp: 49.9,
-    perfectFor: 'One business owner managing one business.',
+    name: 'Solo Business',
+    priceMonthlyGbp: 10,
+    priceAnnualGbp: 100,
+    perfectFor: 'Owner-managed businesses operating as a single company — no separate venues or sites.',
     marketingFeatures: [
       '1 business',
-      'Unlimited venues',
-      'Unlimited accounts',
-      'Unlimited committed funds',
-      'Unlimited reserve planners',
-      'Unlimited expected receipts',
-      'Unlimited reports',
-      'Full True Balance dashboard',
+      'Business-level accounts (current & savings)',
+      'No venues / sites',
+      'Full True Balance Method dashboard',
+      'Reserve Planner & commitments',
+      'Expected receipts',
     ],
     limits: {
       workspaces: 1,
       businesses: 1,
       users: null,
-      ...UNLIMITED_RESOURCE_LIMITS,
+      venues: 0,
+      accounts: null,
+      reservePlanners: null,
+      commitments: null,
+      expectedReceipts: null,
     },
     features: { ...SOLO_FEATURES },
   },
-  business: {
-    id: 'business',
-    name: 'Business',
-    priceMonthlyGbp: 9.99,
-    priceAnnualGbp: 99.9,
-    perfectFor: 'Up to 10 separate companies — switch between each in the sidebar.',
+  multi: {
+    id: 'multi',
+    name: 'Multi-site Business',
+    priceMonthlyGbp: 15,
+    priceAnnualGbp: 150,
+    perfectFor: 'One business with multiple venues or sites — consolidated view across those locations.',
     marketingFeatures: [
-      'Everything in Solo',
-      'Up to 10 businesses',
-      'Separate view per company',
-      'Unlimited sites, accounts & reserves',
+      'Everything in Solo Business',
+      '1 business',
+      'Unlimited venues / sites',
+      'Consolidated dashboard across venues in that business',
+      'Cannot add a second business',
     ],
     limits: {
       workspaces: 1,
-      businesses: 10,
+      businesses: 1,
       users: null,
-      ...UNLIMITED_RESOURCE_LIMITS,
+      venues: null,
+      accounts: null,
+      reservePlanners: null,
+      commitments: null,
+      expectedReceipts: null,
     },
-    features: {
-      ...SOLO_FEATURES,
-      businessReporting: true,
-      advancedReports: true,
-    },
+    features: { ...MULTI_FEATURES },
   },
   group: {
     id: 'group',
-    name: 'Group',
-    priceMonthlyGbp: 14.99,
-    priceAnnualGbp: 149.9,
-    perfectFor: 'A group of companies — one roll-up view across the whole group.',
+    name: 'Business Group',
+    priceMonthlyGbp: 20,
+    priceAnnualGbp: 200,
+    perfectFor: 'Owners who operate more than one company — switch between businesses and roll up the group.',
     marketingFeatures: [
-      'Everything in Business',
+      'Everything in Multi-site Business',
       'Unlimited businesses',
-      'Group scope & consolidated True Balance',
+      'Unlimited venues / sites',
+      'Switch between businesses',
+      'Group reporting & consolidated True Balance',
       'Business Hub — company references & diary',
-      'Group reporting & multi-company roll-ups',
     ],
     limits: {
       workspaces: null,
       businesses: null,
       users: null,
-      ...UNLIMITED_RESOURCE_LIMITS,
+      venues: null,
+      accounts: null,
+      reservePlanners: null,
+      commitments: null,
+      expectedReceipts: null,
     },
-    features: {
-      ...SOLO_FEATURES,
-      businessReporting: true,
-      advancedReports: true,
-      companyReferenceVault: true,
-      businessDiary: true,
-      consolidatedDashboards: true,
-      groupReporting: true,
-      consolidatedFinancialHealth: true,
-      multiCompanyRollups: true,
-    },
+    features: { ...GROUP_FEATURES },
   },
 }
 
-/** Lowest tier that covers how the workspace is set up (roll-up needs Group). */
-export function minimumTierForUsage(usage: { businesses: number; hasGroup?: boolean }): SubscriptionTierId {
+/** Lowest tier that covers how the workspace is set up. */
+export function minimumTierForUsage(usage: {
+  businesses: number
+  venues: number
+  hasGroup?: boolean
+}): SubscriptionTierId {
   return recommendTierForWorkspace(usage)
 }
 
 /**
- * Best-fit plan for how the workspace is used.
- * Multiple companies with roll-up → Group tier.
+ * Best-fit plan from business size:
+ * - Solo: one business, no venues
+ * - Multi-site: one business with venues
+ * - Business Group: more than one business
  */
-export function recommendTierForWorkspace(usage: { businesses: number; hasGroup?: boolean }): SubscriptionTierId {
-  if (usage.businesses <= 1) return 'solo'
-  return 'group'
+export function recommendTierForWorkspace(usage: {
+  businesses: number
+  venues: number
+  hasGroup?: boolean
+}): SubscriptionTierId {
+  if (usage.businesses > 1 || usage.hasGroup) return 'group'
+  if (usage.venues > 0) return 'multi'
+  return 'solo'
 }
 
 export function tierForLimitViolation(

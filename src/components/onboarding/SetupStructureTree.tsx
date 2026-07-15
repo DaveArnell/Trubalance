@@ -128,6 +128,7 @@ function BusinessNode({
 
   const addVenueWithAccount = () => {
     const venueCount = venues.length
+    // Trial allows full access; after trial StructureManagement + subscription checks apply.
     actions.addVenue(business.id, `Site ${venueCount + 1}`, true)
   }
 

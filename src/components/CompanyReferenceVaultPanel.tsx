@@ -136,7 +136,7 @@ export function CompanyReferenceVaultPanel({
         <FeatureGate
           feature="companyReferenceVault"
           headline="Your company reference vault"
-          body="Keep HMRC, Companies House, and bank references handy. Included on the Business plan — try it free during your trial."
+          body="Keep HMRC, Companies House, and bank references handy. Included on the Business Group plan — try it free during your trial."
           savedCount={savedCount}
           savedLabel="references saved"
         >

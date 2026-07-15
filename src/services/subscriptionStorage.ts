@@ -1,5 +1,6 @@
 import type { AppState } from '../types'
 import type { WorkspaceSubscription, WorkspaceUsage } from '../types/subscription'
+import { normalizeTierId } from '../config/subscriptionTiers'
 import { createDefaultSubscription } from '../utils/subscriptionAccess'
 
 const STORAGE_KEY = 'trubalance-workspace-subscription'
@@ -9,7 +10,14 @@ function readRaw(): WorkspaceSubscription | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return null
-    return JSON.parse(raw) as WorkspaceSubscription
+    const parsed = JSON.parse(raw) as WorkspaceSubscription
+    return {
+      ...parsed,
+      tierId: normalizeTierId(parsed.tierId),
+      adminTierOverride: parsed.adminTierOverride
+        ? normalizeTierId(parsed.adminTierOverride)
+        : null,
+    }
   } catch {
     return null
   }

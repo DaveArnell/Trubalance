@@ -1,6 +1,6 @@
 import { tryGetSupabase } from '../lib/supabase'
 import type { AdminNote, WorkspaceAccessOverride } from '../admin/types'
-import type { SubscriptionTierId } from '../config/subscriptionTiers'
+import { normalizeTierId } from '../config/subscriptionTiers'
 
 function mapNote(row: Record<string, unknown>): AdminNote {
   return {
@@ -106,7 +106,7 @@ export async function fetchServerAccessOverride(userId: string): Promise<Workspa
   if (error) throw error
   if (!workspace) return null
 
-  const tier = (workspace.subscription_tier as SubscriptionTierId) || 'solo'
+  const tier = normalizeTierId(workspace.subscription_tier ? String(workspace.subscription_tier) : 'solo')
   const lifetimeAccess = Boolean(workspace.lifetime_access)
   const betaTester = Boolean(workspace.beta_tester)
   const trialEndsAt = workspace.trial_ends_at ? String(workspace.trial_ends_at) : null
@@ -120,7 +120,9 @@ export async function fetchServerAccessOverride(userId: string): Promise<Workspa
   return {
     userId,
     accessType,
-    subscriptionPlan: (workspace.admin_tier_override as SubscriptionTierId) || tier,
+    subscriptionPlan: workspace.admin_tier_override
+      ? normalizeTierId(String(workspace.admin_tier_override))
+      : tier,
     betaTester,
     lifetimeAccess,
     trialEndsAt,

@@ -41,7 +41,7 @@ const HOME_TOPICS = [
   {
     eyebrow: 'Plans',
     title: 'Pricing',
-    body: 'Simple plans for following the Method in software. Start free — no payment details required to begin.',
+    body: 'Solo Business, Multi-site Business, or Business Group — start free, set up however you like, then pick the plan that matches your structure.',
     to: '/pricing',
     cta: 'View pricing',
   },

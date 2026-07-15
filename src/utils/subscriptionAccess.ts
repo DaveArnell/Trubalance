@@ -1,6 +1,7 @@
 import {
   SUBSCRIPTION_TIERS,
   TRIAL_DAYS,
+  TIER_ORDER,
   maxTier,
   minimumTierForUsage,
   tierForLimitViolation,
@@ -143,10 +144,6 @@ export function hasFeature(
   return SUBSCRIPTION_TIERS[tier].features[feature]
 }
 
-function businessLimitLabel(cap: number): string {
-  return cap === 1 ? 'one business' : `up to ${cap} businesses`
-}
-
 export function buildLimitUpgradePrompt(
   limit: SubscriptionLimitKey,
   requiredTier: SubscriptionTierId,
@@ -156,20 +153,17 @@ export function buildLimitUpgradePrompt(
   const currentTier = SUBSCRIPTION_TIERS[subscribedTier(subscription)]
   const price = `£${tier.priceMonthlyGbp.toFixed(2)}/month`
 
-  if (limit === 'businesses') {
-    const cap = currentTier.limits.businesses
-    if (requiredTier === 'business') {
-      return {
-        headline: "You're ready for Business.",
-        body: `Your current plan includes ${cap === 1 ? 'one business' : `${cap} businesses`}. Upgrade to Business for ${price} to manage multiple businesses from one dashboard.`,
-      }
+  if (limit === 'venues') {
+    return {
+      headline: "You're ready for Multi-site Business.",
+      body: `Solo Business is for one company without separate venues. Upgrade to ${tier.name} for ${price} to add venues and sites under that business.`,
     }
-    if (requiredTier === 'group') {
-      const businessCap = SUBSCRIPTION_TIERS.business.limits.businesses
-      return {
-        headline: "You're ready for Group.",
-        body: `Your current plan includes ${businessLimitLabel(businessCap ?? 10)}. Upgrade to Group for ${price} for unlimited businesses and consolidated reporting.`,
-      }
+  }
+
+  if (limit === 'businesses') {
+    return {
+      headline: "You're ready for Business Group.",
+      body: `Your current plan (${currentTier.name}) is for a single company. Upgrade to ${tier.name} for ${price} when you need unlimited businesses, switching between companies, and group reporting.`,
     }
   }
 
@@ -188,22 +182,22 @@ export function buildFeatureUpgradePrompt(
 
   if (feature === 'groupReporting' || feature === 'consolidatedDashboards' || feature === 'multiCompanyRollups') {
     return {
-      headline: "You're ready for Group.",
-      body: `Group dashboard and consolidated reporting are on the Group plan (${price}). Upgrade when you are ready to see every business in one place.`,
+      headline: "You're ready for Business Group.",
+      body: `Group reporting and a consolidated view across companies are on the Business Group plan (${price}).`,
     }
   }
 
   if (feature === 'companyReferenceVault') {
     return {
       headline: 'Keep your company references in one place.',
-      body: `The Business Hub reference vault is on the Group plan (${price}). Upgrade to keep access to the numbers you have saved.`,
+      body: `The Business Hub reference vault is on the Business Group plan (${price}).`,
     }
   }
 
   if (feature === 'businessDiary') {
     return {
       headline: 'Keep your business diary going.',
-      body: `The Business Hub diary and reminders are on the Group plan (${price}). Upgrade to keep your saved dates and reminders.`,
+      body: `The Business Hub diary and reminders are on the Business Group plan (${price}).`,
     }
   }
 
@@ -256,7 +250,7 @@ export function checkFeature(
 }
 
 function TIER_WITH_FEATURE(feature: SubscriptionFeatureFlag): SubscriptionTierId {
-  for (const tierId of ['solo', 'business', 'group'] as const) {
+  for (const tierId of TIER_ORDER) {
     if (SUBSCRIPTION_TIERS[tierId].features[feature]) return tierId
   }
   return 'group'
@@ -310,6 +304,6 @@ export function buildRecommendedTierPrompt(usage: WorkspaceUsage): {
   return {
     requiredTier: required,
     headline: `We recommend ${tier.name}.`,
-    body: `Based on your businesses, the ${tier.name} plan (${formatTierMonthly(required)}) is the best fit. You can keep building on your trial until day ${TRIAL_DAYS + 1}.`,
+    body: `Based on how your workspace is set up, the ${tier.name} plan (${formatTierMonthly(required)}) is the best fit. You can keep building on your trial until day ${TRIAL_DAYS + 1}.`,
   }
 }

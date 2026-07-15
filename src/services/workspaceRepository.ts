@@ -1,5 +1,5 @@
 import type { AppState, BalanceSnapshot, BusinessReferenceProfile, Commitment, DayNote, DiaryReminder, ExpectedReceipt, Group, Business, Venue, Account, ReservePlanner, ReserveBill, HistoryRecord } from '../types'
-import type { SubscriptionTierId } from '../config/subscriptionTiers'
+import { normalizeTierId } from '../config/subscriptionTiers'
 import { FOUNDER_LIFETIME_SIGNUP_LIMIT } from '../config/founderProgram'
 import type { SubscriptionStatus, WorkspaceSubscription } from '../types/subscription'
 import { serializeReceiptDateField } from '../utils/receiptCalculations'
@@ -740,12 +740,12 @@ function mapWorkspaceSubscriptionRow(
   row: Record<string, unknown>,
   subscriptionRow?: Record<string, unknown> | null,
 ): WorkspaceSubscription {
-  const tierId = (row.subscription_tier as SubscriptionTierId) || 'solo'
+  const tierId = normalizeTierId(row.subscription_tier ? String(row.subscription_tier) : 'solo')
   const lifetimeAccess = Boolean(row.lifetime_access)
   const betaTester = Boolean(row.beta_tester)
   const trialEndsAt = row.trial_ends_at ? String(row.trial_ends_at) : null
   const adminOverride = row.admin_tier_override
-    ? (String(row.admin_tier_override) as SubscriptionTierId)
+    ? normalizeTierId(String(row.admin_tier_override))
     : null
   const gracePeriodEndsAt =
     (subscriptionRow?.grace_period_ends_at as string | null | undefined) ??
@@ -771,7 +771,7 @@ function mapWorkspaceSubscriptionRow(
       : null
 
   const paidTier = subscriptionRow?.tier
-    ? (String(subscriptionRow.tier) as SubscriptionTierId)
+    ? normalizeTierId(String(subscriptionRow.tier))
     : tierId
 
   return {

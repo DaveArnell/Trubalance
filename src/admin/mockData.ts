@@ -39,7 +39,7 @@ const BUSINESSES = [
   'Stonegate Properties',
 ]
 
-const TIERS: SubscriptionTierId[] = ['solo', 'business', 'group']
+const TIERS: SubscriptionTierId[] = ['solo', 'multi', 'group']
 const STATUSES: SubscriptionStatus[] = ['trialing', 'active', 'past_due', 'canceled', 'expired', 'lifetime']
 
 function daysAgo(days: number): string {
@@ -58,7 +58,7 @@ function mockUserBase(i: number): AdminUserListItem {
   const lifetime = status === 'lifetime'
   const betaTester = i % 13 === 0
   const trialEnds = status === 'trialing' ? daysAgo(-14 + (i % 30)) : null
-  const businessCount = tier === 'solo' ? 1 : tier === 'business' ? 2 + (i % 4) : 5 + (i % 8)
+  const businessCount = tier === 'solo' ? 1 : tier === 'multi' ? 1 : 5 + (i % 8)
   const names = Array.from({ length: businessCount }, (_, j) => pick(BUSINESSES, i + j))
   const lastLoginAt = i % 7 === 0 ? null : daysAgo(i % 21)
   const lastBalanceUpdateAt =
@@ -531,7 +531,7 @@ export function getMockRecentActivity(): AdminActivityRow[] {
   return [
     { id: 'a1', type: 'signup', title: 'Alex Smith signed up', subtitle: 'Solo trial', createdAt: daysAgo(0) },
     { id: 'a2', type: 'login', title: 'Jordan Jones logged in', subtitle: null, createdAt: daysAgo(0) },
-    { id: 'a3', type: 'payment', title: 'Payment received — £9.99', subtitle: 'Taylor Williams · Business', createdAt: daysAgo(1) },
+    { id: 'a3', type: 'payment', title: 'Payment received — £15.00', subtitle: 'Taylor Williams · Multi-site Business', createdAt: daysAgo(1) },
     { id: 'a4', type: 'support', title: 'New support ticket', subtitle: 'Reserve planner question', createdAt: daysAgo(1) },
     { id: 'a5', type: 'alert', title: 'Trial ending in 3 days', subtitle: '12 users', createdAt: daysAgo(2) },
     { id: 'a6', type: 'signup', title: 'Morgan Brown signed up', subtitle: 'Business trial', createdAt: daysAgo(2) },
@@ -561,7 +561,7 @@ export function getMockPayments(): AdminPaymentRow[] {
       id: `pay-${u.id}`,
       userEmail: u.email,
       workspaceName: u.businessNames[0] ?? 'Workspace',
-      amountCents: u.subscriptionTier === 'solo' ? 499 : u.subscriptionTier === 'business' ? 999 : 1499,
+      amountCents: u.subscriptionTier === 'solo' ? 1000 : u.subscriptionTier === 'multi' ? 1500 : 2000,
       currency: 'gbp',
       status: u.subscriptionStatus === 'past_due' ? 'failed' : i % 9 === 0 ? 'refunded' : 'succeeded',
       description: `${u.subscriptionTier} plan`,
@@ -704,9 +704,9 @@ export function getMockPlatformSettings(): PlatformSettings {
     primaryColor: '#0f766e',
     maintenanceMode: false,
     defaultTrialDays: 90,
-    soloPriceGbp: 4.99,
-    businessPriceGbp: 9.99,
-    groupPriceGbp: 14.99,
+    soloPriceGbp: 10,
+    multiPriceGbp: 15,
+    groupPriceGbp: 20,
     emailFromName: 'True Balance',
     emailFromAddress: 'hello@trubalance.app',
     featureFlags: {
@@ -724,7 +724,7 @@ export function getMockPlatformSettings(): PlatformSettings {
 export function getMockAuditLog(): AuditLogEntry[] {
   return [
     { id: 'aud1', adminEmail: 'admin@trubalance.app', action: 'trial_extended', target: 'alex.smith@example.com', metadata: '+30 days', createdAt: daysAgo(1) },
-    { id: 'aud2', adminEmail: 'admin@trubalance.app', action: 'subscription_changed', target: 'jordan.jones@example.com', metadata: 'solo → business', createdAt: daysAgo(2) },
+    { id: 'aud2', adminEmail: 'admin@trubalance.app', action: 'subscription_changed', target: 'jordan.jones@example.com', metadata: 'solo → multi', createdAt: daysAgo(2) },
     { id: 'aud3', adminEmail: 'admin@trubalance.app', action: 'lifetime_granted', target: 'sam.williams@example.com', metadata: null, createdAt: daysAgo(5) },
     { id: 'aud4', adminEmail: 'admin@trubalance.app', action: 'email_template_updated', target: 'trial_ending', metadata: null, createdAt: daysAgo(7) },
     { id: 'aud5', adminEmail: 'admin@trubalance.app', action: 'platform_setting_changed', target: 'default_trial_days', metadata: '90', createdAt: daysAgo(10) },

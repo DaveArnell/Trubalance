@@ -354,7 +354,7 @@ export interface PlatformSettings {
   maintenanceMode: boolean
   defaultTrialDays: number
   soloPriceGbp: number
-  businessPriceGbp: number
+  multiPriceGbp: number
   groupPriceGbp: number
   emailFromName: string
   emailFromAddress: string

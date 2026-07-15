@@ -455,10 +455,16 @@ function BusinessCard({
       0,
     )
 
+  const { requestLimit } = useSubscription()
+  const tryAddVenue = () => {
+    if (!requestLimit('venues', state.venues.length + 1)) return
+    actions.addVenue(business.id, 'New site', true)
+  }
+
   const addItems = [
     { label: 'Current account', onClick: () => actions.addBusinessAccount(business.id, 'Current account', 'current') },
     { label: 'Savings account', onClick: () => actions.addBusinessSavingsAccount(business.id, 'Savings account') },
-    { label: 'Venue / site', onClick: () => actions.addVenue(business.id, 'New site', true) },
+    { label: 'Venue / site', onClick: tryAddVenue },
   ]
 
   return (
@@ -617,7 +623,7 @@ function GroupCard({
 }
 
 export function StructureManagement({ state, actions, embedded = false }: StructureManagementProps) {
-  const { requestLimit } = useSubscription()
+  const { requestLimit, requestFeature } = useSubscription()
 
   const tryAddBusiness = (groupId?: string) => {
     if (!requestLimit('businesses', state.businesses.length + 1)) return
@@ -625,6 +631,11 @@ export function StructureManagement({ state, actions, embedded = false }: Struct
     if (resolvedGroupId) {
       actions.addBusiness(resolvedGroupId, 'New business', true)
     }
+  }
+
+  const tryAddGroupView = () => {
+    if (!requestFeature('groupReporting')) return
+    actions.addGroup('Group')
   }
 
   const businessesByGroup = useMemo(() => {
@@ -642,7 +653,7 @@ export function StructureManagement({ state, actions, embedded = false }: Struct
   const headActions = (
     <div className="org-head-actions">
       {!showGroupLevel && state.businesses.length > 1 && (
-        <button type="button" className="btn-secondary btn-tiny" onClick={() => actions.addGroup('Group')}>
+        <button type="button" className="btn-secondary btn-tiny" onClick={tryAddGroupView}>
           + Group view
         </button>
       )}

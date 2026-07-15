@@ -158,7 +158,7 @@ export function BusinessDiaryPanel({
         <FeatureGate
           feature="businessDiary"
           headline="Your business diary"
-          body="Track pension re-enrolment, annual returns, tax dates, and anything else. Included on the Business plan — try it free during your trial."
+          body="Track pension re-enrolment, annual returns, tax dates, and anything else. Included on the Business Group plan — try it free during your trial."
           savedCount={savedCount}
           savedLabel="active reminders"
         >

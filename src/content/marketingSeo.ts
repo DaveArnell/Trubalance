@@ -15,9 +15,9 @@ export const METHOD_SEO = {
 } as const
 
 export const PRICING_SEO = {
-  title: 'Pricing — Follow the True Balance Method',
+  title: 'Pricing — Solo, Multi-site & Business Group',
   description:
-    'Plans for following the True Balance Method in the True Balance app. Founder access during early access — full features, no payment details required yet.',
+    'Solo Business £10, Multi-site Business £15, Business Group £20 — monthly or annual (2 months free). Start free and set up however you like; after trial, plans match your structure. Founder access during early access.',
   path: '/pricing',
 } as const
 
