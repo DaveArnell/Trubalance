@@ -37,7 +37,7 @@ export function MethodWorkedExample() {
       tone: 'true' as const,
       op: '=',
       label: 'True Balance',
-      hint: 'Genuinely available for spending decisions',
+      hint: 'What is left in the business after commitments',
       value: ex.trueBalance,
     },
   ]

@@ -1,9 +1,9 @@
 /** SEO copy for public marketing routes (used with usePageMeta). */
 
 export const HOME_SEO = {
-  title: 'True Balance — Follow the True Balance Method',
+  title: 'True Balance — A better way to manage business finances',
   description:
-    'A financial management system for UK business owners. Keep light daily logging, fund irregular bills with the Reserve Planner monthly, and decide from your True Balance — not the bank app alone.',
+    'The True Balance Method helps UK business owners understand what their bank balance is made up of — committed money, future obligations and what is left in the business. The app keeps that Method current every day.',
   path: '/',
 } as const
 

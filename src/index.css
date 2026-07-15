@@ -11431,6 +11431,105 @@ tr.sheet-row--received td {
   text-decoration: underline;
 }
 
+.marketing-method-questions {
+  max-width: 40rem;
+  margin: 0 auto 36px;
+}
+
+.marketing-method-questions-intro {
+  margin: 0 0 12px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.marketing-method-questions ul {
+  margin: 0 0 14px;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 8px;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.marketing-method-questions-note {
+  margin: 0;
+  text-align: center;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.marketing-method-compare {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  max-width: 52rem;
+  margin: 0 auto;
+}
+
+.marketing-method-compare-card {
+  padding: 24px 22px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: #fff;
+}
+
+.marketing-method-compare-card--muted {
+  background: #f8fafc;
+}
+
+.marketing-method-compare-card--accent {
+  border-color: rgba(99, 102, 241, 0.28);
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.06) 0%, #fff 55%);
+}
+
+.marketing-method-compare-card h3 {
+  margin: 0 0 14px;
+  font-size: 1.15rem;
+}
+
+.marketing-method-compare-card ul {
+  margin: 0;
+  padding-left: 1.15rem;
+  display: grid;
+  gap: 10px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.marketing-method-audience {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  max-width: 52rem;
+  margin: 0 auto;
+}
+
+.marketing-method-audience-card {
+  padding: 24px 22px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: #fff;
+}
+
+.marketing-method-audience-card--quiet {
+  background: #f8fafc;
+}
+
+.marketing-method-audience-card h3 {
+  margin: 0 0 14px;
+  font-size: 1.1rem;
+}
+
+.marketing-method-audience-card ul {
+  margin: 0;
+  padding-left: 1.15rem;
+  display: grid;
+  gap: 10px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
 .marketing-method-principles--compact {
   margin-top: 36px;
 }
@@ -11552,7 +11651,9 @@ tr.sheet-row--received td {
     gap: 24px;
   }
 
-  .marketing-method-habits {
+  .marketing-method-habits,
+  .marketing-method-compare,
+  .marketing-method-audience {
     grid-template-columns: 1fr;
   }
 }

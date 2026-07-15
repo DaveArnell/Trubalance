@@ -70,7 +70,7 @@ export function HeroBalanceEquation() {
           </span>
           <div>
             <p className="hero-balance-equation-label">True Balance</p>
-            <p className="hero-balance-equation-hint">What you can actually spend</p>
+            <p className="hero-balance-equation-hint">What is left after commitments</p>
           </div>
         </div>
         <p className="hero-balance-equation-value hero-balance-equation-value--true">{trueBalance}</p>

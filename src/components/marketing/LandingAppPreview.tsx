@@ -106,7 +106,7 @@ export function LandingAppPreview({ variant = 'section' }: LandingAppPreviewProp
           <h2 id="landing-preview-heading">Your real position — not just your bank balance</h2>
           <p className="marketing-section-lead">
             A quick look at what True Balance shows: bank balance, committed money already
-            accounted for, and what is genuinely available to spend.
+            accounted for, and what is left after those commitments.
           </p>
         </div>
 

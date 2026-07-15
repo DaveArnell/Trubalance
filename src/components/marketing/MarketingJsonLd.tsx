@@ -45,7 +45,7 @@ export function homePageJsonLd() {
       name: COMPANY_INFO.productName,
       url: COMPANY_INFO.website,
       description:
-        'The True Balance Method for UK business owners — manage from available cash after accruals and reserves, not the bank balance alone.',
+        'The True Balance Method for UK business owners — understand what your bank balance is made up of after commitments and reserves, then keep that picture current with the app.',
       publisher: { '@type': 'Organization', name: COMPANY_INFO.legalName },
     },
     {

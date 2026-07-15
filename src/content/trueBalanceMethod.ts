@@ -7,10 +7,54 @@ export const METHOD_BLOG_CATEGORY = 'The True Balance Method' as const
 export const METHOD_PAGE_TITLE = 'The True Balance Method'
 
 export const METHOD_PAGE_SUBTITLE =
-  'A financial management system for knowing what your business can genuinely afford.'
+  'A simple financial management system for understanding what your bank balance is actually made up of.'
 
 export const METHOD_MANTRA =
   'Do not manage your business from your bank balance. Manage it from your True Balance.'
+
+/** Questions the Method keeps answering — homepage clarity section. */
+export const METHOD_CLARITY_QUESTIONS = [
+  'How much of my bank balance is already committed?',
+  'How much belongs to VAT, payroll, suppliers or future bills?',
+  'How much is left in the business after that?',
+  'What financial position is my business actually in today?',
+] as const
+
+export const METHOD_WHY_COMPARE = {
+  traditional: {
+    title: 'Traditional approach',
+    points: [
+      'Look at the bank balance.',
+      'Wait until bills arrive.',
+      'React when money leaves.',
+      'Hope enough has been left.',
+    ],
+  },
+  method: {
+    title: 'True Balance Method',
+    points: [
+      'Commitments build continuously.',
+      'Annual bills are planned throughout the year.',
+      'Your financial position is updated every day.',
+      'You understand exactly what your money is made up of.',
+    ],
+  },
+} as const
+
+export const METHOD_WHO_FOR = [
+  'already use bookkeeping software but still lean on spreadsheets',
+  'sometimes wonder how much of the bank balance is already spoken for',
+  'deal with VAT, payroll, annual bills and future commitments',
+  'want clearer finances without becoming an accountant',
+  'prefer a simple financial routine over complicated reports',
+] as const
+
+export const METHOD_WHO_NOT_FOR = [
+  'You already have a finance department.',
+  'Your accountant already produces daily management information.',
+  'Your business has very few financial commitments.',
+  'You simply need bookkeeping software.',
+] as const
 
 /** Primary marketing spine — two simple habits. */
 export const METHOD_TWO_HABITS = [
@@ -18,14 +62,14 @@ export const METHOD_TWO_HABITS = [
     id: 'daily',
     title: 'Daily',
     time: 'Light logging',
-    lead: 'Keep True Balance current — then decide from it.',
-    body: 'A short update keeps the Method honest. Then use your True Balance for spending decisions, not the bank app alone.',
+    lead: 'Keep the picture honest — then understand your position.',
+    body: 'A short update is enough. The software does the calculations. You see what your bank balance is made up of.',
     tasks: [
-      'Update your bank balances',
+      'Refresh your bank balances when they have changed',
       'Mark payments as paid when they leave the account',
       'Add or change obligations when something in the business changes',
       'Add planned new payments when you know they are coming',
-      'Check your True Balance before you spend',
+      'Check your True Balance and understand today’s position',
     ],
   },
   {
@@ -33,12 +77,13 @@ export const METHOD_TWO_HABITS = [
     title: 'Monthly',
     time: 'About 5 minutes',
     lead: 'Open the Reserve Planner and follow the recommended transfer.',
-    body: 'The app already knows every annual and irregular bill, which month it is due, and what your reserve account should contain. Confirm the transfer — in or out — and the plan stays on track.',
+    body: 'The app already knows every annual and irregular bill, which month it is due, and what your reserve account should contain. Confirm the transfer — in or out — and stay on track for the year.',
     tasks: [
       'Open the Reserve Planner',
-      'Review the recommended transfer (into or out of the reserve)',
-      'Confirm the transfer in the bank',
-      'Mark it done in True Balance',
+      'Review this month’s recommendation',
+      'Transfer the suggested amount between current and reserve',
+      'Confirm the transfer in True Balance',
+      'Stay on track for every annual obligation',
     ],
   },
 ] as const
@@ -77,8 +122,8 @@ export const METHOD_THREE_PRINCIPLES = [
   {
     id: 'one-decision-number',
     title: 'One Decision Number',
-    lead: 'Your True Balance is the number for spending decisions.',
-    body: 'The bank balance becomes a reference. True Balance is what you use for purchases, hires, quiet months and drawings.',
+    lead: 'Your True Balance is the clearer read of the position.',
+    body: 'The bank balance becomes a reference. True Balance shows what is left after commitments that have already built up — so you understand the figure, not just the total in the app.',
     examples: ['Purchases', 'Hires', 'Quiet months', 'Owner drawings'],
   },
 ] as const

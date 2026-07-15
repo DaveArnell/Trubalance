@@ -18,37 +18,28 @@ import {
   METHOD_PAGE_PATH,
 } from '../content/trueBalanceMethod'
 import { isSupabaseConfigured } from '../lib/supabase'
-import {
-  FOUNDER_PROGRAM_BODY,
-  FOUNDER_PROGRAM_FOOTNOTE,
-  FOUNDER_PROGRAM_HEADLINE,
-} from '../config/founderProgram'
+import { FOUNDER_PROGRAM_HEADLINE } from '../config/founderProgram'
 import { HOME_SEO } from '../content/marketingSeo'
 import { usePageMeta } from '../hooks/usePageMeta'
 import { homePageJsonLd, MarketingJsonLd } from '../components/marketing/MarketingJsonLd'
 
 const HERO_BENEFITS = [
-  'Keep balances and payments current with light daily logging.',
-  'Fund VAT, tax and irregular bills through the Reserve Planner.',
-  'Decide from your True Balance — not the bank app alone.',
+  'See how much of the bank balance is already committed.',
+  'See money building for VAT, payroll, suppliers and future bills.',
+  'See what is left in the business after that — every day.',
 ] as const
-
-const HERO_CALLOUT = {
-  emphasis: 'Do not manage your business from your bank balance.',
-  rest: 'Manage it from your True Balance.',
-} as const
 
 const SOFTWARE_FEATURES = [
   {
     icon: '◈',
-    title: 'One True Balance',
-    body: 'A continuously updated figure for spending decisions — after accruals, the Reserve Planner and realistic receipts.',
+    title: 'One clear picture',
+    body: 'A continuously updated True Balance after accruals, the Reserve Planner and realistic receipts — so you know what the bank figure is made of.',
     accent: 'indigo',
   },
   {
     icon: '▤',
     title: 'Continuous accrual',
-    body: 'Monthly commitments build every day automatically. Payday stops being a surprise.',
+    body: 'Monthly commitments build every day automatically. You see them in the position before payday arrives.',
     accent: 'orange',
   },
   {
@@ -83,38 +74,32 @@ export function LandingPage() {
           <div className="marketing-hero-blob marketing-hero-blob--3" aria-hidden />
           <div className="marketing-hero-inner marketing-hero-inner--pop">
             <div className="marketing-hero-copy">
-              <p className="marketing-eyebrow marketing-eyebrow--vivid">
-                A financial management system for business owners
-              </p>
+              <p className="marketing-eyebrow marketing-eyebrow--vivid">The True Balance Method</p>
               <Link to={METHOD_PAGE_PATH} className="marketing-method-badge">
                 Full Method guide →
               </Link>
-              <h1>Follow the True Balance Method with the True Balance app</h1>
+              <h1>A better way to manage your business finances.</h1>
               <p className="marketing-lead">
-                Your bank balance only shows where money sits. The True Balance Method shows what is
-                genuinely available — then the app keeps that Method current every day.
-              </p>
-              <p className="marketing-hero-callout" role="note">
-                <strong>{HERO_CALLOUT.emphasis}</strong> {HERO_CALLOUT.rest}
+                The True Balance Method helps business owners understand what their bank balance is
+                actually made up of. Instead of only showing how much is in the bank, it continuously
+                separates committed money, future obligations and expected receipts — so you have a
+                clearer picture of the business’s real financial position every day.
               </p>
               <ul className="marketing-hero-benefits">
                 {HERO_BENEFITS.map((benefit) => (
                   <li key={benefit}>{benefit}</li>
                 ))}
               </ul>
-              <p className="marketing-founder-callout" role="note">
-                <strong>{FOUNDER_PROGRAM_HEADLINE}</strong>. {FOUNDER_PROGRAM_BODY}
-              </p>
               <div className="marketing-cta-row">
                 <Link to="/signup" className="btn-primary btn-large marketing-cta-primary marketing-cta-primary--pop">
-                  Claim your spot
+                  Get started
                 </Link>
                 <Link to="/see-how-it-works" className="btn-secondary btn-large marketing-cta-secondary--pop">
                   Try demo
                 </Link>
               </div>
               <p className="marketing-hero-note muted">
-                Full access · No payment details required · {FOUNDER_PROGRAM_FOOTNOTE}
+                No payment details required to start.
               </p>
               {!isSupabaseConfigured && (
                 <p className="marketing-config-hint">
@@ -139,8 +124,8 @@ export function LandingPage() {
               Not accounting software. Not bookkeeping. Not forecasting.
             </p>
             <p className="marketing-position-detail">
-              A financial management system first. Bookkeeping tells you what happened. The True
-              Balance Method helps you decide what to do next — and the software automates it.
+              A financial management method first — for clarity on what your bank balance means. The
+              True Balance app is simply the easiest way to follow that Method every day.
             </p>
           </div>
         </section>
@@ -150,11 +135,11 @@ export function LandingPage() {
         <section id="features" className="marketing-features-section marketing-features-section--pop">
           <div className="marketing-section-inner">
             <div className="marketing-section-head marketing-section-head--center">
-              <p className="marketing-eyebrow marketing-eyebrow--vivid">How the software automates the Method</p>
-              <h2>The app does the heavy lifting</h2>
+              <p className="marketing-eyebrow marketing-eyebrow--vivid">How the software helps</p>
+              <h2>The app keeps the Method current</h2>
               <p className="marketing-section-lead">
-                You keep light daily logging and a monthly Reserve Planner review. True Balance accrues
-                commitments and keeps your decision number current in the background.
+                You follow a light routine. True Balance accrues commitments, runs the Reserve Planner,
+                and updates the picture of what your money is made up of.
               </p>
             </div>
             <div className="marketing-feature-grid marketing-feature-grid--pop marketing-feature-grid--compact">
@@ -179,11 +164,11 @@ export function LandingPage() {
         <section id="how-it-works" className="marketing-how-section marketing-how-section--pop">
           <div className="marketing-section-inner">
             <div className="marketing-section-head marketing-section-head--center">
-              <p className="marketing-eyebrow marketing-eyebrow--vivid">The routine</p>
-              <h2>A simple financial routine — not a software course</h2>
+              <p className="marketing-eyebrow marketing-eyebrow--vivid">Getting started</p>
+              <h2>Set up once. Live the Method.</h2>
               <p className="marketing-section-lead">
-                Set up once, then live the Method: light daily logging and a monthly Reserve Planner
-                review.
+                Connect the business, add commitments and the Reserve Planner — then follow the daily
+                and monthly routine.
               </p>
             </div>
             <ol className="marketing-steps-grid marketing-steps-grid--pop">
@@ -227,9 +212,9 @@ export function LandingPage() {
               <h2>Built from real business experience</h2>
               <p className="marketing-section-lead">
                 For over 17 years I have run businesses and, despite accounting software, still needed
-                a clearer answer: what is already committed, what should be reserved, and what is
-                genuinely available. The True Balance Method is that system. The app keeps it current
-                without the spreadsheet.
+                a clearer answer: what is already committed, what belongs to future bills, and what is
+                left in the business. The True Balance Method is that clarity. The app keeps it
+                current without the spreadsheet.
               </p>
             </div>
           </div>
@@ -247,12 +232,12 @@ export function LandingPage() {
           <div className="marketing-cta-band-inner">
             <h2>Ready to follow the True Balance Method?</h2>
             <p>
-              {FOUNDER_PROGRAM_HEADLINE}. Start in the True Balance app — help shape it before public
-              launch.
+              Start in the True Balance app — the easiest way to keep the Method current every day.
+              {` ${FOUNDER_PROGRAM_HEADLINE} details are on signup.`}
             </p>
             <div className="marketing-cta-row marketing-cta-row--center">
               <Link to="/signup" className="btn-primary btn-large marketing-cta-btn-on-dark">
-                Claim your spot
+                Get started
               </Link>
               <Link to="/login" className="btn-ghost btn-large marketing-cta-ghost">
                 I already have an account
