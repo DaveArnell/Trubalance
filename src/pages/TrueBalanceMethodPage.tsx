@@ -29,7 +29,7 @@ export function TrueBalanceMethodPage() {
       <main className="marketing-main marketing-method-page">
         <header className="method-edu-hero">
           <div className="method-edu-inner">
-            <p className="marketing-eyebrow marketing-eyebrow--vivid">Financial clarity</p>
+            <p className="marketing-how-eyebrow">Financial clarity</p>
             <h1>{METHOD_PAGE_TITLE}</h1>
             <p className="method-edu-hero-lead">{METHOD_PAGE_SUBTITLE}</p>
             <p className="method-edu-mantra">{METHOD_MANTRA}</p>

@@ -18,14 +18,14 @@ export function SeeHowItWorksPage() {
       <main className="marketing-main">
         <section className="demo-scenarios-section demo-scenarios-section--landing">
           <div className="marketing-section-inner">
-            <div className="marketing-section-head marketing-section-head--center demo-scenarios-head">
-              <p className="marketing-eyebrow">See the platform</p>
+            <div className="marketing-section-head demo-scenarios-head">
+              <p className="marketing-how-eyebrow">See the platform</p>
               <h1>See it with a live business</h1>
-              <p className="marketing-section-lead">
+              <p className="marketing-section-lead marketing-section-lead--home">
                 Explore a fully set-up workspace — commitments building daily, the Reserve Planner,
                 and one True Balance — without signing up.
               </p>
-              <p className="marketing-section-lead muted">
+              <p className="marketing-section-lead marketing-section-lead--home muted">
                 Prefer to understand the problem first?{' '}
                 <Link to={METHOD_PAGE_PATH}>Learn the Method</Link>
                 {' · '}

@@ -38,7 +38,7 @@ export function BlogIndexPage() {
       <main className="blog-page">
         <div className="blog-page-inner">
           <header className="blog-index-header">
-            <p className="marketing-eyebrow marketing-eyebrow--vivid">Clarity</p>
+            <p className="marketing-how-eyebrow">Clarity</p>
             <h1>Articles on knowing where you stand</h1>
             <p className="blog-index-lead">
               Why your bank balance isn’t enough, how known commitments build before payday, how to

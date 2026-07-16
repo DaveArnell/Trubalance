@@ -21,10 +21,10 @@ export function WhoItsForPage() {
       <main className="marketing-main">
         <section className="demo-scenarios-section demo-scenarios-section--landing">
           <div className="marketing-section-inner">
-            <div className="marketing-section-head marketing-section-head--center">
-              <p className="marketing-eyebrow marketing-eyebrow--vivid">Fit</p>
+            <div className="marketing-section-head demo-scenarios-head">
+              <p className="marketing-how-eyebrow">Fit</p>
               <h1>Who True Balance is designed for</h1>
-              <p className="marketing-section-lead">
+              <p className="marketing-section-lead marketing-section-lead--home">
                 Owner-managed businesses that want confidence without complexity — especially if
                 these questions sound familiar.
               </p>

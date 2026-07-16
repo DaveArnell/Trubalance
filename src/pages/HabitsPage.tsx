@@ -16,10 +16,10 @@ export function HabitsPage() {
       <main className="marketing-main">
         <section className="demo-scenarios-section demo-scenarios-section--landing">
           <div className="marketing-section-inner">
-            <div className="marketing-section-head marketing-section-head--center">
-              <p className="marketing-eyebrow marketing-eyebrow--vivid">The routine</p>
+            <div className="marketing-section-head">
+              <p className="marketing-how-eyebrow">The routine</p>
               <h1>Daily and monthly habits</h1>
-              <p className="marketing-section-lead">
+              <p className="marketing-section-lead marketing-section-lead--home">
                 The platform handles the calculations. You follow a light routine so you always know
                 what’s already committed — and large bills stop catching you out.
               </p>

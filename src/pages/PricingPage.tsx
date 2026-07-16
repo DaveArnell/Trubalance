@@ -13,10 +13,10 @@ export function PricingPage() {
         <PricingSection />
         <section id="billing" className="marketing-billing-section">
           <div className="marketing-section-inner">
-            <div className="marketing-section-head marketing-section-head--center">
-              <p className="marketing-eyebrow">Billing</p>
+            <div className="marketing-section-head">
+              <p className="marketing-how-eyebrow">Billing</p>
               <h2>How billing will work</h2>
-              <p className="marketing-section-lead">
+              <p className="marketing-section-lead marketing-section-lead--home">
                 Payments are not switched on yet. When they are, you will choose monthly (rolling
                 contract, cancel anytime) or annual (one payment upfront for the year).
               </p>

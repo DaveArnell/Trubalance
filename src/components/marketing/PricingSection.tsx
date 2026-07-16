@@ -14,10 +14,10 @@ export function PricingSection() {
   return (
         <section id="pricing" className="marketing-pricing-section marketing-pricing-section--pop">
           <div className="marketing-section-inner">
-            <div className="marketing-section-head marketing-section-head--center">
-              <p className="marketing-eyebrow marketing-eyebrow--vivid">Pricing</p>
+            <div className="marketing-section-head">
+              <p className="marketing-how-eyebrow">Pricing</p>
           <h2>{PRICING_HEADLINE}</h2>
-          <p className="marketing-section-lead">{PRICING_SUBHEADLINE}</p>
+          <p className="marketing-section-lead marketing-section-lead--home">{PRICING_SUBHEADLINE}</p>
         </div>
 
         <div className="marketing-trial-banner">

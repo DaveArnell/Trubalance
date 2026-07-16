@@ -17,15 +17,15 @@ export function HowItWorksPage() {
       <main className="marketing-main">
         <section className="demo-scenarios-section demo-scenarios-section--landing">
           <div className="marketing-section-inner">
-            <div className="marketing-section-head marketing-section-head--center demo-scenarios-head">
-              <p className="marketing-eyebrow">How it works</p>
+            <div className="marketing-section-head demo-scenarios-head">
+              <p className="marketing-how-eyebrow">How it works</p>
               <h1>From commitments to one number you can trust</h1>
-              <p className="marketing-section-lead">
+              <p className="marketing-section-lead marketing-section-lead--home">
                 Start with the problem you already know — what’s spoken for, what large bills are
                 coming — then follow a simple routine. Connect the business, keep light daily logging,
                 follow the monthly Reserve Planner, and let the platform run the maths.
               </p>
-              <p className="marketing-section-lead muted">
+              <p className="marketing-section-lead marketing-section-lead--home muted">
                 Want the full explanation first?{' '}
                 <Link to={METHOD_PAGE_PATH}>Learn the True Balance Method</Link>.
               </p>
