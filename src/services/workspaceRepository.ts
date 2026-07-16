@@ -1,4 +1,4 @@
-import type { AppState, BalanceSnapshot, BusinessReferenceProfile, Commitment, DayNote, DiaryReminder, ExpectedReceipt, Group, Business, Venue, Account, ReservePlanner, ReserveBill, HistoryRecord } from '../types'
+import type { AppState, BalanceSnapshot, Commitment, DayNote, ExpectedReceipt, Group, Business, Venue, Account, ReservePlanner, ReserveBill, HistoryRecord } from '../types'
 import { normalizeTierId } from '../config/subscriptionTiers'
 import { FOUNDER_LIFETIME_SIGNUP_LIMIT } from '../config/founderProgram'
 import type { SubscriptionStatus, WorkspaceSubscription } from '../types/subscription'
@@ -213,34 +213,6 @@ function mapDayNote(row: Record<string, unknown>): DayNote {
   }
 }
 
-function mapBusinessReferenceProfile(row: Record<string, unknown>): BusinessReferenceProfile {
-  return {
-    businessId: String(row.business_id),
-    fields: Array.isArray(row.fields) ? row.fields : [],
-    notes: row.notes ? String(row.notes) : undefined,
-    updatedAt: String(row.updated_at),
-  }
-}
-
-function mapDiaryReminder(row: Record<string, unknown>): DiaryReminder {
-  return {
-    id: String(row.id),
-    businessId: String(row.business_id),
-    title: String(row.title),
-    date: String(row.date),
-    category: row.category as DiaryReminder['category'],
-    notes: row.notes ? String(row.notes) : undefined,
-    completed: Boolean(row.completed),
-    completedAt: row.completed_at ? String(row.completed_at) : undefined,
-    recurring: (row.recurring as DiaryReminder['recurring']) ?? 'none',
-    templateId: row.template_id ? String(row.template_id) : undefined,
-    sortOrder: row.sort_order != null ? Number(row.sort_order) : undefined,
-    createdAt: String(row.created_at),
-    weekBeforeAlertDismissedFor: row.week_before_alert_dismissed_for ? String(row.week_before_alert_dismissed_for) : undefined,
-    overdueAlertDismissedFor: row.overdue_alert_dismissed_for ? String(row.overdue_alert_dismissed_for) : undefined,
-  }
-}
-
 export interface WorkspaceLoadResult {
   state: AppState
   /** True when any table failed to load — cloud save must not wipe missing tables. */
@@ -263,8 +235,6 @@ export async function loadWorkspaceState(workspaceId: string): Promise<Workspace
     snapshotsRes,
     historyRes,
     dayNotesRes,
-    businessRefRes,
-    diaryRemindersRes,
   ] = await Promise.all([
     supabase.from('groups').select('*').eq('workspace_id', workspaceId).order('sort_order'),
     supabase.from('businesses').select('*').eq('workspace_id', workspaceId).order('sort_order'),
@@ -277,8 +247,6 @@ export async function loadWorkspaceState(workspaceId: string): Promise<Workspace
     supabase.from('balance_snapshots').select('*').eq('workspace_id', workspaceId).order('date'),
     supabase.from('history_records').select('*').eq('workspace_id', workspaceId).order('date', { ascending: false }),
     supabase.from('day_notes').select('*').eq('workspace_id', workspaceId).order('date'),
-    supabase.from('business_reference_profiles').select('*').eq('workspace_id', workspaceId),
-    supabase.from('diary_reminders').select('*').eq('workspace_id', workspaceId).order('sort_order'),
   ])
 
   const responses = [
@@ -293,8 +261,6 @@ export async function loadWorkspaceState(workspaceId: string): Promise<Workspace
     ['balance_snapshots', snapshotsRes],
     ['history_records', historyRes],
     ['day_notes', dayNotesRes],
-    ['business_reference_profiles', businessRefRes],
-    ['diary_reminders', diaryRemindersRes],
   ] as const
 
   let loadHadErrors = false
@@ -338,8 +304,6 @@ export async function loadWorkspaceState(workspaceId: string): Promise<Workspace
     snapshots: (snapshotsRes.data ?? []).map((row) => mapSnapshot(row as Record<string, unknown>)),
     historyRecords: (historyRes.data ?? []).map((row) => mapHistoryRecord(row as Record<string, unknown>)),
     dayNotes: (dayNotesRes.data ?? []).map((row) => mapDayNote(row as Record<string, unknown>)),
-    businessReferenceProfiles: (businessRefRes.data ?? []).map((row) => mapBusinessReferenceProfile(row as Record<string, unknown>)),
-    diaryReminders: (diaryRemindersRes.data ?? []).map((row) => mapDiaryReminder(row as Record<string, unknown>)),
   }
 
   return { state, loadHadErrors }
@@ -370,8 +334,6 @@ const WORKSPACE_TABLE_NAMES = [
   'balance_snapshots',
   'history_records',
   'day_notes',
-  'business_reference_profiles',
-  'diary_reminders',
 ] as const
 
 export type WorkspaceTableName = (typeof WORKSPACE_TABLE_NAMES)[number]
@@ -389,8 +351,6 @@ function tableCounts(state: AppState): Record<WorkspaceTableName, number> {
     balance_snapshots: state.snapshots.length,
     history_records: (state.historyRecords ?? []).length,
     day_notes: (state.dayNotes ?? []).length,
-    business_reference_profiles: (state.businessReferenceProfiles ?? []).length,
-    diary_reminders: (state.diaryReminders ?? []).length,
   }
 }
 
@@ -582,31 +542,6 @@ export async function saveWorkspaceState(
     updated_at: n.updatedAt ?? new Date().toISOString(),
     ...ws,
   }))
-  const businessRefRows = (state.businessReferenceProfiles ?? []).map((p) => ({
-    business_id: p.businessId,
-    fields: p.fields,
-    notes: p.notes ?? null,
-    updated_at: p.updatedAt ?? new Date().toISOString(),
-    ...ws,
-  }))
-  const diaryReminderRows = (state.diaryReminders ?? []).map((d, i) => ({
-    id: d.id,
-    business_id: d.businessId,
-    title: d.title,
-    date: d.date,
-    category: d.category,
-    notes: d.notes ?? null,
-    completed: d.completed ?? false,
-    completed_at: d.completedAt ?? null,
-    recurring: d.recurring ?? 'none',
-    template_id: d.templateId ?? null,
-    sort_order: d.sortOrder ?? i,
-    created_at: d.createdAt ?? new Date().toISOString(),
-    week_before_alert_dismissed_for: d.weekBeforeAlertDismissedFor ?? null,
-    overdue_alert_dismissed_for: d.overdueAlertDismissedFor ?? null,
-    ...ws,
-  }))
-
   const tables = [
     { name: 'groups', rows: groupRows },
     { name: 'businesses', rows: businessRows },
@@ -619,8 +554,6 @@ export async function saveWorkspaceState(
     { name: 'balance_snapshots', rows: snapshotRows },
     { name: 'history_records', rows: historyRows },
     { name: 'day_notes', rows: dayNoteRows },
-    { name: 'business_reference_profiles', rows: businessRefRows },
-    { name: 'diary_reminders', rows: diaryReminderRows },
   ] as const
 
   const EXTENDED_COLUMNS = [
@@ -668,6 +601,10 @@ export async function saveWorkspaceState(
         .not('id', 'in', `(${ids.join(',')})`)
     }
   }
+
+  // Business Hub removed — clear any legacy rows still in the database.
+  await supabase.from('business_reference_profiles').delete().eq('workspace_id', workspaceId)
+  await supabase.from('diary_reminders').delete().eq('workspace_id', workspaceId)
 }
 
 export async function getUserWorkspaceId(userId: string): Promise<string | null> {

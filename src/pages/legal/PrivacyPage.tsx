@@ -1,12 +1,13 @@
 import { LegalPageLayout } from './LegalPageLayout'
 import { COMPANY_INFO } from '../../content/companyInfo'
+import { REGULATORY_POSITION } from '../../content/regulatoryNotice'
 import { PRIVACY_SEO } from '../../content/marketingSeo'
 
 export function PrivacyPage() {
   return (
     <LegalPageLayout
       title="Privacy policy"
-      updated="10 July 2026"
+      updated="16 July 2026"
       description={PRIVACY_SEO.description}
       path={PRIVACY_SEO.path}
     >
@@ -32,14 +33,14 @@ export function PrivacyPage() {
         </li>
         <li>
           <strong>Workspace data</strong> — the financial and operational information you enter: groups,
-          businesses, accounts, balances, commitments, expected receipts, reserve plans, snapshots,
-          Business Hub references, and diary reminders.
+          businesses, accounts, balances, commitments, expected receipts, reserve plans, and snapshots.
         </li>
         <li>
           <strong>Usage</strong> — basic technical logs needed to run and secure the service (for
           example errors and sign-in events).
         </li>
       </ul>
+      <p>{REGULATORY_POSITION.privacyDataNote}</p>
       <p>
         We do not sell your workspace data. We do not use your figures for advertising profiles.
       </p>

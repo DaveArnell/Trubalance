@@ -84,7 +84,7 @@ export function AccountSubscriptionPanel({ state, embedded = false }: AccountSub
             </div>
             <div>
               <dt>Business Group</dt>
-              <dd>Unlimited companies, group reporting, Business Hub.</dd>
+              <dd>Unlimited companies and group reporting.</dd>
             </div>
           </dl>
         )}

@@ -1,13 +1,10 @@
-import { useCallback, useEffect, useRef, useState, type MutableRefObject } from 'react'
+﻿import { useCallback, useEffect, useRef, useState, type MutableRefObject } from 'react'
 import { defaultViewScope, initialState } from '../data/initialState'
 import type {
   AccountType,
   AppState,
   BalanceSnapshot,
-  BusinessReferenceProfile,
   Commitment,
-  CompanyReferenceField,
-  DiaryReminder,
   ExpectedReceipt,
   IncomePattern,
   ReserveBill,
@@ -54,8 +51,6 @@ import { MONTHS, currentMonthIndex } from '../utils/format'
 import { syncGuidedStructureInState, type GuidedBusinessPayload } from '../utils/structureDraftSync'
 import { backupBrowserStateToSession, isUserOwnedWorkspace, readRawBrowserStateJson, statesMatchRoughly } from '../utils/localStateStorage'
 import { normalizeWorkspaceState } from '../utils/workspaceNormalize'
-import { DIARY_REMINDER_TEMPLATES } from '../content/businessHub'
-import { filterRemindersForScope, getDiaryAttentionBuckets, templateToNextDate } from '../utils/businessHub'
 import { getReferenceDate, getReferenceDateKey } from '../utils/referenceDate'
 import { migrateDayNotes } from '../utils/dayNotes'
 
@@ -180,8 +175,6 @@ function migrateState(parsed: Record<string, unknown>): AppState {
   base.reservePlanners = ensureArray(base.reservePlanners, initialState.reservePlanners)
   base.historyRecords = ensureArray(base.historyRecords, [])
   base.dayNotes = migrateDayNotes(ensureArray(base.dayNotes, []), base.groups[0]?.id)
-  base.businessReferenceProfiles = ensureArray(base.businessReferenceProfiles, [])
-  base.diaryReminders = ensureArray(base.diaryReminders, [])
   base.snapshots = ensureArray(base.snapshots, []).map((snap: BalanceSnapshot) => ({
     ...snap,
     changedAccounts: (snap.changedAccounts ?? []).map((c) => ({
@@ -296,7 +289,7 @@ export interface UseAppStateOptions {
   externalState?: AppState | null
   /** Bumped when remote workspace is replaced (import / restore). */
   externalStateVersion?: number | string
-  /** Workspace id — resets remote hydration when the signed-in workspace changes. */
+  /** Workspace id â€” resets remote hydration when the signed-in workspace changes. */
   workspaceId?: string | null
   externalLoading?: boolean
   /** Called after each state change (e.g. sync to Supabase). */
@@ -1547,8 +1540,6 @@ export function useAppState(options?: UseAppStateOptions) {
         ...receipt,
         amount: roundCurrency(Math.max(50, toAmount(receipt.amount) * jitter(i + 21, 0.5))),
       })),
-      businessReferenceProfiles: s.businessReferenceProfiles ?? [],
-      diaryReminders: s.diaryReminders ?? [],
     }))
   }
 
@@ -1783,190 +1774,6 @@ export function useAppState(options?: UseAppStateOptions) {
       return { ...s, dayNotes: [...rest, next].sort((a, b) => a.date.localeCompare(b.date)) }
     })
 
-  function upsertReferenceProfile(
-    profiles: BusinessReferenceProfile[],
-    businessId: string,
-  ): BusinessReferenceProfile[] {
-    const existing = profiles.find((p) => p.businessId === businessId)
-    if (existing) return profiles
-    return [
-      ...profiles,
-      { businessId, fields: [], notes: '', updatedAt: new Date().toISOString() },
-    ]
-  }
-
-  const upsertReferenceField = (
-    businessId: string,
-    field: Omit<CompanyReferenceField, 'id'> & { id?: string },
-  ) =>
-    update((s) => {
-      const profiles = upsertReferenceProfile(s.businessReferenceProfiles ?? [], businessId)
-      return {
-        ...s,
-        businessReferenceProfiles: profiles.map((profile) => {
-          if (profile.businessId !== businessId) return profile
-          const existing = field.id
-            ? profile.fields.find((f) => f.id === field.id)
-            : profile.fields.find((f) => f.presetId === field.presetId && f.label === field.label)
-          const nextField: CompanyReferenceField = {
-            id: existing?.id ?? field.id ?? newId(),
-            presetId: field.presetId,
-            label: field.label,
-            value: field.value,
-            sortOrder: existing?.sortOrder ?? profile.fields.length,
-          }
-          const rest = profile.fields.filter((f) => f.id !== nextField.id)
-          return {
-            ...profile,
-            fields: [...rest, nextField].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)),
-            updatedAt: new Date().toISOString(),
-          }
-        }),
-      }
-    })
-
-  const removeReferenceField = (businessId: string, fieldId: string) =>
-    update((s) => ({
-      ...s,
-      businessReferenceProfiles: (s.businessReferenceProfiles ?? []).map((profile) =>
-        profile.businessId === businessId
-          ? {
-              ...profile,
-              fields: profile.fields.filter((f) => f.id !== fieldId),
-              updatedAt: new Date().toISOString(),
-            }
-          : profile,
-      ),
-    }))
-
-  const setReferenceNotes = (businessId: string, notes: string) =>
-    update((s) => {
-      const profiles = upsertReferenceProfile(s.businessReferenceProfiles ?? [], businessId)
-      return {
-        ...s,
-        businessReferenceProfiles: profiles.map((profile) =>
-          profile.businessId === businessId
-            ? { ...profile, notes, updatedAt: new Date().toISOString() }
-            : profile,
-        ),
-      }
-    })
-
-  const addDiaryReminder = (
-    item: Omit<DiaryReminder, 'id' | 'createdAt' | 'completed' | 'completedAt'>,
-  ) => {
-    const id = newId()
-    update((s) => {
-      const reminders = s.diaryReminders ?? []
-      const next: DiaryReminder = {
-        ...item,
-        id,
-        completed: false,
-        createdAt: new Date().toISOString(),
-        sortOrder: reminders.length,
-      }
-      return { ...s, diaryReminders: [...reminders, next] }
-    })
-    return id
-  }
-
-  const updateDiaryReminder = (id: string, patch: Partial<DiaryReminder>) =>
-    update((s) => ({
-      ...s,
-      diaryReminders: (s.diaryReminders ?? []).map((reminder) =>
-        reminder.id === id ? { ...reminder, ...patch, id: reminder.id } : reminder,
-      ),
-    }))
-
-  const deleteDiaryReminder = (id: string) =>
-    update((s) => ({
-      ...s,
-      diaryReminders: (s.diaryReminders ?? []).filter((r) => r.id !== id),
-    }))
-
-  const toggleDiaryReminderComplete = (id: string) =>
-    update((s) => ({
-      ...s,
-      diaryReminders: (s.diaryReminders ?? []).map((reminder) => {
-        if (reminder.id !== id) return reminder
-        const completed = !reminder.completed
-        return {
-          ...reminder,
-          completed,
-          completedAt: completed ? new Date().toISOString() : undefined,
-        }
-      }),
-    }))
-
-  const dismissDiaryReminder = (
-    id: string,
-    action: { type: 'remove' } | { type: 'next-year' } | { type: 'reschedule'; date: string },
-  ) =>
-    update((s) => {
-      const reminders = s.diaryReminders ?? []
-      const reminder = reminders.find((r) => r.id === id)
-      if (!reminder) return s
-      if (action.type === 'remove') {
-        return { ...s, diaryReminders: reminders.filter((r) => r.id !== id) }
-      }
-      const nextDate =
-        action.type === 'next-year'
-          ? (() => {
-              const [y, m, d] = reminder.date.split('-').map(Number)
-              const date = new Date(y!, m! - 1, d!)
-              date.setFullYear(date.getFullYear() + 1)
-              const yy = date.getFullYear()
-              const mm = String(date.getMonth() + 1).padStart(2, '0')
-              const dd = String(date.getDate()).padStart(2, '0')
-              return `${yy}-${mm}-${dd}`
-            })()
-          : action.date
-      return {
-        ...s,
-        diaryReminders: reminders.map((r) =>
-          r.id === id
-            ? { ...r, date: nextDate, completed: false, completedAt: undefined }
-            : r,
-        ),
-      }
-    })
-
-  const clearPastDiaryReminders = (businessIds: string[], beforeDate: string) =>
-    update((s) => ({
-      ...s,
-      diaryReminders: (s.diaryReminders ?? []).filter(
-        (r) => !(businessIds.includes(r.businessId) && !r.completed && r.date < beforeDate),
-      ),
-    }))
-
-  const dismissDiaryDueSoonAlerts = (scope: ViewScope) =>
-    update((s) => {
-      const reminders = filterRemindersForScope(s, scope)
-      const { dueSoon } = getDiaryAttentionBuckets(reminders)
-      const targetIds = new Set(dueSoon.map((r) => r.id))
-      return {
-        ...s,
-        diaryReminders: (s.diaryReminders ?? []).map((reminder) => {
-          if (!targetIds.has(reminder.id)) return reminder
-          return { ...reminder, weekBeforeAlertDismissedFor: reminder.date }
-        }),
-      }
-    })
-
-  const addDiaryReminderFromTemplate = (businessId: string, templateId: string) => {
-    const template = DIARY_REMINDER_TEMPLATES.find((t) => t.id === templateId)
-    if (!template) return null
-    return addDiaryReminder({
-      businessId,
-      title: template.title,
-      date: templateToNextDate(template),
-      category: template.category,
-      notes: template.notes,
-      recurring: template.recurring,
-      templateId: template.id,
-    })
-  }
-
   const setupMinimalWorkspace = (input: {
     businessName: string
     venueName?: string
@@ -2173,17 +1980,6 @@ export function useAppState(options?: UseAppStateOptions) {
     deleteHistoryRecord,
     deleteHistoryRecords,
     setDayNote,
-    upsertReferenceField,
-    removeReferenceField,
-    setReferenceNotes,
-    addDiaryReminder,
-    updateDiaryReminder,
-    deleteDiaryReminder,
-    toggleDiaryReminderComplete,
-    dismissDiaryReminder,
-    clearPastDiaryReminders,
-    dismissDiaryDueSoonAlerts,
-    addDiaryReminderFromTemplate,
     setupMinimalWorkspace,
     setupGuidedWorkspace,
     syncGuidedStructureFromDrafts,

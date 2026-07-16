@@ -15,8 +15,6 @@ export const emptyAppState = (): AppState => ({
   snapshots: [],
   historyRecords: [],
   dayNotes: [],
-  businessReferenceProfiles: [],
-  diaryReminders: [],
 })
 
 /** True when the workspace is still the untouched built-in demo seed. */
@@ -55,11 +53,6 @@ export function isAppStateEmpty(state: AppState): boolean {
 }
 
 export function summarizeAppState(state: AppState) {
-  const refs = state.businessReferenceProfiles?.reduce(
-    (n, p) => n + p.fields.filter((f) => f.value.trim()).length,
-    0,
-  ) ?? 0
-  const diary = state.diaryReminders?.filter((r) => !r.completed).length ?? 0
   return {
     groups: state.groups.length,
     businesses: state.businesses.length,
@@ -69,8 +62,6 @@ export function summarizeAppState(state: AppState) {
     receipts: state.expectedReceipts.length,
     planners: state.reservePlanners.length,
     snapshots: state.snapshots.length,
-    references: refs,
-    diaryReminders: diary,
     label: state.groups[0]?.name ?? 'Empty',
   }
 }

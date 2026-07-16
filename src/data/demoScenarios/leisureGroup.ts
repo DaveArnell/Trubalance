@@ -1,6 +1,5 @@
 import type { AppState } from '../../types'
 import { buildScenarioSnapshots } from './buildSnapshots'
-import { buildLeisureBusinessHub } from './demoBusinessHub'
 import {
   daysAheadDateKey,
   demoAccountUpdatedAt,
@@ -34,7 +33,6 @@ const LEISURE_SNAPSHOT_SCOPES = [
 /** Fictional multi-site leisure group — 3 years of trend history. */
 export function buildLeisureGroupDemoState(): AppState {
   const updatedAt = demoAccountUpdatedAt()
-  const hub = buildLeisureBusinessHub()
 
   const stateWithoutSnapshots: Omit<AppState, 'snapshots'> = {
     groups: [{ id: groupId, name: 'Summit Leisure Group' }],
@@ -157,8 +155,6 @@ export function buildLeisureGroupDemoState(): AppState {
     historyRecords: [],
     dayNotes: [],
     workspaceOrigin: 'builtin-demo',
-    businessReferenceProfiles: hub.businessReferenceProfiles,
-    diaryReminders: hub.diaryReminders,
   }
 
   const state: AppState = {

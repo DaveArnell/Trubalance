@@ -18,8 +18,6 @@ export type SubscriptionFeatureFlag =
   | 'groupReporting'
   | 'consolidatedFinancialHealth'
   | 'multiCompanyRollups'
-  | 'companyReferenceVault'
-  | 'businessDiary'
   | 'aiTools'
   | 'openBanking'
   | 'prioritySupport'
@@ -116,8 +114,6 @@ const SOLO_FEATURES: Record<SubscriptionFeatureFlag, boolean> = {
   groupReporting: false,
   consolidatedFinancialHealth: false,
   multiCompanyRollups: false,
-  companyReferenceVault: false,
-  businessDiary: false,
   aiTools: false,
   openBanking: false,
   prioritySupport: false,
@@ -131,11 +127,9 @@ const MULTI_FEATURES: Record<SubscriptionFeatureFlag, boolean> = {
   advancedReports: true,
 }
 
-/** Business Group: unlimited companies + consolidated group reporting and Hub. */
+/** Business Group: unlimited companies + consolidated group reporting. */
 const GROUP_FEATURES: Record<SubscriptionFeatureFlag, boolean> = {
   ...MULTI_FEATURES,
-  companyReferenceVault: true,
-  businessDiary: true,
   consolidatedDashboards: true,
   groupReporting: true,
   consolidatedFinancialHealth: true,
@@ -206,7 +200,6 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTierId, SubscriptionTierDefi
       'Unlimited venues / sites',
       'Switch between businesses',
       'Group reporting & consolidated True Balance',
-      'Business Hub — company references & diary',
     ],
     limits: {
       workspaces: null,

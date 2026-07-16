@@ -43,7 +43,6 @@ import {
 import { sumAccountBalances } from './amounts'
 import { getEffectiveReceiptAmount, receiptContributesOnDate } from './receiptCalculations'
 import { FRESHNESS_ENCOURAGEMENT } from '../content/livingDashboard'
-import { filterRemindersForScope, getDiaryAttentionBuckets } from './businessHub'
 import { getPlannersNeedingMonthlyCheckIn } from './reserveCheckIn'
 
 export function getAccountsForScope(state: AppState, scope: ViewScope): Account[] {
@@ -250,8 +249,8 @@ function buildAttention(
   commitmentViews: CommitmentViews,
   reserveBelowTarget: boolean,
   freshness: HealthLevel,
-  state: AppState,
-  scope: ViewScope,
+  _state: AppState,
+  _scope: ViewScope,
 ): DashboardMetrics['attentionItems'] {
   const items: DashboardMetrics['attentionItems'] = []
 
@@ -266,29 +265,7 @@ function buildAttention(
     })
   }
 
-  const diaryReminders = filterRemindersForScope(state, scope)
-  const { overdue: diaryOverdue, dueSoon: diaryDueSoon } = getDiaryAttentionBuckets(diaryReminders)
-
-  if (diaryOverdue.length > 0) {
-    const first = diaryOverdue[0]!
-    items.push({
-      id: 'diary-overdue',
-      level: 'red',
-      title:
-        diaryOverdue.length === 1
-          ? `Diary overdue: ${first.title}`
-          : `${diaryOverdue.length} diary items overdue`,
-      detail:
-        diaryOverdue.length === 1
-          ? `Was due ${first.date}. Open Business Hub to clear it.`
-          : 'Open your business diary to clear overdue reminders.',
-      targetSection: 'business-hub',
-      widgetId: 'business-diary',
-      dismissible: false,
-    })
-  }
-
-  const pendingReserveCheckIn = getPlannersNeedingMonthlyCheckIn(state, scope)
+  const pendingReserveCheckIn = getPlannersNeedingMonthlyCheckIn(_state, _scope)
   if (pendingReserveCheckIn.length > 0) {
     items.push({
       id: 'reserve-monthly-checkin',
@@ -341,26 +318,6 @@ function buildAttention(
       detail: 'At least one reserve planner is below this month’s target.',
       targetSection: 'reserve-planner',
       widgetId: 'reserve-planner',
-    })
-  }
-
-
-  if (diaryDueSoon.length > 0) {
-    const first = diaryDueSoon[0]!
-    items.push({
-      id: 'diary-due-soon',
-      level: 'orange',
-      title:
-        diaryDueSoon.length === 1
-          ? `Diary due soon: ${first.title}`
-          : `${diaryDueSoon.length} diary items due within a week`,
-      detail:
-        diaryDueSoon.length === 1
-          ? `Due ${first.date}. Click to acknowledge or open Business Hub.`
-          : 'Click to acknowledge these reminders.',
-      targetSection: 'business-hub',
-      widgetId: 'business-diary',
-      dismissible: true,
     })
   }
 

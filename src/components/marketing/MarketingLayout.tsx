@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { isSupabaseConfigured } from '../../lib/supabase'
 import { COMPANY_INFO } from '../../content/companyInfo'
 import { FOUNDER_PROGRAM_FOOTNOTE, FOUNDER_PROGRAM_HEADLINE } from '../../config/founderProgram'
+import { REGULATORY_POSITION } from '../../content/regulatoryNotice'
 import { CompanyLegalNotice } from './CompanyLegalNotice'
 
 /** All primary nav items are full pages — keeps the site map clear. */
@@ -128,6 +129,7 @@ export function MarketingFooter() {
         <p className="marketing-footer-trial muted">
           {FOUNDER_PROGRAM_HEADLINE}. {FOUNDER_PROGRAM_FOOTNOTE}
         </p>
+        <p className="marketing-footer-regulatory muted">{REGULATORY_POSITION.shortFooter}</p>
       </div>
     </footer>
   )

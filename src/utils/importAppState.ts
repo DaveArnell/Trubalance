@@ -32,12 +32,6 @@ export function parseImportedAppState(raw: unknown): { state: AppState } | { err
   const businesses = record.businesses as AppState['businesses']
   const venues = record.venues as AppState['venues']
   const reservePlanners = record.reservePlanners as AppState['reservePlanners']
-  const diaryReminders = Array.isArray(record.diaryReminders)
-    ? (record.diaryReminders as AppState['diaryReminders'])
-    : []
-  const businessReferenceProfiles = Array.isArray(record.businessReferenceProfiles)
-    ? (record.businessReferenceProfiles as AppState['businessReferenceProfiles'])
-    : []
 
   const groupIds = new Set(groups.map((g) => g.id))
   const validBusinesses = businesses.filter((b) => groupIds.has(b.groupId))
@@ -45,8 +39,6 @@ export function parseImportedAppState(raw: unknown): { state: AppState } | { err
   const venueIds = new Set(venues.map((v) => v.id))
 
   const validPlanners = reservePlanners.filter((p) => businessIds.has(p.businessId))
-  const validDiaryReminders = diaryReminders.filter((d) => businessIds.has(d.businessId))
-  const validBusinessRefs = businessReferenceProfiles.filter((p) => businessIds.has(p.businessId))
   const validVenues = venues.filter((v) => businessIds.has(v.businessId))
 
   const validVenueIds = new Set(validVenues.map((v) => v.id))
@@ -74,8 +66,6 @@ export function parseImportedAppState(raw: unknown): { state: AppState } | { err
         Array.isArray(record.dayNotes) ? (record.dayNotes as AppState['dayNotes']) : [],
         groups[0]?.id,
       ),
-      businessReferenceProfiles: validBusinessRefs,
-      diaryReminders: validDiaryReminders,
       workspaceOrigin: 'user',
     },
   }

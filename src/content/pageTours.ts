@@ -220,41 +220,6 @@ export const PAGE_TOURS: Partial<Record<PageId, PageTour>> = {
       },
     ],
   },
-  'business-hub': {
-    id: 'business-hub',
-    title: 'Business Hub',
-    description: 'Company references and your business diary.',
-    steps: [
-      {
-        id: 'bh-vault',
-        target: '[data-widget-id="company-vault"]',
-        title: 'Company references',
-        body: 'VAT, PAYE, company number, and other IDs in one compact table — scoped to each business in your view.',
-        placement: 'bottom',
-      },
-      {
-        id: 'bh-diary',
-        target: '[data-widget-id="business-diary"]',
-        title: 'Business diary',
-        body: 'Deadlines and renewals in a rolling list — closest dates first. Overdue items sit in a separate section until you clear them.',
-        placement: 'top',
-      },
-      {
-        id: 'bh-diary-add',
-        target: '[data-tour="diary-add"]',
-        title: 'Add a reminder',
-        body: 'Pick a date, name the reminder, and add it. UK small-business templates are available as quick chips below.',
-        placement: 'bottom',
-      },
-      {
-        id: 'bh-diary-alerts',
-        target: '[data-tour="diary-list"]',
-        title: 'Alerts in the overview',
-        body: 'Reminders due within a week show as orange alerts at the top of the app. Overdue items turn red. Click an alert to acknowledge it, or open the diary to clear or reschedule.',
-        placement: 'top',
-      },
-    ],
-  },
 }
 
 export function getTourForPage(pageId: PageId): PageTour | null {

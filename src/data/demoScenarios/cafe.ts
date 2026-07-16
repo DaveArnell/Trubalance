@@ -1,6 +1,5 @@
 import type { AppState } from '../../types'
 import { buildScenarioSnapshots } from './buildSnapshots'
-import { buildCafeBusinessHub } from './demoBusinessHub'
 import {
   daysAheadDateKey,
   demoAccountUpdatedAt,
@@ -24,7 +23,6 @@ const CAFE_SNAPSHOT_SCOPES = [
 /** Independent café with two sites — 6 months of history. */
 export function buildCafeDemoState(): AppState {
   const updatedAt = demoAccountUpdatedAt()
-  const hub = buildCafeBusinessHub()
 
   const base: AppState = {
     groups: [{ id: groupId, name: 'Cornerstone Coffee' }],
@@ -90,8 +88,6 @@ export function buildCafeDemoState(): AppState {
     snapshots: [],
     historyRecords: [],
     dayNotes: [],
-    businessReferenceProfiles: hub.businessReferenceProfiles,
-    diaryReminders: hub.diaryReminders,
     workspaceOrigin: 'builtin-demo',
   }
 

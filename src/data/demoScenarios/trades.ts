@@ -1,6 +1,5 @@
 import type { AppState } from '../../types'
 import { buildScenarioSnapshots } from './buildSnapshots'
-import { buildTradesBusinessHub } from './demoBusinessHub'
 import {
   daysAheadDateKey,
   daysAgoDateKey,
@@ -19,7 +18,6 @@ const TRADES_SNAPSHOT_SCOPES = [
 /** Growing building trades business — 12 months of history. */
 export function buildTradesDemoState(): AppState {
   const updatedAt = demoAccountUpdatedAt()
-  const hub = buildTradesBusinessHub()
 
   const base: AppState = {
     groups: [],
@@ -96,8 +94,6 @@ export function buildTradesDemoState(): AppState {
     snapshots: [],
     historyRecords: [],
     dayNotes: [],
-    businessReferenceProfiles: hub.businessReferenceProfiles,
-    diaryReminders: hub.diaryReminders,
     workspaceOrigin: 'builtin-demo',
   }
 

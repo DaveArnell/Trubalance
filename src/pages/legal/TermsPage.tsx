@@ -1,12 +1,13 @@
 import { LegalPageLayout } from './LegalPageLayout'
 import { COMPANY_INFO } from '../../content/companyInfo'
+import { REGULATORY_POSITION } from '../../content/regulatoryNotice'
 import { TERMS_SEO } from '../../content/marketingSeo'
 
 export function TermsPage() {
   return (
     <LegalPageLayout
       title="Terms of service"
-      updated="5 July 2026"
+      updated="16 July 2026"
       description={TERMS_SEO.description}
       path={TERMS_SEO.path}
     >
@@ -21,6 +22,11 @@ export function TermsPage() {
         model balances, commitments, and reserves. It is not accounting software, tax advice, or a
         substitute for professional judgement. You are responsible for how you use the figures it shows.
       </p>
+
+      <h2>{REGULATORY_POSITION.termsHeading}</h2>
+      {REGULATORY_POSITION.termsBody.map((paragraph) => (
+        <p key={paragraph.slice(0, 40)}>{paragraph}</p>
+      ))}
 
       <h2>Accounts and trials</h2>
       <ul>

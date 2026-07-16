@@ -4,7 +4,6 @@ export const APP_PAGES = [
   { id: 'forecast', label: 'Forecast', kicker: 'Forward look', icon: '⇢' },
   { id: 'history', label: 'History', kicker: 'Saved days', icon: '◷' },
   { id: 'reserve-planner', label: 'Reserve Planner', kicker: 'Irregular bills', icon: '◎' },
-  { id: 'business-hub', label: 'Business Hub', kicker: 'References & diary', icon: '◈' },
   { id: 'settings', label: 'Settings', kicker: 'Organisation', icon: '⚙' },
 ] as const
 
@@ -24,6 +23,7 @@ const LEGACY_HASH: Record<string, PageId> = {
   balances: 'trends',
   'expected-receipts': 'committed-funds',
   admin: 'committed-funds',
+  'business-hub': 'committed-funds',
 }
 
 export const RESERVE_PLANNER_CREATE_ROUTE = 'new'

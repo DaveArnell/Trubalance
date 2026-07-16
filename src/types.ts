@@ -269,10 +269,6 @@ export interface AppState {
   historyRecords: HistoryRecord[]
   /** User annotations for a calendar day — shown on trends and balance log. */
   dayNotes: DayNote[]
-  /** Important company numbers & references — Business Group feature. */
-  businessReferenceProfiles: BusinessReferenceProfile[]
-  /** Business diary reminders — Business Group feature. */
-  diaryReminders: DiaryReminder[]
   /** Set when loading built-in demo or restoring a user export. */
   workspaceOrigin?: 'builtin-demo' | 'user'
 }
@@ -284,66 +280,6 @@ export interface DayNote {
   scopeLevel: ScopeLevel
   scopeId: string
   updatedAt: string
-}
-
-export interface CompanyReferencePreset {
-  id: string
-  label: string
-  placeholder?: string
-}
-
-export interface CompanyReferenceField {
-  id: string
-  /** Preset id from COMPANY_REFERENCE_PRESETS or `custom`. */
-  presetId: string
-  label: string
-  value: string
-  sortOrder?: number
-}
-
-export interface BusinessReferenceProfile {
-  businessId: string
-  fields: CompanyReferenceField[]
-  notes?: string
-  updatedAt: string
-}
-
-export type DiaryReminderCategory =
-  | 'tax'
-  | 'companies-house'
-  | 'hr-pensions'
-  | 'insurance'
-  | 'general'
-
-export interface DiaryReminderTemplate {
-  id: string
-  title: string
-  category: DiaryReminderCategory
-  notes?: string
-  recurring: 'none' | 'yearly'
-  /** Months from January (0 = Jan). */
-  monthOffset: number
-  dayOfMonth: number
-}
-
-export interface DiaryReminder {
-  id: string
-  businessId: string
-  title: string
-  /** ISO date YYYY-MM-DD */
-  date: string
-  category: DiaryReminderCategory
-  notes?: string
-  completed: boolean
-  completedAt?: string
-  recurring: 'none' | 'yearly'
-  templateId?: string
-  sortOrder?: number
-  createdAt: string
-  /** Suppresses the week-before alert for this due date when it matches `date`. */
-  weekBeforeAlertDismissedFor?: string
-  /** Suppresses the overdue alert for this due date when it matches `date`. */
-  overdueAlertDismissedFor?: string
 }
 
 export interface DashboardMetrics {

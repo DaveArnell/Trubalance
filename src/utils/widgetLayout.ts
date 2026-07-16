@@ -55,8 +55,6 @@ export const WIDGET_LABELS: Record<string, string> = {
   'expected-receipts': 'Expected receipts',
   'reserve-planner': 'Reserve planner',
   settings: 'Organisation',
-  'company-vault': 'Company references',
-  'business-diary': 'Business diary',
 }
 
 export const PAGE_WIDGET_IDS: Record<PageId, string[]> = {
@@ -65,7 +63,6 @@ export const PAGE_WIDGET_IDS: Record<PageId, string[]> = {
   forecast: ['forecast-cash-outlook', 'forecast-projection'],
   history: ['history'],
   'reserve-planner': ['reserve-planner'],
-  'business-hub': ['company-vault', 'business-diary'],
   settings: ['settings'],
 }
 
@@ -86,8 +83,6 @@ const DEFAULT_GRID: Record<string, GridDefaults> = {
   'expected-receipts': { col: 40, row: 5, colSpan: 56, rowSpan: 5 },
   'reserve-planner': { col: 0, row: 0, colSpan: 96, rowSpan: 10 },
   settings: { col: 0, row: 0, colSpan: 96, rowSpan: 10 },
-  'company-vault': { col: 0, row: 0, colSpan: 46, rowSpan: 10 },
-  'business-diary': { col: 46, row: 0, colSpan: 50, rowSpan: 10 },
 }
 
 function defaultItem(id: string, order: number): WidgetLayoutItem {
@@ -111,7 +106,6 @@ const DEFAULT_LAYOUTS: Record<PageId, PageWidgetLayout> = {
     defaultItem('expected-receipts', 2),
   ],
   'reserve-planner': [defaultItem('reserve-planner', 0)],
-  'business-hub': [defaultItem('company-vault', 0), defaultItem('business-diary', 1)],
   settings: [defaultItem('settings', 0)],
 }
 

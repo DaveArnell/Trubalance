@@ -15,8 +15,6 @@ import { CashOutlookPanel } from './CashOutlookPanel'
 import { TrendChart } from './TrendChart'
 import { TrendProjectionPanel } from './TrendProjectionPanel'
 import { TrueBalanceHistoryTable } from './TrueBalanceHistoryTable'
-import { CompanyReferenceVaultPanel } from './CompanyReferenceVaultPanel'
-import { BusinessDiaryPanel } from './BusinessDiaryPanel'
 export interface PageWidgetContext {
   state: AppState
   viewScope: ViewScope
@@ -177,27 +175,6 @@ export function buildPageWidgets(pageId: PageId, ctx: PageWidgetContext): Record
             openHelp={openHelp}
             setOpenHelp={setOpenHelp}
             onDeleteHistoryRecord={actions.deleteHistoryRecord}
-          />
-        ),
-      }
-    case 'business-hub':
-      return {
-        'company-vault': (
-          <CompanyReferenceVaultPanel
-            state={state}
-            viewScope={viewScope}
-            actions={actions}
-            openHelp={openHelp}
-            setOpenHelp={setOpenHelp}
-          />
-        ),
-        'business-diary': (
-          <BusinessDiaryPanel
-            state={state}
-            viewScope={viewScope}
-            actions={actions}
-            openHelp={openHelp}
-            setOpenHelp={setOpenHelp}
           />
         ),
       }

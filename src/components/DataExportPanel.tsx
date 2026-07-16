@@ -218,8 +218,6 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
           <li>{summary.commitments} monthly / planned costs</li>
           <li>{summary.receipts} expected receipts</li>
           <li>{summary.accounts} accounts</li>
-          {summary.references > 0 && <li>{summary.references} company references</li>}
-          {summary.diaryReminders > 0 && <li>{summary.diaryReminders} diary reminders</li>}
         </ul>
       </div>
 

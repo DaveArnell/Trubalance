@@ -423,10 +423,6 @@ function AppShellInner({
       app.acknowledgeDueAlertBucket('due-soon', app.viewScope)
       return
     }
-    if (item.id === 'diary-due-soon') {
-      app.dismissDiaryDueSoonAlerts(app.viewScope)
-      return
-    }
     handleNotificationClick(item)
   }
 
@@ -447,18 +443,13 @@ function AppShellInner({
       scrollToWidget('reserve-planner')
       return
     }
-    if (item.targetSection === 'business-hub') {
-      goToRoute('business-hub')
-      scrollToWidget(item.widgetId ?? 'business-diary')
-      return
-    }
-    const page = parseRoute(`#${item.targetSection}`).page
-    if (page === 'reserve-planner') {
+    if (item.targetSection === 'reserve-planner') {
       const first = app.state.reservePlanners[0]
       goToRoute('reserve-planner', first?.id)
       scrollToWidget(item.widgetId ?? 'reserve-planner')
       return
     }
+    const page = parseRoute(`#${item.targetSection}`).page
     goToRoute(page)
     scrollToWidget(item.widgetId ?? 'due')
   }

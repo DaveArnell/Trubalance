@@ -187,20 +187,6 @@ export function buildFeatureUpgradePrompt(
     }
   }
 
-  if (feature === 'companyReferenceVault') {
-    return {
-      headline: 'Keep your company references in one place.',
-      body: `The Business Hub reference vault is on the Business Group plan (${price}).`,
-    }
-  }
-
-  if (feature === 'businessDiary') {
-    return {
-      headline: 'Keep your business diary going.',
-      body: `The Business Hub diary and reminders are on the Business Group plan (${price}).`,
-    }
-  }
-
   return {
     headline: `You're ready for ${tier.name}.`,
     body: `This feature is included on the ${tier.name} plan (${price}).`,
