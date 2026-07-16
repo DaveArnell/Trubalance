@@ -12099,12 +12099,12 @@ tr.sheet-row--received td {
 
 .marketing-how-illust-grid {
   list-style: none;
-  margin: 48px auto 0;
+  margin: 48px 0 0;
   padding: 0;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 28px;
-  max-width: 68rem;
+  gap: 36px;
+  max-width: none;
 }
 
 .marketing-how-illust-step {
@@ -12114,12 +12114,12 @@ tr.sheet-row--received td {
 }
 
 .marketing-how-illust-card {
-  margin: 0 0 22px;
-  padding: 8px;
-  border-radius: 20px;
-  background: #f3f1e8;
-  border: 1px solid rgba(16, 20, 24, 0.06);
-  overflow: hidden;
+  margin: 0 0 24px;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+  overflow: visible;
 }
 
 .marketing-how-illust-num {
@@ -12134,7 +12134,7 @@ tr.sheet-row--received td {
 
 .marketing-how-illust-step h3 {
   margin: 0 0 10px;
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   font-weight: 750;
   line-height: 1.3;
   color: var(--marketing-ink, #101418);
@@ -12142,7 +12142,7 @@ tr.sheet-row--received td {
 
 .marketing-how-illust-step > p {
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.05rem;
   line-height: 1.55;
   color: var(--text-secondary);
 }
@@ -12151,132 +12151,211 @@ tr.sheet-row--received td {
   margin-top: 56px;
 }
 
-/* Illustration SVG tokens */
-.method-illust-svg {
-  display: block;
+/* Clean how-it-works diagrams */
+.how-diagram {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 220px;
+  padding: 22px 20px 18px;
+  border: 1px solid rgba(16, 20, 24, 0.12);
+  border-top: 3px solid var(--marketing-green, #0e7a52);
+  background: #fff;
+}
+
+.how-diagram-kicker {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--marketing-green, #0e7a52);
+}
+
+.how-diagram-caption {
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid rgba(16, 20, 24, 0.08);
+  font-size: 0.98rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.how-diagram-days {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+  height: 110px;
+  padding: 0 4px;
+}
+
+.how-diagram-day {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  height: 100%;
+}
+
+.how-diagram-day-bar {
   width: 100%;
-  height: auto;
+  max-width: 36px;
+  border-radius: 4px 4px 0 0;
+  background: var(--marketing-green, #0e7a52);
+  min-height: 8px;
 }
 
-.method-illust-panel {
-  fill: #fff;
-  stroke: rgba(16, 20, 24, 0.08);
-  stroke-width: 1;
-}
-
-.method-illust-ui-label {
-  font-family: var(--font-sans);
-  font-size: 13px;
-  font-weight: 700;
-  fill: #101418;
-}
-
-.method-illust-ui-muted {
-  font-family: var(--font-sans);
-  font-size: 11px;
-  font-weight: 500;
-  fill: #71717a;
-}
-
-.method-illust-ui-on-fill {
-  font-family: var(--font-sans);
-  font-size: 11px;
-  font-weight: 700;
-  fill: #fff;
-}
-
-.method-illust-ui-on-green {
-  font-family: var(--font-sans);
-  font-size: 11px;
-  font-weight: 600;
-  fill: #0a5c3e;
-}
-
-.method-illust-ui-amount {
-  font-family: 'Bricolage Grotesque', var(--font-display);
-  font-size: 28px;
-  font-weight: 800;
-  fill: #101418;
-}
-
-.method-illust-ui-amount-sm {
-  font-family: 'Bricolage Grotesque', var(--font-display);
-  font-size: 16px;
-  font-weight: 800;
-  fill: #101418;
-}
-
-.method-illust-ui-amount-sm--green {
-  fill: #0a5c3e;
-}
-
-.method-illust-hero-number {
-  font-family: 'Bricolage Grotesque', var(--font-display);
-  font-size: 42px;
-  font-weight: 800;
-  fill: #0e7a52;
-  letter-spacing: -0.03em;
-}
-
-.method-illust-track {
-  fill: #e8e6dc;
-}
-
-.method-illust-fill {
-  fill: #0e7a52;
-}
-
-.method-illust-chip--muted {
-  fill: #f4f4f5;
-  stroke: #e4e4e7;
-  stroke-width: 1;
-}
-
-.method-illust-chip--green {
-  fill: #e8f7ef;
-  stroke: rgba(14, 122, 82, 0.35);
-  stroke-width: 1.5;
-}
-
-.method-illust-eq {
-  font-family: var(--font-sans);
-  font-size: 12px;
+.how-diagram-day-label {
+  font-size: 0.72rem;
   font-weight: 650;
-  fill: #52525b;
+  color: var(--text-muted);
+  white-space: nowrap;
 }
 
-.method-illust-eq-op {
-  font-family: var(--font-sans);
-  font-size: 12px;
-  font-weight: 500;
-  fill: #a1a1aa;
+.how-diagram-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
 }
 
-.method-illust-eq--green {
-  fill: #0e7a52;
+.how-diagram-footer-label {
+  margin: 0 0 2px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.how-diagram-footer-value {
+  margin: 0;
+  font-family: 'Bricolage Grotesque', var(--font-display);
+  font-size: 1.55rem;
   font-weight: 800;
+  color: var(--marketing-ink, #101418);
+  line-height: 1.1;
 }
 
-.method-illust-arrow {
-  stroke: #0e7a52;
-  stroke-width: 1.75;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.how-diagram-footer-muted {
+  margin: 0;
+  font-family: 'Bricolage Grotesque', var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  line-height: 1.1;
 }
 
-.method-illust-arrow-head {
-  stroke: #0e7a52;
-  stroke-width: 1.5;
+.how-diagram-footer-aside {
+  text-align: right;
 }
 
-.method-illust-scribble {
-  font-family: 'Caveat', cursive;
-  font-size: 18px;
-  fill: #0a5c3e;
+.how-diagram-flow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
 }
 
-.method-illust-scribble--right {
-  text-anchor: middle;
+.how-diagram-flow-block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 14px;
+  border: 1px solid rgba(16, 20, 24, 0.12);
+  background: var(--marketing-paper, #f7f5ef);
+}
+
+.how-diagram-flow-block--result {
+  background: rgba(14, 122, 82, 0.08);
+  border-color: rgba(14, 122, 82, 0.28);
+}
+
+.how-diagram-flow-block strong {
+  font-family: 'Bricolage Grotesque', var(--font-display);
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: var(--marketing-ink, #101418);
+  line-height: 1.1;
+}
+
+.how-diagram-flow-block--result strong {
+  color: var(--marketing-green-dark, #0a5c3e);
+}
+
+.how-diagram-flow-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.how-diagram-flow-sub {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.how-diagram-flow-arrow {
+  flex-shrink: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--marketing-green, #0e7a52);
+}
+
+.how-diagram-eq {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  flex: 1;
+}
+
+.how-diagram-eq li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(16, 20, 24, 0.08);
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.how-diagram-eq li strong {
+  font-family: 'Bricolage Grotesque', var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 750;
+  color: var(--marketing-ink, #101418);
+}
+
+.how-diagram-eq-minus strong {
+  color: #9f1239;
+}
+
+.how-diagram-eq-plus strong {
+  color: var(--marketing-green-dark, #0a5c3e);
+}
+
+.how-diagram-eq-result {
+  border-bottom: none !important;
+  padding-top: 14px !important;
+  margin-top: 4px;
+  border-top: 2px solid var(--marketing-green, #0e7a52);
+}
+
+.how-diagram-eq-result span {
+  font-weight: 750;
+  color: var(--marketing-ink, #101418);
+}
+
+.how-diagram-eq-result strong {
+  font-size: 1.55rem !important;
+  font-weight: 800 !important;
+  color: var(--marketing-green, #0e7a52) !important;
 }
 
 .marketing-how-steps {

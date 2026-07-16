@@ -1,186 +1,98 @@
 /**
- * Self-explaining How-it-works illustrations — product mockups with
- * handwritten callouts (RankFirst-style), for the homepage steps.
+ * How-it-works diagrams — clean, labelled, no overlapping annotations.
+ * Matches homepage paper / ink / green theme.
  */
 
-function Scribble({
-  x,
-  y,
-  children,
-  className = '',
-}: {
-  x: number | string
-  y: number | string
-  children: string
-  className?: string
-}) {
-  return (
-    <text x={x} y={y} className={`method-illust-scribble ${className}`}>
-      {children}
-    </text>
-  )
-}
-
-/** Step 01 — commitments building daily before payday */
+/** Step 01 — known costs build day by day before payday */
 export function IllustCommitmentsBuild() {
   return (
-    <svg
-      className="method-illust-svg"
-      viewBox="0 0 320 200"
-      role="img"
-      aria-label="Payroll building day by day before payday"
-    >
-      <rect x="16" y="28" width="288" height="148" rx="14" className="method-illust-panel" />
-      <text x="32" y="52" className="method-illust-ui-label">
-        Monthly accruing
-      </text>
-      <text x="248" y="52" className="method-illust-ui-muted" textAnchor="end">
-        Payroll
-      </text>
-
-      {/* Progress bar filling over the month */}
-      <rect x="32" y="72" width="256" height="18" rx="9" className="method-illust-track" />
-      <rect x="32" y="72" width="168" height="18" rx="9" className="method-illust-fill" />
-      <text x="40" y="85" className="method-illust-ui-on-fill">
-        Day 18 of 31
-      </text>
-
-      {/* Amount building */}
-      <text x="32" y="120" className="method-illust-ui-muted">
-        Accrued so far
-      </text>
-      <text x="32" y="148" className="method-illust-ui-amount">
-        £2,840
-      </text>
-      <text x="248" y="148" className="method-illust-ui-muted" textAnchor="end">
-        of £4,900
-      </text>
-
-      {/* Hand annotation */}
-      <path
-        d="M200 58 C 220 42, 250 38, 268 48"
-        className="method-illust-arrow"
-        fill="none"
-      />
-      <Scribble x={210} y={36}>
-        building every day
-      </Scribble>
-    </svg>
+    <div className="how-diagram" aria-label="Payroll building day by day before payday">
+      <p className="how-diagram-kicker">Example: payroll</p>
+      <div className="how-diagram-days" role="img" aria-hidden>
+        {[
+          { day: '1', h: 18 },
+          { day: '8', h: 36 },
+          { day: '15', h: 54 },
+          { day: '22', h: 72 },
+          { day: '31', h: 92 },
+        ].map((bar) => (
+          <div key={bar.day} className="how-diagram-day">
+            <div className="how-diagram-day-bar" style={{ height: `${bar.h}%` }} />
+            <span className="how-diagram-day-label">Day {bar.day}</span>
+          </div>
+        ))}
+      </div>
+      <div className="how-diagram-footer">
+        <div>
+          <p className="how-diagram-footer-label">Spoken for by day 18</p>
+          <p className="how-diagram-footer-value">£2,840</p>
+        </div>
+        <div className="how-diagram-footer-aside">
+          <p className="how-diagram-footer-label">Full month</p>
+          <p className="how-diagram-footer-muted">£4,900</p>
+        </div>
+      </div>
+      <p className="how-diagram-caption">
+        The cost is already building — you don’t wait until payday to see it.
+      </p>
+    </div>
   )
 }
 
-/** Step 02 — Reserve Planner turns annual bills into monthly transfers */
+/** Step 02 — annual bill → monthly reserve transfer */
 export function IllustReservePlanner() {
   return (
-    <svg
-      className="method-illust-svg"
-      viewBox="0 0 320 200"
-      role="img"
-      aria-label="Annual VAT bill broken into a monthly reserve transfer"
-    >
-      <rect x="16" y="28" width="288" height="148" rx="14" className="method-illust-panel" />
-      <text x="32" y="52" className="method-illust-ui-label">
-        Reserve Planner
-      </text>
-
-      {/* Big annual bill → monthly */}
-      <rect x="32" y="68" width="110" height="56" rx="10" className="method-illust-chip method-illust-chip--muted" />
-      <text x="87" y="92" className="method-illust-ui-muted" textAnchor="middle">
-        VAT due
-      </text>
-      <text x="87" y="112" className="method-illust-ui-amount-sm" textAnchor="middle">
-        £9,600/yr
-      </text>
-
-      <path
-        d="M152 96 L178 96"
-        className="method-illust-arrow"
-        markerEnd="url(#method-illust-arrowhead)"
-      />
-      <defs>
-        <marker
-          id="method-illust-arrowhead"
-          markerWidth="8"
-          markerHeight="8"
-          refX="6"
-          refY="3"
-          orient="auto"
-        >
-          <path d="M0,0 L6,3 L0,6" className="method-illust-arrow-head" fill="none" />
-        </marker>
-      </defs>
-
-      <rect x="188" y="68" width="100" height="56" rx="10" className="method-illust-chip method-illust-chip--green" />
-      <text x="238" y="92" className="method-illust-ui-on-green" textAnchor="middle">
-        This month
-      </text>
-      <text x="238" y="112" className="method-illust-ui-amount-sm method-illust-ui-amount-sm--green" textAnchor="middle">
-        £800
-      </text>
-
-      <text x="32" y="156" className="method-illust-ui-muted">
-        Move into reserve →
-      </text>
-      <text x="248" y="156" className="method-illust-ui-amount-sm method-illust-ui-amount-sm--green" textAnchor="end">
-        £800
-      </text>
-
-      <Scribble x={170} y={48} className="method-illust-scribble--right">
-        one monthly transfer
-      </Scribble>
-    </svg>
+    <div className="how-diagram" aria-label="Annual VAT broken into a monthly reserve transfer">
+      <p className="how-diagram-kicker">Example: VAT</p>
+      <div className="how-diagram-flow">
+        <div className="how-diagram-flow-block">
+          <span className="how-diagram-flow-label">Once a year</span>
+          <strong>£9,600</strong>
+          <span className="how-diagram-flow-sub">lands as one hit</span>
+        </div>
+        <span className="how-diagram-flow-arrow" aria-hidden>
+          →
+        </span>
+        <div className="how-diagram-flow-block how-diagram-flow-block--result">
+          <span className="how-diagram-flow-label">Every month</span>
+          <strong>£800</strong>
+          <span className="how-diagram-flow-sub">into reserve</span>
+        </div>
+      </div>
+      <p className="how-diagram-caption">
+        Large bills become a predictable monthly move — not a surprise on the due date.
+      </p>
+    </div>
   )
 }
 
-/** Step 03 — one True Balance number for today */
+/** Step 03 — one True Balance for today */
 export function IllustTrueBalanceNumber() {
   return (
-    <svg
-      className="method-illust-svg"
-      viewBox="0 0 320 200"
-      role="img"
-      aria-label="True Balance equation: cash minus committed plus receipts"
-    >
-      <rect x="16" y="28" width="288" height="148" rx="14" className="method-illust-panel" />
-      <text x="32" y="52" className="method-illust-ui-label">
-        True Balance
-      </text>
-      <text x="32" y="70" className="method-illust-ui-muted">
-        What you can actually afford today
-      </text>
-
-      <text x="160" y="118" className="method-illust-hero-number" textAnchor="middle">
-        £26,900
-      </text>
-
-      {/* Mini equation strip */}
-      <text x="32" y="158" className="method-illust-eq">
-        £42.5k
-      </text>
-      <text x="78" y="158" className="method-illust-eq-op">
-        −
-      </text>
-      <text x="96" y="158" className="method-illust-eq">
-        £20.3k
-      </text>
-      <text x="148" y="158" className="method-illust-eq-op">
-        +
-      </text>
-      <text x="166" y="158" className="method-illust-eq">
-        £4.7k
-      </text>
-      <text x="210" y="158" className="method-illust-eq-op">
-        =
-      </text>
-      <text x="228" y="158" className="method-illust-eq method-illust-eq--green">
-        £26.9k
-      </text>
-
-      <Scribble x={200} y={88}>
-        one number
-      </Scribble>
-      <path d="M230 92 C 240 100, 245 108, 248 114" className="method-illust-arrow" fill="none" />
-    </svg>
+    <div className="how-diagram" aria-label="True Balance equation for today">
+      <p className="how-diagram-kicker">Today’s number</p>
+      <ul className="how-diagram-eq">
+        <li>
+          <span>Cash in the bank</span>
+          <strong>£42,500</strong>
+        </li>
+        <li className="how-diagram-eq-minus">
+          <span>Already committed</span>
+          <strong>− £20,300</strong>
+        </li>
+        <li className="how-diagram-eq-plus">
+          <span>Expected receipts</span>
+          <strong>+ £4,700</strong>
+        </li>
+        <li className="how-diagram-eq-result">
+          <span>True Balance</span>
+          <strong>£26,900</strong>
+        </li>
+      </ul>
+      <p className="how-diagram-caption">
+        One figure for what you can actually afford today.
+      </p>
+    </div>
   )
 }
 

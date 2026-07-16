@@ -110,15 +110,15 @@ export const HOME_HOW_IT_WORKS = {
   steps: [
     {
       title: 'Known commitments build every day',
-      body: 'Payroll, rent and similar costs accrue continuously — so today’s position already reflects money spoken for, not only on payday.',
+      body: 'Payroll, rent and similar costs accrue continuously. By mid-month you already see how much is spoken for — not only when the payment leaves the account.',
     },
     {
       title: 'Reserve Planner turns big bills monthly',
-      body: 'VAT, insurance and annual costs become a simple monthly transfer into or out of reserve. No more surprises.',
+      body: 'VAT, insurance and annual costs are divided into a monthly transfer into or out of reserve. The platform tells you the amount each month so large bills stop catching you out.',
     },
     {
       title: 'One True Balance you can trust',
-      body: 'Cash minus what’s already committed, plus realistic expected receipts — one number for day-to-day decisions.',
+      body: 'Cash minus what’s already committed, plus realistic expected receipts. That single number is what you use for day-to-day decisions.',
     },
   ],
 } as const
