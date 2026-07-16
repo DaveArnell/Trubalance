@@ -8,6 +8,7 @@ import { buildPageWidgets } from './components/pageWidgets'
 import { WidgetGrid } from './components/WidgetGrid'
 import { useOverviewSize } from './hooks/useOverviewSize'
 import { OverviewStrip } from './components/OverviewStrip'
+import { MobileOverview } from './components/mobile/MobileOverview'
 import { GuidedTour } from './components/GuidedTour'
 import { SetupTourBanner, TourMenuButton } from './components/TourMenu'
 import { GuidedSetupWizard } from './components/onboarding/GuidedSetupWizard'
@@ -651,7 +652,7 @@ function AppShellInner({
             </div>
           )}
 
-          <div className="main-pinned">
+          <div className={`main-pinned${isMobile ? ' main-pinned--mobile' : ''}`}>
             <header className="top-bar" data-tour="top-bar">
               <div className="top-bar-inner">
                 {isMobile && (
@@ -704,23 +705,35 @@ function AppShellInner({
               </div>
             </header>
 
-            <OverviewStripEditable
-              metrics={metrics}
-              attentionItems={metrics.attentionItems}
-              onNotificationClick={handleNotificationClick}
-              onDismissNotification={handleDismissNotification}
-              openHelp={openHelp}
-              setOpenHelp={setOpenHelp}
-              state={app.state}
-              viewScope={app.viewScope}
-              breakdownColumns={breakdownColumns}
-              size={overviewSize}
-              onSizeChange={setOverviewSize}
-              onBalanceSave={handleBalanceSave}
-            />
+            {!isMobile && (
+              <OverviewStripEditable
+                metrics={metrics}
+                attentionItems={metrics.attentionItems}
+                onNotificationClick={handleNotificationClick}
+                onDismissNotification={handleDismissNotification}
+                openHelp={openHelp}
+                setOpenHelp={setOpenHelp}
+                state={app.state}
+                viewScope={app.viewScope}
+                breakdownColumns={breakdownColumns}
+                size={overviewSize}
+                onSizeChange={setOverviewSize}
+                onBalanceSave={handleBalanceSave}
+              />
+            )}
           </div>
 
-          <div className="page-body">
+          <div className={`page-body${isMobile ? ' page-body--mobile' : ''}`}>
+            {isMobile && (
+              <MobileOverview
+                metrics={metrics}
+                attentionItems={metrics.attentionItems}
+                onNotificationClick={handleNotificationClick}
+                state={app.state}
+                breakdownColumns={breakdownColumns}
+                onBalanceSave={handleBalanceSave}
+              />
+            )}
             <WidgetGrid pageId={activePage} widgets={pageWidgets} />
           </div>
         </main>

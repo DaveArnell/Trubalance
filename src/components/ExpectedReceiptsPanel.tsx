@@ -4,6 +4,7 @@ import { getCommitmentScopeOptionsForView, itemMatchesScope, getScopeItemLabel }
 import { sortByOrder } from '../utils/sortOrder'
 import type { AppActions } from '../hooks/useAppState'
 import { useEditReadOnly } from '../hooks/useEditReadOnly'
+import { useMobileNav } from '../hooks/useMobileNav'
 import { useSheetRowReorder } from '../hooks/useSheetRowReorder'
 import { receiptEditableCellIds, useSheetCellNavigation } from '../utils/sheetCellNavigation'
 import { HelpButton } from './HelpButton'
@@ -14,6 +15,7 @@ import { PlatformSheetTable, PlatformSheetWrap, ResizableSheetHeader } from './P
 import { RECEIPTS_COLUMNS } from '../utils/sheetColumnSpecs'
 import { normalizeReceiptDateInput, getEffectiveReceiptAmount, formatReceiptDateDisplay } from '../utils/receiptCalculations'
 import { InlineNumberCell, InlineTextCell, ScopeSelectCell } from './SheetInlineCells'
+import { MobileReceiptsList } from './mobile/MobileReceiptsList'
 
 interface ExpectedReceiptsPanelProps {
   state: AppState
@@ -31,6 +33,7 @@ export function ExpectedReceiptsPanel({
   setOpenHelp,
 }: ExpectedReceiptsPanelProps) {
   const editReadOnly = useEditReadOnly()
+  const { isMobile } = useMobileNav()
   const options = getCommitmentScopeOptionsForView(state, viewScope)
   const visibleReceipts = useMemo(
     () =>
@@ -116,6 +119,9 @@ export function ExpectedReceiptsPanel({
       ) : null}
 
       <div className="card-scroll-body">
+        {isMobile ? (
+          <MobileReceiptsList state={state} viewScope={viewScope} actions={actions} />
+        ) : (
         <PlatformSheetWrap storageKey="expected-receipts" columns={RECEIPTS_COLUMNS}>
           {({ widths, startResize, prefClasses }) => (
             <PlatformSheetTable widths={widths} preferenceClasses={prefClasses}>
@@ -264,6 +270,7 @@ export function ExpectedReceiptsPanel({
             </PlatformSheetTable>
           )}
         </PlatformSheetWrap>
+        )}
       </div>
     </section>
   )

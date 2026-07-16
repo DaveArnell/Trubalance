@@ -1,6 +1,7 @@
 import { useMemo, useState, Fragment } from 'react'
 import type { AppState, Commitment, CommitmentViews, PlannedFundingMethod, ScopeLevel, ViewScope } from '../../types'
 import { useEditReadOnly } from '../../hooks/useEditReadOnly'
+import { useMobileNav } from '../../hooks/useMobileNav'
 import { getCommitmentScopeOptionsForView, getDefaultCommitmentScope, getReserveBillScopeOptionsForView } from '../../utils/scope'
 import {
   buildDueRowSections,
@@ -47,6 +48,7 @@ import {
 } from '../SheetInlineCells'
 import { DuplicateRowButton, DueStatusDot, SheetDragCell, SheetDragHeader, ordinalDay } from './shared'
 import { MarkPaidConfirmButton } from './MarkPaidConfirmModal'
+import { MobileDueList } from '../mobile/MobileDueList'
 import { getCommitmentPayoffExpectedTotal } from '../../utils/commitmentCalculations'
 
 interface DuePanelProps {
@@ -85,6 +87,7 @@ export function DuePanel({
   onOpenReservePlanner,
 }: DuePanelProps) {
   const editReadOnly = useEditReadOnly()
+  const { isMobile } = useMobileNav()
   const [fundingDraft, setFundingDraft] = useState<PlannedFundingDraft | null>(null)
   const [pendingPlannedPatch, setPendingPlannedPatch] = useState<{
     id: string
@@ -365,6 +368,14 @@ export function DuePanel({
       </div>
 
       <div className="card-scroll-body">
+        {isMobile ? (
+          <MobileDueList
+            state={state}
+            commitmentViews={commitmentViews}
+            actions={actions}
+            onOpenReservePlanner={onOpenReservePlanner}
+          />
+        ) : (
         <PlatformSheetWrap storageKey="due" columns={DUE_COLUMNS}>
           {({ widths, startResize, prefClasses }) => (
             <PlatformSheetTable widths={widths} preferenceClasses={prefClasses}>
@@ -709,6 +720,7 @@ export function DuePanel({
             </PlatformSheetTable>
           )}
         </PlatformSheetWrap>
+        )}
       </div>
     </section>
   )

@@ -10,6 +10,7 @@ import { formatCurrency } from '../utils/format'
 import { getReserveAccrualTooltip } from '../utils/reserveCalculations'
 import type { AppActions } from '../hooks/useAppState'
 import { useEditReadOnly } from '../hooks/useEditReadOnly'
+import { useMobileNav } from '../hooks/useMobileNav'
 import { useMonthlyCostGroupCollapse } from '../hooks/useMonthlyCostGroupCollapse'
 import { flattenMonthlyCostTree } from '../utils/monthlyCostGrouping'
 import { monthlyCostEditableCellIds, useSheetCellNavigation } from '../utils/sheetCellNavigation'
@@ -22,6 +23,7 @@ import { PlatformSheetTable, PlatformSheetWrap, ResizableSheetHeader } from './P
 import { committedMonthlyColumnsForMode } from '../utils/sheetColumnSpecs'
 import { getCommitmentDueOccurrences, getAccruingRowDailyRate } from '../utils/commitmentCalculations'
 import { ConfirmDialog } from './ConfirmDialog'
+import { MobileAccruingList } from './mobile/MobileAccruingList'
 
 type AccruingViewMode = 'list' | 'period'
 
@@ -51,6 +53,7 @@ export function CommittedFundsPanel({
   setOpenHelp,
 }: CommittedFundsPanelProps) {
   const editReadOnly = useEditReadOnly()
+  const { isMobile } = useMobileNav()
   const [viewMode, setViewMode] = useState<AccruingViewMode>('list')
   const [pendingDueDayChange, setPendingDueDayChange] = useState<{
     commitmentId: string
@@ -279,6 +282,12 @@ export function CommittedFundsPanel({
             </div>
             {!hasRows ? (
               <p className="muted">No monthly costs yet.</p>
+            ) : isMobile ? (
+              <MobileAccruingList
+                state={state}
+                viewScope={viewScope}
+                commitmentViews={commitmentViews}
+              />
             ) : (
               <PlatformSheetWrap
                 storageKey={editReadOnly ? 'committed-monthly-readonly' : 'committed-monthly'}
