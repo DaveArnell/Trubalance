@@ -3,6 +3,7 @@ import { useState, type CSSProperties } from 'react'
 import type { BalanceSaveChange, BalanceSaveResult } from '../hooks/useAppState'
 import type { OverviewSize } from '../hooks/useOverviewSize'
 import { useOverviewHeight } from '../hooks/useOverviewHeight'
+import { useMobileNav } from '../hooks/useMobileNav'
 import { useOverviewSplit } from '../hooks/useOverviewSplit'
 
 import type { AppState, AttentionItem, DashboardMetrics, ViewScope } from '../types'
@@ -105,6 +106,7 @@ export function OverviewStrip({
   readOnly = false,
 }: OverviewStripProps) {
   const [saveMessage, setSaveMessage] = useState('')
+  const { isMobile } = useMobileNav()
   const { asideFr, containerRef, startDrag } = useOverviewSplit()
   const { height, startHeightDrag, resetHeight } = useOverviewHeight()
   const showDetailed = size === 'detailed'
@@ -129,7 +131,7 @@ export function OverviewStrip({
   }
 
   const stripStyle = {
-    height: `${height}px`,
+    ...(isMobile ? {} : { height: `${height}px` }),
     '--overview-height': `${height}px`,
   } as CSSProperties
 
@@ -139,7 +141,7 @@ export function OverviewStrip({
 
   return (
     <section
-      className={`overview-strip overview-strip--${size}`}
+      className={`overview-strip overview-strip--${size}${isMobile ? ' overview-strip--mobile' : ''}`}
       style={stripStyle}
       aria-label="True Balance overview"
     >
@@ -228,7 +230,7 @@ export function OverviewStrip({
         </div>
       </div>
 
-      {!readOnly && (
+      {!readOnly && !isMobile && (
         <div
           className="overview-height-handle"
           role="separator"

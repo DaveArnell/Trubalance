@@ -1,5 +1,6 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
+import { MOBILE_LAYOUT_MQ } from '../hooks/useMobileNav'
 import { useTour } from '../contexts/TourContext'
 
 interface SpotlightRect {
@@ -66,6 +67,9 @@ function TourOverlay({
 
 export function GuidedTour() {
   const { activeTour, nextStep, prevStep, skipTour, completeTour } = useTour()
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia(MOBILE_LAYOUT_MQ).matches,
+  )
   const [rect, setRect] = useState<SpotlightRect | null>(null)
   const [missingTarget, setMissingTarget] = useState(false)
   const targetRef = useRef<Element | null>(null)
@@ -144,7 +148,19 @@ export function GuidedTour() {
     if (!activeTour) clearTargetHighlight()
   }, [activeTour])
 
-  if (!activeTour || !step) return null
+  useEffect(() => {
+    const mq = window.matchMedia(MOBILE_LAYOUT_MQ)
+    const onChange = () => setIsMobile(mq.matches)
+    onChange()
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+
+  useEffect(() => {
+    if (isMobile && activeTour) skipTour()
+  }, [isMobile, activeTour, skipTour])
+
+  if (!activeTour || !step || isMobile) return null
 
   const tooltipStyle = (): CSSProperties => {
     const cardWidth = 320

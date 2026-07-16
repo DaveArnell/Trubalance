@@ -9,6 +9,7 @@ import { useNavLayout } from '../hooks/useNavLayout'
 import { getOrderedPages } from '../utils/navLayout'
 import { getPlannerDisplayName, getReservePlannerIdForScope } from '../utils/reserveCalculations'
 import { SidebarScopeTree } from './SidebarScopeTree'
+import { MobileTourLinks } from './TourMenu'
 import { useSubscription } from '../contexts/SubscriptionContext'
 import { useAuth } from '../contexts/AuthContext'
 import { useSidebarCollapsed } from '../hooks/useSidebarCollapsed'
@@ -25,6 +26,7 @@ interface SidebarProps {
   isMobile?: boolean
   mobileOpen?: boolean
   onMobileClose?: () => void
+  onSetupGuide?: () => void
 }
 
 function startDrag(e: DragEvent, key: string, onDragStart: () => void) {
@@ -130,6 +132,7 @@ export function Sidebar({
   isMobile = false,
   mobileOpen = false,
   onMobileClose,
+  onSetupGuide,
 }: SidebarProps) {
   const demoMode = useDemoMode()
   const editReadOnly = useEditReadOnly()
@@ -423,6 +426,10 @@ export function Sidebar({
           })}
         </nav>
       </div>
+
+      {isMobile && onSetupGuide && !editReadOnly && (
+        <MobileTourLinks onSetupGuide={onSetupGuide} />
+      )}
 
       <div className={`sidebar-account${showCollapsed ? ' sidebar-account--compact' : ''}`}>
         {!showCollapsed && profile?.email && (

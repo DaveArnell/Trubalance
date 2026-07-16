@@ -542,7 +542,7 @@ function AppShellInner({
         <UpgradePrompt />
         <TrialWarningModal />
         <div
-          className="app-shell"
+          className={`app-shell${isMobile ? ' app-shell--mobile' : ''}`}
           style={scopeTheme}
           data-scope-level={app.viewScope.type}
           data-scope-business={scopeBusinessId ?? undefined}
@@ -559,6 +559,7 @@ function AppShellInner({
           isMobile={isMobile}
           mobileOpen={mobileNavOpen}
           onMobileClose={closeMobileNav}
+          onSetupGuide={() => setSetupWizardOpen(true)}
         />
 
         {isMobile && mobileNavOpen && (
@@ -677,7 +678,9 @@ function AppShellInner({
                   )}
                 </div>
                 <div className="top-bar-actions">
-                  <TourMenuButton onSetupGuide={() => setSetupWizardOpen(true)} />
+                  {!isMobile && (
+                    <TourMenuButton onSetupGuide={() => setSetupWizardOpen(true)} />
+                  )}
                   <Link
                     to={isDemoSession ? '/see-how-it-works' : '/'}
                     className="btn-ghost btn-tiny top-bar-home-link"
@@ -689,12 +692,14 @@ function AppShellInner({
                       Start free trial
                     </Link>
                   )}
-                  <UndoRedoButtons
-                    canUndo={app.canUndo}
-                    canRedo={app.canRedo}
-                    onUndo={app.undo}
-                    onRedo={app.redo}
-                  />
+                  {!isMobile && (
+                    <UndoRedoButtons
+                      canUndo={app.canUndo}
+                      canRedo={app.canRedo}
+                      onUndo={app.undo}
+                      onRedo={app.redo}
+                    />
+                  )}
                 </div>
               </div>
             </header>

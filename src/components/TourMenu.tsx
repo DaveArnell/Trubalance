@@ -24,6 +24,16 @@ export function SetupTourBanner({
   )
 }
 
+export function MobileTourLinks({ onSetupGuide }: { onSetupGuide: () => void }) {
+  return (
+    <div className="sidebar-mobile-tours">
+      <button type="button" className="sidebar-account-link" onClick={onSetupGuide}>
+        Setup guide
+      </button>
+    </div>
+  )
+}
+
 export function TourMenuButton({ onSetupGuide }: { onSetupGuide?: () => void }) {
   const { activePageId, startPageTour, startSetupTour, isTourActive } = useTour()
   if (isTourActive) return null

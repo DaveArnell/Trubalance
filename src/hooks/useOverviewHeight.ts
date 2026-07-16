@@ -6,8 +6,8 @@ const STORAGE_KEY = 'trubalance-overview-height-v2'
 export const OVERVIEW_HEIGHT_MIN = 56
 export const OVERVIEW_HEIGHT_MAX = 340
 export const OVERVIEW_HEIGHT_DEFAULT = 210
-export const OVERVIEW_HEIGHT_MOBILE_MAX = 150
-export const OVERVIEW_HEIGHT_MOBILE_DEFAULT = 120
+export const OVERVIEW_HEIGHT_MOBILE_MAX = 420
+export const OVERVIEW_HEIGHT_MOBILE_DEFAULT = 280
 
 function isMobileViewport(): boolean {
   return typeof window !== 'undefined' && window.matchMedia(MOBILE_LAYOUT_MQ).matches

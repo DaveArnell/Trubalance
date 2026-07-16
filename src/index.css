@@ -10949,6 +10949,124 @@ tr.sheet-row--received td {
     gap: var(--space-2);
   }
 
+  /* Subscription / onboarding chrome — reclaim vertical space on phones */
+  .trial-banner,
+  .trial-banner--founder,
+  .post-trial-notice,
+  .onboarding-banner {
+    display: none !important;
+  }
+
+  .read-only-lock-banner {
+    flex-wrap: wrap;
+    font-size: 0.72rem;
+    padding: var(--space-1) var(--space-2);
+    margin-bottom: var(--space-1);
+  }
+
+  .living-dashboard-banner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+    font-size: 0.72rem;
+    padding: var(--space-2);
+  }
+
+  .living-dashboard-checkin-steps {
+    display: none;
+  }
+
+  /* Top bar: tours live in the slide-out menu */
+  .tour-menu {
+    display: none;
+  }
+
+  /* True Balance overview — auto height, scrollable balances */
+  .overview-strip--mobile {
+    height: auto !important;
+    min-height: 14rem;
+    max-height: min(58vh, 30rem);
+    container-type: inline-size;
+    overflow: hidden;
+    padding: var(--space-2);
+  }
+
+  .overview-strip--mobile .overview-strip-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .overview-strip--mobile .overview-strip-table,
+  .overview-strip--mobile .overview-breakdown-wrap {
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+  }
+
+  .overview-strip--mobile .overview-breakdown-table {
+    min-width: max-content;
+    width: auto;
+  }
+
+  .overview-strip--mobile .overview-hero-value {
+    font-size: 1.15rem;
+  }
+
+  .overview-height-handle {
+    display: none;
+  }
+
+  /* Spreadsheet widgets — horizontal scroll for wide columns */
+  .sheet-wrap--platform {
+    overflow-x: auto !important;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .widget-grid > .card .card-scroll-body,
+  .widget-grid > .card:not(.card-scroll),
+  .widget-slot-body > .card .card-scroll-body,
+  .widget-slot-body > .card:not(.card-scroll) {
+    overflow-x: auto !important;
+  }
+
+  .sheet-table-platform {
+    min-width: max-content;
+    width: max-content;
+    table-layout: auto;
+  }
+
+  .sheet-table-platform th,
+  .sheet-table-platform td {
+    white-space: nowrap;
+  }
+
+  .sheet-table-platform.sheet-table-dense th,
+  .sheet-table-platform.sheet-table-dense td {
+    padding: 3px 5px !important;
+    font-size: 0.68rem;
+    height: auto;
+    max-height: none;
+  }
+
+  .mobile-scroll-hint {
+    display: block;
+    margin: 0 0 var(--space-1);
+    font-size: 0.62rem;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  .sidebar-mobile-tours {
+    margin-top: var(--space-2);
+    padding-top: var(--space-2);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
   .overview-strip {
     min-height: 0;
   }
