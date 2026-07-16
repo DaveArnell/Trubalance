@@ -8,6 +8,7 @@ import { useRef, useState } from 'react'
 import type { PageId } from '../navigation'
 
 import { useEditReadOnly } from '../hooks/useEditReadOnly'
+import { useMobileNav } from '../hooks/useMobileNav'
 import { useWidgetLayout } from '../hooks/useWidgetLayout'
 
 import {
@@ -57,6 +58,8 @@ import {
 } from '../utils/widgetLayoutReflow'
 
 import { WidgetSettingsMenu } from './WidgetSettingsMenu'
+
+import { MobileWidgetStack } from './mobile/MobileWidgetStack'
 
 
 
@@ -776,6 +779,7 @@ function WidgetSlot({
 export function WidgetGrid({ pageId, widgets }: WidgetGridProps) {
 
   const editReadOnly = useEditReadOnly()
+  const { isMobile } = useMobileNav()
   const { layout, setVisible, setWidgetRects, resetLayout } = useWidgetLayout(pageId)
 
   const canvasRef = useRef<HTMLDivElement>(null)
@@ -1337,6 +1341,10 @@ export function WidgetGrid({ pageId, widgets }: WidgetGridProps) {
     : undefined
 
 
+
+  if (isMobile) {
+    return <MobileWidgetStack pageId={pageId} widgets={widgets} layout={layout} />
+  }
 
   return (
 

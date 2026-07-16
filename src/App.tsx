@@ -572,7 +572,7 @@ function AppShellInner({
           />
         )}
 
-        <main className="main-content">
+        <main className={`main-content${isMobile ? ' main-content--mobile' : ''}`}>
           {isStagingEnvironment() && (
             <div className="staging-env-banner" role="status">
               <strong>Staging</strong>
@@ -628,7 +628,7 @@ function AppShellInner({
           {!isDemoSession && <TrialBanner />}
           {!isDemoSession && <ReadOnlyLockBanner />}
           {!isDemoSession && <PostTrialNotice />}
-          {!isDemoSession && activePage !== 'reserve-planner' && (
+          {!isDemoSession && activePage !== 'reserve-planner' && !isMobile && (
             <MonthlyReserveCheckIn
               state={app.state}
               viewScope={app.viewScope}
@@ -652,10 +652,10 @@ function AppShellInner({
             </div>
           )}
 
-          <div className={`main-pinned${isMobile ? ' main-pinned--mobile' : ''}`}>
-            <header className="top-bar" data-tour="top-bar">
-              <div className="top-bar-inner">
-                {isMobile && (
+          {isMobile ? (
+            <>
+              <header className="top-bar top-bar--mobile" data-tour="top-bar">
+                <div className="top-bar-inner">
                   <button
                     type="button"
                     className="mobile-menu-btn"
@@ -665,77 +665,90 @@ function AppShellInner({
                   >
                     <span className="mobile-menu-btn-icon" aria-hidden="true" />
                   </button>
-                )}
-                <div className="top-bar-scope-block">
-                  <p className="top-kicker">{pageMeta.label}</p>
-                  {showScopePicker ? (
-                    <ViewingScopePicker
-                      state={app.state}
-                      viewScope={app.viewScope}
-                      onSelect={app.setViewScope}
-                    />
-                  ) : (
-                    <ViewingScopeBar state={app.state} viewScope={app.viewScope} variant="full" />
-                  )}
+                  <div className="top-bar-scope-block">
+                    {showScopePicker ? (
+                      <ViewingScopePicker
+                        state={app.state}
+                        viewScope={app.viewScope}
+                        onSelect={app.setViewScope}
+                      />
+                    ) : (
+                      <ViewingScopeBar state={app.state} viewScope={app.viewScope} variant="full" />
+                    )}
+                  </div>
                 </div>
-                <div className="top-bar-actions">
-                  {!isMobile && (
-                    <TourMenuButton onSetupGuide={() => setSetupWizardOpen(true)} />
-                  )}
-                  <Link
-                    to={isDemoSession ? '/see-how-it-works' : '/'}
-                    className="btn-ghost btn-tiny top-bar-home-link"
-                  >
-                    {isDemoSession ? 'All demos' : 'Home'}
-                  </Link>
-                  {isDemoSession && !user && (
-                    <Link to="/signup" className="btn-primary btn-tiny">
-                      Start free trial
-                    </Link>
-                  )}
-                  {!isMobile && (
-                    <UndoRedoButtons
-                      canUndo={app.canUndo}
-                      canRedo={app.canRedo}
-                      onUndo={app.undo}
-                      onRedo={app.redo}
-                    />
-                  )}
-                </div>
-              </div>
-            </header>
+              </header>
 
-            {!isMobile && (
-              <OverviewStripEditable
-                metrics={metrics}
-                attentionItems={metrics.attentionItems}
-                onNotificationClick={handleNotificationClick}
-                onDismissNotification={handleDismissNotification}
-                openHelp={openHelp}
-                setOpenHelp={setOpenHelp}
-                state={app.state}
-                viewScope={app.viewScope}
-                breakdownColumns={breakdownColumns}
-                size={overviewSize}
-                onSizeChange={setOverviewSize}
-                onBalanceSave={handleBalanceSave}
-              />
-            )}
-          </div>
-
-          <div className={`page-body${isMobile ? ' page-body--mobile' : ''}`}>
-            {isMobile && (
               <MobileOverview
                 metrics={metrics}
-                attentionItems={metrics.attentionItems}
-                onNotificationClick={handleNotificationClick}
                 state={app.state}
                 breakdownColumns={breakdownColumns}
                 onBalanceSave={handleBalanceSave}
               />
-            )}
-            <WidgetGrid pageId={activePage} widgets={pageWidgets} />
-          </div>
+
+              <WidgetGrid pageId={activePage} widgets={pageWidgets} />
+            </>
+          ) : (
+            <>
+              <div className="main-pinned">
+                <header className="top-bar" data-tour="top-bar">
+                  <div className="top-bar-inner">
+                    <div className="top-bar-scope-block">
+                      <p className="top-kicker">{pageMeta.label}</p>
+                      {showScopePicker ? (
+                        <ViewingScopePicker
+                          state={app.state}
+                          viewScope={app.viewScope}
+                          onSelect={app.setViewScope}
+                        />
+                      ) : (
+                        <ViewingScopeBar state={app.state} viewScope={app.viewScope} variant="full" />
+                      )}
+                    </div>
+                    <div className="top-bar-actions">
+                      <TourMenuButton onSetupGuide={() => setSetupWizardOpen(true)} />
+                      <Link
+                        to={isDemoSession ? '/see-how-it-works' : '/'}
+                        className="btn-ghost btn-tiny top-bar-home-link"
+                      >
+                        {isDemoSession ? 'All demos' : 'Home'}
+                      </Link>
+                      {isDemoSession && !user && (
+                        <Link to="/signup" className="btn-primary btn-tiny">
+                          Start free trial
+                        </Link>
+                      )}
+                      <UndoRedoButtons
+                        canUndo={app.canUndo}
+                        canRedo={app.canRedo}
+                        onUndo={app.undo}
+                        onRedo={app.redo}
+                      />
+                    </div>
+                  </div>
+                </header>
+
+                <OverviewStripEditable
+                  metrics={metrics}
+                  attentionItems={metrics.attentionItems}
+                  onNotificationClick={handleNotificationClick}
+                  onDismissNotification={handleDismissNotification}
+                  openHelp={openHelp}
+                  setOpenHelp={setOpenHelp}
+                  state={app.state}
+                  viewScope={app.viewScope}
+                  breakdownColumns={breakdownColumns}
+                  size={overviewSize}
+                  onSizeChange={setOverviewSize}
+                  onBalanceSave={handleBalanceSave}
+                />
+              </div>
+
+              <div className="page-body">
+                <WidgetGrid pageId={activePage} widgets={pageWidgets} />
+              </div>
+            </>
+          )}
         </main>
         </div>
       </TablePreferencesProvider>

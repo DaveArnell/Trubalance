@@ -3348,10 +3348,53 @@ body.widget-canvas-resizing * {
 }
 
 @media (max-width: 900px) {
-  .page-body {
+  /* Mobile: one natural page scroll — no nested scroll traps */
+  html,
+  body,
+  #root {
+    height: auto;
+    min-height: 100dvh;
     overflow-x: hidden;
     overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+  }
+
+  .app-shell {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+
+  .main-content--mobile {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+    display: block;
+    padding: var(--space-2);
+    padding-left: max(var(--space-2), env(safe-area-inset-left));
+    padding-right: max(var(--space-2), env(safe-area-inset-right));
+    padding-bottom: max(var(--space-4), env(safe-area-inset-bottom));
+  }
+
+  .main-content--mobile .top-bar--mobile {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    margin-bottom: var(--space-2);
+    background: color-mix(in srgb, var(--bg-app) 94%, transparent);
+    backdrop-filter: blur(8px);
+  }
+
+  .main-content--mobile .top-bar--mobile .top-bar-inner {
+    flex-wrap: nowrap;
+    gap: var(--space-2);
+  }
+
+  .main-content--mobile .top-bar-actions {
+    display: none;
+  }
+
+  .page-body {
+    overflow: visible;
   }
 
   .mobile-menu-btn {
@@ -10940,75 +10983,15 @@ tr.sheet-row--received td {
     padding: var(--space-2);
     padding-left: max(var(--space-2), env(safe-area-inset-left));
     padding-right: max(var(--space-2), env(safe-area-inset-right));
-    padding-bottom: max(var(--space-3), env(safe-area-inset-bottom));
-    height: 100vh;
-    height: 100dvh;
     min-width: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .app-shell--mobile .main-pinned--mobile {
-    position: sticky;
-    top: 0;
-    z-index: 40;
-    flex-shrink: 0;
-    margin-bottom: var(--space-2);
-    padding-bottom: var(--space-1);
-    background: color-mix(in srgb, var(--bg-app) 92%, transparent);
-    backdrop-filter: blur(10px);
-  }
-
-  .app-shell--mobile .page-body--mobile {
-    flex: none;
-    overflow: visible;
-    min-height: auto;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-
-  .app-shell--mobile .page-body {
-    overflow: visible;
-    flex: none;
-    min-height: auto;
-  }
-
-  .app-shell--mobile .widget-grid,
-  .app-shell--mobile .widget-layout,
-  .app-shell--mobile .widget-canvas {
-    overflow: visible;
-    flex: none;
-    min-height: auto;
-    height: auto !important;
-  }
-
-  .app-shell--mobile .widget-canvas .widget-slot {
-    min-height: auto;
-    height: auto !important;
-  }
-
-  .app-shell--mobile .card.card-scroll,
-  .app-shell--mobile .card {
-    max-height: none;
-    height: auto;
-    min-height: 0;
-  }
-
-  .app-shell--mobile .card-scroll .card-scroll-body {
-    max-height: none;
-    overflow: visible;
-    flex: none;
   }
 
   /* Subscription / onboarding chrome — reclaim vertical space on phones */
   .trial-banner,
   .trial-banner--founder,
   .post-trial-notice,
-  .onboarding-banner {
+  .onboarding-banner,
+  .living-dashboard-banner {
     display: none !important;
   }
 
@@ -11019,139 +11002,112 @@ tr.sheet-row--received td {
     margin-bottom: var(--space-1);
   }
 
-  .living-dashboard-banner {
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--space-2);
-    font-size: 0.72rem;
-    padding: var(--space-2);
-  }
-
-  .living-dashboard-checkin-steps {
-    display: none;
-  }
-
   .tour-menu {
     display: none;
   }
 
-  .top-bar {
-    padding: var(--space-1) var(--space-2);
-    border-radius: var(--radius-md);
-  }
-
-  .top-kicker {
-    display: none;
-  }
-
-  .top-bar-scope-block {
-    flex: 1;
-    min-width: 0;
-  }
-
-  /* ─── Mobile overview card ─────────────────────────────────── */
-  .mobile-overview {
-    padding: var(--space-3);
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--overview-accent, #0f766e);
-    background: var(--bg-surface-raised);
-  }
-
-  .mobile-overview-hero {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: var(--space-2);
-    margin-bottom: var(--space-2);
-  }
-
-  .mobile-overview-label {
-    margin: 0;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--text-secondary);
-  }
-
-  .mobile-overview-value {
-    margin: 0;
-    font-size: 1.45rem;
-    font-weight: 800;
-    font-variant-numeric: tabular-nums;
-    color: var(--overview-accent, #0f766e);
-    line-height: 1.1;
-  }
-
-  .mobile-overview-kpis {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--space-2);
-    margin-bottom: var(--space-2);
-  }
-
-  .mobile-overview-kpi {
+  /* ─── Mobile widget stack (replaces canvas grid) ─────────────── */
+  .mobile-widget-stack {
     display: flex;
     flex-direction: column;
-    gap: 2px;
-    padding: var(--space-2);
-    border-radius: var(--radius-sm);
-    background: var(--bg-subtle);
+    gap: var(--space-3);
+    width: 100%;
+  }
+
+  .mobile-widget-stack-item {
+    width: 100%;
     min-width: 0;
   }
 
-  .mobile-overview-kpi-label {
-    font-size: 0.62rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-  }
-
-  .mobile-overview-kpi-value {
-    font-size: 0.82rem;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    color: var(--text-primary);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .mobile-overview-kpi-value--neg {
-    color: var(--status-orange-text, #b45309);
-  }
-
-  .mobile-overview-balances-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  .mobile-widget-stack-item > .card,
+  .mobile-widget-stack-item > section.card {
     width: 100%;
-    margin: 0;
-    padding: var(--space-2);
+    max-height: none;
+    height: auto;
+  }
+
+  .mobile-dashboard-nav {
+    display: flex;
+    gap: var(--space-1);
+    margin-bottom: var(--space-1);
+    padding: 3px;
+    border-radius: var(--radius-md);
+    background: var(--bg-subtle);
     border: 1px solid var(--border);
+    position: sticky;
+    top: 3.25rem;
+    z-index: 30;
+  }
+
+  .mobile-dashboard-nav-link {
+    flex: 1;
+    text-align: center;
+    padding: 8px 6px;
     border-radius: var(--radius-sm);
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+
+  .mobile-dashboard-nav-link:active,
+  .mobile-dashboard-nav-link:focus-visible {
     background: var(--bg-surface);
     color: var(--text-primary);
+  }
+
+  /* ─── Compact True Balance strip ─────────────────────────────── */
+  .mobile-overview {
+    margin-bottom: var(--space-2);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    background: var(--bg-surface-raised);
+    overflow: hidden;
+  }
+
+  .mobile-overview-summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    margin: 0;
+    padding: var(--space-2) var(--space-3);
+    border: none;
+    background: transparent;
     font: inherit;
-    font-size: 0.82rem;
-    font-weight: 600;
+    text-align: left;
     cursor: pointer;
   }
 
-  .mobile-overview-balances-chevron {
-    opacity: 0.6;
-    font-size: 0.7rem;
+  .mobile-overview-summary-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-secondary);
+  }
+
+  .mobile-overview-summary-value {
+    margin-left: auto;
+    font-size: 1.1rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: var(--overview-accent, #0f766e);
+  }
+
+  .mobile-overview-summary-hint {
+    font-size: 0.65rem;
+    color: var(--text-muted);
   }
 
   .mobile-balance-list {
     list-style: none;
-    margin: var(--space-2) 0 0;
-    padding: 0;
+    margin: 0;
+    padding: 0 var(--space-2) var(--space-2);
     display: flex;
     flex-direction: column;
-    gap: var(--space-2);
+    gap: var(--space-1);
+    border-top: 1px solid var(--border-subtle);
   }
 
   .mobile-balance-row {
@@ -11159,76 +11115,38 @@ tr.sheet-row--received td {
     align-items: center;
     justify-content: space-between;
     gap: var(--space-2);
-    padding: var(--space-2);
+    padding: var(--space-1) var(--space-2);
     border-radius: var(--radius-sm);
     background: var(--bg-subtle);
   }
 
   .mobile-balance-row-label {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 0;
     font-size: 0.78rem;
     font-weight: 600;
-  }
-
-  .mobile-balance-freshness {
-    font-size: 0.65rem;
-    font-weight: 500;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .mobile-balance-input,
   .mobile-balance-value {
     flex-shrink: 0;
-    width: 6.5rem;
+    width: 6rem;
     text-align: right;
-    font-size: 0.88rem;
+    font-size: 0.85rem;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
   }
 
   .mobile-balance-input {
-    padding: 6px 8px;
+    padding: 5px 8px;
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     background: #fff;
   }
 
-  .mobile-overview-alerts {
-    list-style: none;
-    margin: var(--space-2) 0 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .mobile-overview-alert {
-    margin: 0;
-    padding: 4px 10px;
-    border-radius: var(--radius-full);
-    border: 1px solid var(--border);
-    background: var(--bg-subtle);
-    font: inherit;
-    font-size: 0.72rem;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
-  .mobile-overview-alert--red {
-    border-color: rgba(220, 38, 38, 0.35);
-    background: rgba(254, 226, 226, 0.7);
-    color: #991b1b;
-  }
-
-  .mobile-overview-alert--orange {
-    border-color: rgba(234, 88, 12, 0.35);
-    background: rgba(255, 237, 213, 0.8);
-    color: #9a3412;
-  }
-
-  /* ─── Mobile record cards (Due, Receipts, Accruing) ──────────── */
+  /* ─── Mobile record cards ────────────────────────────────────── */
   .mobile-record-list {
     display: flex;
     flex-direction: column;
@@ -11284,7 +11202,6 @@ tr.sheet-row--received td {
     font-size: 0.95rem;
     font-weight: 800;
     font-variant-numeric: tabular-nums;
-    color: var(--text-primary);
   }
 
   .mobile-record-card-amount--neg {
@@ -11315,12 +11232,15 @@ tr.sheet-row--received td {
     font-size: 0.82rem;
   }
 
-  .app-shell--mobile .card-head-with-kpi .kpi-table--head {
+  .app-shell--mobile .card-head-with-kpi .kpi-table--head,
+  .app-shell--mobile .committed-funds-summary {
     display: none;
   }
 
-  .app-shell--mobile .committed-funds-summary {
-    display: none;
+  .app-shell--mobile .widget-slot-toolbar,
+  .app-shell--mobile .widget-move-edge,
+  .app-shell--mobile .widget-resize-handle {
+    display: none !important;
   }
 
   .sidebar-mobile-tours {

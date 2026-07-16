@@ -1,26 +1,22 @@
 import { useMemo, useState } from 'react'
 import type { BalanceSaveChange, BalanceSaveResult } from '../../hooks/useAppState'
 import { useEditReadOnly } from '../../hooks/useEditReadOnly'
-import type { AppState, AttentionItem, DashboardMetrics } from '../../types'
+import type { AppState, DashboardMetrics } from '../../types'
 import type { BreakdownColumn } from '../../utils/breakdownTable'
 import { getAccountLocationLabel } from '../../utils/accounts'
 import { toAmount, roundCurrency } from '../../utils/amounts'
 import { formatCurrency } from '../../utils/format'
-import { getFreshnessLabel, daysBetween } from '../../utils/snapshots'
 
 interface MobileOverviewProps {
   metrics: DashboardMetrics
-  attentionItems: AttentionItem[]
-  onNotificationClick: (item: AttentionItem) => void
   state?: AppState
   breakdownColumns?: BreakdownColumn[]
   onBalanceSave?: (changes: BalanceSaveChange[]) => BalanceSaveResult
 }
 
+/** Compact True Balance summary — scrolls with page content on mobile. */
 export function MobileOverview({
   metrics,
-  attentionItems,
-  onNotificationClick,
   state,
   breakdownColumns = [],
   onBalanceSave,
@@ -30,10 +26,9 @@ export function MobileOverview({
 
   const accountRows = useMemo(() => {
     if (!state) return []
-    const rows: { accountId: string; label: string; balance: number; freshness?: string }[] = []
+    const rows: { accountId: string; label: string; balance: number }[] = []
     for (const column of breakdownColumns) {
       for (const account of [...column.currentAccounts, ...column.savingsAccounts]) {
-        const daysAgo = daysBetween(account.updatedAt)
         rows.push({
           accountId: account.id,
           label:
@@ -41,7 +36,6 @@ export function MobileOverview({
               ? `${column.label} · ${getAccountLocationLabel(state, account)}`
               : getAccountLocationLabel(state, account),
           balance: toAmount(account.balance),
-          freshness: getFreshnessLabel(daysAgo),
         })
       }
     }
@@ -56,93 +50,44 @@ export function MobileOverview({
     onBalanceSave([{ accountId, balance }])
   }
 
-  const topAlerts = attentionItems.slice(0, 3)
-
   return (
-    <section className="mobile-overview" aria-label="True Balance overview">
-      <div className="mobile-overview-hero">
-        <p className="mobile-overview-label">True Balance</p>
-        <p className="mobile-overview-value">{formatCurrency(metrics.trueBalance)}</p>
-      </div>
-
-      <div className="mobile-overview-kpis" aria-label="Balance breakdown">
-        <div className="mobile-overview-kpi">
-          <span className="mobile-overview-kpi-label">Cash</span>
-          <span className="mobile-overview-kpi-value">{formatCurrency(metrics.cash)}</span>
-        </div>
-        <div className="mobile-overview-kpi">
-          <span className="mobile-overview-kpi-label">Committed</span>
-          <span className="mobile-overview-kpi-value mobile-overview-kpi-value--neg">
-            {formatCurrency(-metrics.committedFunds)}
+    <section className="mobile-overview" aria-label="True Balance">
+      <button
+        type="button"
+        className="mobile-overview-summary"
+        aria-expanded={balancesOpen}
+        onClick={() => accountRows.length > 0 && setBalancesOpen((open) => !open)}
+      >
+        <span className="mobile-overview-summary-label">True Balance</span>
+        <span className="mobile-overview-summary-value">{formatCurrency(metrics.trueBalance)}</span>
+        {accountRows.length > 0 && (
+          <span className="mobile-overview-summary-hint" aria-hidden>
+            {balancesOpen ? '▴' : '▾'}
           </span>
-        </div>
-        <div className="mobile-overview-kpi">
-          <span className="mobile-overview-kpi-label">Receipts</span>
-          <span className="mobile-overview-kpi-value">
-            {formatCurrency(metrics.expectedReceipts)}
-          </span>
-        </div>
-      </div>
+        )}
+      </button>
 
-      {accountRows.length > 0 && (
-        <div className="mobile-overview-balances">
-          <button
-            type="button"
-            className="mobile-overview-balances-toggle"
-            aria-expanded={balancesOpen}
-            onClick={() => setBalancesOpen((open) => !open)}
-          >
-            {balancesOpen ? 'Hide bank balances' : 'Update bank balances'}
-            <span className="mobile-overview-balances-chevron" aria-hidden>
-              {balancesOpen ? '▴' : '▾'}
-            </span>
-          </button>
-          {balancesOpen && (
-            <ul className="mobile-balance-list">
-              {accountRows.map((row) => (
-                <li key={row.accountId} className="mobile-balance-row">
-                  <div className="mobile-balance-row-label">
-                    <span>{row.label}</span>
-                    {row.freshness ? (
-                      <span className="mobile-balance-freshness muted">{row.freshness}</span>
-                    ) : null}
-                  </div>
-                  {editReadOnly || !onBalanceSave ? (
-                    <span className="mobile-balance-value">{formatCurrency(row.balance)}</span>
-                  ) : (
-                    <input
-                      className="mobile-balance-input"
-                      type="number"
-                      inputMode="decimal"
-                      step="1"
-                      defaultValue={String(row.balance)}
-                      aria-label={`Balance for ${row.label}`}
-                      onBlur={(e) => saveBalance(row.accountId, e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.currentTarget.blur()
-                        }
-                      }}
-                    />
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      )}
-
-      {topAlerts.length > 0 && (
-        <ul className="mobile-overview-alerts" aria-label="Alerts">
-          {topAlerts.map((item) => (
-            <li key={item.id}>
-              <button
-                type="button"
-                className={`mobile-overview-alert mobile-overview-alert--${item.level === 'yellow' ? 'orange' : item.level}`}
-                onClick={() => onNotificationClick(item)}
-              >
-                {item.title}
-              </button>
+      {balancesOpen && accountRows.length > 0 && (
+        <ul className="mobile-balance-list">
+          {accountRows.map((row) => (
+            <li key={row.accountId} className="mobile-balance-row">
+              <span className="mobile-balance-row-label">{row.label}</span>
+              {editReadOnly || !onBalanceSave ? (
+                <span className="mobile-balance-value">{formatCurrency(row.balance)}</span>
+              ) : (
+                <input
+                  className="mobile-balance-input"
+                  type="number"
+                  inputMode="decimal"
+                  step="1"
+                  defaultValue={String(row.balance)}
+                  aria-label={`Balance for ${row.label}`}
+                  onBlur={(e) => saveBalance(row.accountId, e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') e.currentTarget.blur()
+                  }}
+                />
+              )}
             </li>
           ))}
         </ul>
