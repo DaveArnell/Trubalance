@@ -11917,86 +11917,98 @@ tr.sheet-row--received td {
 }
 
 .marketing-bank-gap {
-  padding: 56px 24px;
-  border-top: 1px solid var(--border);
-  background: linear-gradient(180deg, #f8fafc 0%, #fff 100%);
-}
-
-.marketing-bank-gap-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-  max-width: 56rem;
-  margin: 0 auto;
-}
-
-.marketing-bank-gap-card {
-  padding: 22px 20px;
-  border-radius: 16px;
-  border: 1px solid var(--border);
+  padding: 64px 0;
+  border-top: 1px solid rgba(16, 20, 24, 0.08);
   background: #fff;
-  text-align: center;
 }
 
-.marketing-bank-gap-card h3 {
-  margin: 0 0 8px;
-  font-size: 1.02rem;
+.marketing-bank-gap-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 40rem;
+  border-top: 1px solid rgba(16, 20, 24, 0.12);
 }
 
-.marketing-bank-gap-card p {
+.marketing-bank-gap-row {
+  display: grid;
+  grid-template-columns: minmax(9rem, 12rem) 1fr;
+  gap: 20px;
+  padding: 20px 0;
+  border-bottom: 1px solid rgba(16, 20, 24, 0.1);
+}
+
+.marketing-bank-gap-row h3 {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 1.1rem;
+  font-weight: 750;
+  color: var(--marketing-ink, #101418);
+}
+
+.marketing-bank-gap-row p {
+  margin: 0;
+  font-size: 1.1rem;
   line-height: 1.5;
   color: var(--text-secondary);
 }
 
 .marketing-bank-gap-close {
   max-width: 40rem;
-  margin: 28px auto 0;
-  text-align: center;
-  font-size: 1.05rem;
+  margin: 28px 0 0;
+  text-align: left;
+  font-size: 1.15rem;
   line-height: 1.55;
-  font-weight: 600;
-  color: var(--text-primary);
+  font-weight: 650;
+  color: var(--marketing-ink, #101418);
+}
+
+.marketing-bank-gap-grid {
+  display: none;
+}
+
+.marketing-bank-gap-card {
+  display: none;
 }
 
 .marketing-pillars-section--outcome {
-  padding: 64px 24px;
-  background: #fff;
-  border-top: 1px solid var(--border);
+  padding: 64px 0;
+  background: var(--marketing-paper, #f7f5ef);
+  border-top: 1px solid rgba(16, 20, 24, 0.08);
 }
 
 .marketing-outcome-pillars {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
-  max-width: 56rem;
-  margin: 0 auto;
+  gap: 40px;
+  max-width: none;
+  margin: 0;
 }
 
 .marketing-outcome-pillar {
-  padding: 24px 22px;
-  border-radius: 18px;
-  border: 1px solid var(--border);
-  background: linear-gradient(160deg, #f0fdfa 0%, #fff 55%);
+  padding: 0;
+  border-radius: 0;
+  border: none;
+  background: transparent;
+  border-top: 2px solid var(--marketing-green, #0e7a52);
+  padding-top: 20px;
 }
 
 .marketing-outcome-pillar-num {
-  margin: 0 0 10px;
-  font-size: 0.75rem;
+  margin: 0 0 12px;
+  font-size: 1.4rem;
   font-weight: 800;
-  letter-spacing: 0.06em;
-  color: #0f766e;
+  letter-spacing: -0.02em;
+  color: var(--marketing-green, #0e7a52);
 }
 
 .marketing-outcome-pillar h3 {
-  margin: 0 0 8px;
-  font-size: 1.2rem;
+  margin: 0 0 10px;
+  font-size: 1.35rem;
 }
 
 .marketing-outcome-pillar-lead {
-  margin: 0 0 10px;
-  font-size: 1rem;
+  margin: 0 0 12px;
+  font-size: 1.08rem;
   font-weight: 650;
   line-height: 1.45;
   color: var(--text-primary);
@@ -12004,43 +12016,44 @@ tr.sheet-row--received td {
 
 .marketing-outcome-pillar p {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 1.02rem;
   line-height: 1.55;
   color: var(--text-secondary);
 }
 
 .marketing-outcome-pillar-note {
-  margin-top: 12px !important;
-  padding-top: 12px;
-  border-top: 1px solid var(--border-subtle);
+  margin-top: 16px !important;
+  padding-top: 14px;
+  border-top: 1px solid rgba(16, 20, 24, 0.1);
   font-weight: 600 !important;
   color: var(--text-primary) !important;
 }
 
 .marketing-who-home {
-  padding: 56px 24px;
-  border-top: 1px solid var(--border);
-  background: linear-gradient(180deg, #fafafa 0%, #fff 100%);
+  padding: 64px 0;
+  border-top: 1px solid rgba(16, 20, 24, 0.08);
+  background: #fff;
 }
 
 .marketing-who-home-grid {
   list-style: none;
-  margin: 0 auto;
+  margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  max-width: 56rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  max-width: 44rem;
 }
 
 .marketing-who-home-grid li {
-  padding: 16px 18px;
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  background: #fff;
-  font-size: 0.95rem;
-  font-weight: 600;
-  line-height: 1.4;
+  padding: 16px 0;
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid rgba(16, 20, 24, 0.1);
+  background: transparent;
+  font-size: 1.1rem;
+  font-weight: 550;
+  color: var(--marketing-ink, #101418);
 }
 
 .marketing-how-home {
@@ -12050,19 +12063,19 @@ tr.sheet-row--received td {
 }
 
 .marketing-how-home--illustrated {
-  padding: 72px 24px 80px;
-  background: linear-gradient(180deg, #faf9f3 0%, #fff 40%);
+  padding: 72px 0 80px;
+  background: var(--marketing-paper, #f7f5ef);
 }
 
 .marketing-how-eyebrow {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 10px;
   margin: 0 0 14px;
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--marketing-green, #0e7a52);
 }
@@ -12308,9 +12321,9 @@ tr.sheet-row--received td {
 }
 
 .marketing-different-questions {
-  padding: 56px 24px;
-  border-top: 1px solid var(--border);
-  background: linear-gradient(180deg, #f8fafc 0%, #fff 100%);
+  padding: 64px 0;
+  border-top: 1px solid rgba(16, 20, 24, 0.08);
+  background: #fff;
 }
 
 .marketing-section-inner--narrow {
@@ -12750,18 +12763,18 @@ tr.sheet-row--received td {
 }
 
 .method-edu-callout {
-  margin: 20px 0;
-  padding: 18px 20px;
-  border-radius: var(--radius-lg);
-  border-left: 3px solid var(--accent);
-  background: #fff;
-  box-shadow: var(--shadow-card);
+  margin: 28px 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .method-edu-callout p {
-  margin: 0 0 10px;
-  font-size: 1.02rem;
-  line-height: 1.55;
+  margin: 0 0 14px;
+  font-size: 1.12rem;
+  line-height: 1.6;
   color: var(--text-primary);
 }
 
@@ -12770,8 +12783,10 @@ tr.sheet-row--received td {
 }
 
 .method-edu-callout--quiet {
-  border-left-color: var(--border-strong);
-  background: var(--accent-subtle);
+  border: none;
+  background: transparent;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
 }
 
 .method-edu-compare {
@@ -12789,8 +12804,8 @@ tr.sheet-row--received td {
 }
 
 .method-edu-compare-card--accent {
-  border-color: rgba(99, 102, 241, 0.35);
-  background: rgba(99, 102, 241, 0.06);
+  border-color: rgba(14, 122, 82, 0.3);
+  background: rgba(14, 122, 82, 0.05);
 }
 
 .method-edu-compare-label {
@@ -15553,12 +15568,12 @@ tr.sheet-row--received td {
 
 .marketing-cta-band--pop {
   padding: 80px 24px;
-  background: linear-gradient(135deg, #0f172a 0%, #3730a3 40%, #6d28d9 100%);
+  background: #101418;
 }
 
 .marketing-cta-btn-on-dark {
   background: #fff !important;
-  color: #3730a3 !important;
+  color: #0a5c3e !important;
   border: none !important;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
@@ -22299,13 +22314,13 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   border-left-color: var(--overview-accent, #0f766e);
 }
 
-/* ─── Rank-inspired marketing hero — paper grid, bold display type, balance graphs ─── */
+/* ─── Homepage theme — warm paper, ink, green. No grid, no purple AI cards. ─── */
 .marketing-shell {
-  --marketing-paper: #faf9f3;
+  --marketing-paper: #f7f5ef;
   --marketing-ink: #101418;
   --marketing-green: #0e7a52;
   --marketing-green-dark: #0a5c3e;
-  --marketing-highlight: rgba(99, 102, 241, 0.16);
+  --marketing-highlight: rgba(14, 122, 82, 0.14);
 }
 
 .marketing-shell h1,
@@ -22314,14 +22329,47 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   font-family: 'Bricolage Grotesque', var(--font-display);
 }
 
+.marketing-main--home {
+  background: var(--marketing-paper);
+  color: var(--marketing-ink);
+}
+
+.marketing-main--home .marketing-section-inner--home {
+  max-width: 68rem;
+  margin: 0 auto;
+  padding-left: 28px;
+  padding-right: 28px;
+}
+
+.marketing-main--home .marketing-section-head {
+  max-width: 40rem;
+  margin-bottom: 36px;
+  text-align: left;
+}
+
+.marketing-main--home .marketing-section-head h2 {
+  font-size: clamp(1.85rem, 3.4vw, 2.55rem);
+  letter-spacing: -0.03em;
+  color: var(--marketing-ink);
+}
+
+.marketing-section-lead--home {
+  max-width: 44rem;
+  margin: 0;
+  font-size: 1.15rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.marketing-main--home .marketing-how-eyebrow {
+  justify-content: flex-start;
+  color: var(--marketing-green);
+}
+
 .marketing-hero--rank {
   position: relative;
-  padding: 72px 24px 84px;
-  background-color: var(--marketing-paper);
-  background-image:
-    linear-gradient(rgba(16, 20, 24, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(16, 20, 24, 0.045) 1px, transparent 1px);
-  background-size: 44px 44px;
+  padding: 72px 28px 80px;
+  background: var(--marketing-paper);
   border-bottom: 1px solid rgba(16, 20, 24, 0.08);
   overflow: hidden;
 }
@@ -22332,7 +22380,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   max-width: 74rem;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
   gap: 56px;
   align-items: center;
 }
@@ -22340,18 +22388,18 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .marketing-hero-rank-eyebrow {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   margin: 0 0 22px;
-  font-size: 0.82rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--accent-text);
+  color: var(--marketing-green);
 }
 
 .marketing-hero-rank-eyebrow::before {
   content: '';
-  width: 34px;
+  width: 36px;
   height: 2px;
   background: currentColor;
   border-radius: 2px;
@@ -22359,48 +22407,64 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .marketing-hero--rank h1 {
   margin: 0 0 22px;
-  max-width: 15ch;
-  font-size: clamp(2.5rem, 5.6vw, 4.1rem);
+  max-width: 14ch;
+  font-size: clamp(2.75rem, 6vw, 4.35rem);
   font-weight: 800;
-  line-height: 1.04;
-  letter-spacing: -0.035em;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
   color: var(--marketing-ink);
 }
 
 .marketing-hero-highlight {
-  background: linear-gradient(180deg, transparent 8%, var(--marketing-highlight) 8%, var(--marketing-highlight) 94%, transparent 94%);
-  border-radius: 8px;
-  padding: 0 0.14em;
-  margin: 0 -0.14em;
+  background: linear-gradient(
+    180deg,
+    transparent 10%,
+    var(--marketing-highlight) 10%,
+    var(--marketing-highlight) 92%,
+    transparent 92%
+  );
+  border-radius: 6px;
+  padding: 0 0.12em;
+  margin: 0 -0.12em;
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
 }
 
 .marketing-hero--rank .marketing-lead {
   margin: 0 0 28px;
-  max-width: 46ch;
-  font-size: 1.12rem;
-  line-height: 1.65;
+  max-width: 42ch;
+  font-size: 1.22rem;
+  line-height: 1.6;
   color: var(--text-secondary);
 }
 
 .marketing-hero-rank-note {
-  margin: 16px 0 0;
-  font-size: 0.85rem;
+  margin: 18px 0 0;
+  font-size: 0.95rem;
   color: var(--text-muted);
 }
 
-.marketing-cta-primary--rank,
-.marketing-cta-secondary--rank {
-  border-radius: 999px;
-  padding-inline: 26px;
+.marketing-cta-primary--rank {
+  border-radius: 10px;
+  padding-inline: 24px;
+  background: var(--marketing-green);
+  border-color: var(--marketing-green);
+}
+
+.marketing-cta-primary--rank:hover {
+  background: var(--marketing-green-dark);
+  border-color: var(--marketing-green-dark);
 }
 
 .marketing-cta-secondary--rank {
+  border-radius: 10px;
+  padding-inline: 24px;
   background: #fff;
+  border-color: rgba(16, 20, 24, 0.18);
+  color: var(--marketing-ink);
 }
 
-/* Hero graphs — jagged bank balance vs smooth True Balance */
+/* Hero graphs */
 .hero-graphs {
   display: flex;
   flex-direction: column;
@@ -22410,19 +22474,17 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .hero-graph-card {
   background: #fff;
-  border: 2px solid rgba(16, 20, 24, 0.1);
-  border-radius: 20px;
+  border: 1px solid rgba(16, 20, 24, 0.12);
+  border-radius: 16px;
   padding: 22px 22px 18px;
-  box-shadow: 0 14px 34px rgba(16, 20, 24, 0.09);
+  box-shadow: 0 10px 28px rgba(16, 20, 24, 0.06);
 }
 
 .hero-graph-card--bank {
-  transform: rotate(-1deg);
-  border-color: rgba(225, 29, 72, 0.22);
+  border-color: rgba(185, 28, 28, 0.2);
 }
 
 .hero-graph-card--true {
-  transform: rotate(0.6deg);
   border-color: rgba(14, 122, 82, 0.28);
 }
 
@@ -22433,28 +22495,24 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .hero-graph-tag {
   display: inline-block;
   margin: 0 0 8px;
-  padding: 5px 12px;
-  border-radius: 999px;
-  font-size: 0.82rem;
+  font-size: 0.88rem;
   font-weight: 800;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .hero-graph-tag--bank {
-  background: rgba(225, 29, 72, 0.1);
-  color: #be123c;
+  color: #9f1239;
 }
 
 .hero-graph-tag--true {
-  background: rgba(14, 122, 82, 0.12);
   color: var(--marketing-green-dark);
 }
 
 .hero-graph-title {
   margin: 0;
   font-family: 'Bricolage Grotesque', var(--font-display);
-  font-size: clamp(1.15rem, 2.6vw, 1.45rem);
+  font-size: clamp(1.25rem, 2.6vw, 1.55rem);
   font-weight: 750;
   line-height: 1.25;
   color: var(--marketing-ink);
@@ -22462,19 +22520,19 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .hero-graph-vs {
   margin: 0;
-  padding: 14px 0;
-  text-align: center;
+  padding: 12px 0;
+  text-align: left;
   font-family: 'Bricolage Grotesque', var(--font-display);
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-muted);
 }
 
 .hero-graph-footnote {
   margin: 12px 0 0;
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 650;
   line-height: 1.4;
 }
@@ -22543,134 +22601,86 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   opacity: 0.9;
 }
 
-/* Is this you — own band under the hero */
+/* Is this you — editorial list, no card */
 .marketing-is-you-section {
-  padding: 56px 24px 8px;
+  padding: 64px 0 24px;
+  background: var(--marketing-paper);
 }
 
-.marketing-is-you--band {
-  max-width: 46rem;
-  margin: 0 auto;
-  padding: 30px 34px 28px;
-  border-radius: 24px;
-  border: 1px solid rgba(16, 20, 24, 0.1);
-  background: linear-gradient(180deg, #fafbff 0%, #fff 80%);
-  box-shadow: 0 10px 30px rgba(16, 20, 24, 0.06);
-}
-
-.marketing-is-you--band .marketing-is-you-title {
-  font-size: clamp(1.5rem, 2.6vw, 1.9rem);
-}
-
-/* Not a cash flow forecast — heading bar + side-by-side */
-.marketing-vs-forecast {
-  border-top: 1px solid var(--border);
-}
-
-.marketing-vs-forecast-bar {
-  padding: 18px 24px;
-  background: var(--marketing-ink);
-  text-align: center;
-}
-
-.marketing-vs-forecast-bar-label {
-  margin: 0;
-  font-family: 'Bricolage Grotesque', var(--font-display);
-  font-size: clamp(1.1rem, 2.4vw, 1.45rem);
+.marketing-main--home .marketing-is-you-title {
+  margin: 0 0 22px;
+  font-size: clamp(1.85rem, 3.2vw, 2.4rem);
   font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #fff;
+  letter-spacing: -0.03em;
+  color: var(--marketing-ink);
 }
 
-.marketing-vs-forecast .marketing-section-inner {
-  padding: 48px 24px 56px;
+.marketing-main--home .marketing-is-you-list {
+  max-width: 42rem;
+  gap: 16px;
 }
 
-.marketing-section-lead--wide {
-  max-width: 52rem;
-  margin-left: auto;
-  margin-right: auto;
-  font-size: 1.12rem;
-  line-height: 1.65;
-}
-
-.marketing-vs-forecast-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
-  max-width: 56rem;
-  margin: 0 auto;
-}
-
-.marketing-vs-forecast-card {
-  padding: 28px 26px;
-  border-radius: 20px;
-  border: 2px solid var(--border);
-  background: #fff;
-}
-
-.marketing-vs-forecast-card--forecast {
-  border-color: rgba(82, 82, 91, 0.25);
-  background: linear-gradient(180deg, #fafafa 0%, #fff 100%);
-}
-
-.marketing-vs-forecast-card--true {
-  border-color: rgba(14, 122, 82, 0.35);
-  background: linear-gradient(180deg, #f0fdf6 0%, #fff 100%);
-}
-
-.marketing-vs-forecast-card h3 {
-  margin: 0 0 18px;
-  font-size: clamp(1.2rem, 2vw, 1.45rem);
-  font-weight: 800;
-}
-
-.marketing-vs-forecast-card--forecast h3 {
-  color: var(--text-secondary);
-}
-
-.marketing-vs-forecast-card--true h3 {
-  color: var(--marketing-green-dark);
-}
-
-.marketing-vs-forecast-card ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
+.marketing-main--home .marketing-is-you-list li {
+  font-size: 1.15rem;
+  line-height: 1.5;
   gap: 14px;
 }
 
-.marketing-vs-forecast-card li {
-  position: relative;
-  padding-left: 1.5rem;
-  font-size: 1.05rem;
-  line-height: 1.5;
-  color: var(--text-primary);
-}
-
-.marketing-vs-forecast-card li::before {
-  content: '—';
-  position: absolute;
-  left: 0;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.marketing-vs-forecast-card--true li::before {
+.marketing-is-you-mark {
+  flex-shrink: 0;
   color: var(--marketing-green);
+  font-weight: 700;
+  width: 1rem;
 }
 
-.marketing-vs-forecast-close {
-  max-width: 44rem;
-  margin: 32px auto 0;
-  text-align: center;
-  font-size: 1.12rem;
-  font-weight: 650;
+.marketing-main--home .marketing-is-you-close {
+  max-width: 40rem;
+  margin: 28px 0 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.45;
+  color: var(--marketing-ink);
+}
+
+/* What True Balance is — prose + three points, no shouty banner */
+.marketing-vs-forecast {
+  padding: 64px 0;
+  border-top: 1px solid rgba(16, 20, 24, 0.08);
+  background: #fff;
+}
+
+.marketing-vs-points {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 32px 40px;
+  max-width: 60rem;
+  margin: 0;
+  padding-top: 8px;
+  border-top: 1px solid rgba(16, 20, 24, 0.1);
+}
+
+.marketing-vs-point h3 {
+  margin: 18px 0 10px;
+  font-size: 1.2rem;
+  font-weight: 750;
+  color: var(--marketing-ink);
+}
+
+.marketing-vs-point p {
+  margin: 0;
+  font-size: 1.05rem;
   line-height: 1.55;
-  color: var(--text-primary);
+  color: var(--text-secondary);
+}
+
+.marketing-vs-aside {
+  max-width: 44rem;
+  margin: 36px 0 0;
+  padding-top: 28px;
+  border-top: 1px solid rgba(16, 20, 24, 0.08);
+  font-size: 1.08rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
 }
 
 @media (max-width: 900px) {
@@ -22687,16 +22697,18 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
     max-width: none;
   }
 
-  .hero-graph-card--bank,
-  .hero-graph-card--true {
-    transform: none;
-  }
-
-  .marketing-is-you--band {
-    padding: 22px 18px 20px;
-  }
-
-  .marketing-vs-forecast-grid {
+  .marketing-vs-points {
     grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .marketing-bank-gap-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .marketing-main--home .marketing-section-inner--home {
+    padding-left: 20px;
+    padding-right: 20px;
   }
 }

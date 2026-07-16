@@ -46,30 +46,26 @@ export const HOME_BANK_GAP = {
 } as const
 
 export const HOME_VS_FORECAST = {
-  bar: 'Not a cash flow forecast',
-  heading: 'Today’s picture — not a future projection',
+  eyebrow: 'What this actually is',
+  heading: 'A daily picture of where you stand — with the future already built in',
   lead:
-    'Cash flow forecasts are useful, but most business owners don’t keep them updated. Bills still land in big lumps on dates. True Balance answers a different question: where do you stand right now?',
-  forecast: {
-    title: 'Cash flow forecast',
-    points: [
-      'Projects what might happen in the future',
-      'Usually updated occasionally — when someone has time',
-      'Costs jump on due dates — everything hits at once',
-      'Needs a dedicated session to stay useful',
-    ],
-  },
-  trueBalance: {
-    title: 'True Balance',
-    points: [
-      'Shows where you stand today',
-      'Checked every day — one number you can trust',
-      'Known costs build a little each day before they’re paid',
-      'Future obligations are already accounted for in today’s figure',
-    ],
-  },
-  close:
-    'You’re not forecasting the future. You’re understanding now — with what’s already committed and what’s coming already built in.',
+    'True Balance is not a projection of what might happen next month. It is a live number for today: cash in the bank, minus what is already committed, plus realistic money still owed to you. Known costs build a little every day before they are paid. Large bills are turned into monthly reserve transfers. So the figure you look at already accounts for what is coming — without needing a forecast you never keep up to date.',
+  points: [
+    {
+      title: 'About today',
+      body: 'One number that answers: can I afford this right now?',
+    },
+    {
+      title: 'Commitments already in',
+      body: 'Payroll, rent and similar costs accrue continuously — not only on the due date.',
+    },
+    {
+      title: 'Future bills already funded',
+      body: 'VAT, insurance and annual costs become a monthly reserve move, so they stop arriving as surprises.',
+    },
+  ],
+  aside:
+    'Cash flow forecasts still have a place when you want a detailed future plan. Most owner-managed businesses do not run one every day — and bills still hit in lumps on dates. True Balance is the everyday alternative: understand now, with commitments and obligations already accounted for.',
 } as const
 
 export const HOME_METHOD_PILLARS = {

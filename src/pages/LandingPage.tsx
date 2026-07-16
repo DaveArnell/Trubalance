@@ -44,7 +44,7 @@ export function LandingPage() {
       <MarketingJsonLd data={jsonLd} />
       <MarketingHeader />
 
-      <main className="marketing-main marketing-main--pop">
+      <main className="marketing-main marketing-main--home">
         {/* 1. Hero — bold headline + the bank-balance-vs-True-Balance visual */}
         <section className="marketing-hero marketing-hero--rank">
           <div className="marketing-hero-rank-inner">
@@ -85,25 +85,23 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* 1b. Is this you? — identify the visitor before anything else */}
+        {/* 1b. Is this you? */}
         <section className="marketing-is-you-section" id="is-this-you" aria-labelledby="is-you-heading">
-          <div className="marketing-section-inner">
-            <div className="marketing-is-you marketing-is-you--band">
-              <h2 className="marketing-is-you-title" id="is-you-heading">
-                {HOME_IS_THIS_YOU.title}
-              </h2>
-              <ul className="marketing-is-you-list">
-                {HOME_IS_THIS_YOU.points.map((point) => (
-                  <li key={point}>
-                    <span className="marketing-is-you-tick" aria-hidden>
-                      ✓
-                    </span>
-                    <span>{point}</span>
-                  </li>
-                ))}
-              </ul>
-              <p className="marketing-is-you-close">{HOME_IS_THIS_YOU.close}</p>
-            </div>
+          <div className="marketing-section-inner marketing-section-inner--home">
+            <h2 className="marketing-is-you-title" id="is-you-heading">
+              {HOME_IS_THIS_YOU.title}
+            </h2>
+            <ul className="marketing-is-you-list">
+              {HOME_IS_THIS_YOU.points.map((point) => (
+                <li key={point}>
+                  <span className="marketing-is-you-mark" aria-hidden>
+                    —
+                  </span>
+                  <span>{point}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="marketing-is-you-close">{HOME_IS_THIS_YOU.close}</p>
           </div>
         </section>
 
@@ -113,57 +111,45 @@ export function LandingPage() {
           id="why-bank-balance"
           aria-labelledby="bank-gap-heading"
         >
-          <div className="marketing-section-inner">
-            <div className="marketing-section-head marketing-section-head--center">
+          <div className="marketing-section-inner marketing-section-inner--home">
+            <div className="marketing-section-head">
               <h2 id="bank-gap-heading">{HOME_BANK_GAP.heading}</h2>
             </div>
-            <div className="marketing-bank-gap-grid">
+            <div className="marketing-bank-gap-rows">
               {HOME_BANK_GAP.points.map((item) => (
-                <article key={item.title} className="marketing-bank-gap-card">
+                <div key={item.title} className="marketing-bank-gap-row">
                   <h3>{item.title}</h3>
                   <p>{item.body}</p>
-                </article>
+                </div>
               ))}
             </div>
             <p className="marketing-bank-gap-close">{HOME_BANK_GAP.close}</p>
           </div>
         </section>
 
-        {/* 2b. Not a cash flow forecast — clear contrast */}
+        {/* 2b. What True Balance actually is */}
         <section
           className="marketing-vs-forecast"
           id="vs-forecast"
           aria-labelledby="vs-forecast-heading"
         >
-          <div className="marketing-vs-forecast-bar">
-            <p className="marketing-vs-forecast-bar-label">{HOME_VS_FORECAST.bar}</p>
-          </div>
-          <div className="marketing-section-inner">
-            <div className="marketing-section-head marketing-section-head--center">
+          <div className="marketing-section-inner marketing-section-inner--home">
+            <div className="marketing-section-head">
+              <p className="marketing-how-eyebrow">{HOME_VS_FORECAST.eyebrow}</p>
               <h2 id="vs-forecast-heading">{HOME_VS_FORECAST.heading}</h2>
-              <p className="marketing-section-lead marketing-section-lead--wide">
+              <p className="marketing-section-lead marketing-section-lead--home">
                 {HOME_VS_FORECAST.lead}
               </p>
             </div>
-            <div className="marketing-vs-forecast-grid">
-              <article className="marketing-vs-forecast-card marketing-vs-forecast-card--forecast">
-                <h3>{HOME_VS_FORECAST.forecast.title}</h3>
-                <ul>
-                  {HOME_VS_FORECAST.forecast.points.map((point) => (
-                    <li key={point}>{point}</li>
-                  ))}
-                </ul>
-              </article>
-              <article className="marketing-vs-forecast-card marketing-vs-forecast-card--true">
-                <h3>{HOME_VS_FORECAST.trueBalance.title}</h3>
-                <ul>
-                  {HOME_VS_FORECAST.trueBalance.points.map((point) => (
-                    <li key={point}>{point}</li>
-                  ))}
-                </ul>
-              </article>
+            <div className="marketing-vs-points">
+              {HOME_VS_FORECAST.points.map((item) => (
+                <div key={item.title} className="marketing-vs-point">
+                  <h3>{item.title}</h3>
+                  <p>{item.body}</p>
+                </div>
+              ))}
             </div>
-            <p className="marketing-vs-forecast-close">{HOME_VS_FORECAST.close}</p>
+            <p className="marketing-vs-aside">{HOME_VS_FORECAST.aside}</p>
           </div>
         </section>
 
@@ -173,19 +159,19 @@ export function LandingPage() {
           id="method"
           aria-labelledby="method-pillars-heading"
         >
-          <div className="marketing-section-inner">
-            <div className="marketing-section-head marketing-section-head--center">
-              <p className="marketing-eyebrow marketing-eyebrow--vivid">
-                {HOME_METHOD_PILLARS.eyebrow}
-              </p>
+          <div className="marketing-section-inner marketing-section-inner--home">
+            <div className="marketing-section-head">
+              <p className="marketing-how-eyebrow">{HOME_METHOD_PILLARS.eyebrow}</p>
               <h2 id="method-pillars-heading">{HOME_METHOD_PILLARS.heading}</h2>
-              <p className="marketing-section-lead">{HOME_METHOD_PILLARS.lead}</p>
+              <p className="marketing-section-lead marketing-section-lead--home">
+                {HOME_METHOD_PILLARS.lead}
+              </p>
             </div>
             <div className="marketing-outcome-pillars">
               {HOME_METHOD_PILLARS.pillars.map((pillar, index) => (
                 <article key={pillar.id} className="marketing-outcome-pillar">
                   <p className="marketing-outcome-pillar-num" aria-hidden>
-                    {index + 1}
+                    {String(index + 1).padStart(2, '0')}
                   </p>
                   <h3>{pillar.title}</h3>
                   <p className="marketing-outcome-pillar-lead">{pillar.lead}</p>
@@ -208,10 +194,10 @@ export function LandingPage() {
           id="who"
           aria-labelledby="who-home-heading"
         >
-          <div className="marketing-section-inner">
-            <div className="marketing-section-head marketing-section-head--center">
+          <div className="marketing-section-inner marketing-section-inner--home">
+            <div className="marketing-section-head">
               <h2 id="who-home-heading">{HOME_WHO_FOR.heading}</h2>
-              <p className="marketing-section-lead">{HOME_WHO_FOR.lead}</p>
+              <p className="marketing-section-lead marketing-section-lead--home">{HOME_WHO_FOR.lead}</p>
             </div>
             <ul className="marketing-who-home-grid">
               {HOME_WHO_FOR.points.map((point) => (
@@ -230,14 +216,14 @@ export function LandingPage() {
           id="how-it-works"
           aria-labelledby="how-home-heading"
         >
-          <div className="marketing-section-inner">
-            <div className="marketing-section-head marketing-section-head--center">
+          <div className="marketing-section-inner marketing-section-inner--home">
+            <div className="marketing-section-head">
               <p className="marketing-how-eyebrow">{HOME_HOW_IT_WORKS.eyebrow}</p>
               <h2 id="how-home-heading">
                 {HOME_HOW_IT_WORKS.headingStart}
                 <span className="marketing-how-heading-accent">{HOME_HOW_IT_WORKS.headingHighlight}</span>
               </h2>
-              <p className="marketing-section-lead">{HOME_HOW_IT_WORKS.lead}</p>
+              <p className="marketing-section-lead marketing-section-lead--home">{HOME_HOW_IT_WORKS.lead}</p>
             </div>
 
             <ol className="marketing-how-illust-grid">
@@ -269,10 +255,10 @@ export function LandingPage() {
           className="marketing-different-questions"
           aria-labelledby="different-q-heading"
         >
-          <div className="marketing-section-inner marketing-section-inner--narrow">
-            <div className="marketing-section-head marketing-section-head--center">
+          <div className="marketing-section-inner marketing-section-inner--home">
+            <div className="marketing-section-head">
               <h2 id="different-q-heading">{HOME_DIFFERENT_QUESTIONS.heading}</h2>
-              <p className="marketing-section-lead">{HOME_DIFFERENT_QUESTIONS.lead}</p>
+              <p className="marketing-section-lead marketing-section-lead--home">{HOME_DIFFERENT_QUESTIONS.lead}</p>
             </div>
             <div className="marketing-different-grid">
               {HOME_DIFFERENT_QUESTIONS.items.map((item) => (
@@ -287,9 +273,9 @@ export function LandingPage() {
 
         {/* Explore */}
         <section className="marketing-home-overview" id="overview" aria-labelledby="explore-heading">
-          <div className="marketing-section-inner">
-            <div className="marketing-section-head marketing-section-head--center">
-              <p className="marketing-eyebrow marketing-eyebrow--vivid">Next steps</p>
+          <div className="marketing-section-inner marketing-section-inner--home">
+            <div className="marketing-section-head">
+              <p className="marketing-how-eyebrow">Next steps</p>
               <h2 id="explore-heading">Go deeper when you’re ready</h2>
             </div>
             <div className="marketing-home-topic-grid">
@@ -307,11 +293,11 @@ export function LandingPage() {
         </section>
 
         <section className="marketing-company-band" aria-label="Why True Balance exists">
-          <div className="marketing-section-inner">
-            <div className="marketing-section-head marketing-section-head--center">
-              <p className="marketing-eyebrow marketing-eyebrow--vivid">Why this exists</p>
+          <div className="marketing-section-inner marketing-section-inner--home">
+            <div className="marketing-section-head">
+              <p className="marketing-how-eyebrow">Why this exists</p>
               <h2>Built from real business experience</h2>
-              <p className="marketing-section-lead">
+              <p className="marketing-section-lead marketing-section-lead--home">
                 For over 17 years I have run businesses and, despite accounting software, still needed
                 a clearer answer: can I afford this, how much is already spoken for, and will VAT
                 catch me out again? The True Balance Method is that clarity. The app simply makes it
