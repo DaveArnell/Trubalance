@@ -6,7 +6,10 @@
 import { METHOD_PAGE_PATH } from './trueBalanceMethod'
 
 export const HOME_HERO = {
+  eyebrow: 'Financial clarity, every day',
   headline: 'A better way to manage your business finances.',
+  headlineStart: 'A better way to manage',
+  headlineHighlight: 'your business finances.',
   subheading:
     'The True Balance Method helps business owners understand where their business really stands financially by continuously accounting for known commitments and planning ahead for future obligations.',
 } as const

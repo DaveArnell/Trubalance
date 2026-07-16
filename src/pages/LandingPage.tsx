@@ -7,6 +7,7 @@ import {
   scrollToMarketingSection,
 } from '../components/marketing/MarketingLayout'
 import { MethodEquation } from '../components/marketing/MethodEquation'
+import { HeroBalanceGraphs } from '../components/marketing/HeroBalanceGraphs'
 import { CompanyLegalNotice } from '../components/marketing/CompanyLegalNotice'
 import {
   HOME_BANK_GAP,
@@ -42,50 +43,64 @@ export function LandingPage() {
       <MarketingHeader />
 
       <main className="marketing-main marketing-main--pop">
-        {/* 1. Hero — problem-aware headline, then identify the visitor */}
-        <section className="marketing-hero marketing-hero--pop marketing-hero--outcome">
-          <div className="marketing-hero-blob marketing-hero-blob--1" aria-hidden />
-          <div className="marketing-hero-blob marketing-hero-blob--2" aria-hidden />
-          <div className="marketing-hero-inner marketing-hero-inner--outcome">
-            <div className="marketing-hero-copy marketing-hero-copy--full">
-              <h1>{HOME_HERO.headline}</h1>
+        {/* 1. Hero — bold headline + the bank-balance-vs-True-Balance visual */}
+        <section className="marketing-hero marketing-hero--rank">
+          <div className="marketing-hero-rank-inner">
+            <div className="marketing-hero-rank-copy">
+              <p className="marketing-hero-rank-eyebrow">{HOME_HERO.eyebrow}</p>
+              <h1>
+                {HOME_HERO.headlineStart}{' '}
+                <span className="marketing-hero-highlight">{HOME_HERO.headlineHighlight}</span>
+              </h1>
               <p className="marketing-lead">{HOME_HERO.subheading}</p>
-
-              <div className="marketing-is-you" id="is-this-you">
-                <h2 className="marketing-is-you-title">{HOME_IS_THIS_YOU.title}</h2>
-                <ul className="marketing-is-you-list">
-                  {HOME_IS_THIS_YOU.points.map((point) => (
-                    <li key={point}>
-                      <span className="marketing-is-you-tick" aria-hidden>
-                        ✓
-                      </span>
-                      <span>{point}</span>
-                    </li>
-                  ))}
-                </ul>
-                <p className="marketing-is-you-close">{HOME_IS_THIS_YOU.close}</p>
-              </div>
-
               <div className="marketing-cta-row">
                 <Link
                   to={METHOD_PAGE_PATH}
-                  className="btn-primary btn-large marketing-cta-primary marketing-cta-primary--pop"
+                  className="btn-primary btn-large marketing-cta-primary marketing-cta-primary--rank"
                 >
                   Learn the Method
                 </Link>
                 <Link
                   to="/see-how-it-works"
-                  className="btn-secondary btn-large marketing-cta-secondary--pop"
+                  className="btn-secondary btn-large marketing-cta-secondary--rank"
                 >
                   See the Platform
                 </Link>
               </div>
+              <p className="marketing-hero-rank-note">
+                One number you can trust · Built for owner-managed UK businesses
+              </p>
               {!isSupabaseConfigured && (
                 <p className="marketing-config-hint">
                   Cloud signup needs Supabase in <code>.env.local</code>, or{' '}
                   <Link to="/app">try the app locally</Link> without an account.
                 </p>
               )}
+            </div>
+            <div className="marketing-hero-rank-visual">
+              <HeroBalanceGraphs />
+            </div>
+          </div>
+        </section>
+
+        {/* 1b. Is this you? — identify the visitor before anything else */}
+        <section className="marketing-is-you-section" id="is-this-you" aria-labelledby="is-you-heading">
+          <div className="marketing-section-inner">
+            <div className="marketing-is-you marketing-is-you--band">
+              <h2 className="marketing-is-you-title" id="is-you-heading">
+                {HOME_IS_THIS_YOU.title}
+              </h2>
+              <ul className="marketing-is-you-list">
+                {HOME_IS_THIS_YOU.points.map((point) => (
+                  <li key={point}>
+                    <span className="marketing-is-you-tick" aria-hidden>
+                      ✓
+                    </span>
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="marketing-is-you-close">{HOME_IS_THIS_YOU.close}</p>
             </div>
           </div>
         </section>

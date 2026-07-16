@@ -22080,3 +22080,261 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .app-shell[data-scope-level='group'] .overview-compact {
   border-left-color: var(--overview-accent, #0f766e);
 }
+
+/* ─── Rank-inspired marketing hero — paper grid, bold display type, balance graphs ─── */
+.marketing-shell {
+  --marketing-paper: #faf9f3;
+  --marketing-ink: #101418;
+  --marketing-green: #0e7a52;
+  --marketing-green-dark: #0a5c3e;
+  --marketing-highlight: rgba(99, 102, 241, 0.16);
+}
+
+.marketing-shell h1,
+.marketing-shell h2,
+.marketing-shell h3 {
+  font-family: 'Bricolage Grotesque', var(--font-display);
+}
+
+.marketing-hero--rank {
+  position: relative;
+  padding: 72px 24px 84px;
+  background-color: var(--marketing-paper);
+  background-image:
+    linear-gradient(rgba(16, 20, 24, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 20, 24, 0.045) 1px, transparent 1px);
+  background-size: 44px 44px;
+  border-bottom: 1px solid rgba(16, 20, 24, 0.08);
+  overflow: hidden;
+}
+
+.marketing-hero-rank-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 74rem;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
+  gap: 56px;
+  align-items: center;
+}
+
+.marketing-hero-rank-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 22px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+.marketing-hero-rank-eyebrow::before {
+  content: '';
+  width: 34px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 2px;
+}
+
+.marketing-hero--rank h1 {
+  margin: 0 0 22px;
+  max-width: 15ch;
+  font-size: clamp(2.5rem, 5.6vw, 4.1rem);
+  font-weight: 800;
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  color: var(--marketing-ink);
+}
+
+.marketing-hero-highlight {
+  background: linear-gradient(180deg, transparent 8%, var(--marketing-highlight) 8%, var(--marketing-highlight) 94%, transparent 94%);
+  border-radius: 8px;
+  padding: 0 0.14em;
+  margin: 0 -0.14em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.marketing-hero--rank .marketing-lead {
+  margin: 0 0 28px;
+  max-width: 46ch;
+  font-size: 1.12rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.marketing-hero-rank-note {
+  margin: 16px 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.marketing-cta-primary--rank,
+.marketing-cta-secondary--rank {
+  border-radius: 999px;
+  padding-inline: 26px;
+}
+
+.marketing-cta-secondary--rank {
+  background: #fff;
+}
+
+/* Hero graphs — jagged bank balance vs smooth True Balance */
+.hero-graphs {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.hero-graph-card {
+  background: #fff;
+  border: 1px solid rgba(16, 20, 24, 0.1);
+  border-radius: 20px;
+  padding: 18px 20px 12px;
+  box-shadow: 0 14px 34px rgba(16, 20, 24, 0.09);
+}
+
+.hero-graph-card--bank {
+  transform: rotate(-1.2deg);
+}
+
+.hero-graph-card--true {
+  transform: rotate(0.8deg);
+}
+
+.hero-graph-caption {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 8px;
+  flex-wrap: wrap;
+}
+
+.hero-graph-label {
+  font-family: 'Bricolage Grotesque', var(--font-display);
+  font-size: 1.02rem;
+  font-weight: 750;
+  color: var(--marketing-ink);
+}
+
+.hero-graph-label--true {
+  color: var(--marketing-green);
+}
+
+.hero-graph-sub {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.hero-graph-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.hero-graph-axis {
+  stroke: rgba(16, 20, 24, 0.18);
+  stroke-width: 1.5;
+}
+
+.hero-graph-gridline {
+  stroke: rgba(16, 20, 24, 0.07);
+  stroke-width: 1;
+  stroke-dasharray: 4 5;
+}
+
+.hero-graph-line {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.hero-graph-line--bank {
+  stroke: #e11d48;
+}
+
+.hero-graph-line--true {
+  stroke: var(--marketing-green);
+  stroke-width: 3.5;
+}
+
+.hero-graph-area {
+  fill: rgba(14, 122, 82, 0.09);
+  stroke: none;
+}
+
+.hero-graph-drop-dot {
+  fill: #fff;
+  stroke: #e11d48;
+  stroke-width: 2.5;
+}
+
+.hero-graph-drop-label {
+  font-size: 11px;
+  font-weight: 700;
+  fill: #9f1239;
+  letter-spacing: 0.02em;
+}
+
+.hero-graph-day-dot {
+  fill: var(--marketing-green);
+  opacity: 0.85;
+}
+
+.hero-graph-scribble {
+  font-family: 'Caveat', cursive;
+  font-size: 19px;
+  fill: #be123c;
+}
+
+.hero-graph-scribble--true {
+  fill: var(--marketing-green-dark);
+}
+
+/* Is this you — own band under the hero */
+.marketing-is-you-section {
+  padding: 56px 24px 8px;
+}
+
+.marketing-is-you--band {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 30px 34px 28px;
+  border-radius: 24px;
+  border: 1px solid rgba(16, 20, 24, 0.1);
+  background: linear-gradient(180deg, #fafbff 0%, #fff 80%);
+  box-shadow: 0 10px 30px rgba(16, 20, 24, 0.06);
+}
+
+.marketing-is-you--band .marketing-is-you-title {
+  font-size: clamp(1.5rem, 2.6vw, 1.9rem);
+}
+
+@media (max-width: 900px) {
+  .marketing-hero-rank-inner {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .marketing-hero--rank {
+    padding: 48px 20px 56px;
+  }
+
+  .marketing-hero--rank h1 {
+    max-width: none;
+  }
+
+  .hero-graph-card--bank,
+  .hero-graph-card--true {
+    transform: none;
+  }
+
+  .marketing-is-you--band {
+    padding: 22px 18px 20px;
+  }
+}
