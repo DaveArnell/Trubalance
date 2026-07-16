@@ -176,6 +176,7 @@ function columnFromScope(
   scope: ViewScope,
   label: string,
   isRollup: boolean,
+  /** When true, include parent-scope costs (full dashboard). Child partition columns must pass false. */
   useRollupTotals = false,
 ): BreakdownColumn {
   const metrics = useRollupTotals ? calculateDashboard(state, scope) : calculateColumnDashboard(state, scope)
@@ -245,8 +246,9 @@ export function buildBreakdownColumns(state: AppState, scope: ViewScope): Breakd
       return buildBreakdownColumns(state, { type: 'business', id: biz.id })
     }
 
+    // Child columns are partitioned (column scope); only TOTAL uses full rollup metrics.
     const columns = businesses.map((b) =>
-      columnFromScope(state, { type: 'business', id: b.id }, columnLabel(b.name), false, true),
+      columnFromScope(state, { type: 'business', id: b.id }, columnLabel(b.name), false, false),
     )
     const shared = hasSharedScopeCosts(state, scope)
       ? [
@@ -274,8 +276,9 @@ export function buildBreakdownColumns(state: AppState, scope: ViewScope): Breakd
     return [columnFromScope(state, scope, columnLabel(business.name), false, true)]
   }
 
+  // Venue columns exclude business-wide costs (those go in BIZ); TOTAL is the full business.
   const columns = venues.map((v) =>
-    columnFromScope(state, { type: 'venue', id: v.id }, columnLabel(v.name), false, true),
+    columnFromScope(state, { type: 'venue', id: v.id }, columnLabel(v.name), false, false),
   )
   const shared = hasSharedScopeCosts(state, scope)
     ? [
