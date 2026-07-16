@@ -11889,8 +11889,8 @@ tr.sheet-row--received td {
   display: flex;
   gap: 12px;
   align-items: flex-start;
-  font-size: 0.98rem;
-  line-height: 1.45;
+  font-size: 1.05rem;
+  line-height: 1.5;
   color: var(--text-primary);
 }
 
@@ -12104,7 +12104,7 @@ tr.sheet-row--received td {
 
 .marketing-different-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
 }
 
@@ -22186,48 +22186,87 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .hero-graphs {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 0;
+  align-items: stretch;
 }
 
 .hero-graph-card {
   background: #fff;
-  border: 1px solid rgba(16, 20, 24, 0.1);
+  border: 2px solid rgba(16, 20, 24, 0.1);
   border-radius: 20px;
-  padding: 18px 20px 12px;
+  padding: 22px 22px 18px;
   box-shadow: 0 14px 34px rgba(16, 20, 24, 0.09);
 }
 
 .hero-graph-card--bank {
-  transform: rotate(-1.2deg);
+  transform: rotate(-1deg);
+  border-color: rgba(225, 29, 72, 0.22);
 }
 
 .hero-graph-card--true {
-  transform: rotate(0.8deg);
+  transform: rotate(0.6deg);
+  border-color: rgba(14, 122, 82, 0.28);
 }
 
-.hero-graph-caption {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
+.hero-graph-header {
+  margin: 0 0 14px;
+}
+
+.hero-graph-tag {
+  display: inline-block;
   margin: 0 0 8px;
-  flex-wrap: wrap;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
-.hero-graph-label {
+.hero-graph-tag--bank {
+  background: rgba(225, 29, 72, 0.1);
+  color: #be123c;
+}
+
+.hero-graph-tag--true {
+  background: rgba(14, 122, 82, 0.12);
+  color: var(--marketing-green-dark);
+}
+
+.hero-graph-title {
+  margin: 0;
   font-family: 'Bricolage Grotesque', var(--font-display);
-  font-size: 1.02rem;
+  font-size: clamp(1.15rem, 2.6vw, 1.45rem);
   font-weight: 750;
+  line-height: 1.25;
   color: var(--marketing-ink);
 }
 
-.hero-graph-label--true {
-  color: var(--marketing-green);
+.hero-graph-vs {
+  margin: 0;
+  padding: 14px 0;
+  text-align: center;
+  font-family: 'Bricolage Grotesque', var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
 
-.hero-graph-sub {
-  font-size: 0.8rem;
-  color: var(--text-muted);
+.hero-graph-footnote {
+  margin: 12px 0 0;
+  font-size: 1rem;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.hero-graph-footnote--bank {
+  color: #9f1239;
+}
+
+.hero-graph-footnote--true {
+  color: var(--marketing-green-dark);
 }
 
 .hero-graph-svg {
@@ -22249,7 +22288,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .hero-graph-line {
   fill: none;
-  stroke-width: 3;
+  stroke-width: 3.5;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -22260,7 +22299,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .hero-graph-line--true {
   stroke: var(--marketing-green);
-  stroke-width: 3.5;
+  stroke-width: 4;
 }
 
 .hero-graph-area {
@@ -22275,25 +22314,15 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .hero-graph-drop-label {
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 800;
   fill: #9f1239;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
 }
 
 .hero-graph-day-dot {
   fill: var(--marketing-green);
-  opacity: 0.85;
-}
-
-.hero-graph-scribble {
-  font-family: 'Caveat', cursive;
-  font-size: 19px;
-  fill: #be123c;
-}
-
-.hero-graph-scribble--true {
-  fill: var(--marketing-green-dark);
+  opacity: 0.9;
 }
 
 /* Is this you — own band under the hero */
@@ -22313,6 +22342,117 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .marketing-is-you--band .marketing-is-you-title {
   font-size: clamp(1.5rem, 2.6vw, 1.9rem);
+}
+
+/* Not a cash flow forecast — heading bar + side-by-side */
+.marketing-vs-forecast {
+  border-top: 1px solid var(--border);
+}
+
+.marketing-vs-forecast-bar {
+  padding: 18px 24px;
+  background: var(--marketing-ink);
+  text-align: center;
+}
+
+.marketing-vs-forecast-bar-label {
+  margin: 0;
+  font-family: 'Bricolage Grotesque', var(--font-display);
+  font-size: clamp(1.1rem, 2.4vw, 1.45rem);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.marketing-vs-forecast .marketing-section-inner {
+  padding: 48px 24px 56px;
+}
+
+.marketing-section-lead--wide {
+  max-width: 52rem;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 1.12rem;
+  line-height: 1.65;
+}
+
+.marketing-vs-forecast-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  max-width: 56rem;
+  margin: 0 auto;
+}
+
+.marketing-vs-forecast-card {
+  padding: 28px 26px;
+  border-radius: 20px;
+  border: 2px solid var(--border);
+  background: #fff;
+}
+
+.marketing-vs-forecast-card--forecast {
+  border-color: rgba(82, 82, 91, 0.25);
+  background: linear-gradient(180deg, #fafafa 0%, #fff 100%);
+}
+
+.marketing-vs-forecast-card--true {
+  border-color: rgba(14, 122, 82, 0.35);
+  background: linear-gradient(180deg, #f0fdf6 0%, #fff 100%);
+}
+
+.marketing-vs-forecast-card h3 {
+  margin: 0 0 18px;
+  font-size: clamp(1.2rem, 2vw, 1.45rem);
+  font-weight: 800;
+}
+
+.marketing-vs-forecast-card--forecast h3 {
+  color: var(--text-secondary);
+}
+
+.marketing-vs-forecast-card--true h3 {
+  color: var(--marketing-green-dark);
+}
+
+.marketing-vs-forecast-card ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.marketing-vs-forecast-card li {
+  position: relative;
+  padding-left: 1.5rem;
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.marketing-vs-forecast-card li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.marketing-vs-forecast-card--true li::before {
+  color: var(--marketing-green);
+}
+
+.marketing-vs-forecast-close {
+  max-width: 44rem;
+  margin: 32px auto 0;
+  text-align: center;
+  font-size: 1.12rem;
+  font-weight: 650;
+  line-height: 1.55;
+  color: var(--text-primary);
 }
 
 @media (max-width: 900px) {
@@ -22336,5 +22476,9 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
   .marketing-is-you--band {
     padding: 22px 18px 20px;
+  }
+
+  .marketing-vs-forecast-grid {
+    grid-template-columns: 1fr;
   }
 }

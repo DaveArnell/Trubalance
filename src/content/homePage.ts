@@ -11,7 +11,7 @@ export const HOME_HERO = {
   headlineStart: 'A better way to manage',
   headlineHighlight: 'your business finances.',
   subheading:
-    'The True Balance Method helps business owners understand where their business really stands financially by continuously accounting for known commitments and planning ahead for future obligations.',
+    'One number for where your business stands today — with known commitments and future bills already accounted for.',
 } as const
 
 export const HOME_IS_THIS_YOU = {
@@ -43,6 +43,33 @@ export const HOME_BANK_GAP = {
     },
   ],
   close: 'This is where many business owners lose clarity — and why day-to-day decisions feel like guesswork.',
+} as const
+
+export const HOME_VS_FORECAST = {
+  bar: 'Not a cash flow forecast',
+  heading: 'Today’s picture — not a future projection',
+  lead:
+    'Cash flow forecasts are useful, but most business owners don’t keep them updated. Bills still land in big lumps on dates. True Balance answers a different question: where do you stand right now?',
+  forecast: {
+    title: 'Cash flow forecast',
+    points: [
+      'Projects what might happen in the future',
+      'Usually updated occasionally — when someone has time',
+      'Costs jump on due dates — everything hits at once',
+      'Needs a dedicated session to stay useful',
+    ],
+  },
+  trueBalance: {
+    title: 'True Balance',
+    points: [
+      'Shows where you stand today',
+      'Checked every day — one number you can trust',
+      'Known costs build a little each day before they’re paid',
+      'Future obligations are already accounted for in today’s figure',
+    ],
+  },
+  close:
+    'You’re not forecasting the future. You’re understanding now — with what’s already committed and what’s coming already built in.',
 } as const
 
 export const HOME_METHOD_PILLARS = {
@@ -105,15 +132,19 @@ export const HOME_HOW_IT_WORKS = {
 
 export const HOME_DIFFERENT_QUESTIONS = {
   heading: 'Different tools answer different questions',
-  lead: 'Bookkeeping, accounting software and the True Balance Method are not competing for the same job.',
+  lead: 'Bookkeeping, accounting software, cash flow forecasts and the True Balance Method are not competing for the same job.',
   items: [
     {
       title: 'Bookkeeping & accounting',
       body: 'Record the past — what happened, what was owed, what was paid.',
     },
     {
+      title: 'Cash flow forecast',
+      body: 'Project the future — useful when kept up to date, but most owners don’t run one every day.',
+    },
+    {
       title: 'True Balance Method',
-      body: 'Help you understand today — what’s already committed, and what’s left in the business.',
+      body: 'Understand today — what’s already committed, what’s building, and what’s left in the business.',
     },
   ],
 } as const

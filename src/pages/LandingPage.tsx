@@ -18,6 +18,7 @@ import {
   HOME_HOW_IT_WORKS,
   HOME_IS_THIS_YOU,
   HOME_METHOD_PILLARS,
+  HOME_VS_FORECAST,
   HOME_WHO_FOR,
 } from '../content/homePage'
 import { METHOD_PAGE_PATH } from '../content/trueBalanceMethod'
@@ -124,6 +125,44 @@ export function LandingPage() {
               ))}
             </div>
             <p className="marketing-bank-gap-close">{HOME_BANK_GAP.close}</p>
+          </div>
+        </section>
+
+        {/* 2b. Not a cash flow forecast — clear contrast */}
+        <section
+          className="marketing-vs-forecast"
+          id="vs-forecast"
+          aria-labelledby="vs-forecast-heading"
+        >
+          <div className="marketing-vs-forecast-bar">
+            <p className="marketing-vs-forecast-bar-label">{HOME_VS_FORECAST.bar}</p>
+          </div>
+          <div className="marketing-section-inner">
+            <div className="marketing-section-head marketing-section-head--center">
+              <h2 id="vs-forecast-heading">{HOME_VS_FORECAST.heading}</h2>
+              <p className="marketing-section-lead marketing-section-lead--wide">
+                {HOME_VS_FORECAST.lead}
+              </p>
+            </div>
+            <div className="marketing-vs-forecast-grid">
+              <article className="marketing-vs-forecast-card marketing-vs-forecast-card--forecast">
+                <h3>{HOME_VS_FORECAST.forecast.title}</h3>
+                <ul>
+                  {HOME_VS_FORECAST.forecast.points.map((point) => (
+                    <li key={point}>{point}</li>
+                  ))}
+                </ul>
+              </article>
+              <article className="marketing-vs-forecast-card marketing-vs-forecast-card--true">
+                <h3>{HOME_VS_FORECAST.trueBalance.title}</h3>
+                <ul>
+                  {HOME_VS_FORECAST.trueBalance.points.map((point) => (
+                    <li key={point}>{point}</li>
+                  ))}
+                </ul>
+              </article>
+            </div>
+            <p className="marketing-vs-forecast-close">{HOME_VS_FORECAST.close}</p>
           </div>
         </section>
 
