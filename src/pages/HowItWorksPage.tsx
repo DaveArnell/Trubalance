@@ -19,14 +19,15 @@ export function HowItWorksPage() {
           <div className="marketing-section-inner">
             <div className="marketing-section-head marketing-section-head--center demo-scenarios-head">
               <p className="marketing-eyebrow">How it works</p>
-              <h1>Learn a simple financial routine</h1>
+              <h1>From commitments to one number you can trust</h1>
               <p className="marketing-section-lead">
-                The True Balance Method is not a long software course. Connect the business, keep light
-                daily logging, follow the monthly Reserve Planner — and let the app run the maths.
+                Start with the problem you already know — what’s spoken for, what large bills are
+                coming — then follow a simple routine. Connect the business, keep light daily logging,
+                follow the monthly Reserve Planner, and let the platform run the maths.
               </p>
               <p className="marketing-section-lead muted">
                 Want the full explanation first?{' '}
-                <Link to={METHOD_PAGE_PATH}>Read the True Balance Method</Link>.
+                <Link to={METHOD_PAGE_PATH}>Learn the True Balance Method</Link>.
               </p>
             </div>
 
@@ -44,7 +45,7 @@ export function HowItWorksPage() {
 
             <div className="demo-scenarios-footer">
               <Link to="/signup" className="btn-primary btn-large">
-                Follow the Method in your business
+                Start free trial
               </Link>
               <Link to="/see-how-it-works" className="btn-secondary btn-large">
                 Try a live demo

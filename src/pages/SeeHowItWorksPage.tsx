@@ -19,17 +19,17 @@ export function SeeHowItWorksPage() {
         <section className="demo-scenarios-section demo-scenarios-section--landing">
           <div className="marketing-section-inner">
             <div className="marketing-section-head marketing-section-head--center demo-scenarios-head">
-              <p className="marketing-eyebrow">Try demo</p>
-              <h1>Try it live</h1>
+              <p className="marketing-eyebrow">See the platform</p>
+              <h1>See it with a live business</h1>
               <p className="marketing-section-lead">
-                Explore a fully set-up workspace — continuous accrual, Reserve Planner and one True
-                Balance — without signing up.
+                Explore a fully set-up workspace — commitments building daily, the Reserve Planner,
+                and one True Balance — without signing up.
               </p>
               <p className="marketing-section-lead muted">
-                Prefer the routine first?{' '}
-                <Link to="/how-it-works">See how it works</Link>
+                Prefer to understand the problem first?{' '}
+                <Link to={METHOD_PAGE_PATH}>Learn the Method</Link>
                 {' · '}
-                <Link to={METHOD_PAGE_PATH}>Read the Method</Link>.
+                <Link to="/how-it-works">See how it works</Link>.
               </p>
             </div>
 

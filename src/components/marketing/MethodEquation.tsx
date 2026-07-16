@@ -45,7 +45,7 @@ export function MethodEquation({ variant = 'home' }: MethodEquationProps) {
           </span>
           <div>
             <p className="hero-balance-equation-label">{committedLabel}</p>
-            <p className="hero-balance-equation-hint">Payroll, VAT, tax and bills building up</p>
+            <p className="hero-balance-equation-hint">Already spoken for — building before payday</p>
           </div>
         </div>
         <p className="hero-balance-equation-value">{committed}</p>

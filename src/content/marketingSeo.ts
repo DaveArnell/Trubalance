@@ -1,16 +1,16 @@
 /** SEO copy for public marketing routes (used with usePageMeta). */
 
 export const HOME_SEO = {
-  title: 'True Balance — A better way to manage business finances',
+  title: 'True Balance — Know where your business really stands',
   description:
-    'The True Balance Method helps UK business owners understand what their bank balance is made up of — committed money, future obligations and what is left in the business. The app keeps that Method current every day.',
+    'Financial clarity for UK business owners: understand what’s already committed in your bank balance, plan for VAT and annual bills, and make day-to-day decisions with confidence.',
   path: '/',
 } as const
 
 export const METHOD_SEO = {
-  title: 'The True Balance Method — Daily habits & Reserve Planner',
+  title: 'The True Balance Method — Daily clarity & Reserve Planner',
   description:
-    'Learn the True Balance Method: why bank balances mislead, how continuous accrual works, how the Reserve Planner funds annual bills, and the two habits that keep it current.',
+    'Why bank balances mislead, how known commitments build before payday, how the Reserve Planner stops large bills catching you out, and the two habits that keep the picture honest.',
   path: '/true-balance-method',
 } as const
 
@@ -22,30 +22,30 @@ export const PRICING_SEO = {
 } as const
 
 export const HOW_IT_WORKS_SEO = {
-  title: 'How it works — The True Balance Method routine',
+  title: 'How it works — From commitments to one number you can trust',
   description:
-    'Seven steps to follow the True Balance Method: connect your business, add commitments, build the Reserve Planner, keep light daily logging, and confirm the monthly transfer.',
+    'Seven steps to financial clarity: connect your business, add commitments, build the Reserve Planner, keep light daily logging, and confirm the monthly transfer.',
   path: '/how-it-works',
 } as const
 
 export const HABITS_SEO = {
-  title: 'Habits — Daily logging & monthly Reserve Planner',
+  title: 'Habits — Daily clarity & monthly Reserve Planner',
   description:
-    'The True Balance Method routine: light daily logging to keep balances and obligations current, and a short monthly Reserve Planner review.',
+    'A light daily update to keep balances and commitments current, and a short monthly Reserve Planner review so large bills stop catching you out.',
   path: '/habits',
 } as const
 
 export const WHO_FOR_SEO = {
-  title: 'Who it’s for — True Balance Method',
+  title: 'Who it’s for — Owner-managed businesses without finance teams',
   description:
-    'Who the True Balance Method is designed for — and who it is probably not for. Clarity for UK business owners, whether or not they already use bookkeeping software.',
+    'True Balance is for owners who look at the bank balance and wonder what’s spoken for — especially those without a finance team who still want confidence every day.',
   path: '/who-its-for',
 } as const
 
 export const SEE_HOW_SEO = {
-  title: 'Try demo — Live True Balance Method businesses',
+  title: 'Try demo — See True Balance with a live business',
   description:
-    'Explore the True Balance Method in live demo workspaces: continuous accrual, Reserve Planner and one True Balance. Trades, café and leisure examples.',
+    'Open a café, trades or leisure demo and see daily accruals, the Reserve Planner and one True Balance number in action.',
   path: '/see-how-it-works',
 } as const
 
@@ -71,9 +71,9 @@ export const LOGIN_SEO = {
 } as const
 
 export const SIGNUP_SEO = {
-  title: 'Sign up — Follow the True Balance Method',
+  title: 'Sign up — Start with clearer day-to-day finances',
   description:
-    'Create your True Balance account and follow the Method in software. Founder access during early access for UK small business owners.',
+    'Create your True Balance account. Founder access during early access for UK small business owners.',
   path: '/signup',
 } as const
 

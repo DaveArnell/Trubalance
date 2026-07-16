@@ -45,7 +45,7 @@ export function homePageJsonLd() {
       name: COMPANY_INFO.productName,
       url: COMPANY_INFO.website,
       description:
-        'The True Balance Method for UK business owners — understand what your bank balance is made up of after commitments and reserves, then keep that picture current with the app.',
+        'Financial clarity for UK business owners — understand what’s already committed in the bank balance, plan for VAT and annual bills, and make day-to-day decisions with confidence.',
       publisher: { '@type': 'Organization', name: COMPANY_INFO.legalName },
     },
     {
@@ -61,7 +61,7 @@ export function homePageJsonLd() {
         description: 'Founder lifetime access during early access',
       },
       description:
-        'Shows UK business owners what cash is genuinely available after committed funds, VAT, tax reserves, and expected receipts.',
+        'Helps UK business owners see what’s already committed, stop being surprised by large bills, and know where the business stands today.',
     },
   ]
 }

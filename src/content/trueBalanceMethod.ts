@@ -7,53 +7,56 @@ export const METHOD_BLOG_CATEGORY = 'The True Balance Method' as const
 export const METHOD_PAGE_TITLE = 'The True Balance Method'
 
 export const METHOD_PAGE_SUBTITLE =
-  'A simple financial management system for understanding what your bank balance is actually made up of.'
+  'A practical way to understand where your business really stands financially — what’s already committed, what’s building for future bills, and what’s left.'
 
 export const METHOD_MANTRA =
   'Do not manage your business from your bank balance. Manage it from your True Balance.'
 
-/** Questions the Method keeps answering — homepage clarity section. */
+export const METHOD_OUTCOME =
+  'Financial clarity and confidence — always knowing what’s already committed, and what you can actually afford today.'
+
+/** Questions owners wake up with — used before introducing the Method. */
 export const METHOD_CLARITY_QUESTIONS = [
-  'How much of my bank balance is already committed?',
-  'How much belongs to VAT, payroll, suppliers or future bills?',
-  'How much is left in the business after that?',
-  'What financial position is my business actually in today?',
+  'Can I actually afford to spend this money?',
+  'Why do I keep getting caught out by VAT or annual bills?',
+  'How much of my bank balance is actually already spoken for?',
+  'Do I really know where my business stands today?',
 ] as const
 
 export const METHOD_WHY_COMPARE = {
   traditional: {
-    title: 'Traditional approach',
+    title: 'Managing from the bank balance',
     points: [
-      'Look at the bank balance.',
+      'Look at the bank balance and hope it’s enough.',
       'Wait until bills arrive.',
       'React when money leaves.',
-      'Hope enough has been left.',
+      'Get caught out by VAT and annual costs.',
     ],
   },
   method: {
     title: 'True Balance Method',
     points: [
-      'Commitments build continuously.',
-      'Annual bills are planned throughout the year.',
-      'Your financial position is updated every day.',
-      'You understand exactly what your money is made up of.',
+      'Known commitments build continuously before payday.',
+      'Large irregular bills become planned monthly transfers.',
+      'You see what’s already spoken for — every day.',
+      'One clearer number for day-to-day decisions.',
     ],
   },
 } as const
 
 export const METHOD_WHO_FOR = [
-  'run a business and need a clearer read of the money in the bank — whether or not they use bookkeeping software',
-  'sometimes wonder how much of the bank balance is already spoken for',
-  'deal with VAT, payroll, annual bills and future commitments',
-  'want clearer finances without becoming an accountant',
-  'prefer a simple financial routine over complicated reports',
+  'run an owner-managed business without a finance team',
+  'rely on an accountant or bookkeeper, but still need a clearer daily picture',
+  'look at the bank balance and wonder how much is already spoken for',
+  'get caught out by VAT, tax or annual bills',
+  'want confidence in day-to-day decisions without complicated forecasts',
+  'have regular commitments and larger irregular costs to plan for',
 ] as const
 
 export const METHOD_WHO_NOT_FOR = [
-  'You already have a finance department.',
-  'Your accountant already produces daily management information.',
+  'You already have a finance department producing daily management information.',
   'Your business has very few financial commitments.',
-  'You are only looking for bookkeeping or accounting software.',
+  'You only need bookkeeping or accounting software — and nothing more.',
 ] as const
 
 /** Primary marketing spine — two simple habits. */
@@ -62,14 +65,14 @@ export const METHOD_TWO_HABITS = [
     id: 'daily',
     title: 'Daily',
     time: 'Light logging',
-    lead: 'Keep the picture honest — then understand your position.',
-    body: 'A short update is enough. The software does the calculations. You see what your bank balance is made up of.',
+    lead: 'Keep the picture honest — then see where you stand.',
+    body: 'A short update is enough. The software does the calculations. You see what’s already committed and what’s left.',
     tasks: [
       'Refresh your bank balances when they have changed',
       'Mark payments as paid when they leave the account',
       'Add or change obligations when something in the business changes',
       'Add planned new payments when you know they are coming',
-      'Check your True Balance and understand today’s position',
+      'Check your True Balance before day-to-day decisions',
     ],
   },
   {
@@ -92,9 +95,9 @@ export const METHOD_TWO_HABITS = [
 export const METHOD_THREE_PRINCIPLES = [
   {
     id: 'continuous-accrual',
-    title: 'Continuous Accrual',
-    lead: 'Monthly costs build every day — not only on payday.',
-    body: 'Payroll, rent, utilities and similar obligations accrue continuously so today’s position already reflects tomorrow’s bills.',
+    title: 'Daily financial clarity',
+    lead: 'Known commitments build every day — not only on payday.',
+    body: 'Payroll, rent, utilities and similar obligations accrue continuously so today’s position already reflects money spoken for.',
     examples: [
       'Payroll',
       'Rent',
@@ -107,7 +110,7 @@ export const METHOD_THREE_PRINCIPLES = [
   {
     id: 'reserve-planning',
     title: 'Reserve Planner',
-    lead: 'Annual and irregular bills become a managed funding plan.',
+    lead: 'Large irregular costs become manageable monthly commitments.',
     body: 'Not a simple “save £500 a month” habit. The Reserve Planner sets monthly targets, recommends transfers into or out of the reserve account, then those amounts accrue daily like any other commitment.',
     examples: [
       'VAT',
@@ -121,8 +124,8 @@ export const METHOD_THREE_PRINCIPLES = [
   },
   {
     id: 'one-decision-number',
-    title: 'One Decision Number',
-    lead: 'Your True Balance is the clearer read of the position.',
+    title: 'One number you can trust',
+    lead: 'Your True Balance is the clearer read of today’s position.',
     body: 'The bank balance becomes a reference. True Balance shows what is left after commitments that have already built up — so you understand the figure, not just the total in the app.',
     examples: ['Purchases', 'Hires', 'Quiet months', 'Owner drawings'],
   },
@@ -131,7 +134,7 @@ export const METHOD_THREE_PRINCIPLES = [
 export const METHOD_RESERVE_PLANNER = {
   title: 'How the Reserve Planner works',
   notSavings:
-    'The Reserve Planner is not a savings feature. It is a core pillar of the True Balance Method — a continuously managed annual funding plan.',
+    'The Reserve Planner is not “saving for bills.” It is a core pillar of the Method — turning unpredictable large costs into predictable monthly commitments.',
   steps: [
     'Identify every annual and irregular obligation (VAT, corporation tax, insurance, quarterly rent, service charges, licences, large repairs).',
     'Convert each into monthly funding targets for the year.',
@@ -145,7 +148,7 @@ export const METHOD_CUSTOMER_JOURNEY = [
   {
     step: '01',
     title: 'Connect your business',
-    body: 'Add your business, venues and bank accounts so the Method has a starting position.',
+    body: 'Add your business, venues and bank accounts so you have a starting position.',
   },
   {
     step: '02',
@@ -159,33 +162,33 @@ export const METHOD_CUSTOMER_JOURNEY = [
   },
   {
     step: '04',
-    title: 'Continuous accrual',
-    body: 'The app accrues monthly commitments and reserve requirements automatically between updates.',
+    title: 'Commitments build continuously',
+    body: 'Monthly costs and reserve requirements accrue automatically between updates — so you always see what’s spoken for.',
   },
   {
     step: '05',
     title: 'Keep it current each day',
-    body: 'Update bank balances, mark payments paid, and adjust obligations or planned payments when something changes — then decide from your True Balance.',
+    body: 'Update bank balances, mark payments paid, and adjust obligations when something changes — then decide from your True Balance.',
   },
   {
     step: '06',
     title: 'Follow the monthly Reserve Planner recommendation',
-    body: 'About five minutes. Confirm the transfer in or out so the reserve plan stays on track.',
+    body: 'About five minutes. Confirm the transfer in or out so large bills stop catching you out.',
   },
   {
     step: '07',
     title: 'Repeat',
-    body: 'Light daily logging. Monthly Reserve Planner. Continuous financial clarity.',
+    body: 'Light daily logging. Monthly Reserve Planner. Ongoing financial clarity.',
   },
 ] as const
 
 export const METHOD_WHY_IT_WORKS = [
-  'No more wondering if the money is actually available',
-  'No more forgetting annual bills',
+  'Always know what’s already committed',
+  'Stop being surprised by large bills',
   'Less stress around VAT and tax',
-  'A more stable picture of the business',
-  'Better spending decisions',
-  'Greater confidence day to day',
+  'A clearer picture of where the business stands today',
+  'Better day-to-day spending decisions',
+  'Confidence without complicated forecasts',
 ] as const
 
 export const METHOD_SOFTWARE_HELPS = [

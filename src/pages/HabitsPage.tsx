@@ -20,8 +20,8 @@ export function HabitsPage() {
               <p className="marketing-eyebrow marketing-eyebrow--vivid">The routine</p>
               <h1>Daily and monthly habits</h1>
               <p className="marketing-section-lead">
-                The software handles the calculations. You follow a light routine so the True Balance
-                Method stays honest — and you can see what your bank balance is made up of.
+                The platform handles the calculations. You follow a light routine so you always know
+                what’s already committed — and large bills stop catching you out.
               </p>
             </div>
 

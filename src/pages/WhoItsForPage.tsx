@@ -5,6 +5,7 @@ import {
   MarketingShell,
 } from '../components/marketing/MarketingLayout'
 import {
+  METHOD_CLARITY_QUESTIONS,
   METHOD_PAGE_PATH,
   METHOD_WHO_FOR,
   METHOD_WHO_NOT_FOR,
@@ -22,12 +23,18 @@ export function WhoItsForPage() {
           <div className="marketing-section-inner">
             <div className="marketing-section-head marketing-section-head--center">
               <p className="marketing-eyebrow marketing-eyebrow--vivid">Fit</p>
-              <h1>Who is the True Balance Method for?</h1>
+              <h1>Who True Balance is designed for</h1>
               <p className="marketing-section-lead">
-                Built for owners who already run a business — and still want a clearer read of the
-                money in the bank.
+                Owner-managed businesses that want confidence without complexity — especially if
+                these questions sound familiar.
               </p>
             </div>
+
+            <ul className="marketing-clarity-questions" aria-label="Familiar questions">
+              {METHOD_CLARITY_QUESTIONS.map((question) => (
+                <li key={question}>{question}</li>
+              ))}
+            </ul>
 
             <div className="marketing-method-audience marketing-method-audience--page">
               <article className="marketing-method-audience-card">
@@ -49,7 +56,7 @@ export function WhoItsForPage() {
             </div>
 
             <p className="marketing-method-more">
-              Still exploring? <Link to={METHOD_PAGE_PATH}>Read the Method</Link>
+              Still exploring? <Link to={METHOD_PAGE_PATH}>Learn the Method</Link>
               {' · '}
               <Link to="/habits">See the daily routine</Link>
             </p>
@@ -59,7 +66,7 @@ export function WhoItsForPage() {
                 Start free trial
               </Link>
               <Link to="/see-how-it-works" className="btn-secondary btn-large">
-                Try a live demo
+                See the Platform
               </Link>
             </div>
           </div>

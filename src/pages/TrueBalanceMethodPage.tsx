@@ -29,7 +29,7 @@ export function TrueBalanceMethodPage() {
       <main className="marketing-main marketing-method-page">
         <header className="method-edu-hero">
           <div className="method-edu-inner">
-            <p className="marketing-eyebrow marketing-eyebrow--vivid">Financial management system</p>
+            <p className="marketing-eyebrow marketing-eyebrow--vivid">Financial clarity</p>
             <h1>{METHOD_PAGE_TITLE}</h1>
             <p className="method-edu-hero-lead">{METHOD_PAGE_SUBTITLE}</p>
             <p className="method-edu-mantra">{METHOD_MANTRA}</p>
@@ -40,8 +40,9 @@ export function TrueBalanceMethodPage() {
           <div className="method-edu-inner method-edu-inner--narrow">
             <h2 id="method-problem-heading">Why bank balances mislead</h2>
             <p className="method-edu-prose">
-              Business owners often make financial decisions using their bank balance. A bank balance
-              only tells you where your money is — not how much of it is genuinely available.
+              Most owners wake up with the same questions: can I afford this, how much is already
+              spoken for, will VAT catch me out again? The bank balance can’t answer them — it only
+              tells you where money sits, not how much of it is genuinely available.
             </p>
             <div className="method-edu-callout">
               <p>
@@ -63,9 +64,9 @@ export function TrueBalanceMethodPage() {
 
         <section className="method-edu-section method-edu-section--tint" aria-labelledby="method-goal-heading">
           <div className="method-edu-inner method-edu-inner--narrow">
-            <h2 id="method-goal-heading">The goal</h2>
+            <h2 id="method-goal-heading">The outcome</h2>
             <p className="method-edu-prose method-edu-prose--lead">
-              One realistic financial position you can trust every day — your True Balance.
+              Financial clarity and confidence — one realistic position you can trust every day.
             </p>
             <div className="method-edu-compare">
               <div className="method-edu-compare-card method-edu-compare-card--muted">
@@ -203,10 +204,10 @@ export function TrueBalanceMethodPage() {
         <section className="method-edu-section method-edu-section--tint" aria-labelledby="method-software-heading">
           <div className="method-edu-inner">
             <div className="method-edu-section-head">
-              <h2 id="method-software-heading">How the software automates the Method</h2>
+              <h2 id="method-software-heading">How the platform makes the Method easy</h2>
               <p className="method-edu-section-lead">
-                The Method stands on its own. The True Balance app is the easiest way to follow it
-                every day.
+                The outcome is clarity. The Method delivers it. The True Balance app simply makes the
+                Method easy to follow every day.
               </p>
             </div>
             <div className="method-edu-software-grid">
@@ -221,9 +222,8 @@ export function TrueBalanceMethodPage() {
               <div className="method-edu-software-card method-edu-software-card--aside">
                 <h3>What it is not</h3>
                 <p>
-                  Not another bookkeeping package. Bookkeeping tells you what happened. The True
-                  Balance Method helps you decide what to do next — alongside your accountant’s
-                  software.
+                  Not another bookkeeping package. Bookkeeping records the past. The True Balance
+                  Method helps you understand today — alongside your accountant’s software.
                 </p>
                 <p className="muted method-edu-disclaimer">
                   It does not provide regulated financial, tax or accounting advice. Always take

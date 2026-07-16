@@ -65,7 +65,7 @@ export const PRICING_HEADLINE =
   'Plans that grow with how your business is structured.'
 
 export const PRICING_SUBHEADLINE =
-  'Start with one business. Add venues when you expand. Move to Business Group when you operate more than one company. Every plan follows the True Balance Method.'
+  'Start with one business. Add venues when you expand. Move to Business Group when you operate more than one company. Every plan supports clearer day-to-day financial decisions.'
 
 export const PRICING_FOOTNOTE =
   'Not sure which plan you need? Start free and set up however you like. After your trial, we recommend the plan that matches what you have built.'

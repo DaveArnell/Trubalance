@@ -84,7 +84,7 @@ export function MarketingFooter() {
             True Balance
           </Link>
           <p className="marketing-footer-tagline">
-            Do not manage your business from your bank balance. Manage it from your True Balance.
+            Know what’s already committed. Make day-to-day decisions with confidence.
           </p>
           <CompanyLegalNotice variant="footer" />
         </div>

@@ -21,9 +21,9 @@ export function BlogIndexPage() {
   const activeCategory = searchParams.get('category')
 
   usePageMeta({
-    title: 'Blog — Learn the True Balance Method | True Balance',
+    title: 'Blog — Financial clarity for UK business owners | True Balance',
     description:
-      'Articles teaching the True Balance Method: bank balance isn’t available cash, continuous accrual, VAT reserves, and financial management vs accounting software.',
+      'Articles on what’s already committed in the bank balance, VAT reserves, and why bookkeeping and daily clarity answer different questions.',
     path: activeCategory ? `/blog?category=${encodeURIComponent(activeCategory)}` : '/blog',
   })
 
@@ -38,22 +38,22 @@ export function BlogIndexPage() {
       <main className="blog-page">
         <div className="blog-page-inner">
           <header className="blog-index-header">
-            <p className="marketing-eyebrow marketing-eyebrow--vivid">Learn the Method</p>
-            <h1>Teaching the True Balance Method</h1>
+            <p className="marketing-eyebrow marketing-eyebrow--vivid">Clarity</p>
+            <h1>Articles on knowing where you stand</h1>
             <p className="blog-index-lead">
-              Why your bank balance is not spending money, why costs should accrue every day, how the
-              Reserve Planner funds annual bills, and the two habits every business owner can keep.
-              The True Balance app is the easiest way to follow the Method.
+              Why your bank balance isn’t enough, how known commitments build before payday, how to
+              stop VAT and annual bills catching you out, and the light habits that keep the picture
+              honest.
             </p>
             <div className="blog-index-cta">
               <Link to="/true-balance-method" className="btn-primary">
-                The True Balance Method
+                Learn the Method
               </Link>
               <Link to="/see-how-it-works" className="btn-secondary">
-                See it in a demo
+                See the Platform
               </Link>
               <Link to="/signup" className="btn-secondary">
-                Follow it in software
+                Start free trial
               </Link>
             </div>
           </header>
