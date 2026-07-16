@@ -8,6 +8,7 @@ import {
 } from '../components/marketing/MarketingLayout'
 import { MethodEquation } from '../components/marketing/MethodEquation'
 import { HeroBalanceGraphs } from '../components/marketing/HeroBalanceGraphs'
+import { METHOD_HOW_ILLUSTRATIONS } from '../components/marketing/MethodHowIllustrations'
 import { CompanyLegalNotice } from '../components/marketing/CompanyLegalNotice'
 import {
   HOME_BANK_GAP,
@@ -223,38 +224,43 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* 5. How it works — equation + steps */}
+        {/* 5. How it works — illustrated 3 steps */}
         <section
-          className="marketing-how-home"
+          className="marketing-how-home marketing-how-home--illustrated"
           id="how-it-works"
           aria-labelledby="how-home-heading"
         >
           <div className="marketing-section-inner">
             <div className="marketing-section-head marketing-section-head--center">
-              <p className="marketing-eyebrow marketing-eyebrow--vivid">
-                {HOME_HOW_IT_WORKS.eyebrow}
-              </p>
-              <h2 id="how-home-heading">{HOME_HOW_IT_WORKS.heading}</h2>
+              <p className="marketing-how-eyebrow">{HOME_HOW_IT_WORKS.eyebrow}</p>
+              <h2 id="how-home-heading">
+                {HOME_HOW_IT_WORKS.headingStart}
+                <span className="marketing-how-heading-accent">{HOME_HOW_IT_WORKS.headingHighlight}</span>
+              </h2>
               <p className="marketing-section-lead">{HOME_HOW_IT_WORKS.lead}</p>
             </div>
 
-            <div className="marketing-method-equation-wrap">
-              <MethodEquation variant="home" />
-            </div>
-
-            <ol className="marketing-how-steps">
-              {HOME_HOW_IT_WORKS.steps.map((step, index) => (
-                <li key={step.title} className="marketing-how-step">
-                  <span className="marketing-how-step-num" aria-hidden>
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
-                  <div>
+            <ol className="marketing-how-illust-grid">
+              {HOME_HOW_IT_WORKS.steps.map((step, index) => {
+                const Illust = METHOD_HOW_ILLUSTRATIONS[index]
+                return (
+                  <li key={step.title} className="marketing-how-illust-step">
+                    <div className="marketing-how-illust-card">
+                      {Illust ? <Illust /> : null}
+                    </div>
+                    <p className="marketing-how-illust-num" aria-hidden>
+                      {String(index + 1).padStart(2, '0')}
+                    </p>
                     <h3>{step.title}</h3>
                     <p>{step.body}</p>
-                  </div>
-                </li>
-              ))}
+                  </li>
+                )
+              })}
             </ol>
+
+            <div className="marketing-method-equation-wrap marketing-method-equation-wrap--after">
+              <MethodEquation variant="home" />
+            </div>
           </div>
         </section>
 

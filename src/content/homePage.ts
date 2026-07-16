@@ -108,24 +108,21 @@ export const HOME_WHO_FOR = {
 
 export const HOME_HOW_IT_WORKS = {
   eyebrow: 'How it works',
-  heading: 'From commitments to one number you can trust',
-  lead: 'Regular costs build daily. The Reserve Planner turns annual bills into monthly transfers. Together they keep your True Balance honest.',
+  headingStart: "It's just ",
+  headingHighlight: '3 steps.',
+  lead: 'Set up once. Then a light daily check and a short monthly reserve review keep the picture honest.',
   steps: [
     {
-      title: 'Regular commitments build daily',
-      body: 'Known monthly costs accrue continuously so today’s position already reflects money spoken for.',
+      title: 'Known commitments build every day',
+      body: 'Payroll, rent and similar costs accrue continuously — so today’s position already reflects money spoken for, not only on payday.',
     },
     {
-      title: 'Reserve Planner funds annual costs',
-      body: 'Irregular bills become manageable monthly transfers — into or out of reserve — so you’re not caught out.',
+      title: 'Reserve Planner turns big bills monthly',
+      body: 'VAT, insurance and annual costs become a simple monthly transfer into or out of reserve. No more surprises.',
     },
     {
-      title: 'True Balance, every day',
+      title: 'One True Balance you can trust',
       body: 'Cash minus what’s already committed, plus realistic expected receipts — one number for day-to-day decisions.',
-    },
-    {
-      title: 'A light daily + monthly routine',
-      body: 'Update balances when they change. Once a month, follow the Reserve Planner recommendation.',
     },
   ],
 } as const
