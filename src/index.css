@@ -12772,7 +12772,7 @@ tr.sheet-row--received td {
   font-size: 1.2rem;
 }
 
-/* Educational Method page — paper theme, left-aligned, matches homepage */
+/* Educational Method page — one centred column, text left-aligned inside it */
 .method-edu-inner {
   max-width: 68rem;
   margin: 0 auto;
@@ -12780,9 +12780,20 @@ tr.sheet-row--received td {
 }
 
 .method-edu-inner--narrow {
+  max-width: 68rem;
+  margin: 0 auto;
+}
+
+.method-edu-inner--narrow > h2,
+.method-edu-inner--narrow > .method-edu-prose,
+.method-edu-inner--narrow > .method-edu-callout,
+.method-edu-inner--narrow > .method-edu-section-head,
+.method-edu-inner--narrow > .method-edu-compare,
+.method-edu-inner--narrow > .method-edu-timeline,
+.method-edu-inner--narrow > .method-edu-plain-list,
+.method-edu-inner--narrow > .method-edu-example-note,
+.method-edu-inner--narrow > p {
   max-width: 42rem;
-  margin-left: 0;
-  margin-right: auto;
 }
 
 .method-edu-hero {
@@ -14377,26 +14388,26 @@ tr.sheet-row--received td {
 }
 
 .marketing-pricing-section {
-  background: linear-gradient(180deg, #fafafa 0%, #f4f4f5 100%);
+  background: var(--marketing-paper, #f7f5ef);
 }
 
 .marketing-trial-banner {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 10px 20px;
   margin-bottom: 32px;
-  padding: 14px 20px;
-  border-radius: var(--radius-full);
-  border: 1px solid var(--accent-muted);
+  padding: 16px 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(14, 122, 82, 0.25);
   background: #fff;
-  box-shadow: var(--shadow-sm);
-  text-align: center;
+  box-shadow: none;
+  text-align: left;
 }
 
 .marketing-trial-banner strong {
-  color: var(--accent-text);
+  color: var(--marketing-green-dark, #0a5c3e);
 }
 
 .marketing-trial-banner span {
@@ -14406,16 +14417,16 @@ tr.sheet-row--received td {
 
 .marketing-annual-note {
   margin: 0 0 28px;
-  text-align: center;
+  text-align: left;
   font-size: 0.95rem;
   font-weight: 600;
-  color: var(--accent-text);
+  color: var(--marketing-green-dark, #0a5c3e);
 }
 
 .marketing-pricing-footnote {
-  margin: 28px auto 8px;
+  margin: 28px 0 8px;
   max-width: 36rem;
-  text-align: center;
+  text-align: left;
   font-size: 0.9rem;
   line-height: 1.5;
 }
@@ -15690,23 +15701,33 @@ tr.sheet-row--received td {
 }
 
 .marketing-pricing-section--pop {
-  padding: 72px 24px;
-  background: linear-gradient(180deg, #fff 0%, #eef2ff 100%);
+  padding: 72px 28px;
+  background: var(--marketing-paper, #f7f5ef);
 }
 
 .marketing-pricing-section--pop .marketing-trial-banner {
-  border-color: rgba(99, 102, 241, 0.2);
-  background: linear-gradient(135deg, #eef2ff, #fff);
+  border-color: rgba(14, 122, 82, 0.25);
+  background: #fff;
+  border-radius: 12px;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.marketing-pricing-section--pop .marketing-trial-banner strong {
+  color: var(--marketing-green-dark, #0a5c3e);
 }
 
 .marketing-pricing-section--pop .marketing-price-card {
-  border-color: rgba(99, 102, 241, 0.12);
-  box-shadow: 0 12px 32px rgba(79, 70, 229, 0.08);
+  border: 1px solid rgba(16, 20, 24, 0.12);
+  border-radius: 0;
+  border-top: 3px solid var(--marketing-green, #0e7a52);
+  box-shadow: none;
+  background: #fff;
 }
 
 .marketing-pricing-section--pop .marketing-price-card:hover {
-  border-color: rgba(99, 102, 241, 0.28);
-  transform: translateY(-2px);
+  border-color: rgba(14, 122, 82, 0.35);
+  transform: none;
 }
 
 @media (max-width: 960px) {
@@ -22846,15 +22867,30 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   background: var(--marketing-green);
 }
 
+/* One centred content column; text stays left-aligned inside it */
+.marketing-shell .marketing-section-inner {
+  max-width: 68rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.marketing-shell .marketing-section-head {
+  max-width: 40rem;
+  margin-left: 0;
+  margin-right: auto;
+  text-align: left;
+}
+
 .marketing-shell .marketing-section-head--center {
   text-align: left;
   margin-left: 0;
   margin-right: auto;
 }
 
-.marketing-shell .marketing-section-head--center .marketing-section-lead {
+.marketing-shell .marketing-section-lead {
   margin-left: 0;
   margin-right: auto;
+  text-align: left;
 }
 
 .demo-scenarios-section--landing {
@@ -22875,11 +22911,13 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .marketing-method-audience,
 .marketing-method-habits {
   margin-left: 0;
+  margin-right: 0;
   max-width: none;
 }
 
 .marketing-journey-list {
   margin-left: 0 !important;
+  margin-right: 0 !important;
   max-width: 44rem !important;
 }
 
@@ -22888,8 +22926,19 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   background: transparent !important;
 }
 
+.marketing-clarity-questions {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
 .blog-page {
   background: var(--marketing-paper);
+}
+
+.blog-page-inner {
+  max-width: 46rem;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .blog-card {
@@ -22912,6 +22961,11 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .method-edu-cta {
   background: var(--marketing-ink) !important;
   color: #fff;
+}
+
+.method-edu-cta .method-edu-inner {
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .method-edu-software-card {
@@ -22942,4 +22996,9 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .marketing-price-amount {
   color: var(--marketing-ink) !important;
+}
+
+.marketing-method-page-cta {
+  border-color: rgba(14, 122, 82, 0.25) !important;
+  background: rgba(14, 122, 82, 0.06) !important;
 }
