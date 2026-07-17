@@ -7,7 +7,7 @@ import type { AppActions } from '../hooks/useAppState'
 import { useTablePreferences } from '../contexts/TablePreferencesContext'
 
 import { getScopeItemLabel } from '../utils/scope'
-import { buildHistoryTable, formatHistoryPeriod } from '../utils/historyTable'
+import { buildHistoryTable, formatHistoryDate, formatHistoryPeriod } from '../utils/historyTable'
 
 import { tablePreferenceClasses } from '../utils/tablePreferences'
 
@@ -52,6 +52,7 @@ interface TrueBalanceHistoryTableProps {
   state: AppState
   viewScope: ViewScope
   graphRange: GraphRange
+  fromDate?: string | null
   openHelp: string | null
   setOpenHelp: (id: string | null) => void
   embedded?: boolean
@@ -64,6 +65,7 @@ export function TrueBalanceHistoryTable({
   state,
   viewScope,
   graphRange,
+  fromDate = null,
   openHelp,
   setOpenHelp,
   embedded = false,
@@ -78,8 +80,8 @@ export function TrueBalanceHistoryTable({
   const tablePrefClasses = tablePreferenceClasses(tablePreferences, 'trends-history')
 
   const { columns, rows } = useMemo(
-    () => buildHistoryTable(state, viewScope, graphRange, 'trueBalance', granularity),
-    [state, viewScope, graphRange, granularity],
+    () => buildHistoryTable(state, viewScope, graphRange, 'trueBalance', granularity, fromDate),
+    [state, viewScope, graphRange, granularity, fromDate],
   )
 
   const setHistoryGranularity = (next: HistoryGranularity) => {
@@ -277,6 +279,7 @@ export function TrueBalanceHistoryTable({
       )}
       <p className="sheet-edit-hint history-range-note">
         {ranges.find((r) => r.key === graphRange)?.label ?? graphRange} range
+        {fromDate ? ` · from ${formatHistoryDate(fromDate)}` : ''}
         {granularity !== 'daily' ? ` · ${granularities.find((g) => g.key === granularity)?.label}` : ''}
         {correctSnapshotMetric && granularity === 'daily' ? ' · Click a value to correct it' : ''}
         {granularity !== 'daily' ? ' · Switch to Daily to edit values' : ''}

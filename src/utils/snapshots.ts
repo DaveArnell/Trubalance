@@ -138,16 +138,29 @@ export function getSnapshotsForDateInScopeTree(
     .sort((a, b) => snapshotScopeSpecificity(a) - snapshotScopeSpecificity(b))
 }
 
-export function filterSnapshotsByRange(snapshots: BalanceSnapshot[], range: GraphRange): BalanceSnapshot[] {
-  if (range === 'all') return snapshots
+export function filterSnapshotsByRange(
+  snapshots: BalanceSnapshot[],
+  range: GraphRange,
+  fromDate?: string | null,
+): BalanceSnapshot[] {
+  let filtered = snapshots
 
-  const cutoff = new Date()
-  if (range === '30d') cutoff.setDate(cutoff.getDate() - 30)
-  else if (range === '90d') cutoff.setDate(cutoff.getDate() - 90)
-  else cutoff.setMonth(cutoff.getMonth() - 12)
+  if (range !== 'all') {
+    const cutoff = new Date()
+    if (range === '30d') cutoff.setDate(cutoff.getDate() - 30)
+    else if (range === '90d') cutoff.setDate(cutoff.getDate() - 90)
+    else cutoff.setMonth(cutoff.getMonth() - 12)
 
-  const cutoffKey = cutoff.toISOString().slice(0, 10)
-  return snapshots.filter((s) => s.date >= cutoffKey)
+    const cutoffKey = cutoff.toISOString().slice(0, 10)
+    filtered = filtered.filter((s) => s.date >= cutoffKey)
+  }
+
+  // Explicit start date: ignore anything earlier (e.g. before a major one-off event).
+  if (fromDate) {
+    filtered = filtered.filter((s) => s.date >= fromDate)
+  }
+
+  return filtered
 }
 
 export function computeTrendStats(snapshots: BalanceSnapshot[], range: GraphRange) {

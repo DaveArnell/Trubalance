@@ -207,6 +207,7 @@ function AppShellInner({
   const { isMobile, mobileNavOpen, closeMobileNav, toggleMobileNav } = useMobileNav()
   const [openHelp, setOpenHelp] = useState<string | null>(null)
   const [graphRange, setGraphRange] = useState<GraphRange>('90d')
+  const [trendFromDate, setTrendFromDate] = useState<string | null>(null)
   const [trendsFocusScope, setTrendsFocusScope] = useState<ViewScope | null>(null)
   const { size: overviewSize, setOverviewSize } = useOverviewSize()
 
@@ -479,6 +480,8 @@ function AppShellInner({
         breakdownColumns,
         graphRange,
         setGraphRange,
+        trendFromDate,
+        setTrendFromDate,
         viewName,
         onBalanceSave: handleBalanceSave,
         activeReserveSummary,
@@ -498,6 +501,7 @@ function AppShellInner({
       metrics,
       breakdownColumns,
       graphRange,
+      trendFromDate,
       viewName,
       handleBalanceSave,
       activeReserveSummary,

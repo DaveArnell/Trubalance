@@ -1877,6 +1877,51 @@ body.widget-canvas-resizing * {
   cursor: not-allowed;
 }
 
+/* Trends "From" date — cut history before a chosen date */
+.trends-from-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.trends-from-date input[type='date'] {
+  margin: 0;
+  padding: 1px 4px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 0.56rem;
+  font-weight: 600;
+  line-height: 1.35;
+  cursor: pointer;
+}
+
+.trends-from-date input[type='date']:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.trends-from-date-clear {
+  margin: 0;
+  padding: 1px 5px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1.35;
+  cursor: pointer;
+}
+
+.trends-from-date-clear:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
 .trends-mini-metrics {
   display: inline-flex;
   flex-wrap: wrap;

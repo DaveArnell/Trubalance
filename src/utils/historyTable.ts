@@ -242,6 +242,7 @@ export function buildHistoryTable(
   range: GraphRange,
   metric: HistoryMetricKey = 'trueBalance',
   granularity: HistoryGranularity = 'daily',
+  fromDate?: string | null,
 ): { columns: HistoryColumn[]; rows: HistoryRow[] } {
   const columns = getHistoryColumns(state, viewScope)
   if (columns.length === 0) return { columns, rows: [] }
@@ -257,7 +258,7 @@ export function buildHistoryTable(
     if (!scope) continue
     snapshotsByKey.set(
       key,
-      filterSnapshotsByRange(getEffectiveSnapshotsForScope(state, scope, viewScope), range),
+      filterSnapshotsByRange(getEffectiveSnapshotsForScope(state, scope, viewScope), range, fromDate),
     )
   }
 
@@ -330,6 +331,7 @@ export function alignSnapshotsWithBalanceLogRollup(
   scope: ViewScope,
   snapshots: BalanceSnapshot[],
   metric: HistoryMetricKey,
+  fromDate?: string | null,
 ): BalanceSnapshot[] {
   if (scope.type !== viewScope.type || scope.id !== viewScope.id) {
     return snapshots
@@ -340,7 +342,7 @@ export function alignSnapshotsWithBalanceLogRollup(
   if (!hasChildColumns) return snapshots
 
   const totalKey = scopeKey(viewScope)
-  const { rows } = buildHistoryTable(state, viewScope, graphRange, metric, 'daily')
+  const { rows } = buildHistoryTable(state, viewScope, graphRange, metric, 'daily', fromDate)
   const rolledUpByDate = new Map(
     rows.map((row) => [row.date, row.values[totalKey]?.value ?? null]),
   )

@@ -8,8 +8,9 @@ export function getTrendSnapshotsForScope(
   scope: ViewScope,
   viewScope: ViewScope,
   range: GraphRange,
+  fromDate?: string | null,
 ) {
-  return filterSnapshotsByRange(getEffectiveSnapshotsForScope(state, scope, viewScope), range)
+  return filterSnapshotsByRange(getEffectiveSnapshotsForScope(state, scope, viewScope), range, fromDate)
 }
 
 export function buildColumnTrends(

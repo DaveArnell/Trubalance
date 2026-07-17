@@ -22,6 +22,8 @@ export interface PageWidgetContext {
   breakdownColumns: BreakdownColumn[]
   graphRange: GraphRange
   setGraphRange: (range: GraphRange) => void
+  trendFromDate: string | null
+  setTrendFromDate: (date: string | null) => void
   viewName: string
   onBalanceSave: (changes: BalanceSaveChange[]) => BalanceSaveResult
   activeReserveSummary: ReservePlannerSummary | null
@@ -43,6 +45,8 @@ export function buildPageWidgets(pageId: PageId, ctx: PageWidgetContext): Record
     metrics,
     graphRange,
     setGraphRange,
+    trendFromDate,
+    setTrendFromDate,
     activeReserveSummary,
     reserveRouteId,
     actions,
@@ -66,6 +70,8 @@ export function buildPageWidgets(pageId: PageId, ctx: PageWidgetContext): Record
               viewScope={viewScope}
               graphRange={graphRange}
               onRangeChange={setGraphRange}
+              fromDate={trendFromDate}
+              onFromDateChange={setTrendFromDate}
               focusScope={trendsFocusScope}
               onFocusScopeApplied={onTrendsFocusApplied}
               openHelp={openHelp}
@@ -81,6 +87,7 @@ export function buildPageWidgets(pageId: PageId, ctx: PageWidgetContext): Record
               state={state}
               viewScope={viewScope}
               graphRange={graphRange}
+              fromDate={trendFromDate}
               openHelp={openHelp}
               setOpenHelp={setOpenHelp}
               correctSnapshotMetric={actions.correctSnapshotMetric}
