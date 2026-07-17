@@ -472,7 +472,7 @@ export function TrendChart({
         : null
 
   const trendHelpText =
-    'Solid lines connect your saved balance entries. Each scope level (group, business, venue) has its own true balance history. Use Forecast to add a separate smoothed trend line based on those entries. Set a From date to ignore anything earlier — useful after a big one-off change that would skew the trend.'
+    'Solid lines connect your saved balance entries. Each scope level (group, business, venue) has its own true balance history. Use Forecast to add a separate smoothed trend line based on those entries. Set a From date to ignore anything earlier — useful after a big one-off change that would skew the trend. That date is remembered in this browser until you clear or change it.'
 
   const showLegend = series.length > 1 || activeMetricKeys.length > 1 || showProjection
 

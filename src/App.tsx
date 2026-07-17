@@ -46,6 +46,27 @@ import { showsDemoDataBanner } from './utils/localStateStorage'
 import { useDemoMode } from './contexts/DemoModeContext'
 import { useEditReadOnly } from './hooks/useEditReadOnly'
 
+const TREND_FROM_DATE_KEY = 'trubalance-trends-from-date'
+
+function loadTrendFromDate(): string | null {
+  try {
+    const raw = localStorage.getItem(TREND_FROM_DATE_KEY)
+    if (raw && /^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw
+  } catch {
+    /* ignore */
+  }
+  return null
+}
+
+function saveTrendFromDate(date: string | null) {
+  try {
+    if (date) localStorage.setItem(TREND_FROM_DATE_KEY, date)
+    else localStorage.removeItem(TREND_FROM_DATE_KEY)
+  } catch {
+    /* ignore */
+  }
+}
+
 export interface AppShellProps extends UseAppStateOptions {
   isInteractiveDemo?: boolean
   remoteSubscription?: WorkspaceSubscription | null
@@ -207,7 +228,11 @@ function AppShellInner({
   const { isMobile, mobileNavOpen, closeMobileNav, toggleMobileNav } = useMobileNav()
   const [openHelp, setOpenHelp] = useState<string | null>(null)
   const [graphRange, setGraphRange] = useState<GraphRange>('90d')
-  const [trendFromDate, setTrendFromDate] = useState<string | null>(null)
+  const [trendFromDate, setTrendFromDateState] = useState<string | null>(loadTrendFromDate)
+  const setTrendFromDate = useCallback((date: string | null) => {
+    setTrendFromDateState(date)
+    saveTrendFromDate(date)
+  }, [])
   const [trendsFocusScope, setTrendsFocusScope] = useState<ViewScope | null>(null)
   const { size: overviewSize, setOverviewSize } = useOverviewSize()
 
@@ -502,6 +527,7 @@ function AppShellInner({
       breakdownColumns,
       graphRange,
       trendFromDate,
+      setTrendFromDate,
       viewName,
       handleBalanceSave,
       activeReserveSummary,
