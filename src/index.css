@@ -23002,3 +23002,204 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   border-color: rgba(14, 122, 82, 0.25) !important;
   background: rgba(14, 122, 82, 0.06) !important;
 }
+
+/* ─── Marketing composition — centred pages, readable card content ─── */
+.marketing-shell .marketing-section-head,
+.marketing-shell .marketing-section-head--center {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.marketing-shell .marketing-section-lead,
+.marketing-shell .marketing-section-head--center .marketing-section-lead,
+.marketing-section-lead--home {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.marketing-shell .marketing-how-eyebrow,
+.marketing-shell .marketing-eyebrow,
+.marketing-shell .marketing-eyebrow--vivid {
+  justify-content: center;
+}
+
+.marketing-main--home .marketing-section-head {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.marketing-main--home .marketing-how-eyebrow {
+  justify-content: center;
+}
+
+.marketing-hero-rank-copy {
+  text-align: center;
+}
+
+.marketing-hero-rank-eyebrow {
+  justify-content: center;
+}
+
+.marketing-hero--rank h1,
+.marketing-hero--rank .marketing-lead {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.marketing-hero-rank-copy .marketing-cta-row {
+  justify-content: center;
+}
+
+.marketing-is-you-title,
+.marketing-main--home .marketing-is-you-close {
+  text-align: center;
+}
+
+.marketing-main--home .marketing-is-you-list,
+.marketing-bank-gap-rows,
+.marketing-vs-points,
+.marketing-outcome-pillars,
+.marketing-who-home-grid,
+.marketing-how-illust-grid,
+.marketing-different-grid,
+.marketing-home-topic-grid {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.marketing-bank-gap-close,
+.marketing-vs-aside,
+.marketing-method-more {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.hero-graph-vs {
+  text-align: center;
+}
+
+/* Supporting pages share one centred visual axis. */
+.demo-scenarios-head,
+.marketing-clarity-questions,
+.marketing-method-audience,
+.marketing-method-habits,
+.marketing-journey-list,
+.demo-scenarios-grid,
+.demo-scenarios-footer {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.marketing-pricing-section .marketing-section-head,
+.marketing-billing-section .marketing-section-head {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.marketing-pricing-section .marketing-section-lead,
+.marketing-billing-section .marketing-section-lead,
+.marketing-annual-note,
+.marketing-pricing-footnote,
+.marketing-billing-note,
+.marketing-billing-cta {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.marketing-pricing-section .marketing-trial-banner {
+  justify-content: center;
+  text-align: center;
+}
+
+.marketing-pricing-grid {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Method page: centre the section composition, not paragraph text. */
+.method-edu-hero {
+  text-align: center;
+}
+
+.method-edu-hero .marketing-how-eyebrow {
+  justify-content: center;
+}
+
+.method-edu-hero h1,
+.method-edu-hero-lead,
+.method-edu-mantra {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.method-edu-inner--narrow > h2,
+.method-edu-inner--narrow > .method-edu-prose,
+.method-edu-inner--narrow > .method-edu-callout,
+.method-edu-inner--narrow > .method-edu-section-head,
+.method-edu-inner--narrow > .method-edu-compare,
+.method-edu-inner--narrow > .method-edu-timeline,
+.method-edu-inner--narrow > .method-edu-plain-list,
+.method-edu-inner--narrow > .method-edu-example-note,
+.method-edu-inner--narrow > p {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.method-edu-inner--narrow > h2 {
+  text-align: center;
+}
+
+.method-edu-section-head {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.method-edu-section-lead {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.method-edu-principles,
+.method-edu-habits,
+.method-edu-benefit-grid,
+.method-edu-software-grid,
+.method-edu-compare {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.method-edu-cta {
+  text-align: center;
+}
+
+.method-edu-cta .marketing-cta-row {
+  justify-content: center;
+}
+
+/* Blog headings and controls follow the same centred composition. */
+.blog-index-header {
+  text-align: center;
+}
+
+.blog-index-header .marketing-how-eyebrow {
+  justify-content: center;
+}
+
+.blog-index-lead {
+  max-width: 42rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.blog-index-cta,
+.blog-category-tags {
+  justify-content: center;
+}
