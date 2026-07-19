@@ -7550,7 +7550,7 @@ textarea:focus {
 
 .snapshot-correction-modal {
   width: min(100%, 26rem);
-  max-height: min(90vh, 32rem);
+  max-height: min(92vh, 92dvh);
   overflow: auto;
   padding: var(--space-5);
   background: var(--bg-surface-raised);
@@ -10202,7 +10202,7 @@ tr.sheet-due-row--planned-saving td.sheet-cell-active {
 
 .planned-funding-modal {
   width: min(100%, 28rem);
-  max-height: min(90vh, 36rem);
+  max-height: min(92vh, 92dvh);
   overflow: auto;
   padding: var(--space-5);
   background: var(--bg-surface-raised);
@@ -10497,7 +10497,7 @@ body.sheet-col-resizing * {
   font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #27272a;
+  color: #5b21b6;
 }
 
 .sheet-row-group--scope .sheet-group-title {
@@ -10505,7 +10505,7 @@ body.sheet-col-resizing * {
   font-weight: 700;
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  color: #3f3f46;
+  color: #1e40af;
 }
 
 .sheet-row-group-child td {
@@ -10516,13 +10516,13 @@ body.sheet-col-resizing * {
 }
 
 .sheet-cell--group {
-  background: color-mix(in srgb, var(--bg-subtle) 85%, #0f766e) !important;
-  color: #18181b;
+  background: #ede9fe !important;
+  color: #5b21b6;
 }
 
 .sheet-cell--business {
-  background: var(--bg-subtle) !important;
-  color: #27272a;
+  background: #dbeafe !important;
+  color: #1e40af;
 }
 
 .sheet-cell--venue {
@@ -11691,7 +11691,7 @@ tr.sheet-row--received td {
 
   .mobile-overview-breakdown-modal {
     width: min(calc(100% - 1.5rem), 40rem);
-    max-height: min(90dvh, 36rem);
+    max-height: min(92dvh, 92vh);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -12044,10 +12044,11 @@ tr.sheet-row--received td {
   .mobile-record-card-title {
     margin: 0;
     max-width: 100%;
-    font-size: 1.22rem;
+    font-size: 1.42rem;
     font-weight: 900;
-    line-height: 1.1;
-    letter-spacing: -0.025em;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: #000;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -12083,6 +12084,10 @@ tr.sheet-row--received td {
 
 .mobile-record-card-amount-block--neg .mobile-record-card-amount {
   color: var(--status-orange-text, #c2410c);
+}
+
+.mobile-record-card-amount-block--pos .mobile-record-card-amount {
+  color: var(--status-green-text, #059669);
 }
 
 .mobile-record-card-amount--neg {

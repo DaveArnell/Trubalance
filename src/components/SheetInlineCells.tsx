@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, type CSSProperties, type ReactNode } from 'react'
 import type { AppState, Commitment, ScopeLevel } from '../types'
-import { getScopeItemLabel, isCommitmentScopeAllowed, isValidScopeReference } from '../utils/scope'
+import { getScopeItemLabel, isCommitmentScopeAllowed, isValidScopeReference, formatScopeOptionLabel } from '../utils/scope'
 import { formatCurrency } from '../utils/format'
 import { formatPlannedDueDate } from '../utils/plannedFunding'
 import {
@@ -329,7 +329,7 @@ export function ScopeSelectCell({
           )}
           {options.map((o) => (
             <option key={`${o.level}:${o.id}`} value={`${o.level}:${o.id}`}>
-              {o.label}
+              {formatScopeOptionLabel(o.level, o.label)}
             </option>
           ))}
         </select>

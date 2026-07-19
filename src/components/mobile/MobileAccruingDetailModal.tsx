@@ -5,7 +5,7 @@ import {
   getAccrualProgress,
   getAccruingRowDailyRate,
 } from '../../utils/commitmentCalculations'
-import { getScopeItemLabel, isSoloOrganisation, type ScopeOption } from '../../utils/scope'
+import { getScopeItemLabel, isSoloOrganisation, formatScopeOptionLabel, type ScopeOption } from '../../utils/scope'
 import { formatCurrency } from '../../utils/format'
 import { toAmount, roundCurrency } from '../../utils/amounts'
 import { ordinalDay } from '../committed/shared'
@@ -172,7 +172,7 @@ export function MobileAccruingDetailModal({
                 <select value={scopeKey} onChange={(e) => setScopeKey(e.target.value)}>
                   {scopeOptions.map((opt) => (
                     <option key={`${opt.level}:${opt.id}`} value={`${opt.level}:${opt.id}`}>
-                      {opt.label}
+                      {formatScopeOptionLabel(opt.level, opt.label)}
                     </option>
                   ))}
                 </select>

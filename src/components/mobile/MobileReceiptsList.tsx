@@ -96,6 +96,7 @@ export function MobileReceiptsList({ state, viewScope, actions }: MobileReceipts
               amount={formatCurrency(isBuilding ? accrued : target)}
               amountSecondary={isBuilding ? `/${formatCurrency(target)}` : undefined}
               meta={detailMeta || undefined}
+              amountPositive
               progress={progress}
               progressColor={accent}
               accentColor={accent}

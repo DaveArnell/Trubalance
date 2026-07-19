@@ -172,6 +172,12 @@ export function resolveDefaultViewScope(state: AppState, preferred?: ViewScope):
 
 export type ScopeOption = { level: ScopeLevel; id: string; label: string }
 
+/** Indent venues under businesses in native select lists. */
+export function formatScopeOptionLabel(level: ScopeLevel, label: string): string {
+  if (level === 'venue') return `\u00A0\u00A0\u00A0${label}`
+  return label
+}
+
 export function getScopeOptionsForView(state: AppState, viewScope: ViewScope): ScopeOption[] {
   const options: ScopeOption[] = []
 

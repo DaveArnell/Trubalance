@@ -673,7 +673,7 @@ function BillScopeCell({
         >
           {options.map((option) => (
             <option key={option.venueId ?? '__business'} value={option.venueId ?? ''}>
-              {option.label}
+              {option.venueId ? `\u00A0\u00A0\u00A0${option.label}` : option.label}
             </option>
           ))}
         </select>

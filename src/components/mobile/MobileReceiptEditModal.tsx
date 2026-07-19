@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { AppState, ExpectedReceipt, ScopeLevel, ViewScope } from '../../types'
-import { getCommitmentScopeOptionsForView, isSoloOrganisation } from '../../utils/scope'
+import { getCommitmentScopeOptionsForView, isSoloOrganisation, formatScopeOptionLabel } from '../../utils/scope'
 import { formatCurrency } from '../../utils/format'
 import { toAmount, roundCurrency } from '../../utils/amounts'
 import {
@@ -179,7 +179,7 @@ export function MobileReceiptEditModal({
                   <select value={scopeKey} onChange={(e) => setScopeKey(e.target.value)}>
                     {scopeOptions.map((opt) => (
                       <option key={`${opt.level}:${opt.id}`} value={`${opt.level}:${opt.id}`}>
-                        {opt.label}
+                        {formatScopeOptionLabel(opt.level, opt.label)}
                       </option>
                     ))}
                   </select>

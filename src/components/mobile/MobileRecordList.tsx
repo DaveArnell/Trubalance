@@ -24,6 +24,7 @@ export function MobileRecordCard({
   amountSecondary,
   meta,
   amountNegative,
+  amountPositive,
   progress,
   progressColor,
   accentColor,
@@ -38,6 +39,7 @@ export function MobileRecordCard({
   amountSecondary?: ReactNode
   meta?: ReactNode
   amountNegative?: boolean
+  amountPositive?: boolean
   /** 0–1 fill for accrual cycle progress */
   progress?: number
   progressColor?: string
@@ -64,6 +66,12 @@ export function MobileRecordCard({
             </span>
           ))
 
+  const amountTone = amountNegative
+    ? ' mobile-record-card-amount-block--neg'
+    : amountPositive
+      ? ' mobile-record-card-amount-block--pos'
+      : ''
+
   const body = (
     <>
       {fill != null ? (
@@ -87,9 +95,7 @@ export function MobileRecordCard({
             <p className="mobile-record-card-meta mobile-record-card-meta--stacked">{mobileMeta}</p>
           ) : null}
         </div>
-        <div
-          className={`mobile-record-card-amount-block${amountNegative ? ' mobile-record-card-amount-block--neg' : ''}`}
-        >
+        <div className={`mobile-record-card-amount-block${amountTone}`}>
           <p className="mobile-record-card-amount">{amount}</p>
           {amountSecondary ? (
             <p className="mobile-record-card-amount-secondary">{amountSecondary}</p>
