@@ -70,7 +70,7 @@ function billProgress(bill: Bill, ctx: BillLedgerContext): number {
     return ctx.poppingId === bill.id ? 1 : buildingCycleProgress(bill, ctx.day)
   }
 
-  const paidDay = ctx.paymentDayByBill[bill.id] ?? bill.dueDay + DUE_HOLD_DAYS
+  const paidDay = ctx.paymentDayByBill[bill.id] ?? bill.dueDay
   return regrowCycleProgress(ctx.day, paidDay, bill.dueDay)
 }
 
@@ -79,8 +79,8 @@ function potScale(progress: number): number {
   return POT_MIN_SCALE + progress * POT_SCALE_RANGE
 }
 
-/** Simulated days a bill sits in Due before it is marked paid (matches animation pacing). */
-const DUE_HOLD_DAYS = 2.5
+/** No hold after due — payment leaves the account when the pot pops. */
+const DUE_HOLD_DAYS = 0
 
 type BillLedgerContext = {
   day: number
@@ -98,12 +98,14 @@ function billLedgerState(bill: Bill, ctx: BillLedgerContext): BillLedgerState {
 
   if (ctx.poppingId === bill.id) return 'building'
 
-  if (ctx.day < bill.dueDay + DUE_HOLD_DAYS) return 'due'
+  if (DUE_HOLD_DAYS > 0 && ctx.day < bill.dueDay + DUE_HOLD_DAYS) return 'due'
 
   return 'regrowing'
 }
 
 function buildingCycleProgress(bill: Bill, day: number): number {
+  // Reach full pot on the day before it pops so the graph drop matches the bill amount.
+  if (day >= bill.dueDay - 1) return 1
   return billCycleDay(day, bill.dueDay) / MONTH_DAYS
 }
 
@@ -126,7 +128,7 @@ function accruedForBill(bill: Bill, ctx: BillLedgerContext): number {
     return bill.amount * progress
   }
 
-  const paidDay = ctx.paymentDayByBill[bill.id] ?? bill.dueDay + DUE_HOLD_DAYS
+  const paidDay = ctx.paymentDayByBill[bill.id] ?? bill.dueDay
   return bill.amount * regrowCycleProgress(ctx.day, paidDay, bill.dueDay)
 }
 
@@ -155,16 +157,15 @@ function ledgerContextForDay(
   return { day, poppingId, paidBillIds, paymentDayByBill }
 }
 
-/** Full-month outline for chart scale (deterministic payment pacing). */
+/** Full-month outline for chart scale — each bill pays out on its due day (the pot pop). */
 function ledgerContextForMonthOutline(simDay: number): BillLedgerContext {
   const paidBillIds = new Set<string>()
   const paymentDayByBill: Record<string, number> = {}
 
   for (const bill of BILLS) {
-    const paymentDay = bill.dueDay + DUE_HOLD_DAYS
-    if (simDay >= paymentDay) {
+    if (simDay >= bill.dueDay) {
       paidBillIds.add(bill.id)
-      paymentDayByBill[bill.id] = paymentDay
+      paymentDayByBill[bill.id] = bill.dueDay
     }
   }
 
@@ -345,10 +346,9 @@ function useMonthSimulation(active: boolean) {
         setPoppingId(bill.id)
 
         schedule(() => {
-          const paidDay = dayRef.current
           setPoppingId(null)
           setPaidBillIds((ids) => new Set([...ids, bill.id]))
-          setPaymentDayByBill((map) => ({ ...map, [bill.id]: paidDay }))
+          setPaymentDayByBill((map) => ({ ...map, [bill.id]: bill.dueDay }))
         }, 480)
       }
 
