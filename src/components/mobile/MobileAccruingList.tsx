@@ -118,15 +118,7 @@ function renderGroupedNodes(
         continue
       }
 
-      items.push(
-        <MobileSectionLabel key={child.id}>
-          {child.label}
-          {child.subtitle ? ` · ${child.subtitle}` : ''}
-          {' · '}
-          {formatCurrency(child.accruedTotal)} accrued
-        </MobileSectionLabel>,
-      )
-
+      // Cards view: keep one name header only — don't nest Blackpool / Laser Tech sub-groups.
       for (const leaf of child.children) {
         items.push(
           <AccruingCard

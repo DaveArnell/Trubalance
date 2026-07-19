@@ -3,26 +3,22 @@ import type { AppState, ViewScope } from '../types'
 import { getBusinessesInGroup } from './scope'
 
 /**
- * Distinct identity colours — spaced around the wheel so businesses and venues
- * can each get a unique default without colliding across the org.
+ * Major accent colours — spaced around the wheel so businesses/venues stay easy to tell apart.
+ * Prefer clear primaries over near-duplicates (no twin teals, reds, or purples).
  */
 export const BUSINESS_ACCENT_COLORS = [
-  '#0f766e', // brand teal
-  '#059669', // emerald
-  '#0284c7', // sky
-  '#ea580c', // orange
-  '#db2777', // rose
-  '#ca8a04', // amber
-  '#4f46e5', // indigo
-  '#be123c', // crimson
-  '#65a30d', // lime
-  '#c026d3', // fuchsia
-  '#b45309', // brown-orange
-  '#0891b2', // cyan
-  '#9333ea', // violet
-  '#7c3aed', // purple
   '#dc2626', // red
-  '#0d9488', // deep teal
+  '#ea580c', // orange
+  '#ca8a04', // gold
+  '#16a34a', // green
+  '#0f766e', // brand teal
+  '#0891b2', // cyan
+  '#2563eb', // blue
+  '#7c3aed', // violet
+  '#c026d3', // magenta
+  '#db2777', // pink
+  '#92400e', // brown
+  '#475569', // slate
 ] as const
 
 const GROUP_ACCENT = '#52525b'
