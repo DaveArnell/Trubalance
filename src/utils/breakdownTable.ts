@@ -13,39 +13,54 @@ import {
   getReceiptsForSharedColumnScope,
 } from './calculations'
 import { buildCommitmentViews, summarizeCommittedFundsBreakdown } from './commitmentCalculations'
-import { getEffectiveReceiptAmount, getReceiptTiming } from './receiptCalculations'
+import { getEffectiveReceiptAmount } from './receiptCalculations'
 import { columnLabel } from './format'
 import { buildReserveAccruingRows, buildReserveAccruingRowsForSharedColumn, buildReserveDueRows, buildReserveDueRowsForSharedColumn } from './reserveCalculations'
 import { businessHasVenues, getBusinessesInGroup, getVenuesInBusiness } from './scope'
 
 export interface ScopeCostBreakdown {
-  accruing: number
+  /** Accrued monthly costs still building this cycle */
   accruingMonthly: number
+  /** Accrued reserve pots still building */
   accruingReserve: number
+  /** Amounts in Due now (includes planned that are due) */
   due: number
-  planned: number
+  /** Planned one-offs not yet in Due */
+  plannedNotDue: number
+  /** Sum of the cost parts above — matches Total costs in the overview */
+  totalCosts: number
+  /** Expected receipts counted toward True Balance */
   expectedReceipts: number
-  receiptsBuildingUp?: number
-  businessShared?: number
-  businessSharedReceipts?: number
-  groupShared?: number
-  groupSharedReceipts?: number
+  /**
+   * Of the cost total, how much sits on child scopes vs this parent only.
+   * Not additive — already included in the lines above.
+   */
+  ofWhichChildCosts?: number
+  ofWhichSharedCosts?: number
+  ofWhichChildReceipts?: number
+  ofWhichSharedReceipts?: number
+  /** Label for child / shared split (venue vs business-wide, or business vs group-wide) */
+  childSplitLabel?: string
+  sharedSplitLabel?: string
 }
 
-function sumEffectiveReceipts(receipts: ReturnType<typeof getReceiptsForColumnScope>): {
-  expectedReceipts: number
-  receiptsBuildingUp: number
-} {
+function sumEffectiveReceipts(receipts: ReturnType<typeof getReceiptsForColumnScope>): number {
   let expectedReceipts = 0
-  let receiptsBuildingUp = 0
   for (const receipt of receipts) {
-    const effective = getEffectiveReceiptAmount(receipt)
-    expectedReceipts += effective
-    if (getReceiptTiming(receipt) === 'accrual' && !receipt.received && effective > 0) {
-      receiptsBuildingUp += effective
-    }
+    expectedReceipts += getEffectiveReceiptAmount(receipt)
   }
-  return { expectedReceipts, receiptsBuildingUp }
+  return expectedReceipts
+}
+
+function costPartsFromViews(views: ReturnType<typeof buildCommitmentViews>) {
+  const breakdown = summarizeCommittedFundsBreakdown(views)
+  return {
+    accruingMonthly: breakdown.accruedMonthly,
+    accruingReserve: breakdown.accruedReserve,
+    due: breakdown.outstandingDue,
+    plannedNotDue: breakdown.outstandingPlanned,
+    totalCosts: breakdown.total,
+  }
 }
 
 export function getScopeCostBreakdown(state: AppState, scope: ViewScope): ScopeCostBreakdown {
@@ -53,75 +68,57 @@ export function getScopeCostBreakdown(state: AppState, scope: ViewScope): ScopeC
   const reserveRows = buildReserveAccruingRows(state, scope)
   const reserveDueRows = buildReserveDueRows(state, scope)
   const views = buildCommitmentViews(commitments, reserveRows, reserveDueRows)
-  const breakdown = summarizeCommittedFundsBreakdown(views)
-  const { expectedReceipts, receiptsBuildingUp } = sumEffectiveReceipts(
-    getReceiptsForColumnScope(state, scope),
-  )
+  const parts = costPartsFromViews(views)
+  const expectedReceipts = sumEffectiveReceipts(getReceiptsForColumnScope(state, scope))
 
   const result: ScopeCostBreakdown = {
-    accruing: breakdown.accruedMonthly + breakdown.accruedReserve,
-    accruingMonthly: breakdown.accruedMonthly,
-    accruingReserve: breakdown.accruedReserve,
-    due: breakdown.outstandingDue,
-    planned: breakdown.outstandingPlanned,
+    ...parts,
     expectedReceipts,
-    receiptsBuildingUp,
   }
 
   if (scope.type === 'business' && businessHasVenues(state, scope.id)) {
     const venues = getVenuesInBusiness(state, scope.id)
-    const venueAccruing = venues.reduce((sum, venue) => {
+    let childCosts = 0
+    let childReceipts = 0
+    for (const venue of venues) {
       const venueBreakdown = getScopeCostBreakdown(state, { type: 'venue', id: venue.id })
-      return sum + venueBreakdown.accruing
-    }, 0)
-    const venueDue = venues.reduce((sum, venue) => {
-      const venueBreakdown = getScopeCostBreakdown(state, { type: 'venue', id: venue.id })
-      return sum + venueBreakdown.due
-    }, 0)
-    const sharedAccruing = Math.max(0, result.accruing - venueAccruing)
-    const sharedDue = Math.max(0, result.due - venueDue)
-    if (sharedAccruing + sharedDue > 0) {
-      result.businessShared = sharedAccruing + sharedDue
+      childCosts += venueBreakdown.totalCosts
+      childReceipts += venueBreakdown.expectedReceipts
     }
-
-    const venueReceipts = venues.reduce((sum, venue) => {
-      const venueBreakdown = getScopeCostBreakdown(state, { type: 'venue', id: venue.id })
-      return sum + venueBreakdown.expectedReceipts
-    }, 0)
-    const sharedReceipts = result.expectedReceipts - venueReceipts
-    if (sharedReceipts > 0) {
-      result.businessSharedReceipts = sharedReceipts
+    const sharedCosts = Math.max(0, result.totalCosts - childCosts)
+    const sharedReceipts = Math.max(0, result.expectedReceipts - childReceipts)
+    if (sharedCosts > 0 || childCosts > 0) {
+      result.ofWhichChildCosts = childCosts
+      result.ofWhichSharedCosts = sharedCosts
+      result.childSplitLabel = 'At venues'
+      result.sharedSplitLabel = 'Business-wide (not at a venue)'
+    }
+    if (sharedReceipts > 0 || childReceipts > 0) {
+      result.ofWhichChildReceipts = childReceipts
+      result.ofWhichSharedReceipts = sharedReceipts
     }
   }
 
   if (scope.type === 'group') {
     const businesses = getBusinessesInGroup(state, scope.id)
-    const businessAccruing = businesses.reduce((sum, business) => {
+    let childCosts = 0
+    let childReceipts = 0
+    for (const business of businesses) {
       const businessBreakdown = getScopeCostBreakdown(state, { type: 'business', id: business.id })
-      return sum + businessBreakdown.accruing
-    }, 0)
-    const businessDue = businesses.reduce((sum, business) => {
-      const businessBreakdown = getScopeCostBreakdown(state, { type: 'business', id: business.id })
-      return sum + businessBreakdown.due
-    }, 0)
-    const businessPlanned = businesses.reduce((sum, business) => {
-      const businessBreakdown = getScopeCostBreakdown(state, { type: 'business', id: business.id })
-      return sum + businessBreakdown.planned
-    }, 0)
-    const sharedAccruing = Math.max(0, result.accruing - businessAccruing)
-    const sharedDue = Math.max(0, result.due - businessDue)
-    const sharedPlanned = Math.max(0, result.planned - businessPlanned)
-    if (sharedAccruing + sharedDue + sharedPlanned > 0) {
-      result.groupShared = sharedAccruing + sharedDue + sharedPlanned
+      childCosts += businessBreakdown.totalCosts
+      childReceipts += businessBreakdown.expectedReceipts
     }
-
-    const businessReceipts = businesses.reduce((sum, business) => {
-      const breakdown = getScopeCostBreakdown(state, { type: 'business', id: business.id })
-      return sum + breakdown.expectedReceipts
-    }, 0)
-    const sharedReceipts = result.expectedReceipts - businessReceipts
-    if (sharedReceipts > 0) {
-      result.groupSharedReceipts = sharedReceipts
+    const sharedCosts = Math.max(0, result.totalCosts - childCosts)
+    const sharedReceipts = Math.max(0, result.expectedReceipts - childReceipts)
+    if (sharedCosts > 0 || childCosts > 0) {
+      result.ofWhichChildCosts = childCosts
+      result.ofWhichSharedCosts = sharedCosts
+      result.childSplitLabel = 'At businesses'
+      result.sharedSplitLabel = 'Group-wide (not at a business)'
+    }
+    if (sharedReceipts > 0 || childReceipts > 0) {
+      result.ofWhichChildReceipts = childReceipts
+      result.ofWhichSharedReceipts = sharedReceipts
     }
   }
 
@@ -133,19 +130,12 @@ export function getSharedScopeCostBreakdown(state: AppState, scope: ViewScope): 
   const reserveRows = buildReserveAccruingRowsForSharedColumn(state, scope)
   const reserveDueRows = buildReserveDueRowsForSharedColumn(state, scope)
   const views = buildCommitmentViews(commitments, reserveRows, reserveDueRows)
-  const breakdown = summarizeCommittedFundsBreakdown(views)
-  const { expectedReceipts, receiptsBuildingUp } = sumEffectiveReceipts(
-    getReceiptsForSharedColumnScope(state, scope),
-  )
+  const parts = costPartsFromViews(views)
+  const expectedReceipts = sumEffectiveReceipts(getReceiptsForSharedColumnScope(state, scope))
 
   return {
-    accruing: breakdown.accruedMonthly + breakdown.accruedReserve,
-    accruingMonthly: breakdown.accruedMonthly,
-    accruingReserve: breakdown.accruedReserve,
-    due: breakdown.outstandingDue,
-    planned: breakdown.outstandingPlanned,
+    ...parts,
     expectedReceipts,
-    receiptsBuildingUp,
   }
 }
 

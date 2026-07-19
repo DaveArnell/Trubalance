@@ -4806,9 +4806,22 @@ button.overview-slim-col-label:not(:disabled) {
 
 .costs-breakdown-tooltip-title {
   margin: 0 0 6px;
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  color: var(--text-secondary);
+  color: var(--text-primary);
+}
+
+.costs-breakdown-section-label {
+  margin: 10px 0 4px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.costs-breakdown-section-label:first-of-type {
+  margin-top: 2px;
 }
 
 .costs-breakdown-tooltip-list {
@@ -4832,8 +4845,24 @@ button.overview-slim-col-label:not(:disabled) {
   color: var(--text-primary);
 }
 
+.costs-breakdown-row--total {
+  margin-top: 2px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.costs-breakdown-value--receipt {
+  color: var(--status-green-text, #15803d);
+}
+
+.costs-breakdown-tooltip-list--muted li {
+  color: var(--text-muted);
+}
+
 .costs-breakdown-tooltip-note {
-  margin: 6px 0 0;
+  margin: 8px 0 0;
   font-size: 0.6rem;
   line-height: 1.35;
 }

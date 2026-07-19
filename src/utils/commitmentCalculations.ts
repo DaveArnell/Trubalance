@@ -1083,10 +1083,11 @@ export function summarizeCommittedFundsBreakdown(
   referenceDate: Date = getReferenceDate(),
 ): CommittedFundsBreakdown {
   const outstandingDue = sumDueRowAmounts(views.due, referenceDate)
-  const outstandingPlanned = views.planned.reduce(
-    (sum, c) => sum + getEffectiveCommittedAmount(c, referenceDate),
-    0,
-  )
+  const dueCommitmentIds = new Set(views.due.map((row) => row.commitment.id))
+  /** Planned one-offs that are not already counted in Due. */
+  const outstandingPlanned = views.planned
+    .filter((commitment) => !dueCommitmentIds.has(commitment.id))
+    .reduce((sum, c) => sum + getEffectiveCommittedAmount(c, referenceDate), 0)
   const accruedMonthly = views.monthly.reduce((sum, commitment) => {
     if (getCommitmentDueOccurrences(commitment, referenceDate).length > 0) return sum
     return sum + getAccruedAmount(commitment, referenceDate)
@@ -1100,7 +1101,7 @@ export function summarizeCommittedFundsBreakdown(
     outstandingPlanned,
     accruedMonthly,
     accruedReserve,
-    total: outstandingDue + accruedMonthly + accruedReserve,
+    total: outstandingDue + outstandingPlanned + accruedMonthly + accruedReserve,
   }
 }
 

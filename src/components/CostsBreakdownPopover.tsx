@@ -12,6 +12,27 @@ interface CostsBreakdownPopoverProps {
   onClose: () => void
 }
 
+function Row({
+  label,
+  value,
+  tone,
+}: {
+  label: string
+  value: number
+  tone?: 'cost' | 'receipt' | 'total'
+}) {
+  const formatted =
+    tone === 'receipt' ? `+${formatCurrency(value)}` : formatCurrency(value)
+  return (
+    <li className={tone === 'total' ? 'costs-breakdown-row--total' : undefined}>
+      <span>{label}</span>
+      <strong className={tone === 'receipt' ? 'costs-breakdown-value--receipt' : undefined}>
+        {formatted}
+      </strong>
+    </li>
+  )
+}
+
 export function CostsBreakdownPopover({
   state,
   column,
@@ -40,8 +61,20 @@ export function CostsBreakdownPopover({
     }
   }, [onClose])
 
-  const top = Math.min(anchorRect.bottom + 6, window.innerHeight - 220)
-  const left = Math.max(8, Math.min(anchorRect.right - 240, window.innerWidth - 260))
+  const top = Math.min(anchorRect.bottom + 6, window.innerHeight - 280)
+  const left = Math.max(8, Math.min(anchorRect.right - 260, window.innerWidth - 280))
+
+  const showCostSplit =
+    !column.isSharedScope &&
+    breakdown.ofWhichSharedCosts != null &&
+    breakdown.ofWhichChildCosts != null &&
+    (breakdown.ofWhichSharedCosts > 0 || breakdown.ofWhichChildCosts > 0)
+
+  const showReceiptSplit =
+    !column.isSharedScope &&
+    breakdown.ofWhichSharedReceipts != null &&
+    breakdown.ofWhichChildReceipts != null &&
+    (breakdown.ofWhichSharedReceipts > 0 || breakdown.ofWhichChildReceipts > 0)
 
   return createPortal(
     <>
@@ -54,69 +87,82 @@ export function CostsBreakdownPopover({
         aria-label={`Total costs breakdown for ${column.label}`}
       >
         <p className="costs-breakdown-tooltip-title">Total costs — {column.label}</p>
+
+        <p className="costs-breakdown-section-label">What’s in this total</p>
         <ul className="costs-breakdown-tooltip-list">
-          <li>
-            <span>Accruing (monthly)</span>
-            <strong>{formatCurrency(breakdown.accruingMonthly)}</strong>
-          </li>
+          {breakdown.accruingMonthly > 0 ? (
+            <Row label="Accruing (monthly)" value={breakdown.accruingMonthly} />
+          ) : null}
           {breakdown.accruingReserve > 0 ? (
+            <Row label="Accruing (reserve)" value={breakdown.accruingReserve} />
+          ) : null}
+          {breakdown.due > 0 ? <Row label="Due now" value={breakdown.due} /> : null}
+          {breakdown.plannedNotDue > 0 ? (
+            <Row label="Planned (not yet due)" value={breakdown.plannedNotDue} />
+          ) : null}
+          {breakdown.totalCosts === 0 ? (
             <li>
-              <span>Accruing (reserve)</span>
-              <strong>{formatCurrency(breakdown.accruingReserve)}</strong>
+              <span>No committed costs</span>
+              <strong>{formatCurrency(0)}</strong>
             </li>
           ) : null}
-          <li>
-            <span>Due</span>
-            <strong>{formatCurrency(breakdown.due)}</strong>
-          </li>
-          {breakdown.planned > 0 ? (
-            <li>
-              <span>Planned</span>
-              <strong>{formatCurrency(breakdown.planned)}</strong>
-            </li>
-          ) : null}
-          {breakdown.receiptsBuildingUp != null && breakdown.receiptsBuildingUp > 0 ? (
-            <li>
-              <span>Expected receipts (building up)</span>
-              <strong>+{formatCurrency(breakdown.receiptsBuildingUp)}</strong>
-            </li>
-          ) : null}
-          {breakdown.expectedReceipts > 0 ? (
-            <li>
-              <span>Expected receipts (total)</span>
-              <strong>+{formatCurrency(breakdown.expectedReceipts)}</strong>
-            </li>
-          ) : null}
-          {breakdown.businessShared != null && breakdown.businessShared > 0 ? (
-            <li>
-              <span>Business-wide costs (not per venue)</span>
-              <strong>{formatCurrency(breakdown.businessShared)}</strong>
-            </li>
-          ) : null}
-          {breakdown.businessSharedReceipts != null && breakdown.businessSharedReceipts > 0 ? (
-            <li>
-              <span>Business-wide receipts (not per venue)</span>
-              <strong>+{formatCurrency(breakdown.businessSharedReceipts)}</strong>
-            </li>
-          ) : null}
-          {breakdown.groupShared != null && breakdown.groupShared > 0 ? (
-            <li>
-              <span>Group-wide costs (not per business)</span>
-              <strong>{formatCurrency(breakdown.groupShared)}</strong>
-            </li>
-          ) : null}
-          {breakdown.groupSharedReceipts != null && breakdown.groupSharedReceipts > 0 ? (
-            <li>
-              <span>Group-wide receipts (not per business)</span>
-              <strong>+{formatCurrency(breakdown.groupSharedReceipts)}</strong>
-            </li>
-          ) : null}
+          <Row label="Total costs" value={breakdown.totalCosts} tone="total" />
         </ul>
+
+        {breakdown.expectedReceipts > 0 ? (
+          <>
+            <p className="costs-breakdown-section-label">Also in True Balance</p>
+            <ul className="costs-breakdown-tooltip-list">
+              <Row
+                label="Expected receipts"
+                value={breakdown.expectedReceipts}
+                tone="receipt"
+              />
+            </ul>
+          </>
+        ) : null}
+
+        {showCostSplit || showReceiptSplit ? (
+          <>
+            <p className="costs-breakdown-section-label">Of which (already in the totals above)</p>
+            <ul className="costs-breakdown-tooltip-list costs-breakdown-tooltip-list--muted">
+              {showCostSplit ? (
+                <>
+                  <Row
+                    label={breakdown.childSplitLabel ?? 'At child locations'}
+                    value={breakdown.ofWhichChildCosts!}
+                  />
+                  <Row
+                    label={breakdown.sharedSplitLabel ?? 'Shared'}
+                    value={breakdown.ofWhichSharedCosts!}
+                  />
+                </>
+              ) : null}
+              {showReceiptSplit ? (
+                <>
+                  <Row
+                    label={`${breakdown.childSplitLabel ?? 'Child'} receipts`}
+                    value={breakdown.ofWhichChildReceipts!}
+                    tone="receipt"
+                  />
+                  <Row
+                    label={`${breakdown.sharedSplitLabel ?? 'Shared'} receipts`}
+                    value={breakdown.ofWhichSharedReceipts!}
+                    tone="receipt"
+                  />
+                </>
+              ) : null}
+            </ul>
+          </>
+        ) : null}
+
         <p className="costs-breakdown-tooltip-note muted">
           True Balance = cash − total costs + expected receipts.
           {column.isSharedScope
-            ? ' This column shows only business-wide or group-wide items — not venue-specific costs.'
-            : " Venue and business columns show only that column's items; group-wide receipts appear on the BUSINESS total line."}
+            ? ' This column is only shared items — not venue- or business-specific costs.'
+            : showCostSplit
+              ? ' “Of which” splits the same total — it is not added on top.'
+              : ''}
         </p>
       </div>
     </>,
