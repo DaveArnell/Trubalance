@@ -356,21 +356,23 @@ export function DuePanel({
           onCancel={cancelPlannedFunding}
         />
       )}
-      <div className={`card-head card-head-compact${useCards ? ' card-head--due-cards' : ' card-head-with-kpi'}`}>
+      <div className={`card-head card-head-compact${useCards ? ' card-head--due-cards card-head--widget-bar' : ' card-head-with-kpi'}`}>
         {useCards ? (
           <>
-            <div className="card-head-title-row">
+            <div className="card-head-toolbar">
+              {!editReadOnly ? (
+                <button type="button" className="btn-primary btn-widget-add" onClick={addPlannedRow}>
+                  + Add
+                </button>
+              ) : (
+                <span className="card-head-toolbar-spacer" aria-hidden />
+              )}
               <h2>Due</h2>
-              <p className="muted card-lead-compact">Next due first — including reserve bills</p>
               <HelpButton id="due" openHelp={openHelp} setOpenHelp={setOpenHelp} text={WIDGET_HELP.due} />
             </div>
-            {!editReadOnly && (
-              <div className="card-actions">
-                <button type="button" className="btn-primary btn-widget-add" onClick={addPlannedRow}>
-                  + Add planned
-                </button>
-              </div>
-            )}
+            <p className="muted card-lead-compact card-lead-compact--below">
+              Next due first — including reserve bills
+            </p>
           </>
         ) : (
           <>

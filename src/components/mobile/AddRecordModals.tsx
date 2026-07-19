@@ -133,7 +133,6 @@ export function AddMonthlyCostModal({
               type="text"
               value={name}
               placeholder="e.g. Rent, Wages, Loan"
-              autoFocus
               onChange={(e) => setName(e.target.value)}
             />
           </label>
@@ -258,7 +257,6 @@ export function AddPlannedCostModal({
               type="text"
               value={name}
               placeholder="e.g. Corporation tax"
-              autoFocus
               onChange={(e) => setName(e.target.value)}
             />
           </label>
@@ -421,7 +419,6 @@ export function AddReceiptModal({
               type="text"
               value={name}
               placeholder="e.g. Client invoice"
-              autoFocus
               onChange={(e) => setName(e.target.value)}
             />
           </label>

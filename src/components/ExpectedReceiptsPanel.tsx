@@ -100,12 +100,18 @@ export function ExpectedReceiptsPanel({
 
   return (
     <section id="expected-receipts" className="card widget-compact card-scroll">
-      <div className={`card-head card-head-compact${useCards ? ' card-head--receipts-cards' : ''}`}>
+      <div className={`card-head card-head-compact${useCards ? ' card-head--receipts-cards card-head--widget-bar' : ''}`}>
         {useCards ? (
           <>
-            <div className="card-head-title-row">
+            <div className="card-head-toolbar">
+              {!editReadOnly ? (
+                <button type="button" className="btn-primary btn-widget-add" onClick={addRow}>
+                  + Add
+                </button>
+              ) : (
+                <span className="card-head-toolbar-spacer" aria-hidden />
+              )}
               <h2>Expected Receipts</h2>
-              <p className="muted card-lead-compact">Soonest expected date first</p>
               <HelpButton
                 id="receipts"
                 openHelp={openHelp}
@@ -113,13 +119,7 @@ export function ExpectedReceiptsPanel({
                 text={WIDGET_HELP.expectedReceipts}
               />
             </div>
-            {!editReadOnly && (
-              <div className="card-actions">
-                <button type="button" className="btn-primary btn-widget-add" onClick={addRow}>
-                  + Add
-                </button>
-              </div>
-            )}
+            <p className="muted card-lead-compact card-lead-compact--below">Soonest expected date first</p>
           </>
         ) : (
           <>

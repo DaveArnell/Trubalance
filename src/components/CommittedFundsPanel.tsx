@@ -239,12 +239,16 @@ export function CommittedFundsPanel({
         />
       )}
       <div className="mobile-accruing-sticky">
-        <div className="card-head card-head-compact card-head--accruing">
-          <div className="card-head-title-row">
+        <div className="card-head card-head-compact card-head--accruing card-head--widget-bar">
+          <div className="card-head-toolbar">
+            {!editReadOnly && viewMode === 'list' ? (
+              <button type="button" className="btn-primary btn-widget-add" onClick={addMonthlyRow}>
+                + Add
+              </button>
+            ) : (
+              <span className="card-head-toolbar-spacer" aria-hidden />
+            )}
             <h2>Monthly accruing</h2>
-            <p className="muted card-lead-compact">
-              Regular predictable bills — rent, payroll, subscriptions, direct debits
-            </p>
             <HelpButton
               id="commitments"
               openHelp={openHelp}
@@ -252,6 +256,9 @@ export function CommittedFundsPanel({
               text={WIDGET_HELP.committedFunds}
             />
           </div>
+          <p className="muted card-lead-compact card-lead-compact--below">
+            Regular predictable bills — rent, payroll, subscriptions, direct debits
+          </p>
           <div className="card-head-actions" data-tour="committed-views">
             <div className="view-mode-toggle" role="group" aria-label="Monthly accruing view">
               <button
@@ -290,11 +297,6 @@ export function CommittedFundsPanel({
                 </button>
               </div>
             )}
-            {!editReadOnly && viewMode === 'list' ? (
-              <button type="button" className="btn-primary btn-widget-add" onClick={addMonthlyRow}>
-                + Add
-              </button>
-            ) : null}
           </div>
         </div>
 
