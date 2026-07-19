@@ -13,6 +13,7 @@ import { MobileTourLinks } from './TourMenu'
 import { useSubscription } from '../contexts/SubscriptionContext'
 import { useAuth } from '../contexts/AuthContext'
 import { useSidebarCollapsed } from '../hooks/useSidebarCollapsed'
+import { DashboardViewStyleToggle } from './DashboardViewStyleToggle'
 
 interface SidebarProps {
   state: AppState
@@ -425,6 +426,13 @@ export function Sidebar({
             )
           })}
         </nav>
+
+        {!isMobile && (
+          <div className={`sidebar-view-style${showCollapsed ? ' sidebar-view-style--compact' : ''}`}>
+            {!showCollapsed && <p className="sidebar-view-style-label">Layout</p>}
+            <DashboardViewStyleToggle compact />
+          </div>
+        )}
       </div>
 
       {isMobile && onSetupGuide && !editReadOnly && (

@@ -1,15 +1,17 @@
 import { useMemo, useState } from 'react'
 import type { AppState, CommitmentAccruingRow, ViewScope } from '../../types'
 import { filterAccruingRowsForView, getScopeItemLabel } from '../../utils/scope'
+import { getAccrualProgress } from '../../utils/commitmentCalculations'
 import {
-  getAccrualCycle,
-  getAccrualProgress,
-} from '../../utils/commitmentCalculations'
+  sortAccruingRowsByNextDue,
+  sortAccruingRowsBySortOrder,
+} from '../../utils/accruingOrder'
 import { chartColorForScope } from '../../utils/businessTheme'
 import { formatCurrency } from '../../utils/format'
 import { getReferenceDate } from '../../utils/referenceDate'
 import { ordinalDay } from '../committed/shared'
 import type { CommitmentViews } from '../../types'
+import type { AccruingOrderMode } from '../../contexts/DashboardViewPreferencesContext'
 import { MobileRecordCard, MobileRecordList } from './MobileRecordList'
 import { MobileAccruingDetailModal } from './MobileAccruingDetailModal'
 
@@ -17,28 +19,8 @@ interface MobileAccruingListProps {
   state: AppState
   viewScope: ViewScope
   commitmentViews: CommitmentViews
-}
-
-function dateToKey(d: Date): string {
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${y}-${m}-${day}`
-}
-
-/** Next due date for this accruing row — soonest upcoming first when sorting. */
-function nextDueDateKey(row: CommitmentAccruingRow, referenceDate: Date): string {
-  const dueDay = row.commitment.dueDayOfMonth ?? 28
-  const cycle = getAccrualCycle(referenceDate, dueDay)
-  return dateToKey(cycle.cycleEnd)
-}
-
-function sortByNextDue(rows: CommitmentAccruingRow[], referenceDate: Date): CommitmentAccruingRow[] {
-  return [...rows].sort((a, b) => {
-    const dueCmp = nextDueDateKey(a, referenceDate).localeCompare(nextDueDateKey(b, referenceDate))
-    if (dueCmp !== 0) return dueCmp
-    return a.commitment.name.localeCompare(b.commitment.name)
-  })
+  /** grouped = user sort order; timeline = next due first */
+  orderMode?: AccruingOrderMode
 }
 
 function accruingMeta(state: AppState, row: CommitmentAccruingRow) {
@@ -56,16 +38,19 @@ function rowAccent(state: AppState, row: CommitmentAccruingRow): string {
   })
 }
 
-export function MobileAccruingList({ state, viewScope, commitmentViews }: MobileAccruingListProps) {
+export function MobileAccruingList({
+  state,
+  viewScope,
+  commitmentViews,
+  orderMode = 'timeline',
+}: MobileAccruingListProps) {
   const [selected, setSelected] = useState<CommitmentAccruingRow | null>(null)
 
   const rows = useMemo(() => {
-    const referenceDate = getReferenceDate()
-    return sortByNextDue(
-      filterAccruingRowsForView(commitmentViews.buildingUp, viewScope),
-      referenceDate,
-    )
-  }, [commitmentViews.buildingUp, viewScope, state])
+    const filtered = filterAccruingRowsForView(commitmentViews.buildingUp, viewScope)
+    if (orderMode === 'grouped') return sortAccruingRowsBySortOrder(filtered)
+    return sortAccruingRowsByNextDue(filtered)
+  }, [commitmentViews.buildingUp, viewScope, state, orderMode])
 
   if (rows.length === 0) {
     return <MobileRecordList emptyMessage="No monthly accruing costs in this view." />

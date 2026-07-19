@@ -1,7 +1,7 @@
 import { useMemo, useState, Fragment } from 'react'
 import type { AppState, Commitment, CommitmentViews, PlannedFundingMethod, ScopeLevel, ViewScope } from '../../types'
 import { useEditReadOnly } from '../../hooks/useEditReadOnly'
-import { useMobileNav } from '../../hooks/useMobileNav'
+import { useDashboardViewPreferences } from '../../contexts/DashboardViewPreferencesContext'
 import { getCommitmentScopeOptionsForView, getDefaultCommitmentScope, getReserveBillScopeOptionsForView } from '../../utils/scope'
 import {
   buildDueRowSections,
@@ -87,7 +87,7 @@ export function DuePanel({
   onOpenReservePlanner,
 }: DuePanelProps) {
   const editReadOnly = useEditReadOnly()
-  const { isMobile } = useMobileNav()
+  const { useCards } = useDashboardViewPreferences()
   const [fundingDraft, setFundingDraft] = useState<PlannedFundingDraft | null>(null)
   const [pendingPlannedPatch, setPendingPlannedPatch] = useState<{
     id: string
@@ -368,7 +368,7 @@ export function DuePanel({
       </div>
 
       <div className="card-scroll-body">
-        {isMobile ? (
+        {useCards ? (
           <MobileDueList
             state={state}
             commitmentViews={commitmentViews}

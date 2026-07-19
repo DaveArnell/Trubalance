@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, useCallback, useRef, type ComponentProps,
 import { Link } from 'react-router-dom'
 import { ReferenceDateProvider, useReferenceDate } from './contexts/ReferenceDateContext'
 import { TablePreferencesProvider } from './contexts/TablePreferencesContext'
+import { DashboardViewPreferencesProvider } from './contexts/DashboardViewPreferencesContext'
 import { useAuth } from './contexts/AuthContext'
 import { useWorkspace } from './contexts/WorkspaceContext'
 import { buildPageWidgets } from './components/pageWidgets'
@@ -551,6 +552,7 @@ function AppShellInner({
       onOnboardingComplete={refreshProfile}
     >
       <TablePreferencesProvider>
+      <DashboardViewPreferencesProvider>
         <SubscriptionReadOnlyBridge readOnlyRef={subscriptionReadOnlyRef} />
         <UndoKeyboardShortcuts
           canUndo={app.canUndo}
@@ -795,6 +797,7 @@ function AppShellInner({
           )}
         </main>
         </div>
+      </DashboardViewPreferencesProvider>
       </TablePreferencesProvider>
     </TourProvider>
     </SubscriptionProvider>

@@ -4,7 +4,7 @@ import { getCommitmentScopeOptionsForView, itemMatchesScope, getScopeItemLabel }
 import { sortByOrder } from '../utils/sortOrder'
 import type { AppActions } from '../hooks/useAppState'
 import { useEditReadOnly } from '../hooks/useEditReadOnly'
-import { useMobileNav } from '../hooks/useMobileNav'
+import { useDashboardViewPreferences } from '../contexts/DashboardViewPreferencesContext'
 import { useSheetRowReorder } from '../hooks/useSheetRowReorder'
 import { receiptEditableCellIds, useSheetCellNavigation } from '../utils/sheetCellNavigation'
 import { HelpButton } from './HelpButton'
@@ -33,7 +33,7 @@ export function ExpectedReceiptsPanel({
   setOpenHelp,
 }: ExpectedReceiptsPanelProps) {
   const editReadOnly = useEditReadOnly()
-  const { isMobile } = useMobileNav()
+  const { useCards } = useDashboardViewPreferences()
   const options = getCommitmentScopeOptionsForView(state, viewScope)
   const visibleReceipts = useMemo(
     () =>
@@ -119,7 +119,7 @@ export function ExpectedReceiptsPanel({
       ) : null}
 
       <div className="card-scroll-body">
-        {isMobile ? (
+        {useCards ? (
           <MobileReceiptsList state={state} viewScope={viewScope} actions={actions} />
         ) : (
         <PlatformSheetWrap storageKey="expected-receipts" columns={RECEIPTS_COLUMNS}>

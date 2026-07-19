@@ -10,9 +10,10 @@ import { formatCurrency } from '../utils/format'
 import { getReserveAccrualTooltip } from '../utils/reserveCalculations'
 import type { AppActions } from '../hooks/useAppState'
 import { useEditReadOnly } from '../hooks/useEditReadOnly'
-import { useMobileNav } from '../hooks/useMobileNav'
+import { useDashboardViewPreferences } from '../contexts/DashboardViewPreferencesContext'
 import { useMonthlyCostGroupCollapse } from '../hooks/useMonthlyCostGroupCollapse'
-import { flattenMonthlyCostTree } from '../utils/monthlyCostGrouping'
+import { flattenMonthlyCostTree, type MonthlyCostDisplayNode } from '../utils/monthlyCostGrouping'
+import { sortAccruingRowsByNextDue } from '../utils/accruingOrder'
 import { monthlyCostEditableCellIds, useSheetCellNavigation } from '../utils/sheetCellNavigation'
 import { HelpButton } from './HelpButton'
 import { WIDGET_HELP } from '../content/livingDashboard'
@@ -53,7 +54,7 @@ export function CommittedFundsPanel({
   setOpenHelp,
 }: CommittedFundsPanelProps) {
   const editReadOnly = useEditReadOnly()
-  const { isMobile } = useMobileNav()
+  const { useCards, accruingOrderMode, setAccruingOrderMode } = useDashboardViewPreferences()
   const [viewMode, setViewMode] = useState<AccruingViewMode>('list')
   const [pendingDueDayChange, setPendingDueDayChange] = useState<{
     commitmentId: string
@@ -111,7 +112,7 @@ export function CommittedFundsPanel({
   )
 
   const {
-    displayTree,
+    displayTree: groupedDisplayTree,
     collapsedGroups,
     toggleGroup,
     expandAllGroups,
@@ -120,9 +121,20 @@ export function CommittedFundsPanel({
     allExpanded,
   } = useMonthlyCostGroupCollapse(state, monthlyCommitmentRows, viewScope)
 
+  const timelineDisplayTree = useMemo<MonthlyCostDisplayNode[]>(
+    () => sortAccruingRowsByNextDue(monthlyCommitmentRows).map((row) => ({ type: 'leaf', row })),
+    [monthlyCommitmentRows],
+  )
+
+  const displayTree =
+    accruingOrderMode === 'timeline' ? timelineDisplayTree : groupedDisplayTree
+  const effectiveHasGroups = accruingOrderMode === 'grouped' && hasGroups
+  const effectiveCollapsed =
+    accruingOrderMode === 'timeline' ? new Set<string>() : collapsedGroups
+
   const flatRows = useMemo(
-    () => flattenMonthlyCostTree(displayTree, collapsedGroups),
-    [displayTree, collapsedGroups],
+    () => flattenMonthlyCostTree(displayTree, effectiveCollapsed),
+    [displayTree, effectiveCollapsed],
   )
   const orderedCellIds = useMemo(() => monthlyCostEditableCellIds(flatRows), [flatRows])
   const { activeCell, activate, deactivate, makeTabHandler } = useSheetCellNavigation(orderedCellIds)
@@ -230,6 +242,26 @@ export function CommittedFundsPanel({
               Month view
             </button>
           </div>
+          {viewMode === 'list' && (
+            <div className="view-mode-toggle" role="group" aria-label="Monthly cost order">
+              <button
+                type="button"
+                className={`view-mode-toggle-btn${accruingOrderMode === 'grouped' ? ' view-mode-toggle-btn--active' : ''}`}
+                onClick={() => setAccruingOrderMode('grouped')}
+                title="Your arranged order, with matching names grouped"
+              >
+                Grouped
+              </button>
+              <button
+                type="button"
+                className={`view-mode-toggle-btn${accruingOrderMode === 'timeline' ? ' view-mode-toggle-btn--active' : ''}`}
+                onClick={() => setAccruingOrderMode('timeline')}
+                title="Next due date first — same as the mobile app"
+              >
+                Timeline
+              </button>
+            </div>
+          )}
           <HelpButton
             id="commitments"
             openHelp={openHelp}
@@ -264,7 +296,7 @@ export function CommittedFundsPanel({
             <div className="sheet-section-head">
               <h3>Monthly costs</h3>
               <div className="sheet-section-actions">
-                {hasGroups && (
+                {effectiveHasGroups && (
                   <button
                     type="button"
                     className="btn-ghost btn-tiny"
@@ -282,11 +314,12 @@ export function CommittedFundsPanel({
             </div>
             {!hasRows ? (
               <p className="muted">No monthly costs yet.</p>
-            ) : isMobile ? (
+            ) : useCards ? (
               <MobileAccruingList
                 state={state}
                 viewScope={viewScope}
                 commitmentViews={commitmentViews}
+                orderMode={accruingOrderMode}
               />
             ) : (
               <PlatformSheetWrap
@@ -342,7 +375,7 @@ export function CommittedFundsPanel({
                         state={state}
                         rows={monthlyCommitmentRows}
                         displayTree={displayTree}
-                        collapsedGroups={collapsedGroups}
+                        collapsedGroups={effectiveCollapsed}
                         onToggleGroup={toggleGroup}
                         scopeOptions={options}
                         activeCell={activeCell}
