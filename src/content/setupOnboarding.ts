@@ -16,31 +16,31 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     id: 'why',
     title: 'What True Balance does for you.',
     explain:
-      'Your bank balance lies. Part of it already belongs to rent, payroll, and bills that haven\'t landed yet — and the bigger bills like VAT and insurance are quietly building up in the background. True Balance does two things: it tracks what\'s already spoken for so you always know what\'s genuinely yours, and it plans your savings for irregular bills so you\'re never caught out. The result is one honest number you can trust every single day.',
+      'Your bank balance isn’t all yours. Some of it already belongs to rent, wages, and other bills. True Balance subtracts what’s spoken for, so you always see what’s genuinely left to spend.',
   },
   {
     id: 'business',
     title: "Let's set up what you want to track.",
     explain:
-      'This is the foundation — everything else hangs off your business structure. Add businesses, venues, and accounts here. You can always change this later in Settings.',
+      'Add your businesses, venues, and accounts. You can change this later in Settings.',
   },
   {
     id: 'cash',
     title: 'Now add the money you can see.',
     explain:
-      'Enter the current balances for your accounts below. This is your starting point — True Balance compares this number against what\'s committed to tell you what\'s genuinely yours.',
+      'Enter today’s balances for your accounts. True Balance uses these as the starting point.',
   },
   {
     id: 'committed',
     title: "Now let's account for money that's already spoken for.",
     explain:
-      'Your bank balance includes money that\'s already committed — rent building up, payroll accruing, subscriptions ticking over. Tick the regular bills you recognise below, or add them later in the app.',
+      'Tick the regular bills you recognise — rent, payroll, and so on. You can add more later.',
   },
-    {
+  {
     id: 'committed-explain',
     title: 'How accruing costs work.',
     explain:
-      'Each regular bill builds a little every day toward its monthly total. On the 1st almost nothing is spoken for yet; by late month, most of it has accrued and True Balance has already subtracted that growing amount.\n\nWhen the due date arrives, the cost moves into Due and stays there until you mark it Paid. The demo below shows that cycle with cards like the ones on your home page.',
+      'Regular bills build up a little every day through the month. When the due date hits, they move to Due and stay there until you mark them Paid. Watch the demo below.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="committed-funds"]',
   },
@@ -48,7 +48,7 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     id: 'month-view',
     title: 'See the pattern — Month View.',
     explain:
-      'Click "Month view" on the Monthly Accruing section to see a visual timeline of how your committed balance builds up through the month and drops when bills are paid.\n\nThis shows you the rhythm of your business — you can see exactly when money is tightest (just before big bills land) and when you have the most breathing room (just after). It updates automatically as you add or change bills.',
+      'Month view shows how committed money builds through the month and drops when bills are paid. Use it to see when cash is tightest.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="committed-funds"]',
   },
@@ -56,7 +56,7 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     id: 'due-explain',
     title: 'Due — when it’s time to pay.',
     explain:
-      'When a monthly cost reaches its due date, it moves here from Accruing. It stays in Due until you mark it Paid — you decide when payment is done.\n\nYou can also add one-off costs with a future date (tax, equipment, deposits). When you add one, choose how True Balance treats it before that date.\n\nEarmark now — the full amount is subtracted from True Balance from day one, even though the bill isn’t due yet.\n\nBuild up — a little is set aside each day until the due date.\n\nThe example below shows a monthly bill that has become due, plus both one-off styles.',
+      'Monthly bills land here when they’re due. They stay until you mark them Paid.\n\nYou can also add one-off costs with a future date. Choose either:\n\nEarmark now — take the full amount out of True Balance today.\n\nBuild up — set a little aside each day until that date.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="due"]',
   },
@@ -64,7 +64,7 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     id: 'receipts-explain',
     title: 'Expected Receipts — money coming in.',
     explain:
-      'When you know money is on the way — an invoice, a grant, a refund — add it here so True Balance can look ahead. It stays until you mark it Received.\n\nIf the money has a future date, you choose how it counts before it arrives.\n\nCount it in full from today — if you’re confident it’s coming.\n\nBuild up toward the date — a little each day until then.\n\nThe example below shows both styles.',
+      'Add money you know is coming (invoices, grants, refunds). It stays here until you mark it Received.\n\nFor a future date, choose either:\n\nCount it all now — if you’re sure it’s coming.\n\nBuild up — a little each day until it arrives.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="expected-receipts"]',
   },
@@ -72,7 +72,7 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     id: 'reserve',
     title: "Now let's protect you from the big bills.",
     explain:
-      'VAT, corporation tax, insurance, annual renewals — the bills that are too big to pay from one month\'s income. The Reserve Planner works out how much to move into a savings account each month so the money is there when those bills land.\n\nBuffer is a safety margin: if a bill comes in a bit higher than you planned, the buffer covers the gap. Add one if you want that cushion — leave it at zero if you\'d rather keep the plan tight.\n\nThe example below is a plan that\'s already being followed. Use Set up now in the footer to start your own, or Continue when you\'re ready.',
+      'Big bills like VAT and corporation tax need saving for. The Reserve Planner tells you how much to move into savings each month.\n\nBuffer is spare cash for if a bill comes in higher than planned. Add one if you want a safety cushion.\n\nThe example below is a new month — see how much to transfer, then click Set up now to make your own plan.',
     page: 'reserve-planner',
     spotlight: '[data-tour="reserve-planner-month"]',
     skippable: true,
@@ -81,15 +81,15 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     id: 'trends-explain',
     title: 'Track your progress over time.',
     explain:
-      'The Trends page shows your real balance, committed costs, and True Balance plotted over time. You can see whether your business is heading up or down at a glance.\n\nTrends get more useful the longer you use True Balance. You will not see the full picture from day one — it takes regular balance updates and a few weeks of history before the trajectory of your business really reveals itself. Keep going: the more faithfully you update balances and mark items paid, the more accurate and trustworthy these charts become.\n\nWhen you change a payment amount (say rent goes up), True Balance recalculates historically from when the accrual started. This means your graphs stay accurate — no sudden spikes or corrections, just a smooth updated picture of reality.',
+      'Trends shows your bank balance, committed costs, and True Balance on a chart — so you can see if things are going up or down.\n\nIt gets clearer the longer you use the app. Keep updating balances and marking bills paid, and the picture fills in.',
     page: 'trends',
     spotlight: '[data-widget-id="trends-chart"]',
   },
   {
     id: 'forecast-explain',
-    title: 'See what\'s coming up.',
+    title: 'See what’s coming up.',
     explain:
-      'The Forecast page projects your current account forward from scheduled outgoings and expected receipts. For steady-income businesses, day-to-day trading margin is included too.\n\nUse it to spot tight weeks before they arrive — especially helpful when you know big payments or invoices are on the horizon.',
+      'Forecast looks ahead at money going out and money coming in. Use it to spot tight weeks before they hit.',
     page: 'forecast',
     spotlight: '[data-widget-id="forecast-cash-outlook"]',
   },
@@ -97,15 +97,15 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     id: 'reveal',
     title: "Here's your True Balance.",
     explain:
-      'This is what it\'s all about. Your bank might say one number, but part of that is already spoken for. True Balance shows you what\'s genuinely available — the honest number. From now on, you never have to guess whether you can afford something or whether that money belongs to a bill.',
+      'Your bank balance isn’t all yours — some of it is already spoken for. True Balance is what’s left. That’s the number to trust.',
     page: 'committed-funds',
     spotlight: '[data-tour="overview-hero"]',
   },
   {
     id: 'accuracy',
-    title: 'Keep it alive — here\'s your routine.',
+    title: 'Keep it alive — here’s your routine.',
     explain:
-      'True Balance works best when it\'s fresh. Update your bank balances regularly, mark payments as paid, and add or change obligations when something shifts. Once a month, do the Reserve Planner check-in — about 5 minutes — so big bills stay on track. That\'s it. The system handles the rest.',
+      'Update bank balances regularly. Mark bills Paid when you pay them. Once a month, check the Reserve Planner. That’s the habit — the app does the rest.',
     page: 'committed-funds',
     spotlight: '[data-tour="overview-balances"]',
   },

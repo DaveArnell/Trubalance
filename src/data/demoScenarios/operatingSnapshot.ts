@@ -89,22 +89,23 @@ function markReserveBillsOperatingCurrent(bills: ReserveBill[], today: Date): Re
 /**
  * Snap demo workspaces to a healthy operating day: due items cleared, only current-cycle accrual showing.
  * Expected receipts and planned due dates roll forward so they stay the same number of days ahead of today.
- * Reserve accounts sit on this month's planned balance so the planner looks correctly followed (no catch-up transfer).
+ * Reserve accounts sit at this month’s start balance — like a fresh month before the monthly transfer is done.
  */
 export function applyDemoOperatingSnapshot(state: AppState, today = getReferenceDate()): AppState {
   const rolled = rollDemoRelativeDates(state, today)
   const updatedAt = demoAccountUpdatedAt(today)
   const monthIndex = today.getMonth()
-  const onPlanByPlannerId = new Map<string, number>()
-  const onPlanByAccountId = new Map<string, number>()
+  const freshMonthByPlannerId = new Map<string, number>()
+  const freshMonthByAccountId = new Map<string, number>()
   const pastConfirmationsByPlannerId = new Map<string, Record<string, ReserveMonthConfirmation>>()
 
   for (const planner of rolled.reservePlanners) {
     const monthEnds = computeReserveMonthEndBalances(planner)
-    const onPlan = monthEnds[monthIndex]?.balanceAfterBills
-    if (onPlan != null) {
-      onPlanByPlannerId.set(planner.id, onPlan)
-      if (planner.reserveAccountId) onPlanByAccountId.set(planner.reserveAccountId, onPlan)
+    // Start-of-month balance: transfer to next month’s plan target is still outstanding.
+    const freshMonthBalance = monthEnds[monthIndex]?.startBalance
+    if (freshMonthBalance != null) {
+      freshMonthByPlannerId.set(planner.id, freshMonthBalance)
+      if (planner.reserveAccountId) freshMonthByAccountId.set(planner.reserveAccountId, freshMonthBalance)
     }
 
     const confirmations: Record<string, ReserveMonthConfirmation> = {}
@@ -127,12 +128,12 @@ export function applyDemoOperatingSnapshot(state: AppState, today = getReference
     accounts: rolled.accounts.map((account) => ({
       ...account,
       updatedAt,
-      balance: onPlanByAccountId.get(account.id) ?? account.balance,
+      balance: freshMonthByAccountId.get(account.id) ?? account.balance,
     })),
     commitments: markCommitmentsOperatingCurrent(rolled.commitments, today),
     reservePlanners: rolled.reservePlanners.map((planner) => ({
       ...planner,
-      actualBalance: onPlanByPlannerId.get(planner.id) ?? planner.actualBalance,
+      actualBalance: freshMonthByPlannerId.get(planner.id) ?? planner.actualBalance,
       monthConfirmations: pastConfirmationsByPlannerId.get(planner.id),
       bills: markReserveBillsOperatingCurrent(planner.bills, today),
     })),

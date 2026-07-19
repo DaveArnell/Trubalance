@@ -844,9 +844,8 @@ export function SetupOnboardingWizard({
               {!reserveSetupStarted ? (
                 <>
                   <p className="setup-reserve-yours-hint">
-                    This example is on track for the month — reserve balance matches the plan, so
-                    there&apos;s no catch-up transfer. Click <strong>Set up now</strong> in the footer
-                    to start your own plan for{' '}
+                    Example: a new month — transfer what’s needed, then click{' '}
+                    <strong>Set up now</strong> for{' '}
                     <strong>{primaryBusiness?.name ?? 'your business'}</strong>.
                   </p>
                   <SetupWidgetPreview previewId="reserve" />
@@ -854,8 +853,8 @@ export function SetupOnboardingWizard({
               ) : (
                 <>
                   <p className="setup-reserve-yours-hint">
-                    This is your reserve plan for <strong>{primaryBusiness?.name ?? 'your business'}</strong> —
-                    add your buffer and bills below. Everything you enter here saves to your account.
+                    Your plan for <strong>{primaryBusiness?.name ?? 'your business'}</strong> — add
+                    buffer and bills. It saves as you go.
                   </p>
                   {onboardingReserveSummary ? (
                     <div className="setup-reserve-inline">
