@@ -115,7 +115,7 @@ export function ExpectedReceiptsPanel({
             </div>
             {!editReadOnly && (
               <div className="card-actions">
-                <button type="button" className="btn-secondary btn-tiny" onClick={addRow}>
+                <button type="button" className="btn-primary btn-widget-add" onClick={addRow}>
                   + Add
                 </button>
               </div>
@@ -133,7 +133,7 @@ export function ExpectedReceiptsPanel({
             </div>
             <div className="card-actions">
               {!editReadOnly && (
-                <button type="button" className="btn-secondary btn-tiny" onClick={addRow}>
+                <button type="button" className="btn-primary btn-widget-add" onClick={addRow}>
                   + Add row
                 </button>
               )}

@@ -1,4 +1,4 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
 import { MOBILE_LAYOUT_MQ } from '../hooks/useMobileNav'
 import { useTour } from '../contexts/TourContext'
@@ -12,7 +12,6 @@ interface SpotlightRect {
 
 const PAD = 10
 const TARGET_CLASS = 'guided-tour-target'
-const MASK_ID = 'guided-tour-spotlight-mask'
 const CARD_WIDTH = 460
 const CARD_HEIGHT = 420
 const CARD_MAX_WIDTH = 'min(30rem, calc(100vw - 2rem))'
@@ -39,51 +38,74 @@ function toEmbedUrl(url: string): string {
 
 function TourOverlay({
   rect,
-  maskId,
   onDismiss,
 }: {
   rect: SpotlightRect | null
-  maskId: string
   onDismiss: () => void
 }) {
   const vw = typeof window !== 'undefined' ? window.innerWidth : 0
   const vh = typeof window !== 'undefined' ? window.innerHeight : 0
 
-  return (
-    <>
-      <svg className="guided-tour-mask-svg" aria-hidden>
-        <defs>
-          <mask id={maskId} maskUnits="userSpaceOnUse" x="0" y="0" width={vw} height={vh}>
-            <rect x="0" y="0" width={vw} height={vh} fill="white" />
-            {rect && (
-              <rect
-                x={rect.left}
-                y={rect.top}
-                width={rect.width}
-                height={rect.height}
-                rx="8"
-                fill="black"
-              />
-            )}
-          </mask>
-        </defs>
-      </svg>
-
+  if (!rect) {
+    return (
       <button
         type="button"
-        className="guided-tour-shade"
-        style={{ mask: `url(#${maskId})`, WebkitMask: `url(#${maskId})` }}
+        className="guided-tour-shade guided-tour-shade--full"
         aria-label="Close tour"
         onClick={onDismiss}
       />
+    )
+  }
 
-      {rect && (
-        <div
-          className="guided-tour-spotlight-ring"
-          style={{ top: rect.top, left: rect.left, width: rect.width, height: rect.height }}
-          aria-hidden
+  const { top, left, width, height } = rect
+  const right = Math.max(0, vw - left - width)
+  const bottom = Math.max(0, vh - top - height)
+
+  return (
+    <>
+      {/* Four panels around the hole so clicks inside the spotlight reach the app */}
+      {top > 0 ? (
+        <button
+          type="button"
+          className="guided-tour-shade"
+          style={{ top: 0, left: 0, width: '100%', height: top }}
+          aria-label="Close tour"
+          onClick={onDismiss}
         />
-      )}
+      ) : null}
+      {bottom > 0 ? (
+        <button
+          type="button"
+          className="guided-tour-shade"
+          style={{ top: top + height, left: 0, width: '100%', height: bottom }}
+          aria-label="Close tour"
+          onClick={onDismiss}
+        />
+      ) : null}
+      {left > 0 ? (
+        <button
+          type="button"
+          className="guided-tour-shade"
+          style={{ top, left: 0, width: left, height }}
+          aria-label="Close tour"
+          onClick={onDismiss}
+        />
+      ) : null}
+      {right > 0 ? (
+        <button
+          type="button"
+          className="guided-tour-shade"
+          style={{ top, left: left + width, width: right, height }}
+          aria-label="Close tour"
+          onClick={onDismiss}
+        />
+      ) : null}
+
+      <div
+        className="guided-tour-spotlight-ring"
+        style={{ top: rect.top, left: rect.left, width: rect.width, height: rect.height }}
+        aria-hidden
+      />
     </>
   )
 }
@@ -142,7 +164,6 @@ export function GuidedTour() {
   const [missingTarget, setMissingTarget] = useState(false)
   const [mediaOpen, setMediaOpen] = useState(false)
   const targetRef = useRef<Element | null>(null)
-  const maskId = useId().replace(/:/g, '')
 
   const step = activeTour?.tour.steps[activeTour.stepIndex]
   const stepCount = activeTour?.tour.steps.length ?? 0
@@ -317,7 +338,7 @@ export function GuidedTour() {
 
   return createPortal(
     <div className="guided-tour-root" role="presentation">
-      <TourOverlay rect={rect} maskId={maskId || MASK_ID} onDismiss={skipTour} />
+      <TourOverlay rect={rect} onDismiss={skipTour} />
       <div
         className={`guided-tour-card${mediaOpen ? ' guided-tour-card--media-open' : ''}`}
         style={tooltipStyle()}

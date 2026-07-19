@@ -206,8 +206,37 @@ export function SetupAccruingCycleDemo() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- demo loop keyed to uid only
   }, [uid])
 
+  const referenceCard =
+    building.find((card) => card.name === 'Wages') ?? building[0] ?? null
+  const monthDay = referenceCard
+    ? Math.max(1, Math.min(30, Math.round(referenceCard.progress * 30) || 1))
+    : 1
+
   return (
     <div className="setup-edu-visual setup-edu-visual--cards">
+      <div className="setup-accruing-day" aria-hidden="true">
+        <div className="setup-accruing-day-label">
+          <span>Day of month</span>
+          <strong>
+            {monthDay}
+            <span className="setup-accruing-day-of"> / 30</span>
+          </strong>
+        </div>
+        <div className="setup-accruing-day-track" role="presentation">
+          <div
+            className="setup-accruing-day-fill"
+            style={{ width: `${(monthDay / 30) * 100}%` }}
+          />
+          <span
+            className="setup-accruing-day-marker"
+            style={{ left: `${((monthDay - 1) / 29) * 100}%` }}
+          />
+        </div>
+        <p className="setup-accruing-day-hint muted">
+          Costs build a little each day. When the bar hits the due day, it moves to Due and
+          starts again from day 1.
+        </p>
+      </div>
       <div className="setup-accruing-cycle" aria-hidden="true">
         <div className="setup-accruing-cycle-col">
           <p className="setup-accruing-cycle-heading">Building up</p>

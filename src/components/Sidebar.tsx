@@ -158,6 +158,8 @@ export function Sidebar({
     .map((id) => plannersById.get(id))
     .filter((planner) => planner !== undefined)
   const scopePlannerId = getReservePlannerIdForScope(state, viewScope)
+  const reserveNeedsSetup =
+    !demoMode && state.businesses.length > 0 && state.reservePlanners.length === 0
 
   const finishDrag = () => {
     setDraggingKey(null)
@@ -309,11 +311,19 @@ export function Sidebar({
                   <div className={`sidebar-group${showCollapsed ? ' sidebar-group--compact' : ''}`}>
                     <a
                       href={buildHash('reserve-planner')}
-                      className={`sidebar-link${onReservePage ? ' active' : ''}`}
+                      className={`sidebar-link${onReservePage ? ' active' : ''}${
+                        reserveNeedsSetup ? ' sidebar-link--alert' : ''
+                      }`}
                       data-tour="nav-reserve-planner"
                       aria-current={onReservePage ? 'page' : undefined}
                       aria-expanded={reserveMenuOpen}
-                      title={showCollapsed ? page.label : undefined}
+                      title={
+                        showCollapsed
+                          ? reserveNeedsSetup
+                            ? `${page.label} — not set up yet`
+                            : page.label
+                          : undefined
+                      }
                       onClick={(e) => {
                         e.preventDefault()
                         setReserveMenuOpen((open) => !open)
@@ -331,7 +341,16 @@ export function Sidebar({
                       <span className="sidebar-nav-icon" aria-hidden>
                         {page.icon}
                       </span>
-                      {!showCollapsed && page.label}
+                      {!showCollapsed && <span className="sidebar-link-label">{page.label}</span>}
+                      {reserveNeedsSetup ? (
+                        <span
+                          className="sidebar-nav-alert"
+                          title="Reserve not set up yet"
+                          aria-label="Reserve not set up yet"
+                        >
+                          !
+                        </span>
+                      ) : null}
                     </a>
                     {!showCollapsed && (reserveMenuOpen || onReservePage) && (
                       <div className="sidebar-submenu">

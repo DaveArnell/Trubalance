@@ -290,6 +290,11 @@ export function CommittedFundsPanel({
                 </button>
               </div>
             )}
+            {!editReadOnly && viewMode === 'list' ? (
+              <button type="button" className="btn-primary btn-widget-add" onClick={addMonthlyRow}>
+                + Add
+              </button>
+            ) : null}
           </div>
         </div>
 
@@ -322,7 +327,7 @@ export function CommittedFundsPanel({
                       {allExpanded ? 'Collapse all' : 'Expand all'}
                     </button>
                   )}
-                  {!editReadOnly && (
+                  {!editReadOnly && !useCards && (
                     <button type="button" className="btn-secondary btn-tiny" onClick={addMonthlyRow}>
                       + Add
                     </button>
@@ -333,15 +338,7 @@ export function CommittedFundsPanel({
             {!hasRows ? (
               <p className="muted">No monthly costs yet.</p>
             ) : useCards ? (
-              <>
-                {!editReadOnly && (
-                  <div className="sheet-section-actions sheet-section-actions--cards">
-                    <button type="button" className="btn-secondary btn-tiny" onClick={addMonthlyRow}>
-                      + Add
-                    </button>
-                  </div>
-                )}
-                <MobileAccruingList
+              <MobileAccruingList
                   state={state}
                   viewScope={viewScope}
                   commitmentViews={commitmentViews}
@@ -351,7 +348,6 @@ export function CommittedFundsPanel({
                   onDuplicateCommitment={(id) => actions.duplicateCommitment(id)}
                   onDeleteCommitment={(id) => actions.deleteCommitment(id)}
                 />
-              </>
             ) : (
               <PlatformSheetWrap
                 storageKey={editReadOnly ? 'committed-monthly-readonly' : 'committed-monthly'}

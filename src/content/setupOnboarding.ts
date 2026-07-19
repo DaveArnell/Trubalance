@@ -93,7 +93,7 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     id: 'handoff',
     title: 'Now set it up on your dashboard.',
     explain:
-      'You’ve seen how it works. Next we’ll open your live dashboard and walk you through adding balances, monthly costs, due items, and receipts — then your reserve plan.\n\nIt’s quicker to fill these in where you’ll use them every day.',
+      'You’ve seen how it works. Next we’ll open your live dashboard and walk you through adding balances, monthly costs, due items, and receipts — then your reserve plan.',
     page: 'committed-funds',
   },
 ]

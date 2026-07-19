@@ -366,7 +366,7 @@ export function DuePanel({
             </div>
             {!editReadOnly && (
               <div className="card-actions">
-                <button type="button" className="btn-secondary btn-tiny" onClick={addPlannedRow}>
+                <button type="button" className="btn-primary btn-widget-add" onClick={addPlannedRow}>
                   + Add planned
                 </button>
               </div>
@@ -385,7 +385,7 @@ export function DuePanel({
             </table>
             <div className="card-actions">
               {!editReadOnly && (
-                <button type="button" className="btn-secondary btn-tiny" onClick={addPlannedRow}>
+                <button type="button" className="btn-primary btn-widget-add" onClick={addPlannedRow}>
                   + Add planned
                 </button>
               )}
