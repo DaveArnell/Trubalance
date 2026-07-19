@@ -3546,8 +3546,19 @@ body.widget-canvas-resizing * {
     margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) var(--space-2);
     padding: var(--space-2);
     padding-top: 0;
-    background: color-mix(in srgb, var(--bg-app) 94%, transparent);
+    /* Brand teal wash — matches homepage / True Balance green, not scope purple */
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, #0f766e 14%, #ecfdf5) 0%,
+        color-mix(in srgb, #f0fdfa 96%, #ffffff) 100%
+      );
     backdrop-filter: blur(10px);
+    border-bottom: 1px solid color-mix(in srgb, #0f766e 12%, var(--border));
+  }
+
+  .app-shell--mobile[data-scope-level] .main-content--mobile {
+    background: color-mix(in srgb, #ecfdf5 55%, var(--bg-app));
   }
 
   .main-content--mobile .mobile-sticky-chrome .top-bar--mobile {
@@ -11401,9 +11412,25 @@ tr.sheet-row--received td {
     z-index: auto;
     margin-bottom: 0;
     border-radius: var(--radius-md);
-    border: 1px solid var(--border);
-    background: color-mix(in srgb, var(--bg-surface-raised) 96%, transparent);
+    border: 1px solid color-mix(in srgb, #0f766e 18%, var(--border));
+    background: color-mix(in srgb, #ffffff 88%, #ecfdf5);
     overflow: hidden;
+  }
+
+  .mobile-overview-summary-label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #18181b;
+  }
+
+  .mobile-overview-summary-value {
+    margin-left: auto;
+    font-size: 1.1rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: #0f766e;
   }
 
   .mobile-overview-summary {
@@ -11426,14 +11453,6 @@ tr.sheet-row--received td {
     align-items: flex-start;
     gap: 2px;
     min-width: 0;
-  }
-
-  .mobile-overview-summary-label {
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--text-secondary);
   }
 
   .mobile-overview-freshness {
@@ -11475,14 +11494,6 @@ tr.sheet-row--received td {
     font-weight: 800;
     line-height: 1rem;
     text-align: center;
-  }
-
-  .mobile-overview-summary-value {
-    margin-left: auto;
-    font-size: 1.1rem;
-    font-weight: 800;
-    font-variant-numeric: tabular-nums;
-    color: var(--overview-accent, #0f766e);
   }
 
   .mobile-overview-summary-hint {
@@ -11637,9 +11648,19 @@ tr.sheet-row--received td {
     z-index: 30;
     margin: 0 calc(-1 * var(--space-3)) var(--space-2);
     padding: 0 var(--space-3) var(--space-2);
-    background: color-mix(in srgb, var(--bg-surface-raised) 96%, transparent);
+    background: color-mix(in srgb, #f0fdfa 92%, #ffffff);
     backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid color-mix(in srgb, #0f766e 10%, var(--border));
+  }
+
+  .app-shell--mobile .mobile-accruing-sticky .card-head-title-row h2 {
+    color: #09090b;
+    font-weight: 800;
+  }
+
+  .app-shell--mobile .mobile-accruing-sticky .committed-funds-summary th,
+  .app-shell--mobile .mobile-accruing-sticky .committed-funds-summary td {
+    color: #18181b;
   }
 
   .app-shell--mobile .mobile-accruing-sticky .card-head {
@@ -11681,7 +11702,7 @@ tr.sheet-row--received td {
   font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--text-secondary);
+  color: #27272a;
 }
 
 .mobile-record-list > .mobile-record-section-label:first-child {
@@ -11757,22 +11778,16 @@ tr.sheet-row--received td {
   font-weight: 800;
   line-height: 1.25;
   letter-spacing: -0.01em;
-  color: var(--text-primary);
+  color: #09090b;
   word-break: break-word;
-  text-shadow:
-    0 0 10px var(--bg-surface),
-    0 0 4px var(--bg-surface);
 }
 
 .mobile-record-card-meta {
   margin: 3px 0 0;
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: 650;
   line-height: 1.35;
-  color: var(--text-secondary);
-  text-shadow:
-    0 0 8px var(--bg-surface),
-    0 0 3px var(--bg-surface);
+  color: #3f3f46;
 }
 
 .mobile-record-card-amount-block {
@@ -11787,10 +11802,7 @@ tr.sheet-row--received td {
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
-  color: var(--text-primary);
-  text-shadow:
-    0 0 10px var(--bg-surface),
-    0 0 4px var(--bg-surface);
+  color: #09090b;
 }
 
 .mobile-record-card-amount-secondary {
@@ -11798,10 +11810,7 @@ tr.sheet-row--received td {
   font-size: 0.78rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: var(--text-secondary);
-  text-shadow:
-    0 0 8px var(--bg-surface),
-    0 0 3px var(--bg-surface);
+  color: #3f3f46;
 }
 
 .mobile-record-card-amount-block--neg .mobile-record-card-amount {

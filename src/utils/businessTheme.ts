@@ -7,22 +7,22 @@ import { getBusinessesInGroup } from './scope'
  * can each get a unique default without colliding across the org.
  */
 export const BUSINESS_ACCENT_COLORS = [
-  '#9333ea', // violet
+  '#0f766e', // brand teal
   '#059669', // emerald
+  '#0284c7', // sky
   '#ea580c', // orange
   '#db2777', // rose
   '#ca8a04', // amber
-  '#0d9488', // teal
   '#4f46e5', // indigo
   '#be123c', // crimson
-  '#0284c7', // sky
   '#65a30d', // lime
   '#c026d3', // fuchsia
   '#b45309', // brown-orange
   '#0891b2', // cyan
+  '#9333ea', // violet
   '#7c3aed', // purple
   '#dc2626', // red
-  '#0f766e', // deep teal
+  '#0d9488', // deep teal
 ] as const
 
 const GROUP_ACCENT = '#52525b'
