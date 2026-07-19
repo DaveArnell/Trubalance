@@ -4,10 +4,11 @@ import {
   MarketingHeader,
   MarketingShell,
 } from '../components/marketing/MarketingLayout'
-import { DEMO_SCENARIOS } from '../data/demoScenarios'
+import { DEMO_SCENARIOS, DEMO_FROZEN_DATE_KEY } from '../data/demoScenarios'
 import { METHOD_PAGE_PATH } from '../content/trueBalanceMethod'
 import { SEE_HOW_SEO } from '../content/marketingSeo'
 import { usePageMeta } from '../hooks/usePageMeta'
+import { formatSnapshotDateLong } from '../utils/snapshots'
 
 export function SeeHowItWorksPage() {
   usePageMeta(SEE_HOW_SEO)
@@ -22,7 +23,9 @@ export function SeeHowItWorksPage() {
               <p className="marketing-how-eyebrow">Try a demo</p>
               <h1>See it with a live business</h1>
               <p className="marketing-section-lead marketing-section-lead--home">
-                Pick an example workspace and explore True Balance — no signup needed.
+                Pick an example workspace and explore True Balance — no signup needed. Each demo is a
+                frozen snapshot as of {formatSnapshotDateLong(DEMO_FROZEN_DATE_KEY)}, so figures stay
+                stable while you look around.
               </p>
               <p className="marketing-section-lead marketing-section-lead--home muted">
                 Prefer to understand the problem first?{' '}

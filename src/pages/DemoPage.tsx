@@ -11,6 +11,7 @@ import {
 } from '../data/demoScenarios'
 import { DEMO_SEO } from '../content/marketingSeo'
 import { usePageMeta } from '../hooks/usePageMeta'
+import { formatSnapshotDateLong } from '../utils/snapshots'
 
 export function DemoPage() {
   usePageMeta(DEMO_SEO)
@@ -62,7 +63,8 @@ export function DemoPage() {
               </select>
             </label>
             <p className="interactive-demo-banner-message">
-              Sample data — explore freely. Nothing here is saved.
+              Frozen snapshot as of {formatSnapshotDateLong(DEMO_FROZEN_DATE_KEY)} — explore freely.
+              Nothing here is saved.
             </p>
             <div className="interactive-demo-banner-actions">
               {canEditDemo && (
@@ -84,7 +86,7 @@ export function DemoPage() {
             key={resolvedId}
             workspaceId={null}
             externalState={externalState}
-            externalStateVersion={`${resolvedId}:${meta.historyMonths}`}
+            externalStateVersion={`${resolvedId}:${meta.historyMonths}:v2`}
             defaultViewScope={meta.defaultViewScope}
             readOnly={!canEditDemo}
             skipLocalPersist

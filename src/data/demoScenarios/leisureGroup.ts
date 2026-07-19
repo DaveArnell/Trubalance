@@ -67,9 +67,12 @@ export function buildLeisureGroupDemoState(): AppState {
       { id: 'lg-c-3', name: 'PAYE / HMRC', schedule: 'monthly', amount: 6400, dueDayOfMonth: 22, scopeLevel: 'business', scopeId: bizMain, status: 'healthy' },
       { id: 'lg-c-4', name: 'Pension', schedule: 'monthly', amount: 2200, dueDayOfMonth: 20, scopeLevel: 'business', scopeId: bizMain, status: 'healthy' },
       { id: 'lg-c-5', name: 'Merchant services', schedule: 'monthly', amount: 2800, dueDayOfMonth: 12, scopeLevel: 'venue', scopeId: venueCity, status: 'healthy' },
-      { id: 'lg-c-6', name: 'Payroll', schedule: 'monthly', amount: 4200, dueDayOfMonth: 28, scopeLevel: 'venue', scopeId: venueNorthgate, status: 'healthy' },
+      { id: 'lg-c-6', name: 'Payroll', schedule: 'monthly', amount: 9200, dueDayOfMonth: 28, scopeLevel: 'venue', scopeId: venueNorthgate, status: 'healthy' },
+      { id: 'lg-c-6b', name: 'Rent', schedule: 'monthly', amount: 4800, dueDayOfMonth: 1, scopeLevel: 'venue', scopeId: venueNorthgate, status: 'healthy' },
       { id: 'lg-c-7', name: 'Insurance', schedule: 'monthly', amount: 890, dueDayOfMonth: 15, scopeLevel: 'business', scopeId: bizCoast, status: 'healthy' },
       { id: 'lg-c-8', name: 'Utilities', schedule: 'monthly', amount: 1450, dueDayOfMonth: 10, scopeLevel: 'venue', scopeId: venuePromenade, status: 'healthy' },
+      { id: 'lg-c-8b', name: 'Payroll', schedule: 'monthly', amount: 6800, dueDayOfMonth: 28, scopeLevel: 'venue', scopeId: venuePromenade, status: 'healthy' },
+      { id: 'lg-c-8c', name: 'Rent', schedule: 'monthly', amount: 3600, dueDayOfMonth: 1, scopeLevel: 'venue', scopeId: venuePromenade, status: 'healthy' },
       {
         id: 'lg-c-9',
         name: 'Activity equipment',
