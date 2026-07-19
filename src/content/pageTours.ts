@@ -59,9 +59,9 @@ export const SETUP_TOUR: PageTour = {
     },
     {
       id: 'setup-true-balance',
-      target: '[data-tour="overview-hero"]',
+      target: '[data-tour="overview-balances"]',
       title: 'Your True Balance',
-      body: 'As you add balances and costs, this number updates — cash minus what’s spoken for, plus realistic receipts.\n\nThat’s the figure to trust day to day. When you’re ready for VAT and other lumpy bills, open Reserve Planner in the sidebar — a red alert marks it if you haven’t set one up yet.',
+      body: 'As you add balances and costs, True Balance updates — cash minus what’s spoken for, plus realistic receipts.\n\nThat’s the figure to trust day to day. When you’re ready for VAT and other lumpy bills, open Reserve Planner in the sidebar — a red alert marks it if you haven’t set one up yet.',
       placement: 'bottom',
       page: 'committed-funds',
     },
@@ -76,9 +76,9 @@ export const PAGE_TOURS: Partial<Record<PageId, PageTour>> = {
     steps: [
       {
         id: 'cf-hero',
-        target: '[data-tour="overview-hero"]',
-        title: 'True Balance overview',
-        body: 'This strip stays at the top while you work. It shows how much is genuinely available after money already spoken for is taken into account.\n\nSave account balances on the right whenever you reconcile — that keeps True Balance honest and feeds Trends and History.',
+        target: '[data-tour="overview-balances"]',
+        title: 'Your balances',
+        body: 'Enter current account balances here. This is the starting point for True Balance, Trends, and History.\n\nSave whenever you reconcile so the numbers stay honest.',
         placement: 'bottom',
       },
       {

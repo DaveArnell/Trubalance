@@ -3896,7 +3896,7 @@ body.widget-canvas-resizing * {
   margin: 0;
   justify-self: center;
   text-align: center;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 800;
   line-height: 1.2;
   letter-spacing: -0.02em;
@@ -5286,6 +5286,28 @@ button.overview-slim-col-label:not(:disabled) {
   padding-left: var(--space-2);
   display: flex;
   flex-direction: column;
+}
+
+.overview-strip--balances-only .overview-strip-table {
+  padding-left: 0;
+}
+
+.overview-balances-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-bottom: 4px;
+  min-height: 1.5rem;
+}
+
+.overview-balances-title {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #09090b;
 }
 
 .overview-breakdown-wrap {
@@ -12164,20 +12186,20 @@ tr.sheet-row--received td {
 
 .mobile-record-card-title {
   margin: 0;
-  font-size: 1.12rem;
+  font-size: 1.2rem;
   font-weight: 900;
   line-height: 1.15;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.03em;
   color: #000;
   word-break: break-word;
 }
 
 .mobile-record-card-meta {
   margin: 2px 0 0;
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   font-weight: 600;
   line-height: 1.3;
-  color: #52525b;
+  color: #71717a;
 }
 
 .mobile-record-card-amount-block {
@@ -12188,11 +12210,11 @@ tr.sheet-row--received td {
 
 .mobile-record-card-amount {
   margin: 0;
-  font-size: 1.02rem;
+  font-size: 0.95rem;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
-  color: #09090b;
+  color: #18181b;
 }
 
 .mobile-record-card-amount-secondary {
@@ -12277,10 +12299,10 @@ tr.sheet-row--received td {
   .mobile-record-card-title {
     margin: 0;
     max-width: 100%;
-    font-size: 1.85rem;
+    font-size: 1.95rem;
     font-weight: 900;
     line-height: 1.02;
-    letter-spacing: -0.04em;
+    letter-spacing: -0.045em;
     color: #000;
     white-space: nowrap;
     overflow: hidden;
@@ -18993,9 +19015,9 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .setup-edu-visual--cards .mobile-record-card-title,
 .setup-edu-annotated-item .mobile-record-card-title {
-  font-size: 1.12rem !important;
+  font-size: 1.15rem !important;
   font-weight: 900 !important;
-  letter-spacing: -0.025em !important;
+  letter-spacing: -0.03em !important;
   color: #000 !important;
   white-space: normal !important;
 }

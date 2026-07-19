@@ -111,7 +111,7 @@ export function ExpectedReceiptsPanel({
               ) : (
                 <span className="card-head-toolbar-spacer" aria-hidden />
               )}
-              <h2>Expected Receipts</h2>
+              <h2>Expected receipts</h2>
               <HelpButton
                 id="receipts"
                 openHelp={openHelp}
@@ -119,12 +119,11 @@ export function ExpectedReceiptsPanel({
                 text={WIDGET_HELP.expectedReceipts}
               />
             </div>
-            <p className="muted card-lead-compact card-lead-compact--below">Soonest expected date first</p>
           </>
         ) : (
           <>
             <div>
-              <h2>Expected Receipts</h2>
+              <h2>Expected receipts</h2>
               {totalAccrued > 0 ? (
                 <p className="muted widget-subtitle">
                   Accrued in True Balance: +{formatCurrency(totalAccrued)}

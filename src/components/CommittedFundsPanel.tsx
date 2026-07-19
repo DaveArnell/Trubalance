@@ -248,7 +248,7 @@ export function CommittedFundsPanel({
             ) : (
               <span className="card-head-toolbar-spacer" aria-hidden />
             )}
-            <h2>Monthly accruing</h2>
+            <h2>Monthly accruing bills</h2>
             <HelpButton
               id="commitments"
               openHelp={openHelp}
@@ -256,9 +256,6 @@ export function CommittedFundsPanel({
               text={WIDGET_HELP.committedFunds}
             />
           </div>
-          <p className="muted card-lead-compact card-lead-compact--below">
-            Regular predictable bills — rent, payroll, subscriptions, direct debits
-          </p>
           <div className="card-head-actions" data-tour="committed-views">
             <div className="view-mode-toggle" role="group" aria-label="Monthly accruing view">
               <button

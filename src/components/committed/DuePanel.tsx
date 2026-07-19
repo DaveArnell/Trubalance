@@ -367,16 +367,13 @@ export function DuePanel({
               ) : (
                 <span className="card-head-toolbar-spacer" aria-hidden />
               )}
-              <h2>Due</h2>
+              <h2>Due bills</h2>
               <HelpButton id="due" openHelp={openHelp} setOpenHelp={setOpenHelp} text={WIDGET_HELP.due} />
             </div>
-            <p className="muted card-lead-compact card-lead-compact--below">
-              Next due first — including reserve bills
-            </p>
           </>
         ) : (
           <>
-            <h2>Due</h2>
+            <h2>Due bills</h2>
             <table className="kpi-table kpi-table--head kpi-table--totals" aria-label="Due total">
               <tbody>
                 <tr>
