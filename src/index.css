@@ -23430,6 +23430,11 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   display: flex;
   align-items: center;
   gap: 8px;
+  border-left-color: var(--row-accent, transparent);
+}
+
+.scope-tree-btn:not(.scope-tree-btn--active) {
+  border-left-color: color-mix(in srgb, var(--row-accent, transparent) 70%, transparent);
 }
 
 .sidebar-scope-current {

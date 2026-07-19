@@ -1,6 +1,10 @@
 import type { AppState, ViewScope } from '../types'
 import { getGroupIdForScope, getScopeBreadcrumb, getScopeLabel, hasMultipleViewScopes } from '../utils/scope'
-import { getBusinessAccentColor, resolveScopeBusinessId } from '../utils/businessTheme'
+import {
+  chartColorForScope,
+  getBusinessAccentColor,
+  getVenueAccentColor,
+} from '../utils/businessTheme'
 import { abbreviateScopeName } from '../utils/sidebarLayout'
 
 interface SidebarScopeTreeProps {
@@ -61,14 +65,14 @@ export function SidebarScopeTree({
   onSelect,
   compact = false,
 }: SidebarScopeTreeProps) {
-  const activeBusinessId = resolveScopeBusinessId(state, viewScope)
+  const currentAccent = chartColorForScope(state, viewScope)
   const currentLabel = getScopeLabel(state, viewScope)
   const breadcrumb = getScopeBreadcrumb(state, viewScope)
   const multiScope = hasMultipleViewScopes(state)
 
   const renderBusinessNode = (business: typeof state.businesses[number]) => {
     const venues = state.venues.filter((v) => v.businessId === business.id)
-    const accent = getBusinessAccentColor(state, business.id)
+    const businessAccent = getBusinessAccentColor(state, business.id)
 
     if (venues.length === 1) {
       const venue = venues[0]!
@@ -83,10 +87,11 @@ export function SidebarScopeTree({
                 ? `scope-tree-btn scope-tree-btn--active${compact ? ' scope-tree-btn--compact' : ''}`
                 : scopeBtnClass(state, viewScope, 'business', business.id, compact)
             }
+            style={{ ['--row-accent' as string]: businessAccent }}
             title={compact ? business.name : undefined}
             onClick={() => onSelect({ type: 'business', id: business.id })}
           >
-            <span className="scope-tree-swatch" style={{ background: accent }} aria-hidden />
+            <span className="scope-tree-swatch" style={{ background: businessAccent }} aria-hidden />
             <span className="scope-tree-label">{label}</span>
           </button>
         </li>
@@ -98,10 +103,11 @@ export function SidebarScopeTree({
         <button
           type="button"
           className={scopeBtnClass(state, viewScope, 'business', business.id, compact)}
+          style={{ ['--row-accent' as string]: businessAccent }}
           title={compact ? business.name : undefined}
           onClick={() => onSelect({ type: 'business', id: business.id })}
         >
-          <span className="scope-tree-swatch" style={{ background: accent }} aria-hidden />
+          <span className="scope-tree-swatch" style={{ background: businessAccent }} aria-hidden />
           <span className="scope-tree-label">
             {compact ? abbreviateScopeName(business.name, 3) : business.name}
           </span>
@@ -109,21 +115,29 @@ export function SidebarScopeTree({
 
         {venues.length > 1 && (
           <ul className={`scope-tree-branch${compact ? ' scope-tree-branch--compact' : ''}`}>
-            {venues.map((venue) => (
-              <li key={venue.id} className="scope-tree-node">
-                <button
-                  type="button"
-                  className={scopeBtnClass(state, viewScope, 'venue', venue.id, compact)}
-                  title={compact ? venue.name : undefined}
-                  onClick={() => onSelect({ type: 'venue', id: venue.id })}
-                >
-                  <span className="scope-tree-swatch" style={{ background: accent }} aria-hidden />
-                  <span className="scope-tree-label">
-                    {compact ? abbreviateScopeName(venue.name, 3) : venue.name}
-                  </span>
-                </button>
-              </li>
-            ))}
+            {venues.map((venue) => {
+              const venueAccent = getVenueAccentColor(state, venue.id)
+              return (
+                <li key={venue.id} className="scope-tree-node">
+                  <button
+                    type="button"
+                    className={scopeBtnClass(state, viewScope, 'venue', venue.id, compact)}
+                    style={{ ['--row-accent' as string]: venueAccent }}
+                    title={compact ? venue.name : undefined}
+                    onClick={() => onSelect({ type: 'venue', id: venue.id })}
+                  >
+                    <span
+                      className="scope-tree-swatch"
+                      style={{ background: venueAccent }}
+                      aria-hidden
+                    />
+                    <span className="scope-tree-label">
+                      {compact ? abbreviateScopeName(venue.name, 3) : venue.name}
+                    </span>
+                  </button>
+                </li>
+              )
+            })}
           </ul>
         )}
       </li>
@@ -148,13 +162,11 @@ export function SidebarScopeTree({
         className={`sidebar-scope-current${compact ? ' sidebar-scope-current--compact' : ''}`}
         title={breadcrumb}
       >
-        {activeBusinessId && (
-          <span
-            className="scope-tree-swatch scope-tree-swatch--current"
-            style={{ background: getBusinessAccentColor(state, activeBusinessId) }}
-            aria-hidden
-          />
-        )}
+        <span
+          className="scope-tree-swatch scope-tree-swatch--current"
+          style={{ background: currentAccent }}
+          aria-hidden
+        />
         {compact ? abbreviateScopeName(currentLabel, 4) : currentLabel}
       </p>
 

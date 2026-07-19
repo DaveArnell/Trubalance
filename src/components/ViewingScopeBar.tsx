@@ -45,9 +45,7 @@ export function ViewingScopeBar({ state, viewScope, variant = 'full' }: ViewingS
 
       <ol className="viewing-scope-trail">
         {segments.map((segment, index) => {
-          const accent = segment.isActive
-            ? accentForScope(state, { type: segment.level, id: segment.id })
-            : undefined
+          const accent = accentForScope(state, { type: segment.level, id: segment.id })
           return (
             <li
               key={`${segment.level}:${segment.id}`}
