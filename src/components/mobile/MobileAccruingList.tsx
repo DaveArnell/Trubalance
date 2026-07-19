@@ -1,6 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react'
 import type { AppState, Commitment, CommitmentAccruingRow, ViewScope } from '../../types'
-import { filterAccruingRowsForView, getScopeItemLabel } from '../../utils/scope'
+import { filterAccruingRowsForView, getCardScopeMetaLabel, getCommitmentScopeOptionsForView } from '../../utils/scope'
 import { getAccrualProgress } from '../../utils/commitmentCalculations'
 import {
   sortAccruingRowsByNextDue,
@@ -16,7 +16,6 @@ import { getReferenceDate } from '../../utils/referenceDate'
 import { ordinalDay } from '../committed/shared'
 import type { CommitmentViews } from '../../types'
 import type { AccruingOrderMode } from '../../contexts/DashboardViewPreferencesContext'
-import { getCommitmentScopeOptionsForView } from '../../utils/scope'
 import { MobileRecordCard, MobileRecordList, MobileSectionLabel } from './MobileRecordList'
 import { MobileAccruingDetailModal } from './MobileAccruingDetailModal'
 
@@ -33,7 +32,7 @@ interface MobileAccruingListProps {
 
 function accruingMeta(state: AppState, row: CommitmentAccruingRow) {
   const { commitment } = row
-  const scope = getScopeItemLabel(state, commitment.scopeLevel, commitment.scopeId)
+  const scope = getCardScopeMetaLabel(state, commitment.scopeLevel, commitment.scopeId)
   const dueDay =
     commitment.dueDayOfMonth != null ? `Due ${ordinalDay(commitment.dueDayOfMonth)}` : null
   const kind = row.source === 'reserve' ? 'Reserve' : null

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { AppState, ExpectedReceipt, ViewScope } from '../../types'
-import { getScopeItemLabel, itemMatchesScope } from '../../utils/scope'
+import { getCardScopeMetaLabel, itemMatchesScope } from '../../utils/scope'
 import { formatCurrency } from '../../utils/format'
 import {
   formatReceiptDateDisplay,
@@ -65,7 +65,7 @@ export function MobileReceiptsList({ state, viewScope, actions }: MobileReceipts
           const timingLabel = isAccrual ? 'Building up' : 'Lump sum'
           const expected = formatReceiptDateDisplay(receipt.expectedDate)
           const meta = [
-            getScopeItemLabel(state, receipt.scopeLevel, receipt.scopeId),
+            getCardScopeMetaLabel(state, receipt.scopeLevel, receipt.scopeId),
             timingLabel,
             expected ? `Due ${expected}` : null,
           ]

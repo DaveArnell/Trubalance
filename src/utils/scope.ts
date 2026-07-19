@@ -510,3 +510,24 @@ export function parseScopePickerValue(value: string): ViewScope | null {
 export function hasMultipleViewScopes(state: AppState): boolean {
   return getSidebarScopePickerOptions(state).length > 1
 }
+
+/**
+ * Solo setup: one selectable scope (typically one business with at most one venue).
+ * No viewing dropdown; card meta does not need an “applies to” label.
+ */
+export function isSoloOrganisation(state: AppState): boolean {
+  return !hasMultipleViewScopes(state)
+}
+
+/**
+ * Scope line for mobile/desktop cards. Hidden when redundant (solo org, or the only business).
+ */
+export function getCardScopeMetaLabel(
+  state: AppState,
+  scopeLevel: ScopeLevel,
+  scopeId: string,
+): string | null {
+  if (isSoloOrganisation(state)) return null
+  if (state.businesses.length === 1 && scopeLevel === 'business') return null
+  return getScopeItemLabel(state, scopeLevel, scopeId)
+}

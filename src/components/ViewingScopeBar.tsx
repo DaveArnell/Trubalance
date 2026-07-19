@@ -30,6 +30,7 @@ export function ViewingScopeBar({ state, viewScope, variant = 'full' }: ViewingS
         className={`viewing-scope-bar viewing-scope-bar--${variant} viewing-scope-bar--simple`}
         aria-label={`Viewing ${label}`}
       >
+        {variant === 'full' && <span className="viewing-scope-bar-heading">Viewing</span>}
         {accent ? (
           <span className="viewing-scope-simple-swatch" style={{ background: accent }} aria-hidden />
         ) : null}

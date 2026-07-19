@@ -8,7 +8,7 @@ import {
   isReserveTransferDueRow,
   sortDueRowsByUrgency,
 } from '../../utils/commitmentCalculations'
-import { getScopeItemLabel } from '../../utils/scope'
+import { getCardScopeMetaLabel } from '../../utils/scope'
 import { formatCurrency } from '../../utils/format'
 import { chartColorForScope } from '../../utils/businessTheme'
 import { getReferenceDate } from '../../utils/referenceDate'
@@ -66,7 +66,7 @@ export function MobileDueList({
           const rolled = formatRolledDueTooltip(row)
           const scopeLabel = isReserveTransfer
             ? 'Reserve transfer'
-            : getScopeItemLabel(state, item.scopeLevel, item.scopeId)
+            : getCardScopeMetaLabel(state, item.scopeLevel, item.scopeId)
           const accent = isReserveTransfer
             ? undefined
             : chartColorForScope(state, { type: item.scopeLevel, id: item.scopeId })

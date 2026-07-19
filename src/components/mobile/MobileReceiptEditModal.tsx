@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { AppState, ExpectedReceipt, ScopeLevel, ViewScope } from '../../types'
-import { getCommitmentScopeOptionsForView } from '../../utils/scope'
+import { getCommitmentScopeOptionsForView, isSoloOrganisation } from '../../utils/scope'
 import { formatCurrency } from '../../utils/format'
 import { toAmount, roundCurrency } from '../../utils/amounts'
 import {
@@ -42,6 +42,7 @@ export function MobileReceiptEditModal({
 }: MobileReceiptEditModalProps) {
   const editReadOnly = useEditReadOnly()
   const scopeOptions = getCommitmentScopeOptionsForView(state, viewScope)
+  const showScopeField = !isSoloOrganisation(state) && scopeOptions.length > 1
   const [name, setName] = useState(receipt.name)
   const [amount, setAmount] = useState(String(receipt.amount))
   const [timing, setTiming] = useState<'lump' | 'accrual'>(receipt.receiptTiming ?? 'lump')
@@ -172,16 +173,18 @@ export function MobileReceiptEditModal({
                   onChange={(e) => setExpectedDate(e.target.value)}
                 />
               </label>
-              <label className="snapshot-correction-input">
-                <span>Applies to</span>
-                <select value={scopeKey} onChange={(e) => setScopeKey(e.target.value)}>
-                  {scopeOptions.map((opt) => (
-                    <option key={`${opt.level}:${opt.id}`} value={`${opt.level}:${opt.id}`}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              {showScopeField ? (
+                <label className="snapshot-correction-input">
+                  <span>Applies to</span>
+                  <select value={scopeKey} onChange={(e) => setScopeKey(e.target.value)}>
+                    {scopeOptions.map((opt) => (
+                      <option key={`${opt.level}:${opt.id}`} value={`${opt.level}:${opt.id}`}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : null}
               {error ? <p className="snapshot-correction-error">{error}</p> : null}
             </div>
           )}

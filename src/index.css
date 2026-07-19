@@ -4017,6 +4017,8 @@ body.widget-canvas-resizing * {
 
 .viewing-scope-bar--simple {
   gap: 8px;
+  pointer-events: none;
+  user-select: none;
 }
 
 .viewing-scope-simple-swatch {

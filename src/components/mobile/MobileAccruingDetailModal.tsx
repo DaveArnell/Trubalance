@@ -5,7 +5,7 @@ import {
   getAccrualProgress,
   getAccruingRowDailyRate,
 } from '../../utils/commitmentCalculations'
-import { getScopeItemLabel, type ScopeOption } from '../../utils/scope'
+import { getScopeItemLabel, isSoloOrganisation, type ScopeOption } from '../../utils/scope'
 import { formatCurrency } from '../../utils/format'
 import { toAmount, roundCurrency } from '../../utils/amounts'
 import { ordinalDay } from '../committed/shared'
@@ -63,6 +63,7 @@ export function MobileAccruingDetailModal({
   }, [onClose])
 
   const scopeLabel = getScopeItemLabel(state, commitment.scopeLevel, commitment.scopeId)
+  const showScopeField = !isSoloOrganisation(state) && scopeOptions.length > 1
 
   const handleSave = () => {
     if (!canEdit || !onSave) return
@@ -112,7 +113,9 @@ export function MobileAccruingDetailModal({
         style={{ borderTop: `4px solid ${accentColor}` }}
       >
         <h3 id="mobile-accruing-detail-title">{canEdit ? 'Edit monthly cost' : commitment.name}</h3>
-        {!canEdit ? <p className="snapshot-correction-subtitle">{scopeLabel}</p> : null}
+        {!canEdit && showScopeField ? (
+          <p className="snapshot-correction-subtitle">{scopeLabel}</p>
+        ) : null}
 
         <div
           className="mobile-accruing-detail-progress"
@@ -163,16 +166,18 @@ export function MobileAccruingDetailModal({
                 }}
               />
             </label>
-            <label className="snapshot-correction-input">
-              <span>Applies to</span>
-              <select value={scopeKey} onChange={(e) => setScopeKey(e.target.value)}>
-                {scopeOptions.map((opt) => (
-                  <option key={`${opt.level}:${opt.id}`} value={`${opt.level}:${opt.id}`}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+            {showScopeField ? (
+              <label className="snapshot-correction-input">
+                <span>Applies to</span>
+                <select value={scopeKey} onChange={(e) => setScopeKey(e.target.value)}>
+                  {scopeOptions.map((opt) => (
+                    <option key={`${opt.level}:${opt.id}`} value={`${opt.level}:${opt.id}`}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
             {error ? <p className="snapshot-correction-error">{error}</p> : null}
           </div>
         ) : (
