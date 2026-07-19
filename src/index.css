@@ -6054,7 +6054,19 @@ body.overview-split-dragging {
 }
 
 .overview-breakdown-table tr.sheet-row-final td {
-  font-weight: 700;
+  font-weight: 800;
+}
+
+.overview-breakdown-table tr.sheet-row-final td:not(.sheet-row-label) {
+  font-size: clamp(0.78rem, 2.7cqi, 0.95rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.overview-breakdown-table tr.sheet-row-final .sheet-row-label {
+  font-size: clamp(0.7rem, 2.4cqi, 0.82rem);
+  font-weight: 800;
 }
 
 .overview-breakdown-table tr.sheet-row-final td:not(.sheet-row-label):not(.sheet-cell-highlight):not(.sheet-cell-danger) {
