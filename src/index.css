@@ -128,6 +128,37 @@ body {
     var(--bg-app);
 }
 
+/* Standalone / Add to Home Screen — clear notch & home indicator */
+@media (display-mode: standalone), (display-mode: fullscreen) {
+  html,
+  body,
+  #root {
+    background: var(--bg-app);
+  }
+
+  .app-shell--mobile,
+  .main-content--mobile {
+    min-height: 100dvh;
+  }
+
+  .main-content--mobile .top-bar--mobile {
+    padding-top: max(0.5rem, env(safe-area-inset-top, 0px));
+    background: var(--bg-app);
+  }
+
+  .mobile-bottom-nav {
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@supports (-webkit-touch-callout: none) {
+  @media (display-mode: standalone) {
+    .main-content--mobile .top-bar--mobile {
+      padding-top: max(0.75rem, env(safe-area-inset-top, 0px));
+    }
+  }
+}
+
 /* ─── App shell ─────────────────────────────────────────────── */
 .app-shell {
   display: grid;
@@ -1782,29 +1813,34 @@ body.widget-canvas-resizing * {
 
 .trends-chart-frame {
   display: flex;
+  flex-direction: column;
   flex: 1;
   min-height: 0;
   height: 100%;
   overflow: hidden;
+  gap: 0;
 }
 
 .trends-chart-rail--scopes {
-  flex: 0 0 6.25rem;
+  flex: 0 0 auto;
   min-height: 0;
   display: flex;
-  flex-direction: column;
-  gap: 3px;
-  padding: 2px 5px 2px 2px;
-  border-right: 1px solid var(--border);
-  overflow-y: auto;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  padding: 6px 8px;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  overflow: visible;
 }
 
 .trends-chart-rail-heading,
 .trends-chart-rail-tag {
   margin: 0;
-  font-size: 0.5rem;
+  font-size: 0.65rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--text-muted);
   flex-shrink: 0;
@@ -1812,20 +1848,23 @@ body.widget-canvas-resizing * {
 
 .trends-chart-scope-list {
   display: flex;
-  flex-direction: column;
-  gap: 1px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 4px;
   min-width: 0;
+  flex: 1;
 }
 
 .trends-chart-scope-item {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 5px;
   min-width: 0;
-  padding: 2px 3px;
-  border-radius: 4px;
+  max-width: 100%;
+  padding: 5px 8px;
+  border-radius: var(--radius-sm);
   border: 1px solid transparent;
-  font-size: 0.56rem;
+  font-size: 0.72rem;
   line-height: 1.2;
   color: var(--text-secondary);
   cursor: pointer;
@@ -1851,8 +1890,8 @@ body.widget-canvas-resizing * {
 }
 
 .trends-chart-scope-swatch {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
   border-radius: 2px;
   flex-shrink: 0;
 }
@@ -1873,13 +1912,23 @@ body.widget-canvas-resizing * {
   overflow: hidden;
 }
 
+.trends-chart-main {
+  flex: 1 1 auto;
+  min-height: 14rem;
+  min-width: 0;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
 .trends-chart-rail--top,
 .trends-chart-rail--bottom {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 4px 8px;
-  padding: 3px 6px;
+  gap: 6px 10px;
+  padding: 6px 8px;
   flex-shrink: 0;
 }
 
@@ -1889,9 +1938,9 @@ body.widget-canvas-resizing * {
 
 .trends-chart-rail--top .help-btn {
   margin-left: auto;
-  width: 1.15rem;
-  height: 1.15rem;
-  font-size: 0.56rem;
+  width: 1.35rem;
+  height: 1.35rem;
+  font-size: 0.65rem;
 }
 
 .trends-chart-rail--bottom {
@@ -1913,13 +1962,13 @@ body.widget-canvas-resizing * {
 
 .trends-mini-toggles button {
   margin: 0;
-  padding: 1px 6px;
+  padding: 4px 9px;
   border: 1px solid var(--border);
   border-radius: 4px;
   background: var(--bg-surface);
   color: var(--text-secondary);
   font: inherit;
-  font-size: 0.56rem;
+  font-size: 0.72rem;
   font-weight: 600;
   line-height: 1.35;
   cursor: pointer;
@@ -1950,13 +1999,13 @@ body.widget-canvas-resizing * {
 
 .trends-from-date input[type='date'] {
   margin: 0;
-  padding: 1px 4px;
+  padding: 4px 8px;
   border: 1px solid var(--border);
   border-radius: 4px;
   background: var(--bg-surface);
   color: var(--text-secondary);
   font: inherit;
-  font-size: 0.56rem;
+  font-size: 0.72rem;
   font-weight: 600;
   line-height: 1.35;
   cursor: pointer;
@@ -1996,13 +2045,13 @@ body.widget-canvas-resizing * {
 .trends-mini-metric {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding: 1px 5px;
+  gap: 5px;
+  padding: 4px 8px;
   border: 1px solid var(--border);
   border-radius: 4px;
   background: var(--bg-surface);
   color: var(--text-secondary);
-  font-size: 0.56rem;
+  font-size: 0.72rem;
   font-weight: 600;
   line-height: 1.35;
   cursor: pointer;
@@ -2131,14 +2180,6 @@ body.widget-canvas-resizing * {
   display: grid;
   grid-template-columns: 1fr;
   gap: 4px;
-}
-
-.trends-chart-main {
-  flex: 1;
-  min-width: 0;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
 }
 
 .trends-chart-main .chart-empty {
@@ -3397,14 +3438,18 @@ body.widget-canvas-resizing * {
   }
 
   .widget-canvas[data-page-id='trends'] .widget-slot[data-widget-id='trends-chart'] {
-    min-height: 18rem;
+    min-height: 22rem;
   }
 
   .widget-canvas[data-page-id='trends'] .trends-widget-shell,
   .widget-canvas[data-page-id='trends'] .trends-chart-frame {
     height: auto;
-    min-height: 14rem;
+    min-height: 20rem;
     overflow: visible;
+  }
+
+  .widget-canvas[data-page-id='trends'] .trends-chart-main {
+    min-height: 16rem;
   }
 
   .widget-canvas[data-page-id='forecast'] .widget-slot[data-widget-id='forecast-cash-outlook'] {

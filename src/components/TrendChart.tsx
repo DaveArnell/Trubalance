@@ -1036,6 +1036,89 @@ export function TrendChart({
 
   const embeddedChartFrame = (
     <div className="trends-chart-frame">
+      <div className="trends-chart-rail trends-chart-rail--top">
+        <div className="trends-chart-rail-cluster">
+          <span className="trends-chart-rail-tag">Range</span>
+          <div className="trends-mini-toggles" role="group" aria-label="Chart range">
+            {ranges.map((r) => (
+              <button
+                key={r.key}
+                type="button"
+                className={graphRange === r.key ? 'is-active' : ''}
+                onClick={() => onRangeChange(r.key)}
+              >
+                {r.key === '30d' ? '30d' : r.key === '90d' ? '90d' : r.key === '12m' ? '12m' : 'All'}
+              </button>
+            ))}
+          </div>
+        </div>
+        {onFromDateChange && (
+          <div className="trends-chart-rail-cluster">
+            <span className="trends-chart-rail-tag">From</span>
+            <div className="trends-from-date">
+              <input
+                type="date"
+                value={fromDate ?? ''}
+                max={localTodayKey()}
+                onChange={(e) => onFromDateChange(e.target.value || null)}
+                aria-label="Only use data from this date onwards"
+                title="Ignore history before this date — the trend and forecast only use data from here"
+              />
+              {fromDate && (
+                <button
+                  type="button"
+                  className="trends-from-date-clear"
+                  onClick={() => onFromDateChange(null)}
+                  title="Clear start date"
+                  aria-label="Clear start date"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+        <div className="trends-chart-rail-cluster">
+          <span className="trends-chart-rail-tag">Forecast</span>
+          <div className="trends-mini-toggles" role="group" aria-label="Forecast mode">
+            <button
+              type="button"
+              className={projectionMode === 'off' ? 'is-active' : ''}
+              onClick={() => setProjectionMode('off')}
+            >
+              Off
+            </button>
+            <button
+              type="button"
+              className={projectionMode === 'linear' ? 'is-active' : ''}
+              onClick={() => setProjectionMode('linear')}
+              title="Extend the average recent rate as a straight line"
+            >
+              Straight
+            </button>
+            <button
+              type="button"
+              className={projectionMode === 'seasonal' ? 'is-active' : ''}
+              onClick={() => setProjectionMode('seasonal')}
+              disabled={!seasonalAvailable}
+              title={
+                seasonalAvailable
+                  ? 'Follow the average rate with month-to-month seasonal variation'
+                  : 'Needs at least 6 snapshots across 4+ months'
+              }
+            >
+              Seasonal
+            </button>
+          </div>
+        </div>
+        <HelpButton
+          id="trend"
+          openHelp={openHelp}
+          setOpenHelp={setOpenHelp}
+          text={trendHelpText}
+        />
+      </div>
+
       <aside className="trends-chart-rail trends-chart-rail--scopes" aria-label="Locations to show">
         <p className="trends-chart-rail-heading">Show</p>
         <div className="trends-chart-scope-list">
@@ -1043,7 +1126,6 @@ export function TrendChart({
             <label
               key={opt.key}
               className={`trends-chart-scope-item trends-chart-scope-item--${opt.level}${enabledScopes[opt.key] ? ' is-active' : ''}`}
-              style={{ paddingLeft: opt.indent ? `${opt.indent * 6 + 3}px` : undefined }}
               title={opt.label}
             >
               <input
@@ -1062,111 +1144,26 @@ export function TrendChart({
         </div>
       </aside>
 
-      <div className="trends-chart-core">
-        <div className="trends-chart-rail trends-chart-rail--top">
-          <div className="trends-chart-rail-cluster">
-            <span className="trends-chart-rail-tag">Range</span>
-            <div className="trends-mini-toggles" role="group" aria-label="Chart range">
-              {ranges.map((r) => (
-                <button
-                  key={r.key}
-                  type="button"
-                  className={graphRange === r.key ? 'is-active' : ''}
-                  onClick={() => onRangeChange(r.key)}
-                >
-                  {r.key === '30d' ? '30d' : r.key === '90d' ? '90d' : r.key === '12m' ? '12m' : 'All'}
-                </button>
-              ))}
-            </div>
-          </div>
-          {onFromDateChange && (
-            <div className="trends-chart-rail-cluster">
-              <span className="trends-chart-rail-tag">From</span>
-              <div className="trends-from-date">
-                <input
-                  type="date"
-                  value={fromDate ?? ''}
-                  max={localTodayKey()}
-                  onChange={(e) => onFromDateChange(e.target.value || null)}
-                  aria-label="Only use data from this date onwards"
-                  title="Ignore history before this date — the trend and forecast only use data from here"
-                />
-                {fromDate && (
-                  <button
-                    type="button"
-                    className="trends-from-date-clear"
-                    onClick={() => onFromDateChange(null)}
-                    title="Clear start date"
-                    aria-label="Clear start date"
-                  >
-                    ×
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-          <div className="trends-chart-rail-cluster">
-            <span className="trends-chart-rail-tag">Forecast</span>
-            <div className="trends-mini-toggles" role="group" aria-label="Forecast mode">
-              <button
-                type="button"
-                className={projectionMode === 'off' ? 'is-active' : ''}
-                onClick={() => setProjectionMode('off')}
-              >
-                Off
-              </button>
-              <button
-                type="button"
-                className={projectionMode === 'linear' ? 'is-active' : ''}
-                onClick={() => setProjectionMode('linear')}
-                title="Extend the average recent rate as a straight line"
-              >
-                Straight
-              </button>
-              <button
-                type="button"
-                className={projectionMode === 'seasonal' ? 'is-active' : ''}
-                onClick={() => setProjectionMode('seasonal')}
-                disabled={!seasonalAvailable}
-                title={
-                  seasonalAvailable
-                    ? 'Follow the average rate with month-to-month seasonal variation'
-                    : 'Needs at least 6 snapshots across 4+ months'
-                }
-              >
-                Seasonal
-              </button>
-            </div>
-          </div>
-          <HelpButton
-            id="trend"
-            openHelp={openHelp}
-            setOpenHelp={setOpenHelp}
-            text={trendHelpText}
-          />
-        </div>
+      <div className="trends-chart-main">{chartPlot}</div>
 
-        <div className="trends-chart-main">{chartPlot}</div>
-
-        <div className="trends-chart-rail trends-chart-rail--bottom">
-          <span className="trends-chart-rail-tag">Metrics</span>
-          <div className="trends-mini-metrics">
-            {METRIC_KEYS.map((key) => (
-              <label
-                key={key}
-                className={`trends-mini-metric${enabledMetrics[key] ? ' is-active' : ''}`}
-                title={metricConfig[key].label}
-              >
-                <input
-                  type="checkbox"
-                  checked={!!enabledMetrics[key]}
-                  onChange={() => toggleMetric(key)}
-                />
-                <span className="trends-chart-scope-swatch" style={{ background: METRIC_COLORS[key] }} aria-hidden />
-                <span>{metricConfig[key].shortLabel}</span>
-              </label>
-            ))}
-          </div>
+      <div className="trends-chart-rail trends-chart-rail--bottom">
+        <span className="trends-chart-rail-tag">Metrics</span>
+        <div className="trends-mini-metrics">
+          {METRIC_KEYS.map((key) => (
+            <label
+              key={key}
+              className={`trends-mini-metric${enabledMetrics[key] ? ' is-active' : ''}`}
+              title={metricConfig[key].label}
+            >
+              <input
+                type="checkbox"
+                checked={!!enabledMetrics[key]}
+                onChange={() => toggleMetric(key)}
+              />
+              <span className="trends-chart-scope-swatch" style={{ background: METRIC_COLORS[key] }} aria-hidden />
+              <span>{metricConfig[key].shortLabel}</span>
+            </label>
+          ))}
         </div>
       </div>
     </div>
