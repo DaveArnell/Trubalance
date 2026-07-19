@@ -3,8 +3,11 @@ import { buildCafeDemoState, cafeDefaultViewScope } from './cafe'
 import { buildLeisureGroupDemoState, leisureDefaultViewScope } from './leisureGroup'
 import { applyDemoOperatingSnapshot } from './operatingSnapshot'
 import { buildTradesDemoState, tradesDefaultViewScope } from './trades'
+import { getDemoFrozenDate } from './demoFreeze'
 
 export type DemoScenarioId = 'leisure-group' | 'independent-cafe' | 'building-trades'
+
+export { DEMO_FROZEN_DATE_KEY, getDemoFrozenDate } from './demoFreeze'
 
 export interface DemoScenarioMeta {
   id: DemoScenarioId
@@ -43,8 +46,8 @@ export const DEMO_SCENARIOS: readonly DemoScenarioMeta[] = [
     title: 'Cornerstone Coffee Co.',
     subtitle: 'Two-site independent café',
     businessType: 'Hospitality',
-    historyLabel: '6 months of history',
-    historyMonths: 6,
+    historyLabel: '18 months of history',
+    historyMonths: 18,
     description:
       'A growing café with a high street site and a market stall. Smaller numbers, same Method — monthly costs accruing daily, quarterly VAT reserved, one True Balance.',
     highlights: [
@@ -61,8 +64,8 @@ export const DEMO_SCENARIOS: readonly DemoScenarioMeta[] = [
     title: 'Riverside Building Ltd',
     subtitle: 'Sole trade growing into a team',
     businessType: 'Building & trades',
-    historyLabel: '12 months of history',
-    historyMonths: 12,
+    historyLabel: '24 months of history',
+    historyMonths: 24,
     description:
       'A trades business with van costs, materials, CIS and corporation tax building into today’s position. A healthy job pipeline keeps expected receipts realistic.',
     highlights: [
@@ -82,8 +85,11 @@ export function getDemoScenario(id: string | undefined): DemoScenarioMeta {
   return DEMO_SCENARIOS.find((s) => s.id === id) ?? DEMO_SCENARIOS[0]!
 }
 
-export function buildDemoScenarioState(id: string | undefined): { meta: DemoScenarioMeta; state: AppState } {
+export function buildDemoScenarioState(id: string | undefined): {
+  meta: DemoScenarioMeta
+  state: AppState
+} {
   const meta = getDemoScenario(id)
-  const state = applyDemoOperatingSnapshot(meta.buildState())
+  const state = applyDemoOperatingSnapshot(meta.buildState(), getDemoFrozenDate())
   return { meta, state }
 }

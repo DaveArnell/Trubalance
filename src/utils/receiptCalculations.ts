@@ -63,6 +63,24 @@ export function formatReceiptDateDisplay(value: string | undefined): string {
   return formatPlannedDueDate(value, value)
 }
 
+/** Relative day label for demos — “in 9 days”, “today”, “3 days ago”. */
+export function formatRelativeDayLabel(
+  dateKey: string | undefined,
+  referenceDate: Date = getReferenceDate(),
+): string {
+  if (!dateKey?.trim()) return ''
+  const match = dateKey.trim().match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (!match) return formatReceiptDateDisplay(dateKey)
+  const target = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
+  const today = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), referenceDate.getDate())
+  const days = Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+  if (days === 0) return 'today'
+  if (days === 1) return 'in 1 day'
+  if (days > 1) return `in ${days} days`
+  if (days === -1) return '1 day ago'
+  return `${-days} days ago`
+}
+
 export function getReceiptTiming(receipt: ExpectedReceipt): ReceiptTiming {
   return receipt.receiptTiming ?? 'lump'
 }

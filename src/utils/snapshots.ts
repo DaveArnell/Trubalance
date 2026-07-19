@@ -192,3 +192,16 @@ export function formatSnapshotDateLong(dateKey: string) {
   const d = new Date(dateKey + 'T12:00:00')
   return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
 }
+
+/** Days from day-one key to dateKey (0 = same day). */
+export function snapshotDayIndex(dateKey: string, dayOneKey: string): number {
+  const from = new Date(`${dayOneKey}T12:00:00`)
+  const to = new Date(`${dateKey}T12:00:00`)
+  if (isNaN(from.getTime()) || isNaN(to.getTime())) return 1
+  return Math.round((to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24)) + 1
+}
+
+/** Demo Trends labels — Day 1, Day 42, … */
+export function formatSnapshotDayLabel(dateKey: string, dayOneKey: string): string {
+  return `Day ${snapshotDayIndex(dateKey, dayOneKey)}`
+}

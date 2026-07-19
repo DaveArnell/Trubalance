@@ -6,6 +6,7 @@ import { AppShell } from '../App'
 import {
   buildDemoScenarioState,
   DEFAULT_DEMO_SCENARIO_ID,
+  DEMO_FROZEN_DATE_KEY,
   DEMO_SCENARIOS,
 } from '../data/demoScenarios'
 import { DEMO_SEO } from '../content/marketingSeo'
@@ -35,7 +36,7 @@ export function DemoPage() {
   }
 
   return (
-    <ReferenceDateProvider>
+    <ReferenceDateProvider forcedDateKey={DEMO_FROZEN_DATE_KEY}>
       <DemoModeProvider
         scenario={meta}
         onScenarioChange={handleScenarioChange}

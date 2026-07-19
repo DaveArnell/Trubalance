@@ -18,33 +18,59 @@ interface ReferenceDateContextValue {
 
 const ReferenceDateContext = createContext<ReferenceDateContextValue | null>(null)
 
-export function ReferenceDateProvider({ children }: { children: ReactNode }) {
-  const [simulatedDateKey, setSimulatedDateKeyState] = useState<string | null>(() => readStoredSimulatedDateKey())
+export function ReferenceDateProvider({
+  children,
+  /** When set (e.g. interactive demo), locks “today” for the whole tree. */
+  forcedDateKey = null,
+}: {
+  children: ReactNode
+  forcedDateKey?: string | null
+}) {
+  const [simulatedDateKey, setSimulatedDateKeyState] = useState<string | null>(() => {
+    const initial = forcedDateKey ?? readStoredSimulatedDateKey()
+    setReferenceDateOverride(initial)
+    return initial
+  })
 
   useEffect(() => {
+    if (forcedDateKey) {
+      setSimulatedDateKeyState(forcedDateKey)
+      setReferenceDateOverride(forcedDateKey)
+      return () => {
+        const stored = readStoredSimulatedDateKey()
+        setReferenceDateOverride(stored)
+      }
+    }
     setReferenceDateOverride(simulatedDateKey)
-  }, [simulatedDateKey])
+  }, [forcedDateKey, simulatedDateKey])
 
-  const setSimulatedDateKey = useCallback((key: string | null) => {
-    setSimulatedDateKeyState(key)
-    writeStoredSimulatedDateKey(key)
-    setReferenceDateOverride(key)
-  }, [])
+  const setSimulatedDateKey = useCallback(
+    (key: string | null) => {
+      if (forcedDateKey) return
+      setSimulatedDateKeyState(key)
+      writeStoredSimulatedDateKey(key)
+      setReferenceDateOverride(key)
+    },
+    [forcedDateKey],
+  )
 
   const clearSimulatedDate = useCallback(() => {
+    if (forcedDateKey) return
     setSimulatedDateKey(null)
-  }, [setSimulatedDateKey])
+  }, [forcedDateKey, setSimulatedDateKey])
+
+  const activeKey = forcedDateKey ?? simulatedDateKey
 
   const value = useMemo(
     () => ({
       referenceDate: getReferenceDate(),
       referenceDateKey: getReferenceDateKey(),
-      simulatedDateKey,
-      isSimulated: simulatedDateKey !== null,
+      simulatedDateKey: activeKey,
+      isSimulated: activeKey !== null,
       setSimulatedDateKey,
       clearSimulatedDate,
     }),
-    [simulatedDateKey, setSimulatedDateKey, clearSimulatedDate],
+    [activeKey, setSimulatedDateKey, clearSimulatedDate],
   )
 
   return <ReferenceDateContext.Provider value={value}>{children}</ReferenceDateContext.Provider>

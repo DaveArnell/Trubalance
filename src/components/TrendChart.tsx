@@ -9,6 +9,7 @@ import {
   filterSnapshotsByRange,
   formatSnapshotDate,
   formatSnapshotDateLong,
+  formatSnapshotDayLabel,
 } from '../utils/snapshots'
 import { getEffectiveSnapshotsForScope } from '../utils/scopeSnapshotSeries'
 import { alignSnapshotsWithBalanceLogRollup } from '../utils/historyTable'
@@ -25,6 +26,7 @@ import { DayNoteEditor } from './DayNoteEditor'
 import { getDayNoteText } from '../utils/dayNotes'
 import { getScopeItemLabel } from '../utils/scope'
 import { getEffectiveSnapshotMetric, withEffectiveSnapshotMetrics } from '../utils/snapshotMetrics'
+import { useDemoMode } from '../contexts/DemoModeContext'
 
 type MetricKey = 'trueBalance' | 'cash' | 'committedFunds' | 'expectedReceipts'
 
@@ -149,8 +151,26 @@ export function TrendChart({
   embedded = false,
   onSetDayNote,
 }: TrendChartProps) {
+  const demoMode = useDemoMode()
   const scopeOptions = useMemo(() => getChartScopeOptions(state, viewScope), [state, viewScope])
   const currentScopeKey = scopeKey(viewScope)
+
+  const demoDayOneKey = useMemo(() => {
+    if (!demoMode) return null
+    let earliest = ''
+    for (const opt of scopeOptions) {
+      const snaps = getEffectiveSnapshotsForScope(state, opt.scope, viewScope)
+      for (const snap of snaps) {
+        if (!earliest || snap.date < earliest) earliest = snap.date
+      }
+    }
+    return earliest || null
+  }, [demoMode, scopeOptions, state, viewScope])
+
+  const formatChartDate = (dateKey: string, long = false) => {
+    if (demoMode && demoDayOneKey) return formatSnapshotDayLabel(dateKey, demoDayOneKey)
+    return long ? formatSnapshotDateLong(dateKey) : formatSnapshotDate(dateKey)
+  }
 
   const plotWidth = CHART_WIDTH - PAD_LEFT - PAD_RIGHT
   const plotHeight = CHART_HEIGHT - PAD_TOP - PAD_BOTTOM
@@ -612,7 +632,7 @@ export function TrendChart({
                   textAnchor="middle"
                   className="chart-axis-tick chart-axis-tick-x"
                 >
-                  {formatSnapshotDate(date)}
+                  {formatChartDate(date)}
                 </text>
               ))}
 
@@ -814,7 +834,7 @@ export function TrendChart({
                 className="chart-hover-card"
                 style={{ left: `${((hoverX ?? PAD_LEFT) / CHART_WIDTH) * 100}%` }}
               >
-                <strong>{formatSnapshotDateLong(hoverDate)}</strong>
+                <strong>{formatChartDate(hoverDate, true)}</strong>
                 {hoverRows.map((row) => (
                   <p key={row.key}>
                     <span className="chart-hover-swatch" style={{ background: row.color }} />
@@ -849,7 +869,7 @@ export function TrendChart({
           {detailSnapshot && pinned && (
             <div className="chart-tooltip">
               <strong>
-                {formatSnapshotDateLong(detailSnapshot.date)}
+                {formatChartDate(detailSnapshot.date, true)}
                 {detailScopeLabel ? ` · ${detailScopeLabel}` : ''}
               </strong>
               {activeMetricKeys.length === 1 ? (
@@ -970,7 +990,7 @@ export function TrendChart({
           </div>
         </div>
 
-        {onFromDateChange && (
+        {onFromDateChange && !demoMode && (
           <div className="chart-control-block chart-control-inline chart-control-from-date">
             <p className="chart-control-label">From</p>
             <div className="trends-from-date">
@@ -1052,7 +1072,7 @@ export function TrendChart({
             ))}
           </div>
         </div>
-        {onFromDateChange && (
+        {onFromDateChange && !demoMode && (
           <div className="trends-chart-rail-cluster">
             <span className="trends-chart-rail-tag">From</span>
             <div className="trends-from-date">

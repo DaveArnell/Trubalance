@@ -12220,9 +12220,9 @@ tr.sheet-row--received td {
 .mobile-record-card-amount-secondary {
   margin: 1px 0 0;
   font-size: 0.72rem;
-  font-weight: 700;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
-  color: #3f3f46;
+  color: #71717a;
 }
 
 /* Desktop Cards: thin bar — scope left, amount right, title dead-centre of full width */
@@ -12279,6 +12279,19 @@ tr.sheet-row--received td {
     text-overflow: ellipsis;
   }
 
+  .mobile-record-card-title {
+    margin: 0;
+    max-width: 100%;
+    font-size: 1.95rem;
+    font-weight: 900;
+    line-height: 1.02;
+    letter-spacing: -0.045em;
+    color: #000;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .mobile-record-card-text {
     position: absolute;
     left: 0;
@@ -12291,22 +12304,9 @@ tr.sheet-row--received td {
     justify-content: center;
     pointer-events: none;
     text-align: center;
-    padding: 0 9rem;
+    padding: 0 12.5rem;
     min-width: 0;
     flex: none;
-  }
-
-  .mobile-record-card-title {
-    margin: 0;
-    max-width: 100%;
-    font-size: 1.95rem;
-    font-weight: 900;
-    line-height: 1.02;
-    letter-spacing: -0.045em;
-    color: #000;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 
   .mobile-record-card-meta--stacked {
@@ -12333,7 +12333,8 @@ tr.sheet-row--received td {
     margin: 0 0 0 0.25rem;
     display: inline;
     font-size: 0.78rem;
-    font-weight: 700;
+    font-weight: 500;
+    color: #71717a;
   }
 }
 
@@ -19050,6 +19051,8 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .setup-edu-annotated-item .mobile-record-card-amount-secondary {
   display: inline !important;
   margin: 0 !important;
+  font-weight: 500 !important;
+  color: #71717a !important;
 }
 
 .setup-flow-main--wide .setup-flow-step-panel--preview .setup-onboarding-form--quick-add {

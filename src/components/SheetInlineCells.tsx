@@ -3,6 +3,9 @@ import type { AppState, Commitment, ScopeLevel } from '../types'
 import { getScopeItemLabel, isCommitmentScopeAllowed, isValidScopeReference, formatScopeOptionLabel } from '../utils/scope'
 import { formatCurrency } from '../utils/format'
 import { formatPlannedDueDate } from '../utils/plannedFunding'
+import { formatRelativeDayLabel } from '../utils/receiptCalculations'
+import { useDemoMode } from '../contexts/DemoModeContext'
+import { getReferenceDate } from '../utils/referenceDate'
 import {
   handleSheetInputTabKey,
   finishSheetCellEdit,
@@ -359,7 +362,12 @@ export function InlinePlannedDueCell({
   onSave: (plannedDueDate: string | undefined, displayLabel: string) => void
   onTab?: SheetTabHandler
 }) {
-  const display = formatPlannedDueDate(commitment.plannedDueDate, commitment.plannedLabel)
+  const demoMode = useDemoMode()
+  const display = demoMode
+    ? formatRelativeDayLabel(commitment.plannedDueDate, getReferenceDate()) ||
+      commitment.plannedLabel ||
+      ''
+    : formatPlannedDueDate(commitment.plannedDueDate, commitment.plannedLabel)
   const editValue = commitment.plannedDueDate ?? ''
   const [draft, setDraft] = useSheetInlineDraft(isActive, editValue)
 

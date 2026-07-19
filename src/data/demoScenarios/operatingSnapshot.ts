@@ -87,25 +87,26 @@ function markReserveBillsOperatingCurrent(bills: ReserveBill[], today: Date): Re
 }
 
 /**
- * Snap demo workspaces to a healthy operating day: due items cleared, only current-cycle accrual showing.
- * Expected receipts and planned due dates roll forward so they stay the same number of days ahead of today.
- * Reserve accounts sit at this month’s start balance — like a fresh month before the monthly transfer is done.
+ * Snap demo workspaces to a healthy operating day on the frozen demo calendar.
+ * Expected receipts / planned dues stay at fixed relative offsets from that day.
+ * Reserve accounts match the plan after this month’s transfer (keeping up with obligations).
  */
 export function applyDemoOperatingSnapshot(state: AppState, today = getReferenceDate()): AppState {
   const rolled = rollDemoRelativeDates(state, today)
   const updatedAt = demoAccountUpdatedAt(today)
   const monthIndex = today.getMonth()
-  const freshMonthByPlannerId = new Map<string, number>()
-  const freshMonthByAccountId = new Map<string, number>()
-  const pastConfirmationsByPlannerId = new Map<string, Record<string, ReserveMonthConfirmation>>()
+  const onTrackByPlannerId = new Map<string, number>()
+  const onTrackByAccountId = new Map<string, number>()
+  const confirmationsByPlannerId = new Map<string, Record<string, ReserveMonthConfirmation>>()
 
   for (const planner of rolled.reservePlanners) {
     const monthEnds = computeReserveMonthEndBalances(planner)
-    // Start-of-month balance: transfer to next month’s plan target is still outstanding.
-    const freshMonthBalance = monthEnds[monthIndex]?.startBalance
-    if (freshMonthBalance != null) {
-      freshMonthByPlannerId.set(planner.id, freshMonthBalance)
-      if (planner.reserveAccountId) freshMonthByAccountId.set(planner.reserveAccountId, freshMonthBalance)
+    const current = monthEnds[monthIndex]
+    // On-track: transfer done for this month, balance matches plan after deposit.
+    const onTrackBalance = current?.balanceAfterDeposit
+    if (onTrackBalance != null) {
+      onTrackByPlannerId.set(planner.id, onTrackBalance)
+      if (planner.reserveAccountId) onTrackByAccountId.set(planner.reserveAccountId, onTrackBalance)
     }
 
     const confirmations: Record<string, ReserveMonthConfirmation> = {}
@@ -118,8 +119,15 @@ export function applyDemoOperatingSnapshot(state: AppState, today = getReference
         transferDone: true,
       }
     }
+    if (current) {
+      confirmations[current.month] = {
+        balance: current.balanceAfterDeposit,
+        confirmedAt: new Date(today.getFullYear(), monthIndex, 2).toISOString(),
+        transferDone: true,
+      }
+    }
     if (Object.keys(confirmations).length > 0) {
-      pastConfirmationsByPlannerId.set(planner.id, confirmations)
+      confirmationsByPlannerId.set(planner.id, confirmations)
     }
   }
 
@@ -128,13 +136,13 @@ export function applyDemoOperatingSnapshot(state: AppState, today = getReference
     accounts: rolled.accounts.map((account) => ({
       ...account,
       updatedAt,
-      balance: freshMonthByAccountId.get(account.id) ?? account.balance,
+      balance: onTrackByAccountId.get(account.id) ?? account.balance,
     })),
     commitments: markCommitmentsOperatingCurrent(rolled.commitments, today),
     reservePlanners: rolled.reservePlanners.map((planner) => ({
       ...planner,
-      actualBalance: freshMonthByPlannerId.get(planner.id) ?? planner.actualBalance,
-      monthConfirmations: pastConfirmationsByPlannerId.get(planner.id),
+      actualBalance: onTrackByPlannerId.get(planner.id) ?? planner.actualBalance,
+      monthConfirmations: confirmationsByPlannerId.get(planner.id),
       bills: markReserveBillsOperatingCurrent(planner.bills, today),
     })),
   }

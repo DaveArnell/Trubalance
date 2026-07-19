@@ -93,6 +93,6 @@ export function buildCafeDemoState(): AppState {
 
   return {
     ...base,
-    snapshots: buildScenarioSnapshots(base, 6, CAFE_SNAPSHOT_SCOPES),
+    snapshots: buildScenarioSnapshots(base, 18, CAFE_SNAPSHOT_SCOPES),
   }
 }

@@ -479,17 +479,17 @@ export function formatDueRowTiming(row: CommitmentDueRow, referenceDate: Date = 
     if (offset === null) {
       return row.commitment.plannedLabel?.trim() || null
     }
-    if (offset < 0) return `${-offset}d over`
+    if (offset < 0) return offset === -1 ? '1 day over' : `${-offset} days over`
     if (offset === 0) return 'Due'
-    return `in ${offset}d`
+    return offset === 1 ? 'in 1 day' : `in ${offset} days`
   }
 
   const referencePeriod = row.dueReferencePeriod ?? row.period
   const offset = getDueTimingOffsetForPeriod(row.commitment, referencePeriod, referenceDate)
   if (offset === null) return formatDueTiming(row.commitment, referenceDate)
-  if (offset < 0) return `${-offset}d over`
+  if (offset < 0) return offset === -1 ? '1 day over' : `${-offset} days over`
   if (offset === 0) return 'Due'
-  return `in ${offset}d`
+  return offset === 1 ? 'in 1 day' : `in ${offset} days`
 }
 
 export function formatRolledDueTooltip(row: CommitmentDueRow): string | null {
@@ -670,9 +670,9 @@ export function getDueTimingOffset(commitment: Commitment, referenceDate: Date =
 export function formatDueTiming(commitment: Commitment, referenceDate: Date = getReferenceDate()): string | null {
   const offset = getDueTimingOffset(commitment, referenceDate)
   if (offset === null) return null
-  if (offset < 0) return `${-offset}d over`
+  if (offset < 0) return offset === -1 ? '1 day over' : `${-offset} days over`
   if (offset === 0) return 'Due'
-  return `in ${offset}d`
+  return offset === 1 ? 'in 1 day' : `in ${offset} days`
 }
 
 /** Most overdue / earliest due date first; furthest from due date last. */

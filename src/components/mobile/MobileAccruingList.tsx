@@ -62,13 +62,12 @@ function AccruingCard({
 }) {
   const accent = rowAccent(state, row)
   const progress = getAccrualProgress(row.commitment, referenceDate)?.progress ?? 0
-  const accrued = formatCurrency(row.accruedAmount)
-  const total = formatCurrency(row.commitment.amount)
   return (
     <MobileRecordCard
       title={row.commitment.name}
       scopeLabel={accruingScopeLabel(state, row) ?? undefined}
-      amount={`${accrued} / ${total}`}
+      amount={formatCurrency(row.accruedAmount)}
+      amountSecondary={`/${formatCurrency(row.commitment.amount)}`}
       meta={accruingDetailMeta(row)}
       progress={progress}
       progressColor={accent}

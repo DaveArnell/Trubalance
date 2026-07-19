@@ -1,6 +1,7 @@
 import type { AppState, BalanceSnapshot } from '../../types'
 import { getAccountsForScope } from '../../utils/calculations'
 import type { ViewScope } from '../../types'
+import { getDemoFrozenDate } from './demoFreeze'
 
 export interface SnapshotScope {
   id: string
@@ -12,20 +13,20 @@ export interface SnapshotScope {
 }
 
 function dateKey(d: Date): string {
-  return d.toISOString().slice(0, 10)
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
 }
 
-function weekDate(weeksAgo: number): string {
-  const d = new Date()
-  d.setHours(12, 0, 0, 0)
+function weekDate(weeksAgo: number, today: Date): string {
+  const d = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12, 0, 0, 0)
   d.setDate(d.getDate() - weeksAgo * 7)
   return dateKey(d)
 }
 
-function monthDate(monthsAgo: number): string {
-  const d = new Date()
-  d.setDate(1)
-  d.setHours(12, 0, 0, 0)
+function monthDate(monthsAgo: number, today: Date): string {
+  const d = new Date(today.getFullYear(), today.getMonth(), 1, 12, 0, 0, 0)
   d.setMonth(d.getMonth() - monthsAgo)
   return dateKey(d)
 }
@@ -102,20 +103,21 @@ function accountChangesForCash(
   })
 }
 
-/** Weekly points for the last 12 weeks, then monthly — powers Trends and History consistently. */
+/**
+ * Sparse history for Trends — weekly points plus monthly anchors.
+ * Anchored to the frozen demo calendar so charts stay stable.
+ */
 export function buildScenarioSnapshots(
   state: AppState,
   months: number,
   scopes: SnapshotScope[],
+  today: Date = getDemoFrozenDate(),
 ): BalanceSnapshot[] {
   const snapshots: BalanceSnapshot[] = []
   const seen = new Set<string>()
+  const weeklyPoints = Math.max(26, Math.min(52, months * 2))
 
-  const addSnapshot = (
-    date: string,
-    scope: SnapshotScope,
-    monthsAgo: number,
-  ) => {
+  const addSnapshot = (date: string, scope: SnapshotScope, monthsAgo: number) => {
     const key = `${scope.type}:${scope.id}:${date}`
     if (seen.has(key)) return
     seen.add(key)
@@ -137,8 +139,8 @@ export function buildScenarioSnapshots(
     )
   }
 
-  for (let w = 12; w >= 0; w--) {
-    const date = weekDate(w)
+  for (let w = weeklyPoints; w >= 0; w--) {
+    const date = weekDate(w, today)
     const monthsAgo = w / 4
     for (const scope of scopes) {
       addSnapshot(date, scope, monthsAgo)
@@ -146,10 +148,9 @@ export function buildScenarioSnapshots(
   }
 
   for (let i = months; i > 0; i--) {
-    const date = monthDate(i)
-    const monthsAgo = i
+    const date = monthDate(i, today)
     for (const scope of scopes) {
-      addSnapshot(date, scope, monthsAgo)
+      addSnapshot(date, scope, i)
     }
   }
 

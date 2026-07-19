@@ -6,9 +6,12 @@ import { formatCurrency } from '../../utils/format'
 import { toAmount, roundCurrency } from '../../utils/amounts'
 import {
   formatReceiptDateDisplay,
+  formatRelativeDayLabel,
   normalizeReceiptDateInput,
 } from '../../utils/receiptCalculations'
 import { useEditReadOnly } from '../../hooks/useEditReadOnly'
+import { useDemoMode } from '../../contexts/DemoModeContext'
+import { getReferenceDate } from '../../utils/referenceDate'
 import { AmountConfirmModal } from '../committed/AmountConfirmModal'
 
 interface MobileReceiptEditModalProps {
@@ -41,6 +44,7 @@ export function MobileReceiptEditModal({
   onDelete,
 }: MobileReceiptEditModalProps) {
   const editReadOnly = useEditReadOnly()
+  const demoMode = useDemoMode()
   const scopeOptions = getCommitmentScopeOptionsForView(state, viewScope)
   const showScopeField = !isSoloOrganisation(state) && scopeOptions.length > 1
   const [name, setName] = useState(receipt.name)
@@ -123,7 +127,11 @@ export function MobileReceiptEditModal({
               {receipt.expectedDate ? (
                 <div>
                   <dt>Expected</dt>
-                  <dd>{formatReceiptDateDisplay(receipt.expectedDate)}</dd>
+                  <dd>
+                    {demoMode
+                      ? formatRelativeDayLabel(receipt.expectedDate, getReferenceDate())
+                      : formatReceiptDateDisplay(receipt.expectedDate)}
+                  </dd>
                 </div>
               ) : null}
             </dl>

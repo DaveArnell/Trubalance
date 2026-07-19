@@ -14,11 +14,13 @@ import { formatCurrency } from '../utils/format'
 import { DuplicateRowButton, SheetDragCell, SheetDragHeader } from './committed/shared'
 import { PlatformSheetTable, PlatformSheetWrap, ResizableSheetHeader } from './PlatformSheetWrap'
 import { RECEIPTS_COLUMNS } from '../utils/sheetColumnSpecs'
-import { normalizeReceiptDateInput, getEffectiveReceiptAmount, formatReceiptDateDisplay } from '../utils/receiptCalculations'
+import { normalizeReceiptDateInput, getEffectiveReceiptAmount, formatReceiptDateDisplay, formatRelativeDayLabel } from '../utils/receiptCalculations'
 import { InlineNumberCell, InlineTextCell, ScopeSelectCell } from './SheetInlineCells'
 import { MobileReceiptsList } from './mobile/MobileReceiptsList'
 import { MarkReceivedConfirmButton } from './committed/MarkPaidConfirmModal'
 import { AddReceiptModal } from './mobile/AddRecordModals'
+import { useDemoMode } from '../contexts/DemoModeContext'
+import { getReferenceDate } from '../utils/referenceDate'
 
 interface ExpectedReceiptsPanelProps {
   state: AppState
@@ -36,6 +38,7 @@ export function ExpectedReceiptsPanel({
   setOpenHelp,
 }: ExpectedReceiptsPanelProps) {
   const editReadOnly = useEditReadOnly()
+  const demoMode = useDemoMode()
   const { useCards } = useDashboardViewPreferences()
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [highlightRowId, setHighlightRowId] = useState<string | null>(null)
@@ -266,7 +269,11 @@ export function ExpectedReceiptsPanel({
                     </td>
                     <InlineTextCell
                       cellId={`${item.id}-start`}
-                      value={formatReceiptDateDisplay(item.accrualStartDate)}
+                      value={
+                        demoMode
+                          ? formatRelativeDayLabel(item.accrualStartDate, getReferenceDate())
+                          : formatReceiptDateDisplay(item.accrualStartDate)
+                      }
                       isActive={activeCell === `${item.id}-start`}
                       placeholder="e.g. 1 Jul 2026"
                       onActivate={() => tryActivate(`${item.id}-start`)}
@@ -280,7 +287,11 @@ export function ExpectedReceiptsPanel({
                     />
                     <InlineTextCell
                       cellId={`${item.id}-expected`}
-                      value={formatReceiptDateDisplay(item.expectedDate)}
+                      value={
+                        demoMode
+                          ? formatRelativeDayLabel(item.expectedDate, getReferenceDate())
+                          : formatReceiptDateDisplay(item.expectedDate)
+                      }
                       isActive={activeCell === `${item.id}-expected`}
                       placeholder="e.g. 31 Jul 2026"
                       onActivate={() => tryActivate(`${item.id}-expected`)}

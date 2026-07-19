@@ -4,6 +4,7 @@ import { getCardScopeMetaLabel, itemMatchesScope } from '../../utils/scope'
 import { formatCurrency } from '../../utils/format'
 import {
   formatReceiptDateDisplay,
+  formatRelativeDayLabel,
   getEffectiveReceiptAmount,
   getReceiptPeriodAmount,
   getReceiptTiming,
@@ -11,6 +12,7 @@ import {
 } from '../../utils/receiptCalculations'
 import { chartColorForScope } from '../../utils/businessTheme'
 import { getReferenceDate } from '../../utils/referenceDate'
+import { useDemoMode } from '../../contexts/DemoModeContext'
 import type { AppActions } from '../../hooks/useAppState'
 import { MobileRecordCard, MobileRecordList } from './MobileRecordList'
 import { MobileReceiptEditModal } from './MobileReceiptEditModal'
@@ -36,6 +38,7 @@ function sortReceiptsByExpectedDate(receipts: ExpectedReceipt[]): ExpectedReceip
 
 export function MobileReceiptsList({ state, viewScope, actions }: MobileReceiptsListProps) {
   const [selected, setSelected] = useState<ExpectedReceipt | null>(null)
+  const demoMode = useDemoMode()
   const receipts = sortReceiptsByExpectedDate(
     state.expectedReceipts.filter(
       (receipt) =>
@@ -63,9 +66,11 @@ export function MobileReceiptsList({ state, viewScope, actions }: MobileReceipts
         {receipts.map((receipt) => {
           const isAccrual = getReceiptTiming(receipt) === 'accrual'
           const timingLabel = isAccrual ? 'Building up' : 'Lump sum'
-          const expected = formatReceiptDateDisplay(receipt.expectedDate)
+          const expected = demoMode
+            ? formatRelativeDayLabel(receipt.expectedDate, referenceDate)
+            : formatReceiptDateDisplay(receipt.expectedDate)
           const scopeLabel = getCardScopeMetaLabel(state, receipt.scopeLevel, receipt.scopeId)
-          const detailMeta = [timingLabel, expected ? `Due ${expected}` : null]
+          const detailMeta = [timingLabel, expected || null]
             .filter(Boolean)
             .join(' · ')
           const accent = chartColorForScope(state, {

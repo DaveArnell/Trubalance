@@ -99,6 +99,6 @@ export function buildTradesDemoState(): AppState {
 
   return {
     ...base,
-    snapshots: buildScenarioSnapshots(base, 12, TRADES_SNAPSHOT_SCOPES),
+    snapshots: buildScenarioSnapshots(base, 24, TRADES_SNAPSHOT_SCOPES),
   }
 }

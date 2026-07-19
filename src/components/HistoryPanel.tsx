@@ -2,10 +2,11 @@ import { useEffect, useMemo, useState } from 'react'
 import type { AppState, HistoryRecord, ViewScope } from '../types'
 import { getHistoryRecordsForScope } from '../utils/historyRebuild'
 import { formatCurrency } from '../utils/format'
-import { formatSnapshotDateLong } from '../utils/snapshots'
+import { formatSnapshotDateLong, formatSnapshotDayLabel } from '../utils/snapshots'
 import { getScopeBreadcrumb, getScopeItemLabel } from '../utils/scope'
 import type { AppActions } from '../hooks/useAppState'
 import { HelpButton } from './HelpButton'
+import { useDemoMode } from '../contexts/DemoModeContext'
 
 interface HistoryPanelProps {
   state: AppState
@@ -47,16 +48,25 @@ export function HistoryPanel({
   setOpenHelp,
   onDeleteHistoryRecord,
 }: HistoryPanelProps) {
+  const demoMode = useDemoMode()
   const scopeLabel = getScopeItemLabel(state, viewScope.type, viewScope.id)
+  const records = useMemo(() => getHistoryRecordsForScope(state, viewScope), [state, viewScope])
+  const dayOneKey = useMemo(() => {
+    if (!demoMode || records.length === 0) return null
+    return records.reduce(
+      (earliest, record) => (!earliest || record.date < earliest ? record.date : earliest),
+      '',
+    )
+  }, [demoMode, records])
+
+  const formatHistoryDate = (dateKey: string) => {
+    if (demoMode && dayOneKey) return formatSnapshotDayLabel(dateKey, dayOneKey)
+    return formatSnapshotDateLong(dateKey)
+  }
   const scopeBreadcrumb = getScopeBreadcrumb(state, viewScope)
   const showBusinessColumn = viewScope.type === 'group'
   const showVenueColumn = viewScope.type === 'group' || viewScope.type === 'business'
   const showItemScopeColumn = viewScope.type !== 'venue'
-
-  const records = useMemo(
-    () => getHistoryRecordsForScope(state, viewScope),
-    [state, viewScope],
-  )
 
   const [selectedId, setSelectedId] = useState<string | null>(records[0]?.id ?? null)
 
@@ -109,7 +119,7 @@ export function HistoryPanel({
             >
               {records.map((record) => (
                 <option key={record.id} value={record.id}>
-                  {formatSnapshotDateLong(record.date)} — True Balance {formatCurrency(record.summary.trueBalance)}
+                  {formatHistoryDate(record.date)} — True Balance {formatCurrency(record.summary.trueBalance)}
                 </option>
               ))}
             </select>
@@ -128,7 +138,7 @@ export function HistoryPanel({
                   className={`history-day-btn${selected?.id === record.id ? ' history-day-btn--active' : ''}`}
                   onClick={() => setSelectedId(record.id)}
                 >
-                  <span className="history-day-date">{formatSnapshotDateLong(record.date)}</span>
+                  <span className="history-day-date">{formatHistoryDate(record.date)}</span>
                   <span className="history-day-meta">
                     <strong>{formatCurrency(record.summary.trueBalance)}</strong>
                     <span className="muted"> true balance</span>
@@ -143,13 +153,14 @@ export function HistoryPanel({
                 state={state}
                 record={selected}
                 scopeLabel={scopeLabel}
+                formatDateLabel={formatHistoryDate}
                 showBusinessColumn={showBusinessColumn}
                 showVenueColumn={showVenueColumn}
                 showItemScopeColumn={showItemScopeColumn}
                 onDelete={
                   onDeleteHistoryRecord
                     ? () => {
-                        const label = formatSnapshotDateLong(selected.date)
+                        const label = formatHistoryDate(selected.date)
                         if (
                           !window.confirm(
                             `Delete the saved entry for ${label} from ${scopeLabel}? It will be removed from History, Trends, and the balance log. This cannot be undone.`,
@@ -174,6 +185,7 @@ function HistoryRecordDetail({
   state,
   record,
   scopeLabel,
+  formatDateLabel,
   showBusinessColumn,
   showVenueColumn,
   showItemScopeColumn,
@@ -182,6 +194,7 @@ function HistoryRecordDetail({
   state: AppState
   record: HistoryRecord
   scopeLabel: string
+  formatDateLabel: (dateKey: string) => string
   showBusinessColumn: boolean
   showVenueColumn: boolean
   showItemScopeColumn: boolean
@@ -219,7 +232,7 @@ function HistoryRecordDetail({
     <div className="history-record-detail">
       <header className="history-record-head">
         <div className="history-record-head-text">
-          <h3>{formatSnapshotDateLong(record.date)}</h3>
+          <h3>{formatDateLabel(record.date)}</h3>
           <p className="muted">
             As-of this day · saved {formatSavedAt(record.savedAt)}
             {record.note ? ` · ${record.note}` : ''}
@@ -453,7 +466,7 @@ function HistoryRecordDetail({
       )}
 
       <p className="muted history-record-scope-note">
-        Showing {scopeLabel} as-of {formatSnapshotDateLong(record.date)}.
+        Showing {scopeLabel} as-of {formatDateLabel(record.date)}.
       </p>
     </div>
   )
