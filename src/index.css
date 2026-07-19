@@ -11572,7 +11572,7 @@ tr.sheet-row--received td {
 .mobile-record-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: 4px;
 }
 
 .mobile-record-section-label {
@@ -11585,7 +11585,7 @@ tr.sheet-row--received td {
 }
 
 .mobile-record-card {
-  padding: var(--space-2) var(--space-3);
+  padding: 8px 10px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
   background: var(--bg-surface);
@@ -11629,7 +11629,7 @@ tr.sheet-row--received td {
 
 .mobile-record-card-progress-fill {
   height: 100%;
-  opacity: 0.28;
+  opacity: 0.2;
   transition: width 0.2s ease;
 }
 
@@ -11649,17 +11649,26 @@ tr.sheet-row--received td {
 
 .mobile-record-card-title {
   margin: 0;
-  font-size: 0.88rem;
-  font-weight: 700;
-  line-height: 1.3;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
   word-break: break-word;
+  text-shadow:
+    0 0 10px var(--bg-surface),
+    0 0 4px var(--bg-surface);
 }
 
 .mobile-record-card-meta {
-  margin: 4px 0 0;
-  font-size: 0.72rem;
+  margin: 3px 0 0;
+  font-size: 0.8rem;
+  font-weight: 600;
   line-height: 1.35;
   color: var(--text-secondary);
+  text-shadow:
+    0 0 8px var(--bg-surface),
+    0 0 3px var(--bg-surface);
 }
 
 .mobile-record-card-amount-block {
@@ -11670,17 +11679,25 @@ tr.sheet-row--received td {
 
 .mobile-record-card-amount {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 1.15rem;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-shadow:
+    0 0 10px var(--bg-surface),
+    0 0 4px var(--bg-surface);
 }
 
 .mobile-record-card-amount-secondary {
   margin: 2px 0 0;
-  font-size: 0.68rem;
-  font-weight: 600;
+  font-size: 0.78rem;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--text-secondary);
+  text-shadow:
+    0 0 8px var(--bg-surface),
+    0 0 3px var(--bg-surface);
 }
 
 .mobile-record-card-amount-block--neg .mobile-record-card-amount {

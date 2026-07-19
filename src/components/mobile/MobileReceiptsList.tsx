@@ -2,8 +2,15 @@ import { useState } from 'react'
 import type { AppState, ExpectedReceipt, ViewScope } from '../../types'
 import { getScopeItemLabel, itemMatchesScope } from '../../utils/scope'
 import { formatCurrency } from '../../utils/format'
-import { formatReceiptDateDisplay } from '../../utils/receiptCalculations'
+import {
+  formatReceiptDateDisplay,
+  getEffectiveReceiptAmount,
+  getReceiptPeriodAmount,
+  getReceiptTiming,
+  resolveReceiptAccrualWindow,
+} from '../../utils/receiptCalculations'
 import { chartColorForScope } from '../../utils/businessTheme'
+import { getReferenceDate } from '../../utils/referenceDate'
 import type { AppActions } from '../../hooks/useAppState'
 import { MobileRecordCard, MobileRecordList } from './MobileRecordList'
 import { MobileReceiptEditModal } from './MobileReceiptEditModal'
@@ -48,15 +55,18 @@ export function MobileReceiptsList({ state, viewScope, actions }: MobileReceipts
     )
   }
 
+  const referenceDate = getReferenceDate()
+
   return (
     <>
       <MobileRecordList>
         {receipts.map((receipt) => {
-          const timing = (receipt.receiptTiming ?? 'lump') === 'accrual' ? 'Building up' : 'Lump sum'
+          const isAccrual = getReceiptTiming(receipt) === 'accrual'
+          const timingLabel = isAccrual ? 'Building up' : 'Lump sum'
           const expected = formatReceiptDateDisplay(receipt.expectedDate)
           const meta = [
             getScopeItemLabel(state, receipt.scopeLevel, receipt.scopeId),
-            timing,
+            timingLabel,
             expected ? `Due ${expected}` : null,
           ]
             .filter(Boolean)
@@ -65,13 +75,23 @@ export function MobileReceiptsList({ state, viewScope, actions }: MobileReceipts
             type: receipt.scopeLevel,
             id: receipt.scopeId,
           })
+          const window = resolveReceiptAccrualWindow(receipt, referenceDate)
+          const target = window
+            ? getReceiptPeriodAmount(receipt, window.period)
+            : receipt.amount
+          const accrued = getEffectiveReceiptAmount(receipt, referenceDate)
+          const isBuilding = isAccrual && target > 0
+          const progress = isBuilding ? Math.min(1, Math.max(0, accrued / target)) : undefined
 
           return (
             <MobileRecordCard
               key={receipt.id}
               title={receipt.name}
-              amount={formatCurrency(receipt.amount)}
+              amount={formatCurrency(isBuilding ? accrued : target)}
+              amountSecondary={isBuilding ? `/${formatCurrency(target)}` : undefined}
               meta={meta}
+              progress={progress}
+              progressColor={accent}
               accentColor={accent}
               onClick={() => setSelected(receipt)}
             />
