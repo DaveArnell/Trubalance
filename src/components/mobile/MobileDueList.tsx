@@ -88,19 +88,20 @@ export function MobileDueList({
       const rolled = formatRolledDueTooltip(row)
       const scopeLabel = dueRowScopeMeta(state, row)
       const accent = getDueRowAccentColor(state, row)
-      const metaParts = [scopeLabel, timing, rolled].filter(Boolean)
+      const detailMeta = [timing, rolled].filter(Boolean).join(' · ') || undefined
       const funding = getDueRowCardFunding(row, referenceDate)
 
       listBody.push(
         <MobileRecordCard
           key={row.id}
           title={item.name}
+          scopeLabel={scopeLabel || undefined}
           amount={formatCurrency(funding.displayAmount)}
           amountSecondary={
             funding.showRemaining ? `/${formatCurrency(funding.targetAmount)}` : undefined
           }
           amountNegative
-          meta={metaParts.join(' · ')}
+          meta={detailMeta}
           progress={funding.progress}
           progressColor={accent}
           accentColor={accent}

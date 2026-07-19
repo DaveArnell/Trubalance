@@ -30,13 +30,16 @@ interface MobileAccruingListProps {
   onDeleteCommitment?: (id: string) => void
 }
 
-function accruingMeta(state: AppState, row: CommitmentAccruingRow) {
+function accruingScopeLabel(state: AppState, row: CommitmentAccruingRow) {
+  return getCardScopeMetaLabel(state, row.commitment.scopeLevel, row.commitment.scopeId)
+}
+
+function accruingDetailMeta(row: CommitmentAccruingRow) {
   const { commitment } = row
-  const scope = getCardScopeMetaLabel(state, commitment.scopeLevel, commitment.scopeId)
   const dueDay =
     commitment.dueDayOfMonth != null ? `Due ${ordinalDay(commitment.dueDayOfMonth)}` : null
   const kind = row.source === 'reserve' ? 'Reserve' : null
-  return [kind, scope, dueDay].filter(Boolean).join(' · ')
+  return [kind, dueDay].filter(Boolean).join(' · ') || undefined
 }
 
 function rowAccent(state: AppState, row: CommitmentAccruingRow): string {
@@ -62,9 +65,10 @@ function AccruingCard({
   return (
     <MobileRecordCard
       title={row.commitment.name}
+      scopeLabel={accruingScopeLabel(state, row) ?? undefined}
       amount={formatCurrency(row.accruedAmount)}
       amountSecondary={`/${formatCurrency(row.commitment.amount)} pm`}
-      meta={accruingMeta(state, row)}
+      meta={accruingDetailMeta(row)}
       progress={progress}
       progressColor={accent}
       accentColor={accent}

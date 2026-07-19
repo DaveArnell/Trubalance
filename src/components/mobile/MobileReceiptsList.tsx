@@ -64,11 +64,8 @@ export function MobileReceiptsList({ state, viewScope, actions }: MobileReceipts
           const isAccrual = getReceiptTiming(receipt) === 'accrual'
           const timingLabel = isAccrual ? 'Building up' : 'Lump sum'
           const expected = formatReceiptDateDisplay(receipt.expectedDate)
-          const meta = [
-            getCardScopeMetaLabel(state, receipt.scopeLevel, receipt.scopeId),
-            timingLabel,
-            expected ? `Due ${expected}` : null,
-          ]
+          const scopeLabel = getCardScopeMetaLabel(state, receipt.scopeLevel, receipt.scopeId)
+          const detailMeta = [timingLabel, expected ? `Due ${expected}` : null]
             .filter(Boolean)
             .join(' · ')
           const accent = chartColorForScope(state, {
@@ -95,9 +92,10 @@ export function MobileReceiptsList({ state, viewScope, actions }: MobileReceipts
             <MobileRecordCard
               key={receipt.id}
               title={receipt.name}
+              scopeLabel={scopeLabel ?? undefined}
               amount={formatCurrency(isBuilding ? accrued : target)}
               amountSecondary={isBuilding ? `/${formatCurrency(target)}` : undefined}
-              meta={meta}
+              meta={detailMeta || undefined}
               progress={progress}
               progressColor={accent}
               accentColor={accent}

@@ -19,6 +19,7 @@ export function MobileSectionLabel({ children }: { children: ReactNode }) {
 
 export function MobileRecordCard({
   title,
+  scopeLabel,
   amount,
   amountSecondary,
   meta,
@@ -31,6 +32,8 @@ export function MobileRecordCard({
   actions,
 }: {
   title: ReactNode
+  /** Site / business / venue — left on desktop; folded into meta on mobile */
+  scopeLabel?: ReactNode
   amount: ReactNode
   amountSecondary?: ReactNode
   meta?: ReactNode
@@ -48,6 +51,19 @@ export function MobileRecordCard({
   const interactive = Boolean(onClick)
   const accent = accentColor || progressColor
 
+  const mobileMetaParts = [scopeLabel, meta].filter(Boolean)
+  const mobileMeta =
+    mobileMetaParts.length === 0
+      ? null
+      : mobileMetaParts.every((part) => typeof part === 'string')
+        ? mobileMetaParts.join(' · ')
+        : mobileMetaParts.map((part, index) => (
+            <span key={index}>
+              {index > 0 ? ' · ' : null}
+              {part}
+            </span>
+          ))
+
   const body = (
     <>
       {fill != null ? (
@@ -61,10 +77,15 @@ export function MobileRecordCard({
           />
         </div>
       ) : null}
-      <div className="mobile-record-card-main">
+      <div
+        className={`mobile-record-card-main${scopeLabel ? '' : ' mobile-record-card-main--no-scope'}`}
+      >
+        {scopeLabel ? <p className="mobile-record-card-scope">{scopeLabel}</p> : null}
         <div className="mobile-record-card-text">
           <h3 className="mobile-record-card-title">{title}</h3>
-          {meta ? <p className="mobile-record-card-meta">{meta}</p> : null}
+          {mobileMeta ? (
+            <p className="mobile-record-card-meta mobile-record-card-meta--stacked">{mobileMeta}</p>
+          ) : null}
         </div>
         <div
           className={`mobile-record-card-amount-block${amountNegative ? ' mobile-record-card-amount-block--neg' : ''}`}
