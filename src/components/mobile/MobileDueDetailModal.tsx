@@ -7,7 +7,7 @@ import {
   getCommitmentPayoffExpectedTotal,
   isReserveTransferDueRow,
 } from '../../utils/commitmentCalculations'
-import { getScopeItemLabel } from '../../utils/scope'
+import { getCardScopeMetaLabel } from '../../utils/scope'
 import { formatCurrency } from '../../utils/format'
 import { useEditReadOnly } from '../../hooks/useEditReadOnly'
 import { AmountConfirmModal } from '../committed/AmountConfirmModal'
@@ -45,7 +45,7 @@ export function MobileDueDetailModal({
     : getCommitmentPayoffExpectedTotal(item)
   const scopeLabel = isReserveTransfer
     ? 'Reserve transfer'
-    : getScopeItemLabel(state, item.scopeLevel, item.scopeId)
+    : getCardScopeMetaLabel(state, item.scopeLevel, item.scopeId)
   const timing = formatDueRowTiming(row)
   const rolled = formatRolledDueTooltip(row)
 
@@ -69,7 +69,7 @@ export function MobileDueDetailModal({
           style={accentColor ? { borderTop: `4px solid ${accentColor}` } : undefined}
         >
           <h3 id="mobile-due-detail-title">{item.name}</h3>
-          <p className="snapshot-correction-subtitle">{scopeLabel}</p>
+          {scopeLabel ? <p className="snapshot-correction-subtitle">{scopeLabel}</p> : null}
 
           <dl className="snapshot-correction-facts">
             <div>
