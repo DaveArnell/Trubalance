@@ -132,9 +132,18 @@ export function MobileAccruingDetailModal({
           />
         </div>
         <p className="muted mobile-accruing-detail-progress-label">
-          {Math.round(progress * 100)}% through this month’s cycle · accrued{' '}
-          {formatCurrency(row.accruedAmount)} · {formatCurrency(dailyRate)}/day
+          {Math.round(progress * 100)}% through this month’s cycle
         </p>
+        <dl className="mobile-accruing-detail-stats">
+          <div>
+            <dt>Accrued so far</dt>
+            <dd>{formatCurrency(row.accruedAmount)}</dd>
+          </div>
+          <div>
+            <dt>Per day</dt>
+            <dd>{formatCurrency(dailyRate)}</dd>
+          </div>
+        </dl>
 
         {canEdit ? (
           <div className="mobile-accruing-edit-fields">
@@ -193,10 +202,6 @@ export function MobileAccruingDetailModal({
                 <dd>{ordinalDay(commitment.dueDayOfMonth)} each month</dd>
               </div>
             ) : null}
-            <div>
-              <dt>Daily rate</dt>
-              <dd>{formatCurrency(getAccruingRowDailyRate(row))}/day</dd>
-            </div>
             {isReserve ? (
               <div>
                 <dt>Note</dt>
