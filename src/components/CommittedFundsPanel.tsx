@@ -293,13 +293,15 @@ export function CommittedFundsPanel({
           </div>
         </div>
 
-        <CompactKpiStrip
-          items={[
-            { label: 'Monthly total', value: formatCurrency(monthlyTotal) },
-            { label: 'Accrued now', value: formatCurrency(accruingNow), emphasis: true },
-            { label: 'Per day', value: formatCurrency(dailyTotal) },
-          ]}
-        />
+        <div className="card-kpi-bar">
+          <CompactKpiStrip
+            items={[
+              { label: 'Monthly total', value: formatCurrency(monthlyTotal) },
+              { label: 'Accrued now', value: formatCurrency(accruingNow), emphasis: true },
+              { label: 'Per day', value: formatCurrency(dailyTotal) },
+            ]}
+          />
+        </div>
       </div>
 
       <div className="card-scroll-body">

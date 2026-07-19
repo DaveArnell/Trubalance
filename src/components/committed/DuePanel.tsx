@@ -356,7 +356,6 @@ export function DuePanel({
           onCancel={cancelPlannedFunding}
         />
       )}
-      <div className={`card-widget-sticky${useCards ? ' card-widget-sticky--cards' : ''}`}>
       <div className={`card-head card-head-compact${useCards ? ' card-head--due-cards' : ' card-head-with-kpi'}`}>
         {useCards ? (
           <>
@@ -400,12 +399,14 @@ export function DuePanel({
           </>
         )}
       </div>
+
       {useCards ? (
-        <CompactKpiStrip
-          items={[{ label: 'Total due', value: formatCurrency(dueTotal), emphasis: true }]}
-        />
+        <div className="card-kpi-bar">
+          <CompactKpiStrip
+            items={[{ label: 'Total due', value: formatCurrency(dueTotal), emphasis: true }]}
+          />
+        </div>
       ) : null}
-      </div>
 
       <div className="card-scroll-body">
         {useCards ? (

@@ -100,7 +100,6 @@ export function ExpectedReceiptsPanel({
 
   return (
     <section id="expected-receipts" className="card widget-compact card-scroll">
-      <div className={`card-widget-sticky${useCards ? ' card-widget-sticky--cards' : ''}`}>
       <div className={`card-head card-head-compact${useCards ? ' card-head--receipts-cards' : ''}`}>
         {useCards ? (
           <>
@@ -148,18 +147,20 @@ export function ExpectedReceiptsPanel({
           </>
         )}
       </div>
+
       {useCards && totalAccrued > 0 ? (
-        <CompactKpiStrip
-          items={[
-            {
-              label: 'Accrued in True Balance',
-              value: `+${formatCurrency(totalAccrued)}`,
-              emphasis: true,
-            },
-          ]}
-        />
+        <div className="card-kpi-bar">
+          <CompactKpiStrip
+            items={[
+              {
+                label: 'Accrued in True Balance',
+                value: `+${formatCurrency(totalAccrued)}`,
+                emphasis: true,
+              },
+            ]}
+          />
+        </div>
       ) : null}
-      </div>
 
       {outOfScopeReceipts.length > 0 ? (
         <p className="expected-receipts-scope-hint muted">

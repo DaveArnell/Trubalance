@@ -1089,9 +1089,20 @@ body {
   box-shadow: var(--shadow-md);
 }
 
-.widget-slot--reorderable .widget-slot-body .card-head-compact,
 .widget-slot--reorderable .widget-slot-body .sheet-section-head {
   padding-right: 4.5rem;
+}
+
+/* Keep title/actions clear of the floating widget menu; KPI strips stay full-bleed. */
+.widget-slot--reorderable .widget-slot-body .card-head-compact {
+  padding-right: 0;
+}
+
+.widget-slot--reorderable .widget-slot-body .card-head-compact > .card-head-title-row,
+.widget-slot--reorderable .widget-slot-body .card-head-compact > .card-head-actions,
+.widget-slot--reorderable .widget-slot-body .card-head-compact > .card-actions {
+  padding-right: 4.5rem;
+  box-sizing: border-box;
 }
 
 .widget-slot-chrome {
@@ -4271,22 +4282,60 @@ body.widget-canvas-resizing * {
   border-radius: var(--radius-md);
 }
 
+/* Shared full-width KPI bar under Accruing / Due / Receipts headers */
+.card-kpi-bar {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  flex-shrink: 0;
+  align-self: stretch;
+  box-sizing: border-box;
+  margin: 0 0 6px;
+  min-width: 0;
+}
+
+.card-kpi-bar .compact-kpi-strip {
+  width: 100%;
+  max-width: none;
+  margin-bottom: 0;
+}
+
 .card-widget-sticky--cards {
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  align-self: stretch;
+  width: 100%;
+  min-width: 0;
   gap: 6px;
   margin-bottom: var(--space-1);
+  box-sizing: border-box;
 }
 
 .card-widget-sticky--cards .card-head {
   margin-bottom: 0 !important;
+  width: 100%;
 }
 
-.card-widget-sticky--cards .compact-kpi-strip {
+.card-widget-sticky--cards .compact-kpi-strip,
+.mobile-accruing-sticky .compact-kpi-strip {
   width: 100%;
+  max-width: none;
   align-self: stretch;
+  flex: 0 0 auto;
   margin-bottom: 0;
+  box-sizing: border-box;
+}
+
+.mobile-accruing-sticky {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  align-self: stretch;
+  width: 100%;
+  min-width: 0;
+  gap: 6px;
+  box-sizing: border-box;
 }
 
 .sheet-row--new-highlight td {
