@@ -1,5 +1,7 @@
 export const APP_PAGES = [
   { id: 'committed-funds', label: 'Dashboard', kicker: 'Overview', icon: '⊞' },
+  { id: 'due', label: 'Due', kicker: 'Payments due', icon: '●' },
+  { id: 'receipts', label: 'Receipts', kicker: 'Expected in', icon: '↓' },
   { id: 'trends', label: 'Trends', kicker: 'Charts & history', icon: '↗' },
   { id: 'forecast', label: 'Forecast', kicker: 'Forward look', icon: '⇢' },
   { id: 'history', label: 'History', kicker: 'Saved days', icon: '◷' },
@@ -8,6 +10,18 @@ export const APP_PAGES = [
 ] as const
 
 export type PageId = (typeof APP_PAGES)[number]['id']
+
+/** Due + Receipts are bottom-nav pages on mobile; desktop keeps them on the Dashboard. */
+export const MOBILE_PRIMARY_PAGES: PageId[] = [
+  'committed-funds',
+  'due',
+  'receipts',
+  'trends',
+  'forecast',
+  'settings',
+]
+
+export const DESKTOP_SIDEBAR_HIDDEN_PAGES = new Set<PageId>(['due', 'receipts'])
 
 export interface AppRoute {
   page: PageId
@@ -21,7 +35,8 @@ const LEGACY_HASH: Record<string, PageId> = {
   reports: 'committed-funds',
   health: 'committed-funds',
   balances: 'trends',
-  'expected-receipts': 'committed-funds',
+  'expected-receipts': 'receipts',
+  'due-now': 'due',
   admin: 'committed-funds',
   'business-hub': 'committed-funds',
 }

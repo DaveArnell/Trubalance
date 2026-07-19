@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import type { AppState, GraphRange, HistoryGranularity, ViewScope } from '../types'
 
@@ -76,6 +76,8 @@ export function TrueBalanceHistoryTable({
   const [correction, setCorrection] = useState<SnapshotCorrectionDraft | null>(null)
   const [noteEditorDate, setNoteEditorDate] = useState<string | null>(null)
   const [granularity, setGranularity] = useState<HistoryGranularity>(loadGranularity)
+  const [canScrollMore, setCanScrollMore] = useState(false)
+  const tableWrapRef = useRef<HTMLDivElement>(null)
   const { preferences: tablePreferences } = useTablePreferences('trends-history')
   const tablePrefClasses = tablePreferenceClasses(tablePreferences, 'trends-history')
 
@@ -83,6 +85,27 @@ export function TrueBalanceHistoryTable({
     () => buildHistoryTable(state, viewScope, graphRange, 'trueBalance', granularity, fromDate),
     [state, viewScope, graphRange, granularity, fromDate],
   )
+
+  useEffect(() => {
+    const el = tableWrapRef.current
+    if (!el) return
+
+    const update = () => {
+      const remaining = el.scrollWidth - el.clientWidth - el.scrollLeft
+      setCanScrollMore(remaining > 4)
+    }
+
+    update()
+    el.addEventListener('scroll', update, { passive: true })
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(update) : null
+    ro?.observe(el)
+    window.addEventListener('resize', update)
+    return () => {
+      el.removeEventListener('scroll', update)
+      ro?.disconnect()
+      window.removeEventListener('resize', update)
+    }
+  }, [columns.length, rows.length, granularity, tablePrefClasses])
 
   const setHistoryGranularity = (next: HistoryGranularity) => {
     setGranularity(next)
@@ -151,10 +174,16 @@ export function TrueBalanceHistoryTable({
           listed here.
         </p>
       ) : (
-        <div className={`history-table-wrap table-pref-surface ${tablePrefClasses}`}>
-          <table
-            className={`sheet-table history-table sheet-table-dense table-pref-table ${tablePrefClasses}`}
+        <div
+          className={`history-table-scroll${canScrollMore ? ' history-table-scroll--hint' : ''}`}
+        >
+          <div
+            ref={tableWrapRef}
+            className={`history-table-wrap table-pref-surface ${tablePrefClasses}`}
           >
+            <table
+              className={`sheet-table history-table sheet-table-dense table-pref-table ${tablePrefClasses}`}
+            >
             <thead>
               <tr>
                 <th className="history-date-col">Date</th>
@@ -275,6 +304,12 @@ export function TrueBalanceHistoryTable({
               )})}
             </tbody>
           </table>
+          </div>
+          {canScrollMore ? (
+            <span className="history-table-scroll-cue" aria-hidden>
+              ›
+            </span>
+          ) : null}
         </div>
       )}
       <p className="sheet-edit-hint history-range-note">

@@ -293,7 +293,7 @@ function buildAttention(
       level: 'red',
       title: overdue.length === 1 ? '1 overdue item in Due' : `${overdue.length} overdue items in Due`,
       detail: 'Click to acknowledge',
-      targetSection: 'committed-funds',
+      targetSection: 'due',
       widgetId: 'due',
       dismissible: true,
     })
@@ -304,7 +304,7 @@ function buildAttention(
       level: 'orange',
       title: dueSoon.length === 1 ? '1 item due soon' : `${dueSoon.length} items due soon`,
       detail: 'Click to acknowledge',
-      targetSection: 'committed-funds',
+      targetSection: 'due',
       widgetId: 'due',
       dismissible: true,
     })

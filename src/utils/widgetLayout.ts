@@ -59,6 +59,8 @@ export const WIDGET_LABELS: Record<string, string> = {
 
 export const PAGE_WIDGET_IDS: Record<PageId, string[]> = {
   'committed-funds': ['committed-funds', 'due', 'expected-receipts'],
+  due: ['due'],
+  receipts: ['expected-receipts'],
   trends: ['trends-chart', 'trends-history'],
   forecast: ['forecast-cash-outlook', 'forecast-projection'],
   history: ['history'],
@@ -105,6 +107,8 @@ const DEFAULT_LAYOUTS: Record<PageId, PageWidgetLayout> = {
     defaultItem('due', 1),
     defaultItem('expected-receipts', 2),
   ],
+  due: [defaultItem('due', 0)],
+  receipts: [defaultItem('expected-receipts', 0)],
   'reserve-planner': [defaultItem('reserve-planner', 0)],
   settings: [defaultItem('settings', 0)],
 }

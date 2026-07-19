@@ -4,7 +4,11 @@ import { useDemoMode } from '../contexts/DemoModeContext'
 import { useEditReadOnly } from '../hooks/useEditReadOnly'
 import type { AppState, ViewScope } from '../types'
 import type { AppRoute, PageId } from '../navigation'
-import { buildHash, RESERVE_PLANNER_CREATE_ROUTE } from '../navigation'
+import {
+  buildHash,
+  DESKTOP_SIDEBAR_HIDDEN_PAGES,
+  RESERVE_PLANNER_CREATE_ROUTE,
+} from '../navigation'
 import { useNavLayout } from '../hooks/useNavLayout'
 import { getOrderedPages } from '../utils/navLayout'
 import { getPlannerDisplayName, getReservePlannerIdForScope } from '../utils/reserveCalculations'
@@ -146,7 +150,9 @@ export function Sidebar({
   const [draggingKey, setDraggingKey] = useState<string | null>(null)
   const [dragOverKey, setDragOverKey] = useState<string | null>(null)
 
-  const pages = getOrderedPages(order)
+  const pages = getOrderedPages(order).filter(
+    (page) => isMobile || !DESKTOP_SIDEBAR_HIDDEN_PAGES.has(page.id),
+  )
   const plannersById = new Map(state.reservePlanners.map((p) => [p.id, p]))
   const orderedPlanners = orderedPlannerIds
     .map((id) => plannersById.get(id))

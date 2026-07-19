@@ -157,6 +157,32 @@ export function buildPageWidgets(pageId: PageId, ctx: PageWidgetContext): Record
           />
         ),
       }
+    case 'due':
+      return {
+        due: (
+          <DuePanel
+            state={state}
+            viewScope={viewScope}
+            commitmentViews={metrics.commitmentViews}
+            actions={actions}
+            openHelp={openHelp}
+            setOpenHelp={setOpenHelp}
+            onOpenReservePlanner={onOpenReservePlanner}
+          />
+        ),
+      }
+    case 'receipts':
+      return {
+        'expected-receipts': (
+          <ExpectedReceiptsPanel
+            state={state}
+            viewScope={viewScope}
+            actions={actions}
+            openHelp={openHelp}
+            setOpenHelp={setOpenHelp}
+          />
+        ),
+      }
     case 'reserve-planner':
       return {
         'reserve-planner': (

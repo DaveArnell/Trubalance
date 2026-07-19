@@ -31,6 +31,7 @@ import {
 import type { GraphRange, ViewScope, AttentionItem } from './types'
 import type { WorkspaceSubscription } from './types/subscription'
 import { calculateDashboard } from './utils/calculations'
+import { countDueRowsNeedingAttention } from './utils/commitmentCalculations'
 import { buildBreakdownColumns } from './utils/breakdownTable'
 import { getPlannerDisplayName, summarizeReservePlanner, getReservePlannerIdForScope } from './utils/reserveCalculations'
 import { getScopeLabel, hasMultipleViewScopes } from './utils/scope'
@@ -278,6 +279,11 @@ function AppShellInner({
       attentionItems: [],
     }
   }, [app.state, app.viewScope, referenceDateKey, isDemoSession])
+
+  const dueAttentionCount = useMemo(
+    () => countDueRowsNeedingAttention(metrics.commitmentViews).length,
+    [metrics.commitmentViews],
+  )
 
   const breakdownColumns = useMemo(
     () => buildBreakdownColumns(app.state, app.viewScope),
@@ -723,6 +729,7 @@ function AppShellInner({
               <MobileOverview
                 metrics={metrics}
                 state={app.state}
+                viewScope={app.viewScope}
                 breakdownColumns={breakdownColumns}
                 onBalanceSave={handleBalanceSave}
               />
@@ -732,6 +739,7 @@ function AppShellInner({
               <MobileBottomNav
                 activePage={activePage}
                 onNavigate={(pageId) => goToRoute(pageId)}
+                dueBadgeCount={dueAttentionCount}
               />
             </>
           ) : (
