@@ -11,6 +11,10 @@ import { useOverviewSize } from './hooks/useOverviewSize'
 import { OverviewStrip } from './components/OverviewStrip'
 import { MobileOverview } from './components/mobile/MobileOverview'
 import { MobileBottomNav } from './components/mobile/MobileBottomNav'
+import {
+  MobileHomeSectionTabs,
+  type MobileHomeSection,
+} from './components/mobile/MobileHomeSectionTabs'
 import { GuidedTour } from './components/GuidedTour'
 import { SetupTourBanner, TourMenuButton } from './components/TourMenu'
 import { GuidedSetupWizard } from './components/onboarding/GuidedSetupWizard'
@@ -230,6 +234,7 @@ function AppShellInner({
   const [reserveMenuOpen, setReserveMenuOpen] = useState(false)
   const { isMobile, mobileNavOpen, closeMobileNav, toggleMobileNav } = useMobileNav()
   const mobileChromeRef = useRef<HTMLDivElement>(null)
+  const [homeSection, setHomeSection] = useState<MobileHomeSection>('committed-funds')
 
   useLayoutEffect(() => {
     if (!isMobile) return
@@ -247,7 +252,12 @@ function AppShellInner({
       observer.disconnect()
       main.style.removeProperty('--mobile-chrome-height')
     }
-  }, [isMobile])
+  }, [isMobile, homeSection, activeRoute.page])
+
+  useEffect(() => {
+    if (!isMobile) return
+    document.querySelector('.mobile-page-scroll')?.scrollTo({ top: 0 })
+  }, [isMobile, homeSection, activeRoute.page])
 
   const [openHelp, setOpenHelp] = useState<string | null>(null)
   const [graphRange, setGraphRange] = useState<GraphRange>('90d')
@@ -412,6 +422,13 @@ function AppShellInner({
     if (pageId !== 'reserve-planner') {
       setReserveMenuOpen(false)
     }
+
+    // On mobile, Due and Receipts live as Home section tabs.
+    if (isMobile && (pageId === 'due' || pageId === 'receipts')) {
+      setHomeSection(pageId === 'due' ? 'due' : 'expected-receipts')
+      pageId = 'committed-funds'
+    }
+
     if (pageId === 'settings') {
       const firstGroup = app.state.groups[0]
       if (firstGroup) {
@@ -444,6 +461,20 @@ function AppShellInner({
       reservePlannerId: pageId === 'reserve-planner' ? (resolvedReserveId ?? null) : null,
     })
   }
+
+  // Deep links / hash to Due or Receipts → Home tab on mobile
+  useEffect(() => {
+    if (!isMobile) return
+    if (activeRoute.page === 'due') {
+      setHomeSection('due')
+      navigateToRoute('committed-funds')
+      setActiveRoute({ page: 'committed-funds', reservePlannerId: null })
+    } else if (activeRoute.page === 'receipts') {
+      setHomeSection('expected-receipts')
+      navigateToRoute('committed-funds')
+      setActiveRoute({ page: 'committed-funds', reservePlannerId: null })
+    }
+  }, [isMobile, activeRoute.page])
 
   useEffect(() => {
     const raw = window.location.hash.replace(/^#/, '').trim()
@@ -754,9 +785,23 @@ function AppShellInner({
                   breakdownColumns={breakdownColumns}
                   onBalanceSave={handleBalanceSave}
                 />
+
+                {activePage === 'committed-funds' ? (
+                  <MobileHomeSectionTabs
+                    active={homeSection}
+                    onChange={setHomeSection}
+                    dueBadgeCount={dueAttentionCount}
+                  />
+                ) : null}
               </div>
 
-              <WidgetGrid pageId={activePage} widgets={pageWidgets} />
+              <div className="mobile-page-scroll">
+                <WidgetGrid
+                  pageId={activePage}
+                  widgets={pageWidgets}
+                  homeSection={homeSection}
+                />
+              </div>
 
               <MobileBottomNav
                 activePage={activePage}

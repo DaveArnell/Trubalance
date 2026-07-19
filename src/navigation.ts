@@ -14,8 +14,6 @@ export type PageId = (typeof APP_PAGES)[number]['id']
 /** Due + Receipts are bottom-nav pages on mobile; desktop keeps them on the Dashboard. */
 export const MOBILE_PRIMARY_PAGES: PageId[] = [
   'committed-funds',
-  'due',
-  'receipts',
   'trends',
   'reserve-planner',
   'settings',

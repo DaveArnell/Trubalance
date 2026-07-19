@@ -64,11 +64,9 @@ import { MobileWidgetStack } from './mobile/MobileWidgetStack'
 
 
 interface WidgetGridProps {
-
   pageId: PageId
-
   widgets: Record<string, ReactNode>
-
+  homeSection?: import('./mobile/MobileHomeSectionTabs').MobileHomeSection
 }
 
 
@@ -776,7 +774,7 @@ function WidgetSlot({
 
 
 
-export function WidgetGrid({ pageId, widgets }: WidgetGridProps) {
+export function WidgetGrid({ pageId, widgets, homeSection }: WidgetGridProps) {
 
   const editReadOnly = useEditReadOnly()
   const { isMobile } = useMobileNav()
@@ -1343,7 +1341,7 @@ export function WidgetGrid({ pageId, widgets }: WidgetGridProps) {
 
 
   if (isMobile) {
-    return <MobileWidgetStack pageId={pageId} widgets={widgets} layout={layout} />
+    return <MobileWidgetStack pageId={pageId} widgets={widgets} layout={layout} homeSection={homeSection} />
   }
 
   return (

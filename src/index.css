@@ -142,8 +142,8 @@ body {
   }
 
   .main-content--mobile .top-bar--mobile {
-    padding-top: max(0.5rem, env(safe-area-inset-top, 0px));
-    background: var(--bg-app);
+    padding-top: 0.5rem;
+    background: transparent;
   }
 
   .mobile-bottom-nav {
@@ -154,7 +154,8 @@ body {
 @supports (-webkit-touch-callout: none) {
   @media (display-mode: standalone) {
     .main-content--mobile .top-bar--mobile {
-      padding-top: max(0.75rem, env(safe-area-inset-top, 0px));
+      padding-top: 0.75rem;
+      background: transparent;
     }
   }
 }
@@ -3502,31 +3503,31 @@ body.widget-canvas-resizing * {
 }
 
 @media (max-width: 900px) {
-  /* Mobile: one natural page scroll — no nested scroll traps */
+  /* Mobile: fixed chrome + scrollable page body (cards only) */
   html,
   body,
   #root {
-    height: auto;
+    height: 100%;
     min-height: 100dvh;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden;
   }
 
   .app-shell {
-    height: auto;
+    height: 100dvh;
     min-height: 100dvh;
-    overflow: visible;
+    overflow: hidden;
   }
 
   .main-content--mobile {
-    height: auto;
-    min-height: 100dvh;
-    overflow: visible;
-    display: block;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
     padding: var(--space-2);
     padding-left: max(var(--space-2), env(safe-area-inset-left));
     padding-right: max(var(--space-2), env(safe-area-inset-right));
-    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
+    padding-bottom: 0;
   }
 
   .main-content--mobile .top-bar--mobile {
@@ -3534,36 +3535,49 @@ body.widget-canvas-resizing * {
     top: auto;
     z-index: auto;
     margin-bottom: var(--space-2);
-    padding-top: env(safe-area-inset-top, 0px);
+    padding-top: 0;
     background: transparent;
     backdrop-filter: none;
   }
 
   .main-content--mobile .mobile-sticky-chrome {
-    position: sticky;
-    top: 0;
+    position: relative;
+    flex-shrink: 0;
     z-index: 40;
-    margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) var(--space-2);
-    padding: var(--space-2);
-    padding-top: 0;
-    /* Brand teal wash — matches homepage / True Balance green, not scope purple */
-    background:
-      linear-gradient(
-        180deg,
-        color-mix(in srgb, #0f766e 14%, #ecfdf5) 0%,
-        color-mix(in srgb, #f0fdfa 96%, #ffffff) 100%
-      );
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid color-mix(in srgb, #0f766e 12%, var(--border));
+    margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) 0;
+    padding: 0 var(--space-2) var(--space-2);
+    background: var(--bg-app);
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* System status-bar / notch area — brand teal, not widget tint */
+  .main-content--mobile .mobile-sticky-chrome::before {
+    content: '';
+    display: block;
+    height: env(safe-area-inset-top, 0px);
+    margin: 0 calc(-1 * var(--space-2));
+    background: #0f766e;
   }
 
   .app-shell--mobile[data-scope-level] .main-content--mobile {
-    background: color-mix(in srgb, #ecfdf5 55%, var(--bg-app));
+    background: var(--bg-app);
+  }
+
+  .mobile-page-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding-top: var(--space-2);
+    /* Clear fixed bottom nav + home indicator */
+    padding-bottom: calc(7.25rem + env(safe-area-inset-bottom, 0px));
   }
 
   .main-content--mobile .mobile-sticky-chrome .top-bar--mobile {
     margin-bottom: var(--space-2);
-    padding-top: env(safe-area-inset-top, 0px);
+    padding-top: var(--space-2);
   }
 
   .main-content--mobile .top-bar--mobile .top-bar-inner {
@@ -3577,6 +3591,10 @@ body.widget-canvas-resizing * {
 
   .page-body {
     overflow: visible;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
   }
 
   .mobile-menu-btn {
@@ -11414,8 +11432,8 @@ tr.sheet-row--received td {
     z-index: auto;
     margin-bottom: 0;
     border-radius: var(--radius-md);
-    border: 1px solid color-mix(in srgb, #0f766e 18%, var(--border));
-    background: color-mix(in srgb, #ffffff 88%, #ecfdf5);
+    border: 1px solid var(--border);
+    background: var(--bg-surface-raised);
     overflow: hidden;
   }
 
@@ -11433,6 +11451,55 @@ tr.sheet-row--received td {
     font-weight: 800;
     font-variant-numeric: tabular-nums;
     color: #0f766e;
+  }
+
+  .mobile-home-section-tabs {
+    display: flex;
+    gap: 4px;
+    margin-top: var(--space-2);
+    padding: 3px;
+    border-radius: var(--radius-md);
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+  }
+
+  .mobile-home-section-tab {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin: 0;
+    padding: 8px 6px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-secondary);
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-home-section-tab.is-active {
+    background: var(--bg-surface-raised);
+    color: #09090b;
+    box-shadow: var(--shadow-xs);
+  }
+
+  .mobile-home-section-tab-badge {
+    min-width: 1rem;
+    height: 1rem;
+    padding: 0 3px;
+    border-radius: 999px;
+    background: #dc2626;
+    color: #fff;
+    font-size: 0.55rem;
+    font-weight: 800;
+    line-height: 1rem;
+    text-align: center;
   }
 
   .mobile-overview-summary {
@@ -11646,13 +11713,23 @@ tr.sheet-row--received td {
 
   .app-shell--mobile .mobile-accruing-sticky {
     position: sticky;
-    top: var(--mobile-chrome-height, 6.5rem);
+    top: 0;
     z-index: 30;
     margin: 0 calc(-1 * var(--space-3)) var(--space-2);
     padding: 0 var(--space-3) var(--space-2);
-    background: color-mix(in srgb, #f0fdfa 92%, #ffffff);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid color-mix(in srgb, #0f766e 10%, var(--border));
+    background: var(--bg-surface-raised);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .app-shell--mobile .mobile-page-scroll .card-head--due-cards,
+  .app-shell--mobile .mobile-page-scroll .card-head--receipts-cards {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: var(--bg-surface-raised);
+    margin: 0 calc(-1 * var(--space-3)) var(--space-2);
+    padding: 0 var(--space-3) var(--space-2);
+    border-bottom: 1px solid var(--border);
   }
 
   .app-shell--mobile .mobile-accruing-sticky .card-head-title-row h2 {
