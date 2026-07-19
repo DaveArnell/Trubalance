@@ -3,8 +3,10 @@ import { getScopeItemLabel, itemMatchesScope } from '../../utils/scope'
 import { sortByOrder } from '../../utils/sortOrder'
 import { formatCurrency } from '../../utils/format'
 import { formatReceiptDateDisplay } from '../../utils/receiptCalculations'
+import { chartColorForScope } from '../../utils/businessTheme'
 import type { AppActions } from '../../hooks/useAppState'
 import { useEditReadOnly } from '../../hooks/useEditReadOnly'
+import { MarkReceivedConfirmButton } from '../committed/MarkPaidConfirmModal'
 import { MobileRecordCard, MobileRecordList } from './MobileRecordList'
 
 interface MobileReceiptsListProps {
@@ -47,6 +49,10 @@ export function MobileReceiptsList({ state, viewScope, actions }: MobileReceipts
         ]
           .filter(Boolean)
           .join(' · ')
+        const accent = chartColorForScope(state, {
+          type: receipt.scopeLevel,
+          id: receipt.scopeId,
+        })
 
         return (
           <MobileRecordCard
@@ -54,16 +60,15 @@ export function MobileReceiptsList({ state, viewScope, actions }: MobileReceipts
             title={receipt.name}
             amount={formatCurrency(receipt.amount)}
             meta={meta}
+            accentColor={accent}
             actions={
               editReadOnly ? undefined : (
                 <>
-                  <button
-                    type="button"
-                    className="btn-primary btn-tiny"
-                    onClick={() => actions.markReceiptReceived(receipt.id)}
-                  >
-                    Received
-                  </button>
+                  <MarkReceivedConfirmButton
+                    itemLabel={receipt.name}
+                    expectedTotal={receipt.amount}
+                    onConfirm={(amount) => actions.markReceiptReceived(receipt.id, amount)}
+                  />
                   <button
                     type="button"
                     className="btn-ghost btn-tiny"

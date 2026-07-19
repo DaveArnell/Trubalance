@@ -11281,6 +11281,11 @@ tr.sheet-row--received td {
     position: relative;
   }
 
+  .mobile-record-card--accented {
+    border-left-width: 4px;
+    border-left-style: solid;
+  }
+
   .mobile-record-card--button {
     display: block;
     width: 100%;
@@ -11308,7 +11313,7 @@ tr.sheet-row--received td {
 
   .mobile-record-card-progress-fill {
     height: 100%;
-    opacity: 0.18;
+    opacity: 0.28;
     transition: width 0.2s ease;
   }
 
@@ -11405,6 +11410,23 @@ tr.sheet-row--received td {
   .mobile-accruing-detail-progress-label {
     margin: 0 0 var(--space-2);
     font-size: 0.75rem;
+  }
+
+  .mobile-accruing-edit-fields {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+
+  .mobile-accruing-edit-fields select {
+    width: 100%;
+    margin-top: 4px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-surface);
+    font: inherit;
   }
 
   .mobile-bottom-nav {

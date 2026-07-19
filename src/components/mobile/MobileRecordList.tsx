@@ -25,6 +25,7 @@ export function MobileRecordCard({
   amountNegative,
   progress,
   progressColor,
+  accentColor,
   onClick,
   children,
   actions,
@@ -37,25 +38,25 @@ export function MobileRecordCard({
   /** 0–1 fill for accrual cycle progress */
   progress?: number
   progressColor?: string
+  /** Business/venue accent — left edge colour */
+  accentColor?: string
   onClick?: () => void
   children?: ReactNode
   actions?: ReactNode
 }) {
   const fill = progress != null ? Math.max(0, Math.min(1, progress)) : null
   const interactive = Boolean(onClick)
+  const accent = accentColor || progressColor
 
   const body = (
     <>
       {fill != null ? (
-        <div
-          className="mobile-record-card-progress"
-          aria-hidden
-        >
+        <div className="mobile-record-card-progress" aria-hidden>
           <div
             className="mobile-record-card-progress-fill"
             style={{
               width: `${Math.round(fill * 100)}%`,
-              background: progressColor || 'var(--scope-accent, #0f766e)',
+              background: accent || 'var(--scope-accent, #0f766e)',
             }}
           />
         </div>
@@ -79,13 +80,22 @@ export function MobileRecordCard({
     </>
   )
 
+  const style = accent ? ({ borderLeftColor: accent } as const) : undefined
+  const className = `mobile-record-card${accent ? ' mobile-record-card--accented' : ''}${
+    interactive ? ' mobile-record-card--button' : ''
+  }`
+
   if (interactive) {
     return (
-      <button type="button" className="mobile-record-card mobile-record-card--button" onClick={onClick}>
+      <button type="button" className={className} style={style} onClick={onClick}>
         {body}
       </button>
     )
   }
 
-  return <article className="mobile-record-card">{body}</article>
+  return (
+    <article className={className} style={style}>
+      {body}
+    </article>
+  )
 }

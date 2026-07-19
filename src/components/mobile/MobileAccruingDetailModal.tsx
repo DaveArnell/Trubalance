@@ -1,32 +1,54 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import type { AppState, CommitmentAccruingRow } from '../../types'
+import type { AppState, Commitment, CommitmentAccruingRow, ScopeLevel } from '../../types'
 import {
   getAccrualProgress,
   getAccruingRowDailyRate,
 } from '../../utils/commitmentCalculations'
-import { getScopeItemLabel } from '../../utils/scope'
+import { getScopeItemLabel, type ScopeOption } from '../../utils/scope'
 import { formatCurrency } from '../../utils/format'
+import { toAmount, roundCurrency } from '../../utils/amounts'
 import { ordinalDay } from '../committed/shared'
+import { useEditReadOnly } from '../../hooks/useEditReadOnly'
 
 interface MobileAccruingDetailModalProps {
   state: AppState
   row: CommitmentAccruingRow
   accentColor: string
+  scopeOptions: ScopeOption[]
   onClose: () => void
+  onSave?: (patch: Partial<Commitment>) => void
+  onSaveDueDay?: (commitment: Commitment, dueDayOfMonth: number) => void
 }
 
 export function MobileAccruingDetailModal({
   state,
   row,
   accentColor,
+  scopeOptions,
   onClose,
+  onSave,
+  onSaveDueDay,
 }: MobileAccruingDetailModalProps) {
+  const editReadOnly = useEditReadOnly()
   const { commitment } = row
+  const isReserve = row.source === 'reserve'
+  const canEdit = !editReadOnly && !isReserve && Boolean(onSave)
   const progress = getAccrualProgress(commitment)?.progress ?? 0
-  const scope = getScopeItemLabel(state, commitment.scopeLevel, commitment.scopeId)
-  const dueDay =
-    commitment.dueDayOfMonth != null ? ordinalDay(commitment.dueDayOfMonth) : null
+
+  const [name, setName] = useState(commitment.name)
+  const [amount, setAmount] = useState(String(commitment.amount))
+  const [dueDay, setDueDay] = useState(String(commitment.dueDayOfMonth ?? 28))
+  const [scopeKey, setScopeKey] = useState(`${commitment.scopeLevel}:${commitment.scopeId}`)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    setName(commitment.name)
+    setAmount(String(commitment.amount))
+    setDueDay(String(commitment.dueDayOfMonth ?? 28))
+    setScopeKey(`${commitment.scopeLevel}:${commitment.scopeId}`)
+    setError('')
+  }, [commitment])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -36,6 +58,45 @@ export function MobileAccruingDetailModal({
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
 
+  const scopeLabel = getScopeItemLabel(state, commitment.scopeLevel, commitment.scopeId)
+
+  const handleSave = () => {
+    if (!canEdit || !onSave) return
+    const parsedAmount = roundCurrency(toAmount(amount))
+    if (!Number.isFinite(parsedAmount) || parsedAmount < 0) {
+      setError('Enter a valid monthly amount.')
+      return
+    }
+    const parsedDue = Math.round(Number(dueDay))
+    if (!Number.isFinite(parsedDue) || parsedDue < 1 || parsedDue > 31) {
+      setError('Due day must be between 1 and 31.')
+      return
+    }
+    const [scopeLevel, scopeId] = scopeKey.split(':') as [ScopeLevel, string]
+    if (!scopeLevel || !scopeId) {
+      setError('Choose where this cost applies.')
+      return
+    }
+
+    const trimmedName = name.trim() || commitment.name
+    const patch: Partial<Commitment> = {}
+    if (trimmedName !== commitment.name) patch.name = trimmedName
+    if (parsedAmount !== roundCurrency(toAmount(commitment.amount))) patch.amount = parsedAmount
+    if (scopeLevel !== commitment.scopeLevel || scopeId !== commitment.scopeId) {
+      patch.scopeLevel = scopeLevel
+      patch.scopeId = scopeId
+    }
+
+    const dueChanged = parsedDue !== (commitment.dueDayOfMonth ?? 28)
+    if (Object.keys(patch).length > 0) onSave(patch)
+    if (dueChanged && onSaveDueDay) {
+      onSaveDueDay(commitment, parsedDue)
+    } else if (dueChanged) {
+      onSave?.({ dueDayOfMonth: parsedDue })
+    }
+    onClose()
+  }
+
   return createPortal(
     <div className="snapshot-correction-backdrop" onClick={onClose}>
       <div
@@ -44,9 +105,10 @@ export function MobileAccruingDetailModal({
         aria-modal="true"
         aria-labelledby="mobile-accruing-detail-title"
         onClick={(e) => e.stopPropagation()}
+        style={{ borderTop: `4px solid ${accentColor}` }}
       >
-        <h3 id="mobile-accruing-detail-title">{commitment.name}</h3>
-        <p className="snapshot-correction-subtitle">{scope}</p>
+        <h3 id="mobile-accruing-detail-title">{canEdit ? 'Edit monthly cost' : commitment.name}</h3>
+        {!canEdit ? <p className="snapshot-correction-subtitle">{scopeLabel}</p> : null}
 
         <div
           className="mobile-accruing-detail-progress"
@@ -62,34 +124,87 @@ export function MobileAccruingDetailModal({
           />
         </div>
         <p className="muted mobile-accruing-detail-progress-label">
-          {Math.round(progress * 100)}% through this month’s cycle
+          {Math.round(progress * 100)}% through this month’s cycle · accrued{' '}
+          {formatCurrency(row.accruedAmount)}
         </p>
 
-        <dl className="snapshot-correction-facts">
-          <div>
-            <dt>Accrued so far</dt>
-            <dd>{formatCurrency(row.accruedAmount)}</dd>
+        {canEdit ? (
+          <div className="mobile-accruing-edit-fields">
+            <label className="snapshot-correction-input">
+              <span>Name</span>
+              <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
+            </label>
+            <label className="snapshot-correction-input">
+              <span>Monthly amount</span>
+              <input
+                type="text"
+                inputMode="decimal"
+                value={amount}
+                onChange={(e) => {
+                  setAmount(e.target.value)
+                  setError('')
+                }}
+              />
+            </label>
+            <label className="snapshot-correction-input">
+              <span>Due day of month</span>
+              <input
+                type="number"
+                min={1}
+                max={31}
+                value={dueDay}
+                onChange={(e) => {
+                  setDueDay(e.target.value)
+                  setError('')
+                }}
+              />
+            </label>
+            <label className="snapshot-correction-input">
+              <span>Applies to</span>
+              <select value={scopeKey} onChange={(e) => setScopeKey(e.target.value)}>
+                {scopeOptions.map((opt) => (
+                  <option key={`${opt.level}:${opt.id}`} value={`${opt.level}:${opt.id}`}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            {error ? <p className="snapshot-correction-error">{error}</p> : null}
           </div>
-          <div>
-            <dt>Monthly amount</dt>
-            <dd>{formatCurrency(commitment.amount)}</dd>
-          </div>
-          {dueDay ? (
+        ) : (
+          <dl className="snapshot-correction-facts">
             <div>
-              <dt>Due</dt>
-              <dd>{dueDay} each month</dd>
+              <dt>Monthly amount</dt>
+              <dd>{formatCurrency(commitment.amount)}</dd>
             </div>
-          ) : null}
-          <div>
-            <dt>Daily rate</dt>
-            <dd>{formatCurrency(getAccruingRowDailyRate(row))}/day</dd>
-          </div>
-        </dl>
+            {commitment.dueDayOfMonth != null ? (
+              <div>
+                <dt>Due</dt>
+                <dd>{ordinalDay(commitment.dueDayOfMonth)} each month</dd>
+              </div>
+            ) : null}
+            <div>
+              <dt>Daily rate</dt>
+              <dd>{formatCurrency(getAccruingRowDailyRate(row))}/day</dd>
+            </div>
+            {isReserve ? (
+              <div>
+                <dt>Note</dt>
+                <dd>Reserve accruals are edited in the Reserve Planner.</dd>
+              </div>
+            ) : null}
+          </dl>
+        )}
 
         <div className="planned-funding-actions">
-          <button type="button" className="btn-primary btn-tiny" onClick={onClose}>
-            Close
+          <button type="button" className="btn-ghost btn-tiny" onClick={onClose}>
+            {canEdit ? 'Cancel' : 'Close'}
           </button>
+          {canEdit ? (
+            <button type="button" className="btn-primary btn-tiny" onClick={handleSave}>
+              Save
+            </button>
+          ) : null}
         </div>
       </div>
     </div>,

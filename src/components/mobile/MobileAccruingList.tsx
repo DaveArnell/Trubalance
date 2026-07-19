@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import type { AppState, CommitmentAccruingRow, ViewScope } from '../../types'
+import type { AppState, Commitment, CommitmentAccruingRow, ViewScope } from '../../types'
 import { filterAccruingRowsForView, getScopeItemLabel } from '../../utils/scope'
 import { getAccrualProgress } from '../../utils/commitmentCalculations'
 import {
@@ -12,6 +12,7 @@ import { getReferenceDate } from '../../utils/referenceDate'
 import { ordinalDay } from '../committed/shared'
 import type { CommitmentViews } from '../../types'
 import type { AccruingOrderMode } from '../../contexts/DashboardViewPreferencesContext'
+import { getCommitmentScopeOptionsForView } from '../../utils/scope'
 import { MobileRecordCard, MobileRecordList } from './MobileRecordList'
 import { MobileAccruingDetailModal } from './MobileAccruingDetailModal'
 
@@ -19,8 +20,9 @@ interface MobileAccruingListProps {
   state: AppState
   viewScope: ViewScope
   commitmentViews: CommitmentViews
-  /** grouped = user sort order; timeline = next due first */
   orderMode?: AccruingOrderMode
+  onSaveCommitment?: (id: string, patch: Partial<Commitment>) => void
+  onSaveDueDay?: (commitment: Commitment, dueDayOfMonth: number) => void
 }
 
 function accruingMeta(state: AppState, row: CommitmentAccruingRow) {
@@ -43,8 +45,14 @@ export function MobileAccruingList({
   viewScope,
   commitmentViews,
   orderMode = 'timeline',
+  onSaveCommitment,
+  onSaveDueDay,
 }: MobileAccruingListProps) {
   const [selected, setSelected] = useState<CommitmentAccruingRow | null>(null)
+  const scopeOptions = useMemo(
+    () => getCommitmentScopeOptionsForView(state, viewScope),
+    [state, viewScope],
+  )
 
   const rows = useMemo(() => {
     const filtered = filterAccruingRowsForView(commitmentViews.buildingUp, viewScope)
@@ -73,6 +81,7 @@ export function MobileAccruingList({
               meta={accruingMeta(state, row)}
               progress={progress}
               progressColor={accent}
+              accentColor={accent}
               onClick={() => setSelected(row)}
             />
           )
@@ -83,7 +92,14 @@ export function MobileAccruingList({
           state={state}
           row={selected}
           accentColor={rowAccent(state, selected)}
+          scopeOptions={scopeOptions}
           onClose={() => setSelected(null)}
+          onSave={
+            onSaveCommitment
+              ? (patch) => onSaveCommitment(selected.commitment.id, patch)
+              : undefined
+          }
+          onSaveDueDay={onSaveDueDay}
         />
       ) : null}
     </>

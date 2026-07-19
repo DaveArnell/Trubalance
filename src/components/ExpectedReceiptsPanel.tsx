@@ -16,6 +16,7 @@ import { RECEIPTS_COLUMNS } from '../utils/sheetColumnSpecs'
 import { normalizeReceiptDateInput, getEffectiveReceiptAmount, formatReceiptDateDisplay } from '../utils/receiptCalculations'
 import { InlineNumberCell, InlineTextCell, ScopeSelectCell } from './SheetInlineCells'
 import { MobileReceiptsList } from './mobile/MobileReceiptsList'
+import { MarkReceivedConfirmButton } from './committed/MarkPaidConfirmModal'
 
 interface ExpectedReceiptsPanelProps {
   state: AppState
@@ -242,14 +243,17 @@ export function ExpectedReceiptsPanel({
                     {!editReadOnly && (
                     <td className="sheet-actions">
                       <div className="sheet-action-group">
-                        <button
-                          type="button"
-                          className="btn-primary btn-tiny"
-                          disabled={item.received}
-                          onClick={() => actions.markReceiptReceived(item.id)}
-                        >
-                          {item.received ? 'Received' : 'Mark received'}
-                        </button>
+                        {item.received ? (
+                          <button type="button" className="btn-primary btn-tiny" disabled>
+                            Received
+                          </button>
+                        ) : (
+                          <MarkReceivedConfirmButton
+                            itemLabel={item.name}
+                            expectedTotal={item.amount}
+                            onConfirm={(amount) => actions.markReceiptReceived(item.id, amount)}
+                          />
+                        )}
                         <DuplicateRowButton onClick={() => actions.duplicateReceipt(item.id)} />
                         <button
                           type="button"

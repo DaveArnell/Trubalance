@@ -320,6 +320,8 @@ export function CommittedFundsPanel({
                 viewScope={viewScope}
                 commitmentViews={commitmentViews}
                 orderMode={accruingOrderMode}
+                onSaveCommitment={(id, patch) => actions.updateCommitment(id, patch)}
+                onSaveDueDay={saveMonthlyDueDay}
               />
             ) : (
               <PlatformSheetWrap

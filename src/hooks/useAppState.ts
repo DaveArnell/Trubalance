@@ -1052,24 +1052,48 @@ export function useAppState(options?: UseAppStateOptions) {
       )
     })
 
-  const markReceiptReceived = (id: string) =>
+  const markReceiptReceived = (id: string, receivedAmount?: number) => {
+    requestImmediatePersist()
     update((s) => {
       const existing = s.expectedReceipts.find((r) => r.id === id)
       if (!existing) return s
       const receivedDate = todayDateKey()
+      const expected = roundCurrency(toAmount(existing.amount))
+      const resolved =
+        receivedAmount != null ? roundCurrency(toAmount(receivedAmount)) : expected
+      const amountCorrected = resolved !== expected
+      const period = receivedDate.slice(0, 7)
+
+      const merged: ExpectedReceipt = {
+        ...existing,
+        received: true,
+        receivedDate,
+        ...(amountCorrected
+          ? {
+              periodAmountOverrides: {
+                ...(existing.periodAmountOverrides ?? {}),
+                [period]: resolved,
+              },
+            }
+          : {}),
+      }
+
       const nextState: AppState = {
         ...s,
-        expectedReceipts: s.expectedReceipts.map((r) =>
-          r.id === id ? { ...r, received: true, receivedDate } : r,
-        ),
+        expectedReceipts: s.expectedReceipts.map((r) => (r.id === id ? merged : r)),
       }
       return refreshSnapshotsForScopes(
         nextState,
-        getScopesForReceipt(nextState, existing),
-        getReceiptActiveFromDateKey(existing),
+        getScopesForReceipt(nextState, merged),
+        amountCorrected
+          ? getReceiptRebuildFromDateKey(existing, {
+              periodAmountOverrides: merged.periodAmountOverrides,
+            })
+          : getReceiptActiveFromDateKey(existing),
         new Date().toISOString(),
       )
     })
+  }
 
   const deleteReceipt = (id: string) =>
     update((s) => {

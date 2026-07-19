@@ -9,6 +9,7 @@ import {
 } from '../../utils/commitmentCalculations'
 import { getScopeItemLabel } from '../../utils/scope'
 import { formatCurrency } from '../../utils/format'
+import { chartColorForScope } from '../../utils/businessTheme'
 import type { AppActions } from '../../hooks/useAppState'
 import { MarkPaidConfirmButton } from '../committed/MarkPaidConfirmModal'
 import { MobileRecordCard, MobileRecordList, MobileSectionLabel } from './MobileRecordList'
@@ -53,6 +54,9 @@ export function MobileDueList({
             const scopeLabel = isReserveTransfer
               ? 'Reserve transfer'
               : getScopeItemLabel(state, item.scopeLevel, item.scopeId)
+            const accent = isReserveTransfer
+              ? undefined
+              : chartColorForScope(state, { type: item.scopeLevel, id: item.scopeId })
 
             const metaParts = [scopeLabel, timing, rolled].filter(Boolean)
 
@@ -63,6 +67,7 @@ export function MobileDueList({
                 amount={formatCurrency(row.amount)}
                 amountNegative
                 meta={metaParts.join(' · ')}
+                accentColor={accent}
                 actions={
                   isReserveTransfer && row.reservePlannerId ? (
                     <button
@@ -73,27 +78,26 @@ export function MobileDueList({
                       Open planner
                     </button>
                   ) : isReserveBill && row.reservePlannerId && row.reserveBillId ? (
-                    <button
-                      type="button"
-                      className="btn-primary btn-tiny"
-                      onClick={() =>
+                    <MarkPaidConfirmButton
+                      itemLabel={item.name}
+                      expectedTotal={row.amount}
+                      buttonLabel="Paid"
+                      onConfirm={() =>
                         actions.markReserveBillPaid(row.reservePlannerId!, row.reserveBillId!)
                       }
-                    >
-                      Mark paid
-                    </button>
+                    />
                   ) : isPlanned ? (
-                    <button
-                      type="button"
-                      className="btn-primary btn-tiny"
-                      onClick={() => actions.deleteCommitment(item.id)}
-                    >
-                      Mark paid
-                    </button>
+                    <MarkPaidConfirmButton
+                      itemLabel={item.name}
+                      expectedTotal={row.amount}
+                      buttonLabel="Paid"
+                      onConfirm={() => actions.deleteCommitment(item.id)}
+                    />
                   ) : (
                     <MarkPaidConfirmButton
                       itemLabel={item.name}
                       expectedTotal={getCommitmentPayoffExpectedTotal(item)}
+                      buttonLabel="Paid"
                       onConfirm={(amount) => actions.markCommitmentPaid(item.id, amount)}
                     />
                   )

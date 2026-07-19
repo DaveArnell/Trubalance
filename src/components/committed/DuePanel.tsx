@@ -656,24 +656,19 @@ export function DuePanel({
                                 Open planner
                               </button>
                             ) : isReserveBill && row.reservePlannerId && row.reserveBillId ? (
-                              <button
-                                type="button"
-                                className="btn-primary btn-tiny"
-                                onClick={(e) => {
-                                  e.stopPropagation()
+                              <MarkPaidConfirmButton
+                                itemLabel={item.name}
+                                expectedTotal={row.amount}
+                                onConfirm={() =>
                                   actions.markReserveBillPaid(row.reservePlannerId!, row.reserveBillId!)
-                                }}
-                              >
-                                Paid
-                              </button>
+                                }
+                              />
                             ) : isPlanned ? (
-                              <button
-                                type="button"
-                                className="btn-primary btn-tiny"
-                                onClick={() => actions.deleteCommitment(item.id)}
-                              >
-                                Paid
-                              </button>
+                              <MarkPaidConfirmButton
+                                itemLabel={item.name}
+                                expectedTotal={row.amount}
+                                onConfirm={() => actions.deleteCommitment(item.id)}
+                              />
                             ) : (
                               <MarkPaidConfirmButton
                                 itemLabel={item.name}
