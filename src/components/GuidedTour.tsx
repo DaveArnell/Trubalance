@@ -13,6 +13,29 @@ interface SpotlightRect {
 const PAD = 10
 const TARGET_CLASS = 'guided-tour-target'
 const MASK_ID = 'guided-tour-spotlight-mask'
+const CARD_WIDTH = 460
+const CARD_HEIGHT = 420
+const CARD_MAX_WIDTH = 'min(30rem, calc(100vw - 2rem))'
+
+function toEmbedUrl(url: string): string {
+  try {
+    const parsed = new URL(url)
+    if (parsed.hostname.includes('youtube.com') && parsed.searchParams.get('v')) {
+      return `https://www.youtube.com/embed/${parsed.searchParams.get('v')}?rel=0`
+    }
+    if (parsed.hostname === 'youtu.be') {
+      const id = parsed.pathname.replace(/^\//, '')
+      if (id) return `https://www.youtube.com/embed/${id}?rel=0`
+    }
+    if (parsed.hostname.includes('vimeo.com')) {
+      const id = parsed.pathname.split('/').filter(Boolean).pop()
+      if (id) return `https://player.vimeo.com/video/${id}`
+    }
+  } catch {
+    /* use as-is */
+  }
+  return url
+}
 
 function TourOverlay({
   rect,
@@ -65,6 +88,51 @@ function TourOverlay({
   )
 }
 
+function TourMedia({
+  videoUrl,
+  videoLabel,
+  open,
+  onToggle,
+}: {
+  videoUrl?: string
+  videoLabel?: string
+  open: boolean
+  onToggle: () => void
+}) {
+  const label = videoLabel || 'Watch video'
+
+  return (
+    <div className="guided-tour-media">
+      <button type="button" className="btn-secondary btn-tiny guided-tour-media-toggle" onClick={onToggle}>
+        {open ? 'Hide video' : label}
+      </button>
+      {open ? (
+        <div className="guided-tour-media-frame">
+          {videoUrl ? (
+            <iframe
+              className="guided-tour-media-embed"
+              src={toEmbedUrl(videoUrl)}
+              title={label}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          ) : (
+            <div className="guided-tour-media-placeholder" role="status">
+              <span className="guided-tour-media-play" aria-hidden>
+                ▶
+              </span>
+              <p>Video coming soon</p>
+              <p className="guided-tour-media-placeholder-hint">
+                A short walkthrough for this step will appear here.
+              </p>
+            </div>
+          )}
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
 export function GuidedTour() {
   const { activeTour, nextStep, prevStep, skipTour, completeTour } = useTour()
   const [isMobile, setIsMobile] = useState(
@@ -72,6 +140,7 @@ export function GuidedTour() {
   )
   const [rect, setRect] = useState<SpotlightRect | null>(null)
   const [missingTarget, setMissingTarget] = useState(false)
+  const [mediaOpen, setMediaOpen] = useState(false)
   const targetRef = useRef<Element | null>(null)
   const maskId = useId().replace(/:/g, '')
 
@@ -123,6 +192,10 @@ export function GuidedTour() {
   }, [step?.id, step?.target])
 
   useEffect(() => {
+    setMediaOpen(false)
+  }, [step?.id])
+
+  useEffect(() => {
     if (!activeTour) return
     const onResize = () => measureTarget()
     window.addEventListener('resize', onResize)
@@ -162,9 +235,10 @@ export function GuidedTour() {
 
   if (!activeTour || !step || isMobile) return null
 
+  const cardHeight = mediaOpen ? CARD_HEIGHT + 180 : CARD_HEIGHT
+
   const tooltipStyle = (): CSSProperties => {
-    const cardWidth = 320
-    const cardHeight = 220
+    const cardWidth = CARD_WIDTH
     const margin = 12
     const gap = 14
 
@@ -173,7 +247,7 @@ export function GuidedTour() {
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        maxWidth: '22rem',
+        maxWidth: CARD_MAX_WIDTH,
       }
     }
 
@@ -205,44 +279,65 @@ export function GuidedTour() {
       return {
         top: Math.min(Math.max(margin, rect.top), vh - cardHeight - margin),
         left: rect.left + rect.width + gap,
-        maxWidth: '18rem',
+        maxWidth: CARD_MAX_WIDTH,
       }
     }
     if (placement === 'left') {
       return {
         top: Math.min(Math.max(margin, rect.top), vh - cardHeight - margin),
         right: vw - rect.left + gap,
-        maxWidth: '18rem',
+        maxWidth: CARD_MAX_WIDTH,
       }
     }
     if (placement === 'top') {
       return {
         bottom: vh - rect.top + gap,
         left: Math.min(Math.max(margin, rect.left), vw - cardWidth - margin),
-        maxWidth: '20rem',
+        maxWidth: CARD_MAX_WIDTH,
       }
     }
     return {
       top: rect.top + rect.height + gap,
       left: Math.min(Math.max(margin, rect.left), vw - cardWidth - margin),
-      maxWidth: '20rem',
+      maxWidth: CARD_MAX_WIDTH,
     }
   }
+
+  const bodyParagraphs = step.body
+    .split(/\n\n+/)
+    .map((part) => part.trim())
+    .filter(Boolean)
 
   return createPortal(
     <div className="guided-tour-root" role="presentation">
       <TourOverlay rect={rect} maskId={maskId || MASK_ID} onDismiss={skipTour} />
-      <div className="guided-tour-card" style={tooltipStyle()} role="dialog" aria-labelledby="guided-tour-title">
+      <div
+        className={`guided-tour-card${mediaOpen ? ' guided-tour-card--media-open' : ''}`}
+        style={tooltipStyle()}
+        role="dialog"
+        aria-labelledby="guided-tour-title"
+      >
         <p className="guided-tour-kicker">
           {activeTour.tour.title} · Step {stepNumber} of {stepCount}
         </p>
         <h3 id="guided-tour-title">{step.title}</h3>
-        <p className="guided-tour-body">{step.body}</p>
+        <div className="guided-tour-body">
+          {bodyParagraphs.map((paragraph, index) => (
+            <p key={index}>{paragraph}</p>
+          ))}
+        </div>
         {missingTarget && (
           <p className="guided-tour-missing muted">
-            This section is not visible right now — try expanding a panel or switching page, then use Back.
+            This section is not visible right now — try expanding a panel or switching page, then use
+            Back.
           </p>
         )}
+        <TourMedia
+          videoUrl={step.videoUrl}
+          videoLabel={step.videoLabel}
+          open={mediaOpen}
+          onToggle={() => setMediaOpen((value) => !value)}
+        />
         <div className="guided-tour-actions">
           <button type="button" className="btn-ghost btn-tiny" onClick={skipTour}>
             Skip tour

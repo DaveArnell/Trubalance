@@ -236,7 +236,7 @@ export function CommittedFundsPanel({
               text={WIDGET_HELP.committedFunds}
             />
           </div>
-          <div className="card-head-actions">
+          <div className="card-head-actions" data-tour="committed-views">
             <div className="view-mode-toggle" role="group" aria-label="Monthly accruing view">
               <button
                 type="button"
