@@ -91,12 +91,45 @@ function useActiveRoute() {
   return [route, setRoute] as const
 }
 
-function AppTourBridge({ activePage }: { activePage: PageId }) {
-  const { setActivePageId } = useTour()
+function AppTourBridge({
+  activePage,
+  onNavigate,
+}: {
+  activePage: PageId
+  onNavigate: (pageId: PageId, reservePlannerId?: string | null) => void
+}) {
+  const { setActivePageId, activeTour } = useTour()
+  const step = activeTour?.tour.steps[activeTour.stepIndex]
 
   useEffect(() => {
     setActivePageId(activePage)
   }, [activePage, setActivePageId])
+
+  useEffect(() => {
+    if (!step?.page || step.page === activePage) return
+    onNavigate(step.page)
+  }, [step?.id, step?.page, activePage, onNavigate])
+
+  return null
+}
+
+function PendingSetupTourStarter({
+  pending,
+  onStarted,
+}: {
+  pending: boolean
+  onStarted: () => void
+}) {
+  const { startSetupTour } = useTour()
+
+  useEffect(() => {
+    if (!pending) return
+    const timer = window.setTimeout(() => {
+      startSetupTour()
+      onStarted()
+    }, 400)
+    return () => window.clearTimeout(timer)
+  }, [pending, startSetupTour, onStarted])
 
   return null
 }
@@ -359,8 +392,12 @@ function AppShellInner({
     void trackEvent('setup_started', user.id)
   }, [setupWizardOpen, user?.id])
 
+  const [pendingSetupTour, setPendingSetupTour] = useState(false)
+
   const handleSetupComplete = async () => {
     setSetupWizardOpen(false)
+    goToRoute('committed-funds')
+    setPendingSetupTour(true)
     if (user?.id && !onboardingCompleted) {
       await markOnboardingComplete(user.id)
       await refreshProfile()
@@ -690,7 +727,11 @@ function AppShellInner({
           onUndo={handleUndo}
           onRedo={handleRedo}
         />
-        <AppTourBridge activePage={activePage} />
+        <AppTourBridge activePage={activePage} onNavigate={goToRoute} />
+        <PendingSetupTourStarter
+          pending={pendingSetupTour}
+          onStarted={() => setPendingSetupTour(false)}
+        />
         <GuidedTour />
         {setupWizardOpen && !isDemoSession && (
           <GuidedSetupWizard

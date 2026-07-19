@@ -14,8 +14,8 @@ export function SetupTourBanner({
   return (
     <div className="onboarding-banner" role="status">
       <span>
-        <strong>New to True Balance?</strong> Follow the guided setup — we will walk you through your
-        business, balances, and what is already spoken for.
+        <strong>New to True Balance?</strong> A short guide explains how it works, then we help you
+        set up balances and costs on your live dashboard.
       </span>
       <button type="button" className="btn-primary btn-tiny" onClick={onStart}>
         Start setup guide

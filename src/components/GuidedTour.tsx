@@ -134,7 +134,7 @@ function TourMedia({
 }
 
 export function GuidedTour() {
-  const { activeTour, nextStep, prevStep, skipTour, completeTour } = useTour()
+  const { activeTour, activePageId, nextStep, prevStep, skipTour, completeTour } = useTour()
   const [isMobile, setIsMobile] = useState(
     () => typeof window !== 'undefined' && window.matchMedia(MOBILE_LAYOUT_MQ).matches,
   )
@@ -189,7 +189,14 @@ export function GuidedTour() {
   useLayoutEffect(() => {
     measureTarget()
     return () => clearTargetHighlight()
-  }, [step?.id, step?.target])
+  }, [step?.id, step?.target, activePageId])
+
+  useEffect(() => {
+    if (!activeTour || !step?.page) return
+    // Remeasure after page widgets mount
+    const timer = window.setTimeout(measureTarget, 350)
+    return () => window.clearTimeout(timer)
+  }, [activePageId, step?.id, step?.page, activeTour])
 
   useEffect(() => {
     setMediaOpen(false)

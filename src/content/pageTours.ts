@@ -6,6 +6,8 @@ export interface TourStep {
   title: string
   body: string
   placement?: 'top' | 'bottom' | 'left' | 'right'
+  /** Navigate to this page before spotlighting the target */
+  page?: PageId
   /** Optional walkthrough clip; omit = show placeholder CTA */
   videoUrl?: string
   videoLabel?: string
@@ -20,50 +22,56 @@ export interface PageTour {
 
 export const SETUP_TOUR: PageTour = {
   id: 'setup',
-  title: 'Getting started',
-  description: 'A quick replay of the setup guide.',
+  title: 'Set up your dashboard',
+  description: 'Add your real numbers where you’ll use them every day.',
   steps: [
-    {
-      id: 'setup-welcome',
-      target: '[data-tour="overview-hero"]',
-      title: 'Your True Balance',
-      body: 'True Balance shows how much money is genuinely available once money already spoken for has been accounted for.\n\nIt sits at the top of the app so you always have that number in view while you work through costs, due items, and receipts.',
-      placement: 'bottom',
-    },
-    {
-      id: 'setup-scope',
-      target: '[data-tour="sidebar-scope"]',
-      title: 'Your business',
-      body: 'Use the tree on the left to switch between your whole group, a single business, or one site.\n\nEverything on the page — balances, costs, due items, and charts — follows this scope, so you can zoom in without losing the bigger picture.',
-      placement: 'right',
-    },
     {
       id: 'setup-balances',
       target: '[data-tour="overview-balances"]',
-      title: 'Your cash',
-      body: 'Enter current account balances here. This gives True Balance its starting point and builds your trend history.\n\nSave regularly — each save becomes a point on Trends and a day you can revisit in History.',
+      title: 'Add your current accounts',
+      body: 'Enter what’s in each current account right now. That gives True Balance its starting point.\n\nSave when you’re done — each save also feeds Trends and History.',
       placement: 'left',
+      page: 'committed-funds',
     },
     {
       id: 'setup-committed',
       target: '[data-widget-id="committed-funds"]',
-      title: 'Regular predictable bills',
-      body: 'Monthly costs that always come out — rent, payroll, subscriptions, loan repayments. They accrue daily so you can see exactly how much is spoken for at any point in the month.\n\nUse this for steady recurring costs. One-off or irregular bills belong in Reserve Planner instead.',
+      title: 'Add monthly accruing costs',
+      body: 'Rent, wages, subscriptions — regular bills that build up a little every day.\n\nAdd one row per recurring cost here. You’ll see them accrue through the month, then move to Due when payment is due.',
       placement: 'top',
+      page: 'committed-funds',
+    },
+    {
+      id: 'setup-due',
+      target: '[data-widget-id="due"]',
+      title: 'Due and one-off costs',
+      body: 'Anything ready to pay lands here — monthly bills at their due date, plus one-offs you earmark or build up toward.\n\nAdd planned costs here when you know the date and amount.',
+      placement: 'top',
+      page: 'committed-funds',
+    },
+    {
+      id: 'setup-receipts',
+      target: '[data-widget-id="expected-receipts"]',
+      title: 'Expected receipts',
+      body: 'Money you know is coming — invoices, grants, refunds. Add them here so True Balance can count them in.\n\nMark Received when the cash lands.',
+      placement: 'top',
+      page: 'committed-funds',
     },
     {
       id: 'setup-reserve',
-      target: '[data-tour="nav-reserve-planner"]',
-      title: 'Big bills',
-      body: 'VAT, corporation tax, and insurance often catch businesses out because they land in lumps, not every month.\n\nReserve Planner helps you put money aside before those bills arrive, then surfaces them in Due when payment is due.',
-      placement: 'right',
+      target: '[data-tour="reserve-planner-month"], [data-tour="reserve-empty"]',
+      title: 'Set up your reserve',
+      body: 'VAT, tax, and insurance often land in lumps. Add those bills here and the planner will tell you how much to move into savings each month.\n\nYou can skip this for now and come back later — it’s always in the sidebar.',
+      placement: 'bottom',
+      page: 'reserve-planner',
     },
     {
-      id: 'setup-accuracy',
-      target: '[data-tour="overview-balances"]',
-      title: 'Keep it accurate',
-      body: 'Update balances regularly and mark payments as paid when they leave the account.\n\nThe more up to date the data is, the more useful your True Balance, forecasts, and trends become.',
-      placement: 'left',
+      id: 'setup-true-balance',
+      target: '[data-tour="overview-hero"]',
+      title: 'Your True Balance',
+      body: 'As you add balances and costs, this number updates — cash minus what’s spoken for, plus realistic receipts.\n\nThat’s the figure to trust day to day. Update balances and mark Paid / Received to keep it honest.',
+      placement: 'bottom',
+      page: 'committed-funds',
     },
   ],
 }

@@ -1,6 +1,6 @@
-import { useMemo, useState, type ReactNode } from 'react'
+import { useCallback, useMemo, useState, type ReactNode } from 'react'
 import type { AppActions } from '../../hooks/useAppState'
-import type { GraphRange } from '../../types'
+import type { AppState, GraphRange, ReserveMonthConfirmInput } from '../../types'
 import {
   buildDemoScenarioState,
   DEFAULT_DEMO_SCENARIO_ID,
@@ -74,31 +74,6 @@ const previewReceiptActions = {
   'addReceipt' | 'updateReceipt' | 'markReceiptReceived' | 'deleteReceipt' | 'duplicateReceipt' | 'reorderReceipts'
 >
 
-const previewReserveActions = {
-  addReservePlanner: () => '00000000-0000-4000-8000-000000000000' as const,
-  updateReservePlanner: noop,
-  deleteReservePlanner: noop,
-  addReserveBill: noop,
-  updateReserveBill: noop,
-  deleteReserveBill: noop,
-  duplicateReserveBill: noop,
-  copyReservePlannerBillsFrom: noop,
-  reorderReserveBills: noop,
-  confirmReserveMonth: noop,
-} satisfies Pick<
-  AppActions,
-  | 'addReservePlanner'
-  | 'updateReservePlanner'
-  | 'deleteReservePlanner'
-  | 'addReserveBill'
-  | 'updateReserveBill'
-  | 'deleteReserveBill'
-  | 'duplicateReserveBill'
-  | 'copyReservePlannerBillsFrom'
-  | 'reorderReserveBills'
-  | 'confirmReserveMonth'
->
-
 interface SetupWidgetPreviewProps {
   previewId: SetupWidgetPreviewId
 }
@@ -153,12 +128,121 @@ function PreviewFrame({
   )
 }
 
+function ReservePreview({
+  meta,
+  initialState,
+  viewScope,
+}: {
+  meta: DemoScenarioMeta
+  initialState: AppState
+  viewScope: ReturnType<typeof useDemoPreviewBundle>['viewScope']
+}) {
+  const [state, setState] = useState(initialState)
+  const [openHelp, setOpenHelp] = useState<string | null>(null)
+
+  const planner = state.reservePlanners[0] ?? null
+  const reserveSummary = useMemo(
+    () => (planner ? summarizeReservePlanner(state, planner) : null),
+    [state, planner],
+  )
+
+  const confirmReserveMonth = useCallback(
+    (plannerId: string, month: string, input: ReserveMonthConfirmInput) => {
+      setState((prev) => ({
+        ...prev,
+        reservePlanners: prev.reservePlanners.map((p) =>
+          p.id === plannerId
+            ? {
+                ...p,
+                actualBalance: input.balance,
+                monthConfirmations: {
+                  ...(p.monthConfirmations ?? {}),
+                  [month]: {
+                    balance: input.balance,
+                    confirmedAt: new Date().toISOString(),
+                    operatingBalanceBefore: input.operatingBalanceBefore,
+                    transferDone: input.transferDone,
+                  },
+                },
+              }
+            : p,
+        ),
+        accounts: prev.accounts.map((a) =>
+          planner?.reserveAccountId && a.id === planner.reserveAccountId
+            ? { ...a, balance: input.balance, updatedAt: new Date().toISOString() }
+            : a,
+        ),
+      }))
+    },
+    [planner?.reserveAccountId],
+  )
+
+  const actions = useMemo(
+    () =>
+      ({
+        addReservePlanner: () => '00000000-0000-4000-8000-000000000000' as const,
+        updateReservePlanner: noop,
+        deleteReservePlanner: noop,
+        addReserveBill: noop,
+        updateReserveBill: noop,
+        deleteReserveBill: noop,
+        duplicateReserveBill: noop,
+        copyReservePlannerBillsFrom: noop,
+        reorderReserveBills: noop,
+        confirmReserveMonth,
+      }) satisfies Pick<
+        AppActions,
+        | 'addReservePlanner'
+        | 'updateReservePlanner'
+        | 'deleteReservePlanner'
+        | 'addReserveBill'
+        | 'updateReserveBill'
+        | 'deleteReserveBill'
+        | 'duplicateReserveBill'
+        | 'copyReservePlannerBillsFrom'
+        | 'reorderReserveBills'
+        | 'confirmReserveMonth'
+      >,
+    [confirmReserveMonth],
+  )
+
+  if (!reserveSummary) {
+    return <p className="muted setup-widget-preview-empty">No reserve planner in this demo.</p>
+  }
+
+  return (
+    <DemoModeProvider scenario={meta} onScenarioChange={noop} canEditDemo>
+      <ForcedCardsPreferencesProvider>
+        <PreviewFrame meta={meta} tall wide>
+          <ReservePlannerPanel
+            state={state}
+            viewScope={viewScope}
+            summary={reserveSummary}
+            reserveRouteId={planner?.id ?? null}
+            actions={actions}
+            openHelp={openHelp}
+            setOpenHelp={setOpenHelp}
+            onPlannerDeleted={noop}
+            onPlannerCreated={noop}
+          />
+        </PreviewFrame>
+      </ForcedCardsPreferencesProvider>
+    </DemoModeProvider>
+  )
+}
+
 export function SetupWidgetPreview({ previewId }: SetupWidgetPreviewProps) {
   const bundle = useDemoPreviewBundle()
   const [openHelp, setOpenHelp] = useState<string | null>(null)
   const [graphRange, setGraphRange] = useState<GraphRange>(
     previewId === 'forecast' ? '30d' : '90d',
   )
+
+  if (previewId === 'reserve') {
+    return (
+      <ReservePreview meta={bundle.meta} initialState={bundle.state} viewScope={bundle.viewScope} />
+    )
+  }
 
   const content = (() => {
     switch (previewId) {
@@ -184,22 +268,6 @@ export function SetupWidgetPreview({ previewId }: SetupWidgetPreviewProps) {
             openHelp={openHelp}
             setOpenHelp={setOpenHelp}
           />
-        )
-      case 'reserve':
-        return bundle.reserveSummary ? (
-          <ReservePlannerPanel
-            state={bundle.state}
-            viewScope={bundle.viewScope}
-            summary={bundle.reserveSummary}
-            reserveRouteId={bundle.planner?.id ?? null}
-            actions={previewReserveActions}
-            openHelp={openHelp}
-            setOpenHelp={setOpenHelp}
-            onPlannerDeleted={noop}
-            onPlannerCreated={noop}
-          />
-        ) : (
-          <p className="muted setup-widget-preview-empty">No reserve planner in this demo.</p>
         )
       case 'trends':
         return (
@@ -235,8 +303,8 @@ export function SetupWidgetPreview({ previewId }: SetupWidgetPreviewProps) {
       <ForcedCardsPreferencesProvider>
         <PreviewFrame
           meta={bundle.meta}
-          tall={previewId === 'reserve' || previewId === 'trends'}
-          wide={previewId === 'reserve'}
+          tall={previewId === 'trends'}
+          wide={false}
         >
           {content}
         </PreviewFrame>

@@ -10,7 +10,7 @@ export function SetupDueCardsDemo() {
       <div className="setup-edu-card-demo setup-edu-due-demo">
         <div className="setup-edu-due-demo-head">
           <p className="setup-edu-card-demo-label">Due</p>
-          <p className="setup-edu-due-demo-total">TOTAL {formatCurrency(20900)}</p>
+          <p className="setup-edu-due-demo-total">TOTAL {formatCurrency(13179)}</p>
         </div>
         <MobileRecordList>
           <MobileSectionLabel>Monthly bill — due now</MobileSectionLabel>

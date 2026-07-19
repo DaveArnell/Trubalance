@@ -1,4 +1,5 @@
 import type { PageId } from '../navigation'
+import type { IncomePattern } from '../types'
 
 export interface SetupOnboardingStep {
   id: string
@@ -9,11 +10,13 @@ export interface SetupOnboardingStep {
   /** CSS selector to highlight on the dashboard while this step is active */
   spotlight?: string
   skippable?: boolean
+  /** Only include when income pattern is lumpy */
+  lumpyOnly?: boolean
 }
 
 /**
- * Flow: intro → structure → balances → teach the product → then set up one business
- * (monthly costs, planned costs, receipts, reserve) → wrap up.
+ * Teach-first flow: intro → structure → concept demos → hand off to the live dashboard.
+ * Data entry (balances, costs, receipts, reserve) continues via the setup tour on the app.
  */
 export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
   {
@@ -27,12 +30,6 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     title: 'Your businesses and accounts.',
     explain:
       'Add the businesses and venues you want to track, plus their bank accounts. Keep it simple — you can add more later.',
-  },
-  {
-    id: 'cash',
-    title: 'Today’s bank balances.',
-    explain:
-      'Enter what’s in each account right now. That’s the starting point for True Balance.',
   },
   {
     id: 'committed-explain',
@@ -68,9 +65,9 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
   },
   {
     id: 'reserve',
-    title: 'Reserve — big bills.',
+    title: 'Reserve — money set aside.',
     explain:
-      'VAT and similar bills need saving for. The Reserve Planner says how much to move into savings each month.\n\nBuffer is optional spare cash if a bill comes in higher than planned.\n\nThe example is a new month — see the transfer, then set up your own when ready.',
+      'Some costs land in lumps — VAT, insurance, tax. The Reserve Planner turns those into a monthly transfer into savings, so the money is ready when the bill arrives.\n\nTry the check-in below: tick Transfer done, confirm, and you’ll see the new reserve balance.',
     page: 'reserve-planner',
     spotlight: '[data-tour="reserve-planner-month"]',
     skippable: true,
@@ -87,60 +84,25 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     id: 'forecast-explain',
     title: 'Forecast.',
     explain:
-      'Forecast looks ahead at money out and money in. Use it to spot tight weeks early.',
+      'Because income arrives in lumps for you, Forecast looks ahead at money out and money in — useful for spotting quiet weeks early.',
     page: 'forecast',
     spotlight: '[data-widget-id="forecast-cash-outlook"]',
+    lumpyOnly: true,
   },
   {
-    id: 'committed',
-    title: 'Add monthly bills for this business.',
+    id: 'handoff',
+    title: 'Now set it up on your dashboard.',
     explain:
-      'Pick the business you’re setting up. Tick the regular bills that apply — or type your own. You can add more later in the app.',
+      'You’ve seen how it works. Next we’ll open your live dashboard and walk you through adding balances, monthly costs, due items, and receipts — then your reserve plan.\n\nIt’s quicker to fill these in where you’ll use them every day.',
     page: 'committed-funds',
-    spotlight: '[data-widget-id="committed-funds"]',
-  },
-  {
-    id: 'setup-planned',
-    title: 'Any one-off costs?',
-    explain:
-      'Optional — tax, equipment, deposits. Skip if nothing applies yet.',
-    page: 'committed-funds',
-    spotlight: '[data-widget-id="due"]',
-  },
-  {
-    id: 'setup-receipts',
-    title: 'Any money coming in?',
-    explain:
-      'Optional — invoices, grants, refunds you already know about.',
-    page: 'committed-funds',
-    spotlight: '[data-widget-id="expected-receipts"]',
-  },
-  {
-    id: 'setup-reserve',
-    title: 'Set up your reserve plan.',
-    explain:
-      'Optional — add a buffer and big bills for this business. Skip and do it later if you prefer.',
-    page: 'reserve-planner',
-    spotlight: '[data-tour="reserve-planner-month"]',
-    skippable: true,
-  },
-  {
-    id: 'reveal',
-    title: 'Here’s your True Balance.',
-    explain:
-      'Bank balance minus what’s spoken for. That’s the number to trust.',
-    page: 'committed-funds',
-    spotlight: '[data-tour="overview-hero"]',
-  },
-  {
-    id: 'accuracy',
-    title: 'Your simple routine.',
-    explain:
-      'Update balances. Mark bills Paid when you pay them. Check the Reserve Planner once a month. That’s it.',
-    page: 'committed-funds',
-    spotlight: '[data-tour="overview-balances"]',
   },
 ]
+
+export function getSetupOnboardingSteps(incomePattern: IncomePattern): SetupOnboardingStep[] {
+  return SETUP_ONBOARDING_STEPS.filter(
+    (step) => !step.lumpyOnly || incomePattern === 'lumpy',
+  )
+}
 
 export const INCOME_PATTERN_HINTS: Record<'steady' | 'lumpy', string> = {
   steady:
@@ -164,7 +126,6 @@ export const QUICK_COMMITMENT_TEMPLATES = [
 export const SETUP_ONBOARDING_STEP_LABELS: Record<string, string> = {
   why: 'Introduction',
   business: 'Structure',
-  cash: 'Balances',
   'committed-explain': 'Accruing',
   'month-view': 'Month view',
   'due-explain': 'Due costs',
@@ -172,12 +133,7 @@ export const SETUP_ONBOARDING_STEP_LABELS: Record<string, string> = {
   reserve: 'Reserve',
   'trends-explain': 'Trends',
   'forecast-explain': 'Forecast',
-  committed: 'Monthly bills',
-  'setup-planned': 'One-offs',
-  'setup-receipts': 'Money in',
-  'setup-reserve': 'Your reserve',
-  reveal: 'True Balance',
-  accuracy: 'Your routine',
+  handoff: 'Your dashboard',
 }
 
 export const SETUP_ONBOARDING_DISMISSED_KEY = 'trubalance-setup-onboarding-dismissed-v1'
