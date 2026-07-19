@@ -12187,10 +12187,10 @@ tr.sheet-row--received td {
 .mobile-record-card-title,
 .mobile-record-card h3.mobile-record-card-title {
   margin: 0;
-  font-size: 1.35rem;
-  font-weight: 900;
-  line-height: 1.15;
-  letter-spacing: -0.03em;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
   color: #000;
   word-break: break-word;
 }
@@ -12284,10 +12284,10 @@ tr.sheet-row--received td {
   .mobile-record-card h3.mobile-record-card-title {
     margin: 0;
     max-width: 100%;
-    font-size: 2.15rem;
-    font-weight: 900;
-    line-height: 1.02;
-    letter-spacing: -0.045em;
+    font-size: 1.28rem;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.025em;
     color: #000;
     white-space: nowrap;
     overflow: hidden;
