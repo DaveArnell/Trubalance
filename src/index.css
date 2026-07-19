@@ -18356,6 +18356,48 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   flex-direction: column;
   gap: 6px;
   min-height: 7rem;
+  position: relative;
+}
+
+.setup-accruing-cycle-card-wrap {
+  transition: transform 0.45s ease, opacity 0.35s ease;
+}
+
+.setup-accruing-cycle-card-wrap.is-departing {
+  position: relative;
+  z-index: 2;
+  animation: setup-accruing-depart 0.7s cubic-bezier(0.33, 0.9, 0.4, 1) forwards;
+  pointer-events: none;
+}
+
+.setup-accruing-cycle-card-wrap.is-spawn {
+  animation: setup-accruing-spawn 0.55s ease both;
+}
+
+@keyframes setup-accruing-depart {
+  0% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+  35% {
+    transform: translateX(10%) scale(1.03);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(72%) scale(0.94);
+    opacity: 0;
+  }
+}
+
+@keyframes setup-accruing-spawn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .setup-accruing-cycle-arrow {
@@ -18364,6 +18406,13 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   font-size: 1.4rem;
   font-weight: 700;
   color: #0f766e;
+  transition: transform 0.35s ease, color 0.35s ease, opacity 0.35s ease;
+}
+
+.setup-accruing-cycle-arrow.is-active {
+  color: #0d9488;
+  transform: translateX(4px) scale(1.15);
+  opacity: 1;
 }
 
 .setup-accruing-cycle-empty {
@@ -18380,18 +18429,34 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   transition: opacity 0.35s ease, transform 0.35s ease;
 }
 
-.setup-accruing-cycle-due-wrap.is-paid {
-  opacity: 0.45;
-  transform: scale(0.98);
+.setup-accruing-cycle-due-wrap.is-arriving {
+  animation: setup-accruing-arrive 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.setup-accrual-caption {
-  font-size: 0.88rem;
-  color: var(--text-secondary);
-  text-align: center;
-  max-width: 40rem;
-  margin: 0 auto;
-  line-height: 1.55;
+.setup-accruing-cycle-due-wrap.is-paid {
+  animation: setup-accruing-paid 0.75s ease forwards;
+}
+
+@keyframes setup-accruing-arrive {
+  from {
+    opacity: 0;
+    transform: translateX(-28px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes setup-accruing-paid {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.94) translateY(-6px);
+  }
 }
 
 .setup-edu-card-demo {
@@ -18513,6 +18578,36 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
     margin: 0;
     text-align: center;
     transform: rotate(90deg);
+  }
+
+  .setup-accruing-cycle-arrow.is-active {
+    transform: rotate(90deg) translateX(4px) scale(1.15);
+  }
+
+  @keyframes setup-accruing-depart {
+    0% {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+    35% {
+      transform: translateY(8%) scale(1.02);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(55%) scale(0.94);
+      opacity: 0;
+    }
+  }
+
+  @keyframes setup-accruing-arrive {
+    from {
+      opacity: 0;
+      transform: translateY(-16px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
   }
 
   .setup-edu-annotated-row {
