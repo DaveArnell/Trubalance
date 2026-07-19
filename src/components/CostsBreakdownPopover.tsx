@@ -12,23 +12,11 @@ interface CostsBreakdownPopoverProps {
   onClose: () => void
 }
 
-function Row({
-  label,
-  value,
-  tone,
-}: {
-  label: string
-  value: number
-  tone?: 'cost' | 'receipt' | 'total'
-}) {
-  const formatted =
-    tone === 'receipt' ? `+${formatCurrency(value)}` : formatCurrency(value)
+function Row({ label, value, tone }: { label: string; value: number; tone?: 'total' }) {
   return (
     <li className={tone === 'total' ? 'costs-breakdown-row--total' : undefined}>
       <span>{label}</span>
-      <strong className={tone === 'receipt' ? 'costs-breakdown-value--receipt' : undefined}>
-        {formatted}
-      </strong>
+      <strong>{formatCurrency(value)}</strong>
     </li>
   )
 }
@@ -61,20 +49,8 @@ export function CostsBreakdownPopover({
     }
   }, [onClose])
 
-  const top = Math.min(anchorRect.bottom + 6, window.innerHeight - 280)
+  const top = Math.min(anchorRect.bottom + 6, window.innerHeight - 200)
   const left = Math.max(8, Math.min(anchorRect.right - 260, window.innerWidth - 280))
-
-  const showCostSplit =
-    !column.isSharedScope &&
-    breakdown.ofWhichSharedCosts != null &&
-    breakdown.ofWhichChildCosts != null &&
-    (breakdown.ofWhichSharedCosts > 0 || breakdown.ofWhichChildCosts > 0)
-
-  const showReceiptSplit =
-    !column.isSharedScope &&
-    breakdown.ofWhichSharedReceipts != null &&
-    breakdown.ofWhichChildReceipts != null &&
-    (breakdown.ofWhichSharedReceipts > 0 || breakdown.ofWhichChildReceipts > 0)
 
   return createPortal(
     <>
@@ -108,62 +84,6 @@ export function CostsBreakdownPopover({
           ) : null}
           <Row label="Total costs" value={breakdown.totalCosts} tone="total" />
         </ul>
-
-        {breakdown.expectedReceipts > 0 ? (
-          <>
-            <p className="costs-breakdown-section-label">Also in True Balance</p>
-            <ul className="costs-breakdown-tooltip-list">
-              <Row
-                label="Expected receipts"
-                value={breakdown.expectedReceipts}
-                tone="receipt"
-              />
-            </ul>
-          </>
-        ) : null}
-
-        {showCostSplit || showReceiptSplit ? (
-          <>
-            <p className="costs-breakdown-section-label">Of which (already in the totals above)</p>
-            <ul className="costs-breakdown-tooltip-list costs-breakdown-tooltip-list--muted">
-              {showCostSplit ? (
-                <>
-                  <Row
-                    label={breakdown.childSplitLabel ?? 'At child locations'}
-                    value={breakdown.ofWhichChildCosts!}
-                  />
-                  <Row
-                    label={breakdown.sharedSplitLabel ?? 'Shared'}
-                    value={breakdown.ofWhichSharedCosts!}
-                  />
-                </>
-              ) : null}
-              {showReceiptSplit ? (
-                <>
-                  <Row
-                    label={`${breakdown.childSplitLabel ?? 'Child'} receipts`}
-                    value={breakdown.ofWhichChildReceipts!}
-                    tone="receipt"
-                  />
-                  <Row
-                    label={`${breakdown.sharedSplitLabel ?? 'Shared'} receipts`}
-                    value={breakdown.ofWhichSharedReceipts!}
-                    tone="receipt"
-                  />
-                </>
-              ) : null}
-            </ul>
-          </>
-        ) : null}
-
-        <p className="costs-breakdown-tooltip-note muted">
-          True Balance = cash − total costs + expected receipts.
-          {column.isSharedScope
-            ? ' This column is only shared items — not venue- or business-specific costs.'
-            : showCostSplit
-              ? ' “Of which” splits the same total — it is not added on top.'
-              : ''}
-        </p>
       </div>
     </>,
     document.body,
