@@ -293,7 +293,7 @@ function AppShellInner({
   }, [isMobile, homeSection, activeRoute.page])
 
   const [openHelp, setOpenHelp] = useState<string | null>(null)
-  const [graphRange, setGraphRangeState] = useState<GraphRange>('90d')
+  const [graphRange, setGraphRangeState] = useState<GraphRange>(isDemoSession ? '12m' : '90d')
   const [trendFromDate, setTrendFromDateState] = useState<string | null>(loadTrendFromDate)
   const trendsUndoRef = useRef<Array<{ graphRange: GraphRange; trendFromDate: string | null }>>([])
   const trendsRedoRef = useRef<Array<{ graphRange: GraphRange; trendFromDate: string | null }>>([])

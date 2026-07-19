@@ -163,6 +163,6 @@ export function buildLeisureGroupDemoState(): AppState {
   }
   return {
     ...state,
-    snapshots: buildScenarioSnapshots(state, 36, LEISURE_SNAPSHOT_SCOPES),
+    snapshots: buildScenarioSnapshots(state, 48, LEISURE_SNAPSHOT_SCOPES),
   }
 }

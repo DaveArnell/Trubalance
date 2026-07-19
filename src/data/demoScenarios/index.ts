@@ -28,8 +28,8 @@ export const DEMO_SCENARIOS: readonly DemoScenarioMeta[] = [
     title: 'Summit Leisure Group',
     subtitle: 'Multi-site leisure operator',
     businessType: 'Leisure & entertainment',
-    historyLabel: '3 years of history',
-    historyMonths: 36,
+    historyLabel: '4 years of history',
+    historyMonths: 48,
     description:
       'A fictional group with three businesses and five venues — see continuous accrual of payroll and rent, VAT reserves building, and one group True Balance.',
     highlights: [
@@ -46,8 +46,8 @@ export const DEMO_SCENARIOS: readonly DemoScenarioMeta[] = [
     title: 'Cornerstone Coffee Co.',
     subtitle: 'Two-site independent café',
     businessType: 'Hospitality',
-    historyLabel: '18 months of history',
-    historyMonths: 18,
+    historyLabel: '3 years of history',
+    historyMonths: 36,
     description:
       'A growing café with a high street site and a market stall. Smaller numbers, same Method — monthly costs accruing daily, quarterly VAT reserved, one True Balance.',
     highlights: [
@@ -64,8 +64,8 @@ export const DEMO_SCENARIOS: readonly DemoScenarioMeta[] = [
     title: 'Riverside Building Ltd',
     subtitle: 'Sole trade growing into a team',
     businessType: 'Building & trades',
-    historyLabel: '24 months of history',
-    historyMonths: 24,
+    historyLabel: '3 years of history',
+    historyMonths: 36,
     description:
       'A trades business with van costs, materials, CIS and corporation tax building into today’s position. A healthy job pipeline keeps expected receipts realistic.',
     highlights: [

@@ -20,7 +20,7 @@ const CAFE_SNAPSHOT_SCOPES = [
   { id: groupId, type: 'group' as const, name: 'Cornerstone Coffee', baseTrue: 22000, growthPerMonth: 1800, seasonality: 8000 },
 ]
 
-/** Independent café with two sites — 6 months of history. */
+/** Independent café with two sites — multi-year balance history. */
 export function buildCafeDemoState(): AppState {
   const updatedAt = demoAccountUpdatedAt()
 
@@ -93,6 +93,6 @@ export function buildCafeDemoState(): AppState {
 
   return {
     ...base,
-    snapshots: buildScenarioSnapshots(base, 18, CAFE_SNAPSHOT_SCOPES),
+    snapshots: buildScenarioSnapshots(base, 36, CAFE_SNAPSHOT_SCOPES),
   }
 }

@@ -15,7 +15,7 @@ const TRADES_SNAPSHOT_SCOPES = [
   { id: bizId, type: 'business' as const, name: 'Riverside Building Ltd', baseTrue: 18000, growthPerMonth: 2200 },
 ]
 
-/** Growing building trades business — 12 months of history. */
+/** Growing building trades business — multi-year balance history. */
 export function buildTradesDemoState(): AppState {
   const updatedAt = demoAccountUpdatedAt()
 
@@ -99,6 +99,6 @@ export function buildTradesDemoState(): AppState {
 
   return {
     ...base,
-    snapshots: buildScenarioSnapshots(base, 24, TRADES_SNAPSHOT_SCOPES),
+    snapshots: buildScenarioSnapshots(base, 36, TRADES_SNAPSHOT_SCOPES),
   }
 }

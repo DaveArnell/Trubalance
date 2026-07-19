@@ -19,9 +19,9 @@ function dateKey(d: Date): string {
   return `${y}-${m}-${day}`
 }
 
-function weekDate(weeksAgo: number, today: Date): string {
+function daysAgoDate(daysAgo: number, today: Date): string {
   const d = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12, 0, 0, 0)
-  d.setDate(d.getDate() - weeksAgo * 7)
+  d.setDate(d.getDate() - daysAgo)
   return dateKey(d)
 }
 
@@ -104,7 +104,8 @@ function accountChangesForCash(
 }
 
 /**
- * Sparse history for Trends — weekly points plus monthly anchors.
+ * Deep demo history for Trends / balance log / forecasting.
+ * Weekly points across the full span, denser recent entries, plus monthly anchors.
  * Anchored to the frozen demo calendar so charts stay stable.
  */
 export function buildScenarioSnapshots(
@@ -115,8 +116,10 @@ export function buildScenarioSnapshots(
 ): BalanceSnapshot[] {
   const snapshots: BalanceSnapshot[] = []
   const seen = new Set<string>()
-  // Dense weekly history across the scenario span (balance log / Trends).
-  const weeklyPoints = Math.max(52, Math.min(156, months * 4))
+  const spanDays = Math.round(months * 30.4375)
+  const weeklyPoints = Math.ceil(spanDays / 7)
+  // Extra points every ~3 days over the last year so forecast has visible depth.
+  const denseRecentDays = Math.min(spanDays, 365)
 
   const addSnapshot = (date: string, scope: SnapshotScope, monthsAgo: number) => {
     const key = `${scope.type}:${scope.id}:${date}`
@@ -141,8 +144,17 @@ export function buildScenarioSnapshots(
   }
 
   for (let w = weeklyPoints; w >= 0; w--) {
-    const date = weekDate(w, today)
-    const monthsAgo = w / 4
+    const daysAgo = w * 7
+    const date = daysAgoDate(daysAgo, today)
+    const monthsAgo = daysAgo / 30.4375
+    for (const scope of scopes) {
+      addSnapshot(date, scope, monthsAgo)
+    }
+  }
+
+  for (let d = denseRecentDays; d >= 0; d -= 3) {
+    const date = daysAgoDate(d, today)
+    const monthsAgo = d / 30.4375
     for (const scope of scopes) {
       addSnapshot(date, scope, monthsAgo)
     }
