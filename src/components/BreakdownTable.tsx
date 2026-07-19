@@ -478,12 +478,6 @@ export function BreakdownTable({
         <tbody>
           {balanceRow('current', 'Current Acc')}
           {hasSavings && balanceRow('savings', 'Savings Acc')}
-          <tr className="sheet-row-total">
-            <td className="sheet-row-label">TOTAL</td>
-            {columns.map((col) => (
-              <Cell key={col.key} value={col.cash} columnClass={breakdownColumnClass(col)} />
-            ))}
-          </tr>
           <tr className="sheet-row-gap">
             <td colSpan={columns.length + 1} />
           </tr>

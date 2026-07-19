@@ -5316,7 +5316,8 @@ button.overview-slim-col-label:not(:disabled) {
   overflow: hidden;
 }
 
-/* Shrink overview vertically — least important content hides first */
+/* Shrink overview vertically — least important content hides first.
+   Min height keeps True Balance + costs (+ receipts) visible. */
 @container overview-strip (max-height: 200px) {
   .overview-strip .sheet-edit-hint,
   .overview-accounts-save-msg {
@@ -5325,41 +5326,14 @@ button.overview-slim-col-label:not(:disabled) {
 }
 
 @container overview-strip (max-height: 180px) {
-  .overview-strip .sheet-row-gap,
-  .overview-alerts-strip,
-  .overview-hero > .overview-freshness:not(.overview-alerts-strip),
-  .overview-hero-tagline {
+  .overview-strip .sheet-row-gap {
     display: none;
   }
 }
 
-@container overview-strip (max-height: 158px) {
-  .overview-strip .sheet-row-costs,
-  .overview-strip .sheet-row-receipts {
+@container overview-strip (max-height: 148px) {
+  .overview-strip .sheet-row-savings {
     display: none;
-  }
-}
-
-@container overview-strip (max-height: 138px) {
-  .overview-strip .sheet-row-savings,
-  .overview-strip tbody tr.sheet-row-total {
-    display: none;
-  }
-}
-
-@container overview-strip (max-height: 118px) {
-  .overview-strip .sheet-row-balance {
-    display: none;
-  }
-
-  .overview-hero {
-    padding: 3px 8px;
-    gap: 2px;
-  }
-
-  .overview-hero-value {
-    font-size: clamp(0.88rem, 5.5cqi, 1.2rem);
-    line-height: 1.1;
   }
 }
 

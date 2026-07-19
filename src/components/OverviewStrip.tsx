@@ -11,10 +11,6 @@ import type { BreakdownColumn } from '../utils/breakdownTable'
 
 import { BreakdownTable } from './BreakdownTable'
 
-import { HelpButton } from './HelpButton'
-
-import { WIDGET_HELP } from '../content/livingDashboard'
-
 interface OverviewStripProps {
   metrics: DashboardMetrics
   attentionItems: AttentionItem[]
@@ -40,8 +36,8 @@ export function OverviewStrip({
   attentionItems: _attentionItems,
   onNotificationClick: _onNotificationClick,
   onDismissNotification: _onDismissNotification,
-  openHelp,
-  setOpenHelp,
+  openHelp: _openHelp,
+  setOpenHelp: _setOpenHelp,
   state,
   viewScope: _viewScope,
   breakdownColumns = [],
@@ -82,16 +78,6 @@ export function OverviewStrip({
       <div className="overview-strip-body">
         <div className="overview-strip-split overview-strip-split--solo">
           <div className="overview-strip-table" data-tour="overview-balances">
-            <div className="overview-balances-toolbar">
-              <h2 className="overview-balances-title">Balances</h2>
-              <HelpButton
-                id="hero"
-                className="help-btn-hero"
-                openHelp={openHelp}
-                setOpenHelp={setOpenHelp}
-                text={WIDGET_HELP.trueBalance}
-              />
-            </div>
             <BreakdownTable
               state={state}
               columns={breakdownColumns}
