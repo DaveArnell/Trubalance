@@ -260,12 +260,85 @@ function AppShellInner({
   }, [isMobile, homeSection, activeRoute.page])
 
   const [openHelp, setOpenHelp] = useState<string | null>(null)
-  const [graphRange, setGraphRange] = useState<GraphRange>('90d')
+  const [graphRange, setGraphRangeState] = useState<GraphRange>('90d')
   const [trendFromDate, setTrendFromDateState] = useState<string | null>(loadTrendFromDate)
-  const setTrendFromDate = useCallback((date: string | null) => {
-    setTrendFromDateState(date)
-    saveTrendFromDate(date)
-  }, [])
+  const trendsUndoRef = useRef<Array<{ graphRange: GraphRange; trendFromDate: string | null }>>([])
+  const trendsRedoRef = useRef<Array<{ graphRange: GraphRange; trendFromDate: string | null }>>([])
+  const [trendsHistoryTick, setTrendsHistoryTick] = useState(0)
+
+  const pushTrendsHistory = useCallback(() => {
+    trendsUndoRef.current = [
+      ...trendsUndoRef.current.slice(-29),
+      { graphRange, trendFromDate },
+    ]
+    trendsRedoRef.current = []
+    setTrendsHistoryTick((n) => n + 1)
+  }, [graphRange, trendFromDate])
+
+  const setGraphRange = useCallback(
+    (range: GraphRange) => {
+      if (range === graphRange) return
+      pushTrendsHistory()
+      setGraphRangeState(range)
+    },
+    [graphRange, pushTrendsHistory],
+  )
+
+  const setTrendFromDate = useCallback(
+    (date: string | null) => {
+      if (date === trendFromDate) return
+      pushTrendsHistory()
+      setTrendFromDateState(date)
+      saveTrendFromDate(date)
+    },
+    [trendFromDate, pushTrendsHistory],
+  )
+
+  const undoTrendsView = useCallback(() => {
+    const stack = trendsUndoRef.current
+    if (stack.length === 0) return false
+    const previous = stack[stack.length - 1]!
+    trendsUndoRef.current = stack.slice(0, -1)
+    trendsRedoRef.current = [
+      ...trendsRedoRef.current.slice(-29),
+      { graphRange, trendFromDate },
+    ]
+    setGraphRangeState(previous.graphRange)
+    setTrendFromDateState(previous.trendFromDate)
+    saveTrendFromDate(previous.trendFromDate)
+    setTrendsHistoryTick((n) => n + 1)
+    return true
+  }, [graphRange, trendFromDate])
+
+  const redoTrendsView = useCallback(() => {
+    const stack = trendsRedoRef.current
+    if (stack.length === 0) return false
+    const next = stack[stack.length - 1]!
+    trendsRedoRef.current = stack.slice(0, -1)
+    trendsUndoRef.current = [
+      ...trendsUndoRef.current.slice(-29),
+      { graphRange, trendFromDate },
+    ]
+    setGraphRangeState(next.graphRange)
+    setTrendFromDateState(next.trendFromDate)
+    saveTrendFromDate(next.trendFromDate)
+    setTrendsHistoryTick((n) => n + 1)
+    return true
+  }, [graphRange, trendFromDate])
+
+  const handleUndo = useCallback(() => {
+    if (activeRoute.page === 'trends' && undoTrendsView()) return
+    app.undo()
+  }, [activeRoute.page, undoTrendsView, app])
+
+  const handleRedo = useCallback(() => {
+    if (activeRoute.page === 'trends' && redoTrendsView()) return
+    app.redo()
+  }, [activeRoute.page, redoTrendsView, app])
+
+  const canUndo = (activeRoute.page === 'trends' && trendsUndoRef.current.length > 0) || app.canUndo
+  const canRedo = (activeRoute.page === 'trends' && trendsRedoRef.current.length > 0) || app.canRedo
+  void trendsHistoryTick
   const [trendsFocusScope, setTrendsFocusScope] = useState<ViewScope | null>(null)
   const { size: overviewSize, setOverviewSize } = useOverviewSize()
 
@@ -612,10 +685,10 @@ function AppShellInner({
       <DashboardViewPreferencesProvider>
         <SubscriptionReadOnlyBridge readOnlyRef={subscriptionReadOnlyRef} />
         <UndoKeyboardShortcuts
-          canUndo={app.canUndo}
-          canRedo={app.canRedo}
-          onUndo={app.undo}
-          onRedo={app.redo}
+          canUndo={canUndo}
+          canRedo={canRedo}
+          onUndo={handleUndo}
+          onRedo={handleRedo}
         />
         <AppTourBridge activePage={activePage} />
         <GuidedTour />
@@ -769,10 +842,10 @@ function AppShellInner({
                     </div>
                     <div className="mobile-top-undo">
                       <UndoRedoButtons
-                        canUndo={app.canUndo}
-                        canRedo={app.canRedo}
-                        onUndo={app.undo}
-                        onRedo={app.redo}
+                        canUndo={canUndo}
+                        canRedo={canRedo}
+                        onUndo={handleUndo}
+                        onRedo={handleRedo}
                       />
                     </div>
                   </div>
@@ -840,10 +913,10 @@ function AppShellInner({
                         </Link>
                       )}
                       <UndoRedoButtons
-                        canUndo={app.canUndo}
-                        canRedo={app.canRedo}
-                        onUndo={app.undo}
-                        onRedo={app.redo}
+                        canUndo={canUndo}
+                        canRedo={canRedo}
+                        onUndo={handleUndo}
+                        onRedo={handleRedo}
                       />
                     </div>
                   </div>

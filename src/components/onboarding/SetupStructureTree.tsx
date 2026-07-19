@@ -29,8 +29,8 @@ interface SetupStructureTreeProps {
   onDraftChange: (patch: Partial<SetupStructureTreeDraft>) => void
 }
 
-function accountIcon(type: Account['type']) {
-  return type === 'current' ? '🏦' : '💰'
+function accountTypeLabel(type: Account['type']) {
+  return type === 'current' ? 'Current' : 'Savings'
 }
 
 function activeCashAccounts(accounts: Account[]) {
@@ -70,7 +70,11 @@ function VenueNode({
       <div className="structure-tree-accounts structure-tree-accounts--editable">
         {accounts.map((account) => (
           <div key={account.id} className="structure-tree-account-row">
-            <span className="structure-tree-account-icon">{accountIcon(account.type)}</span>
+            <span
+              className={`structure-tree-account-type structure-tree-account-type--${account.type}`}
+            >
+              {accountTypeLabel(account.type)}
+            </span>
             <input
               className="structure-tree-name-input structure-tree-name-input--small"
               value={account.name}
@@ -162,7 +166,11 @@ function BusinessNode({
         <div className="structure-tree-accounts structure-tree-accounts--editable">
           {businessAccounts.map((account) => (
             <div key={account.id} className="structure-tree-account-row">
-              <span className="structure-tree-account-icon">{accountIcon(account.type)}</span>
+              <span
+                className={`structure-tree-account-type structure-tree-account-type--${account.type}`}
+              >
+                {accountTypeLabel(account.type)}
+              </span>
               <input
                 className="structure-tree-name-input structure-tree-name-input--small"
                 value={account.name}
@@ -243,7 +251,9 @@ function DraftBusinessTree({
         </div>
         <div className="structure-tree-accounts structure-tree-accounts--editable">
           <div className="structure-tree-account-row">
-            <span className="structure-tree-account-icon">🏦</span>
+            <span className="structure-tree-account-type structure-tree-account-type--current">
+              Current
+            </span>
             <input
               className="structure-tree-name-input structure-tree-name-input--small"
               value={draft.accountName}
