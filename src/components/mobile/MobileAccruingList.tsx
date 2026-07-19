@@ -67,7 +67,7 @@ function AccruingCard({
       title={row.commitment.name}
       scopeLabel={accruingScopeLabel(state, row) ?? undefined}
       amount={formatCurrency(row.accruedAmount)}
-      amountSecondary={`/${formatCurrency(row.commitment.amount)} pm`}
+      amountSecondary={`/${formatCurrency(row.commitment.amount)}`}
       meta={accruingDetailMeta(row)}
       progress={progress}
       progressColor={accent}
