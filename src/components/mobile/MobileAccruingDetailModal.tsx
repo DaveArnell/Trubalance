@@ -64,6 +64,7 @@ export function MobileAccruingDetailModal({
 
   const scopeLabel = getScopeItemLabel(state, commitment.scopeLevel, commitment.scopeId)
   const showScopeField = !isSoloOrganisation(state) && scopeOptions.length > 1
+  const dailyRate = getAccruingRowDailyRate(row)
 
   const handleSave = () => {
     if (!canEdit || !onSave) return
@@ -132,7 +133,7 @@ export function MobileAccruingDetailModal({
         </div>
         <p className="muted mobile-accruing-detail-progress-label">
           {Math.round(progress * 100)}% through this month’s cycle · accrued{' '}
-          {formatCurrency(row.accruedAmount)}
+          {formatCurrency(row.accruedAmount)} · {formatCurrency(dailyRate)}/day
         </p>
 
         {canEdit ? (

@@ -86,9 +86,14 @@ export function MobileRecordCard({
         </div>
       ) : null}
       <div
-        className={`mobile-record-card-main${scopeLabel ? '' : ' mobile-record-card-main--no-scope'}`}
+        className={`mobile-record-card-main${scopeLabel || meta ? '' : ' mobile-record-card-main--no-scope'}`}
       >
-        {scopeLabel ? <p className="mobile-record-card-scope">{scopeLabel}</p> : null}
+        {scopeLabel || meta ? (
+          <div className="mobile-record-card-scope-block">
+            {scopeLabel ? <p className="mobile-record-card-scope">{scopeLabel}</p> : null}
+            {meta ? <p className="mobile-record-card-scope-meta">{meta}</p> : null}
+          </div>
+        ) : null}
         <div className="mobile-record-card-text">
           <h3 className="mobile-record-card-title">{title}</h3>
           {mobileMeta ? (

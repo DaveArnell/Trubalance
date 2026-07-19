@@ -11978,6 +11978,14 @@ tr.sheet-row--received td {
   display: none;
 }
 
+.mobile-record-card-scope-block {
+  display: none;
+}
+
+.mobile-record-card-scope-meta {
+  display: none;
+}
+
 .mobile-record-card-text {
   min-width: 0;
   flex: 1;
@@ -12039,18 +12047,40 @@ tr.sheet-row--received td {
     min-height: 2.15rem;
   }
 
-  .mobile-record-card-scope {
-    display: block;
+  .mobile-record-card-scope-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 1px;
     position: relative;
     z-index: 2;
+    min-width: 0;
+    max-width: 30%;
+    flex: 0 1 auto;
+  }
+
+  .mobile-record-card-scope {
+    display: block;
     margin: 0;
     min-width: 0;
-    max-width: 28%;
-    flex: 0 1 auto;
+    max-width: 100%;
     font-size: 0.78rem;
     font-weight: 700;
     line-height: 1.2;
     color: #52525b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mobile-record-card-scope-meta {
+    display: block;
+    margin: 0;
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #71717a;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
