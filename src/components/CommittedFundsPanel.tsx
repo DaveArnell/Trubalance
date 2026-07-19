@@ -322,6 +322,8 @@ export function CommittedFundsPanel({
                 orderMode={accruingOrderMode}
                 onSaveCommitment={(id, patch) => actions.updateCommitment(id, patch)}
                 onSaveDueDay={saveMonthlyDueDay}
+                onDuplicateCommitment={(id) => actions.duplicateCommitment(id)}
+                onDeleteCommitment={(id) => actions.deleteCommitment(id)}
               />
             ) : (
               <PlatformSheetWrap

@@ -11458,6 +11458,37 @@ tr.sheet-row--received td {
     font: inherit;
   }
 
+  .mobile-item-modal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+  }
+
+  .mobile-item-modal-actions--stack {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .mobile-item-modal-actions-secondary,
+  .mobile-item-modal-actions-primary,
+  .mobile-item-modal-actions-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .mobile-item-modal-actions--stack .btn-primary {
+    width: 100%;
+  }
+
+  .mobile-item-modal .snapshot-correction-input input[type='date'] {
+    width: 100%;
+  }
+
   .mobile-bottom-nav {
     position: fixed;
     left: 0;

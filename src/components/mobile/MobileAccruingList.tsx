@@ -23,6 +23,8 @@ interface MobileAccruingListProps {
   orderMode?: AccruingOrderMode
   onSaveCommitment?: (id: string, patch: Partial<Commitment>) => void
   onSaveDueDay?: (commitment: Commitment, dueDayOfMonth: number) => void
+  onDuplicateCommitment?: (id: string) => void
+  onDeleteCommitment?: (id: string) => void
 }
 
 function accruingMeta(state: AppState, row: CommitmentAccruingRow) {
@@ -47,6 +49,8 @@ export function MobileAccruingList({
   orderMode = 'timeline',
   onSaveCommitment,
   onSaveDueDay,
+  onDuplicateCommitment,
+  onDeleteCommitment,
 }: MobileAccruingListProps) {
   const [selected, setSelected] = useState<CommitmentAccruingRow | null>(null)
   const scopeOptions = useMemo(
@@ -100,6 +104,16 @@ export function MobileAccruingList({
               : undefined
           }
           onSaveDueDay={onSaveDueDay}
+          onDuplicate={
+            onDuplicateCommitment && selected.source !== 'reserve'
+              ? () => onDuplicateCommitment(selected.commitment.id)
+              : undefined
+          }
+          onDelete={
+            onDeleteCommitment && selected.source !== 'reserve'
+              ? () => onDeleteCommitment(selected.commitment.id)
+              : undefined
+          }
         />
       ) : null}
     </>
