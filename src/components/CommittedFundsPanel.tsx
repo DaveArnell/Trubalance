@@ -221,61 +221,61 @@ export function CommittedFundsPanel({
           }}
         />
       )}
-      <div className="card-head card-head-compact card-head--accruing">
-        <div className="card-head-title-row">
-          <h2>Monthly accruing</h2>
-          <p className="muted card-lead-compact">
-            Regular predictable bills — rent, payroll, subscriptions, direct debits
-          </p>
-          <HelpButton
-            id="commitments"
-            openHelp={openHelp}
-            setOpenHelp={setOpenHelp}
-            text={WIDGET_HELP.committedFunds}
-          />
-        </div>
-        <div className="card-head-actions">
-          <div className="view-mode-toggle" role="group" aria-label="Monthly accruing view">
-            <button
-              type="button"
-              className={`view-mode-toggle-btn${viewMode === 'list' ? ' view-mode-toggle-btn--active' : ''}`}
-              onClick={() => setViewMode('list')}
-            >
-              Costs
-            </button>
-            <button
-              type="button"
-              className={`view-mode-toggle-btn${viewMode === 'period' ? ' view-mode-toggle-btn--active' : ''}`}
-              disabled={!hasRows}
-              onClick={() => setViewMode('period')}
-            >
-              Month view
-            </button>
+      <div className="mobile-accruing-sticky">
+        <div className="card-head card-head-compact card-head--accruing">
+          <div className="card-head-title-row">
+            <h2>Monthly accruing</h2>
+            <p className="muted card-lead-compact">
+              Regular predictable bills — rent, payroll, subscriptions, direct debits
+            </p>
+            <HelpButton
+              id="commitments"
+              openHelp={openHelp}
+              setOpenHelp={setOpenHelp}
+              text={WIDGET_HELP.committedFunds}
+            />
           </div>
-          {viewMode === 'list' && (
-            <div className="view-mode-toggle" role="group" aria-label="Monthly cost order">
+          <div className="card-head-actions">
+            <div className="view-mode-toggle" role="group" aria-label="Monthly accruing view">
               <button
                 type="button"
-                className={`view-mode-toggle-btn${accruingOrderMode === 'grouped' ? ' view-mode-toggle-btn--active' : ''}`}
-                onClick={() => setAccruingOrderMode('grouped')}
-                title="Your arranged order, with matching names grouped"
+                className={`view-mode-toggle-btn${viewMode === 'list' ? ' view-mode-toggle-btn--active' : ''}`}
+                onClick={() => setViewMode('list')}
               >
-                Grouped
+                Costs
               </button>
               <button
                 type="button"
-                className={`view-mode-toggle-btn${accruingOrderMode === 'timeline' ? ' view-mode-toggle-btn--active' : ''}`}
-                onClick={() => setAccruingOrderMode('timeline')}
-                title="Next due date first — same as the mobile app"
+                className={`view-mode-toggle-btn${viewMode === 'period' ? ' view-mode-toggle-btn--active' : ''}`}
+                disabled={!hasRows}
+                onClick={() => setViewMode('period')}
               >
-                Timeline
+                Month view
               </button>
             </div>
-          )}
+            {viewMode === 'list' && (
+              <div className="view-mode-toggle" role="group" aria-label="Monthly cost order">
+                <button
+                  type="button"
+                  className={`view-mode-toggle-btn${accruingOrderMode === 'grouped' ? ' view-mode-toggle-btn--active' : ''}`}
+                  onClick={() => setAccruingOrderMode('grouped')}
+                  title="Your arranged order, with matching names grouped"
+                >
+                  Grouped
+                </button>
+                <button
+                  type="button"
+                  className={`view-mode-toggle-btn${accruingOrderMode === 'timeline' ? ' view-mode-toggle-btn--active' : ''}`}
+                  onClick={() => setAccruingOrderMode('timeline')}
+                  title="Next due date first — same as the mobile app"
+                >
+                  Timeline
+                </button>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
 
-      <div className="card-scroll-body">
         <table className="kpi-table kpi-table--summary committed-funds-summary committed-funds-summary--accruing">
           <thead>
             <tr>
@@ -292,7 +292,9 @@ export function CommittedFundsPanel({
             </tr>
           </tbody>
         </table>
+      </div>
 
+      <div className="card-scroll-body">
         {viewMode === 'period' ? (
           <MonthlyCostPeriodView rows={simulatorRows} compact />
         ) : (

@@ -8,6 +8,7 @@ import {
   getBusinessAccentColor,
   getVenueAccentColor,
   getGroupAccentColor,
+  getTakenAccentColors,
   isValidAccentColor,
 } from '../utils/businessTheme'
 
@@ -78,11 +79,14 @@ function AccentColorPicker({
   fallback,
   onChange,
   label,
+  takenColors,
 }: {
   value?: string
   fallback: string
   onChange: (color: string | null) => void
   label: string
+  /** Other businesses/venues already using these colours (lowercase hex). */
+  takenColors?: Set<string>
 }) {
   const [open, setOpen] = useState(false)
   const [panelPos, setPanelPos] = useState({ top: 0, left: 0 })
@@ -92,6 +96,8 @@ function AccentColorPicker({
 
   const active = isValidAccentColor(value) ? value : fallback
   const custom = isValidAccentColor(value) ? value : active
+  const isTaken = (color: string) =>
+    Boolean(takenColors?.has(color.toLowerCase()) && color.toLowerCase() !== active.toLowerCase())
 
   const updatePanelPos = () => {
     if (!btnRef.current) return
@@ -139,31 +145,46 @@ function AccentColorPicker({
       >
         <p className="org-color-popover-title">Colour</p>
         <div className="org-accent-swatches" role="list">
-          {BUSINESS_ACCENT_COLORS.map((color) => (
-            <button
-              key={color}
-              type="button"
-              role="listitem"
-              className={`org-accent-swatch${active === color ? ' org-accent-swatch--active' : ''}`}
-              style={{ backgroundColor: color }}
-              onClick={() => {
-                onChange(color)
-                setOpen(false)
-              }}
-              aria-label={`Set colour ${color}`}
-              aria-pressed={active === color}
-            />
-          ))}
+          {BUSINESS_ACCENT_COLORS.map((color) => {
+            const taken = isTaken(color)
+            return (
+              <button
+                key={color}
+                type="button"
+                role="listitem"
+                className={`org-accent-swatch${active === color ? ' org-accent-swatch--active' : ''}${
+                  taken ? ' org-accent-swatch--taken' : ''
+                }`}
+                style={{ backgroundColor: color }}
+                disabled={taken}
+                title={taken ? 'Already used by another business or venue' : undefined}
+                onClick={() => {
+                  if (taken) return
+                  onChange(color)
+                  setOpen(false)
+                }}
+                aria-label={taken ? `Colour ${color} already in use` : `Set colour ${color}`}
+                aria-pressed={active === color}
+              />
+            )
+          })}
         </div>
         <label className="org-color-custom-row">
           <span>Custom</span>
           <input
             type="color"
             value={custom}
-            onChange={(event) => onChange(event.target.value)}
+            onChange={(event) => {
+              const next = event.target.value
+              if (isTaken(next)) return
+              onChange(next)
+            }}
             aria-label={`Custom colour for ${label}`}
           />
         </label>
+        {takenColors && takenColors.size > 0 ? (
+          <p className="org-color-popover-hint muted">Colours already in use are greyed out.</p>
+        ) : null}
         {isValidAccentColor(value) ? (
           <button
             type="button"
@@ -400,6 +421,7 @@ function SiteCard({
         <AccentColorPicker
           value={venue.accentColor}
           fallback={accent}
+          takenColors={getTakenAccentColors(state, { type: 'venue', id: venue.id })}
           onChange={(color) => actions.setVenueAccentColor(venue.id, color)}
           label={venue.name}
         />
@@ -481,6 +503,7 @@ function BusinessCard({
         <AccentColorPicker
           value={business.accentColor}
           fallback={getBusinessAccentColor(state, business.id)}
+          takenColors={getTakenAccentColors(state, { type: 'business', id: business.id })}
           onChange={(color) => actions.setBusinessAccentColor(business.id, color)}
           label={business.name}
         />

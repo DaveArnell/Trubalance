@@ -3,7 +3,8 @@ import type { AppState, ViewScope } from '../types'
 import { getBusinessesInGroup } from './scope'
 
 /**
- * Distinct business identity colours — spaced around the wheel (one indigo, no similar blues).
+ * Distinct identity colours — spaced around the wheel so businesses and venues
+ * can each get a unique default without colliding across the org.
  */
 export const BUSINESS_ACCENT_COLORS = [
   '#9333ea', // violet
@@ -14,6 +15,14 @@ export const BUSINESS_ACCENT_COLORS = [
   '#0d9488', // teal
   '#4f46e5', // indigo
   '#be123c', // crimson
+  '#0284c7', // sky
+  '#65a30d', // lime
+  '#c026d3', // fuchsia
+  '#b45309', // brown-orange
+  '#0891b2', // cyan
+  '#7c3aed', // purple
+  '#dc2626', // red
+  '#0f766e', // deep teal
 ] as const
 
 const GROUP_ACCENT = '#52525b'
@@ -26,6 +35,90 @@ export function isValidAccentColor(value: string | undefined | null): value is s
   return typeof value === 'string' && HEX_COLOR_RE.test(value)
 }
 
+function normalizeAccent(hex: string): string {
+  return hex.toLowerCase()
+}
+
+/** Shift a palette colour slightly when the base set is exhausted. */
+function variantAccent(hex: string, step: number): string {
+  const rgb = hexToRgb(hex)
+  if (!rgb) return hex
+  const shift = ((step % 5) + 1) * 18
+  const tweak = (channel: number, direction: number) =>
+    Math.max(24, Math.min(220, channel + direction * shift))
+  const r = tweak(rgb.r, step % 2 === 0 ? 1 : -1)
+  const g = tweak(rgb.g, step % 3 === 0 ? -1 : 1)
+  const b = tweak(rgb.b, step % 2 === 0 ? -1 : 1)
+  return `#${[r, g, b].map((n) => n.toString(16).padStart(2, '0')).join('')}`
+}
+
+type AccentEntity = { key: string; explicit?: string }
+
+function listAccentEntities(state: AppState): AccentEntity[] {
+  return [
+    ...state.businesses.map((business) => ({
+      key: `business:${business.id}`,
+      explicit: business.accentColor,
+    })),
+    ...state.venues.map((venue) => ({
+      key: `venue:${venue.id}`,
+      explicit: venue.accentColor,
+    })),
+  ]
+}
+
+/**
+ * Stable unique accent for every business and venue in the org.
+ * Explicit colours win when unique; duplicates and missing colours take the next free palette slot.
+ */
+function buildAccentAssignmentMap(state: AppState): Map<string, string> {
+  const map = new Map<string, string>()
+  const taken = new Set<string>()
+  const entities = listAccentEntities(state)
+
+  for (const entity of entities) {
+    if (!isValidAccentColor(entity.explicit)) continue
+    const normalized = normalizeAccent(entity.explicit)
+    if (taken.has(normalized)) continue
+    map.set(entity.key, entity.explicit)
+    taken.add(normalized)
+  }
+
+  let attempt = 0
+  for (const entity of entities) {
+    if (map.has(entity.key)) continue
+    while (attempt < BUSINESS_ACCENT_COLORS.length * 6) {
+      const baseIndex = attempt % BUSINESS_ACCENT_COLORS.length
+      const cycle = Math.floor(attempt / BUSINESS_ACCENT_COLORS.length)
+      const base = BUSINESS_ACCENT_COLORS[baseIndex]!
+      const candidate = cycle === 0 ? base : variantAccent(base, cycle)
+      attempt += 1
+      const normalized = normalizeAccent(candidate)
+      if (taken.has(normalized)) continue
+      map.set(entity.key, candidate)
+      taken.add(normalized)
+      break
+    }
+  }
+
+  return map
+}
+
+/** Colours already used by other businesses/venues (for the colour picker). */
+export function getTakenAccentColors(
+  state: AppState,
+  exclude?: { type: 'business' | 'venue'; id: string },
+): Set<string> {
+  const map = buildAccentAssignmentMap(state)
+  const taken = new Set<string>()
+  const excludeKey = exclude ? `${exclude.type}:${exclude.id}` : null
+  for (const [key, color] of map) {
+    if (excludeKey && key === excludeKey) continue
+    taken.add(normalizeAccent(color))
+  }
+  return taken
+}
+
 export function resolveScopeBusinessId(state: AppState, scope: ViewScope): string | null {
   if (scope.type === 'business') return scope.id
   if (scope.type === 'venue') {
@@ -35,18 +128,16 @@ export function resolveScopeBusinessId(state: AppState, scope: ViewScope): strin
 }
 
 export function getVenueAccentColor(state: AppState, venueId: string): string {
-  const venue = state.venues.find((entry) => entry.id === venueId)
-  if (!venue) return BUSINESS_ACCENT_COLORS[0]
-  if (isValidAccentColor(venue.accentColor)) return venue.accentColor
-  const siblings = state.venues.filter((entry) => entry.businessId === venue.businessId)
-  const index = siblings.findIndex((entry) => entry.id === venueId)
-  return BUSINESS_ACCENT_COLORS[Math.max(0, index + 1) % BUSINESS_ACCENT_COLORS.length]!
+  const assigned = buildAccentAssignmentMap(state).get(`venue:${venueId}`)
+  if (assigned) return assigned
+  return BUSINESS_ACCENT_COLORS[0]!
 }
 
 export function getBusinessAccentColor(state: AppState, businessId: string): string {
+  const assigned = buildAccentAssignmentMap(state).get(`business:${businessId}`)
+  if (assigned) return assigned
   const business = state.businesses.find((entry) => entry.id === businessId)
-  if (!business) return BUSINESS_ACCENT_COLORS[0]
-  if (isValidAccentColor(business.accentColor)) return business.accentColor
+  if (!business) return BUSINESS_ACCENT_COLORS[0]!
   const siblings = getBusinessesInGroup(state, business.groupId)
   const index = siblings.findIndex((entry) => entry.id === businessId)
   return BUSINESS_ACCENT_COLORS[Math.max(0, index) % BUSINESS_ACCENT_COLORS.length]!

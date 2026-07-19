@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import type { AppState, Commitment, CommitmentAccruingRow, ViewScope } from '../../types'
 import { filterAccruingRowsForView, getScopeItemLabel } from '../../utils/scope'
 import { getAccrualProgress } from '../../utils/commitmentCalculations'
@@ -6,6 +6,10 @@ import {
   sortAccruingRowsByNextDue,
   sortAccruingRowsBySortOrder,
 } from '../../utils/accruingOrder'
+import {
+  buildMonthlyCostDisplayTree,
+  type MonthlyCostDisplayNode,
+} from '../../utils/monthlyCostGrouping'
 import { chartColorForScope } from '../../utils/businessTheme'
 import { formatCurrency } from '../../utils/format'
 import { getReferenceDate } from '../../utils/referenceDate'
@@ -13,7 +17,7 @@ import { ordinalDay } from '../committed/shared'
 import type { CommitmentViews } from '../../types'
 import type { AccruingOrderMode } from '../../contexts/DashboardViewPreferencesContext'
 import { getCommitmentScopeOptionsForView } from '../../utils/scope'
-import { MobileRecordCard, MobileRecordList } from './MobileRecordList'
+import { MobileRecordCard, MobileRecordList, MobileSectionLabel } from './MobileRecordList'
 import { MobileAccruingDetailModal } from './MobileAccruingDetailModal'
 
 interface MobileAccruingListProps {
@@ -43,6 +47,104 @@ function rowAccent(state: AppState, row: CommitmentAccruingRow): string {
   })
 }
 
+function AccruingCard({
+  state,
+  row,
+  referenceDate,
+  onSelect,
+}: {
+  state: AppState
+  row: CommitmentAccruingRow
+  referenceDate: Date
+  onSelect: () => void
+}) {
+  const accent = rowAccent(state, row)
+  const progress = getAccrualProgress(row.commitment, referenceDate)?.progress ?? 0
+  return (
+    <MobileRecordCard
+      title={row.commitment.name}
+      amount={formatCurrency(row.accruedAmount)}
+      amountSecondary={`/${formatCurrency(row.commitment.amount)} pm`}
+      meta={accruingMeta(state, row)}
+      progress={progress}
+      progressColor={accent}
+      accentColor={accent}
+      onClick={onSelect}
+    />
+  )
+}
+
+function renderGroupedNodes(
+  nodes: MonthlyCostDisplayNode[],
+  state: AppState,
+  referenceDate: Date,
+  onSelect: (row: CommitmentAccruingRow) => void,
+): ReactNode[] {
+  const items: ReactNode[] = []
+
+  for (const node of nodes) {
+    if (node.type === 'leaf') {
+      items.push(
+        <AccruingCard
+          key={`${node.row.source}-${node.row.commitment.id}-${node.row.reservePlannerId ?? ''}`}
+          state={state}
+          row={node.row}
+          referenceDate={referenceDate}
+          onSelect={() => onSelect(node.row)}
+        />,
+      )
+      continue
+    }
+
+    items.push(
+      <MobileSectionLabel key={node.id}>
+        {node.name}
+        {node.subtitle ? ` · ${node.subtitle}` : ''}
+        {' · '}
+        {formatCurrency(node.accruedTotal)} accrued
+      </MobileSectionLabel>,
+    )
+
+    for (const child of node.children) {
+      if (child.type === 'leaf') {
+        items.push(
+          <AccruingCard
+            key={`${child.row.source}-${child.row.commitment.id}-${child.row.reservePlannerId ?? ''}`}
+            state={state}
+            row={child.row}
+            referenceDate={referenceDate}
+            onSelect={() => onSelect(child.row)}
+          />,
+        )
+        continue
+      }
+
+      items.push(
+        <MobileSectionLabel key={child.id}>
+          {child.label}
+          {child.subtitle ? ` · ${child.subtitle}` : ''}
+          {' · '}
+          {formatCurrency(child.accruedTotal)} accrued
+        </MobileSectionLabel>,
+      )
+
+      for (const leaf of child.children) {
+        items.push(
+          <AccruingCard
+            key={`${leaf.row.source}-${leaf.row.commitment.id}-${leaf.row.reservePlannerId ?? ''}`}
+            state={state}
+            row={leaf.row}
+            referenceDate={referenceDate}
+            onSelect={() => onSelect(leaf.row)}
+          />,
+        )
+      }
+    }
+  }
+
+  return items
+}
+
 export function MobileAccruingList({
   state,
   viewScope,
@@ -59,39 +161,41 @@ export function MobileAccruingList({
     [state, viewScope],
   )
 
-  const rows = useMemo(() => {
-    const filtered = filterAccruingRowsForView(commitmentViews.buildingUp, viewScope)
-    if (orderMode === 'grouped') return sortAccruingRowsBySortOrder(filtered)
-    return sortAccruingRowsByNextDue(filtered)
-  }, [commitmentViews.buildingUp, viewScope, state, orderMode])
+  const filtered = useMemo(
+    () => filterAccruingRowsForView(commitmentViews.buildingUp, viewScope),
+    [commitmentViews.buildingUp, viewScope, state],
+  )
 
-  if (rows.length === 0) {
+  const timelineRows = useMemo(() => sortAccruingRowsByNextDue(filtered), [filtered])
+
+  const groupedTree = useMemo(() => {
+    if (orderMode !== 'grouped') return null
+    const ordered = sortAccruingRowsBySortOrder(filtered)
+    return buildMonthlyCostDisplayTree(state, ordered, viewScope)
+  }, [orderMode, filtered, state, viewScope])
+
+  if (filtered.length === 0) {
     return <MobileRecordList emptyMessage="No monthly accruing costs in this view." />
   }
 
   const referenceDate = getReferenceDate()
 
+  const listBody =
+    orderMode === 'grouped' && groupedTree
+      ? renderGroupedNodes(groupedTree, state, referenceDate, setSelected)
+      : timelineRows.map((row) => (
+          <AccruingCard
+            key={`${row.source}-${row.commitment.id}-${row.reservePlannerId ?? ''}`}
+            state={state}
+            row={row}
+            referenceDate={referenceDate}
+            onSelect={() => setSelected(row)}
+          />
+        ))
+
   return (
     <>
-      <MobileRecordList>
-        {rows.map((row) => {
-          const accent = rowAccent(state, row)
-          const progress = getAccrualProgress(row.commitment, referenceDate)?.progress ?? 0
-          return (
-            <MobileRecordCard
-              key={`${row.source}-${row.commitment.id}-${row.reservePlannerId ?? ''}`}
-              title={row.commitment.name}
-              amount={formatCurrency(row.accruedAmount)}
-              amountSecondary={`/${formatCurrency(row.commitment.amount)} pm`}
-              meta={accruingMeta(state, row)}
-              progress={progress}
-              progressColor={accent}
-              accentColor={accent}
-              onClick={() => setSelected(row)}
-            />
-          )
-        })}
-      </MobileRecordList>
+      <MobileRecordList>{listBody}</MobileRecordList>
       {selected ? (
         <MobileAccruingDetailModal
           state={state}

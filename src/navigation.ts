@@ -17,7 +17,7 @@ export const MOBILE_PRIMARY_PAGES: PageId[] = [
   'due',
   'receipts',
   'trends',
-  'forecast',
+  'reserve-planner',
   'settings',
 ]
 

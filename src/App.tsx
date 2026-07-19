@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback, useRef, type ComponentProps, type MutableRefObject } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useState, useCallback, useRef, type ComponentProps, type MutableRefObject } from 'react'
 import { Link } from 'react-router-dom'
 import { ReferenceDateProvider, useReferenceDate } from './contexts/ReferenceDateContext'
 import { TablePreferencesProvider } from './contexts/TablePreferencesContext'
@@ -229,6 +229,26 @@ function AppShellInner({
   const [activeRoute, setActiveRoute] = useActiveRoute()
   const [reserveMenuOpen, setReserveMenuOpen] = useState(false)
   const { isMobile, mobileNavOpen, closeMobileNav, toggleMobileNav } = useMobileNav()
+  const mobileChromeRef = useRef<HTMLDivElement>(null)
+
+  useLayoutEffect(() => {
+    if (!isMobile) return
+    const chrome = mobileChromeRef.current
+    const main = chrome?.closest('.main-content--mobile') as HTMLElement | null
+    if (!chrome || !main) return
+
+    const syncChromeHeight = () => {
+      main.style.setProperty('--mobile-chrome-height', `${Math.ceil(chrome.getBoundingClientRect().height)}px`)
+    }
+    syncChromeHeight()
+    const observer = new ResizeObserver(syncChromeHeight)
+    observer.observe(chrome)
+    return () => {
+      observer.disconnect()
+      main.style.removeProperty('--mobile-chrome-height')
+    }
+  }, [isMobile])
+
   const [openHelp, setOpenHelp] = useState<string | null>(null)
   const [graphRange, setGraphRange] = useState<GraphRange>('90d')
   const [trendFromDate, setTrendFromDateState] = useState<string | null>(loadTrendFromDate)
@@ -693,46 +713,48 @@ function AppShellInner({
 
           {isMobile ? (
             <>
-              <header className="top-bar top-bar--mobile" data-tour="top-bar">
-                <div className="top-bar-inner">
-                  <button
-                    type="button"
-                    className="mobile-menu-btn"
-                    onClick={toggleMobileNav}
-                    aria-label={mobileNavOpen ? 'Close menu' : 'Open menu'}
-                    aria-expanded={mobileNavOpen}
-                  >
-                    <span className="mobile-menu-btn-icon" aria-hidden="true" />
-                  </button>
-                  <div className="top-bar-scope-block">
-                    {showScopePicker ? (
-                      <ViewingScopePicker
-                        state={app.state}
-                        viewScope={app.viewScope}
-                        onSelect={app.setViewScope}
+              <div className="mobile-sticky-chrome" ref={mobileChromeRef}>
+                <header className="top-bar top-bar--mobile" data-tour="top-bar">
+                  <div className="top-bar-inner">
+                    <button
+                      type="button"
+                      className="mobile-menu-btn"
+                      onClick={toggleMobileNav}
+                      aria-label={mobileNavOpen ? 'Close menu' : 'Open menu'}
+                      aria-expanded={mobileNavOpen}
+                    >
+                      <span className="mobile-menu-btn-icon" aria-hidden="true" />
+                    </button>
+                    <div className="top-bar-scope-block">
+                      {showScopePicker ? (
+                        <ViewingScopePicker
+                          state={app.state}
+                          viewScope={app.viewScope}
+                          onSelect={app.setViewScope}
+                        />
+                      ) : (
+                        <ViewingScopeBar state={app.state} viewScope={app.viewScope} variant="full" />
+                      )}
+                    </div>
+                    <div className="mobile-top-undo">
+                      <UndoRedoButtons
+                        canUndo={app.canUndo}
+                        canRedo={app.canRedo}
+                        onUndo={app.undo}
+                        onRedo={app.redo}
                       />
-                    ) : (
-                      <ViewingScopeBar state={app.state} viewScope={app.viewScope} variant="full" />
-                    )}
+                    </div>
                   </div>
-                  <div className="mobile-top-undo">
-                    <UndoRedoButtons
-                      canUndo={app.canUndo}
-                      canRedo={app.canRedo}
-                      onUndo={app.undo}
-                      onRedo={app.redo}
-                    />
-                  </div>
-                </div>
-              </header>
+                </header>
 
-              <MobileOverview
-                metrics={metrics}
-                state={app.state}
-                viewScope={app.viewScope}
-                breakdownColumns={breakdownColumns}
-                onBalanceSave={handleBalanceSave}
-              />
+                <MobileOverview
+                  metrics={metrics}
+                  state={app.state}
+                  viewScope={app.viewScope}
+                  breakdownColumns={breakdownColumns}
+                  onBalanceSave={handleBalanceSave}
+                />
+              </div>
 
               <WidgetGrid pageId={activePage} widgets={pageWidgets} />
 

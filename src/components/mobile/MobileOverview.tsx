@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import type { BalanceSaveChange, BalanceSaveResult } from '../../hooks/useAppState'
 import { useEditReadOnly } from '../../hooks/useEditReadOnly'
 import type { AppState, DashboardMetrics, ViewScope } from '../../types'
@@ -18,7 +19,19 @@ interface MobileOverviewProps {
   onBalanceSave?: (changes: BalanceSaveChange[]) => BalanceSaveResult
 }
 
-/** Compact True Balance summary — expands to the same breakdown table as desktop. */
+function primaryBreakdownColumns(columns: BreakdownColumn[]): BreakdownColumn[] {
+  if (columns.length <= 1) return columns
+  const rollup = columns.find((column) => column.isRollup)
+  return rollup ? [rollup] : columns.slice(-1)
+}
+
+function childBreakdownLabel(viewScope?: ViewScope): string {
+  if (viewScope?.type === 'group') return 'View by business'
+  if (viewScope?.type === 'business') return 'View by venue'
+  return 'View full breakdown'
+}
+
+/** Compact True Balance summary — expands to this scope’s totals only. */
 export function MobileOverview({
   metrics,
   state,
@@ -28,7 +41,14 @@ export function MobileOverview({
 }: MobileOverviewProps) {
   const editReadOnly = useEditReadOnly()
   const [balancesOpen, setBalancesOpen] = useState(false)
+  const [childModalOpen, setChildModalOpen] = useState(false)
   const canExpand = Boolean(state && breakdownColumns.length > 0)
+
+  const summaryColumns = useMemo(
+    () => primaryBreakdownColumns(breakdownColumns),
+    [breakdownColumns],
+  )
+  const hasChildBreakdown = breakdownColumns.length > 1
 
   const freshness = useMemo(() => {
     if (!state || !viewScope) return null
@@ -67,16 +87,62 @@ export function MobileOverview({
         )}
       </button>
 
-      {balancesOpen && state && breakdownColumns.length > 0 && (
+      {balancesOpen && state && summaryColumns.length > 0 && (
         <div className="mobile-overview-breakdown">
           <BreakdownTable
             state={state}
-            columns={breakdownColumns}
+            columns={summaryColumns}
             compact
             onBalanceSave={editReadOnly ? undefined : onBalanceSave}
           />
+          {hasChildBreakdown ? (
+            <button
+              type="button"
+              className="btn-secondary btn-tiny mobile-overview-breakdown-open"
+              onClick={() => setChildModalOpen(true)}
+            >
+              {childBreakdownLabel(viewScope)}
+            </button>
+          ) : null}
         </div>
       )}
+
+      {childModalOpen && state && breakdownColumns.length > 0
+        ? createPortal(
+            <div
+              className="snapshot-correction-backdrop"
+              onClick={() => setChildModalOpen(false)}
+            >
+              <div
+                className="snapshot-correction-modal mobile-overview-breakdown-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="mobile-overview-breakdown-title"
+                onClick={(event) => event.stopPropagation()}
+              >
+                <div className="mobile-overview-breakdown-modal-head">
+                  <h3 id="mobile-overview-breakdown-title">True Balance breakdown</h3>
+                  <button
+                    type="button"
+                    className="btn-ghost btn-tiny"
+                    onClick={() => setChildModalOpen(false)}
+                  >
+                    Close
+                  </button>
+                </div>
+                <div className="mobile-overview-breakdown-modal-body">
+                  <BreakdownTable
+                    state={state}
+                    columns={breakdownColumns}
+                    compact
+                    onBalanceSave={editReadOnly ? undefined : onBalanceSave}
+                  />
+                </div>
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
     </section>
   )
 }

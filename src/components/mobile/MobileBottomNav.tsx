@@ -19,7 +19,13 @@ export function MobileBottomNav({
         const isActive = page.id === activePage
         const showDueBadge = page.id === 'due' && dueBadgeCount > 0
         const label =
-          page.id === 'committed-funds' ? 'Home' : page.id === 'receipts' ? 'Receipts' : page.label
+          page.id === 'committed-funds'
+            ? 'Home'
+            : page.id === 'receipts'
+              ? 'Receipts'
+              : page.id === 'reserve-planner'
+                ? 'Reserve'
+                : page.label
         return (
           <button
             key={page.id}
