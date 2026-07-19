@@ -21,6 +21,8 @@ import type { PageId } from '../../navigation'
 import { SetupOnboardingShell } from './SetupOnboardingShell'
 import { SetupWidgetPreview } from './SetupWidgetPreview'
 import { SetupStructureTree } from './SetupStructureTree'
+import { SetupAccruingCycleDemo } from './SetupAccruingCycleDemo'
+import { SetupDueAnnotatedCards, SetupReceiptAnnotatedCards } from './SetupEduAnnotatedCards'
 import { ReservePlannerPanel } from '../ReservePlannerPanel'
 import { useAuth } from '../../contexts/AuthContext'
 import { trackEvent } from '../../services/eventTracking'
@@ -48,6 +50,7 @@ type PlannedDueDraft = {
 type ReceiptDraft = { name: string; amount: string; expectedDate: string; selected: boolean }
 
 const PREVIEW_STEP_IDS = new Set([
+  'committed-explain',
   'month-view',
   'due-explain',
   'receipts-explain',
@@ -604,50 +607,15 @@ export function SetupOnboardingWizard({
             </div>
           )}
 
-          {step.id === 'committed-explain' && (
-            <div className="setup-edu-visual setup-edu-visual--centered">
-              <div className="setup-accrual-anim" aria-hidden="true">
-                <div className="setup-accrual-stage setup-accrual-stage--left">
-                  <div className="setup-accrual-bar-track">
-                    <div className="setup-accrual-bar setup-accrual-bar--grow" />
-                  </div>
-                  <span className="setup-accrual-label">Building up</span>
-                </div>
-                <div className="setup-accrual-arrow">
-                  <span className="setup-accrual-transfer-dot" />
-                  <svg width="32" height="16" viewBox="0 0 32 16" aria-hidden="true">
-                    <path
-                      d="M0 8h26m0 0l-5-5m5 5l-5 5"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-                <div className="setup-accrual-stage setup-accrual-stage--right">
-                  <div className="setup-accrual-due-box">
-                    <span className="setup-accrual-due-text">Due</span>
-                    <span className="setup-accrual-paid-pop">Paid</span>
-                  </div>
-                  <span className="setup-accrual-label">Stays until paid</span>
-                </div>
-              </div>
-              <p className="setup-accrual-caption">
-                The bar never stops — it builds from empty to full every cycle. When it hits the top,
-                the full amount moves to Due. You mark it Paid midway through the next build-up, but
-                accrual for the new period is already running underneath.
-              </p>
-            </div>
-          )}
+          {step.id === 'committed-explain' && <SetupAccruingCycleDemo />}
 
           {step.id === 'due-explain' && (
             <>
+              <SetupDueAnnotatedCards />
               <div className="setup-onboarding-form setup-onboarding-form--quick-add">
                 <p className="setup-onboarding-form-hint">
-                  Optional — add one-off or irregular costs you already know about (tax bills, deposits,
-                  equipment). You can add more later in the app.
+                  Optional — add one-off or irregular costs you already know about (tax bills,
+                  deposits, equipment). You can add more later in the app.
                 </p>
                 {dueDrafts.map((draft, index) => (
                   <div
@@ -777,6 +745,7 @@ export function SetupOnboardingWizard({
 
           {step.id === 'receipts-explain' && (
             <>
+              <SetupReceiptAnnotatedCards />
               <div className="setup-onboarding-form setup-onboarding-form--quick-add">
                 <p className="setup-onboarding-form-hint">
                   Optional — money you&apos;re expecting in (invoices sent, grants, refunds). Skip if

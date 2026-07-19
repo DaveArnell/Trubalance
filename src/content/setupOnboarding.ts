@@ -36,11 +36,11 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     explain:
       'Your bank balance includes money that\'s already committed — rent building up, payroll accruing, subscriptions ticking over. Tick the regular bills you recognise below, or add them later in the app.',
   },
-  {
+    {
     id: 'committed-explain',
     title: 'How accruing costs work.',
     explain:
-      'Each bill you added accrues a little every day. On the 1st of the month, rent hasn\'t cost you anything yet — but by the 28th, nearly the full amount has built up. True Balance subtracts that growing amount from your balance every single day.\n\nWhen the due date arrives, the cost moves from "accruing" into the "Due" column on the right. It stays there until you click "Paid" to confirm it left your account. This way you always know: what\'s building up, what\'s due right now, and what\'s genuinely yours.',
+      'Each regular bill builds a little every day toward its monthly total. On the 1st almost nothing is spoken for yet; by late month, most of it has accrued and True Balance has already subtracted that growing amount.\n\nWhen the due date arrives, the cost moves into Due and stays there until you mark it Paid. The demo below shows that cycle with cards like the ones on your home page.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="committed-funds"]',
   },
@@ -56,7 +56,7 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     id: 'due-explain',
     title: 'One-off and irregular costs.',
     explain:
-      'Not everything is a regular monthly bill. For one-off costs or irregular payments — a tax bill, an equipment purchase, a deposit — use "Add planned" in the Due section.\n\nYou set the name, amount, and due date. Then choose how it affects your True Balance:\n• Deduct immediately — the full amount is subtracted from day one\n• Build up to the date — accrues daily like a monthly bill, reaching the full amount on the due date\n• Part now, part building — reserve a lump sum immediately, then accrue the rest\n\nThis means True Balance always accounts for what\'s coming, not just what\'s already landed.',
+      'Not everything is a regular monthly bill. Tax bills, equipment, deposits — add those as planned costs in Due with a name, amount, and due date.\n\nChoose how it affects True Balance: deduct the full amount now, build up to the date a little each day, or reserve part now and build the rest. The cards below show both full earmark and daily build-up.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="due"]',
   },
@@ -64,7 +64,7 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     id: 'receipts-explain',
     title: 'Money you\'re expecting in.',
     explain:
-      'If you know money is coming — an invoice you\'ve sent, a refund, a grant payment — add it as an Expected Receipt. This adds to your True Balance so you can see the fuller picture.\n\nJust like outgoings, you can choose timing: count it immediately (you\'re confident it\'s coming) or let it accrue toward the expected date. Once the money arrives, mark it received and it drops off.\n\nThis is especially useful if your income is irregular — it shows you when cash will arrive and helps you plan around gaps.',
+      'Add expected money in — invoices, grants, refunds — so True Balance can show the fuller picture. Count a lump sum immediately if you\'re confident, or let it build toward the expected date.\n\nWhen the cash arrives, mark it received and it drops off. The cards below show both styles.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="expected-receipts"]',
   },
