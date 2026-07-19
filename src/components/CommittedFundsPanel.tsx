@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { AppState, Commitment, CommitmentViews, ViewScope } from '../types'
 import {
   getScopeItemLabel,
@@ -69,6 +69,7 @@ export function CommittedFundsPanel({
     preservedPeriodsOnRemove: string[]
     message: string
   } | null>(null)
+  const lastSheetAddAtRef = useRef(0)
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -155,6 +156,9 @@ export function CommittedFundsPanel({
       setAddModalOpen(true)
       return
     }
+    const now = Date.now()
+    if (now - lastSheetAddAtRef.current < 700) return
+    lastSheetAddAtRef.current = now
     const { scopeLevel, scopeId } = getDefaultCommitmentScope(state, viewScope)
     const id = actions.addCommitment({
       name: 'New monthly cost',
@@ -329,11 +333,6 @@ export function CommittedFundsPanel({
                       onClick={allExpanded ? collapseAllGroups : expandAllGroups}
                     >
                       {allExpanded ? 'Collapse all' : 'Expand all'}
-                    </button>
-                  )}
-                  {!editReadOnly && !useCards && (
-                    <button type="button" className="btn-secondary btn-tiny" onClick={addMonthlyRow}>
-                      + Add
                     </button>
                   )}
                 </div>

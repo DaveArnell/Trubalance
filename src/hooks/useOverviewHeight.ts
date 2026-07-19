@@ -2,10 +2,10 @@ import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPoi
 import { useEditReadOnly } from '../hooks/useEditReadOnly'
 import { MOBILE_LAYOUT_MQ } from './useMobileNav'
 
-const STORAGE_KEY = 'trubalance-overview-height-v3'
+const STORAGE_KEY = 'trubalance-overview-height-v4'
 export const OVERVIEW_HEIGHT_MIN = 56
 export const OVERVIEW_HEIGHT_MAX = 340
-export const OVERVIEW_HEIGHT_DEFAULT = 140
+export const OVERVIEW_HEIGHT_DEFAULT = 210
 export const OVERVIEW_HEIGHT_MOBILE_MAX = 420
 export const OVERVIEW_HEIGHT_MOBILE_DEFAULT = 280
 

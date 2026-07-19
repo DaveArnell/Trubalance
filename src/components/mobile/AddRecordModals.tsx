@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { AppState, PlannedFundingMethod, ScopeLevel, ViewScope } from '../../types'
 import {
@@ -87,6 +87,7 @@ export function AddMonthlyCostModal({
   const [dueDay, setDueDay] = useState('28')
   const [scopeKey, setScopeKey] = useState(`${defaults.scopeLevel}:${defaults.scopeId}`)
   const [error, setError] = useState('')
+  const savingRef = useRef(false)
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -97,6 +98,7 @@ export function AddMonthlyCostModal({
   }, [onClose])
 
   const handleSave = () => {
+    if (savingRef.current) return
     const parsedAmount = roundCurrency(toAmount(amount))
     if (!Number.isFinite(parsedAmount) || parsedAmount < 0) {
       setError('Enter a valid monthly amount.')
@@ -108,6 +110,7 @@ export function AddMonthlyCostModal({
       return
     }
     const scope = parseScopeKey(scopeKey, viewScope)
+    savingRef.current = true
     onSave({
       name: name.trim() || 'New monthly cost',
       amount: parsedAmount,
