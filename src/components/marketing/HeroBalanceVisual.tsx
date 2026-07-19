@@ -17,15 +17,6 @@ const BILLS = [
 
 type Bill = (typeof BILLS)[number]
 
-type DueRow = {
-  id: string
-  billId: string
-  label: string
-  amount: number
-  color: string
-  phase: 'landing' | 'due' | 'paid'
-}
-
 const CHART = { left: 28, right: 352, top: 18, bottom: 92, padBottom: 108 }
 
 function formatGbp(value: number) {
@@ -94,7 +85,6 @@ const DUE_HOLD_DAYS = 2.5
 type BillLedgerContext = {
   day: number
   poppingId: string | null
-  dueRows: DueRow[]
   paidBillIds: ReadonlySet<string>
   paymentDayByBill: Readonly<Record<string, number>>
 }
@@ -102,11 +92,6 @@ type BillLedgerContext = {
 type BillLedgerState = 'building' | 'due' | 'regrowing'
 
 function billLedgerState(bill: Bill, ctx: BillLedgerContext): BillLedgerState {
-  const inDueTray = ctx.dueRows.some(
-    (row) => row.billId === bill.id && (row.phase === 'landing' || row.phase === 'due'),
-  )
-  if (inDueTray) return 'due'
-
   if (ctx.paidBillIds.has(bill.id)) return 'regrowing'
 
   if (ctx.day < bill.dueDay) return 'building'
@@ -164,39 +149,26 @@ function totalCommitted(ctx: BillLedgerContext): number {
 function ledgerContextForDay(
   day: number,
   poppingId: string | null,
-  dueRows: DueRow[],
   paidBillIds: ReadonlySet<string>,
   paymentDayByBill: Readonly<Record<string, number>>,
 ): BillLedgerContext {
-  return { day, poppingId, dueRows, paidBillIds, paymentDayByBill }
+  return { day, poppingId, paidBillIds, paymentDayByBill }
 }
 
 /** Full-month outline for chart scale (deterministic payment pacing). */
 function ledgerContextForMonthOutline(simDay: number): BillLedgerContext {
   const paidBillIds = new Set<string>()
   const paymentDayByBill: Record<string, number> = {}
-  const dueRows: DueRow[] = []
 
   for (const bill of BILLS) {
     const paymentDay = bill.dueDay + DUE_HOLD_DAYS
     if (simDay >= paymentDay) {
       paidBillIds.add(bill.id)
       paymentDayByBill[bill.id] = paymentDay
-      continue
-    }
-    if (simDay >= bill.dueDay) {
-      dueRows.push({
-        id: `${bill.id}-outline`,
-        billId: bill.id,
-        label: bill.label,
-        amount: bill.amount,
-        color: bill.color,
-        phase: 'due',
-      })
     }
   }
 
-  return { day: simDay, poppingId: null, dueRows, paidBillIds, paymentDayByBill }
+  return { day: simDay, poppingId: null, paidBillIds, paymentDayByBill }
 }
 
 /** Other trading activity — low-frequency drift so the current account line stays smooth. */
@@ -230,7 +202,8 @@ function buildMonthSeries() {
     const bankVal = truthVal + committedVal + backgroundBankActivity(d)
     bank.push(bankVal)
     truth.push(truthVal)
-    accrued.push(committedVal)
+    // Committed line = gap between current account and True Balance
+    accrued.push(bankVal - truthVal)
   }
 
   const all = [...bank, ...truth, ...accrued]
@@ -306,7 +279,6 @@ function usePrefersReducedMotion() {
 function useMonthSimulation(active: boolean) {
   const [day, setDay] = useState(1)
   const [poppingId, setPoppingId] = useState<string | null>(null)
-  const [dueRows, setDueRows] = useState<DueRow[]>([])
   const [paidBillIds, setPaidBillIds] = useState<Set<string>>(() => new Set())
   const [paymentDayByBill, setPaymentDayByBill] = useState<Record<string, number>>({})
   const cycleRef = useRef(0)
@@ -319,7 +291,6 @@ function useMonthSimulation(active: boolean) {
     if (!active) {
       setDay(1)
       setPoppingId(null)
-      setDueRows([])
       setPaidBillIds(new Set())
       setPaymentDayByBill({})
       lastDayRef.current = 1
@@ -346,7 +317,6 @@ function useMonthSimulation(active: boolean) {
       lastDayRef.current = 1
       dayRef.current = 1
       setPoppingId(null)
-      setDueRows([])
       setPaidBillIds(new Set())
       setPaymentDayByBill({})
     }
@@ -375,41 +345,10 @@ function useMonthSimulation(active: boolean) {
         setPoppingId(bill.id)
 
         schedule(() => {
+          const paidDay = dayRef.current
           setPoppingId(null)
-          setDueRows((rows) => [
-            ...rows,
-            {
-              id: `${bill.id}-${triggerKey}`,
-              billId: bill.id,
-              label: bill.label,
-              amount: bill.amount,
-              color: bill.color,
-              phase: 'landing',
-            },
-          ])
-
-          schedule(() => {
-            setDueRows((rows) =>
-              rows.map((r) =>
-                r.id === `${bill.id}-${triggerKey}` ? { ...r, phase: 'due' } : r,
-              ),
-            )
-          }, 350)
-
-          schedule(() => {
-            const paidDay = dayRef.current
-            setPaidBillIds((ids) => new Set([...ids, bill.id]))
-            setPaymentDayByBill((map) => ({ ...map, [bill.id]: paidDay }))
-            setDueRows((rows) =>
-              rows.map((r) =>
-                r.id === `${bill.id}-${triggerKey}` ? { ...r, phase: 'paid' } : r,
-              ),
-            )
-          }, 2000)
-
-          schedule(() => {
-            setDueRows((rows) => rows.filter((r) => r.id !== `${bill.id}-${triggerKey}`))
-          }, 2800)
+          setPaidBillIds((ids) => new Set([...ids, bill.id]))
+          setPaymentDayByBill((map) => ({ ...map, [bill.id]: paidDay }))
         }, 480)
       }
 
@@ -423,7 +362,7 @@ function useMonthSimulation(active: boolean) {
     }
   }, [active])
 
-  return { day, poppingId, dueRows, paidBillIds, paymentDayByBill }
+  return { day, poppingId, paidBillIds, paymentDayByBill }
 }
 
 function MonthChart({
@@ -435,21 +374,25 @@ function MonthChart({
 }) {
   const marks = [1, 7, 14, 21, 28, 30]
 
-  const { bankPath, truthPath, headBank, headTruth } =
+  const { bankPath, truthPath, accruedPath, headBank, headTruth, headAccrued } =
     useMemo(() => {
-      const { bankSeries, truthSeries } = buildSmoothChartPaths(day)
+      const { bankSeries, truthSeries, accruedSeries } = buildSmoothChartPaths(day)
       const bankNow = interpolateSeriesAtDay(MONTH_SERIES.bank, day)
       const truthNow = interpolateSeriesAtDay(MONTH_SERIES.truth, day)
+      const accruedNow = interpolateSeriesAtDay(MONTH_SERIES.accrued, day)
 
       const bx = dayToX(day)
       const bankY = valueToY(bankNow, MONTH_SERIES.min, MONTH_SERIES.max)
       const truthY = valueToY(truthNow, MONTH_SERIES.min, MONTH_SERIES.max)
+      const accruedY = valueToY(accruedNow, MONTH_SERIES.min, MONTH_SERIES.max)
 
       return {
         bankPath: seriesToPoints(bankSeries, day, MONTH_SERIES.min, MONTH_SERIES.max),
         truthPath: seriesToPoints(truthSeries, day, MONTH_SERIES.min, MONTH_SERIES.max),
+        accruedPath: seriesToPoints(accruedSeries, day, MONTH_SERIES.min, MONTH_SERIES.max),
         headBank: { x: bx, y: bankY },
         headTruth: { x: bx, y: truthY },
+        headAccrued: { x: bx, y: accruedY },
       }
     }, [day])
 
@@ -474,6 +417,7 @@ function MonthChart({
           Day
         </text>
 
+        <polyline className="hero-month-line hero-month-line--accrued" points={accruedPath} />
         <polyline className="hero-month-line hero-month-line--bank" points={bankPath} />
         <polyline className="hero-month-line hero-month-line--true" points={truthPath} />
 
@@ -487,6 +431,7 @@ function MonthChart({
           />
         )}
 
+        <circle cx={headAccrued.x} cy={headAccrued.y} r={3.5} className="hero-month-dot hero-month-dot--accrued" />
         <circle cx={headBank.x} cy={headBank.y} r={4} className="hero-month-dot hero-month-dot--bank" />
         <circle cx={headTruth.x} cy={headTruth.y} r={3.5} className="hero-month-dot hero-month-dot--true" />
       </svg>
@@ -496,11 +441,11 @@ function MonthChart({
 
 export function HeroBalanceVisual() {
   const reducedMotion = usePrefersReducedMotion()
-  const { day, poppingId, dueRows, paidBillIds, paymentDayByBill } = useMonthSimulation(!reducedMotion)
+  const { day, poppingId, paidBillIds, paymentDayByBill } = useMonthSimulation(!reducedMotion)
 
   const ledgerCtx = useMemo(
-    () => ledgerContextForDay(day, poppingId, dueRows, paidBillIds, paymentDayByBill),
-    [day, poppingId, dueRows, paidBillIds, paymentDayByBill],
+    () => ledgerContextForDay(day, poppingId, paidBillIds, paymentDayByBill),
+    [day, poppingId, paidBillIds, paymentDayByBill],
   )
 
   const { bank: bankNow, truth: trueNow, committed: committedNow } = useMemo(
@@ -577,29 +522,6 @@ export function HeroBalanceVisual() {
                 <span className="hero-pot-label">{bill.label}</span>
                 <span className="hero-pot-amount">{formatShort(amount)}</span>
                 <span className="hero-pot-due muted">Day {bill.dueDay}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="hero-due-zone">
-          <p className="hero-zone-label hero-zone-label--due">Due</p>
-          <div className="hero-due-list">
-            {dueRows.length === 0 && (
-              <p className="hero-due-empty muted">Payments appear here on their due date</p>
-            )}
-            {dueRows.map((row) => (
-              <div
-                key={row.id}
-                className={`hero-due-row hero-due-row--${row.phase}`}
-                style={{ '--due-color': row.color } as CSSProperties}
-              >
-                <span className="hero-due-row-dot" aria-hidden />
-                <span className="hero-due-row-name">{row.label}</span>
-                <span className="hero-due-row-amount">{formatShort(row.amount)}</span>
-                <span className="hero-due-row-status">
-                  {row.phase === 'paid' ? 'Paid' : row.phase === 'landing' ? '…' : 'Due'}
-                </span>
               </div>
             ))}
           </div>
