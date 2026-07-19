@@ -1,5 +1,5 @@
 import type { CommitmentAccruingRow } from '../types'
-import { getAccrualCycle } from './commitmentCalculations'
+import { getAccrualCycle, getAccrualProgress } from './commitmentCalculations'
 import { getReferenceDate } from './referenceDate'
 
 function dateToKey(d: Date): string {
@@ -9,11 +9,18 @@ function dateToKey(d: Date): string {
   return `${y}-${m}-${day}`
 }
 
-/** Next due date key for an accruing row (end of current accrual cycle). */
+/**
+ * Next due date for timeline order.
+ * Uses accrual progress so that on/after the due day (cycle reset) the next month’s
+ * due date is used — freshly reset / least-full cards sort to the bottom.
+ */
 export function accruingNextDueDateKey(
   row: CommitmentAccruingRow,
   referenceDate: Date = getReferenceDate(),
 ): string {
+  const progress = getAccrualProgress(row.commitment, referenceDate)
+  if (progress) return dateToKey(progress.cycle.cycleEnd)
+
   const dueDay = row.commitment.dueDayOfMonth ?? 28
   const cycle = getAccrualCycle(referenceDate, dueDay)
   return dateToKey(cycle.cycleEnd)

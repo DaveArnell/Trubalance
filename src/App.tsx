@@ -845,7 +845,7 @@ function AppShellInner({
               onStart={() => setSetupWizardOpen(true)}
             />
           )}
-          {isSimulated && simulatedDateKey && (
+          {!isDemoSession && isSimulated && simulatedDateKey && (
             <div className="admin-date-banner" role="status">
               <span>
                 Viewing as <strong>{formatSnapshotDateLong(simulatedDateKey)}</strong> (simulated)

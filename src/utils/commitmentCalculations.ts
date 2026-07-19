@@ -310,7 +310,8 @@ export function getAccrualCycle(referenceDate: Date, dueDayOfMonth: number): Acc
 
   let cycleEnd = getDueDate(year, month, dueDay)
 
-  if (today.getTime() > cycleEnd.getTime()) {
+  // On or after the due day the cycle has rolled — next due is next month.
+  if (today.getTime() >= cycleEnd.getTime()) {
     const nextMonth = month === 11 ? 0 : month + 1
     const nextYear = month === 11 ? year + 1 : year
     cycleEnd = getDueDate(nextYear, nextMonth, dueDay)

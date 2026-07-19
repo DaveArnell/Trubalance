@@ -12184,9 +12184,10 @@ tr.sheet-row--received td {
   flex: 1;
 }
 
-.mobile-record-card-title {
+.mobile-record-card-title,
+.mobile-record-card h3.mobile-record-card-title {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 1.35rem;
   font-weight: 900;
   line-height: 1.15;
   letter-spacing: -0.03em;
@@ -12279,10 +12280,11 @@ tr.sheet-row--received td {
     text-overflow: ellipsis;
   }
 
-  .mobile-record-card-title {
+  .mobile-record-card-title,
+  .mobile-record-card h3.mobile-record-card-title {
     margin: 0;
     max-width: 100%;
-    font-size: 1.95rem;
+    font-size: 2.15rem;
     font-weight: 900;
     line-height: 1.02;
     letter-spacing: -0.045em;
@@ -19015,7 +19017,9 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .setup-edu-visual--cards .mobile-record-card-title,
-.setup-edu-annotated-item .mobile-record-card-title {
+.setup-edu-annotated-item .mobile-record-card-title,
+.setup-edu-visual--cards .mobile-record-card h3.mobile-record-card-title,
+.setup-edu-annotated-item .mobile-record-card h3.mobile-record-card-title {
   font-size: 1.15rem !important;
   font-weight: 900 !important;
   letter-spacing: -0.03em !important;

@@ -126,7 +126,11 @@ export function CommittedFundsPanel({
   } = useMonthlyCostGroupCollapse(state, monthlyCommitmentRows, viewScope)
 
   const timelineDisplayTree = useMemo<MonthlyCostDisplayNode[]>(
-    () => sortAccruingRowsByNextDue(simulatorRows).map((row) => ({ type: 'leaf', row })),
+    () =>
+      sortAccruingRowsByNextDue(simulatorRows, getReferenceDate()).map((row) => ({
+        type: 'leaf',
+        row,
+      })),
     [simulatorRows],
   )
 

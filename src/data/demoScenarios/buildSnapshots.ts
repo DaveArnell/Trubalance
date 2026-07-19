@@ -115,7 +115,8 @@ export function buildScenarioSnapshots(
 ): BalanceSnapshot[] {
   const snapshots: BalanceSnapshot[] = []
   const seen = new Set<string>()
-  const weeklyPoints = Math.max(26, Math.min(52, months * 2))
+  // Dense weekly history across the scenario span (balance log / Trends).
+  const weeklyPoints = Math.max(52, Math.min(156, months * 4))
 
   const addSnapshot = (date: string, scope: SnapshotScope, monthsAgo: number) => {
     const key = `${scope.type}:${scope.id}:${date}`

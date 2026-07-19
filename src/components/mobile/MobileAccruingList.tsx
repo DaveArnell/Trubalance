@@ -161,7 +161,12 @@ export function MobileAccruingList({
     [commitmentViews.buildingUp, viewScope, state],
   )
 
-  const timelineRows = useMemo(() => sortAccruingRowsByNextDue(filtered), [filtered])
+  const referenceDate = getReferenceDate()
+
+  const timelineRows = useMemo(
+    () => sortAccruingRowsByNextDue(filtered, referenceDate),
+    [filtered, referenceDate],
+  )
 
   const groupedTree = useMemo(() => {
     if (orderMode !== 'grouped') return null
@@ -172,8 +177,6 @@ export function MobileAccruingList({
   if (filtered.length === 0) {
     return <MobileRecordList emptyMessage="No monthly accruing costs in this view." />
   }
-
-  const referenceDate = getReferenceDate()
 
   const listBody =
     orderMode === 'grouped' && groupedTree
