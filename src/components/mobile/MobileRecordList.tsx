@@ -20,33 +20,72 @@ export function MobileSectionLabel({ children }: { children: ReactNode }) {
 export function MobileRecordCard({
   title,
   amount,
+  amountSecondary,
   meta,
   amountNegative,
+  progress,
+  progressColor,
+  onClick,
   children,
   actions,
 }: {
   title: ReactNode
   amount: ReactNode
+  amountSecondary?: ReactNode
   meta?: ReactNode
   amountNegative?: boolean
+  /** 0–1 fill for accrual cycle progress */
+  progress?: number
+  progressColor?: string
+  onClick?: () => void
   children?: ReactNode
   actions?: ReactNode
 }) {
-  return (
-    <article className="mobile-record-card">
+  const fill = progress != null ? Math.max(0, Math.min(1, progress)) : null
+  const interactive = Boolean(onClick)
+
+  const body = (
+    <>
+      {fill != null ? (
+        <div
+          className="mobile-record-card-progress"
+          aria-hidden
+        >
+          <div
+            className="mobile-record-card-progress-fill"
+            style={{
+              width: `${Math.round(fill * 100)}%`,
+              background: progressColor || 'var(--scope-accent, #0f766e)',
+            }}
+          />
+        </div>
+      ) : null}
       <div className="mobile-record-card-main">
         <div className="mobile-record-card-text">
           <h3 className="mobile-record-card-title">{title}</h3>
           {meta ? <p className="mobile-record-card-meta">{meta}</p> : null}
         </div>
-        <p
-          className={`mobile-record-card-amount${amountNegative ? ' mobile-record-card-amount--neg' : ''}`}
+        <div
+          className={`mobile-record-card-amount-block${amountNegative ? ' mobile-record-card-amount-block--neg' : ''}`}
         >
-          {amount}
-        </p>
+          <p className="mobile-record-card-amount">{amount}</p>
+          {amountSecondary ? (
+            <p className="mobile-record-card-amount-secondary">{amountSecondary}</p>
+          ) : null}
+        </div>
       </div>
       {children ? <div className="mobile-record-card-body">{children}</div> : null}
       {actions ? <div className="mobile-record-card-actions">{actions}</div> : null}
-    </article>
+    </>
   )
+
+  if (interactive) {
+    return (
+      <button type="button" className="mobile-record-card mobile-record-card--button" onClick={onClick}>
+        {body}
+      </button>
+    )
+  }
+
+  return <article className="mobile-record-card">{body}</article>
 }

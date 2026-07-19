@@ -355,16 +355,8 @@ export function useAppState(options?: UseAppStateOptions) {
     if (lastHydrateKeyRef.current === hydrateKey) return
     lastHydrateKeyRef.current = hydrateKey
 
-    // Initial app load uses resolveInitialAppState (localStorage when present). Only
-    // replace in-memory state when the cloud workspace is explicitly replaced (restore/import).
-    const isExplicitRemoteReplace =
-      version !== 0 && version !== '0' || Boolean(options?.defaultViewScope)
-    if (!isExplicitRemoteReplace) {
-      remoteHydratedRef.current = true
-      skipPersistRef.current = true
-      return
-    }
-
+    // Prefer the cloud workspace whenever it loads or is refreshed (phone ↔ web).
+    // Initial paint may use a local cache; this replaces it once remote state arrives.
     const next = normalizeWorkspaceState(cloneState(external))
     setState(next)
     undoStackRef.current = []
@@ -376,9 +368,16 @@ export function useAppState(options?: UseAppStateOptions) {
     } else {
       setViewScope(resolveDefaultViewScope(next))
     }
+    if (!options?.skipLocalPersist) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+      } catch {
+        /* ignore quota */
+      }
+    }
     skipPersistRef.current = true
     remoteHydratedRef.current = true
-  }, [options?.externalStateVersion, options?.workspaceId, options?.externalLoading, options?.defaultViewScope])
+  }, [options?.externalStateVersion, options?.workspaceId, options?.externalLoading, options?.defaultViewScope, options?.skipLocalPersist])
 
   useEffect(() => {
     let next = viewScope

@@ -9,6 +9,7 @@ import { WidgetGrid } from './components/WidgetGrid'
 import { useOverviewSize } from './hooks/useOverviewSize'
 import { OverviewStrip } from './components/OverviewStrip'
 import { MobileOverview } from './components/mobile/MobileOverview'
+import { MobileBottomNav } from './components/mobile/MobileBottomNav'
 import { GuidedTour } from './components/GuidedTour'
 import { SetupTourBanner, TourMenuButton } from './components/TourMenu'
 import { GuidedSetupWizard } from './components/onboarding/GuidedSetupWizard'
@@ -706,6 +707,14 @@ function AppShellInner({
                       <ViewingScopeBar state={app.state} viewScope={app.viewScope} variant="full" />
                     )}
                   </div>
+                  <div className="mobile-top-undo">
+                    <UndoRedoButtons
+                      canUndo={app.canUndo}
+                      canRedo={app.canRedo}
+                      onUndo={app.undo}
+                      onRedo={app.redo}
+                    />
+                  </div>
                 </div>
               </header>
 
@@ -717,6 +726,11 @@ function AppShellInner({
               />
 
               <WidgetGrid pageId={activePage} widgets={pageWidgets} />
+
+              <MobileBottomNav
+                activePage={activePage}
+                onNavigate={(pageId) => goToRoute(pageId)}
+              />
             </>
           ) : (
             <>

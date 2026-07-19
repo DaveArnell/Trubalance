@@ -25,6 +25,33 @@ import { emptyAppState, isBuiltinDemoWorkspace, isUserOwnedWorkspace, backupBrow
 import { readBrowserAppState } from '../hooks/useAppState'
 import { normalizeWorkspaceStateForDisplay } from '../utils/workspaceNormalize'
 
+/** Lightweight fingerprint so tab-focus reloads only remount UI when cloud data actually changed. */
+function workspaceSyncFingerprint(state: AppState): string {
+  const accounts = state.accounts
+    .map((a) => `${a.id}:${a.balance}:${a.updatedAt ?? ''}`)
+    .sort()
+    .join('|')
+  const commitments = state.commitments
+    .map(
+      (c) =>
+        `${c.id}:${c.lastPaidPeriod ?? ''}:${JSON.stringify(c.paidPeriodAmounts ?? {})}:${c.amount}:${c.dueDayOfMonth ?? ''}`,
+    )
+    .sort()
+    .join('|')
+  const receipts = state.expectedReceipts
+    .map((r) => `${r.id}:${r.amount}:${r.received ? 1 : 0}:${r.receivedDate ?? ''}`)
+    .sort()
+    .join('|')
+  return [
+    accounts,
+    commitments,
+    receipts,
+    state.snapshots.length,
+    state.historyRecords.length,
+    state.dayNotes?.length ?? 0,
+  ].join('#')
+}
+
 interface WorkspaceContextValue {
   workspaceId: string | null
   loading: boolean
@@ -96,6 +123,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const allowEmptyDeletesRef = useRef(false)
   const loadedStateRef = useRef<AppState | null>(null)
   const lastPersistedStateRef = useRef<AppState | null>(null)
+  const lastSyncFingerprintRef = useRef<string | null>(null)
   const loadedForUserRef = useRef<string | null>(null)
   const hasLoadedStateRef = useRef(
     (() => {
@@ -199,6 +227,11 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       lastPersistedStateRef.current = null
 
       setInitialRemoteState(state)
+      const fingerprint = workspaceSyncFingerprint(state)
+      if (lastSyncFingerprintRef.current !== fingerprint) {
+        lastSyncFingerprintRef.current = fingerprint
+        setRemoteStateVersion((v) => v + 1)
+      }
       loadedForUserRef.current = effectiveUserId
       hasLoadedStateRef.current = true
         })(),
@@ -229,6 +262,30 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     loadWorkspace()
   }, [loadWorkspace])
 
+  // Pull latest cloud state when returning to the tab (phone ↔ web).
+  useEffect(() => {
+    if (!remoteEnabled) return
+
+    let lastRefresh = 0
+    const refreshIfStale = () => {
+      if (document.visibilityState !== 'visible') return
+      if (!persistEnabledRef.current || readOnly) return
+      if (pendingStateRef.current || saveTimerRef.current) return
+      const now = Date.now()
+      if (now - lastRefresh < 2500) return
+      lastRefresh = now
+      void loadWorkspace()
+    }
+
+    const onFocus = () => refreshIfStale()
+    document.addEventListener('visibilitychange', refreshIfStale)
+    window.addEventListener('focus', onFocus)
+    return () => {
+      document.removeEventListener('visibilitychange', refreshIfStale)
+      window.removeEventListener('focus', onFocus)
+    }
+  }, [remoteEnabled, readOnly, loadWorkspace])
+
   const cancelPendingPersist = useCallback(() => {
     if (saveTimerRef.current) {
       clearTimeout(saveTimerRef.current)
@@ -254,6 +311,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         })
         if (pendingStateRef.current == null) {
           lastPersistedStateRef.current = state
+          lastSyncFingerprintRef.current = workspaceSyncFingerprint(state)
           setInitialRemoteState(state)
         }
       } catch (error) {
