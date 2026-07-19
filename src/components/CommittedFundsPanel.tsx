@@ -296,7 +296,7 @@ export function CommittedFundsPanel({
             <div className="sheet-section-head">
               <h3>Monthly costs</h3>
               <div className="sheet-section-actions">
-                {effectiveHasGroups && (
+                {effectiveHasGroups && !useCards && (
                   <button
                     type="button"
                     className="btn-ghost btn-tiny"

@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import type { AppState, ExpectedReceipt, ViewScope } from '../../types'
 import { getScopeItemLabel, itemMatchesScope } from '../../utils/scope'
-import { sortByOrder } from '../../utils/sortOrder'
 import { formatCurrency } from '../../utils/format'
 import { formatReceiptDateDisplay } from '../../utils/receiptCalculations'
 import { chartColorForScope } from '../../utils/businessTheme'
@@ -18,14 +17,23 @@ interface MobileReceiptsListProps {
   >
 }
 
+function sortReceiptsByExpectedDate(receipts: ExpectedReceipt[]): ExpectedReceipt[] {
+  return [...receipts].sort((a, b) => {
+    const dateA = a.expectedDate || '9999-12-31'
+    const dateB = b.expectedDate || '9999-12-31'
+    const cmp = dateA.localeCompare(dateB)
+    if (cmp !== 0) return cmp
+    return a.name.localeCompare(b.name)
+  })
+}
+
 export function MobileReceiptsList({ state, viewScope, actions }: MobileReceiptsListProps) {
   const [selected, setSelected] = useState<ExpectedReceipt | null>(null)
-  const receipts = sortByOrder(
+  const receipts = sortReceiptsByExpectedDate(
     state.expectedReceipts.filter(
       (receipt) =>
         !receipt.received && itemMatchesScope(state, viewScope, receipt.scopeLevel, receipt.scopeId),
     ),
-    (receipt) => receipt.sortOrder,
   )
 
   if (receipts.length === 0) {

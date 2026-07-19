@@ -12,8 +12,8 @@ import { useMobileNav } from '../hooks/useMobileNav'
 export type DashboardViewStyle = 'spreadsheet' | 'cards'
 export type AccruingOrderMode = 'grouped' | 'timeline'
 
-const VIEW_STYLE_KEY = 'trubalance-dashboard-view-style'
-const ORDER_MODE_KEY = 'trubalance-accruing-order-mode'
+const VIEW_STYLE_KEY = 'trubalance-dashboard-view-style-v2'
+const ORDER_MODE_KEY = 'trubalance-accruing-order-mode-v2'
 
 function readViewStyle(): DashboardViewStyle {
   try {
@@ -22,7 +22,7 @@ function readViewStyle(): DashboardViewStyle {
   } catch {
     /* ignore */
   }
-  return 'spreadsheet'
+  return 'cards'
 }
 
 function readOrderMode(): AccruingOrderMode {
@@ -32,7 +32,7 @@ function readOrderMode(): AccruingOrderMode {
   } catch {
     /* ignore */
   }
-  return 'grouped'
+  return 'timeline'
 }
 
 interface DashboardViewPreferencesValue {
@@ -53,7 +53,7 @@ export function DashboardViewPreferencesProvider({ children }: { children: React
     editReadOnly ? 'spreadsheet' : readViewStyle(),
   )
   const [accruingOrderMode, setOrderModeState] = useState<AccruingOrderMode>(() =>
-    editReadOnly ? 'grouped' : readOrderMode(),
+    editReadOnly ? 'timeline' : readOrderMode(),
   )
 
   const setViewStyle = useCallback(
@@ -108,7 +108,7 @@ export function useDashboardViewPreferences() {
       viewStyle: 'spreadsheet' as const,
       setViewStyle: (_style: DashboardViewStyle) => {},
       useCards: isMobile,
-      accruingOrderMode: 'grouped' as const,
+      accruingOrderMode: 'timeline' as const,
       setAccruingOrderMode: (_mode: AccruingOrderMode) => {},
     }
   }
