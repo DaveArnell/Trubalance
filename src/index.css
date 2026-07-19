@@ -1005,9 +1005,9 @@ body {
 
 .widget-slot-toolbar {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  z-index: 6;
+  top: 2px;
+  right: 6px;
+  z-index: 8;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -1122,16 +1122,22 @@ body {
   padding-right: 4.5rem;
 }
 
-/* Keep title/actions clear of the floating widget menu; KPI strips stay full-bleed. */
+/* Keep title/actions/help clear of the floating widget menu (⋯). */
 .widget-slot--reorderable .widget-slot-body .card-head-compact {
   padding-right: 0;
+  padding-top: 0.5rem;
 }
 
 .widget-slot--reorderable .widget-slot-body .card-head-compact > .card-head-title-row,
 .widget-slot--reorderable .widget-slot-body .card-head-compact > .card-head-actions,
-.widget-slot--reorderable .widget-slot-body .card-head-compact > .card-actions {
-  padding-right: 4.5rem;
+.widget-slot--reorderable .widget-slot-body .card-head-compact > .card-actions,
+.widget-slot--reorderable .widget-slot-body .card-head-compact > .card-head-toolbar {
+  padding-right: 2.85rem;
   box-sizing: border-box;
+}
+
+.widget-slot--reorderable .widget-slot-body .sheet-section-head {
+  padding-right: 2.85rem;
 }
 
 .widget-slot-chrome {
@@ -3868,6 +3874,12 @@ body.widget-canvas-resizing * {
   gap: 6px;
 }
 
+.card-head--accruing.card-head--widget-bar {
+  flex-direction: row;
+  align-items: center;
+  gap: 0;
+}
+
 .card-head--widget-bar {
   gap: 6px;
 }
@@ -3879,6 +3891,29 @@ body.widget-canvas-resizing * {
   column-gap: 8px;
   width: 100%;
   min-width: 0;
+}
+
+.card-head-toolbar--accruing {
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  column-gap: 10px;
+}
+
+.card-head-toolbar-left,
+.card-head-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.card-head-toolbar-left {
+  justify-self: start;
+  justify-content: flex-start;
+}
+
+.card-head-toolbar-right {
+  justify-self: end;
+  justify-content: flex-end;
 }
 
 .card-head-toolbar .btn-widget-add,
@@ -3905,10 +3940,13 @@ body.widget-canvas-resizing * {
 }
 
 .card-head-toolbar .help-btn,
-.card-head-toolbar .help-button {
+.card-head-toolbar .help-button,
+.card-head-toolbar-right .help-btn,
+.card-head-toolbar-right .help-button {
   justify-self: end;
   margin-left: 0;
   align-self: center;
+  flex-shrink: 0;
 }
 
 .card-lead-compact--below {
@@ -6058,20 +6096,33 @@ body.overview-split-dragging {
 }
 
 .overview-breakdown-table tr.sheet-row-final td:not(.sheet-row-label) {
-  font-size: clamp(0.78rem, 2.7cqi, 0.95rem);
+  font-size: 1.15rem !important;
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
   font-variant-numeric: tabular-nums;
+  line-height: 1.15;
 }
 
 .overview-breakdown-table tr.sheet-row-final .sheet-row-label {
-  font-size: clamp(0.7rem, 2.4cqi, 0.82rem);
+  font-size: 0.9rem !important;
   font-weight: 800;
+}
+
+.overview-breakdown-table.table-wrap-nowrap tr.sheet-row-final th,
+.overview-breakdown-table.table-wrap-nowrap tr.sheet-row-final td {
+  height: 2.35rem;
+  max-height: none;
 }
 
 .overview-breakdown-table tr.sheet-row-final td:not(.sheet-row-label):not(.sheet-cell-highlight):not(.sheet-cell-danger) {
   background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
   border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.overview-breakdown-table tr.sheet-row-final .sheet-cell-highlight,
+.overview-breakdown-table tr.sheet-row-final .sheet-cell-danger {
+  font-size: 1.15rem !important;
+  font-weight: 800;
 }
 
 .overview-breakdown-table .sheet-cell-masked {
