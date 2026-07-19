@@ -8,6 +8,7 @@ import { useDashboardViewPreferences } from '../contexts/DashboardViewPreference
 import { useSheetRowReorder } from '../hooks/useSheetRowReorder'
 import { receiptEditableCellIds, useSheetCellNavigation } from '../utils/sheetCellNavigation'
 import { HelpButton } from './HelpButton'
+import { CompactKpiStrip } from './CompactKpiStrip'
 import { WIDGET_HELP } from '../content/livingDashboard'
 import { formatCurrency } from '../utils/format'
 import { DuplicateRowButton, SheetDragCell, SheetDragHeader } from './committed/shared'
@@ -99,20 +100,15 @@ export function ExpectedReceiptsPanel({
               />
             </div>
             {totalAccrued > 0 ? (
-              <table className="kpi-table kpi-table--summary committed-funds-summary" aria-label="Receipts accrued">
-                <thead>
-                  <tr>
-                    <th className="col-amount col-amount--primary">Accrued in True Balance</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className="col-amount col-amount--primary kpi-primary">
-                      +{formatCurrency(totalAccrued)}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <CompactKpiStrip
+                items={[
+                  {
+                    label: 'Accrued in True Balance',
+                    value: `+${formatCurrency(totalAccrued)}`,
+                    emphasis: true,
+                  },
+                ]}
+              />
             ) : null}
             {!editReadOnly && (
               <div className="card-actions">

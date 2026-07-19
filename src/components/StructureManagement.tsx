@@ -98,6 +98,7 @@ function AccentColorPicker({
   const custom = isValidAccentColor(value) ? value : active
   const isTaken = (color: string) =>
     Boolean(takenColors?.has(color.toLowerCase()) && color.toLowerCase() !== active.toLowerCase())
+  const triggerColor = fallback
 
   const updatePanelPos = () => {
     if (!btnRef.current) return
@@ -212,7 +213,7 @@ function AccentColorPicker({
         aria-label={`${label} colour`}
         title="Change colour"
       >
-        <span className="org-accent-trigger-swatch" style={{ backgroundColor: active }} aria-hidden />
+        <span className="org-accent-trigger-swatch" style={{ backgroundColor: triggerColor }} aria-hidden />
       </button>
       {panel}
     </div>

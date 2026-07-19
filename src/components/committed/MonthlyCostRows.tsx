@@ -107,17 +107,17 @@ function MonthlyCostGroupRow({
         style={{ paddingLeft: `${6 + depth * 10}px` }}
       >
         <GroupToggle expanded={!collapsed} onClick={() => onToggle(node.id)} label={title} />
-        <span className="sheet-cell-value sheet-group-title">{title}</span>
+        <span className="sheet-cell-value sheet-group-title">
+          {title}
+          {node.subtitle ? ` · ${node.subtitle}` : ''}
+          {` · ${formatCurrency(node.accruedTotal)} accrued`}
+        </span>
       </td>
-      <td className={`committed-scope-col sheet-row-label ${fillClass}`}>
-        <span className="sheet-group-meta">{node.subtitle}</span>
-      </td>
-      <td className={`sheet-cell-readonly sheet-row-label ${fillClass}`}>—</td>
-      <td className={`sheet-num sheet-cell-readonly ${fillClass}`}>{formatCurrency(node.monthlyTotal)}</td>
-      <td className={`sheet-num sheet-cell-computed sheet-col-emphasis ${fillClass}`}>
-        {formatCurrency(node.accruedTotal)}
-      </td>
-      <td className={`sheet-num sheet-cell-computed ${fillClass}`}>{formatCurrency(node.dailyTotal)}</td>
+      <td className={`committed-scope-col sheet-row-label ${fillClass}`} />
+      <td className={`sheet-cell-readonly sheet-row-label ${fillClass}`} />
+      <td className={`sheet-num sheet-cell-readonly ${fillClass}`} />
+      <td className={`sheet-num sheet-cell-computed sheet-col-emphasis ${fillClass}`} />
+      <td className={`sheet-num sheet-cell-computed ${fillClass}`} />
       {!readOnly && <td className={`sheet-actions ${fillClass}`} />}
     </tr>
   )

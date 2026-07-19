@@ -81,7 +81,15 @@ export function MobileReceiptsList({ state, viewScope, actions }: MobileReceipts
             : receipt.amount
           const accrued = getEffectiveReceiptAmount(receipt, referenceDate)
           const isBuilding = isAccrual && target > 0
-          const progress = isBuilding ? Math.min(1, Math.max(0, accrued / target)) : undefined
+          const progress = isBuilding
+            ? Math.min(1, Math.max(0, accrued / target))
+            : target > 0 && accrued > 0
+              ? 1
+              : isAccrual
+                ? 0
+                : accrued > 0
+                  ? 1
+                  : undefined
 
           return (
             <MobileRecordCard

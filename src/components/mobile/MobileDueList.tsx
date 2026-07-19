@@ -3,7 +3,7 @@ import type { AppState, CommitmentDueRow, CommitmentViews } from '../../types'
 import {
   formatDueRowTiming,
   formatRolledDueTooltip,
-  getDueRowCommittedAmount,
+  getDueRowCardFunding,
   getDueRowKind,
   isReserveTransferDueRow,
   sortDueRowsByUrgency,
@@ -61,7 +61,6 @@ export function MobileDueList({
         {rows.map((row) => {
           const item = row.commitment
           const isReserveTransfer = isReserveTransferDueRow(row)
-          const kind = getDueRowKind(row, referenceDate)
           const timing = formatDueRowTiming(row, referenceDate)
           const rolled = formatRolledDueTooltip(row)
           const scopeLabel = isReserveTransfer
@@ -72,25 +71,19 @@ export function MobileDueList({
             : chartColorForScope(state, { type: item.scopeLevel, id: item.scopeId })
           const metaParts = [dueKindLabel(row), scopeLabel, timing, rolled].filter(Boolean)
 
-          const target = row.amount
-          const committed = getDueRowCommittedAmount(row, referenceDate)
-          const funding = item.fundingMethod ?? 'immediate'
-          const isBuilding =
-            item.schedule === 'planned' &&
-            funding !== 'immediate' &&
-            (kind === 'planned-saving' || kind === 'planned-open') &&
-            target > 0
-          const progress = isBuilding ? Math.min(1, Math.max(0, committed / target)) : undefined
+          const funding = getDueRowCardFunding(row, referenceDate)
 
           return (
             <MobileRecordCard
               key={row.id}
               title={item.name}
-              amount={formatCurrency(isBuilding ? committed : target)}
-              amountSecondary={isBuilding ? `/${formatCurrency(target)}` : undefined}
+              amount={formatCurrency(funding.displayAmount)}
+              amountSecondary={
+                funding.showRemaining ? `/${formatCurrency(funding.targetAmount)}` : undefined
+              }
               amountNegative
               meta={metaParts.join(' · ')}
-              progress={progress}
+              progress={funding.progress}
               progressColor={accent}
               accentColor={accent}
               onClick={() => setSelected(row)}

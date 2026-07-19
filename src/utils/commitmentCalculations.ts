@@ -810,6 +810,54 @@ export function getDueRowCommittedAmount(
   return row.amount
 }
 
+/** Card fill + amount for Due list: full when funded/due now, partial while building up. */
+export function getDueRowCardFunding(
+  row: CommitmentDueRow,
+  referenceDate: Date = getReferenceDate(),
+): {
+  progress: number
+  displayAmount: number
+  targetAmount: number
+  showRemaining: boolean
+} {
+  const targetAmount = row.amount
+  const committed = getDueRowCommittedAmount(row, referenceDate)
+  const item = row.commitment
+
+  if (item.schedule === 'planned') {
+    const method = item.fundingMethod ?? 'immediate'
+    const kind = getDueRowKind(row, referenceDate)
+    const fullyFunded =
+      method === 'immediate' ||
+      kind === 'planned-due' ||
+      (targetAmount > 0 && committed >= targetAmount - 0.005)
+
+    if (fullyFunded) {
+      return {
+        progress: 1,
+        displayAmount: targetAmount,
+        targetAmount,
+        showRemaining: false,
+      }
+    }
+
+    return {
+      progress: targetAmount > 0 ? Math.min(1, Math.max(0, committed / targetAmount)) : 0,
+      displayAmount: committed,
+      targetAmount,
+      showRemaining: true,
+    }
+  }
+
+  // Monthly / reserve items on the Due list are fully committed.
+  return {
+    progress: 1,
+    displayAmount: targetAmount,
+    targetAmount,
+    showRemaining: false,
+  }
+}
+
 export function sumDueRowAmounts(
   rows: CommitmentDueRow[],
   referenceDate: Date = getReferenceDate(),

@@ -109,13 +109,31 @@ export function getTakenAccentColors(
   state: AppState,
   exclude?: { type: 'business' | 'venue'; id: string },
 ): Set<string> {
-  const map = buildAccentAssignmentMap(state)
   const taken = new Set<string>()
   const excludeKey = exclude ? `${exclude.type}:${exclude.id}` : null
+
+  for (const business of state.businesses) {
+    const key = `business:${business.id}`
+    if (excludeKey === key) continue
+    if (isValidAccentColor(business.accentColor)) {
+      taken.add(normalizeAccent(business.accentColor))
+    }
+  }
+  for (const venue of state.venues) {
+    const key = `venue:${venue.id}`
+    if (excludeKey === key) continue
+    if (isValidAccentColor(venue.accentColor)) {
+      taken.add(normalizeAccent(venue.accentColor))
+    }
+  }
+
+  // Also block colours already shown via auto-assignment so defaults stay unique in the UI.
+  const map = buildAccentAssignmentMap(state)
   for (const [key, color] of map) {
     if (excludeKey && key === excludeKey) continue
     taken.add(normalizeAccent(color))
   }
+
   return taken
 }
 

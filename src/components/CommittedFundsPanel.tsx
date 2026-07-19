@@ -24,6 +24,7 @@ import { PlatformSheetTable, PlatformSheetWrap, ResizableSheetHeader } from './P
 import { committedMonthlyColumnsForMode } from '../utils/sheetColumnSpecs'
 import { getCommitmentDueOccurrences, getAccruingRowDailyRate } from '../utils/commitmentCalculations'
 import { ConfirmDialog } from './ConfirmDialog'
+import { CompactKpiStrip } from './CompactKpiStrip'
 import { MobileAccruingList } from './mobile/MobileAccruingList'
 
 type AccruingViewMode = 'list' | 'period'
@@ -276,22 +277,13 @@ export function CommittedFundsPanel({
           </div>
         </div>
 
-        <table className="kpi-table kpi-table--summary committed-funds-summary committed-funds-summary--accruing">
-          <thead>
-            <tr>
-              <th className="col-amount col-amount--side">Monthly total</th>
-              <th className="col-amount col-amount--primary">Accrued now</th>
-              <th className="col-amount col-amount--side">Per day</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="col-amount col-amount--side kpi-secondary">{formatCurrency(monthlyTotal)}</td>
-              <td className="col-amount col-amount--primary kpi-primary">{formatCurrency(accruingNow)}</td>
-              <td className="col-amount col-amount--side kpi-secondary">{formatCurrency(dailyTotal)}</td>
-            </tr>
-          </tbody>
-        </table>
+        <CompactKpiStrip
+          items={[
+            { label: 'Monthly total', value: formatCurrency(monthlyTotal) },
+            { label: 'Accrued now', value: formatCurrency(accruingNow), emphasis: true },
+            { label: 'Per day', value: formatCurrency(dailyTotal) },
+          ]}
+        />
       </div>
 
       <div className="card-scroll-body">

@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react'
 import type { AppState, ViewScope } from '../types'
-import { getBusinessAccentColor, resolveScopeBusinessId } from '../utils/businessTheme'
+import { chartColorForScope, getGroupAccentColor } from '../utils/businessTheme'
 import { getScopeLevelLabel, getScopePathSegments, getScopeLabel, hasMultipleViewScopes } from '../utils/scope'
 
 interface ViewingScopeBarProps {
@@ -10,11 +10,9 @@ interface ViewingScopeBarProps {
   variant?: 'full' | 'compact'
 }
 
-function segmentAccent(state: AppState, viewScope: ViewScope, isActive: boolean): string | undefined {
-  if (!isActive) return undefined
-  if (viewScope.type === 'group') return '#52525b'
-  const businessId = resolveScopeBusinessId(state, viewScope)
-  return businessId ? getBusinessAccentColor(state, businessId) : undefined
+function accentForScope(state: AppState, scope: ViewScope): string | undefined {
+  if (scope.type === 'group') return getGroupAccentColor(state, scope.id)
+  return chartColorForScope(state, scope)
 }
 
 export function ViewingScopeBar({ state, viewScope, variant = 'full' }: ViewingScopeBarProps) {
@@ -23,8 +21,7 @@ export function ViewingScopeBar({ state, viewScope, variant = 'full' }: ViewingS
 
   if (!multiScope) {
     const label = getScopeLabel(state, viewScope)
-    const businessId = resolveScopeBusinessId(state, viewScope)
-    const accent = businessId ? getBusinessAccentColor(state, businessId) : undefined
+    const accent = accentForScope(state, viewScope)
     return (
       <div
         className={`viewing-scope-bar viewing-scope-bar--${variant} viewing-scope-bar--simple`}
@@ -48,7 +45,9 @@ export function ViewingScopeBar({ state, viewScope, variant = 'full' }: ViewingS
 
       <ol className="viewing-scope-trail">
         {segments.map((segment, index) => {
-          const accent = segmentAccent(state, viewScope, segment.isActive)
+          const accent = segment.isActive
+            ? accentForScope(state, { type: segment.level, id: segment.id })
+            : undefined
           return (
             <li
               key={`${segment.level}:${segment.id}`}

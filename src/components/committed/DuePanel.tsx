@@ -30,6 +30,7 @@ import type { AppActions } from '../../hooks/useAppState'
 import { useSheetRowReorder } from '../../hooks/useSheetRowReorder'
 import { dueEditableCellIds, useSheetCellNavigation } from '../../utils/sheetCellNavigation'
 import { HelpButton } from '../HelpButton'
+import { CompactKpiStrip } from '../CompactKpiStrip'
 import { WIDGET_HELP } from '../../content/livingDashboard'
 import {
   buildPlannedFundingDraft,
@@ -350,18 +351,9 @@ export function DuePanel({
               <p className="muted card-lead-compact">Next due first — including reserve bills</p>
               <HelpButton id="due" openHelp={openHelp} setOpenHelp={setOpenHelp} text={WIDGET_HELP.due} />
             </div>
-            <table className="kpi-table kpi-table--summary committed-funds-summary" aria-label="Due total">
-              <thead>
-                <tr>
-                  <th className="col-amount col-amount--primary">Total due</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="col-amount col-amount--primary kpi-primary">{formatCurrency(dueTotal)}</td>
-                </tr>
-              </tbody>
-            </table>
+            <CompactKpiStrip
+              items={[{ label: 'Total due', value: formatCurrency(dueTotal), emphasis: true }]}
+            />
             {!editReadOnly && (
               <div className="card-actions">
                 <button type="button" className="btn-secondary btn-tiny" onClick={addPlannedRow}>
