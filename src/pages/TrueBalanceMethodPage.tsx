@@ -4,6 +4,7 @@ import {
   MarketingHeader,
   MarketingShell,
 } from '../components/marketing/MarketingLayout'
+import { HeroBalanceVisual } from '../components/marketing/HeroBalanceVisual'
 import { MethodWorkedExample } from '../components/marketing/MethodWorkedExample'
 import {
   METHOD_FOR_ACCOUNTANTS,
@@ -58,6 +59,13 @@ export function TrueBalanceMethodPage() {
               The True Balance Method removes those swings by recognising costs as they build, funding
               irregular bills monthly through the Reserve Planner, and giving you one stable decision
               number.
+            </p>
+          </div>
+          <div className="method-edu-inner method-balance-visual-wrap">
+            <HeroBalanceVisual />
+            <p className="method-balance-visual-caption muted">
+              Watch the bank account swing when bills land, while committed money builds and True
+              Balance stays the clearer line underneath.
             </p>
           </div>
         </section>
