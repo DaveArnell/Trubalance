@@ -844,8 +844,9 @@ export function SetupOnboardingWizard({
               {!reserveSetupStarted ? (
                 <>
                   <p className="setup-reserve-yours-hint">
-                    See how the Reserve Planner works with a quick example, then click{' '}
-                    <strong>Set up now</strong> in the footer to start your own plan for{' '}
+                    This example is on track for the month — reserve balance matches the plan, so
+                    there&apos;s no catch-up transfer. Click <strong>Set up now</strong> in the footer
+                    to start your own plan for{' '}
                     <strong>{primaryBusiness?.name ?? 'your business'}</strong>.
                   </p>
                   <SetupWidgetPreview previewId="reserve" />

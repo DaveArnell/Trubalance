@@ -17553,6 +17553,12 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .setup-flow-main--reserve .setup-onboarding-explain,
 .setup-flow-main--reserve .setup-reserve-yours-hint {
   max-width: 48rem;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.setup-flow-main--reserve .setup-flow-page-header h2 {
+  text-align: center;
 }
 
 .setup-flow-main--wide .setup-flow-step-panel--preview {

@@ -72,7 +72,7 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     id: 'reserve',
     title: "Now let's protect you from the big bills.",
     explain:
-      'VAT, corporation tax, insurance, annual renewals — the bills that catch businesses out because they\'re too big to pay from one month\'s income. The Reserve Planner calculates exactly how much to transfer into a savings account each month.\n\nAdd your buffer and bills below — it starts blank and saves straight to your account. Use Set up now in the footer to jump to the planner, or Continue when you\'re ready to move on.',
+      'VAT, corporation tax, insurance, annual renewals — the bills that are too big to pay from one month\'s income. The Reserve Planner works out how much to move into a savings account each month so the money is there when those bills land.\n\nBuffer is a safety margin: if a bill comes in a bit higher than you planned, the buffer covers the gap. Add one if you want that cushion — leave it at zero if you\'d rather keep the plan tight.\n\nThe example below is a plan that\'s already being followed. Use Set up now in the footer to start your own, or Continue when you\'re ready.',
     page: 'reserve-planner',
     spotlight: '[data-tour="reserve-planner-month"]',
     skippable: true,

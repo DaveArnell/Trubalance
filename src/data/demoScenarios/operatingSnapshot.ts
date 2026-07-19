@@ -1,8 +1,9 @@
-import type { AppState, Commitment, ReserveBill } from '../../types'
+import type { AppState, Commitment, ReserveBill, ReserveMonthConfirmation } from '../../types'
 import { getReferenceDate } from '../../utils/referenceDate'
 import { rollDemoRelativeDates } from './demoRollingDates'
 import { demoAccountUpdatedAt } from './dateHelpers'
 import { MONTHS } from '../../utils/format'
+import { computeReserveMonthEndBalances } from '../../utils/reserveCalculations'
 
 function dateOnly(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate())
@@ -88,18 +89,51 @@ function markReserveBillsOperatingCurrent(bills: ReserveBill[], today: Date): Re
 /**
  * Snap demo workspaces to a healthy operating day: due items cleared, only current-cycle accrual showing.
  * Expected receipts and planned due dates roll forward so they stay the same number of days ahead of today.
+ * Reserve accounts sit on this month's planned balance so the planner looks correctly followed (no catch-up transfer).
  */
 export function applyDemoOperatingSnapshot(state: AppState, today = getReferenceDate()): AppState {
   const rolled = rollDemoRelativeDates(state, today)
   const updatedAt = demoAccountUpdatedAt(today)
+  const monthIndex = today.getMonth()
+  const onPlanByPlannerId = new Map<string, number>()
+  const onPlanByAccountId = new Map<string, number>()
+  const pastConfirmationsByPlannerId = new Map<string, Record<string, ReserveMonthConfirmation>>()
+
+  for (const planner of rolled.reservePlanners) {
+    const monthEnds = computeReserveMonthEndBalances(planner)
+    const onPlan = monthEnds[monthIndex]?.balanceAfterBills
+    if (onPlan != null) {
+      onPlanByPlannerId.set(planner.id, onPlan)
+      if (planner.reserveAccountId) onPlanByAccountId.set(planner.reserveAccountId, onPlan)
+    }
+
+    const confirmations: Record<string, ReserveMonthConfirmation> = {}
+    for (let i = 0; i < monthIndex; i++) {
+      const row = monthEnds[i]
+      if (!row) continue
+      confirmations[row.month] = {
+        balance: row.balanceAfterBills,
+        confirmedAt: new Date(today.getFullYear(), i, 28).toISOString(),
+        transferDone: true,
+      }
+    }
+    if (Object.keys(confirmations).length > 0) {
+      pastConfirmationsByPlannerId.set(planner.id, confirmations)
+    }
+  }
 
   return {
     ...rolled,
-    accounts: rolled.accounts.map((account) => ({ ...account, updatedAt })),
+    accounts: rolled.accounts.map((account) => ({
+      ...account,
+      updatedAt,
+      balance: onPlanByAccountId.get(account.id) ?? account.balance,
+    })),
     commitments: markCommitmentsOperatingCurrent(rolled.commitments, today),
     reservePlanners: rolled.reservePlanners.map((planner) => ({
       ...planner,
-      monthConfirmations: undefined,
+      actualBalance: onPlanByPlannerId.get(planner.id) ?? planner.actualBalance,
+      monthConfirmations: pastConfirmationsByPlannerId.get(planner.id),
       bills: markReserveBillsOperatingCurrent(planner.bills, today),
     })),
   }
