@@ -1,8 +1,8 @@
-import { MobileRecordCard, MobileRecordList } from '../mobile/MobileRecordList'
+import { MobileRecordCard, MobileRecordList, MobileSectionLabel } from '../mobile/MobileRecordList'
 import { formatCurrency } from '../../utils/format'
 
 /**
- * Static Expected Receipts example in card style — mirrors the Due onboarding demo.
+ * Static Expected Receipts example — section labels teach the types; cards stay clean.
  */
 export function SetupReceiptCardsDemo() {
   return (
@@ -13,36 +13,33 @@ export function SetupReceiptCardsDemo() {
           <p className="setup-edu-due-demo-total">TOTAL {formatCurrency(7400)}</p>
         </div>
         <MobileRecordList>
+          <MobileSectionLabel>Due in — waiting to be marked received</MobileSectionLabel>
           <MobileRecordCard
             title="Client invoice"
-            scopeLabel="Coastal Attractions Ltd"
             amount={formatCurrency(3200)}
             amountPositive
             progress={1}
             progressColor="#059669"
             accentColor="#059669"
-            meta="Expected today · Stays until Received"
           />
+          <MobileSectionLabel>Future date — counted in full from today</MobileSectionLabel>
           <MobileRecordCard
             title="Venue hire deposit"
-            scopeLabel="Northgate Venues Ltd"
             amount={formatCurrency(1800)}
             amountPositive
             progress={1}
             progressColor="#059669"
             accentColor="#059669"
-            meta="28 Aug · Lump sum"
           />
+          <MobileSectionLabel>Future date — building up toward arrival</MobileSectionLabel>
           <MobileRecordCard
             title="Grant payment"
-            scopeLabel="Summit Leisure Group"
             amount={formatCurrency(840)}
             amountSecondary={`/ ${formatCurrency(4200)}`}
             amountPositive
             progress={840 / 4200}
             progressColor="#059669"
             accentColor="#059669"
-            meta="15 Sep · Building up"
           />
         </MobileRecordList>
       </div>

@@ -2,8 +2,7 @@ import { MobileRecordCard, MobileRecordList, MobileSectionLabel } from '../mobil
 import { formatCurrency } from '../../utils/format'
 
 /**
- * Static Due example in card style — teaches what Due looks like without
- * duplicating a second annotated strip or falling back to the sheet.
+ * Static Due example — section labels teach the types; cards stay clean.
  */
 export function SetupDueCardsDemo() {
   return (
@@ -14,38 +13,33 @@ export function SetupDueCardsDemo() {
           <p className="setup-edu-due-demo-total">TOTAL {formatCurrency(20900)}</p>
         </div>
         <MobileRecordList>
-          <MobileSectionLabel>Due now</MobileSectionLabel>
+          <MobileSectionLabel>Monthly bill — due now</MobileSectionLabel>
           <MobileRecordCard
             title="Wages"
-            scopeLabel="Northgate Venues Ltd"
             amount={formatCurrency(8400)}
             amountNegative
             progress={1}
             progressColor="#0f766e"
             accentColor="#0f766e"
-            meta="Due today · Stays until Paid"
           />
-          <MobileSectionLabel>Coming up</MobileSectionLabel>
+          <MobileSectionLabel>One-off — earmarked in full from today</MobileSectionLabel>
           <MobileRecordCard
             title="Seasonal marketing"
-            scopeLabel="Coastal Attractions Ltd"
             amount={formatCurrency(4500)}
             amountNegative
             progress={1}
             progressColor="#c2410c"
             accentColor="#c2410c"
-            meta="23 Aug · One-off"
           />
+          <MobileSectionLabel>One-off — building up a little each day</MobileSectionLabel>
           <MobileRecordCard
             title="Activity equipment"
-            scopeLabel="Northgate Venues Ltd"
             amount={formatCurrency(279)}
             amountSecondary={`/ ${formatCurrency(12000)}`}
             amountNegative
             progress={279 / 12000}
             progressColor="#c2410c"
             accentColor="#c2410c"
-            meta="30 Aug · One-off · building up"
           />
         </MobileRecordList>
       </div>

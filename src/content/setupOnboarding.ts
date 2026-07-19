@@ -56,7 +56,7 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     id: 'due-explain',
     title: 'Due — when it’s time to pay.',
     explain:
-      'When a monthly cost reaches its due date, it leaves Accruing and lands in Due. It stays there until you mark it Paid — so you can settle it when you’re ready, not the second the date hits.\n\nYou can also add one-off costs here (tax, equipment, deposits) so they’re counted in True Balance until they’re paid. The example below is how Due looks as cards.',
+      'When a monthly cost reaches its due date, it moves here from Accruing. It stays in Due until you mark it Paid — you decide when payment is done.\n\nYou can also add one-off costs with a future date (tax, equipment, deposits). When you add one, choose how True Balance treats it before that date.\n\nEarmark now — the full amount is subtracted from True Balance from day one, even though the bill isn’t due yet.\n\nBuild up — a little is set aside each day until the due date.\n\nThe example below shows a monthly bill that has become due, plus both one-off styles.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="due"]',
   },
@@ -64,7 +64,7 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     id: 'receipts-explain',
     title: 'Expected Receipts — money coming in.',
     explain:
-      'When you know money is on the way — an invoice you’ve sent, a grant, a refund — add it here so True Balance can look ahead. It stays in Expected Receipts until you mark it Received, so you decide when it’s actually in the bank.\n\nYou don’t have to add everything; just the amounts you already know about. The example below is how Expected Receipts looks as cards.',
+      'When you know money is on the way — an invoice, a grant, a refund — add it here so True Balance can look ahead. It stays until you mark it Received.\n\nIf the money has a future date, you choose how it counts before it arrives.\n\nCount it in full from today — if you’re confident it’s coming.\n\nBuild up toward the date — a little each day until then.\n\nThe example below shows both styles.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="expected-receipts"]',
   },

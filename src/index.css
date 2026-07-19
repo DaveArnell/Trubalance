@@ -18623,7 +18623,9 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .setup-edu-visual--cards .mobile-record-card-scope,
-.setup-edu-annotated-item .mobile-record-card-scope {
+.setup-edu-visual--cards .mobile-record-card-scope-block,
+.setup-edu-annotated-item .mobile-record-card-scope,
+.setup-edu-annotated-item .mobile-record-card-scope-block {
   display: none !important;
 }
 

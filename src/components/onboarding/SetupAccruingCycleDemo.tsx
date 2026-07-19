@@ -257,7 +257,7 @@ export function SetupAccruingCycleDemo() {
                     progress={1}
                     progressColor={card.accent}
                     accentColor={card.accent}
-                    meta={card.phase === 'paid' ? 'Paid' : 'Stays until paid'}
+                    meta={card.phase === 'paid' ? 'Paid' : undefined}
                   />
                 </div>
               ))
