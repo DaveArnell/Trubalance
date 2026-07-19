@@ -19,11 +19,10 @@ export function SeeHowItWorksPage() {
         <section className="demo-scenarios-section demo-scenarios-section--landing">
           <div className="marketing-section-inner">
             <div className="marketing-section-head demo-scenarios-head">
-              <p className="marketing-how-eyebrow">See the platform</p>
+              <p className="marketing-how-eyebrow">Try a demo</p>
               <h1>See it with a live business</h1>
               <p className="marketing-section-lead marketing-section-lead--home">
-                Explore a fully set-up workspace — commitments building daily, the Reserve Planner,
-                and one True Balance — without signing up.
+                Pick an example workspace and explore True Balance — no signup needed.
               </p>
               <p className="marketing-section-lead marketing-section-lead--home muted">
                 Prefer to understand the problem first?{' '}
@@ -35,17 +34,11 @@ export function SeeHowItWorksPage() {
 
             <div className="demo-scenarios-grid">
               {DEMO_SCENARIOS.map((scenario) => (
-                <article key={scenario.id} className="demo-scenario-card">
+                <article key={scenario.id} className="demo-scenario-card demo-scenario-card--compact">
+                  <span className="demo-scenario-badge">Demo</span>
                   <p className="demo-scenario-type">{scenario.businessType}</p>
                   <h2>{scenario.title}</h2>
                   <p className="demo-scenario-subtitle">{scenario.subtitle}</p>
-                  <p className="demo-scenario-history muted">{scenario.historyLabel}</p>
-                  <p>{scenario.description}</p>
-                  <ul className="demo-scenario-highlights">
-                    {scenario.highlights.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
                   <Link
                     to={`/demo/${scenario.id}`}
                     className="btn-primary btn-large demo-scenario-cta"
@@ -57,6 +50,9 @@ export function SeeHowItWorksPage() {
             </div>
 
             <div className="demo-scenarios-footer">
+              <Link to="/" className="btn-ghost">
+                ← Back to home
+              </Link>
               <Link to="/signup" className="btn-secondary btn-large">
                 Follow the Method in your business
               </Link>

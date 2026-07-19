@@ -50,7 +50,7 @@ export function DashboardViewPreferencesProvider({ children }: { children: React
   const editReadOnly = useEditReadOnly()
   const { isMobile } = useMobileNav()
   const [viewStyle, setViewStyleState] = useState<DashboardViewStyle>(() =>
-    editReadOnly ? 'spreadsheet' : readViewStyle(),
+    editReadOnly ? 'cards' : readViewStyle(),
   )
   const [accruingOrderMode, setOrderModeState] = useState<AccruingOrderMode>(() =>
     editReadOnly ? 'timeline' : readOrderMode(),

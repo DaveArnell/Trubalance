@@ -942,12 +942,20 @@ function AppShellInner({
                     </div>
                     <div className="top-bar-actions">
                       <TourMenuButton onSetupGuide={() => setSetupWizardOpen(true)} />
-                      <Link
-                        to={isDemoSession ? '/see-how-it-works' : '/'}
-                        className="btn-ghost btn-tiny top-bar-home-link"
-                      >
-                        {isDemoSession ? 'All demos' : 'Home'}
-                      </Link>
+                      {isDemoSession ? (
+                        <>
+                          <Link to="/" className="btn-ghost btn-tiny top-bar-home-link">
+                            Home
+                          </Link>
+                          <Link to="/see-how-it-works" className="btn-ghost btn-tiny top-bar-home-link">
+                            All demos
+                          </Link>
+                        </>
+                      ) : (
+                        <Link to="/" className="btn-ghost btn-tiny top-bar-home-link">
+                          Home
+                        </Link>
+                      )}
                       {isDemoSession && !user && (
                         <Link to="/signup" className="btn-primary btn-tiny">
                           Start free trial

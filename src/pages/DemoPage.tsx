@@ -43,6 +43,9 @@ export function DemoPage() {
       >
         <div className={`interactive-demo-shell${canEditDemo ? '' : ' interactive-demo-shell--locked'}`}>
           <div className="interactive-demo-banner">
+            <span className="interactive-demo-badge" aria-hidden>
+              Demo
+            </span>
             <label className="interactive-demo-scenario-picker">
               <span className="interactive-demo-scenario-picker-label">Example business</span>
               <select
@@ -58,13 +61,15 @@ export function DemoPage() {
               </select>
             </label>
             <p className="interactive-demo-banner-message">
-              Exploring the True Balance Method in a sample business — light daily logging, continuous
-              accrual and the Reserve Planner.
+              Sample data — explore freely. Nothing here is saved.
             </p>
             <div className="interactive-demo-banner-actions">
               {canEditDemo && (
                 <span className="interactive-demo-admin-hint">Admin edit mode</span>
               )}
+              <Link to="/" className="btn-ghost btn-tiny">
+                Home
+              </Link>
               <Link to="/see-how-it-works" className="btn-ghost btn-tiny">
                 All demos
               </Link>
