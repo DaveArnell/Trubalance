@@ -62,9 +62,9 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
   },
   {
     id: 'receipts-explain',
-    title: 'Money you’re expecting in.',
+    title: 'Expected Receipts — money coming in.',
     explain:
-      'Expected Receipts is the other side of the coin — invoices, grants, refunds you know are coming. Add them so True Balance can look ahead.\n\nWhen the money arrives, mark it received and it drops off. The example below is how those cards look.',
+      'When you know money is on the way — an invoice you’ve sent, a grant, a refund — add it here so True Balance can look ahead. It stays in Expected Receipts until you mark it Received, so you decide when it’s actually in the bank.\n\nYou don’t have to add everything; just the amounts you already know about. The example below is how Expected Receipts looks as cards.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="expected-receipts"]',
   },

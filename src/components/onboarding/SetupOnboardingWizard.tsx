@@ -23,6 +23,7 @@ import { SetupWidgetPreview } from './SetupWidgetPreview'
 import { SetupStructureTree } from './SetupStructureTree'
 import { SetupAccruingCycleDemo } from './SetupAccruingCycleDemo'
 import { SetupDueCardsDemo } from './SetupDueCardsDemo'
+import { SetupReceiptCardsDemo } from './SetupReceiptCardsDemo'
 import { ReservePlannerPanel } from '../ReservePlannerPanel'
 import { useAuth } from '../../contexts/AuthContext'
 import { trackEvent } from '../../services/eventTracking'
@@ -744,11 +745,11 @@ export function SetupOnboardingWizard({
 
           {step.id === 'receipts-explain' && (
             <>
-              <SetupWidgetPreview previewId="receipts" />
+              <SetupReceiptCardsDemo />
               <div className="setup-onboarding-form setup-onboarding-form--quick-add">
                 <p className="setup-onboarding-form-hint">
-                  Optional — money you&apos;re expecting in (invoices sent, grants, refunds). Skip if
-                  nothing applies yet.
+                  Optional — already know money that&apos;s coming in? Add it here. You can always
+                  add more later.
                 </p>
                 {receiptDrafts.map((draft, index) => (
                   <div
