@@ -738,22 +738,27 @@ export function useAppState(options?: UseAppStateOptions) {
   }
 
   // Commitments
-  const addCommitment = (item: Omit<Commitment, 'id'>) =>
+  const addCommitment = (item: Omit<Commitment, 'id'>): string | null => {
+    const id = newId()
+    let created = false
     update((s) => {
       if (!isCommitmentScopeAllowed(s, item.scopeLevel, item.scopeId)) return s
+      created = true
       return {
         ...s,
         commitments: [
           ...s.commitments,
           {
             ...item,
-            id: newId(),
+            id,
             createdAt: todayDateKey(),
             sortOrder: nextSortOrder(s.commitments.filter((c) => c.schedule === item.schedule)),
           },
         ],
       }
     })
+    return created ? id : null
+  }
 
   const updateCommitment = (id: string, patch: Partial<Commitment>) =>
     update((s) => {
@@ -999,16 +1004,19 @@ export function useAppState(options?: UseAppStateOptions) {
     })
 
   // Expected receipts
-  const addReceipt = (item: Omit<ExpectedReceipt, 'id' | 'received'>) =>
+  const addReceipt = (item: Omit<ExpectedReceipt, 'id' | 'received'>): string | null => {
+    const id = newId()
+    let created = false
     update((s) => {
       if (!isValidScopeReference(s, item.scopeLevel, item.scopeId)) return s
+      created = true
       return {
         ...s,
         expectedReceipts: [
           ...s.expectedReceipts,
           {
             ...item,
-            id: newId(),
+            id,
             received: false,
             createdAt: todayDateKey(),
             sortOrder: nextSortOrder(s.expectedReceipts),
@@ -1016,6 +1024,8 @@ export function useAppState(options?: UseAppStateOptions) {
         ],
       }
     })
+    return created ? id : null
+  }
 
   const updateReceipt = (id: string, patch: Partial<ExpectedReceipt>) =>
     update((s) => {

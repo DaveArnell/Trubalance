@@ -1,6 +1,6 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import type { AppState, ViewScope } from '../types'
-import { getCommitmentScopeOptionsForView, itemMatchesScope, getScopeItemLabel } from '../utils/scope'
+import { getCommitmentScopeOptionsForView, itemMatchesScope, getScopeItemLabel, getDefaultCommitmentScope } from '../utils/scope'
 import { sortByOrder } from '../utils/sortOrder'
 import type { AppActions } from '../hooks/useAppState'
 import { useEditReadOnly } from '../hooks/useEditReadOnly'
@@ -18,6 +18,7 @@ import { normalizeReceiptDateInput, getEffectiveReceiptAmount, formatReceiptDate
 import { InlineNumberCell, InlineTextCell, ScopeSelectCell } from './SheetInlineCells'
 import { MobileReceiptsList } from './mobile/MobileReceiptsList'
 import { MarkReceivedConfirmButton } from './committed/MarkPaidConfirmModal'
+import { AddReceiptModal } from './mobile/AddRecordModals'
 
 interface ExpectedReceiptsPanelProps {
   state: AppState
@@ -36,6 +37,8 @@ export function ExpectedReceiptsPanel({
 }: ExpectedReceiptsPanelProps) {
   const editReadOnly = useEditReadOnly()
   const { useCards } = useDashboardViewPreferences()
+  const [addModalOpen, setAddModalOpen] = useState(false)
+  const [highlightRowId, setHighlightRowId] = useState<string | null>(null)
   const options = getCommitmentScopeOptionsForView(state, viewScope)
   const visibleReceipts = useMemo(
     () =>
@@ -60,7 +63,9 @@ export function ExpectedReceiptsPanel({
   const orderedCellIds = useMemo(() => receiptEditableCellIds(visibleReceipts), [visibleReceipts])
   const { activeCell, activate, deactivate, makeTabHandler } = useSheetCellNavigation(orderedCellIds)
   const tryActivate = (cellId: string) => {
-    if (!editReadOnly) activate(cellId)
+    if (editReadOnly) return
+    if (highlightRowId && cellId.startsWith(highlightRowId)) setHighlightRowId(null)
+    activate(cellId)
   }
 
   const receiptRowIds = useMemo(() => visibleReceipts.map((item) => item.id), [visibleReceipts])
@@ -76,16 +81,26 @@ export function ExpectedReceiptsPanel({
   )
 
   const addRow = () => {
-    actions.addReceipt({
+    if (useCards) {
+      setAddModalOpen(true)
+      return
+    }
+    const { scopeLevel, scopeId } = getDefaultCommitmentScope(state, viewScope)
+    const id = actions.addReceipt({
       name: 'New receipt',
       amount: 0,
-      scopeLevel: viewScope.type,
-      scopeId: viewScope.id,
+      scopeLevel: viewScope.type === 'group' ? scopeLevel : viewScope.type,
+      scopeId: viewScope.type === 'group' ? scopeId : viewScope.id,
     })
+    if (id) {
+      setHighlightRowId(id)
+      activate(`${id}-name`)
+    }
   }
 
   return (
     <section id="expected-receipts" className="card widget-compact card-scroll">
+      <div className={`card-widget-sticky${useCards ? ' card-widget-sticky--cards' : ''}`}>
       <div className={`card-head card-head-compact${useCards ? ' card-head--receipts-cards' : ''}`}>
         {useCards ? (
           <>
@@ -99,17 +114,6 @@ export function ExpectedReceiptsPanel({
                 text={WIDGET_HELP.expectedReceipts}
               />
             </div>
-            {totalAccrued > 0 ? (
-              <CompactKpiStrip
-                items={[
-                  {
-                    label: 'Accrued in True Balance',
-                    value: `+${formatCurrency(totalAccrued)}`,
-                    emphasis: true,
-                  },
-                ]}
-              />
-            ) : null}
             {!editReadOnly && (
               <div className="card-actions">
                 <button type="button" className="btn-secondary btn-tiny" onClick={addRow}>
@@ -143,6 +147,18 @@ export function ExpectedReceiptsPanel({
             </div>
           </>
         )}
+      </div>
+      {useCards && totalAccrued > 0 ? (
+        <CompactKpiStrip
+          items={[
+            {
+              label: 'Accrued in True Balance',
+              value: `+${formatCurrency(totalAccrued)}`,
+              emphasis: true,
+            },
+          ]}
+        />
+      ) : null}
       </div>
 
       {outOfScopeReceipts.length > 0 ? (
@@ -189,7 +205,16 @@ export function ExpectedReceiptsPanel({
                   visibleReceipts.map((item, index) => {
                   const rowProps = receiptReorder.getRowProps(item.id, index)
                   return (
-                  <tr key={item.id} className={item.received ? 'sheet-row--received' : undefined} {...(editReadOnly ? {} : rowProps)}>
+                  <tr
+                    key={item.id}
+                    className={[
+                      item.received ? 'sheet-row--received' : '',
+                      highlightRowId === item.id ? 'sheet-row--new-highlight' : '',
+                    ]
+                      .filter(Boolean)
+                      .join(' ') || undefined}
+                    {...(editReadOnly ? {} : rowProps)}
+                  >
                     {!editReadOnly && (
                       <SheetDragCell rowId={item.id} getHandleProps={receiptReorder.getHandleProps} />
                     )}
@@ -312,6 +337,24 @@ export function ExpectedReceiptsPanel({
         </PlatformSheetWrap>
         )}
       </div>
+      {addModalOpen ? (
+        <AddReceiptModal
+          state={state}
+          viewScope={viewScope}
+          onClose={() => setAddModalOpen(false)}
+          onSave={(payload) => {
+            actions.addReceipt({
+              name: payload.name,
+              amount: payload.amount,
+              expectedDate: payload.expectedDate,
+              receiptTiming: payload.receiptTiming,
+              scopeLevel: payload.scopeLevel,
+              scopeId: payload.scopeId,
+            })
+            setAddModalOpen(false)
+          }}
+        />
+      ) : null}
     </section>
   )
 }

@@ -26,6 +26,7 @@ import { getCommitmentDueOccurrences, getAccruingRowDailyRate } from '../utils/c
 import { ConfirmDialog } from './ConfirmDialog'
 import { CompactKpiStrip } from './CompactKpiStrip'
 import { MobileAccruingList } from './mobile/MobileAccruingList'
+import { AddMonthlyCostModal } from './mobile/AddRecordModals'
 
 type AccruingViewMode = 'list' | 'period'
 
@@ -57,6 +58,8 @@ export function CommittedFundsPanel({
   const editReadOnly = useEditReadOnly()
   const { useCards, accruingOrderMode, setAccruingOrderMode } = useDashboardViewPreferences()
   const [viewMode, setViewMode] = useState<AccruingViewMode>('list')
+  const [addModalOpen, setAddModalOpen] = useState(false)
+  const [highlightRowId, setHighlightRowId] = useState<string | null>(null)
   const [pendingDueDayChange, setPendingDueDayChange] = useState<{
     commitmentId: string
     dueDayOfMonth: number
@@ -143,8 +146,12 @@ export function CommittedFundsPanel({
   const { activeCell, activate, deactivate, makeTabHandler } = useSheetCellNavigation(orderedCellIds)
 
   const addMonthlyRow = () => {
+    if (useCards) {
+      setAddModalOpen(true)
+      return
+    }
     const { scopeLevel, scopeId } = getDefaultCommitmentScope(state, viewScope)
-    actions.addCommitment({
+    const id = actions.addCommitment({
       name: 'New monthly cost',
       schedule: 'monthly',
       amount: 0,
@@ -153,6 +160,15 @@ export function CommittedFundsPanel({
       scopeId,
       status: 'healthy',
     })
+    if (id) {
+      setHighlightRowId(id)
+      activate(`${id}-name`)
+    }
+  }
+
+  const handleActivate = (cellId: string) => {
+    if (highlightRowId && cellId.startsWith(highlightRowId)) setHighlightRowId(null)
+    activate(cellId)
   }
 
   const saveMonthlyDueDay = (commitment: Commitment, dueDayOfMonth: number) => {
@@ -392,8 +408,9 @@ export function CommittedFundsPanel({
                         onToggleGroup={toggleGroup}
                         scopeOptions={options}
                         activeCell={activeCell}
+                        highlightRowId={highlightRowId}
                         onActivate={(id) => {
-                          if (!editReadOnly) activate(id)
+                          if (!editReadOnly) handleActivate(id)
                         }}
                         onDeactivate={deactivate}
                         makeTabHandler={makeTabHandler}
@@ -459,6 +476,25 @@ export function CommittedFundsPanel({
           </div>
         )}
       </div>
+      {addModalOpen ? (
+        <AddMonthlyCostModal
+          state={state}
+          viewScope={viewScope}
+          onClose={() => setAddModalOpen(false)}
+          onSave={(payload) => {
+            actions.addCommitment({
+              name: payload.name,
+              schedule: 'monthly',
+              amount: payload.amount,
+              dueDayOfMonth: payload.dueDayOfMonth,
+              scopeLevel: payload.scopeLevel,
+              scopeId: payload.scopeId,
+              status: 'healthy',
+            })
+            setAddModalOpen(false)
+          }}
+        />
+      ) : null}
     </section>
   )
 }

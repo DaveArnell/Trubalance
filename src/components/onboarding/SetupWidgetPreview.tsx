@@ -26,9 +26,10 @@ export type SetupWidgetPreviewId =
   | 'forecast'
 
 const noop = () => undefined
+const noopId = (): string | null => null
 
 const previewDueActions = {
-  addCommitment: noop,
+  addCommitment: noopId,
   updateCommitment: noop,
   updateCommitmentDuePeriodAmount: noop,
   updateReserveBill: noop,
@@ -61,7 +62,7 @@ const previewDueActions = {
 >
 
 const previewReceiptActions = {
-  addReceipt: noop,
+  addReceipt: noopId,
   updateReceipt: noop,
   markReceiptReceived: noop,
   deleteReceipt: noop,

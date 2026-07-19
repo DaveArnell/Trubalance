@@ -31,6 +31,7 @@ import { useSheetRowReorder } from '../../hooks/useSheetRowReorder'
 import { dueEditableCellIds, useSheetCellNavigation } from '../../utils/sheetCellNavigation'
 import { HelpButton } from '../HelpButton'
 import { CompactKpiStrip } from '../CompactKpiStrip'
+import { AddPlannedCostModal } from '../mobile/AddRecordModals'
 import { WIDGET_HELP } from '../../content/livingDashboard'
 import {
   buildPlannedFundingDraft,
@@ -89,6 +90,8 @@ export function DuePanel({
 }: DuePanelProps) {
   const editReadOnly = useEditReadOnly()
   const { useCards } = useDashboardViewPreferences()
+  const [addModalOpen, setAddModalOpen] = useState(false)
+  const [highlightRowId, setHighlightRowId] = useState<string | null>(null)
   const [fundingDraft, setFundingDraft] = useState<PlannedFundingDraft | null>(null)
   const [pendingPlannedPatch, setPendingPlannedPatch] = useState<{
     id: string
@@ -122,7 +125,30 @@ export function DuePanel({
   const orderedCellIds = useMemo(() => dueEditableCellIds(visibleDueRows), [visibleDueRows])
   const { activeCell, activate, deactivate, makeTabHandler } = useSheetCellNavigation(orderedCellIds)
   const tryActivate = (cellId: string) => {
-    if (!editReadOnly) activate(cellId)
+    if (editReadOnly) return
+    if (highlightRowId && cellId.includes(highlightRowId)) setHighlightRowId(null)
+    activate(cellId)
+  }
+
+  const addPlannedRow = () => {
+    if (useCards) {
+      setAddModalOpen(true)
+      return
+    }
+    const { scopeLevel, scopeId } = getDefaultCommitmentScope(state, viewScope)
+    const id = actions.addCommitment({
+      name: 'New planned cost',
+      schedule: 'planned',
+      amount: 0,
+      plannedLabel: '',
+      scopeLevel,
+      scopeId,
+      status: 'warning',
+    })
+    if (id) {
+      setHighlightRowId(id)
+      activate(`due-${id}-name`)
+    }
   }
   const dueReorder = useSheetRowReorder(dueRowIds, (orderedIds) => {
     const items = orderedIds.map((id) => {
@@ -178,19 +204,6 @@ export function DuePanel({
   const cancelPlannedFunding = () => {
     setFundingDraft(null)
     setPendingPlannedPatch(null)
-  }
-
-  const addPlannedRow = () => {
-    const { scopeLevel, scopeId } = getDefaultCommitmentScope(state, viewScope)
-    actions.addCommitment({
-      name: 'New planned cost',
-      schedule: 'planned',
-      amount: 0,
-      plannedLabel: '',
-      scopeLevel,
-      scopeId,
-      status: 'warning',
-    })
   }
 
   const saveReserveDueDay = (
@@ -343,6 +356,7 @@ export function DuePanel({
           onCancel={cancelPlannedFunding}
         />
       )}
+      <div className={`card-widget-sticky${useCards ? ' card-widget-sticky--cards' : ''}`}>
       <div className={`card-head card-head-compact${useCards ? ' card-head--due-cards' : ' card-head-with-kpi'}`}>
         {useCards ? (
           <>
@@ -351,9 +365,6 @@ export function DuePanel({
               <p className="muted card-lead-compact">Next due first — including reserve bills</p>
               <HelpButton id="due" openHelp={openHelp} setOpenHelp={setOpenHelp} text={WIDGET_HELP.due} />
             </div>
-            <CompactKpiStrip
-              items={[{ label: 'Total due', value: formatCurrency(dueTotal), emphasis: true }]}
-            />
             {!editReadOnly && (
               <div className="card-actions">
                 <button type="button" className="btn-secondary btn-tiny" onClick={addPlannedRow}>
@@ -388,6 +399,12 @@ export function DuePanel({
             </div>
           </>
         )}
+      </div>
+      {useCards ? (
+        <CompactKpiStrip
+          items={[{ label: 'Total due', value: formatCurrency(dueTotal), emphasis: true }]}
+        />
+      ) : null}
       </div>
 
       <div className="card-scroll-body">
@@ -469,7 +486,11 @@ export function DuePanel({
                           <tr
                             key={row.id}
                             {...(editReadOnly ? {} : rowProps)}
-                            className={[rowProps.className, `sheet-due-row--${rowKind}`]
+                            className={[
+                              rowProps.className,
+                              `sheet-due-row--${rowKind}`,
+                              highlightRowId === item.id ? 'sheet-row--new-highlight' : '',
+                            ]
                               .filter(Boolean)
                               .join(' ')}
                           >
@@ -499,7 +520,7 @@ export function DuePanel({
                             value={item.name}
                             isActive={activeCell === `due-${item.id}-name`}
                             placeholder="Name"
-                            onActivate={() => activate(`due-${item.id}-name`)}
+                            onActivate={() => tryActivate(`due-${item.id}-name`)}
                             onDeactivate={deactivate}
                             onSave={(name) => actions.updateCommitment(item.id, { name: name || 'Untitled' })}
                             onTab={makeTabHandler(`due-${item.id}-name`)}
@@ -740,6 +761,29 @@ export function DuePanel({
         </PlatformSheetWrap>
         )}
       </div>
+      {addModalOpen ? (
+        <AddPlannedCostModal
+          state={state}
+          viewScope={viewScope}
+          onClose={() => setAddModalOpen(false)}
+          onSave={(payload) => {
+            actions.addCommitment({
+              name: payload.name,
+              schedule: 'planned',
+              amount: payload.amount,
+              plannedDueDate: payload.plannedDueDate,
+              fundingMethod: payload.fundingMethod,
+              amountToReserveNow: payload.amountToReserveNow,
+              fundingStartDate: todayDateKey(),
+              plannedLabel: '',
+              scopeLevel: payload.scopeLevel,
+              scopeId: payload.scopeId,
+              status: 'warning',
+            })
+            setAddModalOpen(false)
+          }}
+        />
+      ) : null}
     </section>
   )
 }

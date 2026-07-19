@@ -4263,11 +4263,43 @@ body.widget-canvas-resizing * {
   justify-content: space-between;
   gap: 8px;
   width: 100%;
+  box-sizing: border-box;
   margin: 0 0 var(--space-1);
   padding: 6px 10px;
   background: var(--bg-subtle);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
+}
+
+.card-widget-sticky--cards {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  margin-bottom: var(--space-1);
+}
+
+.card-widget-sticky--cards .card-head {
+  margin-bottom: 0 !important;
+}
+
+.card-widget-sticky--cards .compact-kpi-strip {
+  width: 100%;
+  align-self: stretch;
+  margin-bottom: 0;
+}
+
+.sheet-row--new-highlight td {
+  box-shadow: inset 0 0 0 2px #0f766e;
+  background: color-mix(in srgb, #0f766e 8%, var(--bg-surface)) !important;
+}
+
+.sheet-row--new-highlight td:first-child {
+  box-shadow: inset 2px 0 0 0 #0f766e, inset 0 2px 0 0 #0f766e, inset 0 -2px 0 0 #0f766e;
+}
+
+.sheet-row--new-highlight td:last-child {
+  box-shadow: inset -2px 0 0 0 #0f766e, inset 0 2px 0 0 #0f766e, inset 0 -2px 0 0 #0f766e;
 }
 
 .compact-kpi-strip-item {
@@ -12044,10 +12076,10 @@ tr.sheet-row--received td {
   .mobile-record-card-title {
     margin: 0;
     max-width: 100%;
-    font-size: 1.42rem;
+    font-size: 1.65rem;
     font-weight: 900;
     line-height: 1.05;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.035em;
     color: #000;
     white-space: nowrap;
     overflow: hidden;

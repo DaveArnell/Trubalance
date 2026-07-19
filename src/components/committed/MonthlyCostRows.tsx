@@ -38,6 +38,7 @@ interface MonthlyCostRowsProps {
   onToggleGroup: (id: string) => void
   scopeOptions: ScopeOption[]
   activeCell: string | null
+  highlightRowId?: string | null
   onActivate: (id: string) => void
   onDeactivate: () => void
   makeTabHandler: (cellId: string) => SheetTabHandler
@@ -177,6 +178,7 @@ function MonthlyCostLeafRow({
   grouped,
   scopeOptions,
   activeCell,
+  highlighted,
   onActivate,
   onDeactivate,
   makeTabHandler,
@@ -192,6 +194,7 @@ function MonthlyCostLeafRow({
   grouped: boolean
   scopeOptions: ScopeOption[]
   activeCell: string | null
+  highlighted?: boolean
   onActivate: (id: string) => void
   onDeactivate: () => void
   makeTabHandler: (cellId: string) => SheetTabHandler
@@ -206,6 +209,7 @@ function MonthlyCostLeafRow({
   const rowClass = [
     grouped ? 'sheet-row-group-child' : '',
     isVenue ? 'sheet-row--venue' : grouped ? 'sheet-row--account' : '',
+    highlighted ? 'sheet-row--new-highlight' : '',
   ]
     .filter(Boolean)
     .join(' ')
@@ -306,6 +310,7 @@ export function MonthlyCostRows({
   onToggleGroup,
   scopeOptions,
   activeCell,
+  highlightRowId,
   onActivate,
   onDeactivate,
   makeTabHandler,
@@ -381,6 +386,7 @@ export function MonthlyCostRows({
             grouped={flat.depth > 0}
             scopeOptions={scopeOptions}
             activeCell={activeCell}
+            highlighted={highlightRowId === flat.row.commitment.id}
             onActivate={onActivate}
             onDeactivate={onDeactivate}
             makeTabHandler={makeTabHandler}
