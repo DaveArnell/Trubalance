@@ -1,16 +1,17 @@
-import { Fragment, useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { AppState, CommitmentDueRow, CommitmentViews } from '../../types'
 import {
-  buildDueRowSections,
   formatDueRowTiming,
   formatRolledDueTooltip,
+  getDueRowKind,
   isReserveTransferDueRow,
+  sortDueRowsByUrgency,
 } from '../../utils/commitmentCalculations'
 import { getScopeItemLabel } from '../../utils/scope'
 import { formatCurrency } from '../../utils/format'
 import { chartColorForScope } from '../../utils/businessTheme'
 import type { AppActions } from '../../hooks/useAppState'
-import { MobileRecordCard, MobileRecordList, MobileSectionLabel } from './MobileRecordList'
+import { MobileRecordCard, MobileRecordList } from './MobileRecordList'
 import { MobileDueDetailModal } from './MobileDueDetailModal'
 
 interface MobileDueListProps {
@@ -27,6 +28,13 @@ interface MobileDueListProps {
   onOpenReservePlanner?: (plannerId: string) => void
 }
 
+function dueKindLabel(row: CommitmentDueRow): string | null {
+  const kind = getDueRowKind(row)
+  if (kind === 'reserve') return 'Reserve'
+  if (kind === 'planned-due' || kind === 'planned-open' || kind === 'planned-saving') return 'Planned'
+  return null
+}
+
 export function MobileDueList({
   state,
   commitmentViews,
@@ -34,7 +42,10 @@ export function MobileDueList({
   onOpenReservePlanner,
 }: MobileDueListProps) {
   const [selected, setSelected] = useState<CommitmentDueRow | null>(null)
-  const sections = buildDueRowSections(commitmentViews.due)
+  const rows = useMemo(
+    () => sortDueRowsByUrgency(commitmentViews.due),
+    [commitmentViews.due],
+  )
 
   if (commitmentViews.due.length === 0) {
     return <MobileRecordList emptyMessage="Nothing due or planned yet." />
@@ -43,36 +54,31 @@ export function MobileDueList({
   return (
     <>
       <MobileRecordList>
-        {sections.map((section) => (
-          <Fragment key={section.kind}>
-            <MobileSectionLabel>{section.label}</MobileSectionLabel>
-            {section.rows.map((row) => {
-              const item = row.commitment
-              const isReserveTransfer = isReserveTransferDueRow(row)
-              const timing = formatDueRowTiming(row)
-              const rolled = formatRolledDueTooltip(row)
-              const scopeLabel = isReserveTransfer
-                ? 'Reserve transfer'
-                : getScopeItemLabel(state, item.scopeLevel, item.scopeId)
-              const accent = isReserveTransfer
-                ? undefined
-                : chartColorForScope(state, { type: item.scopeLevel, id: item.scopeId })
-              const metaParts = [scopeLabel, timing, rolled].filter(Boolean)
+        {rows.map((row) => {
+          const item = row.commitment
+          const isReserveTransfer = isReserveTransferDueRow(row)
+          const timing = formatDueRowTiming(row)
+          const rolled = formatRolledDueTooltip(row)
+          const scopeLabel = isReserveTransfer
+            ? 'Reserve transfer'
+            : getScopeItemLabel(state, item.scopeLevel, item.scopeId)
+          const accent = isReserveTransfer
+            ? undefined
+            : chartColorForScope(state, { type: item.scopeLevel, id: item.scopeId })
+          const metaParts = [dueKindLabel(row), scopeLabel, timing, rolled].filter(Boolean)
 
-              return (
-                <MobileRecordCard
-                  key={row.id}
-                  title={item.name}
-                  amount={formatCurrency(row.amount)}
-                  amountNegative
-                  meta={metaParts.join(' · ')}
-                  accentColor={accent}
-                  onClick={() => setSelected(row)}
-                />
-              )
-            })}
-          </Fragment>
-        ))}
+          return (
+            <MobileRecordCard
+              key={row.id}
+              title={item.name}
+              amount={formatCurrency(row.amount)}
+              amountNegative
+              meta={metaParts.join(' · ')}
+              accentColor={accent}
+              onClick={() => setSelected(row)}
+            />
+          )
+        })}
       </MobileRecordList>
 
       {selected ? (

@@ -10,6 +10,7 @@ import {
   type MonthlyCostGroupNode,
 } from '../../utils/monthlyCostGrouping'
 import type { ScopeOption } from '../../utils/scope'
+import { getScopeItemLabel } from '../../utils/scope'
 import type { SheetTabHandler } from '../../utils/sheetCellNavigation'
 import {
   InlineDayCell,
@@ -22,9 +23,12 @@ import {
   DailyAccrualCell,
   DismissibleCommitmentStatusDot,
   DuplicateRowButton,
+  ordinalDay,
+  ReadOnlyCell,
   SheetDragCell,
 } from './shared'
 import { getMonthlyBudgetAmount } from '../../utils/commitmentCalculations'
+import { getReserveAccrualTooltip } from '../../utils/reserveCalculations'
 
 interface MonthlyCostRowsProps {
   state: AppState
@@ -115,6 +119,52 @@ function MonthlyCostGroupRow({
       </td>
       <td className={`sheet-num sheet-cell-computed ${fillClass}`}>{formatCurrency(node.dailyTotal)}</td>
       {!readOnly && <td className={`sheet-actions ${fillClass}`} />}
+    </tr>
+  )
+}
+
+function MonthlyCostReserveLeafRow({
+  state,
+  row,
+  readOnly,
+}: {
+  state: AppState
+  row: CommitmentAccruingRow
+  readOnly?: boolean
+}) {
+  const item = row.commitment
+  return (
+    <tr key={item.id} className="sheet-row-computed sheet-row--reserve">
+      {!readOnly && <td className="sheet-drag-col sheet-cell--reserve" />}
+      <td className="sheet-cell-readonly sheet-cell--reserve" title="Edit in Reserve Planner">
+        <span className="sheet-cell-value">{item.name}</span>
+      </td>
+      <td className="committed-scope-col sheet-row-label sheet-cell--reserve">
+        {getScopeItemLabel(state, item.scopeLevel, item.scopeId)}
+      </td>
+      <ReadOnlyCell className="sheet-num sheet-cell--reserve" title="Accrues through the calendar month">
+        {ordinalDay(item.dueDayOfMonth ?? 28)}
+      </ReadOnlyCell>
+      <ReadOnlyCell className="sheet-num sheet-cell--reserve">{formatCurrency(item.amount)}</ReadOnlyCell>
+      <td className="sheet-num sheet-cell-computed sheet-cell--reserve sheet-col-emphasis">
+        <span title={getReserveAccrualTooltip()}>{formatCurrency(row.accruedAmount)}</span>
+      </td>
+      <td className="sheet-num sheet-cell-computed sheet-cell--reserve">
+        <DailyAccrualCell row={row} />
+      </td>
+      {!readOnly && (
+        <td className="sheet-actions">
+          <a
+            className="btn-ghost btn-tiny"
+            href={
+              row.reservePlannerId ? `#reserve-planner/${row.reservePlannerId}` : '#reserve-planner'
+            }
+            title="Open Reserve Planner"
+          >
+            Plan
+          </a>
+        </td>
+      )}
     </tr>
   )
 }
@@ -269,11 +319,17 @@ export function MonthlyCostRows({
   )
 
   const leafIds = useMemo(
-    () => flatRows.filter((row) => row.kind === 'leaf').map((row) => row.row.commitment.id),
+    () =>
+      flatRows.flatMap((row) =>
+        row.kind === 'leaf' && row.row.source !== 'reserve' ? [row.row.commitment.id] : [],
+      ),
     [flatRows],
   )
 
-  const allMonthlyIds = useMemo(() => rows.map((row) => row.commitment.id), [rows])
+  const allMonthlyIds = useMemo(
+    () => rows.filter((row) => row.source !== 'reserve').map((row) => row.commitment.id),
+    [rows],
+  )
 
   const handleReorder = useCallback(
     (visibleOrderedIds: string[]) => {
@@ -304,7 +360,17 @@ export function MonthlyCostRows({
         }
 
         const index = leafIndex
-        leafIndex += 1
+        if (flat.row.source !== 'reserve') leafIndex += 1
+        if (flat.row.source === 'reserve') {
+          return (
+            <MonthlyCostReserveLeafRow
+              key={flat.row.commitment.id}
+              state={state}
+              row={flat.row}
+              readOnly={readOnly}
+            />
+          )
+        }
         return (
           <MonthlyCostLeafRow
             key={flat.row.commitment.id}

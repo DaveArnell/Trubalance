@@ -122,12 +122,14 @@ export function CommittedFundsPanel({
   } = useMonthlyCostGroupCollapse(state, monthlyCommitmentRows, viewScope)
 
   const timelineDisplayTree = useMemo<MonthlyCostDisplayNode[]>(
-    () => sortAccruingRowsByNextDue(monthlyCommitmentRows).map((row) => ({ type: 'leaf', row })),
-    [monthlyCommitmentRows],
+    () => sortAccruingRowsByNextDue(simulatorRows).map((row) => ({ type: 'leaf', row })),
+    [simulatorRows],
   )
 
   const displayTree =
     accruingOrderMode === 'timeline' ? timelineDisplayTree : groupedDisplayTree
+  const sheetRows =
+    accruingOrderMode === 'timeline' ? simulatorRows : monthlyCommitmentRows
   const effectiveHasGroups = accruingOrderMode === 'grouped' && hasGroups
   const effectiveCollapsed =
     accruingOrderMode === 'timeline' ? new Set<string>() : collapsedGroups
@@ -295,38 +297,49 @@ export function CommittedFundsPanel({
           <MonthlyCostPeriodView rows={simulatorRows} compact />
         ) : (
           <div className="sheet-section sheet-section-compact">
-            <div className="sheet-section-head">
-              <h3>Monthly costs</h3>
-              <div className="sheet-section-actions">
-                {effectiveHasGroups && !useCards && (
-                  <button
-                    type="button"
-                    className="btn-ghost btn-tiny"
-                    onClick={allExpanded ? collapseAllGroups : expandAllGroups}
-                  >
-                    {allExpanded ? 'Collapse all' : 'Expand all'}
-                  </button>
-                )}
-                {!editReadOnly && (
-                <button type="button" className="btn-secondary btn-tiny" onClick={addMonthlyRow}>
-                  + Add
-                </button>
-                )}
+            {!useCards && (
+              <div className="sheet-section-head">
+                <h3>Monthly costs</h3>
+                <div className="sheet-section-actions">
+                  {effectiveHasGroups && (
+                    <button
+                      type="button"
+                      className="btn-ghost btn-tiny"
+                      onClick={allExpanded ? collapseAllGroups : expandAllGroups}
+                    >
+                      {allExpanded ? 'Collapse all' : 'Expand all'}
+                    </button>
+                  )}
+                  {!editReadOnly && (
+                    <button type="button" className="btn-secondary btn-tiny" onClick={addMonthlyRow}>
+                      + Add
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
             {!hasRows ? (
               <p className="muted">No monthly costs yet.</p>
             ) : useCards ? (
-              <MobileAccruingList
-                state={state}
-                viewScope={viewScope}
-                commitmentViews={commitmentViews}
-                orderMode={accruingOrderMode}
-                onSaveCommitment={(id, patch) => actions.updateCommitment(id, patch)}
-                onSaveDueDay={saveMonthlyDueDay}
-                onDuplicateCommitment={(id) => actions.duplicateCommitment(id)}
-                onDeleteCommitment={(id) => actions.deleteCommitment(id)}
-              />
+              <>
+                {!editReadOnly && (
+                  <div className="sheet-section-actions sheet-section-actions--cards">
+                    <button type="button" className="btn-secondary btn-tiny" onClick={addMonthlyRow}>
+                      + Add
+                    </button>
+                  </div>
+                )}
+                <MobileAccruingList
+                  state={state}
+                  viewScope={viewScope}
+                  commitmentViews={commitmentViews}
+                  orderMode={accruingOrderMode}
+                  onSaveCommitment={(id, patch) => actions.updateCommitment(id, patch)}
+                  onSaveDueDay={saveMonthlyDueDay}
+                  onDuplicateCommitment={(id) => actions.duplicateCommitment(id)}
+                  onDeleteCommitment={(id) => actions.deleteCommitment(id)}
+                />
+              </>
             ) : (
               <PlatformSheetWrap
                 storageKey={editReadOnly ? 'committed-monthly-readonly' : 'committed-monthly'}
@@ -379,7 +392,7 @@ export function CommittedFundsPanel({
                     <tbody>
                       <MonthlyCostRows
                         state={state}
-                        rows={monthlyCommitmentRows}
+                        rows={sheetRows}
                         displayTree={displayTree}
                         collapsedGroups={effectiveCollapsed}
                         onToggleGroup={toggleGroup}
@@ -394,7 +407,8 @@ export function CommittedFundsPanel({
                         actions={actions}
                         readOnly={editReadOnly}
                       />
-                      {reserveAccrualRows.map((row) => {
+                      {accruingOrderMode === 'grouped' &&
+                        reserveAccrualRows.map((row) => {
                         const { commitment: item, accruedAmount } = row
                         return (
                           <tr key={item.id} className="sheet-row-computed sheet-row--reserve">

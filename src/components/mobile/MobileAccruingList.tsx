@@ -32,7 +32,8 @@ function accruingMeta(state: AppState, row: CommitmentAccruingRow) {
   const scope = getScopeItemLabel(state, commitment.scopeLevel, commitment.scopeId)
   const dueDay =
     commitment.dueDayOfMonth != null ? `Due ${ordinalDay(commitment.dueDayOfMonth)}` : null
-  return [scope, dueDay].filter(Boolean).join(' · ')
+  const kind = row.source === 'reserve' ? 'Reserve' : null
+  return [kind, scope, dueDay].filter(Boolean).join(' · ')
 }
 
 function rowAccent(state: AppState, row: CommitmentAccruingRow): string {

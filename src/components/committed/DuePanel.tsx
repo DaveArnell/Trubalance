@@ -342,29 +342,60 @@ export function DuePanel({
           onCancel={cancelPlannedFunding}
         />
       )}
-      <div className="card-head card-head-compact card-head-with-kpi">
-        <h2>Due</h2>
-        <table className="kpi-table kpi-table--head kpi-table--totals" aria-label="Due total">
-          <tbody>
-            <tr>
-              <th scope="row">Total</th>
-              <td className="col-amount kpi-primary">{formatCurrency(dueTotal)}</td>
-            </tr>
-          </tbody>
-        </table>
-        <div className="card-actions">
-          {!editReadOnly && (
-            <button type="button" className="btn-secondary btn-tiny" onClick={addPlannedRow}>
-              + Add planned
-            </button>
-          )}
-          <HelpButton
-            id="due"
-            openHelp={openHelp}
-            setOpenHelp={setOpenHelp}
-            text={WIDGET_HELP.due}
-          />
-        </div>
+      <div className={`card-head card-head-compact${useCards ? ' card-head--due-cards' : ' card-head-with-kpi'}`}>
+        {useCards ? (
+          <>
+            <div className="card-head-title-row">
+              <h2>Due</h2>
+              <p className="muted card-lead-compact">Next due first — including reserve bills</p>
+              <HelpButton id="due" openHelp={openHelp} setOpenHelp={setOpenHelp} text={WIDGET_HELP.due} />
+            </div>
+            <table className="kpi-table kpi-table--summary committed-funds-summary" aria-label="Due total">
+              <thead>
+                <tr>
+                  <th className="col-amount col-amount--primary">Total due</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="col-amount col-amount--primary kpi-primary">{formatCurrency(dueTotal)}</td>
+                </tr>
+              </tbody>
+            </table>
+            {!editReadOnly && (
+              <div className="card-actions">
+                <button type="button" className="btn-secondary btn-tiny" onClick={addPlannedRow}>
+                  + Add planned
+                </button>
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            <h2>Due</h2>
+            <table className="kpi-table kpi-table--head kpi-table--totals" aria-label="Due total">
+              <tbody>
+                <tr>
+                  <th scope="row">Total</th>
+                  <td className="col-amount kpi-primary">{formatCurrency(dueTotal)}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div className="card-actions">
+              {!editReadOnly && (
+                <button type="button" className="btn-secondary btn-tiny" onClick={addPlannedRow}>
+                  + Add planned
+                </button>
+              )}
+              <HelpButton
+                id="due"
+                openHelp={openHelp}
+                setOpenHelp={setOpenHelp}
+                text={WIDGET_HELP.due}
+              />
+            </div>
+          </>
+        )}
       </div>
 
       <div className="card-scroll-body">

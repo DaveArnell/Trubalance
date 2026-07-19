@@ -85,28 +85,68 @@ export function ExpectedReceiptsPanel({
 
   return (
     <section id="expected-receipts" className="card widget-compact card-scroll">
-      <div className="card-head card-head-compact">
-        <div>
-          <h2>Expected Receipts</h2>
-          {totalAccrued > 0 ? (
-            <p className="muted widget-subtitle">
-              Accrued in True Balance: +{formatCurrency(totalAccrued)}
-            </p>
-          ) : null}
-        </div>
-        <div className="card-actions">
-          {!editReadOnly && (
-            <button type="button" className="btn-secondary btn-tiny" onClick={addRow}>
-              + Add row
-            </button>
-          )}
-          <HelpButton
-            id="receipts"
-            openHelp={openHelp}
-            setOpenHelp={setOpenHelp}
-            text={WIDGET_HELP.expectedReceipts}
-          />
-        </div>
+      <div className={`card-head card-head-compact${useCards ? ' card-head--receipts-cards' : ''}`}>
+        {useCards ? (
+          <>
+            <div className="card-head-title-row">
+              <h2>Expected Receipts</h2>
+              <p className="muted card-lead-compact">Soonest expected date first</p>
+              <HelpButton
+                id="receipts"
+                openHelp={openHelp}
+                setOpenHelp={setOpenHelp}
+                text={WIDGET_HELP.expectedReceipts}
+              />
+            </div>
+            {totalAccrued > 0 ? (
+              <table className="kpi-table kpi-table--summary committed-funds-summary" aria-label="Receipts accrued">
+                <thead>
+                  <tr>
+                    <th className="col-amount col-amount--primary">Accrued in True Balance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="col-amount col-amount--primary kpi-primary">
+                      +{formatCurrency(totalAccrued)}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            ) : null}
+            {!editReadOnly && (
+              <div className="card-actions">
+                <button type="button" className="btn-secondary btn-tiny" onClick={addRow}>
+                  + Add
+                </button>
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            <div>
+              <h2>Expected Receipts</h2>
+              {totalAccrued > 0 ? (
+                <p className="muted widget-subtitle">
+                  Accrued in True Balance: +{formatCurrency(totalAccrued)}
+                </p>
+              ) : null}
+            </div>
+            <div className="card-actions">
+              {!editReadOnly && (
+                <button type="button" className="btn-secondary btn-tiny" onClick={addRow}>
+                  + Add row
+                </button>
+              )}
+              <HelpButton
+                id="receipts"
+                openHelp={openHelp}
+                setOpenHelp={setOpenHelp}
+                text={WIDGET_HELP.expectedReceipts}
+              />
+            </div>
+          </>
+        )}
       </div>
 
       {outOfScopeReceipts.length > 0 ? (
