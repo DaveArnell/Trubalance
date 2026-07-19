@@ -1,19 +1,18 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import type { AppState, CommitmentDueRow, CommitmentViews } from '../../types'
 import {
+  buildDueRowSections,
   formatDueRowTiming,
   formatRolledDueTooltip,
   getDueRowCardFunding,
-  getDueRowKind,
   isReserveTransferDueRow,
-  sortDueRowsByUrgency,
 } from '../../utils/commitmentCalculations'
 import { getCardScopeMetaLabel } from '../../utils/scope'
 import { formatCurrency } from '../../utils/format'
-import { chartColorForScope } from '../../utils/businessTheme'
+import { chartColorForScope, getBusinessAccentColor } from '../../utils/businessTheme'
 import { getReferenceDate } from '../../utils/referenceDate'
 import type { AppActions } from '../../hooks/useAppState'
-import { MobileRecordCard, MobileRecordList } from './MobileRecordList'
+import { MobileRecordCard, MobileRecordList, MobileSectionLabel } from './MobileRecordList'
 import { MobileDueDetailModal } from './MobileDueDetailModal'
 
 interface MobileDueListProps {
@@ -30,11 +29,35 @@ interface MobileDueListProps {
   onOpenReservePlanner?: (plannerId: string) => void
 }
 
-function dueKindLabel(row: CommitmentDueRow): string | null {
-  const kind = getDueRowKind(row)
-  if (kind === 'reserve') return 'Reserve'
-  if (kind === 'planned-due' || kind === 'planned-open' || kind === 'planned-saving') return 'Planned'
-  return null
+/** Reserve-plan dues use the business colour; other rows use their own scope colour. */
+export function getDueRowAccentColor(state: AppState, row: CommitmentDueRow): string | undefined {
+  if (row.source === 'reserve') {
+    if (row.reservePlannerId) {
+      const planner = state.reservePlanners.find((entry) => entry.id === row.reservePlannerId)
+      if (planner) return getBusinessAccentColor(state, planner.businessId)
+    }
+    if (row.commitment.scopeLevel === 'business') {
+      return getBusinessAccentColor(state, row.commitment.scopeId)
+    }
+    const venue = state.venues.find((entry) => entry.id === row.commitment.scopeId)
+    if (venue) return getBusinessAccentColor(state, venue.businessId)
+  }
+
+  return chartColorForScope(state, {
+    type: row.commitment.scopeLevel,
+    id: row.commitment.scopeId,
+  })
+}
+
+function dueRowScopeMeta(state: AppState, row: CommitmentDueRow): string | null {
+  if (isReserveTransferDueRow(row)) return 'Reserve transfer'
+  if (row.source === 'reserve' && row.reservePlannerId) {
+    const planner = state.reservePlanners.find((entry) => entry.id === row.reservePlannerId)
+    if (planner) {
+      return getCardScopeMetaLabel(state, 'business', planner.businessId)
+    }
+  }
+  return getCardScopeMetaLabel(state, row.commitment.scopeLevel, row.commitment.scopeId)
 }
 
 export function MobileDueList({
@@ -44,66 +67,58 @@ export function MobileDueList({
   onOpenReservePlanner,
 }: MobileDueListProps) {
   const [selected, setSelected] = useState<CommitmentDueRow | null>(null)
-  const rows = useMemo(
-    () => sortDueRowsByUrgency(commitmentViews.due),
-    [commitmentViews.due],
+  const referenceDate = getReferenceDate()
+  const sections = useMemo(
+    () => buildDueRowSections(commitmentViews.due, referenceDate),
+    [commitmentViews.due, referenceDate],
   )
 
   if (commitmentViews.due.length === 0) {
     return <MobileRecordList emptyMessage="Nothing due or planned yet." />
   }
 
-  const referenceDate = getReferenceDate()
+  const listBody: ReactNode[] = []
+  for (const section of sections) {
+    listBody.push(
+      <MobileSectionLabel key={`section-${section.kind}`}>{section.label}</MobileSectionLabel>,
+    )
+    for (const row of section.rows) {
+      const item = row.commitment
+      const timing = formatDueRowTiming(row, referenceDate)
+      const rolled = formatRolledDueTooltip(row)
+      const scopeLabel = dueRowScopeMeta(state, row)
+      const accent = getDueRowAccentColor(state, row)
+      const metaParts = [scopeLabel, timing, rolled].filter(Boolean)
+      const funding = getDueRowCardFunding(row, referenceDate)
+
+      listBody.push(
+        <MobileRecordCard
+          key={row.id}
+          title={item.name}
+          amount={formatCurrency(funding.displayAmount)}
+          amountSecondary={
+            funding.showRemaining ? `/${formatCurrency(funding.targetAmount)}` : undefined
+          }
+          amountNegative
+          meta={metaParts.join(' · ')}
+          progress={funding.progress}
+          progressColor={accent}
+          accentColor={accent}
+          onClick={() => setSelected(row)}
+        />,
+      )
+    }
+  }
 
   return (
     <>
-      <MobileRecordList>
-        {rows.map((row) => {
-          const item = row.commitment
-          const isReserveTransfer = isReserveTransferDueRow(row)
-          const timing = formatDueRowTiming(row, referenceDate)
-          const rolled = formatRolledDueTooltip(row)
-          const scopeLabel = isReserveTransfer
-            ? 'Reserve transfer'
-            : getCardScopeMetaLabel(state, item.scopeLevel, item.scopeId)
-          const accent = isReserveTransfer
-            ? undefined
-            : chartColorForScope(state, { type: item.scopeLevel, id: item.scopeId })
-          const metaParts = [dueKindLabel(row), scopeLabel, timing, rolled].filter(Boolean)
-
-          const funding = getDueRowCardFunding(row, referenceDate)
-
-          return (
-            <MobileRecordCard
-              key={row.id}
-              title={item.name}
-              amount={formatCurrency(funding.displayAmount)}
-              amountSecondary={
-                funding.showRemaining ? `/${formatCurrency(funding.targetAmount)}` : undefined
-              }
-              amountNegative
-              meta={metaParts.join(' · ')}
-              progress={funding.progress}
-              progressColor={accent}
-              accentColor={accent}
-              onClick={() => setSelected(row)}
-            />
-          )
-        })}
-      </MobileRecordList>
+      <MobileRecordList>{listBody}</MobileRecordList>
 
       {selected ? (
         <MobileDueDetailModal
           state={state}
           row={selected}
-          accentColor={
-            isReserveTransferDueRow(selected)
-              ? undefined
-              : chartColorForScope(state, {
-                  type: selected.commitment.scopeLevel,
-                  id: selected.commitment.scopeId,
-                })
-          }
+          accentColor={getDueRowAccentColor(state, selected)}
           onClose={() => setSelected(null)}
           onMarkPaid={(amount) => {
             const item = selected.commitment

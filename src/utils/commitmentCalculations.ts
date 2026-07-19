@@ -747,18 +747,24 @@ export function buildDueRowSections(
 
 export function sortDueRowsByUrgency(rows: CommitmentDueRow[], referenceDate: Date = getReferenceDate()): CommitmentDueRow[] {
   return [...rows].sort((a, b) => {
-    const periodA = a.dueReferencePeriod ?? a.period
-    const periodB = b.dueReferencePeriod ?? b.period
-    const offsetA =
-      getDueTimingOffsetForPeriod(a.commitment, periodA, referenceDate) ??
-      getDueTimingOffset(a.commitment, referenceDate) ??
-      Infinity
-    const offsetB =
-      getDueTimingOffsetForPeriod(b.commitment, periodB, referenceDate) ??
-      getDueTimingOffset(b.commitment, referenceDate) ??
-      Infinity
-    return offsetA - offsetB
+    const offsetA = getDueRowUrgencyOffset(a, referenceDate)
+    const offsetB = getDueRowUrgencyOffset(b, referenceDate)
+    if (offsetA !== offsetB) return offsetA - offsetB
+    return a.commitment.name.localeCompare(b.commitment.name)
   })
+}
+
+/** Days until due (negative = overdue). Lower = more urgent. */
+function getDueRowUrgencyOffset(row: CommitmentDueRow, referenceDate: Date): number {
+  if (row.commitment.schedule === 'planned') {
+    return getPlannedDueTimingOffset(row.commitment, referenceDate) ?? Number.POSITIVE_INFINITY
+  }
+  const period = row.dueReferencePeriod ?? row.period
+  return (
+    getDueTimingOffsetForPeriod(row.commitment, period, referenceDate) ??
+    getDueTimingOffset(row.commitment, referenceDate) ??
+    Number.POSITIVE_INFINITY
+  )
 }
 
 export function sortDueRows(rows: CommitmentDueRow[], referenceDate: Date = getReferenceDate()): CommitmentDueRow[] {
@@ -824,6 +830,16 @@ export function getDueRowCardFunding(
   const committed = getDueRowCommittedAmount(row, referenceDate)
   const item = row.commitment
 
+  // Reserve-plan bills and transfers are fully reserved once they appear on Due.
+  if (row.source === 'reserve') {
+    return {
+      progress: 1,
+      displayAmount: targetAmount,
+      targetAmount,
+      showRemaining: false,
+    }
+  }
+
   if (item.schedule === 'planned') {
     const method = item.fundingMethod ?? 'immediate'
     const kind = getDueRowKind(row, referenceDate)
@@ -849,7 +865,7 @@ export function getDueRowCardFunding(
     }
   }
 
-  // Monthly / reserve items on the Due list are fully committed.
+  // Monthly items on the Due list are fully committed.
   return {
     progress: 1,
     displayAmount: targetAmount,
