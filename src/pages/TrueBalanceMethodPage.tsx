@@ -63,10 +63,6 @@ export function TrueBalanceMethodPage() {
           </div>
           <div className="method-edu-inner method-balance-visual-wrap">
             <HeroBalanceVisual />
-            <p className="method-balance-visual-caption muted">
-              Watch the bank account swing when bills land. Committed money is the gap between your
-              current account and True Balance — the clearer line underneath.
-            </p>
           </div>
         </section>
 
