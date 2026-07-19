@@ -7,6 +7,7 @@ import {
   type DemoScenarioMeta,
 } from '../../data/demoScenarios'
 import { DemoModeProvider } from '../../contexts/DemoModeContext'
+import { ForcedCardsPreferencesProvider } from '../../contexts/DashboardViewPreferencesContext'
 import { calculateDashboard } from '../../utils/calculations'
 import { filterAccruingRowsForView } from '../../utils/scope'
 import { summarizeReservePlanner } from '../../utils/reserveCalculations'
@@ -231,13 +232,15 @@ export function SetupWidgetPreview({ previewId }: SetupWidgetPreviewProps) {
 
   return (
     <DemoModeProvider scenario={bundle.meta} onScenarioChange={noop} canEditDemo={false}>
-      <PreviewFrame
-        meta={bundle.meta}
-        tall={previewId === 'reserve' || previewId === 'trends'}
-        wide={previewId === 'reserve'}
-      >
-        {content}
-      </PreviewFrame>
+      <ForcedCardsPreferencesProvider>
+        <PreviewFrame
+          meta={bundle.meta}
+          tall={previewId === 'reserve' || previewId === 'trends'}
+          wide={previewId === 'reserve'}
+        >
+          {content}
+        </PreviewFrame>
+      </ForcedCardsPreferencesProvider>
     </DemoModeProvider>
   )
 }

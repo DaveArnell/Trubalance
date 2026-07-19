@@ -114,3 +114,22 @@ export function useDashboardViewPreferences() {
   }
   return ctx
 }
+
+/** Force card layout — used by onboarding widget previews. */
+export function ForcedCardsPreferencesProvider({ children }: { children: ReactNode }) {
+  const value = useMemo<DashboardViewPreferencesValue>(
+    () => ({
+      viewStyle: 'cards',
+      setViewStyle: () => {},
+      useCards: true,
+      accruingOrderMode: 'timeline',
+      setAccruingOrderMode: () => {},
+    }),
+    [],
+  )
+  return (
+    <DashboardViewPreferencesContext.Provider value={value}>
+      {children}
+    </DashboardViewPreferencesContext.Provider>
+  )
+}

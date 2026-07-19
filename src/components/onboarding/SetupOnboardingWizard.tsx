@@ -22,7 +22,7 @@ import { SetupOnboardingShell } from './SetupOnboardingShell'
 import { SetupWidgetPreview } from './SetupWidgetPreview'
 import { SetupStructureTree } from './SetupStructureTree'
 import { SetupAccruingCycleDemo } from './SetupAccruingCycleDemo'
-import { SetupDueAnnotatedCards, SetupReceiptAnnotatedCards } from './SetupEduAnnotatedCards'
+import { SetupDueCardsDemo } from './SetupDueCardsDemo'
 import { ReservePlannerPanel } from '../ReservePlannerPanel'
 import { useAuth } from '../../contexts/AuthContext'
 import { trackEvent } from '../../services/eventTracking'
@@ -611,11 +611,11 @@ export function SetupOnboardingWizard({
 
           {step.id === 'due-explain' && (
             <>
-              <SetupDueAnnotatedCards />
+              <SetupDueCardsDemo />
               <div className="setup-onboarding-form setup-onboarding-form--quick-add">
                 <p className="setup-onboarding-form-hint">
-                  Optional — add one-off or irregular costs you already know about (tax bills,
-                  deposits, equipment). You can add more later in the app.
+                  Optional — already know a one-off cost (tax, deposit, equipment)? Add it here.
+                  You can always add more later.
                 </p>
                 {dueDrafts.map((draft, index) => (
                   <div
@@ -739,13 +739,12 @@ export function SetupOnboardingWizard({
                   + Add another planned cost
                 </button>
               </div>
-              <SetupWidgetPreview previewId="due" />
             </>
           )}
 
           {step.id === 'receipts-explain' && (
             <>
-              <SetupReceiptAnnotatedCards />
+              <SetupWidgetPreview previewId="receipts" />
               <div className="setup-onboarding-form setup-onboarding-form--quick-add">
                 <p className="setup-onboarding-form-hint">
                   Optional — money you&apos;re expecting in (invoices sent, grants, refunds). Skip if
@@ -834,7 +833,6 @@ export function SetupOnboardingWizard({
                   + Add another expected receipt
                 </button>
               </div>
-              <SetupWidgetPreview previewId="receipts" />
             </>
           )}
 

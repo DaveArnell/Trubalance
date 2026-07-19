@@ -18471,6 +18471,29 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   box-shadow: var(--shadow-card);
 }
 
+.setup-edu-due-demo-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.setup-edu-due-demo-head .setup-edu-card-demo-label {
+  margin: 0;
+}
+
+.setup-edu-due-demo-total {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+}
+
+.setup-edu-due-demo .mobile-record-list {
+  gap: 6px;
+}
+
 .setup-edu-card-demo-label {
   margin: 0;
   font-size: 0.72rem;

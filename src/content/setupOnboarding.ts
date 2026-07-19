@@ -54,17 +54,17 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
   },
   {
     id: 'due-explain',
-    title: 'One-off and irregular costs.',
+    title: 'Due — when it’s time to pay.',
     explain:
-      'Not everything is a regular monthly bill. Tax bills, equipment, deposits — add those as planned costs in Due with a name, amount, and due date.\n\nChoose how it affects True Balance: deduct the full amount now, build up to the date a little each day, or reserve part now and build the rest. The cards below show both full earmark and daily build-up.',
+      'When a monthly cost reaches its due date, it leaves Accruing and lands in Due. It stays there until you mark it Paid — so you can settle it when you’re ready, not the second the date hits.\n\nYou can also add one-off costs here (tax, equipment, deposits) so they’re counted in True Balance until they’re paid. The example below is how Due looks as cards.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="due"]',
   },
   {
     id: 'receipts-explain',
-    title: 'Money you\'re expecting in.',
+    title: 'Money you’re expecting in.',
     explain:
-      'Add expected money in — invoices, grants, refunds — so True Balance can show the fuller picture. Count a lump sum immediately if you\'re confident, or let it build toward the expected date.\n\nWhen the cash arrives, mark it received and it drops off. The cards below show both styles.',
+      'Expected Receipts is the other side of the coin — invoices, grants, refunds you know are coming. Add them so True Balance can look ahead.\n\nWhen the money arrives, mark it received and it drops off. The example below is how those cards look.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="expected-receipts"]',
   },
