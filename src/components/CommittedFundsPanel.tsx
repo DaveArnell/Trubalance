@@ -219,10 +219,18 @@ export function CommittedFundsPanel({
           }}
         />
       )}
-      <div className="card-head card-head-compact">
-        <div>
+      <div className="card-head card-head-compact card-head--accruing">
+        <div className="card-head-title-row">
           <h2>Monthly accruing</h2>
-          <p className="muted card-lead-compact">Regular predictable bills — rent, payroll, subscriptions, direct debits</p>
+          <p className="muted card-lead-compact">
+            Regular predictable bills — rent, payroll, subscriptions, direct debits
+          </p>
+          <HelpButton
+            id="commitments"
+            openHelp={openHelp}
+            setOpenHelp={setOpenHelp}
+            text={WIDGET_HELP.committedFunds}
+          />
         </div>
         <div className="card-head-actions">
           <div className="view-mode-toggle" role="group" aria-label="Monthly accruing view">
@@ -262,12 +270,6 @@ export function CommittedFundsPanel({
               </button>
             </div>
           )}
-          <HelpButton
-            id="commitments"
-            openHelp={openHelp}
-            setOpenHelp={setOpenHelp}
-            text={WIDGET_HELP.committedFunds}
-          />
         </div>
       </div>
 

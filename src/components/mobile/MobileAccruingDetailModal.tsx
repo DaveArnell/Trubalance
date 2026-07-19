@@ -200,48 +200,42 @@ export function MobileAccruingDetailModal({
           </dl>
         )}
 
-        <div className="mobile-item-modal-actions">
-          {!editReadOnly && (onDuplicate || onDelete) ? (
-            <div className="mobile-item-modal-actions-secondary">
-              {onDuplicate && !isReserve ? (
-                <button
-                  type="button"
-                  className="btn-ghost btn-tiny"
-                  onClick={() => {
-                    onDuplicate()
+        <div className="mobile-item-modal-actions mobile-item-modal-actions--stack">
+          {canEdit ? (
+            <button type="button" className="btn-primary" onClick={handleSave}>
+              Save
+            </button>
+          ) : null}
+          <div className="mobile-item-modal-actions-row">
+            {!editReadOnly && onDuplicate && !isReserve ? (
+              <button
+                type="button"
+                className="btn-ghost btn-tiny"
+                onClick={() => {
+                  onDuplicate()
+                  onClose()
+                }}
+              >
+                Duplicate
+              </button>
+            ) : null}
+            {!editReadOnly && onDelete && !isReserve ? (
+              <button
+                type="button"
+                className="btn-danger btn-tiny"
+                onClick={() => {
+                  if (window.confirm(`Delete “${commitment.name}”?`)) {
+                    onDelete()
                     onClose()
-                  }}
-                >
-                  Duplicate
-                </button>
-              ) : null}
-              {onDelete && !isReserve ? (
-                <button
-                  type="button"
-                  className="btn-danger btn-tiny"
-                  onClick={() => {
-                    if (window.confirm(`Delete “${commitment.name}”?`)) {
-                      onDelete()
-                      onClose()
-                    }
-                  }}
-                >
-                  Delete
-                </button>
-              ) : null}
-            </div>
-          ) : (
-            <span />
-          )}
-          <div className="mobile-item-modal-actions-primary">
+                  }
+                }}
+              >
+                Delete
+              </button>
+            ) : null}
             <button type="button" className="btn-ghost btn-tiny" onClick={onClose}>
               {canEdit ? 'Cancel' : 'Close'}
             </button>
-            {canEdit ? (
-              <button type="button" className="btn-primary btn-tiny" onClick={handleSave}>
-                Save
-              </button>
-            ) : null}
           </div>
         </div>
       </div>
