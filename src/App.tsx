@@ -32,7 +32,7 @@ import {
   type AppRoute,
   type PageId,
 } from './navigation'
-import type { GraphRange, ViewScope, AttentionItem } from './types'
+import type { GraphRange, HistoryGranularity, ViewScope, AttentionItem } from './types'
 import type { WorkspaceSubscription } from './types/subscription'
 import { calculateDashboard } from './utils/calculations'
 import { countDueRowsNeedingAttention } from './utils/commitmentCalculations'
@@ -53,22 +53,30 @@ import { showsDemoDataBanner } from './utils/localStateStorage'
 import { useDemoMode } from './contexts/DemoModeContext'
 import { useEditReadOnly } from './hooks/useEditReadOnly'
 
-const TREND_FROM_DATE_KEY = 'trubalance-trends-from-date'
+import {
+  loadRevealFromOverrides,
+  saveRevealFromOverrides,
+  setRevealFromForScope,
+  getEffectiveRevealFromDate,
+  getRevealFromContext,
+  type RevealFromOverrides,
+} from './utils/dataRevealFrom'
 
-function loadTrendFromDate(): string | null {
+const GRANULARITY_STORAGE_KEY = 'trubalance-trends-history-granularity'
+
+function loadHistoryGranularity(): HistoryGranularity {
   try {
-    const raw = localStorage.getItem(TREND_FROM_DATE_KEY)
-    if (raw && /^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw
+    const raw = localStorage.getItem(GRANULARITY_STORAGE_KEY)
+    if (raw === 'weekly' || raw === 'monthly' || raw === 'daily') return raw
   } catch {
     /* ignore */
   }
-  return null
+  return 'daily'
 }
 
-function saveTrendFromDate(date: string | null) {
+function saveHistoryGranularity(granularity: HistoryGranularity) {
   try {
-    if (date) localStorage.setItem(TREND_FROM_DATE_KEY, date)
-    else localStorage.removeItem(TREND_FROM_DATE_KEY)
+    localStorage.setItem(GRANULARITY_STORAGE_KEY, granularity)
   } catch {
     /* ignore */
   }
@@ -294,19 +302,36 @@ function AppShellInner({
 
   const [openHelp, setOpenHelp] = useState<string | null>(null)
   const [graphRange, setGraphRangeState] = useState<GraphRange>(isDemoSession ? '12m' : '90d')
-  const [trendFromDate, setTrendFromDateState] = useState<string | null>(loadTrendFromDate)
-  const trendsUndoRef = useRef<Array<{ graphRange: GraphRange; trendFromDate: string | null }>>([])
-  const trendsRedoRef = useRef<Array<{ graphRange: GraphRange; trendFromDate: string | null }>>([])
+  const [revealFromOverrides, setRevealFromOverridesState] =
+    useState<RevealFromOverrides>(loadRevealFromOverrides)
+  const [historyGranularity, setHistoryGranularityState] =
+    useState<HistoryGranularity>(loadHistoryGranularity)
+  const trendsUndoRef = useRef<
+    Array<{ graphRange: GraphRange; revealFromOverrides: RevealFromOverrides }>
+  >([])
+  const trendsRedoRef = useRef<
+    Array<{ graphRange: GraphRange; revealFromOverrides: RevealFromOverrides }>
+  >([])
   const [trendsHistoryTick, setTrendsHistoryTick] = useState(0)
+
+  const effectiveRevealFromDate = useMemo(
+    () => getEffectiveRevealFromDate(revealFromOverrides, app.state, app.viewScope),
+    [revealFromOverrides, app.state, app.viewScope],
+  )
+
+  const revealFromContext = useMemo(
+    () => getRevealFromContext(revealFromOverrides, app.state, app.viewScope),
+    [revealFromOverrides, app.state, app.viewScope],
+  )
 
   const pushTrendsHistory = useCallback(() => {
     trendsUndoRef.current = [
       ...trendsUndoRef.current.slice(-29),
-      { graphRange, trendFromDate },
+      { graphRange, revealFromOverrides },
     ]
     trendsRedoRef.current = []
     setTrendsHistoryTick((n) => n + 1)
-  }, [graphRange, trendFromDate])
+  }, [graphRange, revealFromOverrides])
 
   const setGraphRange = useCallback(
     (range: GraphRange) => {
@@ -317,15 +342,23 @@ function AppShellInner({
     [graphRange, pushTrendsHistory],
   )
 
-  const setTrendFromDate = useCallback(
+  const setRevealFromDate = useCallback(
     (date: string | null) => {
-      if (date === trendFromDate) return
+      const scopeKeyStr = `${app.viewScope.type}:${app.viewScope.id}`
+      const current = revealFromOverrides[scopeKeyStr] ?? null
+      if (date === current && (date != null || scopeKeyStr in revealFromOverrides)) return
+      const next = setRevealFromForScope(revealFromOverrides, app.viewScope, date)
       pushTrendsHistory()
-      setTrendFromDateState(date)
-      saveTrendFromDate(date)
+      setRevealFromOverridesState(next)
+      saveRevealFromOverrides(next)
     },
-    [trendFromDate, pushTrendsHistory],
+    [revealFromOverrides, app.viewScope, pushTrendsHistory],
   )
+
+  const setHistoryGranularity = useCallback((granularity: HistoryGranularity) => {
+    setHistoryGranularityState(granularity)
+    saveHistoryGranularity(granularity)
+  }, [])
 
   const undoTrendsView = useCallback(() => {
     const stack = trendsUndoRef.current
@@ -334,14 +367,14 @@ function AppShellInner({
     trendsUndoRef.current = stack.slice(0, -1)
     trendsRedoRef.current = [
       ...trendsRedoRef.current.slice(-29),
-      { graphRange, trendFromDate },
+      { graphRange, revealFromOverrides },
     ]
     setGraphRangeState(previous.graphRange)
-    setTrendFromDateState(previous.trendFromDate)
-    saveTrendFromDate(previous.trendFromDate)
+    setRevealFromOverridesState(previous.revealFromOverrides)
+    saveRevealFromOverrides(previous.revealFromOverrides)
     setTrendsHistoryTick((n) => n + 1)
     return true
-  }, [graphRange, trendFromDate])
+  }, [graphRange, revealFromOverrides])
 
   const redoTrendsView = useCallback(() => {
     const stack = trendsRedoRef.current
@@ -350,14 +383,14 @@ function AppShellInner({
     trendsRedoRef.current = stack.slice(0, -1)
     trendsUndoRef.current = [
       ...trendsUndoRef.current.slice(-29),
-      { graphRange, trendFromDate },
+      { graphRange, revealFromOverrides },
     ]
     setGraphRangeState(next.graphRange)
-    setTrendFromDateState(next.trendFromDate)
-    saveTrendFromDate(next.trendFromDate)
+    setRevealFromOverridesState(next.revealFromOverrides)
+    saveRevealFromOverrides(next.revealFromOverrides)
     setTrendsHistoryTick((n) => n + 1)
     return true
-  }, [graphRange, trendFromDate])
+  }, [graphRange, revealFromOverrides])
 
   const handleUndo = useCallback(() => {
     if (activeRoute.page === 'trends' && undoTrendsView()) return
@@ -674,8 +707,11 @@ function AppShellInner({
         breakdownColumns,
         graphRange,
         setGraphRange,
-        trendFromDate,
-        setTrendFromDate,
+        revealFromDate: effectiveRevealFromDate,
+        setRevealFromDate,
+        revealFromContext,
+        historyGranularity,
+        setHistoryGranularity,
         viewName,
         onBalanceSave: handleBalanceSave,
         activeReserveSummary,
@@ -695,8 +731,11 @@ function AppShellInner({
       metrics,
       breakdownColumns,
       graphRange,
-      trendFromDate,
-      setTrendFromDate,
+      effectiveRevealFromDate,
+      setRevealFromDate,
+      revealFromContext,
+      historyGranularity,
+      setHistoryGranularity,
       viewName,
       handleBalanceSave,
       activeReserveSummary,

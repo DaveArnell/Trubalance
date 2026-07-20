@@ -158,10 +158,31 @@ function monthPeriodKey(dateKey: string): string {
   return dateKey.slice(0, 7)
 }
 
-function periodKeyForDate(dateKey: string, granularity: HistoryGranularity): string {
+export function periodKeyForDate(dateKey: string, granularity: HistoryGranularity): string {
   if (granularity === 'daily') return dateKey
   if (granularity === 'monthly') return monthPeriodKey(dateKey)
   return mondayOfWeek(dateKey)
+}
+
+/** Latest snapshot per period — matches balance log grouping. */
+export function aggregateSnapshotsForGranularity(
+  snapshots: BalanceSnapshot[],
+  granularity: HistoryGranularity,
+): BalanceSnapshot[] {
+  if (granularity === 'daily') {
+    return [...snapshots].sort((a, b) => a.date.localeCompare(b.date))
+  }
+
+  const byPeriod = new Map<string, BalanceSnapshot>()
+  for (const snap of snapshots) {
+    const period = periodKeyForDate(snap.date, granularity)
+    const existing = byPeriod.get(period)
+    if (!existing || snap.date > existing.date) {
+      byPeriod.set(period, { ...snap, date: period })
+    }
+  }
+
+  return [...byPeriod.values()].sort((a, b) => a.date.localeCompare(b.date))
 }
 
 export function formatHistoryPeriod(dateKey: string, granularity: HistoryGranularity): string {
@@ -331,6 +352,7 @@ export function alignSnapshotsWithBalanceLogRollup(
   scope: ViewScope,
   snapshots: BalanceSnapshot[],
   metric: HistoryMetricKey,
+  granularity: HistoryGranularity = 'daily',
   fromDate?: string | null,
 ): BalanceSnapshot[] {
   if (scope.type !== viewScope.type || scope.id !== viewScope.id) {
@@ -342,13 +364,14 @@ export function alignSnapshotsWithBalanceLogRollup(
   if (!hasChildColumns) return snapshots
 
   const totalKey = scopeKey(viewScope)
-  const { rows } = buildHistoryTable(state, viewScope, graphRange, metric, 'daily', fromDate)
-  const rolledUpByDate = new Map(
+  const { rows } = buildHistoryTable(state, viewScope, graphRange, metric, granularity, fromDate)
+  const rolledUpByPeriod = new Map(
     rows.map((row) => [row.date, row.values[totalKey]?.value ?? null]),
   )
 
   return snapshots.map((snap) => {
-    const rolled = rolledUpByDate.get(snap.date)
+    const period = periodKeyForDate(snap.date, granularity)
+    const rolled = rolledUpByPeriod.get(period)
     if (rolled == null) return snap
     return { ...snap, [metric]: rolled }
   })

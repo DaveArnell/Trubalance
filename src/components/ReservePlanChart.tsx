@@ -152,7 +152,20 @@ export function ReservePlanChart({
     due: month.totalDue,
   }))
 
-  // Climb to pre-bill (top of red), then vertical drop for the obligation.
+  // Horizontal planned balance only — vertical bill drops are drawn separately in red.
+  const horizontalBalancePoints = balancePoints.flatMap((point, index) => {
+    if (index === 0) {
+      return [{ x: point.x, y: point.due > 0 ? point.beforeBillsY : point.y }]
+    }
+    const prev = balancePoints[index - 1]!
+    const targetY = point.due > 0 ? point.beforeBillsY : point.y
+    return [
+      { x: prev.x, y: prev.y },
+      { x: point.x, y: targetY },
+    ]
+  })
+
+  // Stepped path for the filled area under the plan line.
   const steppedPoints = balancePoints.flatMap((point) =>
     point.due > 0
       ? [
@@ -254,6 +267,21 @@ export function ReservePlanChart({
             className="reserve-plan-chart-buffer"
           />
 
+          <polygon
+            className="reserve-plan-chart-area"
+            points={[
+              ...steppedPoints.map((p) => `${p.x},${p.y}`),
+              `${steppedPoints[steppedPoints.length - 1]!.x},${PAD_TOP + plotHeight}`,
+              `${steppedPoints[0]!.x},${PAD_TOP + plotHeight}`,
+            ].join(' ')}
+          />
+
+          <polyline
+            className="reserve-plan-chart-balance-line"
+            fill="none"
+            points={horizontalBalancePoints.map((p) => `${p.x},${p.y}`).join(' ')}
+          />
+
           {balancePoints.map((point) => {
             if (point.due <= 0) return null
             return (
@@ -267,21 +295,6 @@ export function ReservePlanChart({
               />
             )
           })}
-
-          <polygon
-            className="reserve-plan-chart-area"
-            points={[
-              ...steppedPoints.map((p) => `${p.x},${p.y}`),
-              `${steppedPoints[steppedPoints.length - 1]!.x},${PAD_TOP + plotHeight}`,
-              `${steppedPoints[0]!.x},${PAD_TOP + plotHeight}`,
-            ].join(' ')}
-          />
-
-          <polyline
-            className="reserve-plan-chart-balance-line"
-            fill="none"
-            points={steppedPoints.map((p) => `${p.x},${p.y}`).join(' ')}
-          />
 
           {actualPoints.length > 0 && (
             <polyline

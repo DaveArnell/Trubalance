@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import type { PageId } from '../navigation'
-import type { AppState, DashboardMetrics, GraphRange, ViewScope } from '../types'
+import type { AppState, DashboardMetrics, GraphRange, HistoryGranularity, ViewScope } from '../types'
+import type { RevealFromContext } from '../utils/dataRevealFrom'
 import type { BalanceSaveChange, BalanceSaveResult } from '../hooks/useAppState'
 import type { AppActions } from '../hooks/useAppState'
 import type { BreakdownColumn } from '../utils/breakdownTable'
@@ -22,8 +23,11 @@ export interface PageWidgetContext {
   breakdownColumns: BreakdownColumn[]
   graphRange: GraphRange
   setGraphRange: (range: GraphRange) => void
-  trendFromDate: string | null
-  setTrendFromDate: (date: string | null) => void
+  revealFromDate: string | null
+  setRevealFromDate: (date: string | null) => void
+  revealFromContext: RevealFromContext
+  historyGranularity: HistoryGranularity
+  setHistoryGranularity: (granularity: HistoryGranularity) => void
   viewName: string
   onBalanceSave: (changes: BalanceSaveChange[]) => BalanceSaveResult
   activeReserveSummary: ReservePlannerSummary | null
@@ -45,8 +49,11 @@ export function buildPageWidgets(pageId: PageId, ctx: PageWidgetContext): Record
     metrics,
     graphRange,
     setGraphRange,
-    trendFromDate,
-    setTrendFromDate,
+    revealFromDate,
+    setRevealFromDate,
+    revealFromContext,
+    historyGranularity,
+    setHistoryGranularity,
     activeReserveSummary,
     reserveRouteId,
     actions,
@@ -70,8 +77,8 @@ export function buildPageWidgets(pageId: PageId, ctx: PageWidgetContext): Record
               viewScope={viewScope}
               graphRange={graphRange}
               onRangeChange={setGraphRange}
-              fromDate={trendFromDate}
-              onFromDateChange={setTrendFromDate}
+              fromDate={revealFromDate}
+              historyGranularity={historyGranularity}
               focusScope={trendsFocusScope}
               onFocusScopeApplied={onTrendsFocusApplied}
               openHelp={openHelp}
@@ -87,7 +94,11 @@ export function buildPageWidgets(pageId: PageId, ctx: PageWidgetContext): Record
               state={state}
               viewScope={viewScope}
               graphRange={graphRange}
-              fromDate={trendFromDate}
+              fromDate={revealFromDate}
+              onFromDateChange={setRevealFromDate}
+              revealFromContext={revealFromContext}
+              historyGranularity={historyGranularity}
+              onHistoryGranularityChange={setHistoryGranularity}
               openHelp={openHelp}
               setOpenHelp={setOpenHelp}
               correctSnapshotMetric={actions.correctSnapshotMetric}

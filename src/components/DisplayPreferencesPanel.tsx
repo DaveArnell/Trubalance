@@ -11,7 +11,7 @@ export function DisplayPreferencesPanel({ embedded = false }: { embedded?: boole
         <legend>Dashboard layout</legend>
         <p className="muted display-pref-hint">
           Spreadsheet keeps the desktop tables. Cards uses the mobile-style lists for Monthly, Due,
-          Receipts, and Reserve Planner — handy if you prefer that layout on a large screen too.
+          and Receipts — handy if you prefer that layout on a large screen too.
         </p>
         <DashboardViewStyleToggle />
       </fieldset>

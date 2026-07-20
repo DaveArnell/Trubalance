@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { AppState, BalanceSnapshot, GraphRange, ViewScope } from '../types'
+import type { AppState, BalanceSnapshot, GraphRange, HistoryGranularity, ViewScope } from '../types'
 import { chartDashArrayForLevel, chartDotRadiusForLevel, chartStrokeWidthForLevel, getChartScopeOptions, scopeKey } from '../utils/chartScopes'
 import { chartColorForScope } from '../utils/businessTheme'
 import type { ChartScopeLevel } from '../utils/chartScopes'
@@ -12,7 +12,7 @@ import {
   formatSnapshotDayLabel,
 } from '../utils/snapshots'
 import { getEffectiveSnapshotsForScope } from '../utils/scopeSnapshotSeries'
-import { alignSnapshotsWithBalanceLogRollup } from '../utils/historyTable'
+import { alignSnapshotsWithBalanceLogRollup, aggregateSnapshotsForGranularity } from '../utils/historyTable'
 import {
   addDays,
   buildSmoothedTrendSeries,
@@ -40,8 +40,8 @@ const metricConfig: Record<MetricKey, { label: string; shortLabel: string }> = {
 const METRIC_KEYS: MetricKey[] = ['trueBalance', 'cash', 'committedFunds', 'expectedReceipts']
 
 const METRIC_COLORS: Record<MetricKey, string> = {
-  trueBalance: '#2563eb',
-  cash: '#16a34a',
+  trueBalance: '#16a34a',
+  cash: '#2563eb',
   committedFunds: '#dc2626',
   expectedReceipts: '#9333ea',
 }
@@ -66,7 +66,7 @@ interface TrendChartProps {
   graphRange: GraphRange
   onRangeChange: (range: GraphRange) => void
   fromDate?: string | null
-  onFromDateChange?: (date: string | null) => void
+  historyGranularity?: HistoryGranularity
   focusScope?: ViewScope | null
   onFocusScopeApplied?: () => void
   openHelp: string | null
@@ -107,14 +107,6 @@ function dateMs(dateKey: string): number {
   return new Date(`${dateKey}T12:00:00`).getTime()
 }
 
-function localTodayKey(): string {
-  const d = new Date()
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${y}-${m}-${day}`
-}
-
 function evenlySpacedDateKeys(minDate: string, maxDate: string, count: number): string[] {
   const min = dateMs(minDate)
   const max = dateMs(maxDate)
@@ -143,7 +135,7 @@ export function TrendChart({
   graphRange,
   onRangeChange,
   fromDate = null,
-  onFromDateChange,
+  historyGranularity = 'daily',
   focusScope,
   onFocusScopeApplied,
   openHelp,
@@ -238,19 +230,21 @@ export function TrendChart({
         graphRange,
         fromDate,
       )
-      let effectiveSnaps = snaps.map((snap) => withEffectiveSnapshotMetrics(state, snap))
+      const dailySnaps = snaps.map((snap) => withEffectiveSnapshotMetrics(state, snap))
 
       for (const metric of activeMetricKeys) {
-        effectiveSnaps = alignSnapshotsWithBalanceLogRollup(
+        let metricSnaps = alignSnapshotsWithBalanceLogRollup(
           state,
           viewScope,
           graphRange,
           opt.scope,
-          effectiveSnaps,
+          dailySnaps,
           metric,
+          historyGranularity,
           fromDate,
         )
-        effectiveSnaps.forEach((s) => {
+        metricSnaps = aggregateSnapshotsForGranularity(metricSnaps, historyGranularity)
+        metricSnaps.forEach((s) => {
           dateSet.add(s.date)
           allValues.push(getMetricValue(s, metric))
         })
@@ -272,11 +266,11 @@ export function TrendChart({
           strokeWidth: chartStrokeWidthForLevel(opt.level),
           dashArray: chartDashArrayForLevel(opt.level, multiMetric, multiScope, scopeIdx),
           points: [],
-          snapshots: effectiveSnaps,
+          snapshots: metricSnaps,
         })
 
         const seriesEntry = scopeSeries[scopeSeries.length - 1]!
-        effectiveSnaps.forEach((s) => {
+        metricSnaps.forEach((s) => {
           seriesEntry.points.push({
             date: s.date,
             x: 0,
@@ -417,7 +411,7 @@ export function TrendChart({
       projectionBoundaryX,
       seasonalAvailable: seasonalOk,
     }
-  }, [activeMetricKeys, enabledScopes, fromDate, graphRange, plotHeight, plotWidth, projectionMode, scopeOptions, state, viewScope])
+  }, [activeMetricKeys, enabledScopes, fromDate, graphRange, historyGranularity, plotHeight, plotWidth, projectionMode, scopeOptions, state, viewScope])
 
   const hasData = series.some((s) => s.points.length > 0)
   const showProjection = projectionMode !== 'off' && projections.length > 0
@@ -990,33 +984,6 @@ export function TrendChart({
           </div>
         </div>
 
-        {onFromDateChange && !demoMode && (
-          <div className="chart-control-block chart-control-inline chart-control-from-date">
-            <p className="chart-control-label">From</p>
-            <div className="trends-from-date">
-              <input
-                type="date"
-                value={fromDate ?? ''}
-                max={localTodayKey()}
-                onChange={(e) => onFromDateChange(e.target.value || null)}
-                aria-label="Only use data from this date onwards"
-                title="Ignore history before this date — the trend and forecast only use data from here"
-              />
-              {fromDate && (
-                <button
-                  type="button"
-                  className="trends-from-date-clear"
-                  onClick={() => onFromDateChange(null)}
-                  title="Clear start date"
-                  aria-label="Clear start date"
-                >
-                  ×
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-
         <div className="chart-control-block chart-control-inline chart-control-projection">
           <p className="chart-control-label">Forecast</p>
           <div className="range-toggles range-toggles--compact">
@@ -1072,32 +1039,6 @@ export function TrendChart({
             ))}
           </div>
         </div>
-        {onFromDateChange && !demoMode && (
-          <div className="trends-chart-rail-cluster">
-            <span className="trends-chart-rail-tag">From</span>
-            <div className="trends-from-date">
-              <input
-                type="date"
-                value={fromDate ?? ''}
-                max={localTodayKey()}
-                onChange={(e) => onFromDateChange(e.target.value || null)}
-                aria-label="Only use data from this date onwards"
-                title="Ignore history before this date — the trend and forecast only use data from here"
-              />
-              {fromDate && (
-                <button
-                  type="button"
-                  className="trends-from-date-clear"
-                  onClick={() => onFromDateChange(null)}
-                  title="Clear start date"
-                  aria-label="Clear start date"
-                >
-                  ×
-                </button>
-              )}
-            </div>
-          </div>
-        )}
         <div className="trends-chart-rail-cluster">
           <span className="trends-chart-rail-tag">Forecast</span>
           <div className="trends-mini-toggles" role="group" aria-label="Forecast mode">

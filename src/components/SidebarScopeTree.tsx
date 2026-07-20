@@ -256,10 +256,6 @@ export function SidebarScopeTree({
       {!compact ? (
         <div className="scope-freshness-legend" aria-label="Current account freshness">
           <p className="scope-freshness-legend-title">Current account freshness</p>
-          <p className="scope-freshness-legend-hint">
-            How recently each current account balance was updated. Only shown on businesses and
-            venues that have a current account.
-          </p>
           <ul>
             {(
               [

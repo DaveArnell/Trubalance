@@ -282,9 +282,10 @@ export function Sidebar({
           compact={showCollapsed}
         />
 
-        <div className="sidebar-divider" aria-hidden="true" />
+        <div className="sidebar-nav-scroll">
+          <div className="sidebar-divider" aria-hidden="true" />
 
-        <nav className="sidebar-nav" aria-label="Main">
+          <nav className="sidebar-nav" aria-label="Main">
           {pages.map((page, index) => {
             if (page.id === 'reserve-planner') {
               const onReservePage = activeRoute.page === 'reserve-planner'
@@ -450,14 +451,15 @@ export function Sidebar({
               </NavDragShell>
             )
           })}
-        </nav>
+          </nav>
 
-        {!isMobile && (
-          <div className={`sidebar-view-style${showCollapsed ? ' sidebar-view-style--compact' : ''}`}>
-            {!showCollapsed && <p className="sidebar-view-style-label">Layout</p>}
-            <DashboardViewStyleToggle compact />
-          </div>
-        )}
+          {!isMobile && (
+            <div className={`sidebar-view-style${showCollapsed ? ' sidebar-view-style--compact' : ''}`}>
+              {!showCollapsed && <p className="sidebar-view-style-label">Layout</p>}
+              <DashboardViewStyleToggle compact />
+            </div>
+          )}
+        </div>
       </div>
 
       {isMobile && onSetupGuide && !editReadOnly && (
