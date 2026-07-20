@@ -10,6 +10,8 @@ interface ReservePlanChartProps {
   currentActualBalance?: number
   /** Re-measure when column widths change */
   columnWidths?: number[]
+  /** Equal-width chart when not embedded in the sheet table */
+  standalone?: boolean
 }
 
 interface PlotLayout {
@@ -35,14 +37,33 @@ function actualBalanceForMonth(
   return null
 }
 
-function usePlotLayout(columnWidths: number[] | undefined) {
+function usePlotLayout(columnWidths: number[] | undefined, standalone: boolean) {
   const anchorRef = useRef<HTMLDivElement>(null)
   const [layout, setLayout] = useState<PlotLayout | null>(null)
 
   useLayoutEffect(() => {
     const anchor = anchorRef.current
-    const table = anchor?.closest('table')
-    if (!anchor || !table) return
+    if (!anchor) return
+
+    if (standalone) {
+      const measureStandalone = () => {
+        const monthCount = 12
+        const width = Math.max(anchor.clientWidth, 280)
+        const slot = width / monthCount
+        const centers = Array.from({ length: monthCount }, (_, index) => slot * index + slot / 2)
+        const monthWidths = Array.from({ length: monthCount }, () => slot)
+        setLayout({ plotLeft: 0, plotWidth: width, centers, monthWidths })
+      }
+
+      measureStandalone()
+      if (typeof ResizeObserver === 'undefined') return
+      const observer = new ResizeObserver(measureStandalone)
+      observer.observe(anchor)
+      return () => observer.disconnect()
+    }
+
+    const table = anchor.closest('table')
+    if (!table) return
 
     const measure = () => {
       const monthCells = table.querySelectorAll<HTMLElement>('thead th.reserve-month-col')
@@ -72,7 +93,7 @@ function usePlotLayout(columnWidths: number[] | undefined) {
     const observer = new ResizeObserver(measure)
     observer.observe(wrap)
     return () => observer.disconnect()
-  }, [columnWidths])
+  }, [columnWidths, standalone])
 
   return { anchorRef, layout }
 }
@@ -83,13 +104,14 @@ export function ReservePlanChart({
   currentMonthIdx,
   currentActualBalance,
   columnWidths,
+  standalone = false,
 }: ReservePlanChartProps) {
-  const { anchorRef, layout } = usePlotLayout(columnWidths)
+  const { anchorRef, layout } = usePlotLayout(standalone ? undefined : columnWidths, standalone)
 
   const chart = useMemo(() => {
     if (months.length === 0) return null
 
-    const balanceValues = months.map((m) => m.balanceAfterBills)
+    const balanceValues = months.flatMap((m) => [m.balanceAfterBills, m.balanceAfterDeposit])
     const actualValues = months
       .map((month) => actualBalanceForMonth(month, currentMonthIdx, currentActualBalance))
       .filter((value): value is number => value != null)
@@ -106,6 +128,8 @@ export function ReservePlanChart({
 
   const plotHeight = CHART_HEIGHT - PAD_TOP - PAD_BOTTOM
   const plotWidth = layout?.plotWidth ?? 1
+  const plotLeft = layout?.plotLeft ?? 0
+  const canDraw = Boolean(layout && layout.plotWidth > 1)
 
   const yForValue = (value: number) => {
     const range = chart.yMax - chart.yMin || 1
@@ -128,6 +152,16 @@ export function ReservePlanChart({
     due: month.totalDue,
   }))
 
+  // Climb to pre-bill (top of red), then vertical drop for the obligation.
+  const steppedPoints = balancePoints.flatMap((point) =>
+    point.due > 0
+      ? [
+          { x: point.x, y: point.beforeBillsY },
+          { x: point.x, y: point.y },
+        ]
+      : [{ x: point.x, y: point.y }],
+  )
+
   const actualPoints = months
     .map((month, index) => {
       const actual = actualBalanceForMonth(month, currentMonthIdx, currentActualBalance)
@@ -144,20 +178,31 @@ export function ReservePlanChart({
 
   const bufferY = yForValue(bufferAmount)
   const zeroY = chart.yMin <= 0 && chart.yMax >= 0 ? yForValue(0) : null
+  const monthSlotWidth = (index: number) =>
+    layout?.monthWidths[index] ?? plotWidth / Math.max(months.length, 1)
 
   return (
-    <div ref={anchorRef} className="reserve-plan-chart" role="img" aria-label="Reserve balance plan chart">
-      {layout && layout.plotWidth > 0 ? (
+    <div
+      ref={anchorRef}
+      className={`reserve-plan-chart${standalone ? ' reserve-plan-chart--standalone' : ''}`}
+      role="img"
+      aria-label="Reserve balance plan chart"
+    >
+      {canDraw ? (
         <svg
-          viewBox={`0 0 ${layout.plotWidth} ${CHART_HEIGHT}`}
+          viewBox={`0 0 ${plotWidth} ${CHART_HEIGHT}`}
           className="reserve-plan-chart-svg"
           preserveAspectRatio="xMinYMid meet"
-          style={{ marginLeft: layout.plotLeft, width: layout.plotWidth }}
+          style={
+            layout
+              ? { marginLeft: plotLeft, width: plotWidth }
+              : { width: '100%', maxWidth: '100%' }
+          }
         >
           <rect
             x={0}
             y={PAD_TOP}
-            width={layout.plotWidth}
+            width={plotWidth}
             height={plotHeight}
             className="reserve-plan-chart-plot-bg"
             rx="6"
@@ -168,7 +213,7 @@ export function ReservePlanChart({
             const y = yForValue(tick)
             return (
               <g key={tick}>
-                <line x1={0} y1={y} x2={layout.plotWidth} y2={y} className="reserve-plan-chart-grid" />
+                <line x1={0} y1={y} x2={plotWidth} y2={y} className="reserve-plan-chart-grid" />
                 <text x={4} y={y + 3} textAnchor="start" className="reserve-plan-chart-axis">
                   {formatAxisCurrency(tick)}
                 </text>
@@ -178,7 +223,7 @@ export function ReservePlanChart({
 
           {zeroY !== null && (
             <g className="chart-zero-line-group" aria-hidden>
-              <line x1={0} y1={zeroY} x2={layout.plotWidth} y2={zeroY} className="chart-zero-line" />
+              <line x1={0} y1={zeroY} x2={plotWidth} y2={zeroY} className="chart-zero-line" />
               <text x={4} y={zeroY + 3} textAnchor="start" className="reserve-plan-chart-axis chart-axis-tick-zero">
                 {formatAxisCurrency(0)}
               </text>
@@ -188,7 +233,7 @@ export function ReservePlanChart({
           {months.map((month, index) => {
             if (index !== currentMonthIdx) return null
             const x = xForIndex(index)
-            const half = (layout.monthWidths[index] ?? layout.plotWidth / 12) / 2
+            const half = monthSlotWidth(index) / 2
             return (
               <rect
                 key={`current-${month.month}`}
@@ -204,7 +249,7 @@ export function ReservePlanChart({
           <line
             x1={0}
             y1={bufferY}
-            x2={layout.plotWidth}
+            x2={plotWidth}
             y2={bufferY}
             className="reserve-plan-chart-buffer"
           />
@@ -226,16 +271,16 @@ export function ReservePlanChart({
           <polygon
             className="reserve-plan-chart-area"
             points={[
-              ...balancePoints.map((p) => `${p.x},${p.y}`),
-              `${balancePoints[balancePoints.length - 1]!.x},${PAD_TOP + plotHeight}`,
-              `${balancePoints[0]!.x},${PAD_TOP + plotHeight}`,
+              ...steppedPoints.map((p) => `${p.x},${p.y}`),
+              `${steppedPoints[steppedPoints.length - 1]!.x},${PAD_TOP + plotHeight}`,
+              `${steppedPoints[0]!.x},${PAD_TOP + plotHeight}`,
             ].join(' ')}
           />
 
           <polyline
             className="reserve-plan-chart-balance-line"
             fill="none"
-            points={balancePoints.map((p) => `${p.x},${p.y}`).join(' ')}
+            points={steppedPoints.map((p) => `${p.x},${p.y}`).join(' ')}
           />
 
           {actualPoints.length > 0 && (

@@ -26,6 +26,7 @@ import { useEditReadOnly } from '../hooks/useEditReadOnly'
 import { useSheetRowReorder } from '../hooks/useSheetRowReorder'
 import { formatCurrency, getCurrencySymbol } from '../utils/format'
 import { ReservePlanChart } from './ReservePlanChart'
+import { ReservePlannerCards } from './ReservePlannerCards'
 import { HelpButton } from './HelpButton'
 import { WIDGET_HELP } from '../content/livingDashboard'
 import { ReservePlannerEmptyState, ReservePlannerPicker } from './ReservePlannerEmptyState'
@@ -36,6 +37,7 @@ import {
   sheetTableWidthStyle,
 } from './SheetResizableTable'
 import { useResizableSheetColumns } from '../hooks/useResizableSheetColumns'
+import { useDashboardViewPreferences } from '../contexts/DashboardViewPreferencesContext'
 
 interface ReservePlannerPanelProps {
   state: AppState
@@ -804,6 +806,7 @@ export function ReservePlannerPanel({
   onPlannerCreated,
 }: ReservePlannerPanelProps) {
   const editReadOnly = useEditReadOnly()
+  const { useCards } = useDashboardViewPreferences()
   const [activeCell, setActiveCell] = useState<string | null>(null)
   const sheetWrapRef = useRef<HTMLDivElement>(null)
   const sheetColumns = useMemo(() => reserveSheetColumnsForMode(editReadOnly), [editReadOnly])
@@ -1040,6 +1043,18 @@ export function ReservePlannerPanel({
               </div>
             </div>
 
+            {useCards ? (
+              <ReservePlannerCards
+                state={state}
+                viewScope={viewScope}
+                planner={planner}
+                grid={grid}
+                monthEndBalances={monthEndBalances}
+                currentMonthIdx={currentMonthIdx}
+                suggestedReserveBalance={suggestedReserveBalance}
+                actions={actions}
+              />
+            ) : (
             <div className="sheet-wrap reserve-sheet-wrap" ref={sheetWrapRef}>
               <table
                 className="sheet-table reserve-sheet-table"
@@ -1212,6 +1227,7 @@ export function ReservePlannerPanel({
                 </tfoot>
               </table>
             </div>
+            )}
           </div>
       </div>
     </section>

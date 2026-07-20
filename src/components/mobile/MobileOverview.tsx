@@ -5,8 +5,7 @@ import { useEditReadOnly } from '../../hooks/useEditReadOnly'
 import type { AppState, DashboardMetrics, ViewScope } from '../../types'
 import type { BreakdownColumn } from '../../utils/breakdownTable'
 import {
-  getCurrentAccountFreshnessEntries,
-  getWorstAccountFreshness,
+  getScopeCurrentAccountFreshness,
 } from '../../utils/accountFreshness'
 import { formatCurrency } from '../../utils/format'
 import { BreakdownTable } from '../BreakdownTable'
@@ -52,14 +51,10 @@ export function MobileOverview({
 
   const freshness = useMemo(() => {
     if (!state || !viewScope) return null
-    const entries = getCurrentAccountFreshnessEntries(state, viewScope)
-    if (entries.length === 0) return null
-    const worst = getWorstAccountFreshness(entries)
-    const worstEntry = entries.find((entry) => entry.freshness === worst) ?? entries[0]!
-    return { worst, label: worstEntry.freshnessLabel }
+    return getScopeCurrentAccountFreshness(state, viewScope)
   }, [state, viewScope])
 
-  const showFreshness = freshness && freshness.worst !== 'green'
+  const showFreshness = freshness && freshness.level !== 'green'
 
   return (
     <section className="mobile-overview" aria-label="True Balance">
@@ -74,7 +69,7 @@ export function MobileOverview({
             <span className="mobile-overview-summary-label">True Balance</span>
             {freshness ? (
               <span
-                className={`overview-freshness-dot overview-freshness-dot--${freshness.worst} mobile-overview-freshness-dot`}
+                className={`overview-freshness-dot overview-freshness-dot--${freshness.level} mobile-overview-freshness-dot`}
                 title={`Current account: ${freshness.label}`}
                 aria-label={`Current account ${freshness.label}`}
               />
@@ -82,7 +77,7 @@ export function MobileOverview({
           </span>
           {showFreshness ? (
             <span
-              className={`mobile-overview-freshness mobile-overview-freshness--${freshness.worst}`}
+              className={`mobile-overview-freshness mobile-overview-freshness--${freshness.level}`}
             >
               {freshness.label}
             </span>

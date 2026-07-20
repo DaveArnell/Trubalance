@@ -28,13 +28,38 @@ export function accountFreshnessLabel(state: AppState, account: Account): string
   return account.name
 }
 
-/** Current accounts only — when each was last updated for the overview widget. */
-export function getCurrentAccountFreshnessEntries(
-  state: AppState,
-  scope: ViewScope,
-): AccountFreshnessEntry[] {
-  return getCashAccounts(getAccountsForScope(state, scope))
-    .filter((account) => account.active && account.type === 'current')
+/** Current accounts attached directly to this scope (not rolled-up children). */
+export function getDirectCurrentAccountsForScope(state: AppState, scope: ViewScope): Account[] {
+  if (scope.type === 'group') return []
+
+  if (scope.type === 'venue') {
+    return state.accounts.filter(
+      (account) => account.active && account.type === 'current' && account.venueId === scope.id,
+    )
+  }
+
+  const businessId = scope.id
+  const directOnBusiness = state.accounts.filter(
+    (account) =>
+      account.active &&
+      account.type === 'current' &&
+      account.businessId === businessId &&
+      !account.venueId,
+  )
+  const venues = state.venues.filter((venue) => venue.businessId === businessId)
+  // Single-venue businesses are shown as one row — include that venue’s current accounts.
+  if (venues.length === 1) {
+    const venueId = venues[0]!.id
+    const onVenue = state.accounts.filter(
+      (account) => account.active && account.type === 'current' && account.venueId === venueId,
+    )
+    return [...directOnBusiness, ...onVenue]
+  }
+  return directOnBusiness
+}
+
+function toFreshnessEntries(state: AppState, accounts: Account[]): AccountFreshnessEntry[] {
+  return accounts
     .map((account) => {
       const daysAgo = daysBetween(account.updatedAt)
       return {
@@ -46,6 +71,16 @@ export function getCurrentAccountFreshnessEntries(
       }
     })
     .sort((a, b) => b.daysAgo - a.daysAgo || a.label.localeCompare(b.label))
+}
+
+/** Current accounts only — when each was last updated for the overview widget. */
+export function getCurrentAccountFreshnessEntries(
+  state: AppState,
+  scope: ViewScope,
+): AccountFreshnessEntry[] {
+  return toFreshnessEntries(state, getCashAccounts(getAccountsForScope(state, scope)).filter(
+    (account) => account.active && account.type === 'current',
+  ))
 }
 
 export function groupAccountFreshnessEntries(entries: AccountFreshnessEntry[]): GroupedAccountFreshness[] {
@@ -79,12 +114,12 @@ export function getWorstAccountFreshness(entries: AccountFreshnessEntry[]): Heal
   )
 }
 
-/** Worst current-account freshness under a scope, or null if none. */
+/** Worst freshness for current accounts attached to this scope, or null if none. */
 export function getScopeCurrentAccountFreshness(
   state: AppState,
   scope: ViewScope,
 ): { level: HealthLevel; label: string } | null {
-  const entries = getCurrentAccountFreshnessEntries(state, scope)
+  const entries = toFreshnessEntries(state, getDirectCurrentAccountsForScope(state, scope))
   if (entries.length === 0) return null
   const level = getWorstAccountFreshness(entries)
   const worst = entries.find((entry) => entry.freshness === level) ?? entries[0]!

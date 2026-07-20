@@ -5698,13 +5698,35 @@ body.overview-split-dragging {
 .overview-freshness-dot--red { background: var(--status-red-text); }
 
 .scope-freshness-legend {
-  list-style: none;
   margin: 10px 0 0;
   padding: 8px var(--space-2) 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.scope-freshness-legend-title {
+  margin: 0 0 6px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.scope-freshness-legend-hint {
+  margin: 0 0 8px;
+  font-size: 0.6rem;
+  line-height: 1.35;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.scope-freshness-legend ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 4px 8px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .scope-freshness-legend li {
@@ -9029,6 +9051,200 @@ textarea:focus {
   border-top: 2px dashed var(--status-orange-text);
   height: 0;
   width: 12px;
+}
+
+.reserve-plan-chart--standalone {
+  width: 100%;
+}
+
+.reserve-plan-chart--standalone .reserve-plan-chart-svg {
+  margin-left: 0;
+  width: 100%;
+  max-width: 100%;
+}
+
+.reserve-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 2px 8px;
+}
+
+.reserve-cards-chart {
+  margin: 4px 0 12px;
+  padding: 12px 12px 8px;
+  border: 1px solid var(--border-subtle, #e2e8f0);
+  border-radius: 10px;
+  background: var(--surface-muted, #f8fafc);
+}
+
+.reserve-cards-chart-heading {
+  margin: 0 0 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted, #64748b);
+}
+
+.reserve-month-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 10px;
+  margin: 0 0 12px;
+}
+
+.reserve-month-card {
+  padding: 10px 12px;
+  border: 1px solid var(--border-subtle, #e2e8f0);
+  border-radius: 10px;
+  background: var(--surface, #fff);
+}
+
+.reserve-month-card--current {
+  border-color: #0f766e;
+  box-shadow: inset 3px 0 0 #0f766e;
+}
+
+.reserve-month-card--low {
+  background: #fff7ed;
+}
+
+.reserve-month-card-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 8px;
+}
+
+.reserve-month-card-head h3 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text, #0f172a);
+}
+
+.reserve-month-card-status {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-muted, #64748b);
+}
+
+.reserve-month-card-stats {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.reserve-month-card-stats > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.reserve-month-card-stats dt {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-muted, #64748b);
+}
+
+.reserve-month-card-stats dd {
+  margin: 0;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.reserve-month-card-due {
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.reserve-card-bill-name,
+.reserve-card-bill-scope {
+  width: 100%;
+  max-width: 100%;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  padding: 2px 4px;
+}
+
+.reserve-card-bill-name:hover,
+.reserve-card-bill-scope:hover,
+.reserve-card-bill-name:focus,
+.reserve-card-bill-scope:focus {
+  border-color: var(--border-subtle, #cbd5e1);
+  background: #fff;
+  outline: none;
+}
+
+.reserve-card-bill-name {
+  font-weight: 700;
+  font-size: inherit;
+}
+
+.reserve-card-month-chips {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.reserve-card-month-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 6px 7px;
+  border: 1px solid var(--border-subtle, #e2e8f0);
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  text-align: left;
+  min-width: 0;
+}
+
+.reserve-card-month-chip:disabled {
+  cursor: default;
+  opacity: 0.9;
+}
+
+.reserve-card-month-chip--set {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.reserve-card-month-chip--open,
+.reserve-card-month-chip:hover:not(:disabled) {
+  border-color: #0f766e;
+}
+
+.reserve-card-month-chip-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text-muted, #64748b);
+}
+
+.reserve-card-month-chip-value {
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text, #0f172a);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+@media (min-width: 900px) {
+  .reserve-card-month-chips {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
 }
 
 .reserve-balance-target {

@@ -254,24 +254,31 @@ export function SidebarScopeTree({
       ) : null}
 
       {!compact ? (
-        <ul className="scope-freshness-legend" aria-label="Account freshness colours">
-          {(
-            [
-              ['green', 'Today'],
-              ['yellow', '1–3 days'],
-              ['orange', '4–7 days'],
-              ['red', 'Older'],
-            ] as const
-          ).map(([level, label]) => (
-            <li key={level}>
-              <span
-                className={`overview-freshness-dot overview-freshness-dot--${level as HealthLevel}`}
-                aria-hidden
-              />
-              <span>{label}</span>
-            </li>
-          ))}
-        </ul>
+        <div className="scope-freshness-legend" aria-label="Current account freshness">
+          <p className="scope-freshness-legend-title">Current account freshness</p>
+          <p className="scope-freshness-legend-hint">
+            How recently each current account balance was updated. Only shown on businesses and
+            venues that have a current account.
+          </p>
+          <ul>
+            {(
+              [
+                ['green', 'Updated today'],
+                ['yellow', '1–3 days ago'],
+                ['orange', '4–7 days ago'],
+                ['red', 'Over a week'],
+              ] as const
+            ).map(([level, label]) => (
+              <li key={level}>
+                <span
+                  className={`overview-freshness-dot overview-freshness-dot--${level as HealthLevel}`}
+                  aria-hidden
+                />
+                <span>{label}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       ) : null}
     </section>
   )
