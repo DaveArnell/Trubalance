@@ -1,4 +1,4 @@
-import type { AppState, ViewScope } from '../types'
+import type { AppState, HealthLevel, ViewScope } from '../types'
 import { getGroupIdForScope, getScopeBreadcrumb, getScopeLabel, hasMultipleViewScopes } from '../utils/scope'
 import {
   chartColorForScope,
@@ -6,6 +6,7 @@ import {
   getVenueAccentColor,
 } from '../utils/businessTheme'
 import { abbreviateScopeName } from '../utils/sidebarLayout'
+import { getScopeCurrentAccountFreshness } from '../utils/accountFreshness'
 
 interface SidebarScopeTreeProps {
   state: AppState
@@ -59,6 +60,28 @@ function isSingleVenueBusinessActive(
   )
 }
 
+function FreshnessDot({
+  state,
+  scope,
+  compact,
+}: {
+  state: AppState
+  scope: ViewScope
+  compact?: boolean
+}) {
+  const freshness = getScopeCurrentAccountFreshness(state, scope)
+  if (!freshness) return null
+  return (
+    <span
+      className={`overview-freshness-dot overview-freshness-dot--${freshness.level}${
+        compact ? ' overview-freshness-dot--compact' : ''
+      }`}
+      title={`Current account: ${freshness.label}`}
+      aria-label={`Current account ${freshness.label}`}
+    />
+  )
+}
+
 export function SidebarScopeTree({
   state,
   viewScope,
@@ -69,10 +92,12 @@ export function SidebarScopeTree({
   const currentLabel = getScopeLabel(state, viewScope)
   const breadcrumb = getScopeBreadcrumb(state, viewScope)
   const multiScope = hasMultipleViewScopes(state)
+  const currentFreshness = getScopeCurrentAccountFreshness(state, viewScope)
 
   const renderBusinessNode = (business: typeof state.businesses[number]) => {
     const venues = state.venues.filter((v) => v.businessId === business.id)
     const businessAccent = getBusinessAccentColor(state, business.id)
+    const businessScope: ViewScope = { type: 'business', id: business.id }
 
     if (venues.length === 1) {
       const venue = venues[0]!
@@ -93,6 +118,7 @@ export function SidebarScopeTree({
           >
             <span className="scope-tree-swatch" style={{ background: businessAccent }} aria-hidden />
             <span className="scope-tree-label">{label}</span>
+            <FreshnessDot state={state} scope={businessScope} compact={compact} />
           </button>
         </li>
       )
@@ -111,12 +137,14 @@ export function SidebarScopeTree({
           <span className="scope-tree-label">
             {compact ? abbreviateScopeName(business.name, 3) : business.name}
           </span>
+          <FreshnessDot state={state} scope={businessScope} compact={compact} />
         </button>
 
         {venues.length > 1 && (
           <ul className={`scope-tree-branch${compact ? ' scope-tree-branch--compact' : ''}`}>
             {venues.map((venue) => {
               const venueAccent = getVenueAccentColor(state, venue.id)
+              const venueScope: ViewScope = { type: 'venue', id: venue.id }
               return (
                 <li key={venue.id} className="scope-tree-node">
                   <button
@@ -134,6 +162,7 @@ export function SidebarScopeTree({
                     <span className="scope-tree-label">
                       {compact ? abbreviateScopeName(venue.name, 3) : venue.name}
                     </span>
+                    <FreshnessDot state={state} scope={venueScope} compact={compact} />
                   </button>
                 </li>
               )
@@ -167,7 +196,18 @@ export function SidebarScopeTree({
           style={{ background: currentAccent }}
           aria-hidden
         />
-        {compact ? abbreviateScopeName(currentLabel, 4) : currentLabel}
+        <span className="sidebar-scope-current-label">
+          {compact ? abbreviateScopeName(currentLabel, 4) : currentLabel}
+        </span>
+        {currentFreshness ? (
+          <span
+            className={`overview-freshness-dot overview-freshness-dot--${currentFreshness.level}${
+              compact ? ' overview-freshness-dot--compact' : ''
+            }`}
+            title={`Current account: ${currentFreshness.label}`}
+            aria-label={`Current account ${currentFreshness.label}`}
+          />
+        ) : null}
       </p>
 
       {multiScope ? (
@@ -175,6 +215,7 @@ export function SidebarScopeTree({
         {state.groups.map((group) => {
           const businesses = state.businesses.filter((b) => b.groupId === group.id)
           if (businesses.length === 0) return null
+          const groupScope: ViewScope = { type: 'group', id: group.id }
 
           if (businesses.length === 1) {
             return (
@@ -198,6 +239,7 @@ export function SidebarScopeTree({
                 ) : (
                   <span className="scope-tree-meta">Whole group</span>
                 )}
+                <FreshnessDot state={state} scope={groupScope} compact={compact} />
               </button>
 
               <ul className={`scope-tree-branch${compact ? ' scope-tree-branch--compact' : ''}`}>
@@ -209,6 +251,27 @@ export function SidebarScopeTree({
 
         {renderUngroupedBusinesses()}
       </ul>
+      ) : null}
+
+      {!compact ? (
+        <ul className="scope-freshness-legend" aria-label="Account freshness colours">
+          {(
+            [
+              ['green', 'Today'],
+              ['yellow', '1–3 days'],
+              ['orange', '4–7 days'],
+              ['red', 'Older'],
+            ] as const
+          ).map(([level, label]) => (
+            <li key={level}>
+              <span
+                className={`overview-freshness-dot overview-freshness-dot--${level as HealthLevel}`}
+                aria-hidden
+              />
+              <span>{label}</span>
+            </li>
+          ))}
+        </ul>
       ) : null}
     </section>
   )

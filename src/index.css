@@ -5685,10 +5685,50 @@ body.overview-split-dragging {
   flex-shrink: 0;
 }
 
+.overview-freshness-dot--compact {
+  width: 6px;
+  height: 6px;
+}
+
 .overview-freshness-dot--green { background: var(--status-green-text); }
 .overview-freshness-dot--yellow { background: var(--status-yellow-text); }
 .overview-freshness-dot--orange { background: var(--status-orange-text); }
 .overview-freshness-dot--red { background: var(--status-red-text); }
+
+.scope-freshness-legend {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 8px var(--space-2) 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.scope-freshness-legend li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: 0.62rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text-inverse-muted);
+}
+
+.sidebar-scope-current {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sidebar-scope-current-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 .admin-date-banner {
   display: flex;
@@ -11861,6 +11901,18 @@ tr.sheet-row--received td {
     min-width: 0;
   }
 
+  .mobile-overview-summary-label-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .mobile-overview-freshness-dot {
+    width: 8px;
+    height: 8px;
+  }
+
   .mobile-overview-freshness {
     font-size: 0.62rem;
     font-weight: 700;
@@ -11877,6 +11929,10 @@ tr.sheet-row--received td {
 
   .mobile-overview-freshness--red {
     color: #b91c1c;
+  }
+
+  .mobile-overview-freshness--green {
+    color: #047857;
   }
 
   .mobile-bottom-nav-icon-wrap {

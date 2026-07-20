@@ -78,3 +78,15 @@ export function getWorstAccountFreshness(entries: AccountFreshnessEntry[]): Heal
     'green',
   )
 }
+
+/** Worst current-account freshness under a scope, or null if none. */
+export function getScopeCurrentAccountFreshness(
+  state: AppState,
+  scope: ViewScope,
+): { level: HealthLevel; label: string } | null {
+  const entries = getCurrentAccountFreshnessEntries(state, scope)
+  if (entries.length === 0) return null
+  const level = getWorstAccountFreshness(entries)
+  const worst = entries.find((entry) => entry.freshness === level) ?? entries[0]!
+  return { level, label: worst.freshnessLabel }
+}

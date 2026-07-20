@@ -70,7 +70,16 @@ export function MobileOverview({
         onClick={() => canExpand && setBalancesOpen((open) => !open)}
       >
         <span className="mobile-overview-summary-text">
-          <span className="mobile-overview-summary-label">True Balance</span>
+          <span className="mobile-overview-summary-label-row">
+            <span className="mobile-overview-summary-label">True Balance</span>
+            {freshness ? (
+              <span
+                className={`overview-freshness-dot overview-freshness-dot--${freshness.worst} mobile-overview-freshness-dot`}
+                title={`Current account: ${freshness.label}`}
+                aria-label={`Current account ${freshness.label}`}
+              />
+            ) : null}
+          </span>
           {showFreshness ? (
             <span
               className={`mobile-overview-freshness mobile-overview-freshness--${freshness.worst}`}
