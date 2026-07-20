@@ -12,7 +12,7 @@ import {
 import { useNavLayout } from '../hooks/useNavLayout'
 import { getOrderedPages } from '../utils/navLayout'
 import { getPlannerDisplayName, getReservePlannerIdForScope } from '../utils/reserveCalculations'
-import { SidebarScopeTree } from './SidebarScopeTree'
+import { ScopeFreshnessLegend, SidebarScopeTree } from './SidebarScopeTree'
 import { MobileTourLinks } from './TourMenu'
 import { useSubscription } from '../contexts/SubscriptionContext'
 import { useAuth } from '../contexts/AuthContext'
@@ -280,9 +280,12 @@ export function Sidebar({
           viewScope={viewScope}
           onSelect={handleSelectScope}
           compact={showCollapsed}
+          showFreshnessLegend={false}
         />
 
-        <div className="sidebar-nav-scroll">
+        <div className="sidebar-bottom">
+          {!showCollapsed ? <ScopeFreshnessLegend /> : null}
+
           <div className="sidebar-divider" aria-hidden="true" />
 
           <nav className="sidebar-nav" aria-label="Main">

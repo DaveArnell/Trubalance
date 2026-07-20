@@ -13,6 +13,8 @@ interface SidebarScopeTreeProps {
   viewScope: ViewScope
   onSelect: (scope: ViewScope) => void
   compact?: boolean
+  /** When false, omit the freshness key (render it elsewhere in the sidebar). */
+  showFreshnessLegend?: boolean
 }
 
 function isActive(viewScope: ViewScope, type: ViewScope['type'], id: string) {
@@ -82,11 +84,38 @@ function FreshnessDot({
   )
 }
 
+export function ScopeFreshnessLegend() {
+  return (
+    <div className="scope-freshness-legend" aria-label="Current account freshness">
+      <p className="scope-freshness-legend-title">Current account freshness</p>
+      <ul>
+        {(
+          [
+            ['green', 'Updated today'],
+            ['yellow', '1–3 days ago'],
+            ['orange', '4–7 days ago'],
+            ['red', 'Over a week'],
+          ] as const
+        ).map(([level, label]) => (
+          <li key={level}>
+            <span
+              className={`overview-freshness-dot overview-freshness-dot--${level as HealthLevel}`}
+              aria-hidden
+            />
+            <span>{label}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
 export function SidebarScopeTree({
   state,
   viewScope,
   onSelect,
   compact = false,
+  showFreshnessLegend = true,
 }: SidebarScopeTreeProps) {
   const currentAccent = chartColorForScope(state, viewScope)
   const currentLabel = getScopeLabel(state, viewScope)
@@ -253,29 +282,7 @@ export function SidebarScopeTree({
       </ul>
       ) : null}
 
-      {!compact ? (
-        <div className="scope-freshness-legend" aria-label="Current account freshness">
-          <p className="scope-freshness-legend-title">Current account freshness</p>
-          <ul>
-            {(
-              [
-                ['green', 'Updated today'],
-                ['yellow', '1–3 days ago'],
-                ['orange', '4–7 days ago'],
-                ['red', 'Over a week'],
-              ] as const
-            ).map(([level, label]) => (
-              <li key={level}>
-                <span
-                  className={`overview-freshness-dot overview-freshness-dot--${level as HealthLevel}`}
-                  aria-hidden
-                />
-                <span>{label}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
+      {showFreshnessLegend && !compact ? <ScopeFreshnessLegend /> : null}
     </section>
   )
 }
