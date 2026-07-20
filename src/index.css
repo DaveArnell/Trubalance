@@ -4643,13 +4643,9 @@ body.widget-canvas-resizing * {
   --overview-accent: #0f766e;
   --overview-accent-soft: rgba(15, 118, 110, 0.12);
   --overview-accent-border: rgba(15, 118, 110, 0.18);
-  --overview-height: 210px;
+  --overview-height: 280px;
   overflow: hidden;
-  font-size: clamp(
-    0.72rem,
-    calc(0.65rem + (var(--overview-height) - 56px) * 0.002),
-    0.95rem
-  );
+  font-size: 1rem;
 }
 
 .overview-strip-body {
@@ -5490,23 +5486,23 @@ button.overview-slim-col-label:not(:disabled) {
 
 @container overview-strip (max-width: 900px) {
   .overview-breakdown-table {
-    font-size: 0.82rem;
+    font-size: 0.95rem;
   }
 
   .overview-breakdown-table th,
   .overview-breakdown-table td {
-    padding: 6px 8px !important;
+    padding: 8px 10px !important;
   }
 
   .overview-breakdown-table .sheet-label-col,
   .overview-breakdown-table .sheet-row-label {
-    font-size: 0.74rem;
+    font-size: 0.9rem !important;
   }
 }
 
 @container overview-strip (max-width: 520px) {
   .overview-breakdown-table {
-    font-size: 0.76rem;
+    font-size: 0.9rem;
   }
 
   .overview-hero-value {
@@ -6086,23 +6082,42 @@ body.overview-split-dragging {
   min-width: 0;
   border-collapse: separate;
   border-spacing: 0;
-  font-size: clamp(0.78rem, 2.4cqi, 0.9rem);
+  font-size: 1rem;
   background: transparent;
+}
+
+/* Beat Display density prefs — overview balances must stay readable. */
+.overview-strip .overview-breakdown-table.table-pref-table th,
+.overview-strip .overview-breakdown-table.table-pref-table td,
+.overview-strip .overview-breakdown-table.table-pref-table.table-density-dense th,
+.overview-strip .overview-breakdown-table.table-pref-table.table-density-dense td,
+.overview-strip .overview-breakdown-table.table-pref-table.table-density-compact th,
+.overview-strip .overview-breakdown-table.table-pref-table.table-density-compact td,
+.overview-strip .overview-breakdown-table.table-pref-table.table-density-comfortable th,
+.overview-strip .overview-breakdown-table.table-pref-table.table-density-comfortable td,
+.mobile-overview-breakdown .overview-breakdown-table.table-pref-table th,
+.mobile-overview-breakdown .overview-breakdown-table.table-pref-table td {
+  font-size: 1rem !important;
+  font-weight: 650;
+  padding: 9px 12px !important;
+  height: 2.5rem !important;
+  max-height: none !important;
+  line-height: 1.3 !important;
 }
 
 .overview-breakdown-table th,
 .overview-breakdown-table td {
   border: none;
   border-bottom: 1px solid rgba(15, 118, 110, 0.08);
-  padding: 7px 10px !important;
+  padding: 9px 12px !important;
   line-height: 1.3;
   transition: background 0.15s ease, color 0.15s ease;
 }
 
 .overview-breakdown-table.table-wrap-nowrap th,
 .overview-breakdown-table.table-wrap-nowrap td {
-  height: 34px;
-  max-height: 34px;
+  height: 2.5rem;
+  max-height: none;
 }
 
 .overview-breakdown-table.table-wrap-wrap th,
@@ -6114,9 +6129,9 @@ body.overview-split-dragging {
 .overview-breakdown-table thead th {
   background: linear-gradient(180deg, rgba(15, 118, 110, 0.14) 0%, rgba(15, 118, 110, 0.06) 100%);
   color: #0f766e;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  font-size: 0.82rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   border-bottom: 1px solid rgba(15, 118, 110, 0.2);
 }
@@ -6160,15 +6175,44 @@ body.overview-split-dragging {
 .overview-breakdown-table .sheet-label-col,
 .overview-breakdown-table .sheet-row-label {
   text-align: left;
-  font-weight: 600;
-  font-size: 0.8rem;
-  color: var(--text-secondary);
+  font-weight: 700 !important;
+  font-size: 0.95rem !important;
+  color: var(--text-primary);
   background: linear-gradient(90deg, rgba(244, 244, 245, 0.95) 0%, rgba(250, 250, 250, 0.7) 100%);
   border-right: 1px solid rgba(15, 118, 110, 0.1);
   white-space: nowrap;
   width: 12%;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.overview-strip .overview-breakdown-table tr.sheet-row-balance td:not(.sheet-row-label),
+.mobile-overview-breakdown .overview-breakdown-table tr.sheet-row-balance td:not(.sheet-row-label) {
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.overview-strip .overview-breakdown-table tr.sheet-row-total td:not(.sheet-row-label),
+.mobile-overview-breakdown .overview-breakdown-table tr.sheet-row-total td:not(.sheet-row-label) {
+  font-size: 1.08rem !important;
+  font-weight: 800 !important;
+}
+
+.overview-strip .overview-breakdown-table tr.sheet-row-costs td:not(.sheet-row-label),
+.overview-strip .overview-breakdown-table tr.sheet-row-receipts td:not(.sheet-row-label),
+.mobile-overview-breakdown .overview-breakdown-table tr.sheet-row-costs td:not(.sheet-row-label),
+.mobile-overview-breakdown .overview-breakdown-table tr.sheet-row-receipts td:not(.sheet-row-label) {
+  font-size: 1.02rem !important;
+  font-weight: 700 !important;
+}
+
+.overview-strip .overview-breakdown-table tr.sheet-row-costs .sheet-row-label,
+.overview-strip .overview-breakdown-table tr.sheet-row-receipts .sheet-row-label,
+.mobile-overview-breakdown .overview-breakdown-table tr.sheet-row-costs .sheet-row-label,
+.mobile-overview-breakdown .overview-breakdown-table tr.sheet-row-receipts .sheet-row-label {
+  font-size: 0.95rem !important;
+  font-weight: 800 !important;
 }
 
 .overview-breakdown-table tr.sheet-row-balance td:not(.sheet-row-label):not(.sheet-cell-masked) {
@@ -6213,7 +6257,7 @@ body.overview-split-dragging {
 }
 
 .overview-breakdown-table tr.sheet-row-final td:not(.sheet-row-label) {
-  font-size: 1.28rem !important;
+  font-size: 1.4rem !important;
   font-weight: 800;
   letter-spacing: -0.025em;
   font-variant-numeric: tabular-nums;
@@ -6221,13 +6265,13 @@ body.overview-split-dragging {
 }
 
 .overview-breakdown-table tr.sheet-row-final .sheet-row-label {
-  font-size: 0.95rem !important;
+  font-size: 1.05rem !important;
   font-weight: 800;
 }
 
 .overview-breakdown-table.table-wrap-nowrap tr.sheet-row-final th,
 .overview-breakdown-table.table-wrap-nowrap tr.sheet-row-final td {
-  height: 2.6rem;
+  height: 3rem;
   max-height: none;
 }
 
@@ -6238,7 +6282,7 @@ body.overview-split-dragging {
 
 .overview-breakdown-table tr.sheet-row-final .sheet-cell-highlight,
 .overview-breakdown-table tr.sheet-row-final .sheet-cell-danger {
-  font-size: 1.28rem !important;
+  font-size: 1.4rem !important;
   font-weight: 800;
 }
 
@@ -12068,13 +12112,13 @@ tr.sheet-row--received td {
   }
 
   .mobile-overview-breakdown .overview-breakdown-table {
-    font-size: 0.88rem;
+    font-size: 1rem;
     width: 100%;
   }
 
   .mobile-overview-breakdown .overview-breakdown-table th,
   .mobile-overview-breakdown .overview-breakdown-table td {
-    padding: 7px 10px !important;
+    padding: 9px 12px !important;
   }
 
   .mobile-overview-breakdown-open {

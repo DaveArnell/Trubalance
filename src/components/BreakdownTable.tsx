@@ -457,7 +457,7 @@ export function BreakdownTable({
       <table
         className={
           compact
-            ? `sheet-table sheet-table-dense overview-breakdown-table table-pref-table ${tablePrefClasses}`
+                    ? `sheet-table overview-breakdown-table table-pref-table ${tablePrefClasses}`
             : 'sheet-table'
         }
       >

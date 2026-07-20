@@ -2,12 +2,12 @@ import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPoi
 import { useEditReadOnly } from '../hooks/useEditReadOnly'
 import { MOBILE_LAYOUT_MQ } from './useMobileNav'
 
-const STORAGE_KEY = 'trubalance-overview-height-v5'
-export const OVERVIEW_HEIGHT_MIN = 168
-export const OVERVIEW_HEIGHT_MAX = 340
-export const OVERVIEW_HEIGHT_DEFAULT = 190
-export const OVERVIEW_HEIGHT_MOBILE_MAX = 420
-export const OVERVIEW_HEIGHT_MOBILE_DEFAULT = 280
+const STORAGE_KEY = 'trubalance-overview-height-v6'
+export const OVERVIEW_HEIGHT_MIN = 200
+export const OVERVIEW_HEIGHT_MAX = 420
+export const OVERVIEW_HEIGHT_DEFAULT = 280
+export const OVERVIEW_HEIGHT_MOBILE_MAX = 480
+export const OVERVIEW_HEIGHT_MOBILE_DEFAULT = 320
 
 function isMobileViewport(): boolean {
   return typeof window !== 'undefined' && window.matchMedia(MOBILE_LAYOUT_MQ).matches
