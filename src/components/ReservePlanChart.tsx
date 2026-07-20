@@ -152,17 +152,17 @@ export function ReservePlanChart({
     due: month.totalDue,
   }))
 
-  // Horizontal planned balance only — vertical bill drops are drawn separately in red.
-  const horizontalBalancePoints = balancePoints.flatMap((point, index) => {
-    if (index === 0) {
-      return [{ x: point.x, y: point.due > 0 ? point.beforeBillsY : point.y }]
+  // Horizontal planned balance segments only — bill drops are separate red verticals.
+  const horizontalSegments = balancePoints.slice(0, -1).map((point, index) => {
+    const next = balancePoints[index + 1]!
+    const endY = next.due > 0 ? next.beforeBillsY : next.y
+    return {
+      key: `${point.month.month}-${next.month.month}`,
+      x1: point.x,
+      y1: point.y,
+      x2: next.x,
+      y2: endY,
     }
-    const prev = balancePoints[index - 1]!
-    const targetY = point.due > 0 ? point.beforeBillsY : point.y
-    return [
-      { x: prev.x, y: prev.y },
-      { x: point.x, y: targetY },
-    ]
   })
 
   // Stepped path for the filled area under the plan line.
@@ -276,11 +276,16 @@ export function ReservePlanChart({
             ].join(' ')}
           />
 
-          <polyline
-            className="reserve-plan-chart-balance-line"
-            fill="none"
-            points={horizontalBalancePoints.map((p) => `${p.x},${p.y}`).join(' ')}
-          />
+          {horizontalSegments.map((segment) => (
+            <line
+              key={segment.key}
+              x1={segment.x1}
+              y1={segment.y1}
+              x2={segment.x2}
+              y2={segment.y2}
+              className="reserve-plan-chart-balance-line"
+            />
+          ))}
 
           {balancePoints.map((point) => {
             if (point.due <= 0) return null
