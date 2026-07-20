@@ -2,11 +2,10 @@ import { useEffect, useMemo, useState } from 'react'
 import type { AppState, HistoryRecord, ViewScope } from '../types'
 import { getHistoryRecordsForScope } from '../utils/historyRebuild'
 import { formatCurrency } from '../utils/format'
-import { formatSnapshotDateLong, formatSnapshotDayLabel } from '../utils/snapshots'
+import { formatSnapshotDateLong } from '../utils/snapshots'
 import { getScopeBreadcrumb, getScopeItemLabel } from '../utils/scope'
 import type { AppActions } from '../hooks/useAppState'
 import { HelpButton } from './HelpButton'
-import { useDemoMode } from '../contexts/DemoModeContext'
 
 interface HistoryPanelProps {
   state: AppState
@@ -48,21 +47,9 @@ export function HistoryPanel({
   setOpenHelp,
   onDeleteHistoryRecord,
 }: HistoryPanelProps) {
-  const demoMode = useDemoMode()
   const scopeLabel = getScopeItemLabel(state, viewScope.type, viewScope.id)
   const records = useMemo(() => getHistoryRecordsForScope(state, viewScope), [state, viewScope])
-  const dayOneKey = useMemo(() => {
-    if (!demoMode || records.length === 0) return null
-    return records.reduce(
-      (earliest, record) => (!earliest || record.date < earliest ? record.date : earliest),
-      '',
-    )
-  }, [demoMode, records])
-
-  const formatHistoryDate = (dateKey: string) => {
-    if (demoMode && dayOneKey) return formatSnapshotDayLabel(dateKey, dayOneKey)
-    return formatSnapshotDateLong(dateKey)
-  }
+  const formatHistoryDate = (dateKey: string) => formatSnapshotDateLong(dateKey)
   const scopeBreadcrumb = getScopeBreadcrumb(state, viewScope)
   const showBusinessColumn = viewScope.type === 'group'
   const showVenueColumn = viewScope.type === 'group' || viewScope.type === 'business'

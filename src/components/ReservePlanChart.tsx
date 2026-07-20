@@ -175,20 +175,6 @@ export function ReservePlanChart({
       : [{ x: point.x, y: point.y }],
   )
 
-  const actualPoints = months
-    .map((month, index) => {
-      const actual = actualBalanceForMonth(month, currentMonthIdx, currentActualBalance)
-      if (actual == null) return null
-      return {
-        month,
-        x: xForIndex(index),
-        y: yForValue(actual),
-        actual,
-        planned: month.balanceAfterBills,
-      }
-    })
-    .filter((point): point is NonNullable<typeof point> => point != null)
-
   const bufferY = yForValue(bufferAmount)
   const zeroY = chart.yMin <= 0 && chart.yMax >= 0 ? yForValue(0) : null
   const monthSlotWidth = (index: number) =>
@@ -301,14 +287,6 @@ export function ReservePlanChart({
             )
           })}
 
-          {actualPoints.length > 0 && (
-            <polyline
-              className="reserve-plan-chart-actual-line"
-              fill="none"
-              points={actualPoints.map((p) => `${p.x},${p.y}`).join(' ')}
-            />
-          )}
-
           {balancePoints.map((point) => (
             <g key={point.month.month}>
               <circle
@@ -323,16 +301,6 @@ export function ReservePlanChart({
                   {formatCurrency(point.month.balanceAfterBills)}
                 </title>
               )}
-            </g>
-          ))}
-
-          {actualPoints.map((point) => (
-            <g key={`actual-${point.month.month}`}>
-              <circle cx={point.x} cy={point.y} r={4} className="reserve-plan-chart-actual-dot" />
-              <title>
-                {point.month.month}: actual {formatCurrency(point.actual)} · planned{' '}
-                {formatCurrency(point.planned)}
-              </title>
             </g>
           ))}
 
@@ -357,10 +325,6 @@ export function ReservePlanChart({
         <span className="reserve-plan-chart-legend-item">
           <span className="reserve-plan-chart-legend-swatch reserve-plan-chart-legend-swatch--balance" />
           Planned balance
-        </span>
-        <span className="reserve-plan-chart-legend-item">
-          <span className="reserve-plan-chart-legend-swatch reserve-plan-chart-legend-swatch--actual" />
-          Actual / confirmed
         </span>
         <span className="reserve-plan-chart-legend-item">
           <span className="reserve-plan-chart-legend-swatch reserve-plan-chart-legend-swatch--outgoing" />

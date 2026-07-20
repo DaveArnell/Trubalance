@@ -9,7 +9,6 @@ import {
   filterSnapshotsByRange,
   formatSnapshotDate,
   formatSnapshotDateLong,
-  formatSnapshotDayLabel,
 } from '../utils/snapshots'
 import { getEffectiveSnapshotsForScope } from '../utils/scopeSnapshotSeries'
 import { alignSnapshotsWithBalanceLogRollup, aggregateSnapshotsForGranularity } from '../utils/historyTable'
@@ -26,7 +25,6 @@ import { DayNoteEditor } from './DayNoteEditor'
 import { getDayNoteText } from '../utils/dayNotes'
 import { getScopeItemLabel } from '../utils/scope'
 import { getEffectiveSnapshotMetric, withEffectiveSnapshotMetrics } from '../utils/snapshotMetrics'
-import { useDemoMode } from '../contexts/DemoModeContext'
 
 type MetricKey = 'trueBalance' | 'cash' | 'committedFunds' | 'expectedReceipts'
 
@@ -143,26 +141,11 @@ export function TrendChart({
   embedded = false,
   onSetDayNote,
 }: TrendChartProps) {
-  const demoMode = useDemoMode()
   const scopeOptions = useMemo(() => getChartScopeOptions(state, viewScope), [state, viewScope])
   const currentScopeKey = scopeKey(viewScope)
 
-  const demoDayOneKey = useMemo(() => {
-    if (!demoMode) return null
-    let earliest = ''
-    for (const opt of scopeOptions) {
-      const snaps = getEffectiveSnapshotsForScope(state, opt.scope, viewScope)
-      for (const snap of snaps) {
-        if (!earliest || snap.date < earliest) earliest = snap.date
-      }
-    }
-    return earliest || null
-  }, [demoMode, scopeOptions, state, viewScope])
-
-  const formatChartDate = (dateKey: string, long = false) => {
-    if (demoMode && demoDayOneKey) return formatSnapshotDayLabel(dateKey, demoDayOneKey)
-    return long ? formatSnapshotDateLong(dateKey) : formatSnapshotDate(dateKey)
-  }
+  const formatChartDate = (dateKey: string, long = false) =>
+    long ? formatSnapshotDateLong(dateKey) : formatSnapshotDate(dateKey)
 
   const plotWidth = CHART_WIDTH - PAD_LEFT - PAD_RIGHT
   const plotHeight = CHART_HEIGHT - PAD_TOP - PAD_BOTTOM
