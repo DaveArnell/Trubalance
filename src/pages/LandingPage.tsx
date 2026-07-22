@@ -87,15 +87,19 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* The hidden problem */}
+        {/* Scene: the bank-check loop */}
         <section className="marketing-is-you-section" id="the-problem" aria-labelledby="problem-heading">
           <div className="marketing-section-inner marketing-section-inner--home">
             <h2 className="marketing-is-you-title" id="problem-heading">
               {HOME_PROBLEM.heading}
             </h2>
-            <p className="marketing-section-lead marketing-section-lead--home">{HOME_PROBLEM.lead}</p>
-            <p className="marketing-is-you-close marketing-problem-body">{HOME_PROBLEM.body}</p>
-            <p className="marketing-is-you-close">{HOME_PROBLEM.close}</p>
+            <div className="marketing-problem-scene">
+              {HOME_PROBLEM.paragraphs.map((paragraph) => (
+                <p key={paragraph} className="marketing-problem-scene-line">
+                  {paragraph}
+                </p>
+              ))}
+            </div>
           </div>
         </section>
 

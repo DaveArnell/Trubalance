@@ -24882,6 +24882,27 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   color: var(--marketing-ink);
 }
 
+.marketing-problem-scene {
+  max-width: 36rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.marketing-problem-scene-line {
+  margin: 0;
+  font-size: 1.2rem;
+  line-height: 1.45;
+  font-weight: 550;
+  color: var(--marketing-ink);
+}
+
+.marketing-problem-scene-line:last-child {
+  margin-top: 1.1rem;
+  font-weight: 700;
+  max-width: 34rem;
+}
+
 /* What True Balance is — prose + three points, no shouty banner */
 .marketing-vs-forecast {
   padding: 64px 0;

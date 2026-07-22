@@ -7,15 +7,13 @@ import { FOUNDER_PROGRAM_FOOTNOTE, FOUNDER_PROGRAM_HEADLINE } from '../../config
 import { REGULATORY_POSITION } from '../../content/regulatoryNotice'
 import { CompanyLegalNotice } from './CompanyLegalNotice'
 
-/** All primary nav items are full pages — keeps the site map clear. */
+/** Primary nav follows the buying journey, not the site map. Habits & blog live in the footer. */
 const PRIMARY_NAV = [
-  { to: '/cash-prophet', label: 'Why it works' },
+  { to: '/cash-prophet', label: 'Why Cash Prophet' },
   { to: '/how-it-works', label: 'How it works' },
-  { to: '/habits', label: 'Habits' },
   { to: '/who-its-for', label: 'Who it’s for' },
+  { to: '/see-how-it-works', label: 'See it' },
   { to: '/pricing', label: 'Pricing' },
-  { to: '/see-how-it-works', label: 'Try demo' },
-  { to: '/blog', label: 'Blog' },
 ] as const
 
 export function scrollToMarketingSection(id: string) {
@@ -97,16 +95,16 @@ export function MarketingFooter() {
           </div>
           <div>
             <p className="marketing-footer-heading">Learn</p>
-            <Link to="/cash-prophet">Why it works</Link>
+            <Link to="/cash-prophet">Why Cash Prophet</Link>
             <Link to="/how-it-works">How it works</Link>
-            <Link to="/habits">Habits</Link>
             <Link to="/who-its-for">Who it’s for</Link>
+            <Link to="/habits">Habits</Link>
             <Link to="/blog">Blog</Link>
           </div>
           <div>
             <p className="marketing-footer-heading">Product</p>
+            <Link to="/see-how-it-works">See it</Link>
             <Link to="/pricing">Pricing</Link>
-            <Link to="/see-how-it-works">Try demo</Link>
             <Link to="/signup">Start free trial</Link>
             <Link to="/login">Log in</Link>
             {!isSupabaseConfigured && <Link to="/app">Try locally</Link>}
