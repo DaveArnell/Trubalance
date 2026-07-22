@@ -10,7 +10,7 @@ import {
   getReceiptTiming,
   resolveReceiptAccrualWindow,
 } from '../../utils/receiptCalculations'
-import { chartColorForScope } from '../../utils/businessTheme'
+import { cardAccentForScope } from '../../utils/businessTheme'
 import { getReferenceDate } from '../../utils/referenceDate'
 import { useDemoMode } from '../../contexts/DemoModeContext'
 import type { AppActions } from '../../hooks/useAppState'
@@ -73,10 +73,7 @@ export function MobileReceiptsList({ state, viewScope, actions }: MobileReceipts
           const detailMeta = [timingLabel, expected || null]
             .filter(Boolean)
             .join(' · ')
-          const accent = chartColorForScope(state, {
-            type: receipt.scopeLevel,
-            id: receipt.scopeId,
-          })
+          const accent = cardAccentForScope(state, receipt.scopeLevel, receipt.scopeId)
           const window = resolveReceiptAccrualWindow(receipt, referenceDate)
           const target = window
             ? getReceiptPeriodAmount(receipt, window.period)
@@ -116,10 +113,7 @@ export function MobileReceiptsList({ state, viewScope, actions }: MobileReceipts
           state={state}
           viewScope={viewScope}
           receipt={selected}
-          accentColor={chartColorForScope(state, {
-            type: selected.scopeLevel,
-            id: selected.scopeId,
-          })}
+          accentColor={cardAccentForScope(state, selected.scopeLevel, selected.scopeId)}
           onClose={() => setSelected(null)}
           onSave={(patch) => actions.updateReceipt(selected.id, patch)}
           onReceived={(amount) => actions.markReceiptReceived(selected.id, amount)}

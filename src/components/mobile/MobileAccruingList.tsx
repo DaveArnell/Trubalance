@@ -10,7 +10,7 @@ import {
   buildMonthlyCostDisplayTree,
   type MonthlyCostDisplayNode,
 } from '../../utils/monthlyCostGrouping'
-import { chartColorForScope } from '../../utils/businessTheme'
+import { cardAccentForScope } from '../../utils/businessTheme'
 import { formatCurrency } from '../../utils/format'
 import { getReferenceDate } from '../../utils/referenceDate'
 import { ordinalDay } from '../committed/shared'
@@ -43,10 +43,7 @@ function accruingDetailMeta(row: CommitmentAccruingRow) {
 }
 
 function rowAccent(state: AppState, row: CommitmentAccruingRow): string {
-  return chartColorForScope(state, {
-    type: row.commitment.scopeLevel,
-    id: row.commitment.scopeId,
-  })
+  return cardAccentForScope(state, row.commitment.scopeLevel, row.commitment.scopeId)
 }
 
 function AccruingCard({

@@ -9,7 +9,7 @@ import {
 } from '../../utils/commitmentCalculations'
 import { getCardScopeMetaLabel } from '../../utils/scope'
 import { formatCurrency } from '../../utils/format'
-import { chartColorForScope, getBusinessAccentColor } from '../../utils/businessTheme'
+import { getBusinessAccentColor, cardAccentForScope } from '../../utils/businessTheme'
 import { getReferenceDate } from '../../utils/referenceDate'
 import type { AppActions } from '../../hooks/useAppState'
 import { MobileRecordCard, MobileRecordList, MobileSectionLabel } from './MobileRecordList'
@@ -29,24 +29,16 @@ interface MobileDueListProps {
   onOpenReservePlanner?: (plannerId: string) => void
 }
 
-/** Reserve-plan dues use the business colour; other rows use their own scope colour. */
+/** Reserve and normal dues use the parent business colour so one family stays consistent. */
 export function getDueRowAccentColor(state: AppState, row: CommitmentDueRow): string | undefined {
   if (row.source === 'reserve') {
     if (row.reservePlannerId) {
       const planner = state.reservePlanners.find((entry) => entry.id === row.reservePlannerId)
       if (planner) return getBusinessAccentColor(state, planner.businessId)
     }
-    if (row.commitment.scopeLevel === 'business') {
-      return getBusinessAccentColor(state, row.commitment.scopeId)
-    }
-    const venue = state.venues.find((entry) => entry.id === row.commitment.scopeId)
-    if (venue) return getBusinessAccentColor(state, venue.businessId)
   }
 
-  return chartColorForScope(state, {
-    type: row.commitment.scopeLevel,
-    id: row.commitment.scopeId,
-  })
+  return cardAccentForScope(state, row.commitment.scopeLevel, row.commitment.scopeId)
 }
 
 function dueRowScopeMeta(state: AppState, row: CommitmentDueRow): string | null {

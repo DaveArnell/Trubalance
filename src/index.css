@@ -913,8 +913,8 @@ body {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-  margin-bottom: var(--space-2);
+  gap: 4px;
+  margin-bottom: 4px;
 }
 
 .main-pinned--compact {
@@ -4633,18 +4633,39 @@ body.widget-canvas-resizing * {
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: var(--space-2) var(--space-3) 0;
+  padding: 0;
   background: var(--bg-surface-raised);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  container-type: size;
+  container-type: inline-size;
   container-name: overview-strip;
   --overview-accent: #0f766e;
   --overview-accent-soft: rgba(15, 118, 110, 0.12);
   --overview-accent-border: rgba(15, 118, 110, 0.18);
-  --overview-height: 280px;
+  --overview-height: auto;
   overflow: hidden;
   font-size: 1rem;
+}
+
+.overview-strip--balances-only {
+  height: auto;
+  min-height: 0;
+  align-self: stretch;
+}
+
+.overview-strip--balances-only .overview-strip-body {
+  flex: 0 0 auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.overview-strip--balances-only .overview-breakdown-wrap {
+  flex: 0 0 auto;
+  min-height: 0;
+  overflow: visible;
+  border: none;
+  background: transparent;
+  border-radius: 0;
 }
 
 .overview-strip-body {

@@ -2,7 +2,6 @@ import { useState, type CSSProperties } from 'react'
 
 import type { BalanceSaveChange, BalanceSaveResult } from '../hooks/useAppState'
 import type { OverviewSize } from '../hooks/useOverviewSize'
-import { useOverviewHeight } from '../hooks/useOverviewHeight'
 import { useMobileNav } from '../hooks/useMobileNav'
 
 import type { AppState, AttentionItem, DashboardMetrics, ViewScope } from '../types'
@@ -30,6 +29,9 @@ interface OverviewStripProps {
 /**
  * Desktop balances strip. True Balance hero lives on mobile (MobileOverview);
  * desktop keeps account balances where they’re edited day to day.
+ *
+ * Balances-only layout sizes to content (no fixed height) so demos and short
+ * tables don’t leave a large empty band under the Available row.
  */
 export function OverviewStrip({
   metrics: _metrics,
@@ -48,7 +50,6 @@ export function OverviewStrip({
 }: OverviewStripProps) {
   const [saveMessage, setSaveMessage] = useState('')
   const { isMobile } = useMobileNav()
-  const { height, startHeightDrag, resetHeight } = useOverviewHeight()
 
   const showAccounts = breakdownColumns.length > 0 && !!state
 
@@ -64,8 +65,8 @@ export function OverviewStrip({
   if (!showAccounts) return null
 
   const stripStyle = {
-    ...(isMobile ? {} : { height: `${height}px` }),
-    '--overview-height': `${height}px`,
+    height: 'auto',
+    '--overview-height': 'auto',
   } as CSSProperties
 
   return (
@@ -88,18 +89,6 @@ export function OverviewStrip({
           </div>
         </div>
       </div>
-
-      {!readOnly && !isMobile && (
-        <div
-          className="overview-height-handle"
-          role="separator"
-          aria-orientation="horizontal"
-          aria-label="Resize overview height"
-          title="Drag to resize · double-click to reset height"
-          onPointerDown={startHeightDrag}
-          onDoubleClick={resetHeight}
-        />
-      )}
     </section>
   )
 }
