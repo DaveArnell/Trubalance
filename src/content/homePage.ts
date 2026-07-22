@@ -90,15 +90,14 @@ export const HOME_METHOD_PILLARS = {
 } as const
 
 export const HOME_WHO_FOR = {
-  heading: 'Who True Balance is designed for',
-  lead: 'Owner-managed businesses that want confidence without complexity.',
+  heading: 'Who it’s for',
+  lead: 'Business owners whose day-to-day habits look like this.',
   points: [
-    'Owner-managed businesses',
-    'Businesses without finance teams',
-    'People who rely on accountants or bookkeepers',
-    'Business owners who don’t enjoy bookkeeping',
-    'Owners who want confidence without complexity',
-    'Businesses with regular commitments and larger irregular costs',
+    'Regularly check the bank balance to judge how the business is doing',
+    'Don’t enjoy bookkeeping',
+    'Rely on an accountant for year-end accounts',
+    'Want confidence without complicated financial tools',
+    'Have predictable ongoing commitments',
   ],
 } as const
 
