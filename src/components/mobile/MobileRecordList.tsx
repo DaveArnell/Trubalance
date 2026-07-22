@@ -43,7 +43,7 @@ export function MobileRecordCard({
   /** 0–1 fill for accrual cycle progress */
   progress?: number
   progressColor?: string
-  /** Business/venue accent — small interior mark colour */
+  /** Business/venue accent — progress wash colour */
   accentColor?: string
   onClick?: () => void
   children?: ReactNode
@@ -88,7 +88,6 @@ export function MobileRecordCard({
       <div
         className={`mobile-record-card-main${scopeLabel || meta ? '' : ' mobile-record-card-main--no-scope'}`}
       >
-        {accent ? <span className="mobile-record-card-mark" aria-hidden /> : null}
         {scopeLabel || meta ? (
           <div className="mobile-record-card-scope-block">
             {scopeLabel ? <p className="mobile-record-card-scope">{scopeLabel}</p> : null}

@@ -86,8 +86,10 @@ export function getReceiptTiming(receipt: ExpectedReceipt): ReceiptTiming {
 }
 
 /**
- * When this receipt begins counting toward True Balance.
- * Lump sum requires an explicit Start; build-up defaults to the first of the Expected month.
+ * When this receipt begins counting toward Available.
+ * Build-up defaults to the first of the Expected month when Start is missing.
+ * Lump sum without Start counts immediately (full amount is "there"); set a future
+ * Start only when you deliberately want to delay it.
  */
 export function getReceiptStartDateKey(
   receipt: ExpectedReceipt,
@@ -99,9 +101,12 @@ export function getReceiptStartDateKey(
   if (getReceiptTiming(receipt) === 'accrual') {
     const expected = resolveReceiptDateKey(receipt.expectedDate, referenceDate)
     if (expected) return `${expected.slice(0, 7)}-01`
+    return null
   }
 
-  return null
+  // Lump: count from created day if known, otherwise from the reference day.
+  if (receipt.createdAt) return receipt.createdAt.slice(0, 10)
+  return dateToKey(dateOnly(referenceDate))
 }
 
 /** Earliest calendar day to rebuild history when this receipt changes. */

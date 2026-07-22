@@ -234,8 +234,8 @@ export function businessAccentForScope(state: AppState, scope: ViewScope): strin
 
 /**
  * Accent for accruing / due / receipt cards.
- * Always uses the parent business colour so one business family stays consistent
- * even when some rows are venue-scoped and others are business-scoped.
+ * Multi-venue businesses keep distinct venue colours (e.g. High Street vs Market Hall).
+ * Single-venue businesses use the parent business colour so nav and cards stay aligned.
  */
 export function cardAccentForScope(
   state: AppState,
@@ -248,9 +248,17 @@ export function cardAccentForScope(
   if (scopeLevel === 'business') {
     return getBusinessAccentColor(state, scopeId)
   }
-  const businessId = resolveScopeBusinessId(state, { type: 'venue', id: scopeId })
-  if (businessId) return getBusinessAccentColor(state, businessId)
-  return chartColorForScope(state, { type: scopeLevel, id: scopeId })
+
+  const venue = state.venues.find((entry) => entry.id === scopeId)
+  if (!venue) {
+    return chartColorForScope(state, { type: scopeLevel, id: scopeId })
+  }
+
+  const venueCount = state.venues.filter((entry) => entry.businessId === venue.businessId).length
+  if (venueCount > 1) {
+    return getVenueAccentColor(state, scopeId)
+  }
+  return getBusinessAccentColor(state, venue.businessId)
 }
 
 /** Chart line / swatch colour for a scope (group, business, or venue). */

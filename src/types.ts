@@ -140,9 +140,9 @@ export interface ExpectedReceipt {
   name: string
   amount: number
   expectedDate?: string
-  /** Lump sum counts in full from Start; build up accrues daily from Start to Expected. */
+  /** Lump sum counts in full immediately (or from Start if set later). Build up accrues daily from Start to Expected. */
   receiptTiming?: 'lump' | 'accrual'
-  /** ISO date (YYYY-MM-DD) Start — when this receipt begins affecting True Balance. */
+  /** ISO date (YYYY-MM-DD) Start — optional for lump; for build-up, when accrual begins (defaults to 1st of Expected month). */
   accrualStartDate?: string
   /** Per-month actual amounts (YYYY-MM) when the receipt differed from the estimate. */
   periodAmountOverrides?: Record<string, number>

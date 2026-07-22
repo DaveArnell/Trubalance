@@ -1013,7 +1013,7 @@ body {
 
 .widget-slot {
   background: var(--bg-surface-raised);
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--border-strong);
   overflow: hidden;
 }
 
@@ -12302,10 +12302,33 @@ tr.sheet-row--received td {
     border-bottom: 1px solid var(--border);
   }
 
-  .app-shell--mobile .mobile-accruing-sticky .card-head-toolbar h2 {
-    color: #09090b;
-    font-weight: 800;
+/* Narrow / mobile: title on its own row, toggles below so they don't collide */
+@media (max-width: 720px) {
+  .mobile-accruing-sticky .card-head-toolbar--accruing {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 8px;
+    row-gap: 8px;
   }
+
+  .mobile-accruing-sticky .card-head-toolbar--accruing h2 {
+    flex: 1 1 100%;
+    order: -1;
+    text-align: left;
+    white-space: normal;
+  }
+
+  .mobile-accruing-sticky .card-head-toolbar-left,
+  .mobile-accruing-sticky .card-head-toolbar-right {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .mobile-accruing-sticky .card-head-toolbar-right {
+    justify-content: flex-end;
+  }
+}
 
   .app-shell--mobile .mobile-accruing-sticky .committed-funds-summary th,
   .app-shell--mobile .mobile-accruing-sticky .committed-funds-summary td {
@@ -12361,25 +12384,20 @@ tr.sheet-row--received td {
 .mobile-record-card {
   padding: 5px 8px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--border-strong);
   background: var(--bg-surface);
   overflow: hidden;
   position: relative;
+  box-shadow: var(--shadow-xs);
 }
 
 .mobile-record-card--accented {
   --record-accent: var(--scope-accent, #0f766e);
+  border-color: color-mix(in srgb, var(--record-accent) 42%, var(--border-strong));
 }
 
 .mobile-record-card-mark {
-  flex-shrink: 0;
-  width: 6px;
-  height: 6px;
-  margin-right: 2px;
-  border-radius: 1px;
-  background: var(--record-accent);
-  align-self: center;
-  opacity: 0.9;
+  display: none;
 }
 
 .mobile-record-card--button {
@@ -24586,7 +24604,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 /* Widgets stay neutral — scope colour on shell chrome only. */
 .app-shell[data-scope-level] .widget-slot {
   background: var(--bg-surface-raised);
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--border-strong);
   box-shadow: none;
 }
 
