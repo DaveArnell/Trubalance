@@ -91,6 +91,12 @@ export const METHOD_TWO_HABITS = [
   },
 ] as const
 
+/** Live demo of continuous accrual — homepage + Method page (no video yet). */
+export const METHOD_ACCRUING_DEMO = {
+  heading: 'How accruing costs work',
+  lead: 'Regular bills (rent, wages) build up a little every day. When the due date hits, they move to Due until you mark them Paid.',
+} as const
+
 /** How the maths works — short supporting cards (not the primary spine). */
 export const METHOD_THREE_PRINCIPLES = [
   {

@@ -6,6 +6,7 @@ import {
 } from '../components/marketing/MarketingLayout'
 import { HeroBalanceVisual } from '../components/marketing/HeroBalanceVisual'
 import { MethodWorkedExample } from '../components/marketing/MethodWorkedExample'
+import { MarketingAccruingDemo } from '../components/marketing/MarketingAccruingDemo'
 import {
   METHOD_FOR_ACCOUNTANTS,
   METHOD_MANTRA,
@@ -145,6 +146,8 @@ export function TrueBalanceMethodPage() {
             </div>
           </div>
         </section>
+
+        <MarketingAccruingDemo variant="method" />
 
         <section className="method-edu-section" aria-labelledby="method-reserve-heading">
           <div className="method-edu-inner method-edu-inner--narrow">

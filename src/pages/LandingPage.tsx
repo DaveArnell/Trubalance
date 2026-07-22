@@ -9,6 +9,7 @@ import {
 import { MethodEquation } from '../components/marketing/MethodEquation'
 import { HeroBalanceGraphs } from '../components/marketing/HeroBalanceGraphs'
 import { METHOD_HOW_ILLUSTRATIONS } from '../components/marketing/MethodHowIllustrations'
+import { MarketingAccruingDemo } from '../components/marketing/MarketingAccruingDemo'
 import { CompanyLegalNotice } from '../components/marketing/CompanyLegalNotice'
 import {
   HOME_BANK_GAP,
@@ -184,6 +185,8 @@ export function LandingPage() {
             </p>
           </div>
         </section>
+
+        <MarketingAccruingDemo variant="home" />
 
         {/* 4. Who it's for */}
         <section

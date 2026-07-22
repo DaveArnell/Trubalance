@@ -13436,6 +13436,28 @@ tr.sheet-row--received td {
   border-top: 1px solid rgba(16, 20, 24, 0.08);
 }
 
+.marketing-accruing-demo--home {
+  padding: 64px 0 72px;
+  background: #fff;
+  border-top: 1px solid rgba(16, 20, 24, 0.08);
+}
+
+.marketing-accruing-demo--method {
+  padding: 56px 0 64px;
+  background: var(--marketing-paper, #f7f5ef);
+  border-top: 1px solid rgba(16, 20, 24, 0.08);
+}
+
+.marketing-accruing-demo-stage {
+  max-width: 42rem;
+  margin: 0 auto;
+}
+
+.marketing-accruing-demo-stage .setup-edu-visual {
+  margin: 0;
+  max-width: none;
+}
+
 .marketing-outcome-pillars {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
