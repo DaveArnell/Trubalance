@@ -8,9 +8,9 @@ export const HOME_SEO = {
 } as const
 
 export const METHOD_SEO = {
-  title: 'Why Cash Prophet — Stop carrying business finances in your head',
+  title: 'Why Cash Prophet — The bank balance isn’t enough',
   description:
-    'Why checking the bank never feels settled, what that mental maths costs you, and what changes when Cash Prophet takes the load off. Complements your accountant and bookkeeping.',
+    'Why checking the bank never settles it, and what changes when Cash Prophet takes the mental maths off you.',
   path: '/cash-prophet',
 } as const
 

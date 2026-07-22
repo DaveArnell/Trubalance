@@ -14327,6 +14327,18 @@ tr.sheet-row--received td {
   max-width: 42rem;
 }
 
+.marketing-method-page--why .method-edu-hero {
+  padding: 80px 0 64px;
+}
+
+.marketing-method-page--why .method-edu-section {
+  padding: 80px 0;
+}
+
+.marketing-method-page--why .method-edu-cta {
+  padding: 88px 0;
+}
+
 .method-edu-hero {
   padding: 64px 0 48px;
   text-align: left;

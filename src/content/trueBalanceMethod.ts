@@ -10,21 +10,13 @@ export const METHOD_BLOG_CATEGORY = 'Cash Prophet' as const
 export const METHOD_PAGE_TITLE = 'Cash Prophet'
 
 export const METHOD_PAGE_SUBTITLE =
-  "Why owners who run the business from the bank app end up carrying too much in their head, and what changes when that load comes off."
+  'The bank app never settles it. Cash Prophet takes that mental maths off you.'
 
 export const METHOD_MANTRA =
   "You don't need another accounting system. You need the mental maths to stop."
 
 export const METHOD_OUTCOME =
   'Less stress, more confidence. Always knowing what’s already committed, and what you can actually afford today.'
-
-/** Outcomes for the Why Cash Prophet page — emotional, not mechanical. */
-export const WHY_PAGE_OUTCOMES = [
-  'You stop second-guessing every bank check',
-  'Big bills stop feeling like surprises',
-  "You know what's genuinely available",
-  'You make day-to-day decisions with more confidence',
-] as const
 
 /** Questions owners wake up with — used before introducing the Method. */
 export const METHOD_CLARITY_QUESTIONS = [
