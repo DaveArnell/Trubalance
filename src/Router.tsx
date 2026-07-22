@@ -37,7 +37,8 @@ export function AppRouter() {
             <Route path="/habits" element={<HabitsPage />} />
             <Route path="/who-its-for" element={<WhoItsForPage />} />
             <Route path="/see-how-it-works" element={<SeeHowItWorksPage />} />
-            <Route path="/true-balance-method" element={<TrueBalanceMethodPage />} />
+            <Route path="/cash-prophet" element={<TrueBalanceMethodPage />} />
+            <Route path="/true-balance-method" element={<Navigate to="/cash-prophet" replace />} />
             <Route path="/blog" element={<BlogIndexPage />} />
             <Route path="/blog/:slug" element={<BlogPostPage />} />
             <Route path="/demo" element={<DemoPage />} />

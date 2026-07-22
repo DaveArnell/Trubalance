@@ -21,9 +21,9 @@ export function BlogIndexPage() {
   const activeCategory = searchParams.get('category')
 
   usePageMeta({
-    title: 'Blog — Financial clarity for UK business owners | True Balance',
+    title: 'Blog — Financial clarity for UK business owners | Cash Prophet',
     description:
-      'Articles on what’s already committed in the bank balance, VAT reserves, and why bookkeeping and daily clarity answer different questions.',
+      'Articles on mental load, known commitments, VAT reserves, and why bookkeeping and daily clarity answer different questions.',
     path: activeCategory ? `/blog?category=${encodeURIComponent(activeCategory)}` : '/blog',
   })
 
@@ -46,14 +46,14 @@ export function BlogIndexPage() {
               honest.
             </p>
             <div className="blog-index-cta">
-              <Link to="/true-balance-method" className="btn-primary">
-                Learn the Method
+              <Link to="/cash-prophet" className="btn-primary">
+                Why Cash Prophet works
               </Link>
               <Link to="/see-how-it-works" className="btn-secondary">
-                See the Platform
+                See how it feels
               </Link>
               <Link to="/signup" className="btn-secondary">
-                Start free trial
+                Get started
               </Link>
             </div>
           </header>
@@ -82,8 +82,8 @@ export function BlogIndexPage() {
 
           {activeCategory === METHOD_BLOG_CATEGORY && (
             <p className="blog-index-category-note muted">
-              Educational articles about the True Balance Method — how to see what is genuinely
-              available and keep a calm financial routine.
+              Educational articles about Cash Prophet — how to see what is genuinely available and keep
+              a calm financial routine.
             </p>
           )}
 

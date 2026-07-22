@@ -27,7 +27,7 @@ export function HowItWorksPage() {
               </p>
               <p className="marketing-section-lead marketing-section-lead--home muted">
                 Want the full explanation first?{' '}
-                <Link to={METHOD_PAGE_PATH}>Learn the True Balance Method</Link>.
+                <Link to={METHOD_PAGE_PATH}>Why Cash Prophet works</Link>.
               </p>
             </div>
 

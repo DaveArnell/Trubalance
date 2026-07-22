@@ -23,10 +23,10 @@ export function WhoItsForPage() {
           <div className="marketing-section-inner">
             <div className="marketing-section-head demo-scenarios-head">
               <p className="marketing-how-eyebrow">Fit</p>
-              <h1>Who True Balance is designed for</h1>
+              <h1>Who Cash Prophet is for</h1>
               <p className="marketing-section-lead marketing-section-lead--home">
-                Owner-managed businesses that want confidence without complexity — especially if
-                these questions sound familiar.
+                Owners who want confidence without complexity — especially if these questions sound
+                familiar.
               </p>
             </div>
 
@@ -56,7 +56,7 @@ export function WhoItsForPage() {
             </div>
 
             <p className="marketing-method-more">
-              Still exploring? <Link to={METHOD_PAGE_PATH}>Learn the Method</Link>
+              Still exploring? <Link to={METHOD_PAGE_PATH}>Why Cash Prophet works</Link>
               {' · '}
               <Link to="/habits">See the daily routine</Link>
             </p>

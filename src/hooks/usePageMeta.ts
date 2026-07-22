@@ -51,7 +51,10 @@ export function usePageMeta({
   image,
 }: PageMeta) {
   useEffect(() => {
-    const fullTitle = title.includes('True Balance') ? title : `${title} | True Balance`
+    const fullTitle =
+      title.includes('Cash Prophet') || title.includes('True Balance')
+        ? title
+        : `${title} | Cash Prophet`
     const url = `${COMPANY_INFO.website}${path}`
     const ogImage = image?.startsWith('http') ? image : image ? `${COMPANY_INFO.website}${image}` : DEFAULT_OG_IMAGE
 

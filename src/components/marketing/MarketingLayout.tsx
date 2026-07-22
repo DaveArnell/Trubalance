@@ -9,7 +9,7 @@ import { CompanyLegalNotice } from './CompanyLegalNotice'
 
 /** All primary nav items are full pages — keeps the site map clear. */
 const PRIMARY_NAV = [
-  { to: '/true-balance-method', label: 'The Method' },
+  { to: '/cash-prophet', label: 'Why it works' },
   { to: '/how-it-works', label: 'How it works' },
   { to: '/habits', label: 'Habits' },
   { to: '/who-its-for', label: 'Who it’s for' },
@@ -42,7 +42,7 @@ export function MarketingHeader() {
       <div className="marketing-header-inner">
         <Link to="/" className="marketing-logo">
           <span className="marketing-logo-mark" aria-hidden />
-          True Balance
+          Cash Prophet
         </Link>
 
         <nav className="marketing-nav" aria-label="Main">
@@ -81,10 +81,10 @@ export function MarketingFooter() {
         <div className="marketing-footer-brand">
           <Link to="/" className="marketing-logo marketing-logo--footer">
             <span className="marketing-logo-mark" aria-hidden />
-            True Balance
+            Cash Prophet
           </Link>
           <p className="marketing-footer-tagline">
-            Know what’s already committed. Make day-to-day decisions with confidence.
+            Stop carrying your business finances around in your head.
           </p>
           <CompanyLegalNotice variant="footer" />
         </div>
@@ -97,7 +97,7 @@ export function MarketingFooter() {
           </div>
           <div>
             <p className="marketing-footer-heading">Learn</p>
-            <Link to="/true-balance-method">The Method</Link>
+            <Link to="/cash-prophet">Why it works</Link>
             <Link to="/how-it-works">How it works</Link>
             <Link to="/habits">Habits</Link>
             <Link to="/who-its-for">Who it’s for</Link>

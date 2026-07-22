@@ -23,13 +23,13 @@ export function SeeHowItWorksPage() {
               <p className="marketing-how-eyebrow">Try a demo</p>
               <h1>See it with a live business</h1>
               <p className="marketing-section-lead marketing-section-lead--home">
-                Pick an example workspace and explore True Balance — no signup needed. Each demo is a
+                Pick an example workspace and explore Cash Prophet — no signup needed. Each demo is a
                 frozen snapshot as of {formatSnapshotDateLong(DEMO_FROZEN_DATE_KEY)}, so figures stay
                 stable while you look around.
               </p>
               <p className="marketing-section-lead marketing-section-lead--home muted">
-                Prefer to understand the problem first?{' '}
-                <Link to={METHOD_PAGE_PATH}>Learn the Method</Link>
+                Prefer to understand why it works first?{' '}
+                <Link to={METHOD_PAGE_PATH}>Why Cash Prophet works</Link>
                 {' · '}
                 <Link to="/how-it-works">See how it works</Link>.
               </p>

@@ -19,12 +19,12 @@ function AuthAside({ mode }: { mode: 'login' | 'signup' }) {
   return (
     <aside className="auth-aside">
       <div className="auth-aside-inner">
-        <p className="marketing-eyebrow">True Balance</p>
+        <p className="marketing-eyebrow">Cash Prophet</p>
         <h2>{mode === 'login' ? 'Welcome back' : 'Join early access'}</h2>
         <p className="auth-aside-lead">
           {mode === 'login'
             ? 'Pick up where you left off — balances, commitments, and reserves in one place.'
-            : `Follow the True Balance Method in software. ${FOUNDER_PROGRAM_HEADLINE}. ${FOUNDER_PROGRAM_BODY}`}
+            : `Let Cash Prophet organise known commitments for you. ${FOUNDER_PROGRAM_HEADLINE}. ${FOUNDER_PROGRAM_BODY}`}
         </p>
         <ul className="auth-aside-points">
           <li>{FOUNDER_PROGRAM_HEADLINE}</li>
@@ -36,7 +36,7 @@ function AuthAside({ mode }: { mode: 'login' | 'signup' }) {
         <div className="auth-aside-video">
           <div className="marketing-video-placeholder marketing-video-placeholder--compact">
             <span className="marketing-video-play marketing-video-play--small" aria-hidden>
-              ▶
+              â–¶
             </span>
             <p>Product overview video</p>
           </div>
@@ -119,7 +119,7 @@ export function AuthForm({ mode }: AuthFormProps) {
           Continue without account (local only)
         </Link>
         <p className="auth-switch">
-          <Link to="/">← Back to home</Link>
+          <Link to="/">â† Back to home</Link>
         </p>
       </div>
     )
@@ -146,7 +146,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       <p className="auth-card-lead muted">
         {mode === 'signup'
           ? `Confirm your email to get started. ${FOUNDER_PROGRAM_HEADLINE} if you are among the first 50 accounts — otherwise your 3-month trial begins when you confirm.`
-          : 'Open your True Balance dashboard.'}
+          : 'Open your Cash Prophet dashboard.'}
       </p>
 
       <form className="auth-form" onSubmit={onSubmit}>
@@ -281,7 +281,7 @@ export function SignupPage() {
 export function ForgotPasswordPage() {
   usePageMeta({
     title: 'Forgot password',
-    description: 'Reset your True Balance password.',
+    description: 'Reset your Cash Prophet password.',
     path: '/forgot-password',
     noindex: true,
   })
@@ -348,7 +348,7 @@ export function ForgotPasswordPage() {
                   </button>
                 </form>
                 <p className="auth-switch">
-                  <Link to="/login">← Back to log in</Link>
+                  <Link to="/login">â† Back to log in</Link>
                 </p>
               </>
             )}
@@ -364,7 +364,7 @@ export function ForgotPasswordPage() {
 export function ResetPasswordPage() {
   usePageMeta({
     title: 'Reset password',
-    description: 'Choose a new True Balance password.',
+    description: 'Choose a new Cash Prophet password.',
     path: '/reset-password',
     noindex: true,
   })
@@ -434,7 +434,7 @@ export function ResetPasswordPage() {
           <div className="auth-main auth-main--solo">
             <div className="auth-card">
             <h1>Set a new password</h1>
-            <p className="auth-card-lead muted">Choose a new password for your True Balance account.</p>
+            <p className="auth-card-lead muted">Choose a new password for your Cash Prophet account.</p>
             {error && <p className="auth-error">{error}</p>}
             <form onSubmit={onSubmit} className="auth-form">
               <label className="auth-field">

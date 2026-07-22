@@ -20,7 +20,7 @@ export function LegalPageLayout({ title, updated, description, path, children }:
       <main className="legal-page">
         <div className="legal-page-inner">
           <p className="marketing-eyebrow">
-            <Link to="/">True Balance</Link>
+            <Link to="/">Cash Prophet</Link>
           </p>
           <h1>{title}</h1>
           <p className="legal-page-updated muted">Last updated: {updated}</p>

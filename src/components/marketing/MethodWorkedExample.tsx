@@ -36,8 +36,8 @@ export function MethodWorkedExample() {
     {
       tone: 'true' as const,
       op: '=',
-      label: 'True Balance',
-      hint: 'What is left in the business after commitments',
+      label: 'What’s available',
+      hint: 'Your calm number after commitments',
       value: ex.trueBalance,
     },
   ]
@@ -46,7 +46,7 @@ export function MethodWorkedExample() {
     <div
       className="method-worked-example"
       role="img"
-      aria-label={`Bank balance ${ex.bankBalance}, minus monthly costs accrued ${ex.monthlyAccrued}, minus future reserves ${ex.reservesBuilding}, plus expected receipts ${ex.expectedReceipts}, equals True Balance ${ex.trueBalance}`}
+      aria-label={`Bank balance ${ex.bankBalance}, minus monthly costs accrued ${ex.monthlyAccrued}, minus future reserves ${ex.reservesBuilding}, plus expected receipts ${ex.expectedReceipts}, equals what’s available ${ex.trueBalance}`}
     >
       {rows.map((row) => (
         <div key={row.label} className={`method-worked-example-row method-worked-example-row--${row.tone}`}>

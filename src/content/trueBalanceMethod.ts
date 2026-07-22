@@ -1,19 +1,22 @@
-/** Shared copy for the True Balance Method framework. */
+/** Shared copy for the Cash Prophet system. */
 
-export const METHOD_PAGE_PATH = '/true-balance-method' as const
+export const METHOD_PAGE_PATH = '/cash-prophet' as const
 
-export const METHOD_BLOG_CATEGORY = 'The True Balance Method' as const
+/** Legacy path — keep for redirects and old links. */
+export const METHOD_PAGE_PATH_LEGACY = '/true-balance-method' as const
 
-export const METHOD_PAGE_TITLE = 'The True Balance Method'
+export const METHOD_BLOG_CATEGORY = 'Cash Prophet' as const
+
+export const METHOD_PAGE_TITLE = 'Cash Prophet'
 
 export const METHOD_PAGE_SUBTITLE =
-  'A practical way to understand where your business really stands financially — what’s already committed, what’s building for future bills, and what’s left.'
+  'A trusted system that quietly organises known commitments — so you stop carrying future bills in your head, and see what is genuinely available.'
 
 export const METHOD_MANTRA =
-  'Do not manage your business from your bank balance. Manage it from your True Balance.'
+  'Stop managing from the bank balance alone. Let Cash Prophet keep the picture clear.'
 
 export const METHOD_OUTCOME =
-  'Financial clarity and confidence — always knowing what’s already committed, and what you can actually afford today.'
+  'Less stress, more confidence — always knowing what’s already committed, and what you can actually afford today.'
 
 /** Questions owners wake up with — used before introducing the Method. */
 export const METHOD_CLARITY_QUESTIONS = [
@@ -34,7 +37,7 @@ export const METHOD_WHY_COMPARE = {
     ],
   },
   method: {
-    title: 'True Balance Method',
+    title: 'Cash Prophet',
     points: [
       'Known commitments build continuously before payday.',
       'Large irregular bills become planned monthly transfers.',
@@ -72,7 +75,7 @@ export const METHOD_TWO_HABITS = [
       'Mark payments as paid when they leave the account',
       'Add or change obligations when something in the business changes',
       'Add planned new payments when you know they are coming',
-      'Check your True Balance before day-to-day decisions',
+      'Check what’s available before day-to-day decisions',
     ],
   },
   {
@@ -85,7 +88,7 @@ export const METHOD_TWO_HABITS = [
       'Open the Reserve Planner',
       'Review this month’s recommendation',
       'Transfer the suggested amount between current and reserve',
-      'Confirm the transfer in True Balance',
+      'Confirm the transfer in Cash Prophet',
       'Stay on track for every annual obligation',
     ],
   },
@@ -93,8 +96,8 @@ export const METHOD_TWO_HABITS = [
 
 /** Live demo of continuous accrual — homepage + Method page (no video yet). */
 export const METHOD_ACCRUING_DEMO = {
-  heading: 'How accruing costs work',
-  lead: 'Regular bills (rent, wages) build up a little every day. When the due date hits, they move to Due until you mark them Paid.',
+  heading: 'How known commitments build',
+  lead: 'Regular bills (rent, wages) build up a little every day. When the due date hits, they move to Due until you mark them Paid — so you no longer track them in your head.',
 } as const
 
 /** How the maths works — short supporting cards (not the primary spine). */
@@ -131,8 +134,8 @@ export const METHOD_THREE_PRINCIPLES = [
   {
     id: 'one-decision-number',
     title: 'One number you can trust',
-    lead: 'Your True Balance is the clearer read of today’s position.',
-    body: 'The bank balance becomes a reference. True Balance shows what is left after commitments that have already built up — so you understand the figure, not just the total in the app.',
+    lead: 'What’s available is the clearer read of today’s position.',
+    body: 'The bank balance becomes a reference. Cash Prophet shows what is left after commitments that have already built up — so you understand the figure, not just the total in the app.',
     examples: ['Purchases', 'Hires', 'Quiet months', 'Owner drawings'],
   },
 ] as const
@@ -174,7 +177,7 @@ export const METHOD_CUSTOMER_JOURNEY = [
   {
     step: '05',
     title: 'Keep it current each day',
-    body: 'Update bank balances, mark payments paid, and adjust obligations when something changes — then decide from your True Balance.',
+    body: 'Update bank balances, mark payments paid, and adjust obligations when something changes — then decide from what’s available.',
   },
   {
     step: '06',
@@ -201,7 +204,7 @@ export const METHOD_SOFTWARE_HELPS = [
   'Tracks daily accruals',
   'Runs the Reserve Planner and transfer recommendations',
   'Monitors expected receipts',
-  'Calculates the continuously changing True Balance',
+  'Calculates what is genuinely available as commitments change',
   'Keeps everything in one place',
 ] as const
 
@@ -210,7 +213,7 @@ export const METHOD_ROUTINE_HABITS = [
   'Update your bank balances',
   'Mark payments as paid',
   'Add or change obligations and planned payments when needed',
-  'Check your True Balance before spending decisions',
+  'Check what’s available before spending decisions',
   'Follow the monthly Reserve Planner recommendation',
 ] as const
 
@@ -227,7 +230,7 @@ export const METHOD_STEPS = [
   'Start with current available cash.',
   'Account for money already committed or building up for future obligations.',
   'Add only realistic expected receipts where appropriate.',
-  'Produce a True Balance that can be used for day-to-day financial decisions.',
+  'Produce one calm number that can be used for day-to-day financial decisions.',
   'Regularly update the few things that have changed.',
 ] as const
 
@@ -251,7 +254,7 @@ export const METHOD_ONGOING_ROUTINE = [
   'Update your bank balances regularly.',
   'Mark payments as paid when they leave the account.',
   'Add or change obligations and planned payments when something changes.',
-  'Check your True Balance before spending decisions.',
+  'Check what’s available before spending decisions.',
   'Once a month, follow the Reserve Planner transfer recommendation.',
 ] as const
 

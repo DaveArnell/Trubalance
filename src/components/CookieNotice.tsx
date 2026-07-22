@@ -32,7 +32,7 @@ export function CookieNotice() {
     <div className="cookie-notice" role="dialog" aria-labelledby="cookie-notice-title">
       <div className="cookie-notice-inner">
         <p id="cookie-notice-title">
-          <strong>Essential cookies only.</strong> True Balance uses strictly necessary storage to
+          <strong>Essential cookies only.</strong> Cash Prophet uses strictly necessary storage to
           keep you signed in and remember your preferences. We do not use advertising or third-party
           analytics cookies.{' '}
           <Link to="/privacy#cookies">Privacy policy</Link>

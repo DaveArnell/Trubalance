@@ -1,5 +1,5 @@
 /**
- * Hero visual — bank balance (jagged, lump hits) vs True Balance (smooth daily build).
+ * Hero visual — bank balance (jagged, lump hits) vs Cash Prophet calm line.
  */
 
 const BANK_DROPS = [
@@ -11,7 +11,7 @@ const BANK_DROPS = [
 
 export function HeroBalanceGraphs() {
   return (
-    <div className="hero-graphs" aria-label="Bank balance swings versus a smooth True Balance">
+    <div className="hero-graphs" aria-label="Bank balance swings versus a calm Cash Prophet picture">
       <figure className="hero-graph-card hero-graph-card--bank">
         <div className="hero-graph-header">
           <p className="hero-graph-tag hero-graph-tag--bank">Bank balance</p>
@@ -55,14 +55,14 @@ export function HeroBalanceGraphs() {
 
       <figure className="hero-graph-card hero-graph-card--true">
         <div className="hero-graph-header">
-          <p className="hero-graph-tag hero-graph-tag--true">True Balance</p>
+          <p className="hero-graph-tag hero-graph-tag--true">Cash Prophet</p>
           <p className="hero-graph-title">What’s already committed, every day</p>
         </div>
         <svg
           className="hero-graph-svg"
           viewBox="0 0 440 120"
           role="img"
-          aria-label="Smooth True Balance line, gently trending as commitments accrue daily"
+          aria-label="Smooth Cash Prophet line, gently trending as commitments build daily"
         >
           <line x1="12" y1="98" x2="428" y2="98" className="hero-graph-axis" />
           <line x1="12" y1="64" x2="428" y2="64" className="hero-graph-gridline" />

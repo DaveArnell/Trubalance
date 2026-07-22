@@ -96,7 +96,7 @@ export function PrivacyPage() {
 
       <h2 id="cookies">Cookies and local storage</h2>
       <p>
-        True Balance does not use advertising cookies or third-party analytics trackers (such as Google
+        Cash Prophet does not use advertising cookies or third-party analytics trackers (such as Google
         Analytics). We use only what is needed to run the service:
       </p>
       <ul>

@@ -66,10 +66,10 @@ export function IllustReservePlanner() {
   )
 }
 
-/** Step 03 — one True Balance for today */
+/** Step 03 — one calm number for today */
 export function IllustTrueBalanceNumber() {
   return (
-    <div className="how-diagram" aria-label="True Balance equation for today">
+    <div className="how-diagram" aria-label="What’s available equation for today">
       <p className="how-diagram-kicker">Today’s number</p>
       <ul className="how-diagram-eq">
         <li>
@@ -85,7 +85,7 @@ export function IllustTrueBalanceNumber() {
           <strong>+ £4,700</strong>
         </li>
         <li className="how-diagram-eq-result">
-          <span>True Balance</span>
+          <span>What’s available</span>
           <strong>£26,900</strong>
         </li>
       </ul>

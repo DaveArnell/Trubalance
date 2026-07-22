@@ -31,7 +31,7 @@ export function TrueBalanceMethodPage() {
       <main className="marketing-main marketing-method-page">
         <header className="method-edu-hero">
           <div className="method-edu-inner">
-            <p className="marketing-how-eyebrow">Financial clarity</p>
+            <p className="marketing-how-eyebrow">Why it works</p>
             <h1>{METHOD_PAGE_TITLE}</h1>
             <p className="method-edu-hero-lead">{METHOD_PAGE_SUBTITLE}</p>
             <p className="method-edu-mantra">{METHOD_MANTRA}</p>
@@ -40,7 +40,7 @@ export function TrueBalanceMethodPage() {
 
         <section className="method-edu-section" aria-labelledby="method-problem-heading">
           <div className="method-edu-inner method-edu-inner--narrow">
-            <h2 id="method-problem-heading">Why bank balances mislead</h2>
+            <h2 id="method-problem-heading">The worry behind the bank app</h2>
             <p className="method-edu-prose">
               Most owners wake up with the same questions: can I afford this, how much is already
               spoken for, will VAT catch me out again? The bank balance can’t answer them — it only
@@ -52,14 +52,14 @@ export function TrueBalanceMethodPage() {
                 finance, VAT, corporation tax, insurance, quarterly bills and other obligations.
               </p>
               <p>
-                <strong>That is why the balance swings through the month.</strong> Nothing fundamental
-                changed — the timing of payments did.
+                <strong>That is why looking at the bank creates stress.</strong> You are doing the
+                maths in your head — every time.
               </p>
             </div>
             <p className="method-edu-prose">
-              The True Balance Method removes those swings by recognising costs as they build, funding
-              irregular bills monthly through the Reserve Planner, and giving you one stable decision
-              number.
+              Cash Prophet removes that burden. It quietly keeps track of known commitments, builds
+              towards them continuously, and shows what is genuinely available — so you can stop
+              worrying.
             </p>
           </div>
           <div className="method-edu-inner method-balance-visual-wrap">
@@ -69,21 +69,21 @@ export function TrueBalanceMethodPage() {
 
         <section className="method-edu-section method-edu-section--tint" aria-labelledby="method-goal-heading">
           <div className="method-edu-inner method-edu-inner--narrow">
-            <h2 id="method-goal-heading">The outcome</h2>
+            <h2 id="method-goal-heading">The feeling it creates</h2>
             <p className="method-edu-prose method-edu-prose--lead">
-              Financial clarity and confidence — one realistic position you can trust every day.
+              Less stress. More confidence. One calm number you can trust every day.
             </p>
             <div className="method-edu-compare">
               <div className="method-edu-compare-card method-edu-compare-card--muted">
-                <p className="method-edu-compare-label">Without the method</p>
+                <p className="method-edu-compare-label">Without Cash Prophet</p>
                 <p className="method-edu-compare-quote">“Can I afford this?”</p>
-                <p className="method-edu-compare-note">A guessing off the bank app every time.</p>
+                <p className="method-edu-compare-note">Guessing from the bank app every time.</p>
               </div>
               <div className="method-edu-compare-card method-edu-compare-card--accent">
-                <p className="method-edu-compare-label">With the method</p>
+                <p className="method-edu-compare-label">With Cash Prophet</p>
                 <p className="method-edu-compare-quote">You already know.</p>
                 <p className="method-edu-compare-note">
-                  Decisions use your True Balance — what is genuinely available.
+                  Decisions use what’s genuinely available — not a figure you still have to decode.
                 </p>
               </div>
             </div>
@@ -93,10 +93,10 @@ export function TrueBalanceMethodPage() {
         <section className="method-edu-section" aria-labelledby="method-habits-heading">
           <div className="method-edu-inner">
             <div className="method-edu-section-head">
-              <h2 id="method-habits-heading">Two simple habits</h2>
+              <h2 id="method-habits-heading">Two light habits</h2>
               <p className="method-edu-section-lead">
-                The Method is intentionally simple. Keep light daily logging, follow the monthly
-                Reserve Planner — and leave the heavy maths to the software.
+                Cash Prophet stays simple on purpose. A light daily check and a short monthly reserve
+                review — the system does the heavy lifting.
               </p>
             </div>
             <div className="method-edu-habits">
@@ -122,9 +122,10 @@ export function TrueBalanceMethodPage() {
         <section className="method-edu-section method-edu-section--tint" aria-labelledby="method-maths-heading">
           <div className="method-edu-inner">
             <div className="method-edu-section-head">
-              <h2 id="method-maths-heading">How the maths works</h2>
+              <h2 id="method-maths-heading">How Cash Prophet works</h2>
               <p className="method-edu-section-lead">
-                Short version — continuous accrual, the Reserve Planner, and one decision number.
+                Supporting detail — continuous organisation of commitments, predictable reserves, and
+                one calm number.
               </p>
             </div>
             <div className="method-edu-principles">
@@ -180,14 +181,14 @@ export function TrueBalanceMethodPage() {
             <div className="method-edu-section-head">
               <h2 id="method-example-heading">A worked example</h2>
               <p className="method-edu-section-lead">
-                How bank balance vs available cash becomes one clearer figure.
+                How the bank figure becomes one clearer number you can trust.
               </p>
             </div>
             <MethodWorkedExample />
             <p className="method-edu-prose method-edu-example-note">
-              Monthly costs already building, irregular bills funded through the Reserve Planner, and
-              only receipts you can realistically rely on. The result — <strong>True Balance</strong>{' '}
-              — is the number for day-to-day spending decisions.
+              Monthly costs already building, irregular bills funded through reserves, and only
+              receipts you can realistically rely on. The result — <strong>what’s available</strong>{' '}
+              — is the number for day-to-day decisions.
             </p>
           </div>
         </section>
@@ -197,7 +198,7 @@ export function TrueBalanceMethodPage() {
             <div className="method-edu-section-head">
               <h2 id="method-why-heading">Why this works</h2>
               <p className="method-edu-section-lead">
-                Continuous financial clarity instead of an unpredictable bank balance.
+                Calm financial clarity instead of an unpredictable bank balance.
               </p>
             </div>
             <ul className="method-edu-benefit-grid">
@@ -211,10 +212,9 @@ export function TrueBalanceMethodPage() {
         <section className="method-edu-section method-edu-section--tint" aria-labelledby="method-software-heading">
           <div className="method-edu-inner">
             <div className="method-edu-section-head">
-              <h2 id="method-software-heading">How the platform makes the Method easy</h2>
+              <h2 id="method-software-heading">How the platform makes Cash Prophet effortless</h2>
               <p className="method-edu-section-lead">
-                The outcome is clarity. The Method delivers it. The True Balance app simply makes the
-                Method easy to follow every day.
+                Cash Prophet is the system. The app simply makes it easy to follow every day.
               </p>
             </div>
             <div className="method-edu-software-grid">
@@ -229,8 +229,8 @@ export function TrueBalanceMethodPage() {
               <div className="method-edu-software-card method-edu-software-card--aside">
                 <h3>What it is not</h3>
                 <p>
-                  Not another bookkeeping package. Bookkeeping records the past. The True Balance
-                  Method helps you understand today — alongside your accountant’s software.
+                  Not another bookkeeping package. Bookkeeping records the past. Cash Prophet helps
+                  you understand today — alongside the software you already use with your accountant.
                 </p>
                 <p className="muted method-edu-disclaimer">
                   It does not provide regulated financial, tax or accounting advice. Always take
@@ -245,8 +245,8 @@ export function TrueBalanceMethodPage() {
           <div className="method-edu-inner method-edu-inner--narrow">
             <h2 id="method-accountants-heading">For accountants</h2>
             <p className="method-edu-prose">
-              The True Balance Method is something an accountant can recommend — clearer day-to-day
-              visibility between formal reports.
+              Cash Prophet is something an accountant can recommend — clearer day-to-day visibility
+              between formal reports.
             </p>
             <ul className="method-edu-plain-list">
               {METHOD_FOR_ACCOUNTANTS.map((point) => (
@@ -258,17 +258,17 @@ export function TrueBalanceMethodPage() {
 
         <section className="method-edu-cta" aria-labelledby="method-cta-heading">
           <div className="method-edu-inner method-edu-inner--narrow">
-            <h2 id="method-cta-heading">Ready to follow the Method?</h2>
+            <h2 id="method-cta-heading">Ready to let Cash Prophet carry the load?</h2>
             <p>
-              Use the True Balance app so accruals, the Reserve Planner and your True Balance stay
-              current — without the spreadsheet.
+              Start free and feel what it’s like when known commitments stay organised — and one calm
+              number stays clear.
             </p>
             <div className="marketing-cta-row">
               <Link to="/signup" className="btn-primary btn-large">
-                Start your free trial
+                Get started
               </Link>
-              <Link to="/how-it-works" className="btn-secondary btn-large">
-                See how it works →
+              <Link to="/see-how-it-works" className="btn-secondary btn-large">
+                See how it feels →
               </Link>
             </div>
           </div>

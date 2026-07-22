@@ -497,7 +497,7 @@ export function HeroBalanceVisual() {
             <p className="hero-graph-stat-value">{formatGbp(committedNow)}</p>
           </div>
           <div className="hero-graph-stat hero-graph-stat--true">
-            <p className="hero-graph-stat-label">True Balance</p>
+            <p className="hero-graph-stat-label">Available</p>
             <p className="hero-graph-stat-value">{formatGbp(trueNow)}</p>
           </div>
         </div>

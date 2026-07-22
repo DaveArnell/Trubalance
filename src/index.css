@@ -13430,11 +13430,12 @@ tr.sheet-row--received td {
   display: none;
 }
 
-.marketing-pillars-section--outcome {
-  padding: 64px 0;
-  background: var(--marketing-paper, #f7f5ef);
-  border-top: 1px solid rgba(16, 20, 24, 0.08);
+.marketing-is-you-close.marketing-problem-body {
+  margin-top: 1rem;
+  font-weight: 500;
+  max-width: 40rem;
 }
+
 
 .marketing-accruing-demo--home {
   padding: 64px 0 72px;

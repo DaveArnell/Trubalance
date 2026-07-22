@@ -12,16 +12,15 @@ import { METHOD_HOW_ILLUSTRATIONS } from '../components/marketing/MethodHowIllus
 import { MarketingAccruingDemo } from '../components/marketing/MarketingAccruingDemo'
 import { CompanyLegalNotice } from '../components/marketing/CompanyLegalNotice'
 import {
-  HOME_BANK_GAP,
   HOME_CTA,
-  HOME_DIFFERENT_QUESTIONS,
   HOME_EXPLORE,
   HOME_HERO,
-  HOME_HOW_IT_WORKS,
-  HOME_IS_THIS_YOU,
-  HOME_METHOD_PILLARS,
-  HOME_VS_FORECAST,
+  HOME_HOW_IT_WORKS_SYSTEM,
+  HOME_PLATFORM,
+  HOME_PROBLEM,
+  HOME_WHAT_IT_DOES,
   HOME_WHO_FOR,
+  HOME_WHY_IT_WORKS,
 } from '../content/homePage'
 import { METHOD_PAGE_PATH } from '../content/trueBalanceMethod'
 import { isSupabaseConfigured } from '../lib/supabase'
@@ -46,7 +45,7 @@ export function LandingPage() {
       <MarketingHeader />
 
       <main className="marketing-main marketing-main--home">
-        {/* 1. Hero — bold headline + the bank-balance-vs-True-Balance visual */}
+        {/* 1. Emotional promise */}
         <section className="marketing-hero marketing-hero--rank">
           <div className="marketing-hero-rank-inner">
             <div className="marketing-hero-rank-copy">
@@ -58,20 +57,20 @@ export function LandingPage() {
               <p className="marketing-lead">{HOME_HERO.subheading}</p>
               <div className="marketing-cta-row">
                 <Link
-                  to={METHOD_PAGE_PATH}
+                  to="/signup"
                   className="btn-primary btn-large marketing-cta-primary marketing-cta-primary--rank"
                 >
-                  Learn the Method
+                  Get started
                 </Link>
                 <Link
                   to="/see-how-it-works"
                   className="btn-secondary btn-large marketing-cta-secondary--rank"
                 >
-                  See the Platform
+                  See how it feels
                 </Link>
               </div>
               <p className="marketing-hero-rank-note">
-                One number you can trust · Built for owner-managed UK businesses
+                Less stress · More confidence · One number you can trust
               </p>
               {!isSupabaseConfigured && (
                 <p className="marketing-config-hint">
@@ -86,90 +85,59 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* 1b. Is this you? */}
-        <section className="marketing-is-you-section" id="is-this-you" aria-labelledby="is-you-heading">
+        {/* 2. Emotional problem */}
+        <section className="marketing-is-you-section" id="the-problem" aria-labelledby="problem-heading">
           <div className="marketing-section-inner marketing-section-inner--home">
-            <h2 className="marketing-is-you-title" id="is-you-heading">
-              {HOME_IS_THIS_YOU.title}
+            <h2 className="marketing-is-you-title" id="problem-heading">
+              {HOME_PROBLEM.heading}
             </h2>
-            <ul className="marketing-is-you-list">
-              {HOME_IS_THIS_YOU.points.map((point) => (
-                <li key={point}>
-                  <span className="marketing-is-you-mark" aria-hidden>
-                    —
-                  </span>
-                  <span>{point}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="marketing-is-you-close">{HOME_IS_THIS_YOU.close}</p>
+            <p className="marketing-section-lead marketing-section-lead--home">{HOME_PROBLEM.lead}</p>
+            <p className="marketing-is-you-close marketing-problem-body">{HOME_PROBLEM.body}</p>
+            <p className="marketing-is-you-close">{HOME_PROBLEM.close}</p>
           </div>
         </section>
 
-        {/* 2. Why bank balance isn't enough */}
+        {/* 3. What Cash Prophet does */}
         <section
           className="marketing-bank-gap"
-          id="why-bank-balance"
-          aria-labelledby="bank-gap-heading"
+          id="what-cash-prophet-does"
+          aria-labelledby="what-heading"
         >
           <div className="marketing-section-inner marketing-section-inner--home">
             <div className="marketing-section-head">
-              <h2 id="bank-gap-heading">{HOME_BANK_GAP.heading}</h2>
+              <p className="marketing-how-eyebrow">{HOME_WHAT_IT_DOES.eyebrow}</p>
+              <h2 id="what-heading">{HOME_WHAT_IT_DOES.heading}</h2>
+              <p className="marketing-section-lead marketing-section-lead--home">
+                {HOME_WHAT_IT_DOES.lead}
+              </p>
             </div>
             <div className="marketing-bank-gap-rows">
-              {HOME_BANK_GAP.points.map((item) => (
+              {HOME_WHAT_IT_DOES.points.map((item) => (
                 <div key={item.title} className="marketing-bank-gap-row">
                   <h3>{item.title}</h3>
                   <p>{item.body}</p>
                 </div>
               ))}
             </div>
-            <p className="marketing-bank-gap-close">{HOME_BANK_GAP.close}</p>
           </div>
         </section>
 
-        {/* 2b. What True Balance actually is */}
-        <section
-          className="marketing-vs-forecast"
-          id="vs-forecast"
-          aria-labelledby="vs-forecast-heading"
-        >
-          <div className="marketing-section-inner marketing-section-inner--home">
-            <div className="marketing-section-head">
-              <p className="marketing-how-eyebrow">{HOME_VS_FORECAST.eyebrow}</p>
-              <h2 id="vs-forecast-heading">{HOME_VS_FORECAST.heading}</h2>
-              <p className="marketing-section-lead marketing-section-lead--home">
-                {HOME_VS_FORECAST.lead}
-              </p>
-            </div>
-            <div className="marketing-vs-points">
-              {HOME_VS_FORECAST.points.map((item) => (
-                <div key={item.title} className="marketing-vs-point">
-                  <h3>{item.title}</h3>
-                  <p>{item.body}</p>
-                </div>
-              ))}
-            </div>
-            <p className="marketing-vs-aside">{HOME_VS_FORECAST.aside}</p>
-          </div>
-        </section>
-
-        {/* 3. Introduce the Method — two pillars */}
+        {/* 4. How Cash Prophet works */}
         <section
           className="marketing-pillars-section marketing-pillars-section--outcome"
-          id="method"
-          aria-labelledby="method-pillars-heading"
+          id="how-cash-prophet-works"
+          aria-labelledby="how-system-heading"
         >
           <div className="marketing-section-inner marketing-section-inner--home">
             <div className="marketing-section-head">
-              <p className="marketing-how-eyebrow">{HOME_METHOD_PILLARS.eyebrow}</p>
-              <h2 id="method-pillars-heading">{HOME_METHOD_PILLARS.heading}</h2>
+              <p className="marketing-how-eyebrow">{HOME_HOW_IT_WORKS_SYSTEM.eyebrow}</p>
+              <h2 id="how-system-heading">{HOME_HOW_IT_WORKS_SYSTEM.heading}</h2>
               <p className="marketing-section-lead marketing-section-lead--home">
-                {HOME_METHOD_PILLARS.lead}
+                {HOME_HOW_IT_WORKS_SYSTEM.lead}
               </p>
             </div>
             <div className="marketing-outcome-pillars">
-              {HOME_METHOD_PILLARS.pillars.map((pillar, index) => (
+              {HOME_HOW_IT_WORKS_SYSTEM.pillars.map((pillar, index) => (
                 <article key={pillar.id} className="marketing-outcome-pillar">
                   <p className="marketing-outcome-pillar-num" aria-hidden>
                     {String(index + 1).padStart(2, '0')}
@@ -181,19 +149,15 @@ export function LandingPage() {
               ))}
             </div>
             <p className="marketing-method-more">
-              <Link to={METHOD_PAGE_PATH}>Full Method guide →</Link>
+              <Link to={METHOD_PAGE_PATH}>Why Cash Prophet works →</Link>
             </p>
           </div>
         </section>
 
         <MarketingAccruingDemo variant="home" />
 
-        {/* 4. Who it's for */}
-        <section
-          className="marketing-who-home"
-          id="who"
-          aria-labelledby="who-home-heading"
-        >
+        {/* 5. Who it's for */}
+        <section className="marketing-who-home" id="who" aria-labelledby="who-home-heading">
           <div className="marketing-section-inner marketing-section-inner--home">
             <div className="marketing-section-head">
               <h2 id="who-home-heading">{HOME_WHO_FOR.heading}</h2>
@@ -210,24 +174,48 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* 5. How it works — illustrated 3 steps */}
+        {/* 5b. Why it works — alongside existing tools */}
         <section
-          className="marketing-how-home marketing-how-home--illustrated"
-          id="how-it-works"
-          aria-labelledby="how-home-heading"
+          className="marketing-different-questions"
+          id="why-it-works"
+          aria-labelledby="why-heading"
         >
           <div className="marketing-section-inner marketing-section-inner--home">
             <div className="marketing-section-head">
-              <p className="marketing-how-eyebrow">{HOME_HOW_IT_WORKS.eyebrow}</p>
-              <h2 id="how-home-heading">
-                {HOME_HOW_IT_WORKS.headingStart}
-                <span className="marketing-how-heading-accent">{HOME_HOW_IT_WORKS.headingHighlight}</span>
+              <h2 id="why-heading">{HOME_WHY_IT_WORKS.heading}</h2>
+              <p className="marketing-section-lead marketing-section-lead--home">
+                {HOME_WHY_IT_WORKS.lead}
+              </p>
+            </div>
+            <div className="marketing-different-grid">
+              {HOME_WHY_IT_WORKS.items.map((item) => (
+                <article key={item.title} className="marketing-different-card">
+                  <h3>{item.title}</h3>
+                  <p>{item.body}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* 6. Platform */}
+        <section
+          className="marketing-how-home marketing-how-home--illustrated"
+          id="platform"
+          aria-labelledby="platform-heading"
+        >
+          <div className="marketing-section-inner marketing-section-inner--home">
+            <div className="marketing-section-head">
+              <p className="marketing-how-eyebrow">{HOME_PLATFORM.eyebrow}</p>
+              <h2 id="platform-heading">
+                {HOME_PLATFORM.headingStart}
+                <span className="marketing-how-heading-accent">{HOME_PLATFORM.headingHighlight}</span>
               </h2>
-              <p className="marketing-section-lead marketing-section-lead--home">{HOME_HOW_IT_WORKS.lead}</p>
+              <p className="marketing-section-lead marketing-section-lead--home">{HOME_PLATFORM.lead}</p>
             </div>
 
             <ol className="marketing-how-illust-grid">
-              {HOME_HOW_IT_WORKS.steps.map((step, index) => {
+              {HOME_PLATFORM.steps.map((step, index) => {
                 const Illust = METHOD_HOW_ILLUSTRATIONS[index]
                 return (
                   <li key={step.title} className="marketing-how-illust-step">
@@ -250,28 +238,6 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* Different questions */}
-        <section
-          className="marketing-different-questions"
-          aria-labelledby="different-q-heading"
-        >
-          <div className="marketing-section-inner marketing-section-inner--home">
-            <div className="marketing-section-head">
-              <h2 id="different-q-heading">{HOME_DIFFERENT_QUESTIONS.heading}</h2>
-              <p className="marketing-section-lead marketing-section-lead--home">{HOME_DIFFERENT_QUESTIONS.lead}</p>
-            </div>
-            <div className="marketing-different-grid">
-              {HOME_DIFFERENT_QUESTIONS.items.map((item) => (
-                <article key={item.title} className="marketing-different-card">
-                  <h3>{item.title}</h3>
-                  <p>{item.body}</p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Explore */}
         <section className="marketing-home-overview" id="overview" aria-labelledby="explore-heading">
           <div className="marketing-section-inner marketing-section-inner--home">
             <div className="marketing-section-head">
@@ -292,16 +258,16 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section className="marketing-company-band" aria-label="Why True Balance exists">
+        <section className="marketing-company-band" aria-label="Why Cash Prophet exists">
           <div className="marketing-section-inner marketing-section-inner--home">
             <div className="marketing-section-head">
               <p className="marketing-how-eyebrow">Why this exists</p>
               <h2>Built from real business experience</h2>
               <p className="marketing-section-lead marketing-section-lead--home">
-                For over 17 years I have run businesses and, despite accounting software, still needed
-                a clearer answer: can I afford this, how much is already spoken for, and will VAT
-                catch me out again? The True Balance Method is that clarity. The app simply makes it
-                easy to follow every day.
+                For over 17 years I have run businesses and still needed a clearer answer: can I
+                afford this, how much is already spoken for, and will VAT catch me out again? Cash
+                Prophet is that calm clarity — a trusted system that quietly keeps commitments
+                organised. The app simply makes it easy to follow every day.
               </p>
             </div>
           </div>
@@ -321,11 +287,11 @@ export function LandingPage() {
               {` ${FOUNDER_PROGRAM_HEADLINE} details are on signup.`}
             </p>
             <div className="marketing-cta-row marketing-cta-row--center">
-              <Link to={METHOD_PAGE_PATH} className="btn-primary btn-large marketing-cta-btn-on-dark">
-                Learn the Method
+              <Link to="/signup" className="btn-primary btn-large marketing-cta-btn-on-dark">
+                Get started
               </Link>
               <Link to="/see-how-it-works" className="btn-ghost btn-large marketing-cta-ghost">
-                See the Platform
+                See how it feels
               </Link>
             </div>
           </div>

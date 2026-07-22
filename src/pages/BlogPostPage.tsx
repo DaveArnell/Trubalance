@@ -25,7 +25,7 @@ export function BlogPostPage() {
 
   usePageMeta({
     title: post?.title ?? 'Article not found',
-    description: post?.metaDescription ?? 'True Balance blog',
+    description: post?.metaDescription ?? 'Cash Prophet blog',
     path: post ? `/blog/${post.slug}` : '/blog',
     type: post ? 'article' : 'website',
     publishedTime: post ? `${post.publishedAt}T09:00:00Z` : undefined,
@@ -123,30 +123,30 @@ export function BlogPostPage() {
           <aside className="blog-cta-box">
             {post.category === METHOD_BLOG_CATEGORY ? (
               <>
-                <h2>Follow the method in software</h2>
+                <h2>Let Cash Prophet carry the load</h2>
                 <p>
-                  True Balance automates the True Balance Method — committed money, virtual reserves
-                  and your live position, without spreadsheet logic.
+                  Cash Prophet organises known commitments and shows what’s genuinely available —
+                  without spreadsheet logic.
                 </p>
               </>
             ) : (
               <>
-                <h2>See True Balance in action</h2>
+                <h2>See Cash Prophet in action</h2>
                 <p>
-                  Explore a demo business with realistic figures, or start a free trial — no payment
-                  details required.
+                  Explore a demo business with realistic figures, or start free — no payment details
+                  required.
                 </p>
               </>
             )}
             <div className="blog-index-cta">
-              <Link to="/true-balance-method" className="btn-ghost">
-                The method
+              <Link to="/cash-prophet" className="btn-ghost">
+                Why it works
               </Link>
               <Link to="/see-how-it-works" className="btn-primary">
                 Try demo
               </Link>
               <Link to="/signup" className="btn-secondary">
-                Start free trial
+                Get started
               </Link>
             </div>
           </aside>

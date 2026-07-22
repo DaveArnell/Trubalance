@@ -45,7 +45,7 @@ export function homePageJsonLd() {
       name: COMPANY_INFO.productName,
       url: COMPANY_INFO.website,
       description:
-        'Financial clarity for UK business owners — understand what’s already committed in the bank balance, plan for VAT and annual bills, and make day-to-day decisions with confidence.',
+        'Cash Prophet helps UK business owners stop carrying future bills in their heads — organised known commitments, and one calm number for day-to-day confidence.',
       publisher: { '@type': 'Organization', name: COMPANY_INFO.legalName },
     },
     {
@@ -61,7 +61,7 @@ export function homePageJsonLd() {
         description: 'Founder lifetime access during early access',
       },
       description:
-        'Helps UK business owners see what’s already committed, stop being surprised by large bills, and know where the business stands today.',
+        'A trusted financial companion for UK business owners: organises known commitments and shows what is genuinely available.',
     },
   ]
 }

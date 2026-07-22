@@ -6,7 +6,7 @@ interface MethodEquationProps {
 }
 
 /**
- * The True Balance Method calculation — reuses hero equation styles.
+ * The Cash Prophet calculation — reuses hero equation styles.
  * Does not modify the hero illustration component.
  */
 export function MethodEquation({ variant = 'home' }: MethodEquationProps) {
@@ -17,7 +17,7 @@ export function MethodEquation({ variant = 'home' }: MethodEquationProps) {
   const receiptsLabel =
     variant === 'page' ? 'Realistic expected receipts' : 'Realistic expected receipts'
 
-  const ariaLabel = `Available cash ${availableCash}, minus committed and accrued money ${committed}, plus expected receipts ${expectedReceipts}, equals True Balance ${trueBalance}`
+  const ariaLabel = `Available cash ${availableCash}, minus committed and accrued money ${committed}, plus expected receipts ${expectedReceipts}, equals what’s available ${trueBalance}`
 
   return (
     <div className="hero-balance-equation method-equation" role="img" aria-label={ariaLabel}>
@@ -78,8 +78,8 @@ export function MethodEquation({ variant = 'home' }: MethodEquationProps) {
             ◈
           </span>
           <div>
-            <p className="hero-balance-equation-label">True Balance</p>
-            <p className="hero-balance-equation-hint">What is left after commitments</p>
+            <p className="hero-balance-equation-label">What’s available</p>
+            <p className="hero-balance-equation-hint">Your calm number after commitments</p>
           </div>
         </div>
         <p className="hero-balance-equation-value hero-balance-equation-value--true">{trueBalance}</p>
