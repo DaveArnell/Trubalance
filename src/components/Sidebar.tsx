@@ -243,7 +243,7 @@ export function Sidebar({
     >
       <div className="sidebar-brand">
         <span className="brand-mark" aria-hidden="true">
-          TB
+          CP
         </span>
         {!showCollapsed && (
           <div>
