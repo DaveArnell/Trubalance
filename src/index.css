@@ -6293,13 +6293,13 @@ body.overview-split-dragging {
 .overview-strip .overview-breakdown-table tr.sheet-row-final td:not(.sheet-row-label),
 .mobile-overview-breakdown .overview-breakdown-table tr.sheet-row-final td:not(.sheet-row-label) {
   font-size: 1.7rem !important;
-  font-weight: 850 !important;
+  font-weight: 900 !important;
 }
 
 .overview-strip .overview-breakdown-table tr.sheet-row-final .sheet-row-label,
 .mobile-overview-breakdown .overview-breakdown-table tr.sheet-row-final .sheet-row-label {
   font-size: 1.15rem !important;
-  font-weight: 850 !important;
+  font-weight: 900 !important;
   color: #0b5f4a !important;
 }
 
