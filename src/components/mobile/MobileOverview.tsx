@@ -57,7 +57,7 @@ export function MobileOverview({
   const showFreshness = freshness && freshness.level !== 'green'
 
   return (
-    <section className="mobile-overview" aria-label="True Balance">
+    <section className="mobile-overview" aria-label="Available">
       <button
         type="button"
         className="mobile-overview-summary"
@@ -66,7 +66,7 @@ export function MobileOverview({
       >
         <span className="mobile-overview-summary-text">
           <span className="mobile-overview-summary-label-row">
-            <span className="mobile-overview-summary-label">True Balance</span>
+            <span className="mobile-overview-summary-label">Available</span>
             {freshness ? (
               <span
                 className={`overview-freshness-dot overview-freshness-dot--${freshness.level} mobile-overview-freshness-dot`}
@@ -125,7 +125,7 @@ export function MobileOverview({
                 onClick={(event) => event.stopPropagation()}
               >
                 <div className="mobile-overview-breakdown-modal-head">
-                  <h3 id="mobile-overview-breakdown-title">True Balance breakdown</h3>
+                  <h3 id="mobile-overview-breakdown-title">Available breakdown</h3>
                   <button
                     type="button"
                     className="btn-ghost btn-tiny"

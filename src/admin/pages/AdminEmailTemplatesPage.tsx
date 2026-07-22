@@ -37,7 +37,7 @@ export function AdminEmailTemplatesPage() {
     <div className="admin-page">
       <AdminPageHeader
         title="Email Template Centre"
-        description="Preview True Balance platform emails. Sending and editing will connect to Resend later."
+        description="Preview Cash Prophet platform emails. Sending and editing will connect to Resend later."
       />
 
       <div className="admin-split-editor">

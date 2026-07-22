@@ -24,7 +24,7 @@ export function AdminProductAnalyticsPage() {
     <div className="admin-page">
       <AdminPageHeader
         title="Product Usage"
-        description="How deeply users are engaging with True Balance features — setup depth, data volume, and feature adoption."
+        description="How deeply users are engaging with Cash Prophet features — setup depth, data volume, and feature adoption."
       />
 
       <AdminSection title="Setup funnel">

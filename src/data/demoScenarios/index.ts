@@ -31,7 +31,7 @@ export const DEMO_SCENARIOS: readonly DemoScenarioMeta[] = [
     historyLabel: '4 years of history',
     historyMonths: 48,
     description:
-      'A fictional group with three businesses and five venues — see continuous accrual of payroll and rent, VAT reserves building, and one group True Balance.',
+      'A fictional group with three businesses and five venues — see continuous accrual of payroll and rent, VAT reserves building, and one group Available number.',
     highlights: [
       'Continuous accrual across multiple sites',
       'Reserve planning for VAT & corporation tax',
@@ -49,11 +49,11 @@ export const DEMO_SCENARIOS: readonly DemoScenarioMeta[] = [
     historyLabel: '3 years of history',
     historyMonths: 36,
     description:
-      'A growing café with a high street site and a market stall. Smaller numbers, same Method — monthly costs accruing daily, quarterly VAT reserved, one True Balance.',
+      'A growing café with a high street site and a market stall. Smaller numbers, same Method — monthly costs accruing daily, quarterly VAT reserved, one Available number.',
     highlights: [
       'Daily accrual of rent, payroll & wholesale',
       'VAT and irregular bills in Reserve Planner',
-      'One True Balance for spending decisions',
+      'One Available number for spending decisions',
       'Expected catering income where realistic',
     ],
     defaultViewScope: cafeDefaultViewScope,
@@ -71,7 +71,7 @@ export const DEMO_SCENARIOS: readonly DemoScenarioMeta[] = [
     highlights: [
       'Continuous accrual for van, CIS & materials',
       'Corporation tax and irregular costs reserved',
-      'One True Balance before you quote or hire',
+      'One Available number before you quote or hire',
       'Pipeline of expected job receipts',
     ],
     defaultViewScope: tradesDefaultViewScope,

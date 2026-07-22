@@ -288,7 +288,7 @@ export function AddPlannedCostModal({
             />
           </label>
           <fieldset className="setup-quick-funding">
-            <legend>How should this affect True Balance?</legend>
+            <legend>How should this affect Available?</legend>
             <label className="setup-quick-funding-option">
               <input
                 type="radio"
@@ -298,7 +298,7 @@ export function AddPlannedCostModal({
               />
               <span>
                 <strong>Reserve the full amount now</strong>
-                <small>Deduct from True Balance straight away</small>
+                <small>Deduct from Available straight away</small>
               </span>
             </label>
             <label className="setup-quick-funding-option">

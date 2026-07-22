@@ -307,7 +307,7 @@ export function AdminUserDetailPage() {
           {workspace ? (
             <>
               <AdminStatGrid>
-                <AdminStatCard label="True Balance" value={formatCurrency(workspace.latestTrueBalance ?? 0)} />
+                <AdminStatCard label="Available" value={formatCurrency(workspace.latestTrueBalance ?? 0)} />
                 <AdminStatCard label="Cash balance" value={formatCurrency(workspace.latestCashBalance ?? 0)} />
                 <AdminStatCard
                   label="Committed total"

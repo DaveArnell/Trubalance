@@ -247,8 +247,8 @@ export function Sidebar({
         </span>
         {!showCollapsed && (
           <div>
-            <h1>True Balance</h1>
-            <p className="brand-tagline">Financial clarity</p>
+            <h1>Cash Prophet</h1>
+            <p className="brand-tagline">One number you can trust</p>
           </div>
         )}
         {isMobile ? (

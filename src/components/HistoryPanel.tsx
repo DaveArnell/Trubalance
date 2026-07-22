@@ -89,7 +89,7 @@ export function HistoryPanel({
 
       {records.length === 0 ? (
         <p className="muted history-panel-empty">
-          No saved days for {scopeLabel} yet. Update account balances in the True Balance overview to
+          No saved days for {scopeLabel} yet. Update account balances in the overview to
           create history — you can view it here at group, business, or venue level.
         </p>
       ) : (
@@ -106,7 +106,7 @@ export function HistoryPanel({
             >
               {records.map((record) => (
                 <option key={record.id} value={record.id}>
-                  {formatHistoryDate(record.date)} — True Balance {formatCurrency(record.summary.trueBalance)}
+                  {formatHistoryDate(record.date)} — Available {formatCurrency(record.summary.trueBalance)}
                 </option>
               ))}
             </select>
@@ -128,7 +128,7 @@ export function HistoryPanel({
                   <span className="history-day-date">{formatHistoryDate(record.date)}</span>
                   <span className="history-day-meta">
                     <strong>{formatCurrency(record.summary.trueBalance)}</strong>
-                    <span className="muted"> true balance</span>
+                    <span className="muted"> available</span>
                   </span>
                   <span className="history-day-saved muted">{formatSavedAt(record.savedAt)}</span>
                 </button>
@@ -234,7 +234,7 @@ function HistoryRecordDetail({
 
       <div className="history-record-metrics">
         <div className="history-metric-card history-metric-card--primary">
-          <span className="muted">True Balance</span>
+          <span className="muted">Available</span>
           <strong>{formatCurrency(record.summary.trueBalance)}</strong>
           <span className="history-metric-hint muted">Cash − committed + receipts</span>
         </div>

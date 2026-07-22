@@ -12,7 +12,7 @@ import '../admin.css'
 export function AdminLayout() {
   usePageMeta({
     title: 'Platform admin',
-    description: 'True Balance platform administration.',
+    description: 'Cash Prophet platform administration.',
     path: '/vocatio-admin',
     noindex: true,
   })
@@ -39,7 +39,7 @@ export function AdminLayout() {
           <Link to="/vocatio-admin" className="admin-sidebar-logo">
             <span className="admin-sidebar-mark" aria-hidden />
             <span>
-              <strong>True Balance</strong>
+              <strong>Cash Prophet</strong>
               <small>Platform Admin</small>
             </span>
           </Link>

@@ -15,10 +15,10 @@ const RESERVE_MONTHLY_TARGET = Math.round(RESERVE_ANNUAL_TOTAL / 12)
 const TABS = [
   {
     id: 'balance',
-    label: 'True Balance',
+    label: 'Available',
     accent: 'indigo',
     title: 'One number that tells the truth',
-    body: 'Cash minus what is committed, plus expected receipts. True Balance rolls up every account so you see what is genuinely available, not just what the bank app shows.',
+    body: 'Cash minus what is committed, plus expected receipts. Available rolls up every account so you see what is genuinely yours, not just what the bank app shows.',
   },
   {
     id: 'month',
@@ -53,7 +53,7 @@ export function MarketingProductShowcase() {
           <p className="marketing-eyebrow marketing-eyebrow--vivid">See it in action</p>
           <h2 id="marketing-showcase-heading">From bank balance to real clarity</h2>
           <p className="marketing-section-lead">
-            True Balance sits alongside your bank. Update balances when you choose, and see what is
+            Cash Prophet sits alongside your bank. Update balances when you choose, and see what is
             spoken for, what is due and what you can actually use.
           </p>
         </div>

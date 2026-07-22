@@ -63,7 +63,7 @@ export function BankImportInsightsPanel({ insights }: { insights: ImportTrendIns
     <aside className="bank-import-insights" aria-label="Trend insights">
       <h4 className="bank-import-insights-title">Trend insights</h4>
       <p className="muted bank-import-insights-lead">
-        These are for your awareness only — they do not change your True Balance unless you
+        These are for your awareness only — they do not change your Available number unless you
         accept a suggestion.
       </p>
       <ul className="bank-import-insights-list">

@@ -405,7 +405,7 @@ export function TrueBalanceHistoryTable({
               id="history"
               openHelp={openHelp}
               setOpenHelp={setOpenHelp}
-              text="This table lists the same balance totals plotted on the Trends chart. A row appears each time you save account balances in the overview. Use Daily, Weekly, or Monthly to group rows. Click a daily True Balance cell to correct it — the original recorded amount is kept, and the correction carries forward to later dates."
+              text="This table lists the same balance totals plotted on the Trends chart. A row appears each time you save account balances in the overview. Use Daily, Weekly, or Monthly to group rows. Click a daily Available cell to correct it — the original recorded amount is kept, and the correction carries forward to later dates."
             />
           </div>
         </div>
@@ -418,7 +418,7 @@ export function TrueBalanceHistoryTable({
     <section id="balance-history" className="card history-card widget-span-2">
       <div className="card-head card-head-compact">
         <div>
-          <h2>True Balance History</h2>
+          <h2>Available History</h2>
         </div>
         <div className="card-actions">
           {granularityControls}

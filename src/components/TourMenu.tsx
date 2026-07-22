@@ -14,7 +14,7 @@ export function SetupTourBanner({
   return (
     <div className="onboarding-banner" role="status">
       <span>
-        <strong>New to True Balance?</strong> A short guide explains how it works, then we help you
+        <strong>New to Cash Prophet?</strong> A short guide explains how it works, then we help you
         set up balances and costs on your live dashboard.
       </span>
       <button type="button" className="btn-primary btn-tiny" onClick={onStart}>

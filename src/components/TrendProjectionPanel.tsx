@@ -72,7 +72,7 @@ export function TrendProjectionPanel({
       ) : projection ? (
         <div className="trend-projection-grid">
           <div className="trend-projection-kpi-card">
-            <p className="trend-projection-kpi-label">Latest True Balance</p>
+            <p className="trend-projection-kpi-label">Latest Available</p>
             <p className="trend-projection-kpi-value">{formatCurrency(projection.latestValue)}</p>
             <p className="trend-projection-kpi-meta muted">{scopeLabel}</p>
           </div>
@@ -86,7 +86,7 @@ export function TrendProjectionPanel({
           </div>
 
           <label className="trend-projection-target-card">
-            <span className="trend-projection-target-label">Target True Balance</span>
+            <span className="trend-projection-target-label">Target Available</span>
             <div className="trend-projection-target-input">
               <span className="trend-projection-currency">{getCurrencySymbol()}</span>
               <input
@@ -94,7 +94,7 @@ export function TrendProjectionPanel({
                 inputMode="numeric"
                 value={targetInput}
                 onChange={(e) => setTargetInput(e.target.value)}
-                aria-label="Target True Balance"
+                aria-label="Target Available"
               />
             </div>
           </label>

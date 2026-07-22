@@ -110,7 +110,7 @@ export function AdminUserHealthPage() {
     <div className="admin-page">
       <AdminPageHeader
         title="User Health"
-        description="Who is getting value from True Balance, who is drifting, and who may need a nudge or support call."
+        description="Who is getting value from Cash Prophet, who is drifting, and who may need a nudge or support call."
       />
 
       <div className="admin-toolbar">

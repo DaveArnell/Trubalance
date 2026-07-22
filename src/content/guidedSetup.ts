@@ -35,12 +35,12 @@ export const GUIDED_SETUP_PATH_OPTIONS = [
 ] as const
 
 export const STATEMENT_SETUP_STEPS = [
-  { id: 'why', label: 'Why True Balance' },
+  { id: 'why', label: 'Why Cash Prophet' },
   { id: 'structure', label: 'Your structure' },
   { id: 'import', label: 'Upload statements' },
   { id: 'review', label: 'Review suggestions' },
   { id: 'manual', label: 'Finish setup' },
-  { id: 'complete', label: 'Your True Balance' },
+  { id: 'complete', label: 'Your Available' },
 ] as const
 
 export const WHY_TRUE_BALANCE_CONTENT = {

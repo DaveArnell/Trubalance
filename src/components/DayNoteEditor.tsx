@@ -43,7 +43,7 @@ export function DayNoteEditor({ date, scopeLabel, initialText, onSave, onClose }
           rows={4}
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="e.g. Large supplier payment cancelled — True Balance jumped back up."
+          placeholder="e.g. Large supplier payment cancelled — Available jumped back up."
           autoFocus
         />
         <div className="day-note-dialog-actions">

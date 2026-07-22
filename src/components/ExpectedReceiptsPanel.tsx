@@ -129,7 +129,7 @@ export function ExpectedReceiptsPanel({
               <h2>Expected receipts</h2>
               {totalAccrued > 0 ? (
                 <p className="muted widget-subtitle">
-                  Accrued in True Balance: +{formatCurrency(totalAccrued)}
+                  Accrued in Available: +{formatCurrency(totalAccrued)}
                 </p>
               ) : null}
             </div>
@@ -155,7 +155,7 @@ export function ExpectedReceiptsPanel({
           <CompactKpiStrip
             items={[
               {
-                label: 'Accrued in True Balance',
+                label: 'Accrued in Available',
                 value: `+${formatCurrency(totalAccrued)}`,
                 emphasis: true,
               },

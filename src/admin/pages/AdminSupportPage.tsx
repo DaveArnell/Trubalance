@@ -36,7 +36,7 @@ export function AdminSupportPage() {
     <div className="admin-page">
       <AdminPageHeader
         title="Support"
-        description="Support tickets for True Balance users. Conversation and replies are placeholders until messaging is integrated."
+        description="Support tickets for Cash Prophet users. Conversation and replies are placeholders until messaging is integrated."
       />
 
       <div className="admin-support-layout">

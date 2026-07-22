@@ -147,7 +147,7 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTierId, SubscriptionTierDefi
       '1 business',
       'Business-level accounts (current & savings)',
       'No venues / sites',
-      'Full True Balance Method dashboard',
+      'Full Cash Prophet dashboard',
       'Reserve Planner & commitments',
       'Expected receipts',
     ],
@@ -199,7 +199,7 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTierId, SubscriptionTierDefi
       'Unlimited businesses',
       'Unlimited venues / sites',
       'Switch between businesses',
-      'Group reporting & consolidated True Balance',
+      'Group reporting & consolidated Available',
     ],
     limits: {
       workspaces: null,

@@ -180,7 +180,7 @@ export function CashOutlookPanel({
           <span className="cash-outlook-kpi-label">Cash now</span>
           <strong className="cash-outlook-kpi-value">{formatCurrency(projection.openingCurrentBalance)}</strong>
           <span className="cash-outlook-kpi-meta muted">
-            True Balance {formatCurrency(projection.openingTrueBalance)}
+            Available {formatCurrency(projection.openingTrueBalance)}
           </span>
         </div>
         <div className="cash-outlook-kpi">

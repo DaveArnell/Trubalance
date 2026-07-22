@@ -56,7 +56,7 @@ export function AdminOverviewPage() {
     <div className="admin-page">
       <AdminPageHeader
         title="Platform Overview"
-        description="True Balance at a glance — users, trial pipeline, and platform health."
+        description="Cash Prophet at a glance — users, trial pipeline, and platform health."
       />
 
       <AdminStatGrid>

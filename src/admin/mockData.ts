@@ -157,7 +157,7 @@ export function getMockUserById(id: string): AdminUserDetail | null {
       { at: daysAgo(1), account: 'Main current', amount: 45230.12 },
       { at: daysAgo(4), account: 'Savings', amount: 12000 },
     ],
-    recentReports: [{ at: daysAgo(7), name: 'Monthly True Balance summary' }],
+    recentReports: [{ at: daysAgo(7), name: 'Monthly Available summary' }],
     emailHistory: [
       { at: daysAgo(30), template: 'Welcome email', status: 'delivered' },
       { at: daysAgo(14), template: 'Trial reminder', status: 'delivered' },
@@ -410,7 +410,7 @@ export function getMockUserTimeline(userId: string): UserTimelineEvent[] {
     id: 't11',
     type: 'plotted_graph',
     label: 'Plotted graph snapshot',
-    detail: 'True Balance trend',
+    detail: 'Available trend',
     at: daysAgo(6),
   })
   if (user.recentReports[0]) {
@@ -516,7 +516,7 @@ export function getMockProductAnalytics(): ProductAnalyticsSnapshot {
     onboardingCompletionRate: health.filter((r) => r.onboardingPct >= 100).length / health.length,
     dailySignups: days.map((date, i) => ({ date, count: 1 + (i % 4) })),
     featureUsage: [
-      { feature: 'True Balance overview', count: 420 },
+      { feature: 'Available overview', count: 420 },
       { feature: 'Committed funds', count: 380 },
       { feature: 'Reserve planner', count: 145 },
       { feature: 'Trends & graph', count: 210 },
@@ -587,7 +587,7 @@ export function getMockAnalytics(): AdminAnalyticsSnapshot {
       { week: 'W4', rate: 0.58 },
     ],
     featureUsage: [
-      { feature: 'True Balance overview', count: 420 },
+      { feature: 'Available overview', count: 420 },
       { feature: 'Committed funds', count: 380 },
       { feature: 'Trends', count: 210 },
       { feature: 'Reserve planner', count: 145 },
@@ -643,35 +643,35 @@ export function getMockSupportTickets(): SupportTicketRow[] {
 }
 
 const EMAIL_BODIES: Record<string, string> = {
-  welcome: `Hi {{user_name}},\n\nWelcome to True Balance. You now have a clear view of what money is genuinely yours — not just what is sitting in the bank.\n\nStart by adding your businesses and saving your account balances.\n\n— True Balance`,
-  verify_email: `Hi {{user_name}},\n\nPlease verify your email to secure your workspace.\n\n{{verify_link}}\n\n— True Balance`,
-  password_reset: `Hi {{user_name}},\n\nWe received a request to reset your password.\n\n{{reset_link}}\n\n— True Balance`,
-  trial_reminder: `Hi {{user_name}},\n\nYou are {{trial_days_left}} days into your True Balance trial. Your committed funds and reserve planners are ready whenever you are.\n\n— True Balance`,
-  trial_ending: `Hi {{user_name}},\n\nYour trial ends on {{trial_end_date}}. Keep your True Balance workspace so you never lose sight of committed cash.\n\n— True Balance`,
-  stale_balance: `Hi {{user_name}},\n\nYour balances in {{workspace_name}} have not been updated recently. A quick refresh keeps your True Balance accurate.\n\n— True Balance`,
-  monthly_summary: `Hi {{user_name}},\n\nHere is your monthly True Balance summary for {{workspace_name}}.\n\nTrue Balance: {{true_balance}}\nCommitted: {{committed_total}}\n\n— True Balance`,
-  support_reply: `Hi {{user_name}},\n\nThanks for contacting support. {{support_message}}\n\n— True Balance team`,
-  beta_welcome: `Hi {{user_name}},\n\nThanks for joining the True Balance private beta. You have full access while we refine the product — your feedback shapes what we build next.\n\n— Dave & the True Balance team`,
+  welcome: `Hi {{user_name}},\n\nWelcome to Cash Prophet. You now have a clear view of what money is genuinely yours — not just what is sitting in the bank.\n\nStart by adding your businesses and saving your account balances.\n\n— Cash Prophet`,
+  verify_email: `Hi {{user_name}},\n\nPlease verify your email to secure your workspace.\n\n{{verify_link}}\n\n— Cash Prophet`,
+  password_reset: `Hi {{user_name}},\n\nWe received a request to reset your password.\n\n{{reset_link}}\n\n— Cash Prophet`,
+  trial_reminder: `Hi {{user_name}},\n\nYou are {{trial_days_left}} days into your Cash Prophet trial. Your committed funds and reserve planners are ready whenever you are.\n\n— Cash Prophet`,
+  trial_ending: `Hi {{user_name}},\n\nYour trial ends on {{trial_end_date}}. Keep your Cash Prophet workspace so you never lose sight of committed cash.\n\n— Cash Prophet`,
+  stale_balance: `Hi {{user_name}},\n\nYour balances in {{workspace_name}} have not been updated recently. A quick refresh keeps Available accurate.\n\n— Cash Prophet`,
+  monthly_summary: `Hi {{user_name}},\n\nHere is your monthly Available summary for {{workspace_name}}.\n\nAvailable: {{true_balance}}\nCommitted: {{committed_total}}\n\n— Cash Prophet`,
+  support_reply: `Hi {{user_name}},\n\nThanks for contacting support. {{support_message}}\n\n— Cash Prophet team`,
+  beta_welcome: `Hi {{user_name}},\n\nThanks for joining the Cash Prophet private beta. You have full access while we refine the product — your feedback shapes what we build next.\n\n— Dave & the Cash Prophet team`,
 }
 
 export function getMockEmailTemplates(): EmailTemplateRow[] {
   const templates = [
-    ['welcome', 'Welcome email', 'Welcome to True Balance'],
+    ['welcome', 'Welcome email', 'Welcome to Cash Prophet'],
     ['verify_email', 'Email verification', 'Verify your email address'],
     ['password_reset', 'Password reset', 'Reset your password'],
-    ['trial_reminder', 'Trial reminder', 'Your True Balance trial'],
+    ['trial_reminder', 'Trial reminder', 'Your Cash Prophet trial'],
     ['trial_ending', 'Trial ending soon', 'Your trial ends soon'],
     ['stale_balance', 'Stale balance reminder', 'Time to update your balances'],
-    ['monthly_summary', 'Monthly True Balance summary', 'Your monthly True Balance summary'],
+    ['monthly_summary', 'Monthly Available summary', 'Your monthly Available summary'],
     ['support_reply', 'Support reply', 'Re: your support request'],
-    ['beta_welcome', 'Beta tester welcome', 'Welcome to the True Balance beta'],
+    ['beta_welcome', 'Beta tester welcome', 'Welcome to the Cash Prophet beta'],
   ]
   return templates.map(([key, name, subject], i) => ({
     id: `email-${key}`,
     key,
     name,
     subject,
-    bodyPreview: EMAIL_BODIES[key] ?? `Hi {{user_name}},\n\n${name}.\n\n— True Balance`,
+    bodyPreview: EMAIL_BODIES[key] ?? `Hi {{user_name}},\n\n${name}.\n\n— Cash Prophet`,
     enabled: true,
     updatedAt: daysAgo(i * 3),
     variables: ['{{user_name}}', '{{workspace_name}}', '{{trial_end_date}}', '{{true_balance}}'],
@@ -699,7 +699,7 @@ export function getMockQrCodes(): QrCodeRow[] {
 
 export function getMockPlatformSettings(): PlatformSettings {
   return {
-    platformName: 'True Balance',
+    platformName: 'Cash Prophet',
     logoUrl: '',
     primaryColor: '#0f766e',
     maintenanceMode: false,
@@ -707,7 +707,7 @@ export function getMockPlatformSettings(): PlatformSettings {
     soloPriceGbp: 10,
     multiPriceGbp: 15,
     groupPriceGbp: 20,
-    emailFromName: 'True Balance',
+    emailFromName: 'Cash Prophet',
     emailFromAddress: 'hello@trubalance.app',
     featureFlags: {
       reserve_planner: true,

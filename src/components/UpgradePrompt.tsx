@@ -211,7 +211,7 @@ export function TrialBanner() {
       <div className="trial-banner trial-banner--founder" role="status">
         <strong>Founder access</strong>
         <span>
-          Lifetime free access — thank you for helping shape True Balance in early access.
+          Lifetime free access — thank you for helping shape Cash Prophet in early access.
         </span>
       </div>
     )

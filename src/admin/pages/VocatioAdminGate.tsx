@@ -98,7 +98,7 @@ export function VocatioAdminGate() {
             Sign out and try again
           </button>
           <Link to="/app" className="btn-ghost btn-tiny">
-            ← Back to True Balance
+            ← Back to Cash Prophet
           </Link>
         </div>
       </div>
@@ -132,7 +132,7 @@ export function VocatioAdminGate() {
         <div className="auth-card admin-auth-card">
           <h1>Vocatio admin</h1>
           <p className="muted">
-            Sign in with your <strong>@vocatio.io</strong> account. Your personal True Balance login
+            Sign in with your <strong>@vocatio.io</strong> account. Your personal Cash Prophet login
             cannot access this area.
           </p>
           <form onSubmit={handleSignIn} className="admin-auth-form">
@@ -166,7 +166,7 @@ export function VocatioAdminGate() {
             Continue with Google
           </button>
           <Link to="/" className="btn-ghost btn-tiny">
-            ← Back to True Balance
+            ← Back to Cash Prophet
           </Link>
         </div>
       </div>

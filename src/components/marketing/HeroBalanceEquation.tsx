@@ -10,7 +10,7 @@ export function HeroBalanceEquation() {
     <div
       className="hero-balance-equation"
       role="img"
-      aria-label={`Bank balance ${bankBalance} minus committed money ${committed} plus expected receipts ${expectedReceipts} equals True Balance ${trueBalance}`}
+      aria-label={`Bank balance ${bankBalance} minus committed money ${committed} plus expected receipts ${expectedReceipts} equals Available ${trueBalance}`}
     >
       <div className="hero-balance-equation-row hero-balance-equation-row--bank">
         <div className="hero-balance-equation-term">
@@ -69,7 +69,7 @@ export function HeroBalanceEquation() {
             ◈
           </span>
           <div>
-            <p className="hero-balance-equation-label">True Balance</p>
+            <p className="hero-balance-equation-label">Available</p>
             <p className="hero-balance-equation-hint">What is left after commitments</p>
           </div>
         </div>

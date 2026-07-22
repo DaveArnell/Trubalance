@@ -21,9 +21,9 @@ export interface SetupOnboardingStep {
 export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
   {
     id: 'why',
-    title: 'What True Balance is.',
+    title: 'What Available is.',
     explain:
-      'Your bank balance isn’t all spendable — some of it already belongs to bills. True Balance shows what’s left after money that’s spoken for.\n\nWatch the short intro below when it’s ready, then we’ll set up your structure.',
+      'Your bank balance isn’t all spendable — some of it already belongs to bills. Available shows what’s left after money that’s spoken for.\n\nWatch the short intro below when it’s ready, then we’ll set up your structure.',
   },
   {
     id: 'business',
@@ -51,7 +51,7 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     id: 'due-explain',
     title: 'Due — ready to pay.',
     explain:
-      'Monthly bills land here when they’re due, and stay until you mark Paid.\n\nYou can also add one-off costs with a future date:\n\nEarmark now — take the full amount out of True Balance today.\n\nBuild up — set a little aside each day until that date.',
+      'Monthly bills land here when they’re due, and stay until you mark Paid.\n\nYou can also add one-off costs with a future date:\n\nEarmark now — take the full amount out of Available today.\n\nBuild up — set a little aside each day until that date.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="due"]',
   },
@@ -76,7 +76,7 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     id: 'trends-explain',
     title: 'Trends.',
     explain:
-      'Trends charts your balance, committed costs, and True Balance over time — so you can see if things are going up or down.',
+      'Trends charts your balance, committed costs, and Available over time — so you can see if things are going up or down.',
     page: 'trends',
     spotlight: '[data-widget-id="trends-chart"]',
   },

@@ -30,7 +30,7 @@ const OPTIONS: Array<{
   {
     method: 'immediate',
     title: 'Reserve the full amount now',
-    description: 'The full amount is taken off your True Balance immediately.',
+    description: 'The full amount is taken off Available immediately.',
   },
   {
     method: 'accrue_until_due',
@@ -82,7 +82,7 @@ export function PlannedFundingModal({ draft, onConfirm, onCancel }: PlannedFundi
         aria-labelledby="planned-funding-title"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 id="planned-funding-title">How should this affect your True Balance?</h3>
+        <h3 id="planned-funding-title">How should this affect Available?</h3>
         <p className="planned-funding-subtitle">
           <strong>{draft.name || 'Planned cost'}</strong> · {formatCurrency(draft.amount)} due{' '}
           {dueLabel}

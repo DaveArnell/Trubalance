@@ -272,7 +272,7 @@ export function subscriptionNeedsUpgrade(
     needed: true,
     requiredTier: required,
     headline: `Your setup fits the ${tier.name} plan.`,
-    message: `Based on what you have created, True Balance recommends ${tier.name} (${formatTierMonthly(required)}). Upgrade when you are ready — nothing changes until you choose.`,
+    message: `Based on what you have created, Cash Prophet recommends ${tier.name} (${formatTierMonthly(required)}). Upgrade when you are ready — nothing changes until you choose.`,
   }
 }
 
