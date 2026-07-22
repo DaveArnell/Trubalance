@@ -6,31 +6,29 @@ import {
   MarketingShell,
   scrollToMarketingSection,
 } from '../components/marketing/MarketingLayout'
-import { MethodEquation } from '../components/marketing/MethodEquation'
 import { HeroBalanceGraphs } from '../components/marketing/HeroBalanceGraphs'
-import { METHOD_HOW_ILLUSTRATIONS } from '../components/marketing/MethodHowIllustrations'
-import { MarketingAccruingDemo } from '../components/marketing/MarketingAccruingDemo'
 import { CompanyLegalNotice } from '../components/marketing/CompanyLegalNotice'
 import {
   HOME_CTA,
   HOME_EXPLORE,
   HOME_FOUNDER,
   HOME_HERO,
-  HOME_HOW_IT_WORKS_SYSTEM,
-  HOME_PLATFORM,
   HOME_PROBLEM,
   HOME_RELIEF,
   HOME_STRESS,
   HOME_WHO_FOR,
   HOME_WHY_IT_WORKS,
 } from '../content/homePage'
-import { METHOD_PAGE_PATH } from '../content/trueBalanceMethod'
 import { isSupabaseConfigured } from '../lib/supabase'
 import { FOUNDER_PROGRAM_HEADLINE } from '../config/founderProgram'
 import { HOME_SEO } from '../content/marketingSeo'
 import { usePageMeta } from '../hooks/usePageMeta'
 import { homePageJsonLd, MarketingJsonLd } from '../components/marketing/MarketingJsonLd'
 
+/**
+ * Homepage — recognition and invitation.
+ * Deep methodology lives on How it works; persuasion depth on Why Cash Prophet.
+ */
 export function LandingPage() {
   usePageMeta(HOME_SEO)
   const jsonLd = useMemo(() => homePageJsonLd(), [])
@@ -47,7 +45,6 @@ export function LandingPage() {
       <MarketingHeader />
 
       <main className="marketing-main marketing-main--home">
-        {/* Hero — recognition + invitation */}
         <section className="marketing-hero marketing-hero--rank">
           <div className="marketing-hero-rank-inner">
             <div className="marketing-hero-rank-copy">
@@ -87,7 +84,6 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* Scene: the bank-check loop */}
         <section className="marketing-is-you-section" id="the-problem" aria-labelledby="problem-heading">
           <div className="marketing-section-inner marketing-section-inner--home">
             <h2 className="marketing-is-you-title" id="problem-heading">
@@ -103,7 +99,6 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* You're not alone */}
         <section className="marketing-who-home" id="who" aria-labelledby="who-home-heading">
           <div className="marketing-section-inner marketing-section-inner--home">
             <div className="marketing-section-head">
@@ -118,7 +113,6 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* Why this creates stress */}
         <section className="marketing-bank-gap" id="why-it-stresses" aria-labelledby="stress-heading">
           <div className="marketing-section-inner marketing-section-inner--home">
             <div className="marketing-section-head">
@@ -137,7 +131,6 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* How Cash Prophet removes that stress */}
         <section className="marketing-bank-gap" id="the-relief" aria-labelledby="relief-heading">
           <div className="marketing-section-inner marketing-section-inner--home">
             <div className="marketing-section-head">
@@ -156,41 +149,6 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* How it works */}
-        <section
-          className="marketing-pillars-section marketing-pillars-section--outcome"
-          id="how-it-works"
-          aria-labelledby="how-system-heading"
-        >
-          <div className="marketing-section-inner marketing-section-inner--home">
-            <div className="marketing-section-head">
-              <p className="marketing-how-eyebrow">{HOME_HOW_IT_WORKS_SYSTEM.eyebrow}</p>
-              <h2 id="how-system-heading">{HOME_HOW_IT_WORKS_SYSTEM.heading}</h2>
-              <p className="marketing-section-lead marketing-section-lead--home">
-                {HOME_HOW_IT_WORKS_SYSTEM.lead}
-              </p>
-            </div>
-            <div className="marketing-outcome-pillars">
-              {HOME_HOW_IT_WORKS_SYSTEM.pillars.map((pillar, index) => (
-                <article key={pillar.id} className="marketing-outcome-pillar">
-                  <p className="marketing-outcome-pillar-num" aria-hidden>
-                    {String(index + 1).padStart(2, '0')}
-                  </p>
-                  <h3>{pillar.title}</h3>
-                  <p className="marketing-outcome-pillar-lead">{pillar.lead}</p>
-                  <p>{pillar.body}</p>
-                </article>
-              ))}
-            </div>
-            <p className="marketing-method-more">
-              <Link to={METHOD_PAGE_PATH}>Go deeper on why it works →</Link>
-            </p>
-          </div>
-        </section>
-
-        <MarketingAccruingDemo variant="home" />
-
-        {/* Why it works */}
         <section
           className="marketing-different-questions"
           id="why-it-works"
@@ -210,46 +168,6 @@ export function LandingPage() {
                   <p>{item.body}</p>
                 </article>
               ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Platform */}
-        <section
-          className="marketing-how-home marketing-how-home--illustrated"
-          id="platform"
-          aria-labelledby="platform-heading"
-        >
-          <div className="marketing-section-inner marketing-section-inner--home">
-            <div className="marketing-section-head">
-              <p className="marketing-how-eyebrow">{HOME_PLATFORM.eyebrow}</p>
-              <h2 id="platform-heading">
-                {HOME_PLATFORM.headingStart}
-                <span className="marketing-how-heading-accent">{HOME_PLATFORM.headingHighlight}</span>
-              </h2>
-              <p className="marketing-section-lead marketing-section-lead--home">{HOME_PLATFORM.lead}</p>
-            </div>
-
-            <ol className="marketing-how-illust-grid">
-              {HOME_PLATFORM.steps.map((step, index) => {
-                const Illust = METHOD_HOW_ILLUSTRATIONS[index]
-                return (
-                  <li key={step.title} className="marketing-how-illust-step">
-                    <div className="marketing-how-illust-card">
-                      {Illust ? <Illust /> : null}
-                    </div>
-                    <p className="marketing-how-illust-num" aria-hidden>
-                      {String(index + 1).padStart(2, '0')}
-                    </p>
-                    <h3>{step.title}</h3>
-                    <p>{step.body}</p>
-                  </li>
-                )
-              })}
-            </ol>
-
-            <div className="marketing-method-equation-wrap marketing-method-equation-wrap--after">
-              <MethodEquation variant="home" />
             </div>
           </div>
         </section>

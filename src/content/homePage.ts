@@ -1,6 +1,7 @@
 /**
- * Homepage marketing copy — one continuous conversation.
- * Scene → recognition → stress → relief → how → why → platform.
+ * Homepage marketing copy — recognition and invitation.
+ * Scene → recognition → stress → relief → positioning → explore.
+ * Methodology lives on /how-it-works. Persuasion depth on /cash-prophet.
  */
 
 import { METHOD_PAGE_PATH } from './trueBalanceMethod'
@@ -144,22 +145,22 @@ export const HOME_PLATFORM = {
 
 export const HOME_EXPLORE = [
   {
-    title: 'Why Cash Prophet works',
-    body: 'More on the problem, the relief, and what sits underneath.',
+    title: 'Why Cash Prophet',
+    body: 'The problem, the relief, and why the bank balance isn’t enough.',
     to: METHOD_PAGE_PATH,
-    cta: 'Read more',
+    cta: 'Read why',
+  },
+  {
+    title: 'How it works',
+    body: 'Daily clarity, the Reserve Planner, light habits, and what the app automates.',
+    to: '/how-it-works',
+    cta: 'See how',
   },
   {
     title: 'See it with a live business',
     body: 'Open a demo and feel what it’s like when that mental checklist isn’t yours.',
     to: '/see-how-it-works',
     cta: 'Try demo',
-  },
-  {
-    title: 'Daily & monthly habits',
-    body: 'A light check each day. A short reserve look each month.',
-    to: '/habits',
-    cta: 'See the habits',
   },
   {
     title: 'Pricing',

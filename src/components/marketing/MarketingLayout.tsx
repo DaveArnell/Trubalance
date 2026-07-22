@@ -98,7 +98,7 @@ export function MarketingFooter() {
             <Link to="/cash-prophet">Why Cash Prophet</Link>
             <Link to="/how-it-works">How it works</Link>
             <Link to="/who-its-for">Who it’s for</Link>
-            <Link to="/habits">Habits</Link>
+            <Link to="/how-it-works#habits">Habits</Link>
             <Link to="/blog">Blog</Link>
           </div>
           <div>

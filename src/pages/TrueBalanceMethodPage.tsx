@@ -73,7 +73,10 @@ export function TrueBalanceMethodPage() {
         <section className="method-edu-cta" aria-labelledby="method-cta-heading">
           <div className="method-edu-inner method-edu-inner--narrow">
             <h2 id="method-cta-heading">Ready to put that bank-check worry down?</h2>
-            <p>See how it works — or start free and feel the difference.</p>
+            <p>
+              You understand why you need it. Next: see how it works — or start free and feel the
+              difference.
+            </p>
             <div className="marketing-cta-row">
               <Link to="/how-it-works" className="btn-primary btn-large">
                 How it works

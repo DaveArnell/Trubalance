@@ -24,14 +24,14 @@ export const PRICING_SEO = {
 export const HOW_IT_WORKS_SEO = {
   title: 'How it works — From commitments to one number you can trust',
   description:
-    'How Cash Prophet works in practice: known costs building daily, monthly reserves for big bills, light habits, and what the app automates for you.',
+    'How Cash Prophet works: known costs building daily, the Reserve Planner, a worked example, two light habits, and what the app automates.',
   path: '/how-it-works',
 } as const
 
 export const HABITS_SEO = {
   title: 'Habits — Daily clarity & monthly reserve rhythm',
   description:
-    'A light daily update to keep balances and commitments current, and a short monthly reserve review so large bills stop catching you out.',
+    'A light daily update and a short monthly reserve review. Now part of How it works.',
   path: '/habits',
 } as const
 
