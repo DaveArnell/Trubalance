@@ -10,10 +10,10 @@ export const METHOD_BLOG_CATEGORY = 'Cash Prophet' as const
 export const METHOD_PAGE_TITLE = 'Cash Prophet'
 
 export const METHOD_PAGE_SUBTITLE =
-  'The bank app never settles it. Cash Prophet takes that mental maths off you.'
+  "You open the bank, the number looks fine — and somehow you're still not sure. That feeling isn't you being bad with money. It's the job the bank app was never built to do."
 
 export const METHOD_MANTRA =
-  "You don't need another accounting system. You need the mental maths to stop."
+  "You don't need another accounting system. You need that quiet mental maths to finally shut up."
 
 export const METHOD_OUTCOME =
   'Less stress, more confidence. Always knowing what’s already committed, and what you can actually afford today.'
