@@ -30,19 +30,20 @@ export const HOME_BANK_GAP = {
   heading: 'Why your bank balance isn’t enough',
   points: [
     {
-      title: 'Accounting software',
-      body: 'Tells you what has happened.',
+      title: 'Today’s cash only',
+      body: 'It shows what’s in the account right now — nothing about what is already spoken for.',
     },
     {
-      title: 'Your bank balance',
-      body: 'Tells you where money sits today.',
+      title: 'The rest lives in your head',
+      body: 'Future commitments stay mental: every glance at the balance becomes another quiet calculation.',
     },
     {
-      title: 'What’s missing',
-      body: 'Neither tells you how much of today’s balance is already committed.',
+      title: 'Unnecessary mental load',
+      body: 'That constant second-guessing creates uncertainty, even when the number looks fine.',
     },
   ],
-  close: 'This is where many business owners lose clarity — and why day-to-day decisions feel like guesswork.',
+  close:
+    'The True Balance Method removes that mental maths by continuously accounting for known commitments — so clarity and confidence replace guesswork.',
 } as const
 
 export const HOME_VS_FORECAST = {
