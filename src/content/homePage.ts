@@ -70,22 +70,21 @@ export const HOME_VS_FORECAST = {
 } as const
 
 export const HOME_METHOD_PILLARS = {
-  eyebrow: 'The solution',
+  eyebrow: 'Two principles',
   heading: 'The True Balance Method',
-  lead: 'Two simple pillars. One clearer picture of where your business stands today.',
+  lead: 'A practical discipline for understanding where the business stands. It rests on two principles.',
   pillars: [
     {
       id: 'daily-clarity',
-      title: 'Daily financial clarity',
-      lead: 'Known commitments continuously build up before they’re actually paid.',
-      body: 'Payroll, rent, subscriptions and similar costs chip away at the picture every day — not only on payday. That creates a much more realistic view of today’s financial position.',
+      title: 'Commitments build every day',
+      lead: 'Known commitments build every day before they are paid.',
+      body: 'Payroll, rent, subscriptions and similar costs do not wait for payday. They accumulate continuously, so what is already spoken for stays visible — not only when money leaves the account.',
     },
     {
       id: 'reserve-planning',
-      title: 'Reserve planning',
-      lead: 'Large irregular costs aren’t treated as surprises.',
-      body: 'VAT, insurance, tax and other annual bills are broken into manageable monthly amounts. Each month the platform tells you exactly how much should move into or out of your reserve account to stay on plan.',
-      note: 'This is not “saving for bills.” It’s turning unpredictable large costs into predictable monthly commitments — as part of a simple monthly routine.',
+      title: 'Irregular costs become monthly reserves',
+      lead: 'Larger irregular costs become predictable monthly reserves instead of financial surprises.',
+      body: 'VAT, insurance, tax and other annual bills are treated as steady amounts set aside over time. Large obligations stop arriving as shocks; they become part of an ordinary rhythm.',
     },
   ],
 } as const

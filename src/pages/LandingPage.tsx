@@ -176,9 +176,6 @@ export function LandingPage() {
                   <h3>{pillar.title}</h3>
                   <p className="marketing-outcome-pillar-lead">{pillar.lead}</p>
                   <p>{pillar.body}</p>
-                  {'note' in pillar && pillar.note ? (
-                    <p className="marketing-outcome-pillar-note">{pillar.note}</p>
-                  ) : null}
                 </article>
               ))}
             </div>
