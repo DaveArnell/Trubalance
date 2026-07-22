@@ -96,8 +96,8 @@ export const METHOD_TWO_HABITS = [
 
 /** Live demo of continuous accrual — homepage + Method page (no video yet). */
 export const METHOD_ACCRUING_DEMO = {
-  heading: 'How known commitments build',
-  lead: 'Regular bills (rent, wages) build up a little every day. When the due date hits, they move to Due until you mark them Paid — so you no longer track them in your head.',
+  heading: 'See known costs building',
+  lead: 'Rent and wages grow a little every day. When due day hits, they move across until you mark them paid.',
 } as const
 
 /** How the maths works — short supporting cards (not the primary spine). */

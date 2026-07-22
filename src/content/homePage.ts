@@ -1,6 +1,6 @@
 /**
- * Homepage marketing copy — Cash Prophet positioning.
- * Flow: emotional problem → benefit → what it does → how → why → platform.
+ * Homepage marketing copy — Cash Prophet as one continuous story.
+ * Recognition → shared problem → stress → relief → how → why → platform.
  */
 
 import { METHOD_PAGE_PATH } from './trueBalanceMethod'
@@ -11,110 +11,131 @@ export const HOME_HERO = {
   headlineStart: 'Stop carrying your business finances',
   headlineHighlight: 'around in your head.',
   subheading:
-    'Cash Prophet quietly keeps track of known commitments — so you see what is genuinely available, and the mental maths can finally stop.',
+    "You already know what's coming. You just shouldn't have to keep subtracting it every time you open the bank.",
 } as const
 
-/** Beat 1–2: recognition of the emotional problem */
+/** The hidden problem */
 export const HOME_PROBLEM = {
-  heading: 'You already know what is coming',
+  heading: 'You already know what’s coming',
   lead: 'Payroll. Rent. VAT. Corporation tax. Insurance. Subscriptions. Quarterly bills. Annual renewals.',
-  body: 'Every time you check the bank, you subtract them in your head. That quiet calculation creates stress, mental load, and decisions that feel harder than they should.',
-  close: 'Cash Prophet removes that burden.',
+  body: "You don't forget those bills. You carry them around in your head. Every time you look at your bank balance, you mentally subtract them.",
+  close: "That's exhausting. And it's how a lot of owners run the business.",
 } as const
 
-/** Beat 3: what Cash Prophet does — emotional benefit */
-export const HOME_WHAT_IT_DOES = {
-  eyebrow: 'What Cash Prophet does',
-  heading: 'One calm number you can trust',
-  lead: 'Cash Prophet organises your known commitments and shows what is genuinely available — so confidence replaces guesswork.',
+/** You're not alone — recognition that others do this too */
+export const HOME_WHO_FOR = {
+  heading: "You're not the only one",
+  lead: 'If this sounds familiar, you\'re in good company.',
+  points: [
+    'You check the bank to judge how the business is doing',
+    "You don't enjoy bookkeeping",
+    'You leave year-end to your accountant',
+    'You want confidence without another complicated tool',
+    'You have costs you can see coming a mile off',
+  ],
+} as const
+
+/** Why the bank check creates stress */
+export const HOME_STRESS = {
+  eyebrow: 'Why it weighs on you',
+  heading: 'That’s why looking at the bank feels stressful',
+  lead: "The number on the screen isn't the full story. Your head is filling in the rest.",
   points: [
     {
-      title: 'Know where you really stand',
-      body: 'See today’s position with future commitments already accounted for — not just the balance in the bank.',
+      title: 'Today’s cash only',
+      body: "Your bank balance shows what's there right now. It doesn't show what's already spoken for.",
     },
     {
-      title: 'Stop the mental juggling',
-      body: 'Payroll, VAT, rent and the rest no longer live in your head every time you look at the account.',
+      title: 'The rest lives in your head',
+      body: 'Future bills stay mental. So every glance at the account becomes another calculation.',
     },
     {
-      title: 'Feel prepared, not surprised',
-      body: 'Larger irregular costs become a steady rhythm, so big bills stop arriving as shocks.',
+      title: 'Uncertainty sticks around',
+      body: "Even when the balance looks fine, you're still second-guessing. Can I afford this? Will VAT catch me out again?",
     },
   ],
 } as const
 
-/** Beat 4: how it works — principles as supporting explanation */
+/** Cash Prophet removes the burden — emotional relief before mechanics */
+export const HOME_RELIEF = {
+  eyebrow: 'The relief',
+  heading: 'Cash Prophet takes that load off you',
+  lead: "It keeps track of the commitments you already know about, so you can look at one number and feel sure.",
+  points: [
+    {
+      title: 'Less mental maths',
+      body: "Payroll, rent, VAT and the rest don't have to live in your head anymore.",
+    },
+    {
+      title: 'More confidence',
+      body: "You stop guessing from the bank app. You know what's genuinely available.",
+    },
+    {
+      title: 'A calmer day-to-day',
+      body: 'Big bills stop arriving as shocks. The worry eases because the picture stays honest.',
+    },
+  ],
+} as const
+
+/** How it works — only after the reader cares */
 export const HOME_HOW_IT_WORKS_SYSTEM = {
-  eyebrow: 'How Cash Prophet works',
-  heading: 'A quiet system for known commitments',
-  lead: 'Two simple principles. Together they replace mental tracking with a clearer daily picture.',
+  eyebrow: 'How it works',
+  heading: 'Two habits that replace the mental tracking',
+  lead: "Once the worry is off your shoulders, this is what Cash Prophet is doing in the background.",
   pillars: [
     {
       id: 'daily-clarity',
-      title: 'Commitments build every day',
-      lead: 'Known commitments build every day before they are paid.',
-      body: 'Payroll, rent, subscriptions and similar costs do not wait for payday. They accumulate continuously, so what is already spoken for stays visible.',
+      title: 'Known costs build every day',
+      lead: 'They don’t wait for payday.',
+      body: 'Payroll, rent and subscriptions chip away at the picture day by day. So you can see what’s spoken for before the money leaves.',
     },
     {
       id: 'reserve-planning',
-      title: 'Irregular costs become monthly reserves',
-      lead: 'Larger irregular costs become predictable monthly reserves instead of financial surprises.',
-      body: 'VAT, insurance, tax and other annual bills are treated as steady amounts set aside over time — part of an ordinary rhythm, not a shock.',
+      title: 'Big irregular bills become monthly',
+      lead: 'VAT and insurance stop feeling like ambushes.',
+      body: 'Larger costs get turned into a steady monthly amount set aside over time. The hit is planned, not a surprise.',
     },
   ],
 } as const
 
-/** Beat 5: who it is for — behaviours */
-export const HOME_WHO_FOR = {
-  heading: 'Who Cash Prophet is for',
-  lead: 'Business owners whose day-to-day habits look like this.',
-  points: [
-    'Regularly check the bank balance to judge how the business is doing',
-    'Don’t enjoy bookkeeping',
-    'Rely on an accountant for year-end accounts',
-    'Want confidence without complicated financial tools',
-    'Have predictable ongoing commitments',
-  ],
-} as const
-
-/** Beat 5b: why it works / alongside other tools */
+/** Why it works — different job from bookkeeping */
 export const HOME_WHY_IT_WORKS = {
-  heading: 'Works alongside the tools you already use',
-  lead: 'Cash Prophet is not another accounting package. It answers a different question.',
+  heading: 'It sits beside what you already use',
+  lead: "Cash Prophet isn't trying to replace your accountant or your bookkeeping. It answers a different question.",
   items: [
     {
-      title: 'Bookkeeping & accounting',
-      body: 'Record the past — what happened, what was owed, what was paid.',
+      title: 'Bookkeeping',
+      body: 'Looks after the past: what happened, what was owed, what got paid.',
     },
     {
       title: 'Your bank balance',
-      body: 'Shows where money sits today — not how much of it is already spoken for.',
+      body: "Shows where money sits today. It can't tell you how much of it is already spoken for.",
     },
     {
       title: 'Cash Prophet',
-      body: 'Keeps known commitments organised and shows what is genuinely available — every day.',
+      body: 'Keeps the commitments you know about organised, and shows what’s left to work with.',
     },
   ],
 } as const
 
-/** Beat 6: platform that makes Cash Prophet effortless */
+/** Platform last */
 export const HOME_PLATFORM = {
-  eyebrow: 'The platform',
-  headingStart: 'Cash Prophet, ',
-  headingHighlight: 'made effortless.',
-  lead: 'The system is Cash Prophet. The app simply makes it easy to follow — a light daily check and a short monthly reserve review.',
+  eyebrow: 'The app',
+  headingStart: 'Made to feel ',
+  headingHighlight: 'light to use.',
+  lead: "Cash Prophet is the system. The app is just how you keep it up to date without turning it into another job.",
   steps: [
     {
-      title: 'Known commitments build every day',
-      body: 'Payroll, rent and similar costs accrue continuously. By mid-month you already see how much is spoken for — not only when the payment leaves the account.',
+      title: 'Costs build through the month',
+      body: "You see what's spoken for before payday, not only when the payment goes out.",
     },
     {
-      title: 'Big bills become a monthly rhythm',
-      body: 'VAT, insurance and annual costs become a planned monthly move into reserve, so large bills stop catching you out.',
+      title: 'Big bills get a monthly rhythm',
+      body: 'VAT, insurance and annual costs become a planned move into reserve, so they stop catching you out.',
     },
     {
-      title: 'One calm number for decisions',
-      body: 'Cash minus what is already committed, plus realistic expected receipts. That single number is what you use day to day.',
+      title: 'One number for decisions',
+      body: "Cash, minus what's committed, plus money you're realistically still owed. That's the figure you use day to day.",
     },
   ],
 } as const
@@ -122,31 +143,41 @@ export const HOME_PLATFORM = {
 export const HOME_EXPLORE = [
   {
     title: 'Why Cash Prophet works',
-    body: 'How known commitments are organised, why bank balances mislead, and how calm confidence replaces mental maths.',
+    body: 'A deeper look at the problem, the relief, and what sits underneath.',
     to: METHOD_PAGE_PATH,
     cta: 'Read more',
   },
   {
     title: 'See it with a live business',
-    body: 'Open a demo and feel what it is like when commitments stay organised and one number stays clear.',
+    body: 'Open a demo and feel what it’s like when the mental maths isn’t yours to carry.',
     to: '/see-how-it-works',
     cta: 'Try demo',
   },
   {
     title: 'Daily & monthly habits',
-    body: 'A light daily check and a short monthly reserve review — enough to keep the picture honest.',
+    body: 'A light check each day, and a short reserve review each month.',
     to: '/habits',
     cta: 'See the habits',
   },
   {
     title: 'Pricing',
-    body: 'Start free, set up however you like, then choose the plan that matches your business structure.',
+    body: 'Start free, then pick the plan that matches how your business is set up.',
     to: '/pricing',
     cta: 'View pricing',
   },
 ] as const
 
-export const HOME_CTA = {
-  heading: 'Let Cash Prophet take the worry off your shoulders',
-  body: 'Start free, or open a demo and feel the calm of one number you can trust.',
+export const HOME_FOUNDER = {
+  eyebrow: 'Why this exists',
+  heading: 'Built from years of living with the same worry',
+  body: "I've run businesses for over 17 years. Even with decent accounts, I still woke up asking the same things: can I afford this, how much is already spoken for, will VAT catch me out again? Cash Prophet is what I wish I'd had sooner. The app just makes it easy to stick with.",
 } as const
+
+export const HOME_CTA = {
+  heading: 'Ready to put the worry down?',
+  body: 'Start free, or open a demo and see how it feels when the bank check stops being a test.',
+} as const
+
+/** @deprecated aliases for older imports */
+export const HOME_WHAT_IT_DOES = HOME_RELIEF
+export const HOME_BANK_GAP = HOME_STRESS

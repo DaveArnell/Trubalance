@@ -3,7 +3,7 @@
 export const HOME_SEO = {
   title: 'Cash Prophet — Stop carrying your business finances in your head',
   description:
-    'Cash Prophet quietly organises known commitments for UK business owners — one calm number you can trust, less mental load, more financial confidence.',
+    'You already know what bills are coming. Cash Prophet keeps track of them for you, so checking the bank stops feeling like a test. Less stress. More confidence.',
   path: '/',
 } as const
 

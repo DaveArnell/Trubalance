@@ -14,11 +14,13 @@ import { CompanyLegalNotice } from '../components/marketing/CompanyLegalNotice'
 import {
   HOME_CTA,
   HOME_EXPLORE,
+  HOME_FOUNDER,
   HOME_HERO,
   HOME_HOW_IT_WORKS_SYSTEM,
   HOME_PLATFORM,
   HOME_PROBLEM,
-  HOME_WHAT_IT_DOES,
+  HOME_RELIEF,
+  HOME_STRESS,
   HOME_WHO_FOR,
   HOME_WHY_IT_WORKS,
 } from '../content/homePage'
@@ -45,7 +47,7 @@ export function LandingPage() {
       <MarketingHeader />
 
       <main className="marketing-main marketing-main--home">
-        {/* 1. Emotional promise */}
+        {/* Hero — recognition + invitation */}
         <section className="marketing-hero marketing-hero--rank">
           <div className="marketing-hero-rank-inner">
             <div className="marketing-hero-rank-copy">
@@ -85,7 +87,7 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* 2. Emotional problem */}
+        {/* The hidden problem */}
         <section className="marketing-is-you-section" id="the-problem" aria-labelledby="problem-heading">
           <div className="marketing-section-inner marketing-section-inner--home">
             <h2 className="marketing-is-you-title" id="problem-heading">
@@ -97,22 +99,31 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* 3. What Cash Prophet does */}
-        <section
-          className="marketing-bank-gap"
-          id="what-cash-prophet-does"
-          aria-labelledby="what-heading"
-        >
+        {/* You're not alone */}
+        <section className="marketing-who-home" id="who" aria-labelledby="who-home-heading">
           <div className="marketing-section-inner marketing-section-inner--home">
             <div className="marketing-section-head">
-              <p className="marketing-how-eyebrow">{HOME_WHAT_IT_DOES.eyebrow}</p>
-              <h2 id="what-heading">{HOME_WHAT_IT_DOES.heading}</h2>
-              <p className="marketing-section-lead marketing-section-lead--home">
-                {HOME_WHAT_IT_DOES.lead}
-              </p>
+              <h2 id="who-home-heading">{HOME_WHO_FOR.heading}</h2>
+              <p className="marketing-section-lead marketing-section-lead--home">{HOME_WHO_FOR.lead}</p>
+            </div>
+            <ul className="marketing-who-home-grid">
+              {HOME_WHO_FOR.points.map((point) => (
+                <li key={point}>{point}</li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* Why this creates stress */}
+        <section className="marketing-bank-gap" id="why-it-stresses" aria-labelledby="stress-heading">
+          <div className="marketing-section-inner marketing-section-inner--home">
+            <div className="marketing-section-head">
+              <p className="marketing-how-eyebrow">{HOME_STRESS.eyebrow}</p>
+              <h2 id="stress-heading">{HOME_STRESS.heading}</h2>
+              <p className="marketing-section-lead marketing-section-lead--home">{HOME_STRESS.lead}</p>
             </div>
             <div className="marketing-bank-gap-rows">
-              {HOME_WHAT_IT_DOES.points.map((item) => (
+              {HOME_STRESS.points.map((item) => (
                 <div key={item.title} className="marketing-bank-gap-row">
                   <h3>{item.title}</h3>
                   <p>{item.body}</p>
@@ -122,10 +133,29 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* 4. How Cash Prophet works */}
+        {/* How Cash Prophet removes that stress */}
+        <section className="marketing-bank-gap" id="the-relief" aria-labelledby="relief-heading">
+          <div className="marketing-section-inner marketing-section-inner--home">
+            <div className="marketing-section-head">
+              <p className="marketing-how-eyebrow">{HOME_RELIEF.eyebrow}</p>
+              <h2 id="relief-heading">{HOME_RELIEF.heading}</h2>
+              <p className="marketing-section-lead marketing-section-lead--home">{HOME_RELIEF.lead}</p>
+            </div>
+            <div className="marketing-bank-gap-rows">
+              {HOME_RELIEF.points.map((item) => (
+                <div key={item.title} className="marketing-bank-gap-row">
+                  <h3>{item.title}</h3>
+                  <p>{item.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* How it works */}
         <section
           className="marketing-pillars-section marketing-pillars-section--outcome"
-          id="how-cash-prophet-works"
+          id="how-it-works"
           aria-labelledby="how-system-heading"
         >
           <div className="marketing-section-inner marketing-section-inner--home">
@@ -149,32 +179,14 @@ export function LandingPage() {
               ))}
             </div>
             <p className="marketing-method-more">
-              <Link to={METHOD_PAGE_PATH}>Why Cash Prophet works →</Link>
+              <Link to={METHOD_PAGE_PATH}>Go deeper on why it works →</Link>
             </p>
           </div>
         </section>
 
         <MarketingAccruingDemo variant="home" />
 
-        {/* 5. Who it's for */}
-        <section className="marketing-who-home" id="who" aria-labelledby="who-home-heading">
-          <div className="marketing-section-inner marketing-section-inner--home">
-            <div className="marketing-section-head">
-              <h2 id="who-home-heading">{HOME_WHO_FOR.heading}</h2>
-              <p className="marketing-section-lead marketing-section-lead--home">{HOME_WHO_FOR.lead}</p>
-            </div>
-            <ul className="marketing-who-home-grid">
-              {HOME_WHO_FOR.points.map((point) => (
-                <li key={point}>{point}</li>
-              ))}
-            </ul>
-            <p className="marketing-method-more">
-              <Link to="/who-its-for">See who it’s for in more detail →</Link>
-            </p>
-          </div>
-        </section>
-
-        {/* 5b. Why it works — alongside existing tools */}
+        {/* Why it works */}
         <section
           className="marketing-different-questions"
           id="why-it-works"
@@ -198,7 +210,7 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* 6. Platform */}
+        {/* Platform */}
         <section
           className="marketing-how-home marketing-how-home--illustrated"
           id="platform"
@@ -241,8 +253,8 @@ export function LandingPage() {
         <section className="marketing-home-overview" id="overview" aria-labelledby="explore-heading">
           <div className="marketing-section-inner marketing-section-inner--home">
             <div className="marketing-section-head">
-              <p className="marketing-how-eyebrow">Next steps</p>
-              <h2 id="explore-heading">Go deeper when you’re ready</h2>
+              <p className="marketing-how-eyebrow">If you want more</p>
+              <h2 id="explore-heading">Keep going when you’re ready</h2>
             </div>
             <div className="marketing-home-topic-grid">
               {HOME_EXPLORE.map((topic) => (
@@ -261,14 +273,9 @@ export function LandingPage() {
         <section className="marketing-company-band" aria-label="Why Cash Prophet exists">
           <div className="marketing-section-inner marketing-section-inner--home">
             <div className="marketing-section-head">
-              <p className="marketing-how-eyebrow">Why this exists</p>
-              <h2>Built from real business experience</h2>
-              <p className="marketing-section-lead marketing-section-lead--home">
-                For over 17 years I have run businesses and still needed a clearer answer: can I
-                afford this, how much is already spoken for, and will VAT catch me out again? Cash
-                Prophet is that calm clarity — a trusted system that quietly keeps commitments
-                organised. The app simply makes it easy to follow every day.
-              </p>
+              <p className="marketing-how-eyebrow">{HOME_FOUNDER.eyebrow}</p>
+              <h2>{HOME_FOUNDER.heading}</h2>
+              <p className="marketing-section-lead marketing-section-lead--home">{HOME_FOUNDER.body}</p>
             </div>
           </div>
         </section>
