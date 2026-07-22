@@ -997,7 +997,7 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   cursor: default;
   box-sizing: border-box;
 }
@@ -4636,8 +4636,7 @@ body.widget-canvas-resizing * {
   padding: var(--space-2) var(--space-3) 0;
   background: var(--bg-surface-raised);
   border: 1px solid var(--border);
-  border-left: 3px solid var(--overview-accent, #0f766e);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   container-type: size;
   container-name: overview-strip;
   --overview-accent: #0f766e;
@@ -4853,8 +4852,7 @@ body.overview-height-dragging .overview-height-handle {
   padding: 3px var(--space-3) 5px;
   background: var(--bg-surface-raised);
   border: 1px solid var(--border);
-  border-left: 3px solid var(--overview-accent, #0f766e);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   min-height: 2.15rem;
 }
 
@@ -6824,8 +6822,7 @@ body.overview-split-dragging {
 
 /* ─── Hero / True Balance ───────────────────────────────────── */
 .hero-card {
-  /* Inherits .card — subtle accent only */
-  border-left: 3px solid var(--accent);
+  /* Clean edge — no accent stripe */
 }
 
 .hero-number {
@@ -9554,11 +9551,11 @@ textarea:focus {
 }
 
 .committed-funds-stat--outstanding {
-  border-left: 3px solid var(--status-orange-text);
+  box-shadow: inset 0 -1.5px 0 0 color-mix(in srgb, var(--status-orange-text) 55%, transparent);
 }
 
 .committed-funds-stat--accruing {
-  border-left: 3px solid var(--accent);
+  box-shadow: inset 0 -1.5px 0 0 color-mix(in srgb, var(--text-secondary) 40%, transparent);
 }
 
 .committed-funds-stat-label {
@@ -12342,7 +12339,7 @@ tr.sheet-row--received td {
 
 .mobile-record-card {
   padding: 5px 8px;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background: var(--bg-surface);
   overflow: hidden;
@@ -12350,8 +12347,18 @@ tr.sheet-row--received td {
 }
 
 .mobile-record-card--accented {
-  border-left-width: 4px;
-  border-left-style: solid;
+  --record-accent: var(--scope-accent, #0f766e);
+}
+
+.mobile-record-card-mark {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  margin-right: 2px;
+  border-radius: 1px;
+  background: var(--record-accent);
+  align-self: center;
+  opacity: 0.9;
 }
 
 .mobile-record-card--button {
@@ -24534,17 +24541,13 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .app-shell[data-scope-level] .top-bar {
-  border-left: 3px solid var(--scope-accent);
+  border-left: none;
+  box-shadow: inset 0 -1px 0 0 color-mix(in srgb, var(--scope-accent) 28%, var(--border));
 }
 
 .app-shell[data-scope-level] .top-kicker {
   color: var(--text-muted);
   font-weight: 600;
-}
-
-.app-shell[data-scope-level]:not([data-scope-level='group']) .overview-strip,
-.app-shell[data-scope-level]:not([data-scope-level='group']) .overview-compact {
-  border-left-color: var(--scope-accent);
 }
 
 /* Widgets stay neutral — scope colour on shell chrome only. */
