@@ -7,11 +7,11 @@ import { METHOD_PAGE_PATH } from './trueBalanceMethod'
 
 export const HOME_HERO = {
   eyebrow: 'Financial clarity, every day',
-  headline: 'A better way to manage your business finances.',
-  headlineStart: 'A better way to manage',
-  headlineHighlight: 'your business finances.',
+  headline: 'One calm number you can trust every day.',
+  headlineStart: 'One calm number',
+  headlineHighlight: 'you can trust every day.',
   subheading:
-    'One number for where your business stands today — with known commitments and future bills already accounted for.',
+    'Known commitments stay accounted for, so future bills leave your head — less mental load, more calm confidence.',
 } as const
 
 export const HOME_IS_THIS_YOU = {
