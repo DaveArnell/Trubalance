@@ -37,23 +37,23 @@ export const HOME_WHO_FOR = {
   ],
 } as const
 
-/** Why that loop creates stress */
+/** Why that loop creates stress — keep the headline; rows stay observational */
 export const HOME_STRESS = {
   eyebrow: 'What that does to you',
   heading: 'Which is why opening the bank never feels settled',
-  lead: "The number on the screen is only half the story. Your head is doing the rest.",
+  lead: "You're not reading a number. You're arguing with yourself.",
   points: [
     {
-      title: 'Cash today',
-      body: "The balance shows what's there right now. Not what's already spoken for.",
+      title: 'The balance looks fine',
+      body: "There's money there. On paper, things seem okay. That should be enough to relax. It isn't.",
     },
     {
-      title: 'Bills in your head',
-      body: 'So every glance turns into another calculation. Even when nothing has changed.',
+      title: 'But you already know what’s coming',
+      body: "Payroll. VAT. Rent. The stuff you haven't forgotten. Your head starts subtracting before you've even put the phone down.",
     },
     {
-      title: 'The doubt stays',
-      body: "Can I afford this? Will VAT catch me again? The figure looks fine. You're still not sure.",
+      title: "So you're never quite sure",
+      body: "Can I afford this? Or am I about to regret it? That gap between the screen and your gut is exhausting. Cash Prophet is built to close it.",
     },
   ],
 } as const
