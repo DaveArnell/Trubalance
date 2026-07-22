@@ -8,9 +8,9 @@ export const HOME_SEO = {
 } as const
 
 export const METHOD_SEO = {
-  title: 'Why Cash Prophet works — Calm clarity for known commitments',
+  title: 'Why Cash Prophet — Stop carrying business finances in your head',
   description:
-    'How Cash Prophet removes the mental maths of payroll, VAT and rent — continuous organisation of known commitments, predictable reserves, and one number you can trust.',
+    'Why checking the bank never feels settled, what that mental maths costs you, and what changes when Cash Prophet takes the load off. Complements your accountant and bookkeeping.',
   path: '/cash-prophet',
 } as const
 
@@ -24,7 +24,7 @@ export const PRICING_SEO = {
 export const HOW_IT_WORKS_SEO = {
   title: 'How it works — From commitments to one number you can trust',
   description:
-    'Seven steps to financial calm: connect your business, add commitments, build reserves, keep a light daily check, and stay prepared for larger bills.',
+    'How Cash Prophet works in practice: known costs building daily, monthly reserves for big bills, light habits, and what the app automates for you.',
   path: '/how-it-works',
 } as const
 
