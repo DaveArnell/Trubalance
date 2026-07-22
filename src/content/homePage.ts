@@ -30,16 +30,16 @@ export const HOME_PROBLEM = {
   ],
 } as const
 
-/** Shared recognition */
+/** Shared recognition — normalise the bank-check loop before introducing Cash Prophet */
 export const HOME_WHO_FOR = {
   heading: "You're not unusual for doing it",
-  lead: 'Most owners I know run the business this way. Quietly. Every day.',
+  lead: "This is how most owner-managed businesses operate. You don't have a finance team watching every commitment in the background. So the bank app becomes the quick check, and your head does the rest.",
   points: [
-    'You check the bank to judge how things are going',
-    "You don't enjoy bookkeeping",
-    'Year-end stays with your accountant',
-    "You don't want another complicated tool",
-    'You can see the big costs coming a mile off',
+    "You rely on your bank balance because it's the fastest thing to check",
+    'You already know the big bills that are coming',
+    'You subtract them in your head every time you look',
+    "You'd rather spend time running the business than bookkeeping",
+    "You're not bad with money. You're carrying too much information in your head",
   ],
 } as const
 
