@@ -14,19 +14,13 @@ export const HOME_HERO = {
     "You already know what's coming. You shouldn't have to keep subtracting it every time you open the bank.",
 } as const
 
-/** Scene: recreate the experience, don't explain it */
+/** Scene: recreate the experience in natural prose, not a stacked list */
 export const HOME_PROBLEM = {
   heading: 'Sound familiar?',
   paragraphs: [
-    'You check your bank balance.',
-    'It looks healthy enough.',
-    'Then the mental checklist starts.',
-    'Payroll.',
-    'VAT.',
-    'Rent.',
-    'Insurance.',
-    'Have I forgotten anything?',
-    "That loop is the problem. Not the bank figure. The second screen you're running in your head.",
+    'You open the bank and the balance looks fine. Then, almost without thinking, you start subtracting. Payroll next week. VAT in a few months. Rent. Insurance. Whatever else is floating around at the back of your mind.',
+    "Have I forgotten something? You can't quite settle, even when the number looks healthy.",
+    "That second screen in your head is the problem. Not the bank figure.",
   ],
 } as const
 
