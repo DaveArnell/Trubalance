@@ -13536,6 +13536,26 @@ tr.sheet-row--received td {
   background: #fff;
 }
 
+.marketing-main--home .marketing-who-home {
+  padding: 80px 0 88px;
+}
+
+.marketing-main--home .marketing-who-home .marketing-section-head {
+  max-width: 44rem;
+  margin: 0 auto 48px;
+  text-align: center;
+}
+
+.marketing-main--home .marketing-who-home .marketing-section-lead--home {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.marketing-main--home .marketing-who-home-grid {
+  max-width: 44rem;
+  margin: 0 auto;
+}
+
 .marketing-who-home-grid {
   list-style: none;
   margin: 0;
@@ -13547,7 +13567,7 @@ tr.sheet-row--received td {
 }
 
 .marketing-who-home-grid li {
-  padding: 16px 0;
+  padding: 18px 0;
   border-radius: 0;
   border: none;
   border-bottom: 1px solid rgba(16, 20, 24, 0.1);
@@ -13555,6 +13575,13 @@ tr.sheet-row--received td {
   font-size: 1.1rem;
   font-weight: 550;
   color: var(--marketing-ink, #101418);
+}
+
+.marketing-who-home-grid li:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+  max-width: 100%;
+  border-bottom: none;
+  padding-top: 22px;
 }
 
 .marketing-how-home {
@@ -24843,7 +24870,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 /* Is this you — editorial list, no card */
 .marketing-is-you-section {
-  padding: 64px 0 24px;
+  padding: 64px 0 72px;
   background: var(--marketing-paper);
 }
 
