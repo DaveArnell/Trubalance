@@ -7,25 +7,25 @@ export type { BlogPost, BlogSection } from './blogTypes'
 const CORE_BLOG_POSTS: BlogPost[] = [
   {
     slug: 'what-is-true-balance',
-    title: 'What Is True Balance? Cash Clarity for UK Business Owners',
+    title: 'What Is Cash Prophet? Cash Clarity for UK Business Owners',
     metaDescription:
-      'True Balance is the money genuinely yours after commitments and expected receipts — not just your bank balance. Learn how UK small businesses use it for cash clarity.',
+      'Cash Prophet is the money genuinely yours after commitments and expected receipts — not just your bank balance. Learn how UK small businesses use it for cash clarity.',
     keywords: ['true balance', 'cash clarity', 'UK small business', 'safe to spend', 'committed funds'],
     publishedAt: '2026-06-01',
     updatedAt: '2026-07-06',
     category: 'Guides',
     readMinutes: 6,
     excerpt:
-      'Your bank balance is not your spending money. True Balance shows what is left after everything already spoken for.',
+      'Your bank balance is not your spending money. Cash Prophet shows what is left after everything already spoken for.',
     relatedSlugs: ['bank-balance-vs-safe-to-spend-uk', 'true-balance-vs-accounting-software'],
     sections: [
       {
         type: 'p',
-        text: 'Most UK business owners check their bank app and guess. True Balance replaces guessing with one number: current cash minus committed funds plus expected receipts. It answers a simple question — how much is genuinely mine to use?',
+        text: 'Most UK business owners check their bank app and guess. Cash Prophet replaces guessing with one number: current cash minus committed funds plus expected receipts. It answers a simple question — how much is genuinely mine to use?',
       },
       {
         type: 'h2',
-        text: 'The True Balance formula',
+        text: 'how Available is calculated',
       },
       {
         type: 'ul',
@@ -37,7 +37,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'True Balance is not accounting software. It does not replace Xero, FreeAgent, or QuickBooks. It sits above your accounts as a cash-position tool for owners who run the numbers themselves.',
+        text: 'Cash Prophet is not accounting software. It does not replace Xero, FreeAgent, or QuickBooks. It sits above your accounts as a cash-position tool for owners who run the numbers themselves.',
       },
       {
         type: 'h2',
@@ -56,11 +56,11 @@ const CORE_BLOG_POSTS: BlogPost[] = [
         type: 'faq',
         items: [
           {
-            q: 'Is True Balance the same as my bank balance?',
-            a: 'No. Your bank balance ignores money already spoken for. True Balance subtracts commitments and adds money you are still owed but have not received yet.',
+            q: 'Is Cash Prophet the same as my bank balance?',
+            a: 'No. Your bank balance ignores money already spoken for. Cash Prophet subtracts commitments and adds money you are still owed but have not received yet.',
           },
           {
-            q: 'Do I need an accountant to use True Balance?',
+            q: 'Do I need an accountant to use Cash Prophet?',
             a: 'No. You enter balances and commitments yourself. Many owners use it alongside their accountant rather than instead of one.',
           },
         ],
@@ -100,18 +100,18 @@ const CORE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'h2',
-        text: 'Safe to spend vs True Balance',
+        text: 'Safe to spend vs Cash Prophet',
       },
       {
         type: 'p',
-        text: 'Safe to spend usually means cash minus tax set-asides. True Balance goes further: it includes all committed funds (monthly costs accruing, due items, planned one-offs) and expected receipts on the other side. For a building firm waiting on a £12,000 deposit, that receipt matters as much as the tax reserve.',
+        text: 'Safe to spend usually means cash minus tax set-asides. Cash Prophet goes further: it includes all committed funds (monthly costs accruing, due items, planned one-offs) and expected receipts on the other side. For a building firm waiting on a £12,000 deposit, that receipt matters as much as the tax reserve.',
       },
       {
         type: 'faq',
         items: [
           {
             q: 'What is the best safe-to-spend app for UK businesses?',
-            a: 'Freelancer-focused apps suit solo operators with simple invoice flows. SMEs with payroll, reserves, and irregular bills benefit from a commitment-based tool like True Balance.',
+            a: 'Freelancer-focused apps suit solo operators with simple invoice flows. SMEs with payroll, reserves, and irregular bills benefit from a commitment-based tool like Cash Prophet.',
           },
         ],
       },
@@ -133,7 +133,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
     sections: [
       {
         type: 'p',
-        text: 'Tools like Float, Cashflow King, and Easeful focus on forecasting from bank transactions or manual entries. True Balance forecasts from what you already know: monthly costs, planned payments, reserve transfers, and dated expected receipts.',
+        text: 'Tools like Float, Cashflow King, and Easeful focus on forecasting from bank transactions or manual entries. Cash Prophet forecasts from what you already know: monthly costs, planned payments, reserve transfers, and dated expected receipts.',
       },
       {
         type: 'h2',
@@ -151,11 +151,11 @@ const CORE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'h2',
-        text: 'Cash line vs True Balance line',
+        text: 'Cash line vs Available line',
       },
       {
         type: 'p',
-        text: 'The cash line shows your current account balance forward. The True Balance line adjusts for committed funds and expected receipts — so you see whether you are genuinely improving or just moving money around.',
+        text: 'The cash line shows your current account balance forward. The Available line adjusts for committed funds and expected receipts — so you see whether you are genuinely improving or just moving money around.',
       },
       {
         type: 'faq',
@@ -200,14 +200,14 @@ const CORE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'True Balance Reserve Planner models irregular bills in their real due months, not smoothed as an average. Committed funds show whether you are on track before the return is due.',
+        text: 'Cash Prophet Reserve Planner models irregular bills in their real due months, not smoothed as an average. Committed funds show whether you are on track before the return is due.',
       },
       {
         type: 'faq',
         items: [
           {
             q: 'Should VAT money sit in my current account?',
-            a: 'Many owners use a separate reserve account. True Balance tracks the transfer target each month so current account True Balance stays honest.',
+            a: 'Many owners use a separate reserve account. Cash Prophet tracks the transfer target each month so Available stays honest.',
           },
         ],
       },
@@ -246,7 +246,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'Accounting software records tax after the fact. True Balance helps you provision before the fact so True Balance on the dashboard matches reality.',
+        text: 'Accounting software records tax after the fact. Cash Prophet helps you provision before the fact so Cash Prophet on the dashboard matches reality.',
       },
     ],
   },
@@ -254,7 +254,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
     slug: 'cash-flow-spreadsheet-alternative-uk',
     title: 'Still Using a Cash Flow Spreadsheet? UK Alternatives Compared',
     metaDescription:
-      'Compare cash flow spreadsheets vs True Balance, Float, and Cashflow King for UK small businesses — pros, cons, and when to switch.',
+      'Compare cash flow spreadsheets vs Cash Prophet, Float, and Cashflow King for UK small businesses — pros, cons, and when to switch.',
     keywords: ['cash flow spreadsheet', 'Excel cash flow UK', 'spreadsheet alternative', 'cash flow template'],
     publishedAt: '2026-06-12',
     updatedAt: '2026-07-06',
@@ -278,7 +278,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
           'Spreadsheet — full control, high maintenance, no committed-funds logic',
           'Float / bank-connected forecasters — automatic transactions, subscription cost, categorisation cleanup',
           'Cashflow King — multi-account forecast, tax ringfencing, transaction-heavy',
-          'True Balance — manual balances, commitment accruals, reserve planner, True Balance equation',
+          'Cash Prophet — manual balances, commitment accruals, reserve planner, Cash Prophet equation',
         ],
       },
       {
@@ -293,12 +293,12 @@ const CORE_BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: 'true-balance-vs-accounting-software',
-    title: 'True Balance vs Accounting Software',
+    title: 'Cash Prophet vs Accounting Software',
     metaDescription:
-      'True Balance vs accounting software: why Xero, FreeAgent and QuickBooks don’t answer what you can spend — and how they work together.',
+      'Cash Prophet vs accounting software: why Xero, FreeAgent and QuickBooks don’t answer what you can spend — and how they work together.',
     keywords: [
-      'True Balance vs accounting software',
-      'True Balance vs Xero',
+      'Cash Prophet vs accounting software',
+      'Cash Prophet vs Xero',
       'FreeAgent cash flow',
       'accounting software UK',
       'what can I spend',
@@ -334,20 +334,20 @@ const CORE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'h2',
-        text: 'What True Balance adds',
+        text: 'What Cash Prophet adds',
       },
       {
         type: 'ul',
         items: [
           'Daily accruing committed funds',
-          'Forward cash outlook with True Balance line',
+          'Forward cash outlook with the Available line',
           'Reserve Planner for irregular tax and insurance bills',
           'Expected receipts for project-based income',
         ],
       },
       {
         type: 'p',
-        text: 'Use both: accounting software for compliance, True Balance for operational cash decisions. That separation — True Balance vs accounting software as complements, not rivals — is the niche.',
+        text: 'Use both: accounting software for compliance, Cash Prophet for operational cash decisions. That separation — Cash Prophet vs accounting software as complements, not rivals — is the niche.',
       },
     ],
   },
@@ -355,7 +355,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
     slug: 'cash-flow-tools-uk-small-business-compared',
     title: 'Best Cash Flow Tools for UK Small Businesses (2026 Comparison)',
     metaDescription:
-      'Compare UK cash flow tools: True Balance, Float, Cashflow King, VatVantage, Easeful, and spreadsheets for SMEs and freelancers.',
+      'Compare UK cash flow tools: Cash Prophet, Float, Cashflow King, VatVantage, Easeful, and spreadsheets for SMEs and freelancers.',
     keywords: ['best cash flow software UK', 'cash flow tools comparison', 'SME finance apps 2026'],
     publishedAt: '2026-06-18',
     updatedAt: '2026-07-06',
@@ -378,7 +378,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
           'Cashflow King — multi-business, 90-day forecast, AI-assisted categorisation',
           'Ebitly — bank-connected, ML predictions, runway alerts',
           'Profit Pilot — AI CFO positioning, MTD readiness, higher price tier',
-          'True Balance — UK SMEs, commitments + reserves + True Balance, multi-site',
+          'Cash Prophet — UK SMEs, commitments + reserves + Cash Prophet, multi-site',
         ],
       },
       {
@@ -400,7 +400,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
     slug: 'when-to-pay-yourself-limited-company-uk',
     title: 'When Can I Pay Myself? UK Limited Company Owner Guide',
     metaDescription:
-      'How UK directors decide when to take dividends or salary — using True Balance, reserves, and committed funds before you transfer.',
+      'How UK directors decide when to take dividends or salary — using Cash Prophet, reserves, and committed funds before you transfer.',
     keywords: ['pay yourself limited company', 'director dividends UK', 'when to take salary', 'owner drawings'],
     publishedAt: '2026-06-20',
     updatedAt: '2026-07-06',
@@ -424,7 +424,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
           'Cover overdue and due commitments',
           'Top up reserve accounts to target',
           'Leave buffer for next payroll and VAT',
-          'Check True Balance — not just bank balance',
+          'Check Cash Prophet — not just bank balance',
           'Then consider dividend or extra salary',
         ],
       },
@@ -432,8 +432,8 @@ const CORE_BLOG_POSTS: BlogPost[] = [
         type: 'faq',
         items: [
           {
-            q: 'Can True Balance tell me my legal dividend limit?',
-            a: 'No — that comes from accounts and your accountant. True Balance shows cash headroom after operational commitments.',
+            q: 'Can Cash Prophet tell me my legal dividend limit?',
+            a: 'No — that comes from accounts and your accountant. Cash Prophet shows cash headroom after operational commitments.',
           },
         ],
       },
@@ -473,7 +473,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'True Balance includes a Riverside Building demo — a trades business with realistic commitments and lumpy receipts. Try it without signing up.',
+        text: 'Cash Prophet includes a Riverside Building demo — a trades business with realistic commitments and lumpy receipts. Try it without signing up.',
       },
     ],
   },
@@ -501,7 +501,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'True Balance marks income pattern as steady or lumpy per business. For cafés, the forward outlook plots scheduled outgoings — your real balance trends higher than the chart because daily sales are not modelled. Use Trends for historical trajectory and the outlook for cost timing.',
+        text: 'Cash Prophet marks income pattern as steady or lumpy per business. For cafés, the forward outlook plots scheduled outgoings — your real balance trends higher than the chart because daily sales are not modelled. Use Trends for historical trajectory and the outlook for cost timing.',
       },
       {
         type: 'ul',
@@ -517,19 +517,19 @@ const CORE_BLOG_POSTS: BlogPost[] = [
     slug: 'multi-site-business-cash-dashboard',
     title: 'Multi-Site Business Cash: One Dashboard for Every Location',
     metaDescription:
-      'Roll up cash, commitments, and True Balance across UK business sites, venues, and group structures.',
+      'Roll up cash, commitments, and Cash Prophet across UK business sites, venues, and group structures.',
     keywords: ['multi-site cash flow', 'multi-venue business UK', 'group cash dashboard', 'roll-up financial view'],
     publishedAt: '2026-06-28',
     updatedAt: '2026-07-06',
     category: 'Product',
     readMinutes: 5,
     excerpt:
-      'Two cafés and a head office should not mean three spreadsheets. One scope tree, one True Balance.',
+      'Two cafés and a head office should not mean three spreadsheets. One scope tree, one Cash Prophet.',
     relatedSlugs: ['cafe-restaurant-cash-flow-management', 'what-is-true-balance'],
     sections: [
       {
         type: 'p',
-        text: 'Leisure groups, multi-site hospitality, and holding structures need consolidated visibility without losing venue-level detail. True Balance scopes data to group, business, or venue with roll-up totals.',
+        text: 'Leisure groups, multi-site hospitality, and holding structures need consolidated visibility without losing venue-level detail. Cash Prophet scopes data to group, business, or venue with roll-up totals.',
       },
       {
         type: 'h2',
@@ -538,7 +538,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
       {
         type: 'ul',
         items: [
-          'Group — consolidated True Balance across companies',
+          'Group — consolidated Cash Prophet across companies',
           'Business — separate companies in one workspace',
           'Venue — site-level accounts and commitments',
           'Sidebar scope picker switches view without losing context',
@@ -579,7 +579,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'True Balance is deliberately cash- and commitment-first, not profit-first. Pair it with your accounts for the full picture.',
+        text: 'Cash Prophet is deliberately cash- and commitment-first, not profit-first. Pair it with your accounts for the full picture.',
       },
     ],
   },
@@ -610,12 +610,12 @@ const CORE_BLOG_POSTS: BlogPost[] = [
         items: [
           'Building up — monthly costs accruing, reserve targets, planned save-to-spend items',
           'Due now — overdue or current-period items waiting for payment',
-          'Expected receipts — money owed to you (reduces net commitments on True Balance)',
+          'Expected receipts — money owed to you (reduces net commitments on Cash Prophet)',
         ],
       },
       {
         type: 'p',
-        text: 'True Balance Committed Funds panel shows all three in one place, scoped to your selected business or venue.',
+        text: 'Cash Prophet Committed Funds panel shows all three in one place, scoped to your selected business or venue.',
       },
     ],
   },

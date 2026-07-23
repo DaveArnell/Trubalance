@@ -2,16 +2,16 @@ import type { BlogPost } from './blogTypes'
 import { METHOD_BLOG_CATEGORY } from './trueBalanceMethod'
 
 const METHOD_CTA =
-  'True Balance automates the True Balance Method — keeping committed money, virtual reserves and your live position up to date without spreadsheet logic.'
+  'Cash Prophet keeps committed money, virtual reserves and your live position up to date without spreadsheet logic.'
 
-/** Educational articles for the True Balance Method category. */
+/** Educational articles for Cash Prophet category. */
 export const METHOD_BLOG_POSTS: BlogPost[] = [
   {
     slug: 'what-is-the-true-balance-method',
-    title: 'What Is the True Balance Method?',
+    title: 'What Is Cash Prophet?',
     metaDescription:
-      'The True Balance Method helps UK business owners manage money from what is genuinely available — not the bank balance alone. A plain-English introduction.',
-    keywords: ['true balance method', 'available cash', 'UK small business', 'financial management'],
+      'Cash Prophet helps UK business owners manage money from what is genuinely available — not the bank balance alone. A plain-English introduction.',
+    keywords: ['cash prophet', 'available cash', 'UK small business', 'financial management'],
     publishedAt: '2026-07-08',
     updatedAt: '2026-07-12',
     category: METHOD_BLOG_CATEGORY,
@@ -25,7 +25,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
     sections: [
       {
         type: 'p',
-        text: 'The True Balance Method is a practical way to manage business money. It starts from a question most owners already ask quietly: how much of what is in the bank can I actually use?',
+        text: 'Cash Prophet is a practical way to manage business money. It starts from a question most owners already ask quietly: how much of what is in the bank can I actually use?',
       },
       {
         type: 'h2',
@@ -45,7 +45,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
           'Start from available cash in the bank.',
           'Subtract money already committed or building up.',
           'Add only realistic expected receipts.',
-          'Use the result — your True Balance — for everyday decisions.',
+          "Use the result — what's available — for everyday decisions.",
         ],
       },
       {
@@ -99,7 +99,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'The True Balance Method treats those items as part of your position now — not only on payment day. That single shift helps owners avoid decisions that look affordable on the bank app but are not.',
+        text: 'Cash Prophet treats those items as part of your position now — not only on payment day. That single shift helps owners avoid decisions that look affordable on the bank app but are not.',
       },
       {
         type: 'p',
@@ -142,7 +142,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'The True Balance Method suggests monthly amounts toward each reserve. You transfer what you choose into savings — the reserve tracks what ought to be set aside, whether or not you have moved the cash yet.',
+        text: 'Cash Prophet suggests monthly amounts toward each reserve. You transfer what you choose into savings — the reserve tracks what ought to be set aside, whether or not you have moved the cash yet.',
       },
       {
         type: 'h2',
@@ -190,7 +190,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'The True Balance Method includes that build-up in your available cash picture. Waiting until payment day to notice the cost is how owners get surprised.',
+        text: 'Cash Prophet includes that build-up in your available cash picture. Waiting until payment day to notice the cost is how owners get surprised.',
       },
       {
         type: 'p',
@@ -202,7 +202,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
     slug: 'virtual-reserves-vs-separate-savings-accounts',
     title: 'Virtual Reserves Versus Separate Savings Accounts',
     metaDescription:
-      'Virtual reserves in True Balance are planning figures — not money moved automatically. How they work alongside a real savings account.',
+      'Virtual reserves in Cash Prophet are planning figures — not money moved automatically. How they work alongside a real savings account.',
     keywords: ['virtual reserves', 'savings account', 'tax reserve', 'cash management'],
     publishedAt: '2026-07-10',
     updatedAt: '2026-07-12',
@@ -222,7 +222,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'In the True Balance Method, a virtual reserve is a target tracked in software — for example VAT or corporation tax. It shows what ought to be held back from your operating cash. It does not move money on its own.',
+        text: 'In the Cash Prophet, a virtual reserve is a target tracked in software — for example VAT or corporation tax. It shows what ought to be held back from your operating cash. It does not move money on its own.',
       },
       {
         type: 'h2',
@@ -230,7 +230,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'When you move cash to a savings account, that is a real bank transfer you initiate. True Balance can suggest amounts and track progress, but the physical movement is always your choice and your bank.',
+        text: 'When you move cash to a savings account, that is a real bank transfer you initiate. Cash Prophet can suggest amounts and track progress, but the physical movement is always your choice and your bank.',
       },
       {
         type: 'h2',
@@ -250,8 +250,8 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
     slug: 'five-minute-financial-routine-business-owners',
     title: 'A Five-Minute Financial Routine for Business Owners',
     metaDescription:
-      'A short, repeatable routine to keep your True Balance position current — bank balances, paid items, and a monthly reserve check.',
-    keywords: ['financial routine', 'small business', 'cash management', 'True Balance Method'],
+      "A short, repeatable routine to keep what's available position current — bank balances, paid items, and a monthly reserve check.",
+    keywords: ['financial routine', 'small business', 'cash management', 'Cash Prophet'],
     publishedAt: '2026-07-10',
     updatedAt: '2026-07-12',
     category: METHOD_BLOG_CATEGORY,
@@ -262,7 +262,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
     sections: [
       {
         type: 'p',
-        text: 'The True Balance Method does not ask for hours of bookkeeping. It asks for small, regular updates so the position stays trustworthy.',
+        text: 'Cash Prophet does not ask for hours of bookkeeping. It asks for small, regular updates so the position stays trustworthy.',
       },
       {
         type: 'h2',
@@ -286,7 +286,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'Once a month, review reserve suggestions and transfer what you choose into savings. Accruals between reviews are handled automatically in True Balance.',
+        text: 'Once a month, review reserve suggestions and transfer what you choose into savings. Accruals between reviews are handled automatically in Cash Prophet.',
       },
       {
         type: 'p',
@@ -298,8 +298,8 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
     slug: 'what-accounting-software-tells-you-and-what-it-does-not',
     title: 'What Accounting Software Tells You — and What It Does Not',
     metaDescription:
-      'Xero and similar tools record what happened. The True Balance Method focuses on what you can safely do next — they work together.',
-    keywords: ['accounting software', 'Xero', 'cash position', 'True Balance Method'],
+      'Xero and similar tools record what happened. Cash Prophet focuses on what you can safely do next — they work together.',
+    keywords: ['accounting software', 'Xero', 'cash position', 'Cash Prophet'],
     publishedAt: '2026-07-11',
     updatedAt: '2026-07-12',
     category: METHOD_BLOG_CATEGORY,
@@ -342,7 +342,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'The True Balance Method sits alongside your accounts. It is not bookkeeping and not forecasting — it is a current position for decisions, kept honest with small regular updates.',
+        text: 'Cash Prophet sits alongside your accounts. It is not bookkeeping and not forecasting — it is a current position for decisions, kept honest with small regular updates.',
       },
       {
         type: 'p',

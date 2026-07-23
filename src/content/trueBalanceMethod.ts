@@ -67,88 +67,90 @@ export const METHOD_TWO_HABITS = [
     id: 'daily',
     title: 'Daily',
     time: 'Light logging',
-    lead: 'Keep the picture honest — then see where you stand.',
-    body: 'A short update is enough. The software does the calculations. You see what’s already committed and what’s left.',
+    lead: 'Keep the picture honest.',
+    body: 'A short update is enough. Cash Prophet does the calculations.',
     tasks: [
-      'Refresh your bank balances when they have changed',
-      'Mark payments as paid when they leave the account',
-      'Add or change obligations when something in the business changes',
-      'Add planned new payments when you know they are coming',
-      'Check what’s available before day-to-day decisions',
+      'Update balances when needed',
+      'Mark payments paid',
+      'Add new commitments when they appear',
     ],
   },
   {
     id: 'monthly',
     title: 'Monthly',
     time: 'About 5 minutes',
-    lead: 'Open the Reserve Planner and follow the recommended transfer.',
-    body: 'The app already knows every annual and irregular bill, which month it is due, and what your reserve account should contain. Confirm the transfer — in or out — and stay on track for the year.',
+    lead: 'Review the Reserve Planner.',
+    body: 'Confirm the recommended transfer and stay on track for the year.',
     tasks: [
-      'Open the Reserve Planner',
-      'Review this month’s recommendation',
-      'Transfer the suggested amount between current and reserve',
-      'Confirm the transfer in Cash Prophet',
-      'Stay on track for every annual obligation',
+      'Review the Reserve Planner',
+      'Confirm the recommended transfer',
     ],
   },
 ] as const
 
-/** Live demo of continuous accrual — homepage + Method page (no video yet). */
+/** Live demo of continuous accrual. */
 export const METHOD_ACCRUING_DEMO = {
   heading: 'See known costs building',
-  lead: 'Rent and wages grow a little every day. When due day hits, they move across until you mark them paid.',
+  lead: 'Rent and wages grow a little every day until payday.',
 } as const
 
-/** How the maths works — short supporting cards (not the primary spine). */
+/** How Cash Prophet works — three short pillars. */
 export const METHOD_THREE_PRINCIPLES = [
   {
     id: 'continuous-accrual',
     title: 'Daily financial clarity',
-    lead: 'Known commitments build every day — not only on payday.',
-    body: 'Payroll, rent, utilities and similar obligations accrue continuously so today’s position already reflects money spoken for.',
-    examples: [
-      'Payroll',
-      'Rent',
-      'Utilities',
-      'Finance',
-      'Subscriptions',
-      'Business rates',
-    ],
+    lead: 'Known costs build every day, not only on payday.',
+    body: 'Payroll, rent and similar bills accrue continuously, so today’s position already shows money spoken for.',
+    examples: ['Payroll', 'Rent', 'Utilities', 'Subscriptions'],
   },
   {
     id: 'reserve-planning',
     title: 'Reserve Planner',
-    lead: 'Large irregular costs become manageable monthly commitments.',
-    body: 'Not a simple “save £500 a month” habit. The Reserve Planner sets monthly targets, recommends transfers into or out of the reserve account, then those amounts accrue daily like any other commitment.',
-    examples: [
-      'VAT',
-      'Corporation tax',
-      'Annual insurance',
-      'Quarterly rent',
-      'Service charges',
-      'Licences',
-      'Large repairs',
-    ],
+    lead: 'Large irregular bills become steady monthly amounts.',
+    body: 'VAT, insurance and similar costs are spread across the year, then included in your everyday position like any other commitment.',
+    examples: ['VAT', 'Corporation tax', 'Annual insurance'],
   },
   {
     id: 'one-decision-number',
     title: 'One number you can trust',
-    lead: 'What’s available is the clearer read of today’s position.',
-    body: 'The bank balance becomes a reference. Cash Prophet shows what is left after commitments that have already built up — so you understand the figure, not just the total in the app.',
-    examples: ['Purchases', 'Hires', 'Quiet months', 'Owner drawings'],
+    lead: 'Available is what’s left after commitments already building.',
+    body: 'The bank balance stays as a reference. Cash Prophet shows what you can actually work with today.',
+    examples: ['Purchases', 'Quiet months', 'Owner drawings'],
   },
 ] as const
 
 export const METHOD_RESERVE_PLANNER = {
   title: 'How the Reserve Planner works',
   notSavings:
-    'The Reserve Planner is not “saving for bills.” It is a core pillar of the Method — turning unpredictable large costs into predictable monthly commitments.',
+    "This isn't simply putting money aside every month. It's a living funding plan that adjusts as your obligations change.",
   steps: [
-    'Identify every annual and irregular obligation (VAT, corporation tax, insurance, quarterly rent, service charges, licences, large repairs).',
-    'Convert each into monthly funding targets for the year.',
-    'Show what the reserve account should contain at the end of every month.',
-    'Recommend whether money should move into the reserve account, or back out — and exactly how much.',
-    'Once calculated, those monthly reserve amounts become part of the normal commitments that accrue every day.',
+    'List your annual and irregular bills.',
+    'Cash Prophet spreads them across the year.',
+    'It recommends what your reserve account should contain each month.',
+    'Those monthly amounts automatically become part of your everyday financial position.',
+  ],
+} as const
+
+/** First setup — valuable, not difficult. */
+export const METHOD_FIRST_SETUP = {
+  heading: 'The first setup matters',
+  lead: [
+    'The only part that takes a little thought is the beginning.',
+    'Cash Prophet can only carry the mental load once it understands your business.',
+  ],
+  body: [
+    "During setup you'll list your regular monthly commitments, your annual bills and any other predictable costs.",
+    'Most business owners already know these things.',
+    "They've just never written them down in one place.",
+    "That process often gives people a clearer picture of their business than they've ever had before.",
+    "Once it's done, Cash Prophet takes over.",
+    "From then on you're updating the picture, not rebuilding it.",
+  ],
+  timeline: [
+    'Know your bills',
+    'Build your commitments',
+    'Cash Prophet takes over',
+    'Simple daily updates',
   ],
 } as const
 
@@ -201,10 +203,8 @@ export const METHOD_WHY_IT_WORKS = [
 
 export const METHOD_SOFTWARE_HELPS = [
   'Tracks daily accruals',
-  'Runs the Reserve Planner and transfer recommendations',
-  'Monitors expected receipts',
-  'Calculates what is genuinely available as commitments change',
-  'Keeps everything in one place',
+  'Runs Reserve Planner recommendations',
+  'Updates what’s available as things change',
 ] as const
 
 /** @deprecated Prefer METHOD_TWO_HABITS / METHOD_THREE_PRINCIPLES. */

@@ -24,7 +24,7 @@ export const PRICING_SEO = {
 export const HOW_IT_WORKS_SEO = {
   title: 'How it works — From commitments to one number you can trust',
   description:
-    'How Cash Prophet works: known costs building daily, the Reserve Planner, a worked example, two light habits, and what the app automates.',
+    'Cash Prophet isn’t complicated. Known costs build daily, the Reserve Planner spreads big bills, and a light routine keeps your position accurate.',
   path: '/how-it-works',
 } as const
 

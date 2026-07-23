@@ -8,14 +8,6 @@ import { BLOG_CATEGORIES, BLOG_POSTS } from '../content/blogPosts'
 import { METHOD_BLOG_CATEGORY } from '../content/trueBalanceMethod'
 import { usePageMeta } from '../hooks/usePageMeta'
 
-function formatBlogDate(iso: string): string {
-  return new Date(iso + 'T12:00:00').toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  })
-}
-
 export function BlogIndexPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const activeCategory = searchParams.get('category')
@@ -92,7 +84,6 @@ export function BlogIndexPage() {
               <article key={post.slug} className="blog-card">
                 <p className="blog-card-meta">
                   <span className="blog-card-category">{post.category}</span>
-                  <time dateTime={post.publishedAt}>{formatBlogDate(post.publishedAt)}</time>
                   <span className="blog-card-read">{post.readMinutes} min read</span>
                 </p>
                 <h2>

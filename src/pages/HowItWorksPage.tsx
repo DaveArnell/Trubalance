@@ -9,7 +9,7 @@ import {
 import { MethodWorkedExample } from '../components/marketing/MethodWorkedExample'
 import { MarketingAccruingDemo } from '../components/marketing/MarketingAccruingDemo'
 import {
-  METHOD_CUSTOMER_JOURNEY,
+  METHOD_FIRST_SETUP,
   METHOD_PAGE_PATH,
   METHOD_RESERVE_PLANNER,
   METHOD_SOFTWARE_HELPS,
@@ -20,8 +20,7 @@ import { HOW_IT_WORKS_SEO } from '../content/marketingSeo'
 import { usePageMeta } from '../hooks/usePageMeta'
 
 /**
- * How it works — methodology and mechanics only.
- * Persuasion lives on Why Cash Prophet; product feel lives on See it.
+ * How it works — enough to understand the system, not a feature manual.
  */
 export function HowItWorksPage() {
   usePageMeta(HOW_IT_WORKS_SEO)
@@ -43,8 +42,9 @@ export function HowItWorksPage() {
             <p className="marketing-how-eyebrow">How it works</p>
             <h1>From commitments to one number you can trust</h1>
             <p className="method-edu-hero-lead">
-              Once you know why you want Cash Prophet, here&apos;s how it works in practice — the
-              system, the habits, and what the app handles for you.
+              Cash Prophet isn&apos;t complicated.
+              <br />
+              It follows a simple rhythm that keeps your business position accurate every day.
             </p>
             <p className="method-edu-mantra">
               Still weighing it up?{' '}
@@ -96,11 +96,6 @@ export function HowItWorksPage() {
         >
           <div className="method-edu-inner method-edu-inner--narrow">
             <h2 id="reserve-heading">{METHOD_RESERVE_PLANNER.title}</h2>
-            <div className="method-edu-callout">
-              <p>
-                <strong>{METHOD_RESERVE_PLANNER.notSavings}</strong>
-              </p>
-            </div>
             <ol className="method-edu-timeline">
               {METHOD_RESERVE_PLANNER.steps.map((step, index) => (
                 <li key={step}>
@@ -111,11 +106,7 @@ export function HowItWorksPage() {
                 </li>
               ))}
             </ol>
-            <p className="method-edu-prose">
-              This isn&apos;t just saving the same amount every month. It&apos;s a living plan that
-              can move money into the reserve, or back out, so the position stays correct as
-              obligations change through the year.
-            </p>
+            <p className="method-edu-prose">{METHOD_RESERVE_PLANNER.notSavings}</p>
           </div>
         </section>
 
@@ -142,9 +133,34 @@ export function HowItWorksPage() {
 
         <section
           className="method-edu-section"
-          aria-labelledby="habits-heading"
-          id="habits"
+          aria-labelledby="first-setup-heading"
+          id="first-setup"
         >
+          <div className="method-edu-inner method-edu-inner--narrow">
+            <div className="method-edu-section-head">
+              <h2 id="first-setup-heading">{METHOD_FIRST_SETUP.heading}</h2>
+              {METHOD_FIRST_SETUP.lead.map((paragraph) => (
+                <p key={paragraph} className="method-edu-section-lead">
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+            {METHOD_FIRST_SETUP.body.map((paragraph) => (
+              <p key={paragraph} className="method-edu-prose">
+                {paragraph}
+              </p>
+            ))}
+            <ol className="method-setup-timeline" aria-label="Setup path">
+              {METHOD_FIRST_SETUP.timeline.map((step) => (
+                <li key={step}>
+                  <span>{step}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        <section className="method-edu-section method-edu-section--tint" aria-labelledby="habits-heading" id="habits">
           <div className="method-edu-inner">
             <div className="method-edu-section-head">
               <h2 id="habits-heading">Two light habits</h2>
@@ -174,7 +190,7 @@ export function HowItWorksPage() {
         </section>
 
         <section
-          className="method-edu-section method-edu-section--tint"
+          className="method-edu-section"
           aria-labelledby="platform-heading"
           id="platform"
         >
@@ -182,8 +198,7 @@ export function HowItWorksPage() {
             <div className="method-edu-section-head">
               <h2 id="platform-heading">How the platform makes Cash Prophet effortless</h2>
               <p className="method-edu-section-lead">
-                Cash Prophet is the system. The app keeps it up to date without turning it into
-                another job.
+                The app keeps the system up to date without turning it into another job.
               </p>
             </div>
             <div className="method-edu-software-grid">
@@ -197,41 +212,12 @@ export function HowItWorksPage() {
               </div>
               <div className="method-edu-software-card method-edu-software-card--aside">
                 <h3>What it is not</h3>
-                <p>
-                  Not another bookkeeping package. It sits alongside the tools you already use with
-                  your accountant.
-                </p>
+                <p>Not another bookkeeping package. It sits alongside the tools you already use.</p>
                 <p className="muted method-edu-disclaimer">
                   It does not provide regulated financial, tax or accounting advice.
                 </p>
               </div>
             </div>
-          </div>
-        </section>
-
-        <section
-          className="method-edu-section"
-          aria-labelledby="journey-heading"
-          id="path"
-        >
-          <div className="method-edu-inner">
-            <div className="method-edu-section-head">
-              <h2 id="journey-heading">Your path through it</h2>
-              <p className="method-edu-section-lead">
-                From first setup to the monthly rhythm — the same loop, kept light.
-              </p>
-            </div>
-            <ol className="marketing-journey-list">
-              {METHOD_CUSTOMER_JOURNEY.map((item) => (
-                <li key={item.step} className="marketing-journey-item">
-                  <span className="marketing-journey-step">{item.step}</span>
-                  <div>
-                    <h3>{item.title}</h3>
-                    <p>{item.body}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
           </div>
         </section>
 

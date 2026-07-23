@@ -1,7 +1,7 @@
 import type { BlogPost } from './blogTypes'
 
 const CTA =
-  'True Balance is built for this: one honest available-cash number, committed money in view, and a Reserve Planner for VAT and tax — without replacing your accounting software.'
+  'Cash Prophet is built for this: one honest available-cash number, committed money in view, and a Reserve Planner for VAT and tax — without replacing your accounting software.'
 
 /**
  * Ten SEO cornerstone articles — own “bank balance isn’t available cash”
@@ -63,7 +63,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'Before you spend from “what’s in the account,” ask: what is already building up, what is due, and what tax money am I putting aside? That shift — from bank balance to available cash — is the foundation of the True Balance Method.',
+        text: 'Before you spend from “what’s in the account,” ask: what is already building up, what is due, and what tax money am I putting aside? That shift — from bank balance to available cash — is the foundation of the Cash Prophet.',
       },
       {
         type: 'faq',
@@ -134,7 +134,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'That’s the real question owners mean when they check their phone. Answer it with: cash now, minus committed funds, plus only realistic expected receipts. Call that your True Balance — and use it for Tuesday decisions, not the raw bank figure.',
+        text: "That’s the real question owners mean when they check their phone. Answer it with: cash now, minus committed funds, plus only realistic expected receipts. Call that what's available — and use it for Tuesday decisions, not the raw bank figure.",
       },
       {
         type: 'faq',
@@ -337,7 +337,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'Get the True Balance habit working. Then layer a simple outlook on top. That order — position before projection — is why cash flow forecasts finally stop ending up forgotten.',
+        text: 'Get the Cash Prophet habit working. Then layer a simple outlook on top. That order — position before projection — is why cash flow forecasts finally stop ending up forgotten.',
       },
       { type: 'p', text: CTA },
     ],
@@ -412,12 +412,12 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: 'the-true-balance-method-explained',
-    title: 'The True Balance Method Explained',
+    title: 'Cash Prophet Explained',
     metaDescription:
-      'The True Balance Method explained: manage UK business money from available cash — not the bank balance — with committed funds and reserves.',
+      'Cash Prophet explained: manage UK business money from available cash — not the bank balance — with committed funds and reserves.',
     keywords: [
-      'True Balance Method explained',
-      'true balance method',
+      'Cash Prophet explained',
+      'cash prophet',
       'managing business cash',
       'business cash management',
     ],
@@ -435,7 +435,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
     sections: [
       {
         type: 'p',
-        text: 'The True Balance Method is how owners stop treating the banking app as a green light. It’s financial management for decisions between accountant visits — not bookkeeping, not a 12-month forecast you’ll abandon.',
+        text: 'Cash Prophet is how owners stop treating the banking app as a green light. It’s financial management for decisions between accountant visits — not bookkeeping, not a 12-month forecast you’ll abandon.',
       },
       {
         type: 'h2',
@@ -448,7 +448,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
           'Subtract committed money (accruing costs, dues, planned spends)',
           'Add only expected receipts you trust',
           'Hold separate space for VAT, tax and irregular bills (reserves)',
-          'Use the resulting True Balance for everyday choices',
+          'Use what\'s available for everyday choices',
         ],
       },
       {
@@ -478,10 +478,10 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
     slug: 'why-accounting-software-doesnt-tell-you-what-you-can-spend',
     title: "Why Accounting Software Isn't Designed To Tell You What You Can Actually Spend",
     metaDescription:
-      'Why accounting software isn’t designed to tell you what you can spend — and how True Balance complements Xero, FreeAgent and QuickBooks.',
+      'Why accounting software isn’t designed to tell you what you can spend — and how Cash Prophet complements Xero, FreeAgent and QuickBooks.',
     keywords: [
       'accounting software what can I spend',
-      'True Balance vs accounting software',
+      'Cash Prophet vs accounting software',
       'Xero cash available',
       'business financial dashboard',
     ],
@@ -528,18 +528,18 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'h2',
-        text: 'True Balance vs accounting software',
+        text: 'Cash Prophet vs accounting software',
       },
       {
         type: 'p',
-        text: 'Don’t replace your accounts. Add a business financial dashboard for available cash: committed funds, reserve planner, expected receipts, True Balance. Compliance tools stay. Clarity for spending decisions lives alongside them.',
+        text: 'Don’t replace your accounts. Add a business financial dashboard for available cash: committed funds, reserve planner, expected receipts, Cash Prophet. Compliance tools stay. Clarity for spending decisions lives alongside them.',
       },
       {
         type: 'faq',
         items: [
           {
             q: 'Should I cancel Xero or FreeAgent?',
-            a: 'No. Keep accounting software for compliance. Use True Balance for operational cash clarity.',
+            a: 'No. Keep accounting software for compliance. Use Cash Prophet for operational cash clarity.',
           },
         ],
       },
@@ -599,7 +599,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'Until the bill is paid, the reserve target is committed money. When it leaves the bank, you mark it paid so True Balance recovers honestly — no double-counting.',
+        text: 'Until the bill is paid, the reserve target is committed money. When it leaves the bank, you mark it paid so Available recovers honestly — no double-counting.',
       },
       { type: 'p', text: CTA },
     ],
@@ -629,7 +629,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
     sections: [
       {
         type: 'p',
-        text: '“Business financial dashboard” often means charts nobody opens. A useful business financial snapshot is smaller: cash, committed funds, expected receipts, reserves, True Balance — updated in the time it takes to sip coffee.',
+        text: '“Business financial dashboard” often means charts nobody opens. A useful business financial snapshot is smaller: cash, committed funds, expected receipts, reserves, Cash Prophet — updated in the time it takes to sip coffee.',
       },
       {
         type: 'h2',
