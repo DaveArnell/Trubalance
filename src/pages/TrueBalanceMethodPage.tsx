@@ -33,14 +33,14 @@ export function TrueBalanceMethodPage() {
           <div className="method-edu-inner method-edu-inner--narrow">
             <h2 id="method-problem-heading">You already know what&apos;s coming</h2>
             <p className="method-edu-prose method-edu-prose--lead">
-              Payroll next week. Rent. That VAT bill sitting somewhere in the back of your mind.
-              Insurance. The thing you hope you haven&apos;t forgotten.
+              Payroll next week. Rent. That VAT bill you keep meaning to check. Insurance. The one
+              thing you hope you haven&apos;t forgotten.
             </p>
             <p className="method-edu-prose">
               So you open the bank — and before you&apos;ve put the phone down, you&apos;re
-              subtracting. Can I actually afford this? Or am I about to regret it on Friday? The
-              balance looks healthy. Your gut still won&apos;t settle. That gap between the screen
-              and what you know is coming is exhausting. And it never really switches off.
+              subtracting again. Can I actually afford this? Or am I going to regret it on Friday?
+              The balance looks fine. You still don&apos;t feel sure. You&apos;re sick of doing that
+              every time. And it doesn&apos;t really stop.
             </p>
           </div>
         </section>
@@ -50,25 +50,26 @@ export function TrueBalanceMethodPage() {
           aria-labelledby="method-outcome-heading"
         >
           <div className="method-edu-inner method-edu-inner--narrow">
-            <h2 id="method-outcome-heading">What if you didn&apos;t have to carry that?</h2>
+            <h2 id="method-outcome-heading">What if that stopped?</h2>
             <p className="method-edu-prose method-edu-prose--lead">
-              Imagine checking the bank and not running the whole checklist again. The commitments
-              you already know about are held for you. You look once. You know where you stand.
+              Imagine opening the bank and not running through everything again in your head. The
+              bills you already know about are being kept track of. You look once — and you can tell
+              whether you can afford it.
             </p>
             <div className="method-edu-compare">
               <div className="method-edu-compare-card method-edu-compare-card--muted">
                 <p className="method-edu-compare-label">Without Cash Prophet</p>
                 <p className="method-edu-compare-quote">“Can I afford this?”</p>
                 <p className="method-edu-compare-note">
-                  Same question. Same mental subtraction. Every single time.
+                  Same question. Same subtracting in your head. Every time.
                 </p>
               </div>
               <div className="method-edu-compare-card method-edu-compare-card--accent">
                 <p className="method-edu-compare-label">With Cash Prophet</p>
                 <p className="method-edu-compare-quote">You already know.</p>
                 <p className="method-edu-compare-note">
-                  Not a figure you still have to decode. Just what&apos;s actually left to work
-                  with.
+                  Not left guessing from the bank balance alone. You can see what&apos;s actually
+                  left.
                 </p>
               </div>
             </div>
@@ -77,11 +78,10 @@ export function TrueBalanceMethodPage() {
 
         <section className="method-edu-cta" aria-labelledby="method-cta-heading">
           <div className="method-edu-inner method-edu-inner--narrow">
-            <h2 id="method-cta-heading">Put the phone down without that knot in your stomach</h2>
+            <h2 id="method-cta-heading">Ready to stop doing this every time you check the bank?</h2>
             <p>
-              If this sounds painfully familiar, you&apos;re not imagining it — and you don&apos;t
-              have to keep living in it. See how it works, or start free and feel the difference
-              yourself.
+              If that sounds like you, you&apos;re not imagining it. Have a look at how it works —
+              or try it free and see for yourself.
             </p>
             <div className="marketing-cta-row">
               <Link to="/how-it-works" className="btn-primary btn-large">

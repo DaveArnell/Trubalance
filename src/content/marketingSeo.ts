@@ -10,7 +10,7 @@ export const HOME_SEO = {
 export const METHOD_SEO = {
   title: 'Why Cash Prophet — Why checking the bank feels so stressful',
   description:
-    'You open the bank, the number looks fine — and somehow you’re still not sure. Why that happens, and what changes when the mental maths finally stops.',
+    'You open the bank. The number looks fine. And somehow you’re still not sure. Why that happens — and what changes when you stop doing the sums in your head every time.',
   path: '/cash-prophet',
 } as const
 
