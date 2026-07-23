@@ -10,17 +10,14 @@ import { HeroBalanceGraphs } from '../components/marketing/HeroBalanceGraphs'
 import { CompanyLegalNotice } from '../components/marketing/CompanyLegalNotice'
 import {
   HOME_CTA,
-  HOME_EXPLORE,
   HOME_FOUNDER,
   HOME_HERO,
-  HOME_PROBLEM,
   HOME_RELIEF,
   HOME_STRESS,
   HOME_WHO_FOR,
   HOME_WHY_IT_WORKS,
 } from '../content/homePage'
 import { isSupabaseConfigured } from '../lib/supabase'
-import { FOUNDER_PROGRAM_HEADLINE } from '../config/founderProgram'
 import { HOME_SEO } from '../content/marketingSeo'
 import { usePageMeta } from '../hooks/usePageMeta'
 import { homePageJsonLd, MarketingJsonLd } from '../components/marketing/MarketingJsonLd'
@@ -84,26 +81,15 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section className="marketing-is-you-section" id="the-problem" aria-labelledby="problem-heading">
-          <div className="marketing-section-inner marketing-section-inner--home">
-            <h2 className="marketing-is-you-title" id="problem-heading">
-              {HOME_PROBLEM.heading}
-            </h2>
-            <div className="marketing-problem-scene">
-              {HOME_PROBLEM.paragraphs.map((paragraph) => (
-                <p key={paragraph} className="marketing-problem-scene-line">
-                  {paragraph}
-                </p>
-              ))}
-            </div>
-          </div>
-        </section>
-
         <section className="marketing-who-home" id="who" aria-labelledby="who-home-heading">
           <div className="marketing-section-inner marketing-section-inner--home">
             <div className="marketing-section-head">
               <h2 id="who-home-heading">{HOME_WHO_FOR.heading}</h2>
-              <p className="marketing-section-lead marketing-section-lead--home">{HOME_WHO_FOR.lead}</p>
+              <div className="marketing-section-lead marketing-section-lead--home marketing-section-lead--stack">
+                {HOME_WHO_FOR.lead.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </div>
             </div>
             <ul className="marketing-who-home-grid">
               {HOME_WHO_FOR.points.map((point) => (
@@ -124,7 +110,11 @@ export function LandingPage() {
               {HOME_STRESS.points.map((item) => (
                 <div key={item.title} className="marketing-bank-gap-row">
                   <h3>{item.title}</h3>
-                  <p>{item.body}</p>
+                  <div className="marketing-bank-gap-row-body">
+                    {item.body.map((line) => (
+                      <p key={line}>{line}</p>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>
@@ -136,13 +126,16 @@ export function LandingPage() {
             <div className="marketing-section-head">
               <p className="marketing-how-eyebrow">{HOME_RELIEF.eyebrow}</p>
               <h2 id="relief-heading">{HOME_RELIEF.heading}</h2>
-              <p className="marketing-section-lead marketing-section-lead--home">{HOME_RELIEF.lead}</p>
             </div>
             <div className="marketing-bank-gap-rows">
               {HOME_RELIEF.points.map((item) => (
                 <div key={item.title} className="marketing-bank-gap-row">
                   <h3>{item.title}</h3>
-                  <p>{item.body}</p>
+                  <div className="marketing-bank-gap-row-body">
+                    {item.body.map((line) => (
+                      <p key={line}>{line}</p>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>
@@ -157,9 +150,11 @@ export function LandingPage() {
           <div className="marketing-section-inner marketing-section-inner--home">
             <div className="marketing-section-head">
               <h2 id="why-heading">{HOME_WHY_IT_WORKS.heading}</h2>
-              <p className="marketing-section-lead marketing-section-lead--home">
-                {HOME_WHY_IT_WORKS.lead}
-              </p>
+              <div className="marketing-section-lead marketing-section-lead--home marketing-section-lead--stack">
+                {HOME_WHY_IT_WORKS.lead.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </div>
             </div>
             <div className="marketing-different-grid">
               {HOME_WHY_IT_WORKS.items.map((item) => (
@@ -172,32 +167,16 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section className="marketing-home-overview" id="overview" aria-labelledby="explore-heading">
-          <div className="marketing-section-inner marketing-section-inner--home">
-            <div className="marketing-section-head">
-              <p className="marketing-how-eyebrow">If you want more</p>
-              <h2 id="explore-heading">Keep going when you’re ready</h2>
-            </div>
-            <div className="marketing-home-topic-grid">
-              {HOME_EXPLORE.map((topic) => (
-                <article key={topic.to} className="marketing-home-topic-card">
-                  <h3>{topic.title}</h3>
-                  <p>{topic.body}</p>
-                  <Link to={topic.to} className="marketing-home-topic-link">
-                    {topic.cta} →
-                  </Link>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
         <section className="marketing-company-band" aria-label="Why Cash Prophet exists">
           <div className="marketing-section-inner marketing-section-inner--home">
             <div className="marketing-section-head">
               <p className="marketing-how-eyebrow">{HOME_FOUNDER.eyebrow}</p>
               <h2>{HOME_FOUNDER.heading}</h2>
-              <p className="marketing-section-lead marketing-section-lead--home">{HOME_FOUNDER.body}</p>
+              <div className="marketing-section-lead marketing-section-lead--home marketing-section-lead--stack">
+                {HOME_FOUNDER.body.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </div>
             </div>
           </div>
         </section>
@@ -211,10 +190,7 @@ export function LandingPage() {
         <section className="marketing-cta-band marketing-cta-band--pop">
           <div className="marketing-cta-band-inner">
             <h2>{HOME_CTA.heading}</h2>
-            <p>
-              {HOME_CTA.body}
-              {` ${FOUNDER_PROGRAM_HEADLINE} details are on signup.`}
-            </p>
+            <p>{HOME_CTA.body}</p>
             <div className="marketing-cta-row marketing-cta-row--center">
               <Link to="/signup" className="btn-primary btn-large marketing-cta-btn-on-dark">
                 Get started

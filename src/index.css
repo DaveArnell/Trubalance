@@ -13476,6 +13476,16 @@ tr.sheet-row--received td {
   color: var(--text-secondary);
 }
 
+.marketing-bank-gap-row-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.marketing-bank-gap-row-body p {
+  margin: 0;
+}
+
 .marketing-bank-gap-close {
   max-width: 40rem;
   margin: 28px 0 0;
@@ -24694,6 +24704,19 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   font-size: 1.15rem;
   line-height: 1.65;
   color: var(--text-secondary);
+}
+
+.marketing-section-lead--stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.marketing-section-lead--stack p {
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  line-height: inherit;
 }
 
 .marketing-main--home .marketing-how-eyebrow {
