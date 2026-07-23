@@ -1,11 +1,11 @@
 /**
- * Homepage visuals — light, dashboard-faithful snapshots (no brown banking mock, no live animation).
+ * Homepage visuals — light dashboard snapshots that match the real product language.
  */
 
 const BUILDING = [
-  { name: 'Rent', monthly: '£2,500 / mo', accrued: '£2,150', progress: 0.86, accent: '#0369a1' },
+  { name: 'Rent', monthly: '£2,500 / mo', accrued: '£2,150', progress: 0.86, accent: '#0d8f5b' },
   { name: 'Utilities', monthly: '£420 / mo', accrued: '£230', progress: 0.55, accent: '#0f766e' },
-  { name: 'Wages', monthly: '£8,400 / mo', accrued: '£1,680', progress: 0.2, accent: '#0d8f5b' },
+  { name: 'Wages', monthly: '£8,400 / mo', accrued: '£1,680', progress: 0.2, accent: '#086644' },
 ] as const
 
 export function HomeSpokenForPanel() {
@@ -72,16 +72,16 @@ export function HomeOutcomeBeats({
 }) {
   return (
     <div className="home-outcome">
-      <div className="home-outcome-beats">
+      <ol className="home-outcome-beats">
         {beats.map((beat, index) => (
-          <article key={beat} className="home-outcome-beat">
-            <p className="home-outcome-num" aria-hidden>
+          <li key={beat} className="home-outcome-beat">
+            <span className="home-outcome-num" aria-hidden>
               {String(index + 1).padStart(2, '0')}
-            </p>
+            </span>
             <p>{beat}</p>
-          </article>
+          </li>
         ))}
-      </div>
+      </ol>
       <p className="home-outcome-close">{closing}</p>
     </div>
   )

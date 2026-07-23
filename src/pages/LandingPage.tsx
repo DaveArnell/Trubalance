@@ -88,8 +88,9 @@ export function LandingPage() {
           </div>
         </section>
 
+        {/* Text left, visual right */}
         <section
-          className="home-band home-band--panel"
+          className="home-band home-band--paper"
           id="why-bank-balance"
           aria-labelledby="need-heading"
         >
@@ -107,13 +108,14 @@ export function LandingPage() {
           </div>
         </section>
 
+        {/* Visual left, text right */}
         <section
-          className="home-band home-band--mist"
+          className="home-band home-band--wash"
           id="what-it-does"
           aria-labelledby="does-heading"
         >
-          <div className="marketing-section-inner marketing-section-inner--home home-does">
-            <div className="home-split-copy home-does-copy">
+          <div className="marketing-section-inner marketing-section-inner--home home-split home-split--flip">
+            <div className="home-split-copy">
               <h2 id="does-heading">{HOME_DOES.heading}</h2>
               {HOME_DOES.body.map((paragraph) => (
                 <p key={paragraph} className="home-split-prose">
@@ -126,26 +128,25 @@ export function LandingPage() {
         </section>
 
         <section
-          className="home-band home-band--mist"
+          className="home-band home-band--paper"
           id="what-changes"
           aria-labelledby="outcome-heading"
         >
-          <div className="marketing-section-inner marketing-section-inner--home">
-            <div className="home-band-head">
+          <div className="marketing-section-inner marketing-section-inner--home home-band-stack">
+            <div className="home-band-head home-band-head--center">
               <h2 id="outcome-heading">{HOME_OUTCOME.heading}</h2>
-              <p className="home-split-lead">{HOME_OUTCOME.lead}</p>
             </div>
             <HomeOutcomeBeats beats={HOME_OUTCOME.beats} closing={HOME_OUTCOME.closing} />
           </div>
         </section>
 
         <section
-          className="home-band home-band--panel"
+          className="home-band home-band--wash"
           id="why-it-works"
           aria-labelledby="why-heading"
         >
-          <div className="marketing-section-inner marketing-section-inner--home">
-            <div className="home-band-head">
+          <div className="marketing-section-inner marketing-section-inner--home home-band-stack">
+            <div className="home-band-head home-band-head--center">
               <h2 id="why-heading">{HOME_WHY_IT_WORKS.heading}</h2>
               <p className="home-split-prose home-split-prose--intro">{HOME_WHY_IT_WORKS.intro}</p>
             </div>
@@ -154,7 +155,7 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section className="home-band home-band--founder" aria-label="Why Cash Prophet exists">
+        <section className="home-band home-band--paper" aria-label="Why Cash Prophet exists">
           <div className="marketing-section-inner marketing-section-inner--home home-founder">
             <p className="marketing-how-eyebrow">{HOME_FOUNDER.eyebrow}</p>
             <h2>{HOME_FOUNDER.heading}</h2>

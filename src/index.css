@@ -27226,3 +27226,450 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
     margin-right: 0;
   }
 }
+
+/* ─── Homepage rhythm pass — alternate splits, centre stacks, tight gaps ─── */
+
+.marketing-main--home-vivid {
+  --home-ink: #0c1210;
+  --home-muted: rgba(12, 18, 16, 0.62);
+  --home-line: rgba(12, 18, 16, 0.08);
+  --home-green: #0d8f5b;
+  --home-paper: #f7f5ef;
+  --home-wash: #eef2ef;
+}
+
+.marketing-main--home-vivid .home-band {
+  padding: 48px 0;
+  border-top: 1px solid var(--home-line);
+}
+
+.marketing-main--home-vivid .home-band--paper {
+  background: #fffefb;
+}
+
+.marketing-main--home-vivid .home-band--wash {
+  background: var(--home-wash);
+}
+
+.marketing-main--home-vivid .home-band--legal {
+  padding-top: 4px;
+  padding-bottom: 8px;
+  border-top: none;
+  background: transparent;
+}
+
+.marketing-main--home-vivid .home-band--founder,
+.marketing-main--home-vivid .home-band.home-band--paper:has(.home-founder) {
+  padding: 56px 0;
+}
+
+/* Split rows: text | visual, then visual | text */
+.marketing-main--home-vivid .home-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(260px, 0.95fr);
+  gap: 40px 48px;
+  align-items: center;
+}
+
+.marketing-main--home-vivid .home-split--flip .home-split-copy {
+  order: 2;
+}
+
+.marketing-main--home-vivid .home-split--flip .home-snap {
+  order: 1;
+}
+
+.marketing-main--home-vivid .home-split-copy {
+  text-align: left !important;
+  max-width: 36rem;
+}
+
+.marketing-main--home-vivid .home-split-copy h2,
+.marketing-main--home-vivid .home-split-lead,
+.marketing-main--home-vivid .home-split-prose {
+  text-align: left !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.marketing-main--home-vivid .home-split-copy h2 {
+  max-width: none;
+  margin: 0 0 10px;
+  font-size: clamp(1.65rem, 2.8vw, 2.15rem);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: var(--home-ink);
+}
+
+.marketing-main--home-vivid .home-split-lead {
+  margin: 0 0 0.9rem;
+  font-size: 1.15rem;
+  font-weight: 650;
+  line-height: 1.4;
+  color: var(--home-ink);
+}
+
+.marketing-main--home-vivid .home-split-prose {
+  margin: 0 0 0.85rem;
+  max-width: 36rem;
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: var(--home-muted);
+}
+
+.marketing-main--home-vivid .home-split-prose:last-child {
+  margin-bottom: 0;
+}
+
+/* Centred full-width sections */
+.marketing-main--home-vivid .home-band-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.marketing-main--home-vivid .home-band-head,
+.marketing-main--home-vivid .home-band-head--center {
+  width: 100%;
+  max-width: 40rem;
+  margin: 0 auto 28px !important;
+  text-align: center !important;
+}
+
+.marketing-main--home-vivid .home-band-head h2,
+.marketing-main--home-vivid .home-band-head--center h2 {
+  margin: 0 0 12px;
+  text-align: center !important;
+  font-size: clamp(1.65rem, 2.8vw, 2.15rem);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: var(--home-ink);
+}
+
+.marketing-main--home-vivid .home-band-head .home-split-prose,
+.marketing-main--home-vivid .home-band-head .home-split-prose--intro,
+.marketing-main--home-vivid .home-band-head .home-split-lead {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  text-align: center !important;
+  max-width: 36rem;
+  color: var(--home-muted);
+}
+
+.marketing-main--home-vivid .home-why-close,
+.marketing-main--home-vivid .home-outcome-close {
+  width: 100%;
+  max-width: 36rem;
+  margin: 24px auto 0 !important;
+  text-align: center !important;
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: var(--home-muted);
+}
+
+/* Outcome: numbered list, not card grid */
+.marketing-main--home-vivid .home-outcome {
+  width: 100%;
+  max-width: 40rem;
+}
+
+.marketing-main--home-vivid .home-outcome-beats {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-top: 1px solid var(--home-line);
+}
+
+.marketing-main--home-vivid .home-outcome-beat {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+  margin: 0;
+  padding: 16px 4px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  border-bottom: 1px solid var(--home-line);
+  box-shadow: none;
+  text-align: left;
+}
+
+.marketing-main--home-vivid .home-outcome-num {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--home-green);
+  line-height: 1.55;
+}
+
+.marketing-main--home-vivid .home-outcome-beat p {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--home-ink);
+}
+
+/* Compare strip: quieter */
+.marketing-main--home-vivid .home-compare {
+  width: 100%;
+  max-width: 52rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--home-line);
+  border: 1px solid var(--home-line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.marketing-main--home-vivid .home-compare-col {
+  background: #fffefb;
+  border: none;
+  border-radius: 0;
+  padding: 22px 20px;
+  box-shadow: none;
+  text-align: left;
+}
+
+.marketing-main--home-vivid .home-compare-col--muted {
+  background: #fafaf7;
+}
+
+.marketing-main--home-vivid .home-compare-col--accent {
+  background: #fff;
+  border-top: none;
+  box-shadow: none;
+  box-shadow: inset 0 3px 0 var(--home-green);
+}
+
+.marketing-main--home-vivid .home-compare-body {
+  font-size: 1.1rem;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.marketing-main--home-vivid .home-compare-highlight {
+  margin-top: 10px;
+  font-size: 0.92rem;
+}
+
+/* Founder: centred column */
+.marketing-main--home-vivid .home-founder {
+  max-width: 38rem;
+  margin: 0 auto !important;
+  text-align: center !important;
+}
+
+.marketing-main--home-vivid .home-founder .marketing-how-eyebrow {
+  justify-content: center !important;
+}
+
+.marketing-main--home-vivid .home-founder h2 {
+  margin: 0 0 18px;
+  text-align: center !important;
+  font-size: clamp(1.55rem, 2.6vw, 2rem);
+  line-height: 1.2;
+}
+
+.marketing-main--home-vivid .home-founder-prose {
+  text-align: left;
+}
+
+.marketing-main--home-vivid .home-founder-prose p {
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: var(--home-muted);
+}
+
+/* Snap panels: cleaner product chrome */
+.marketing-main--home-vivid .home-snap {
+  width: 100%;
+  max-width: 24rem;
+  margin: 0;
+  justify-self: center;
+}
+
+.marketing-main--home-vivid .home-snap--wide {
+  max-width: 26rem;
+}
+
+.marketing-main--home-vivid .home-snap-card,
+.marketing-main--home-vivid .home-dash {
+  background: #fff;
+  border: 1px solid var(--home-line);
+  border-radius: 14px;
+  box-shadow: 0 10px 28px rgba(12, 18, 16, 0.06);
+}
+
+.marketing-main--home-vivid .home-snap-card {
+  padding: 22px 22px 20px;
+}
+
+.marketing-main--home-vivid .home-snap-label {
+  margin: 0 0 6px;
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(12, 18, 16, 0.45);
+}
+
+.marketing-main--home-vivid .home-snap-label--teal {
+  color: var(--home-green);
+}
+
+.marketing-main--home-vivid .home-snap-big,
+.marketing-main--home-vivid .home-dash-available {
+  margin: 0;
+  font-family: var(--marketing-display, 'Fraunces', Georgia, serif);
+  font-size: clamp(2.1rem, 3.5vw, 2.55rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--home-ink);
+}
+
+.marketing-main--home-vivid .home-dash-available {
+  color: var(--home-green);
+}
+
+.marketing-main--home-vivid .home-snap-sub {
+  margin: 8px 0 0;
+  font-size: 0.92rem;
+  color: var(--home-muted);
+}
+
+.marketing-main--home-vivid .home-snap-divider {
+  height: 1px;
+  margin: 18px 0;
+  background: var(--home-line);
+}
+
+.marketing-main--home-vivid .home-snap-question {
+  margin: 0 0 8px;
+  font-size: 1.08rem;
+  font-weight: 650;
+  line-height: 1.35;
+  color: var(--home-ink);
+}
+
+.marketing-main--home-vivid .home-snap-hint {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--home-muted);
+}
+
+.marketing-main--home-vivid .home-dash {
+  padding: 0;
+  overflow: hidden;
+}
+
+.marketing-main--home-vivid .home-dash-hero {
+  padding: 22px 22px 18px;
+  border-bottom: 1px solid var(--home-line);
+}
+
+.marketing-main--home-vivid .home-dash-building {
+  padding: 16px 22px 18px;
+}
+
+.marketing-main--home-vivid .home-dash-building-label {
+  margin: 0 0 12px;
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(12, 18, 16, 0.45);
+}
+
+.marketing-main--home-vivid .home-dash-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.marketing-main--home-vivid .home-dash-row-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.marketing-main--home-vivid .home-dash-name {
+  font-size: 0.95rem;
+  font-weight: 650;
+  color: var(--home-ink);
+  white-space: nowrap;
+}
+
+.marketing-main--home-vivid .home-dash-accrued {
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--home-ink);
+}
+
+.marketing-main--home-vivid .home-dash-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(12, 18, 16, 0.08);
+  overflow: hidden;
+}
+
+.marketing-main--home-vivid .home-dash-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.marketing-main--home-vivid .home-dash-meta {
+  margin: 5px 0 0;
+  font-size: 0.82rem;
+  color: rgba(12, 18, 16, 0.45);
+}
+
+/* Hero: slightly less air so page doesn’t feel sparse */
+.marketing-main--home-vivid .marketing-hero--rank {
+  padding: 72px 28px 64px;
+}
+
+.marketing-main--home-vivid .home-cta-band {
+  margin-top: 0;
+}
+
+@media (max-width: 900px) {
+  .marketing-main--home-vivid .home-band {
+    padding: 40px 0;
+  }
+
+  .marketing-main--home-vivid .home-split,
+  .marketing-main--home-vivid .home-split--flip {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .marketing-main--home-vivid .home-split--flip .home-split-copy,
+  .marketing-main--home-vivid .home-split--flip .home-snap {
+    order: initial;
+  }
+
+  .marketing-main--home-vivid .home-snap,
+  .marketing-main--home-vivid .home-snap--wide {
+    max-width: none;
+  }
+
+  .marketing-main--home-vivid .home-compare {
+    grid-template-columns: 1fr;
+  }
+}

@@ -31,12 +31,12 @@ export const HOME_HERO = {
   },
 } as const
 
-/** Recognition — bank balance vs what's already committed */
+/** Recognition: bank balance vs what's already committed */
 export const HOME_NEED = {
   heading: "Your bank balance tells you what's in the account",
   lead: "It doesn't tell you what's already committed.",
   body: [
-    "Every business has money that's already spoken for — payroll, VAT, tax, rent, insurance, supplier payments, annual renewals and equipment replacements. The bank doesn't recognise any of those until the money actually leaves your account.",
+    "Every business has money that's already spoken for: payroll, VAT, tax, rent, insurance, supplier payments, annual renewals and equipment replacements. The bank doesn't recognise any of those until the money actually leaves your account.",
     "That's why so many business owners never quite trust the balance they're looking at. Before making almost any decision, they mentally work through everything that's coming before deciding what they can really afford.",
   ],
 } as const
@@ -50,17 +50,16 @@ export const HOME_DOES = {
   ],
 } as const
 
-/** Outcome — confidence from a balance you can trust */
+/** Outcome: confidence from a balance you can trust */
 export const HOME_OUTCOME = {
   heading: 'The result is confidence',
-  lead: "The result isn't another financial report.",
   beats: [
     'You know your commitments are already being accounted for.',
     "You know future costs are already building into today's position.",
     "You know the balance you're looking at reflects what your business can realistically afford.",
   ],
   closing:
-    'That means less second-guessing, fewer financial surprises and better decisions — less time worrying about cash, and more time running your business.',
+    'Less second-guessing, fewer financial surprises, and better decisions. Less time worrying about cash, and more time running your business.',
 } as const
 
 /** Positioning beside accounting and banking */
