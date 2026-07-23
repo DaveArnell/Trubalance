@@ -123,14 +123,14 @@ export const METHOD_THREE_PRINCIPLES = [
 export const METHOD_RESERVE_PLANNER = {
   title: 'How the Reserve Planner works',
   lead:
-    'Irregular bills like VAT, insurance and rates do not fit monthly accruing. The Reserve Planner turns them into a steady monthly transfer into your reserve account, so the money is waiting when the bill arrives.',
+    'Irregular bills like VAT, insurance and tax do not fit monthly accruing. The Reserve Planner turns them into a steady monthly transfer into a separate savings account — your reserve account — so the money is waiting when the bill arrives.',
   notSavings:
-    "This isn't simply putting money aside and forgetting it. It's a living funding plan that adjusts as your obligations change, and those monthly amounts feed into your everyday Available Balance.",
+    "This isn't money that stays in your current account. You keep a separate reserve savings account and transfer the planned amount into it each month. Those monthly transfers also feed into your everyday Available Balance.",
   steps: [
+    'Open a separate savings account for reserves.',
     'List your annual and irregular bills.',
-    'Cash Prophet spreads them across the year.',
-    'Each month you transfer the planned amount into the reserve.',
-    'Those amounts become part of your everyday financial position.',
+    'Cash Prophet spreads them into a monthly transfer amount.',
+    'Each month you move that amount into the reserve account.',
   ],
 } as const
 
@@ -138,17 +138,18 @@ export const METHOD_RESERVE_PLANNER = {
 export const METHOD_FIRST_SETUP = {
   heading: 'The first setup matters',
   lead: [
-    'The only part that takes a little thought is the beginning. Cash Prophet can only carry the mental load once it understands your business.',
+    'The only part that takes a little thought is the beginning. Cash Prophet can only carry the mental load once it understands your business — and once your money has somewhere clear to sit.',
   ],
   body: [
-    "During setup you'll list your regular monthly commitments, your annual bills and any other predictable costs. Most business owners already know these things — they've just never written them down in one place, and that process often gives a clearer picture of the business than they've had before.",
+    "You'll set up your business and accounts first. That includes a separate reserve savings account — not just another label on the current account. Cash Prophet tracks the planned monthly transfer into that account so VAT, tax and insurance are covered when they fall due.",
+    "Then you'll list your regular monthly commitments, your annual bills and any other predictable costs. Most business owners already know these things — they've just never written them down in one place.",
     "Once it's done, Cash Prophet takes over. From then on you're updating the picture, not rebuilding it from scratch every week.",
   ],
   timeline: [
-    'Know your bills',
-    'Build your commitments',
+    'Set up your business',
+    'Add a reserve savings account',
+    'List bills and commitments',
     'Cash Prophet takes over',
-    'Simple daily updates',
   ],
 } as const
 

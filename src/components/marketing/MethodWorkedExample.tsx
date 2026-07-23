@@ -22,8 +22,8 @@ export function MethodWorkedExample() {
     {
       tone: 'out' as const,
       op: '−',
-      label: 'Future reserves building',
-      hint: 'VAT, tax, insurance and other irregular bills — spread over time',
+      label: 'Monthly reserve transfer',
+      hint: 'What you move into the reserve savings account each month',
       value: ex.reservesBuilding,
     },
     {
@@ -46,7 +46,7 @@ export function MethodWorkedExample() {
     <div
       className="method-worked-example"
       role="img"
-      aria-label={`Bank balance ${ex.bankBalance}, minus monthly costs accrued ${ex.monthlyAccrued}, minus future reserves ${ex.reservesBuilding}, plus expected receipts ${ex.expectedReceipts}, equals what’s available ${ex.trueBalance}`}
+      aria-label={`Bank balance ${ex.bankBalance}, minus monthly costs accrued ${ex.monthlyAccrued}, minus monthly reserve transfer ${ex.reservesBuilding}, plus expected receipts ${ex.expectedReceipts}, equals what’s available ${ex.trueBalance}`}
     >
       {rows.map((row) => (
         <div key={row.label} className={`method-worked-example-row method-worked-example-row--${row.tone}`}>

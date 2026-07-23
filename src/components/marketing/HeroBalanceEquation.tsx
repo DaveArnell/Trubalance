@@ -36,7 +36,7 @@ export function HeroBalanceEquation() {
           </span>
           <div>
             <p className="hero-balance-equation-label">Committed money</p>
-            <p className="hero-balance-equation-hint">Monthly accruals + reserves building</p>
+            <p className="hero-balance-equation-hint">Monthly accruals + reserve transfers</p>
           </div>
         </div>
         <p className="hero-balance-equation-value">{committed}</p>

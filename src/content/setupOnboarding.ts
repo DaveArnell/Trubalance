@@ -29,7 +29,7 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     id: 'business',
     title: 'Your businesses and accounts.',
     explain:
-      'Add the businesses and venues you want to track, plus their bank accounts. Keep it simple — you can add more later.',
+      'Add the businesses and venues you want to track, plus their bank accounts.\n\nInclude a separate savings account for reserves — Cash Prophet needs somewhere real for the monthly VAT/tax transfers to go. Keep it simple; you can add more accounts later.',
   },
   {
     id: 'committed-explain',
@@ -65,9 +65,9 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
   },
   {
     id: 'reserve',
-    title: 'Reserve — money set aside.',
+    title: 'Reserve — a separate savings account.',
     explain:
-      'Some costs land in lumps — VAT, insurance, tax. The Reserve Planner turns those into a monthly transfer into savings, so the money is ready when the bill arrives.\n\nTry the check-in below: tick Transfer done, confirm, and you’ll see the new reserve balance.',
+      'Some costs land in lumps — VAT, insurance, tax. Keep those in a separate savings account (not your current account).\n\nThe Reserve Planner turns them into a monthly transfer amount. Each month you move that amount into the reserve account so the money is ready when the bill arrives.\n\nTry the check-in below: tick Transfer done, confirm, and you’ll see the new reserve balance.',
     page: 'reserve-planner',
     spotlight: '[data-tour="reserve-planner-month"]',
     skippable: true,

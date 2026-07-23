@@ -122,9 +122,9 @@ export function HowItWorksPage() {
             </div>
             <MethodWorkedExample />
             <p className="method-edu-prose method-edu-example-note">
-              Monthly costs already building, irregular bills funded through reserves, and only
-              receipts you can realistically rely on. The result is what&apos;s available for
-              day-to-day decisions.
+              Monthly costs already building, a monthly transfer into your reserve savings account
+              for irregular bills, and only receipts you can realistically rely on. The result is
+              what&apos;s available for day-to-day decisions.
             </p>
           </div>
         </section>
