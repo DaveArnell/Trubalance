@@ -38,8 +38,8 @@ export function BlogIndexPage() {
               honest.
             </p>
             <div className="blog-index-cta">
-              <Link to="/cash-prophet" className="btn-primary">
-                Why Cash Prophet works
+              <Link to="/how-it-works" className="btn-primary">
+                How it works
               </Link>
               <Link to="/see-how-it-works" className="btn-secondary">
                 See how it feels

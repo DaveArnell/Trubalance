@@ -1,8 +1,9 @@
 /** Shared copy for the Cash Prophet system. */
 
-export const METHOD_PAGE_PATH = '/cash-prophet' as const
+/** Former Why Cash Prophet URL — redirects home. Kept for old links. */
+export const METHOD_PAGE_PATH = '/' as const
 
-/** Legacy path — keep for redirects and old links. */
+/** Legacy path — redirects home. */
 export const METHOD_PAGE_PATH_LEGACY = '/true-balance-method' as const
 
 export const METHOD_BLOG_CATEGORY = 'Cash Prophet' as const
@@ -64,11 +65,11 @@ export const METHOD_WHO_NOT_FOR = [
 /** Primary marketing spine — two simple habits. */
 export const METHOD_TWO_HABITS = [
   {
-    id: 'daily',
-    title: 'Daily',
+    id: 'routine',
+    title: 'Daily to weekly',
     time: 'Light logging',
     lead: 'Keep the picture honest',
-    body: 'A short update is usually enough — Cash Prophet does the calculations from there.',
+    body: 'A short update when something changes is enough — for many businesses, once a week is plenty. Cash Prophet does the calculations from there.',
     tasks: [
       'Update balances when needed',
       'Mark payments paid',

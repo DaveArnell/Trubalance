@@ -5,7 +5,6 @@ import {
   MarketingShell,
 } from '../components/marketing/MarketingLayout'
 import { DEMO_SCENARIOS, DEMO_FROZEN_DATE_KEY } from '../data/demoScenarios'
-import { METHOD_PAGE_PATH } from '../content/trueBalanceMethod'
 import { SEE_HOW_SEO } from '../content/marketingSeo'
 import { usePageMeta } from '../hooks/usePageMeta'
 import { formatSnapshotDateLong } from '../utils/snapshots'
@@ -28,10 +27,7 @@ export function SeeHowItWorksPage() {
                 stable while you look around.
               </p>
               <p className="marketing-section-lead marketing-section-lead--home muted">
-                Prefer to understand why it works first?{' '}
-                <Link to={METHOD_PAGE_PATH}>Why Cash Prophet works</Link>
-                {' · '}
-                <Link to="/how-it-works">See how it works</Link>.
+                Prefer to understand the system first? <Link to="/how-it-works">See how it works</Link>.
               </p>
             </div>
 

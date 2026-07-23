@@ -130,8 +130,8 @@ export function BlogPostPage() {
               </>
             )}
             <div className="blog-index-cta">
-              <Link to="/cash-prophet" className="btn-ghost">
-                Why it works
+              <Link to="/how-it-works" className="btn-ghost">
+                How it works
               </Link>
               <Link to="/see-how-it-works" className="btn-primary">
                 Try demo

@@ -10,7 +10,6 @@ import { MethodWorkedExample } from '../components/marketing/MethodWorkedExample
 import { MarketingAccruingDemo } from '../components/marketing/MarketingAccruingDemo'
 import {
   METHOD_FIRST_SETUP,
-  METHOD_PAGE_PATH,
   METHOD_RESERVE_PLANNER,
   METHOD_SOFTWARE_HELPS,
   METHOD_THREE_PRINCIPLES,
@@ -44,11 +43,6 @@ export function HowItWorksPage() {
             <p className="method-edu-hero-lead">
               Cash Prophet isn&apos;t complicated. It follows a simple rhythm that keeps your
               business position accurate every day.
-            </p>
-            <p className="method-edu-mantra">
-              Still weighing it up?{' '}
-              <Link to={METHOD_PAGE_PATH}>Why Cash Prophet</Link> covers the problem and the
-              outcome.
             </p>
           </div>
         </header>
@@ -168,8 +162,8 @@ export function HowItWorksPage() {
             <div className="method-edu-section-head">
               <h2 id="habits-heading">Two light habits</h2>
               <p className="method-edu-section-lead">
-                A light daily check and a short monthly reserve review are enough to keep the
-                picture honest without turning it into another job.
+                A light check when something changes — daily or weekly — and a short monthly reserve
+                review are enough to keep the picture honest without turning it into another job.
               </p>
             </div>
             <div className="method-edu-habits">

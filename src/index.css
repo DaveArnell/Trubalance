@@ -25599,6 +25599,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .method-edu-timeline-step {
   background: var(--marketing-green) !important;
+  color: #fff !important;
 }
 
 .marketing-header {

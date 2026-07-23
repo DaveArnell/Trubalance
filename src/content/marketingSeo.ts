@@ -8,10 +8,10 @@ export const HOME_SEO = {
 } as const
 
 export const METHOD_SEO = {
-  title: 'Why Cash Prophet — The bank balance isn’t lying',
+  title: 'Cash Prophet — Finally, a balance you can trust',
   description:
-    "The bank balance isn't lying. It's just answering the wrong question. Cash Prophet keeps track of the commitments you're already carrying around in your head.",
-  path: '/cash-prophet',
+    "Cash Prophet continuously accounts for your business's financial commitments, so every day you have a reliable Available Balance that reflects where your business really stands.",
+  path: '/',
 } as const
 
 export const PRICING_SEO = {

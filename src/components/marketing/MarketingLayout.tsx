@@ -10,7 +10,6 @@ import { useMarketingReveal } from '../../hooks/useMarketingReveal'
 
 /** Primary nav follows the buying journey, not the site map. Habits & blog live in the footer. */
 const PRIMARY_NAV = [
-  { to: '/cash-prophet', label: 'Why Cash Prophet' },
   { to: '/how-it-works', label: 'How it works' },
   { to: '/who-its-for', label: 'Who it’s for' },
   { to: '/see-how-it-works', label: 'See it' },
@@ -103,7 +102,6 @@ export function MarketingFooter() {
           </div>
           <div>
             <p className="marketing-footer-heading">Learn</p>
-            <Link to="/cash-prophet">Why Cash Prophet</Link>
             <Link to="/how-it-works">How it works</Link>
             <Link to="/who-its-for">Who it’s for</Link>
             <Link to="/how-it-works#habits">Habits</Link>

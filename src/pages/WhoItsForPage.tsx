@@ -6,7 +6,6 @@ import {
 } from '../components/marketing/MarketingLayout'
 import {
   METHOD_CLARITY_QUESTIONS,
-  METHOD_PAGE_PATH,
   METHOD_WHO_FOR,
   METHOD_WHO_NOT_FOR,
 } from '../content/trueBalanceMethod'
@@ -56,9 +55,9 @@ export function WhoItsForPage() {
             </div>
 
             <p className="marketing-method-more">
-              Still exploring? <Link to={METHOD_PAGE_PATH}>Why Cash Prophet works</Link>
+              Still exploring? <Link to="/how-it-works">See how it works</Link>
               {' · '}
-              <Link to="/habits">See the daily routine</Link>
+              <Link to="/see-how-it-works">Try a demo</Link>
             </p>
 
             <div className="demo-scenarios-footer">

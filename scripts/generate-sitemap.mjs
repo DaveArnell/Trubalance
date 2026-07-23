@@ -27,7 +27,6 @@ const staticPages = [
   { loc: '/habits', priority: '0.8', changefreq: 'monthly' },
   { loc: '/who-its-for', priority: '0.8', changefreq: 'monthly' },
   { loc: '/see-how-it-works', priority: '0.9', changefreq: 'monthly' },
-  { loc: '/cash-prophet', priority: '0.9', changefreq: 'monthly' },
   { loc: '/signup', priority: '0.9', changefreq: 'monthly' },
   { loc: '/blog', priority: '0.9', changefreq: 'weekly' },
   { loc: '/privacy', priority: '0.3', changefreq: 'yearly' },
