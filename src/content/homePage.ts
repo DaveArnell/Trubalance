@@ -9,17 +9,17 @@ export const HOME_HERO = {
   headlineStart: 'Stop carrying your business finances',
   headlineHighlight: 'around in your head.',
   subheading: [
-    "You already know what's coming. Payroll. VAT. Rent. Insurance.",
+    "You already know what's coming — payroll, VAT, rent, insurance.",
     "Cash Prophet keeps track of those commitments for you, so you always know what's genuinely available to spend.",
   ],
-  note: 'Less stress. More confidence. One number you can trust.',
+  note: 'Less stress, more confidence, and one number you can trust.',
   compare: {
     bank: {
       label: 'Bank balance',
       showsLabel: 'Shows',
       shows: 'Money in the account today.',
       gapLabel: "Doesn't know",
-      gap: ['Payroll.', 'VAT.', 'Rent.', 'Insurance.'],
+      gap: ['Payroll', 'VAT', 'Rent', 'Insurance'],
     },
     prophet: {
       label: 'Cash Prophet',
@@ -33,9 +33,7 @@ export const HOME_HERO = {
 export const HOME_WHO_FOR = {
   heading: "You're not unusual for doing it",
   lead: [
-    'This is how most owner-managed businesses work.',
-    "You don't have a finance team watching every commitment.",
-    'So your bank balance becomes the quick check, and your head fills in the rest.',
+    "This is how most owner-managed businesses work. You don't have a finance team watching every commitment, so your bank balance becomes the quick check and your head fills in the rest.",
   ],
   points: [
     "You rely on your bank balance because it's the fastest thing to check",
@@ -50,30 +48,24 @@ export const HOME_WHO_FOR = {
 export const HOME_STRESS = {
   eyebrow: 'What that does to you',
   heading: 'Which is why opening the bank never feels settled',
-  lead: "You're not reading a number. You're arguing with yourself.",
+  lead: "You're not reading a number — you're arguing with yourself.",
   points: [
     {
       title: 'The balance looks fine',
       body: [
-        "There's money in the account.",
-        "But that isn't the same as money that's free to spend.",
+        "There's money in the account, but that isn't the same as money that's free to spend.",
       ],
     },
     {
       title: "But you already know what's coming",
       body: [
-        'Payroll.',
-        'Rent.',
-        'VAT.',
-        'Insurance.',
-        "Your brain starts subtracting before you've even closed the banking app.",
+        "Payroll, rent, VAT, insurance — your brain starts subtracting before you've even closed the banking app.",
       ],
     },
     {
       title: 'So you never quite relax',
       body: [
-        "That's why checking the bank never feels finished.",
-        "You're still trying to work out what's really available.",
+        "That's why checking the bank never feels finished. You're still trying to work out what's really available.",
       ],
     },
   ],
@@ -98,8 +90,7 @@ export const HOME_RELIEF = {
     {
       title: 'Everything feels calmer',
       body: [
-        'Nothing magical has happened.',
-        'You simply know where you stand.',
+        'Nothing magical has happened — you simply know where you stand.',
       ],
     },
   ],
@@ -109,13 +100,12 @@ export const HOME_RELIEF = {
 export const HOME_WHY_IT_WORKS = {
   heading: "It doesn't replace what you already trust",
   lead: [
-    "Cash Prophet isn't trying to replace your accountant or your bank.",
-    'It answers the question neither of them was designed to answer.',
+    "Cash Prophet isn't trying to replace your accountant or your bank. It answers the question neither of them was designed to answer.",
   ],
   items: [
     {
       title: 'Bookkeeping',
-      body: 'Looks after the past. What happened. What was owed. What got paid.',
+      body: 'Looks after the past — what happened, what was owed, what got paid.',
     },
     {
       title: 'Your bank balance',

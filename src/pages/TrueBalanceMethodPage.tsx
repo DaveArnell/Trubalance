@@ -22,19 +22,12 @@ export function TrueBalanceMethodPage() {
             <p className="method-edu-hero-lead">
               The bank balance isn&apos;t lying. It&apos;s just answering the wrong question.
             </p>
-            <p className="method-edu-prose">You open your banking app.</p>
-            <p className="method-edu-prose">The number looks fine.</p>
-            <p className="method-edu-prose">
-              But before you&apos;ve even put your phone down, you&apos;ve already started doing the
-              maths.
+            <p className="method-edu-prose method-edu-prose--lead">
+              You open your banking app and the number looks fine — but before you&apos;ve put your
+              phone down, you&apos;ve already started doing the maths. Payroll, rent, VAT, that
+              supplier invoice due next week, the insurance renewal. Nothing has changed in the
+              account, yet somehow the money already feels spoken for.
             </p>
-            <p className="method-edu-prose">Payroll.</p>
-            <p className="method-edu-prose">Rent.</p>
-            <p className="method-edu-prose">VAT.</p>
-            <p className="method-edu-prose">That supplier invoice due next week.</p>
-            <p className="method-edu-prose">The insurance renewal.</p>
-            <p className="method-edu-prose">Nothing has changed in the account.</p>
-            <p className="method-edu-prose">Yet somehow the money already feels spoken for.</p>
             <p className="method-edu-mantra">That&apos;s exactly what Cash Prophet fixes.</p>
           </div>
         </header>
@@ -46,19 +39,14 @@ export function TrueBalanceMethodPage() {
           <div className="method-edu-inner method-edu-inner--narrow">
             <h2 id="method-problem-heading">You already know what&apos;s coming</h2>
             <p className="method-edu-prose method-edu-prose--lead">
-              Every business owner does the same thing.
+              Every business owner does the same thing. You look at the bank balance, then start
+              subtracting everything you know is coming: can I afford this, will there still be
+              enough for payroll, have I remembered the VAT, what about that annual bill next month?
             </p>
-            <p className="method-edu-prose">You look at the bank balance.</p>
             <p className="method-edu-prose">
-              Then you start subtracting everything you know is coming.
+              The bank balance can&apos;t answer those questions, so your brain tries to — every time
+              you check it.
             </p>
-            <p className="method-edu-prose">Can I afford this?</p>
-            <p className="method-edu-prose">Will there still be enough for payroll?</p>
-            <p className="method-edu-prose">Have I remembered the VAT?</p>
-            <p className="method-edu-prose">What about that annual bill next month?</p>
-            <p className="method-edu-prose">The bank balance can&apos;t answer those questions.</p>
-            <p className="method-edu-prose">So your brain tries to.</p>
-            <p className="method-edu-prose">Every single time you check it.</p>
           </div>
         </section>
 
@@ -69,14 +57,11 @@ export function TrueBalanceMethodPage() {
           <div className="method-edu-inner method-edu-inner--narrow">
             <h2 id="method-outcome-heading">What changes?</h2>
             <p className="method-edu-prose method-edu-prose--lead">
-              Cash Prophet keeps track of those commitments for you.
+              Cash Prophet keeps track of those commitments for you. Instead of looking at the bank
+              balance and wondering what you&apos;ve forgotten, you look once and know what&apos;s
+              actually available — not because the bills have disappeared, but because they&apos;ve
+              already been taken into account.
             </p>
-            <p className="method-edu-prose">
-              Instead of looking at the bank balance and wondering what you&apos;ve forgotten, you
-              look once and know what&apos;s actually available.
-            </p>
-            <p className="method-edu-prose">Not because the bills have disappeared.</p>
-            <p className="method-edu-prose">Because they&apos;ve already been taken into account.</p>
             <div className="method-edu-compare method-edu-compare--after-list">
               <div className="method-edu-compare-card method-edu-compare-card--muted">
                 <p className="method-edu-compare-label">Without Cash Prophet</p>
@@ -103,18 +88,11 @@ export function TrueBalanceMethodPage() {
         >
           <div className="method-edu-inner method-edu-inner--narrow">
             <p className="method-edu-prose method-edu-prose--lead">
-              Cash Prophet doesn&apos;t make your business richer.
+              Cash Prophet doesn&apos;t make your business richer, make bills disappear, or predict
+              the future. It simply keeps track of the commitments you&apos;re already carrying
+              around in your head — so checking your bank balance becomes quick again. You look, you
+              understand it, and you move on.
             </p>
-            <p className="method-edu-prose">It doesn&apos;t make bills disappear.</p>
-            <p className="method-edu-prose">It doesn&apos;t predict the future.</p>
-            <p className="method-edu-prose">
-              It simply keeps track of the commitments you&apos;re already carrying around in your
-              head.
-            </p>
-            <p className="method-edu-prose">So checking your bank balance becomes quick again.</p>
-            <p className="method-edu-prose">You look.</p>
-            <p className="method-edu-prose">You understand it.</p>
-            <p className="method-edu-prose">You move on.</p>
           </div>
         </section>
 

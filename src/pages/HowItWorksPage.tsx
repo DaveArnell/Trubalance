@@ -42,9 +42,8 @@ export function HowItWorksPage() {
             <p className="marketing-how-eyebrow">How it works</p>
             <h1>From commitments to one number you can trust</h1>
             <p className="method-edu-hero-lead">
-              Cash Prophet isn&apos;t complicated.
-              <br />
-              It follows a simple rhythm that keeps your business position accurate every day.
+              Cash Prophet isn&apos;t complicated. It follows a simple rhythm that keeps your
+              business position accurate every day.
             </p>
             <p className="method-edu-mantra">
               Still weighing it up?{' '}
@@ -63,8 +62,8 @@ export function HowItWorksPage() {
             <div className="method-edu-section-head">
               <h2 id="principles-heading">How Cash Prophet works</h2>
               <p className="method-edu-section-lead">
-                Known costs build every day. Bigger irregular bills become monthly. One number stays
-                clear for decisions.
+                Known costs build every day, bigger irregular bills become monthly amounts, and one
+                number stays clear enough to make decisions from.
               </p>
             </div>
             <div className="method-edu-principles">
@@ -169,8 +168,8 @@ export function HowItWorksPage() {
             <div className="method-edu-section-head">
               <h2 id="habits-heading">Two light habits</h2>
               <p className="method-edu-section-lead">
-                A light daily check and a short monthly reserve review. That&apos;s enough to keep
-                the picture honest.
+                A light daily check and a short monthly reserve review are enough to keep the
+                picture honest without turning it into another job.
               </p>
             </div>
             <div className="method-edu-habits">

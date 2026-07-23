@@ -67,8 +67,8 @@ export const METHOD_TWO_HABITS = [
     id: 'daily',
     title: 'Daily',
     time: 'Light logging',
-    lead: 'Keep the picture honest.',
-    body: 'A short update is enough. Cash Prophet does the calculations.',
+    lead: 'Keep the picture honest',
+    body: 'A short update is usually enough — Cash Prophet does the calculations from there.',
     tasks: [
       'Update balances when needed',
       'Mark payments paid',
@@ -79,8 +79,8 @@ export const METHOD_TWO_HABITS = [
     id: 'monthly',
     title: 'Monthly',
     time: 'About 5 minutes',
-    lead: 'Review the Reserve Planner.',
-    body: 'Confirm the recommended transfer and stay on track for the year.',
+    lead: 'Review the Reserve Planner',
+    body: 'Confirm the recommended transfer so large bills stay funded through the year.',
     tasks: [
       'Review the Reserve Planner',
       'Confirm the recommended transfer',
@@ -91,7 +91,7 @@ export const METHOD_TWO_HABITS = [
 /** Live demo of continuous accrual. */
 export const METHOD_ACCRUING_DEMO = {
   heading: 'See known costs building',
-  lead: 'Rent and wages grow a little every day until payday.',
+  lead: 'Rent and wages grow a little every day until payday — so today’s position already includes what’s spoken for.',
 } as const
 
 /** How Cash Prophet works — three short pillars. */
@@ -100,21 +100,21 @@ export const METHOD_THREE_PRINCIPLES = [
     id: 'continuous-accrual',
     title: 'Daily financial clarity',
     lead: 'Known costs build every day, not only on payday.',
-    body: 'Payroll, rent and similar bills accrue continuously, so today’s position already shows money spoken for.',
+    body: 'Payroll, rent and similar bills accrue continuously, so today’s position already shows money spoken for — instead of waiting until the payment date to feel the hit.',
     examples: ['Payroll', 'Rent', 'Utilities', 'Subscriptions'],
   },
   {
     id: 'reserve-planning',
     title: 'Reserve Planner',
     lead: 'Large irregular bills become steady monthly amounts.',
-    body: 'VAT, insurance and similar costs are spread across the year, then included in your everyday position like any other commitment.',
+    body: 'VAT, insurance and similar costs are spread across the year, then included in your everyday position like any other commitment, so they stop arriving as a surprise.',
     examples: ['VAT', 'Corporation tax', 'Annual insurance'],
   },
   {
     id: 'one-decision-number',
     title: 'One number you can trust',
     lead: 'Available is what’s left after commitments already building.',
-    body: 'The bank balance stays as a reference. Cash Prophet shows what you can actually work with today.',
+    body: 'The bank balance stays as a reference. Cash Prophet shows what you can actually work with today, after the commitments you already know about.',
     examples: ['Purchases', 'Quiet months', 'Owner drawings'],
   },
 ] as const
@@ -122,7 +122,7 @@ export const METHOD_THREE_PRINCIPLES = [
 export const METHOD_RESERVE_PLANNER = {
   title: 'How the Reserve Planner works',
   notSavings:
-    "This isn't simply putting money aside every month. It's a living funding plan that adjusts as your obligations change.",
+    "This isn't simply putting money aside every month. It's a living funding plan that adjusts as your obligations change, and those monthly amounts feed into your everyday available figure.",
   steps: [
     'List your annual and irregular bills.',
     'Cash Prophet spreads them across the year.',
@@ -135,16 +135,11 @@ export const METHOD_RESERVE_PLANNER = {
 export const METHOD_FIRST_SETUP = {
   heading: 'The first setup matters',
   lead: [
-    'The only part that takes a little thought is the beginning.',
-    'Cash Prophet can only carry the mental load once it understands your business.',
+    'The only part that takes a little thought is the beginning. Cash Prophet can only carry the mental load once it understands your business.',
   ],
   body: [
-    "During setup you'll list your regular monthly commitments, your annual bills and any other predictable costs.",
-    'Most business owners already know these things.',
-    "They've just never written them down in one place.",
-    "That process often gives people a clearer picture of their business than they've ever had before.",
-    "Once it's done, Cash Prophet takes over.",
-    "From then on you're updating the picture, not rebuilding it.",
+    "During setup you'll list your regular monthly commitments, your annual bills and any other predictable costs. Most business owners already know these things — they've just never written them down in one place, and that process often gives a clearer picture of the business than they've had before.",
+    "Once it's done, Cash Prophet takes over. From then on you're updating the picture, not rebuilding it from scratch every week.",
   ],
   timeline: [
     'Know your bills',
