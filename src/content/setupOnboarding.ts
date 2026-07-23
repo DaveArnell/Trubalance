@@ -67,7 +67,7 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     id: 'reserve',
     title: 'Reserve — a separate savings account.',
     explain:
-      'Some costs land in lumps — VAT, insurance, tax. Keep those in a separate savings account (not your current account).\n\nThe Reserve Planner turns them into a monthly transfer amount. Each month you move that amount into the reserve account so the money is ready when the bill arrives.\n\nTry the check-in below: tick Transfer done, confirm, and you’ll see the new reserve balance.',
+      'Some costs land in lumps — VAT, insurance, tax. Keep those in a separate savings account (not your current account). A higher-interest savings account is ideal, so the money building for bigger bills earns something while it waits.\n\nThe Reserve Planner turns them into a monthly transfer amount. Each month you move that amount into the reserve account so the money is ready when the bill arrives.\n\nTry the check-in below: tick Transfer done, confirm, and you’ll see the new reserve balance.',
     page: 'reserve-planner',
     spotlight: '[data-tour="reserve-planner-month"]',
     skippable: true,

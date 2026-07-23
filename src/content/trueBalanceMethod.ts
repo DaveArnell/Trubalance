@@ -126,6 +126,7 @@ export const METHOD_RESERVE_PLANNER = {
     'Irregular bills like VAT, insurance and tax do not fit monthly accruing. The Reserve Planner turns them into a steady monthly transfer into a separate savings account — your reserve account — so the money is waiting when the bill arrives.',
   notSavings:
     "This isn't money that stays in your current account. You keep a separate reserve savings account and transfer the planned amount into it each month. Those monthly transfers also feed into your everyday Available Balance.",
+  tip: 'Ideally that reserve account is a proper savings account earning a decent interest rate — not another current account — so the money building for bigger bills is working for you while it waits.',
   steps: [
     'Open a separate savings account for reserves.',
     'List your annual and irregular bills.',

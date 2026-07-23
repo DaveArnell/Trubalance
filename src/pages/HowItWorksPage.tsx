@@ -105,6 +105,9 @@ export function HowItWorksPage() {
               ))}
             </ol>
             <p className="method-edu-prose method-edu-prose--center">{METHOD_RESERVE_PLANNER.notSavings}</p>
+            <p className="method-edu-prose method-edu-prose--center method-edu-prose--tip">
+              {METHOD_RESERVE_PLANNER.tip}
+            </p>
           </div>
         </section>
 

@@ -28276,6 +28276,16 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   text-align: center;
 }
 
+.method-edu-prose--tip {
+  margin-top: 0.75rem;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: rgba(13, 143, 91, 0.08);
+  border: 1px solid rgba(13, 143, 91, 0.16);
+  color: rgba(15, 27, 45, 0.78);
+  font-size: 0.98rem;
+}
+
 .method-edu-timeline--compact {
   max-width: 36rem;
   margin-left: auto;

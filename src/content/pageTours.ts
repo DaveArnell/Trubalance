@@ -259,7 +259,7 @@ export const RESERVE_PLANNER_INTRO_TOUR: PageTour = {
       id: 'rpi-create',
       target: '[data-tour="reserve-empty-create"]',
       title: 'Create your first plan',
-      body: 'Pick a business and its reserve savings account. Those need to exist in Settings first.\n\nOnce the plan is created, add bills to the grid and the outlook chart will start to show how the year looks.',
+      body: 'Pick a business and its reserve savings account. Those need to exist in Settings first. A proper higher-interest savings account is ideal — not another current account — so money waiting for bigger bills can earn something.\n\nOnce the plan is created, add bills to the grid and the outlook chart will start to show how the year looks.',
       placement: 'top',
     },
   ],
