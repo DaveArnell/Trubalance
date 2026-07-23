@@ -45,7 +45,7 @@ export const HOME_STRESS = {
     {
       title: "But you already know what's coming",
       body: [
-        "Payroll, rent, VAT, insurance — your brain starts subtracting before you've even closed the banking app.",
+        "You already know the bills on the horizon — payroll, VAT, rent and insurance — so your head starts subtracting before you've even closed the banking app.",
       ],
     },
     {
