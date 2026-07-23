@@ -1,22 +1,39 @@
+import { SetupAccruingCycleDemo } from '../onboarding/SetupAccruingCycleDemo'
+
 /**
- * Homepage product visuals — bank vs Available, told clearly.
+ * Homepage visuals that match the copy’s feeling:
+ * - Bank section = the unanswered questions after you check the balance
+ * - Does section = known costs building (same animation as How it works)
  */
+
+const MENTAL_QUESTIONS = [
+  'Can I afford this?',
+  'What’s already spoken for?',
+  'Have I allowed for VAT?',
+  'What about payroll next week?',
+  'Is that insurance renewal covered?',
+] as const
 
 export function HomeSpokenForPanel() {
   return (
-    <aside className="home-stage" aria-label="Why the bank balance is not enough">
-      <div className="home-stage-scene home-stage-scene--problem">
-        <p className="home-stage-kicker">What the bank shows</p>
-        <p className="home-stage-figure">£48,200</p>
-        <p className="home-stage-caption">Cash in the account today</p>
-        <div className="home-stage-fog" aria-hidden>
-          <span>Payroll?</span>
-          <span>VAT?</span>
-          <span>Rent?</span>
-          <span>Tax?</span>
-          <span>Insurance?</span>
+    <aside className="home-stage" aria-label="The questions behind a healthy bank balance">
+      <div className="home-mind">
+        <div className="home-mind-bank">
+          <p className="home-mind-kicker">Banking app</p>
+          <p className="home-mind-balance">£48,200</p>
+          <p className="home-mind-status">Looks fine</p>
         </div>
-        <p className="home-stage-punch">You still have to work the rest out yourself.</p>
+        <p className="home-mind-bridge" aria-hidden>
+          But before you put the phone down…
+        </p>
+        <ul className="home-mind-questions">
+          {MENTAL_QUESTIONS.map((question, index) => (
+            <li key={question} style={{ ['--q' as string]: index }}>
+              {question}
+            </li>
+          ))}
+        </ul>
+        <p className="home-mind-foot">The balance never answers those. Your head does.</p>
       </div>
     </aside>
   )
@@ -24,34 +41,17 @@ export function HomeSpokenForPanel() {
 
 export function HomeAvailablePanel() {
   return (
-    <aside className="home-stage" aria-label="Available Balance after commitments">
-      <div className="home-stage-scene home-stage-scene--answer">
-        <div className="home-stage-chrome" aria-hidden>
-          <span />
-          <span />
-          <span />
+    <aside className="home-stage home-stage--demo" aria-label="Known costs building toward Available">
+      <div className="home-accrue">
+        <p className="home-accrue-kicker">What Cash Prophet is doing</p>
+        <p className="home-accrue-title">Known costs building every day</p>
+        <div className="home-accrue-stage">
+          <SetupAccruingCycleDemo />
         </div>
-        <p className="home-stage-kicker home-stage-kicker--teal">Available Balance</p>
-        <p className="home-stage-figure home-stage-figure--teal">£19,450</p>
-        <p className="home-stage-caption">What you can rely on today</p>
-        <ul className="home-stage-ledger">
-          <li>
-            <span>Bank &amp; cash</span>
-            <strong>£48,200</strong>
-          </li>
-          <li>
-            <span>Known commitments</span>
-            <strong>−£22,100</strong>
-          </li>
-          <li>
-            <span>Reserves building</span>
-            <strong>−£6,650</strong>
-          </li>
-          <li className="home-stage-ledger-final">
-            <span>Available</span>
-            <strong>£19,450</strong>
-          </li>
-        </ul>
+        <p className="home-accrue-foot">
+          Regular bills and reserves build into today’s Available Balance — so you don’t have to keep
+          them in your head.
+        </p>
       </div>
     </aside>
   )
