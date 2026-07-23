@@ -25042,10 +25042,18 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   border-radius: 2px;
 }
 
+.marketing-hero-tagline {
+  margin: -8px 0 18px;
+  font-size: 1.05rem;
+  font-weight: 550;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
 .marketing-hero--rank h1 {
   margin: 0 0 22px;
-  max-width: 18ch;
-  font-size: clamp(2.25rem, 5vw, 3.5rem);
+  max-width: 12ch;
+  font-size: clamp(2.5rem, 5.5vw, 3.85rem);
   font-weight: 800;
   line-height: 1.02;
   letter-spacing: -0.04em;
@@ -25234,9 +25242,9 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .hero-graph-footnote {
   margin: 12px 0 0;
-  font-size: 1.05rem;
-  font-weight: 650;
-  line-height: 1.4;
+  font-size: 1rem;
+  font-weight: 550;
+  line-height: 1.45;
 }
 
 .hero-graph-footnote--bank {

@@ -45,6 +45,7 @@ export function LandingPage() {
           <div className="marketing-hero-rank-inner">
             <div className="marketing-hero-rank-copy">
               <p className="marketing-hero-rank-eyebrow">{HOME_HERO.eyebrow}</p>
+              <p className="marketing-hero-tagline">{HOME_HERO.tagline}</p>
               <h1>
                 {HOME_HERO.headlineStart}{' '}
                 <span className="marketing-hero-highlight">{HOME_HERO.headlineHighlight}</span>

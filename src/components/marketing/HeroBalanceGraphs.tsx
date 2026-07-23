@@ -1,3 +1,5 @@
+import { HOME_HERO } from '../../content/homePage'
+
 /**
  * Hero visual — bank balance (jagged, lump hits) vs Cash Prophet calm line.
  */
@@ -10,12 +12,14 @@ const BANK_DROPS = [
 ] as const
 
 export function HeroBalanceGraphs() {
+  const { bank, prophet } = HOME_HERO.graphs
+
   return (
-    <div className="hero-graphs" aria-label="Bank balance swings versus a calm Cash Prophet picture">
+    <div className="hero-graphs" aria-label="Bank balance versus Cash Prophet Available Balance">
       <figure className="hero-graph-card hero-graph-card--bank">
         <div className="hero-graph-header">
-          <p className="hero-graph-tag hero-graph-tag--bank">Bank balance</p>
-          <p className="hero-graph-title">Looks fine — until a bill lands</p>
+          <p className="hero-graph-tag hero-graph-tag--bank">{bank.tag}</p>
+          <p className="hero-graph-title">{bank.title}</p>
         </div>
         <svg
           className="hero-graph-svg"
@@ -46,7 +50,7 @@ export function HeroBalanceGraphs() {
             </g>
           ))}
         </svg>
-        <p className="hero-graph-footnote hero-graph-footnote--bank">Bills hit in big lumps on dates</p>
+        <p className="hero-graph-footnote hero-graph-footnote--bank">{bank.caption}</p>
       </figure>
 
       <p className="hero-graph-vs" aria-hidden>
@@ -55,14 +59,14 @@ export function HeroBalanceGraphs() {
 
       <figure className="hero-graph-card hero-graph-card--true">
         <div className="hero-graph-header">
-          <p className="hero-graph-tag hero-graph-tag--true">Cash Prophet</p>
-          <p className="hero-graph-title">What’s already committed, every day</p>
+          <p className="hero-graph-tag hero-graph-tag--true">{prophet.tag}</p>
+          <p className="hero-graph-title">{prophet.title}</p>
         </div>
         <svg
           className="hero-graph-svg"
           viewBox="0 0 440 120"
           role="img"
-          aria-label="Smooth Cash Prophet line, gently trending as commitments build daily"
+          aria-label="Smooth Cash Prophet line as commitments build into Available Balance"
         >
           <line x1="12" y1="98" x2="428" y2="98" className="hero-graph-axis" />
           <line x1="12" y1="64" x2="428" y2="64" className="hero-graph-gridline" />
@@ -80,9 +84,7 @@ export function HeroBalanceGraphs() {
             <circle key={x} cx={x} cy={66 - i * 3.2} r="4" className="hero-graph-day-dot" />
           ))}
         </svg>
-        <p className="hero-graph-footnote hero-graph-footnote--true">
-          Known costs build a little each day — not all at once
-        </p>
+        <p className="hero-graph-footnote hero-graph-footnote--true">{prophet.caption}</p>
       </figure>
     </div>
   )

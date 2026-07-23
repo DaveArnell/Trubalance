@@ -1,9 +1,9 @@
 /** SEO copy for public marketing routes (used with usePageMeta). */
 
 export const HOME_SEO = {
-  title: 'Cash Prophet — Know exactly what your business can safely afford today',
+  title: 'Cash Prophet — Finally, a balance you can trust',
   description:
-    "Cash Prophet continuously accounts for your business's financial commitments, giving you a reliable Available Balance you can trust for everyday decisions.",
+    "Cash Prophet continuously accounts for your business's financial commitments, so every day you have a reliable Available Balance that reflects where your business really stands.",
   path: '/',
 } as const
 

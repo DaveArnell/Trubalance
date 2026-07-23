@@ -5,16 +5,30 @@
 
 export const HOME_HERO = {
   eyebrow: 'Cash Prophet',
-  headline: 'Know exactly what your business can safely afford today.',
-  headlineStart: 'Know exactly what your business can',
-  headlineHighlight: 'safely afford today.',
+  tagline: "Your business's financial co-pilot.",
+  headline: 'Finally, a balance you can trust.',
+  headlineStart: 'Finally, a balance',
+  headlineHighlight: 'you can trust.',
   subheading: [
-    "Running a business shouldn't mean carrying every future bill around in your head.",
-    "Cash Prophet continuously accounts for your business's financial commitments, giving you a reliable Available Balance you can trust every day.",
-    "Instead of wondering whether you've remembered everything or mentally translating your bank balance, you simply see what your business can genuinely afford and make decisions with confidence.",
+    "Running a business means making decisions every day, but your bank balance only tells you how much money is in the account. It doesn't tell you how much has already been committed.",
+    "Cash Prophet continuously accounts for your business's financial commitments in the background, so every day you have a reliable Available Balance that reflects where your business really stands.",
+    "That means you can stop mentally keeping track of payroll, VAT, tax, rent, insurance and everything else that's still to come. You know it's already being accounted for, giving you the confidence to make decisions without constantly second-guessing your finances.",
   ],
   primaryCta: 'Start Free',
   secondaryCta: 'See How It Works',
+  graphs: {
+    bank: {
+      tag: 'Bank balance',
+      title: 'Looks healthy... until reality catches up.',
+      caption: 'Your bank balance only changes when money moves.',
+    },
+    prophet: {
+      tag: 'Cash Prophet',
+      title: 'Your commitments are already accounted for.',
+      caption:
+        "Future costs build into today's Available Balance, giving you a clearer picture of what your business can actually rely on.",
+    },
+  },
 } as const
 
 /** Recognition — bank balance vs what's already committed */
