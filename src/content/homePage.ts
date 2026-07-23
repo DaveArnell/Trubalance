@@ -1,124 +1,83 @@
 /**
- * Homepage marketing copy — recognition and invitation.
- * Methodology lives on /how-it-works. Persuasion depth on /cash-prophet.
+ * Homepage marketing copy — product first, then recognition, how, outcome.
  */
 
 export const HOME_HERO = {
   eyebrow: 'Cash Prophet',
-  headline: 'Stop carrying your business finances around in your head.',
-  headlineStart: 'Stop carrying your business finances',
-  headlineHighlight: 'around in your head.',
+  headline: 'Know exactly what your business can afford today.',
+  headlineStart: 'Know exactly what your business',
+  headlineHighlight: 'can afford today.',
   subheading: [
-    "You already know what's coming — payroll, VAT, rent, insurance.",
-    "Cash Prophet keeps track of those commitments for you, so you always know what's genuinely available to spend.",
+    'Your accountant tells you what happened. Your bank tells you what’s in the account. Cash Prophet tells you what you’ve actually got available after allowing for the commitments your business has already made.',
+    'Instead of mentally subtracting payroll, VAT, rent, insurance and everything else before making a decision, you see one number you can actually trust.',
   ],
-  note: 'Less stress, more confidence, and one number you can trust.',
+  primaryCta: 'Start free',
+  secondaryCta: 'See how it works',
 } as const
 
-/** Shared recognition — normalise the bank-check loop before introducing Cash Prophet */
-export const HOME_WHO_FOR = {
-  heading: "You're not unusual for doing it",
-  lead: [
-    "This is how most owner-managed businesses work. You don't have a finance team watching every commitment, so your bank balance becomes the quick check and your head fills in the rest.",
-  ],
-  points: [
-    "You rely on your bank balance because it's the fastest thing to check",
-    'You already know the big bills that are coming',
-    'You subtract them in your head every time you look',
-    "You'd rather spend time running the business than bookkeeping",
-    "You're not bad with money. You're carrying too much information in your head",
+/** Recognition — why the bank balance isn’t enough */
+export const HOME_NEED = {
+  heading: "Why business owners don't trust their bank balance",
+  body: [
+    'Opening your banking app should answer a simple question: can I afford this? Instead, you start thinking through payroll next week, VAT due soon, rent coming out, insurance renewing next month, and the supplier you’ve already promised to pay.',
+    'The bank balance doesn’t know any of that. So every decision starts with the same mental calculation — you work it out yourself before you trust the number on the screen.',
+    'That isn’t a bookkeeping problem. It’s an information problem.',
   ],
 } as const
 
-/** Why that loop creates stress */
-export const HOME_STRESS = {
-  eyebrow: 'What that does to you',
-  heading: 'Which is why opening the bank never feels settled',
-  lead: "You're not reading a number — you're arguing with yourself.",
-  points: [
-    {
-      title: 'The balance looks fine',
-      body: [
-        "There's money in the account, but that isn't the same as money that's free to spend.",
-      ],
-    },
-    {
-      title: "But you already know what's coming",
-      body: [
-        "You already know the bills on the horizon — payroll, VAT, rent and insurance — so your head starts subtracting before you've even closed the banking app.",
-      ],
-    },
-    {
-      title: 'So you never quite relax',
-      body: [
-        "That's why checking the bank never feels finished. You're still trying to work out what's really available.",
-      ],
-    },
+/** How Cash Prophet works */
+export const HOME_DOES = {
+  heading: 'What Cash Prophet does differently',
+  body: [
+    'Cash Prophet keeps track of those commitments for you. Regular bills build up every day instead of appearing as a surprise when they’re due. Annual costs are spread across the year using the Reserve Planner. Expected income is included when it’s realistic.',
+    'The result is one figure that reflects your real financial position today, not just your bank balance. That’s the number you use when deciding whether to spend, invest, recruit or wait.',
   ],
 } as const
 
-/** Relief: introduce Cash Prophet as the answer */
-export const HOME_RELIEF = {
-  eyebrow: 'What changes',
-  heading: 'Cash Prophet takes that loop off you',
-  lead: '',
-  points: [
-    {
-      title: 'The checklist leaves your head',
-      body: ["Cash Prophet remembers the commitments, so you don't have to."],
-    },
-    {
-      title: 'You stop doing the mental maths',
-      body: [
-        "Instead of decoding the bank balance, you see what's genuinely available.",
-      ],
-    },
-    {
-      title: 'Everything feels calmer',
-      body: [
-        'Nothing magical has happened — you simply know where you stand.',
-      ],
-    },
+/** Outcome */
+export const HOME_OUTCOME = {
+  heading: 'What changes',
+  body: [
+    'Before Cash Prophet, checking the bank starts another round of calculations. After Cash Prophet, the thinking has already been done.',
+    'You know your bills are being accounted for. You know your future costs are building in. You know what is genuinely available. You spend less time worrying about money and more time running the business.',
   ],
 } as const
 
-/** Why it works beside existing tools */
+/** Positioning beside existing tools */
 export const HOME_WHY_IT_WORKS = {
-  heading: "It doesn't replace what you already trust",
-  lead: [
-    "Cash Prophet isn't trying to replace your accountant or your bank. It answers the question neither of them was designed to answer.",
+  heading: 'Why it works',
+  body: [
+    'Cash Prophet doesn’t replace your accountant. It doesn’t replace your bookkeeping software. It doesn’t replace your bank. Each of those tools answers a different question.',
   ],
   items: [
     {
-      title: 'Bookkeeping',
-      body: 'Looks after the past — what happened, what was owed, what got paid.',
+      title: 'Your accountant',
+      body: 'Tells you how the business has performed.',
     },
     {
-      title: 'Your bank balance',
-      body: "Shows where money sits today. It can't tell you how much of it is already spoken for.",
+      title: 'Your bookkeeping',
+      body: 'Records what has happened.',
     },
     {
-      title: 'Cash Prophet',
-      body: 'Holds the commitments you know about, and shows what’s left to work with.',
+      title: 'Your bank',
+      body: 'Shows today’s cash balance.',
     },
   ],
+  close:
+    'Cash Prophet answers the question none of them answer: what can I actually afford today?',
 } as const
 
 export const HOME_FOUNDER = {
   eyebrow: 'Why I built this',
-  heading: 'I’ve lived with that bank-check worry for years',
+  heading: 'I built Cash Prophet because I had exactly this problem',
   body: [
-    'I built Cash Prophet because I was tired of second-guessing my own bank balance. The accounts were up to date and the business was healthy, but every time I opened the banking app I was still asking the same questions — can I afford this, what’s already spoken for, have I forgotten something?',
-    'For a long time I ran this method myself in spreadsheets. It worked, but it was slow, fiddly, and easy to let slip when the week got busy. I realised I wasn’t looking for another bookkeeping system. I just wanted one number I could trust, without rebuilding the picture by hand every time.',
-    'So I turned what I’d been doing into Cash Prophet: the same way of thinking, made more efficient and harder to get wrong — so checking the bank stops feeling like a second job.',
+    'Even with bookkeeping, accountants and banking apps, I still found myself checking the bank and mentally working through everything that was coming up before making even small decisions.',
+    'I realised the problem wasn’t a lack of financial information. It was that none of my tools kept track of the commitments I’d already made in a way that helped me make decisions today.',
+    'Cash Prophet is the tool I wish I’d had years ago.',
   ],
 } as const
 
 export const HOME_CTA = {
-  heading: 'Ready to stop carrying it around in your head?',
-  body: 'Start free today, or see Cash Prophet with a real business before you decide.',
+  heading: 'See what you’ve actually got available',
+  body: 'Cash Prophet keeps track of the money your business has already committed, so you get a number you can actually trust. Start free, or see how it works first.',
 } as const
-
-/** @deprecated aliases */
-export const HOME_WHAT_IT_DOES = HOME_RELIEF
-export const HOME_BANK_GAP = HOME_STRESS

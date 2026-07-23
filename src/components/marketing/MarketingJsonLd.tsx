@@ -45,7 +45,7 @@ export function homePageJsonLd() {
       name: COMPANY_INFO.productName,
       url: COMPANY_INFO.website,
       description:
-        'Cash Prophet helps UK business owners stop carrying future bills in their heads — organised known commitments, and one calm number for day-to-day confidence.',
+        'Cash Prophet keeps track of the money your business has already committed, so you know what you can actually afford today.',
       publisher: { '@type': 'Organization', name: COMPANY_INFO.legalName },
     },
     {

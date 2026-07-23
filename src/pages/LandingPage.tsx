@@ -10,11 +10,11 @@ import { HeroBalanceGraphs } from '../components/marketing/HeroBalanceGraphs'
 import { CompanyLegalNotice } from '../components/marketing/CompanyLegalNotice'
 import {
   HOME_CTA,
+  HOME_DOES,
   HOME_FOUNDER,
   HOME_HERO,
-  HOME_RELIEF,
-  HOME_STRESS,
-  HOME_WHO_FOR,
+  HOME_NEED,
+  HOME_OUTCOME,
   HOME_WHY_IT_WORKS,
 } from '../content/homePage'
 import { isSupabaseConfigured } from '../lib/supabase'
@@ -23,8 +23,7 @@ import { usePageMeta } from '../hooks/usePageMeta'
 import { homePageJsonLd, MarketingJsonLd } from '../components/marketing/MarketingJsonLd'
 
 /**
- * Homepage — recognition and invitation.
- * Deep methodology lives on How it works; persuasion depth on Why Cash Prophet.
+ * Homepage — what Cash Prophet gives you, why you need it, how, outcome.
  */
 export function LandingPage() {
   usePageMeta(HOME_SEO)
@@ -60,16 +59,15 @@ export function LandingPage() {
                   to="/signup"
                   className="btn-primary btn-large marketing-cta-primary marketing-cta-primary--rank"
                 >
-                  Get started
+                  {HOME_HERO.primaryCta}
                 </Link>
                 <Link
-                  to="/see-how-it-works"
+                  to="/how-it-works"
                   className="btn-secondary btn-large marketing-cta-secondary--rank"
                 >
-                  See how it feels
+                  {HOME_HERO.secondaryCta}
                 </Link>
               </div>
-              <p className="marketing-hero-rank-note">{HOME_HERO.note}</p>
               {!isSupabaseConfigured && (
                 <p className="marketing-config-hint">
                   Cloud signup needs Supabase in <code>.env.local</code>, or{' '}
@@ -84,88 +82,66 @@ export function LandingPage() {
         </section>
 
         <section
-          className="marketing-who-home marketing-surface--paper"
-          id="who"
-          aria-labelledby="who-home-heading"
+          className="marketing-bank-gap marketing-surface--panel"
+          id="why-bank-balance"
+          aria-labelledby="need-heading"
         >
           <div className="marketing-section-inner marketing-section-inner--home">
             <div className="marketing-section-head">
-              <h2 id="who-home-heading">{HOME_WHO_FOR.heading}</h2>
-              <div className="marketing-section-lead marketing-section-lead--home marketing-section-lead--stack">
-                {HOME_WHO_FOR.lead.map((paragraph) => (
+              <h2 id="need-heading">{HOME_NEED.heading}</h2>
+              <div className="marketing-section-lead marketing-section-lead--home marketing-section-lead--prose">
+                {HOME_NEED.body.map((paragraph) => (
                   <p key={paragraph}>{paragraph}</p>
                 ))}
               </div>
-            </div>
-            <ul className="marketing-who-home-grid">
-              {HOME_WHO_FOR.points.map((point) => (
-                <li key={point}>{point}</li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
-        <section
-          className="marketing-bank-gap marketing-surface--panel"
-          id="why-it-stresses"
-          aria-labelledby="stress-heading"
-        >
-          <div className="marketing-section-inner marketing-section-inner--home">
-            <div className="marketing-section-head">
-              <p className="marketing-how-eyebrow">{HOME_STRESS.eyebrow}</p>
-              <h2 id="stress-heading">{HOME_STRESS.heading}</h2>
-              <p className="marketing-section-lead marketing-section-lead--home">{HOME_STRESS.lead}</p>
-            </div>
-            <div className="marketing-bank-gap-rows">
-              {HOME_STRESS.points.map((item) => (
-                <div key={item.title} className="marketing-bank-gap-row">
-                  <h3>{item.title}</h3>
-                  <div className="marketing-bank-gap-row-body">
-                    {item.body.map((line) => (
-                      <p key={line}>{line}</p>
-                    ))}
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         </section>
 
         <section
           className="marketing-bank-gap marketing-surface--mist"
-          id="the-relief"
-          aria-labelledby="relief-heading"
+          id="what-it-does"
+          aria-labelledby="does-heading"
         >
           <div className="marketing-section-inner marketing-section-inner--home">
             <div className="marketing-section-head">
-              <p className="marketing-how-eyebrow">{HOME_RELIEF.eyebrow}</p>
-              <h2 id="relief-heading">{HOME_RELIEF.heading}</h2>
-            </div>
-            <div className="marketing-bank-gap-rows">
-              {HOME_RELIEF.points.map((item) => (
-                <div key={item.title} className="marketing-bank-gap-row">
-                  <h3>{item.title}</h3>
-                  <div className="marketing-bank-gap-row-body">
-                    {item.body.map((line) => (
-                      <p key={line}>{line}</p>
-                    ))}
-                  </div>
-                </div>
-              ))}
+              <h2 id="does-heading">{HOME_DOES.heading}</h2>
+              <div className="marketing-section-lead marketing-section-lead--home marketing-section-lead--prose">
+                {HOME_DOES.body.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </div>
             </div>
           </div>
         </section>
 
         <section
-          className="marketing-different-questions marketing-surface--paper"
+          className="marketing-bank-gap marketing-surface--paper"
+          id="what-changes"
+          aria-labelledby="outcome-heading"
+        >
+          <div className="marketing-section-inner marketing-section-inner--home">
+            <div className="marketing-section-head">
+              <h2 id="outcome-heading">{HOME_OUTCOME.heading}</h2>
+              <div className="marketing-section-lead marketing-section-lead--home marketing-section-lead--prose">
+                {HOME_OUTCOME.body.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section
+          className="marketing-different-questions marketing-surface--panel"
           id="why-it-works"
           aria-labelledby="why-heading"
         >
           <div className="marketing-section-inner marketing-section-inner--home">
             <div className="marketing-section-head">
               <h2 id="why-heading">{HOME_WHY_IT_WORKS.heading}</h2>
-              <div className="marketing-section-lead marketing-section-lead--home marketing-section-lead--stack">
-                {HOME_WHY_IT_WORKS.lead.map((paragraph) => (
+              <div className="marketing-section-lead marketing-section-lead--home marketing-section-lead--prose">
+                {HOME_WHY_IT_WORKS.body.map((paragraph) => (
                   <p key={paragraph}>{paragraph}</p>
                 ))}
               </div>
@@ -178,6 +154,9 @@ export function LandingPage() {
                 </article>
               ))}
             </div>
+            <p className="marketing-section-lead marketing-section-lead--home marketing-home-why-close">
+              {HOME_WHY_IT_WORKS.close}
+            </p>
           </div>
         </section>
 
@@ -210,10 +189,10 @@ export function LandingPage() {
             <p>{HOME_CTA.body}</p>
             <div className="marketing-cta-row marketing-cta-row--center">
               <Link to="/signup" className="btn-primary btn-large marketing-cta-btn-on-dark">
-                Get started
+                {HOME_HERO.primaryCta}
               </Link>
-              <Link to="/see-how-it-works" className="btn-ghost btn-large marketing-cta-ghost">
-                See how it feels
+              <Link to="/how-it-works" className="btn-ghost btn-large marketing-cta-ghost">
+                {HOME_HERO.secondaryCta}
               </Link>
             </div>
           </div>

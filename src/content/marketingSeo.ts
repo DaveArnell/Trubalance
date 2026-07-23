@@ -1,9 +1,9 @@
 /** SEO copy for public marketing routes (used with usePageMeta). */
 
 export const HOME_SEO = {
-  title: 'Cash Prophet — Stop carrying your business finances in your head',
+  title: 'Cash Prophet — Know exactly what your business can afford today',
   description:
-    'You already know what bills are coming. Cash Prophet keeps track of them for you, so checking the bank stops feeling like a test. Less stress. More confidence.',
+    'Cash Prophet keeps track of the commitments your business has already made, so you see one number you can actually trust — what you’ve genuinely got available today.',
   path: '/',
 } as const
 

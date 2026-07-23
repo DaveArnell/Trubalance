@@ -25044,8 +25044,8 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .marketing-hero--rank h1 {
   margin: 0 0 22px;
-  max-width: 14ch;
-  font-size: clamp(2.75rem, 6vw, 4.35rem);
+  max-width: 16ch;
+  font-size: clamp(2.4rem, 5.2vw, 3.75rem);
   font-weight: 800;
   line-height: 1.02;
   letter-spacing: -0.04em;
@@ -25069,10 +25069,17 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .marketing-hero--rank .marketing-lead {
   margin: 0 0 28px;
-  max-width: 42ch;
-  font-size: 1.22rem;
-  line-height: 1.6;
+  max-width: 48ch;
+  font-size: 1.12rem;
+  line-height: 1.65;
   color: var(--text-secondary);
+}
+
+.marketing-home-why-close {
+  margin-top: 28px !important;
+  max-width: 40rem;
+  font-weight: 600;
+  color: var(--marketing-ink, #101418);
 }
 
 .marketing-hero--rank .marketing-lead--stack {
