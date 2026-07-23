@@ -65,8 +65,6 @@ export const HOME_OUTCOME = {
 /** Positioning beside accounting and banking */
 export const HOME_WHY_IT_WORKS = {
   heading: 'Why Cash Prophet is different',
-  intro:
-    'Your accounting software records the past. Your bank shows today’s cash. Cash Prophet helps you make today’s decisions.',
   close:
     'By continuously accounting for your financial commitments, it gives you a clearer picture of what your business can safely afford right now. That’s why the Available Balance becomes the number you rely on instead of your bank balance.',
 } as const

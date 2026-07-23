@@ -148,7 +148,6 @@ export function LandingPage() {
           <div className="marketing-section-inner marketing-section-inner--home home-band-stack">
             <div className="home-band-head home-band-head--center">
               <h2 id="why-heading">{HOME_WHY_IT_WORKS.heading}</h2>
-              <p className="home-split-prose home-split-prose--intro">{HOME_WHY_IT_WORKS.intro}</p>
             </div>
             <HomeCompareStrip />
             <p className="home-split-prose home-why-close">{HOME_WHY_IT_WORKS.close}</p>

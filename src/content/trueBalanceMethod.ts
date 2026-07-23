@@ -122,13 +122,15 @@ export const METHOD_THREE_PRINCIPLES = [
 
 export const METHOD_RESERVE_PLANNER = {
   title: 'How the Reserve Planner works',
+  lead:
+    'Irregular bills like VAT, insurance and rates do not fit monthly accruing. The Reserve Planner turns them into a steady monthly transfer into your reserve account, so the money is waiting when the bill arrives.',
   notSavings:
-    "This isn't simply putting money aside every month. It's a living funding plan that adjusts as your obligations change, and those monthly amounts feed into your everyday available figure.",
+    "This isn't simply putting money aside and forgetting it. It's a living funding plan that adjusts as your obligations change, and those monthly amounts feed into your everyday Available Balance.",
   steps: [
     'List your annual and irregular bills.',
     'Cash Prophet spreads them across the year.',
-    'It recommends what your reserve account should contain each month.',
-    'Those monthly amounts automatically become part of your everyday financial position.',
+    'Each month you transfer the planned amount into the reserve.',
+    'Those amounts become part of your everyday financial position.',
   ],
 } as const
 

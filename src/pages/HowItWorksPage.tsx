@@ -7,6 +7,7 @@ import {
   scrollToMarketingSection,
 } from '../components/marketing/MarketingLayout'
 import { MethodWorkedExample } from '../components/marketing/MethodWorkedExample'
+import { MethodReservePlannerVisual } from '../components/marketing/MethodReservePlannerVisual'
 import { MarketingAccruingDemo } from '../components/marketing/MarketingAccruingDemo'
 import {
   METHOD_FIRST_SETUP,
@@ -87,9 +88,13 @@ export function HowItWorksPage() {
           aria-labelledby="reserve-heading"
           id="reserve-planner"
         >
-          <div className="method-edu-inner method-edu-inner--narrow">
-            <h2 id="reserve-heading">{METHOD_RESERVE_PLANNER.title}</h2>
-            <ol className="method-edu-timeline">
+          <div className="method-edu-inner">
+            <div className="method-edu-section-head">
+              <h2 id="reserve-heading">{METHOD_RESERVE_PLANNER.title}</h2>
+              <p className="method-edu-section-lead">{METHOD_RESERVE_PLANNER.lead}</p>
+            </div>
+            <MethodReservePlannerVisual />
+            <ol className="method-edu-timeline method-edu-timeline--compact">
               {METHOD_RESERVE_PLANNER.steps.map((step, index) => (
                 <li key={step}>
                   <span className="method-edu-timeline-step" aria-hidden>
@@ -99,7 +104,7 @@ export function HowItWorksPage() {
                 </li>
               ))}
             </ol>
-            <p className="method-edu-prose">{METHOD_RESERVE_PLANNER.notSavings}</p>
+            <p className="method-edu-prose method-edu-prose--center">{METHOD_RESERVE_PLANNER.notSavings}</p>
           </div>
         </section>
 
