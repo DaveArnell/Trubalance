@@ -12756,10 +12756,10 @@ tr.sheet-row--received td {
 /* ─── Marketing / auth / platform admin ─────────────────────── */
 
 .marketing-shell {
-  --marketing-paper: #f7f5ef;
-  --marketing-ink: #101418;
-  --marketing-green: #0e7a52;
-  --marketing-green-dark: #0a5c3e;
+  --marketing-paper: #f4f7fb;
+  --marketing-ink: #0f1b2d;
+  --marketing-green: #2563eb;
+  --marketing-green-dark: #1d4ed8;
   --marketing-highlight: rgba(14, 122, 82, 0.14);
 
   height: 100vh;
@@ -24729,10 +24729,10 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 /* ─── Homepage theme — warm paper, ink, green. No grid, no purple AI cards. ─── */
 .marketing-shell {
-  --marketing-paper: #f7f5ef;
-  --marketing-ink: #101418;
-  --marketing-green: #0e7a52;
-  --marketing-green-dark: #0a5c3e;
+  --marketing-paper: #f4f7fb;
+  --marketing-ink: #0f1b2d;
+  --marketing-green: #2563eb;
+  --marketing-green-dark: #1d4ed8;
   --marketing-highlight: rgba(14, 122, 82, 0.14);
 }
 
@@ -26291,13 +26291,13 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 /* ─── Marketing design reset — Fraunces/Figtree, left axis, bold contrast ─── */
 
 .marketing-shell {
-  --marketing-paper: #f3efe6;
-  --marketing-ink: #0c1210;
-  --marketing-green: #0d8f5b;
-  --marketing-green-dark: #086644;
-  --marketing-highlight: rgba(13, 143, 91, 0.16);
-  --marketing-display: 'Fraunces', Georgia, 'Times New Roman', serif;
-  --marketing-sans: 'Figtree', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --marketing-paper: #f4f7fb;
+  --marketing-ink: #0f1b2d;
+  --marketing-green: #2563eb;
+  --marketing-green-dark: #1d4ed8;
+  --marketing-highlight: rgba(37, 99, 235, 0.12);
+  --marketing-display: 'Space Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --marketing-sans: 'Manrope', 'Plus Jakarta Sans', system-ui, sans-serif;
   font-family: var(--marketing-sans);
   background:
     radial-gradient(ellipse 80% 50% at 0% 0%, rgba(13, 143, 91, 0.14), transparent 50%),
@@ -26346,37 +26346,8 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   color: var(--marketing-ink);
 }
 
-/* Kill the old centred-document marketing composition */
-.marketing-shell .marketing-section-head,
-.marketing-shell .marketing-section-head--center,
-.marketing-main--home .marketing-section-head,
-.marketing-main--home-vivid .marketing-section-head,
-.marketing-main--home-vivid .home-band-head,
-.marketing-main--home-vivid .home-split-copy,
-.marketing-main--home-vivid .home-founder,
-.demo-scenarios-head,
-.blog-index-header,
-.method-edu-section-head,
-.method-edu-hero {
-  text-align: left !important;
-}
-
-.marketing-shell .marketing-how-eyebrow,
-.marketing-shell .marketing-eyebrow,
-.marketing-main--home .marketing-how-eyebrow,
-.marketing-hero-rank-eyebrow,
-.blog-index-header .marketing-how-eyebrow,
-.home-founder .marketing-how-eyebrow {
-  justify-content: flex-start !important;
-}
-
-.marketing-shell .marketing-section-lead,
-.marketing-section-lead--home,
-.blog-index-lead,
-.method-edu-hero-lead,
-.method-edu-section-lead {
-  margin-left: 0 !important;
-  margin-right: 0 !important;
+/* Homepage hero/split copy stays left; centred pages keep centred heads */
+.marketing-main--home-vivid .home-split-copy {
   text-align: left !important;
 }
 
@@ -26384,8 +26355,11 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   text-align: left !important;
 }
 
-.marketing-hero-rank-copy .marketing-cta-row,
-.marketing-main--home-vivid .marketing-cta-row {
+.marketing-hero-rank-eyebrow {
+  justify-content: flex-start !important;
+}
+
+.marketing-hero-rank-copy .marketing-cta-row {
   justify-content: flex-start !important;
 }
 
@@ -26393,14 +26367,6 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .marketing-hero--rank .marketing-lead {
   margin-left: 0 !important;
   margin-right: 0 !important;
-}
-
-.marketing-main--home-vivid .home-band-head,
-.marketing-main--home-vivid .home-why-close,
-.marketing-main--home-vivid .home-outcome-close,
-.home-founder {
-  margin-left: 0 !important;
-  margin-right: auto !important;
 }
 
 /* Dark cinematic hero */
@@ -27672,4 +27638,316 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   .marketing-main--home-vivid .home-compare {
     grid-template-columns: 1fr;
   }
+}
+
+/* ─── Marketing theme v3 — cool slate + blue, Space Grotesk / Manrope ─── */
+
+.marketing-shell {
+  --marketing-paper: #f4f7fb;
+  --marketing-ink: #0f1b2d;
+  --marketing-green: #2563eb;
+  --marketing-green-dark: #1d4ed8;
+  --marketing-highlight: rgba(37, 99, 235, 0.12);
+  --marketing-display: 'Space Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --marketing-sans: 'Manrope', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --marketing-wash: #e7eef8;
+  --marketing-line: rgba(15, 27, 45, 0.08);
+  font-family: var(--marketing-sans);
+  background:
+    radial-gradient(ellipse 70% 45% at 100% 0%, rgba(37, 99, 235, 0.12), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 0% 20%, rgba(14, 165, 233, 0.08), transparent 50%),
+    var(--marketing-paper);
+  color: var(--marketing-ink);
+}
+
+.marketing-shell h1,
+.marketing-shell h2,
+.marketing-shell h3,
+.marketing-shell .marketing-logo,
+.marketing-shell .hero-graph-title,
+.marketing-shell .home-stage-figure,
+.marketing-shell .home-compare-body,
+.marketing-shell .home-outcome-num,
+.marketing-shell .method-edu-hero h1,
+.marketing-shell .method-edu-section-head h2,
+.marketing-shell .method-edu-section h2 {
+  font-family: var(--marketing-display);
+  font-optical-sizing: auto;
+}
+
+.marketing-header {
+  background: rgba(244, 247, 251, 0.86) !important;
+  border-bottom: 1px solid var(--marketing-line) !important;
+  backdrop-filter: blur(16px);
+}
+
+.marketing-logo-mark {
+  background: linear-gradient(145deg, #2563eb, #1d4ed8) !important;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.28);
+}
+
+.marketing-nav a {
+  font-weight: 600;
+  color: rgba(15, 27, 45, 0.68);
+}
+
+.marketing-nav a:hover {
+  color: var(--marketing-ink);
+}
+
+/* Centred composition restored for method / blog / section pages */
+.marketing-shell .marketing-section-head,
+.marketing-shell .marketing-section-head--center,
+.demo-scenarios-head,
+.blog-index-header,
+.method-edu-section-head,
+.method-edu-hero {
+  text-align: center !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.marketing-shell .marketing-how-eyebrow,
+.marketing-shell .marketing-eyebrow,
+.blog-index-header .marketing-how-eyebrow,
+.method-edu-hero .marketing-how-eyebrow {
+  justify-content: center !important;
+}
+
+.marketing-shell .marketing-section-lead,
+.blog-index-lead,
+.method-edu-hero-lead,
+.method-edu-section-lead {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  text-align: center !important;
+}
+
+.method-edu-hero h1 {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  max-width: 18ch;
+}
+
+.method-edu-section-head {
+  max-width: 40rem;
+}
+
+.method-edu-prose {
+  text-align: left;
+}
+
+/* First-setup chips: centred path */
+.method-edu-inner--narrow > .method-setup-timeline,
+.method-setup-timeline {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  align-items: center !important;
+  max-width: 22rem;
+}
+
+.method-setup-timeline li {
+  justify-content: center;
+}
+
+.method-setup-timeline li:not(:last-child)::after {
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--marketing-green);
+}
+
+.method-setup-timeline li span {
+  border-color: rgba(37, 99, 235, 0.22);
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(15, 27, 45, 0.04);
+}
+
+/* Method surfaces */
+.method-edu-hero {
+  background:
+    radial-gradient(ellipse 60% 70% at 80% 0%, rgba(37, 99, 235, 0.16), transparent 55%),
+    #0b1220 !important;
+  color: #f4f7fb;
+  border-bottom: none;
+  text-align: center !important;
+  padding: 72px 24px 56px;
+}
+
+.method-edu-hero h1 {
+  color: #fff !important;
+}
+
+.method-edu-hero-lead {
+  color: rgba(244, 247, 251, 0.72) !important;
+  max-width: 40rem;
+}
+
+.method-edu-hero .marketing-how-eyebrow {
+  color: #7dd3fc;
+}
+
+.method-edu-section {
+  padding: 52px 0;
+}
+
+.marketing-surface--paper,
+.method-edu-section.marketing-surface--paper {
+  background: #fff !important;
+}
+
+.marketing-surface--mist,
+.method-edu-section.marketing-surface--mist {
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 0%, rgba(37, 99, 235, 0.08), transparent 60%),
+    var(--marketing-wash) !important;
+}
+
+.marketing-surface--panel,
+.method-edu-section.marketing-surface--panel {
+  background: #f8fafc !important;
+}
+
+.marketing-surface--ink-soft,
+.method-edu-section.marketing-surface--ink-soft {
+  background:
+    radial-gradient(ellipse 50% 60% at 100% 0%, rgba(37, 99, 235, 0.22), transparent 55%),
+    #0b1220 !important;
+  color: #f4f7fb;
+}
+
+.marketing-surface--ink-soft .method-edu-section-head h2,
+.marketing-surface--ink-soft .method-edu-section-lead,
+.marketing-surface--ink-soft h3 {
+  color: #f4f7fb;
+}
+
+.marketing-surface--ink-soft .method-edu-section-lead,
+.marketing-surface--ink-soft .muted,
+.marketing-surface--ink-soft p {
+  color: rgba(244, 247, 251, 0.72);
+}
+
+.method-edu-principle-card,
+.method-edu-habit-card,
+.method-edu-software-card {
+  background: #fff;
+  border: 1px solid var(--marketing-line);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(15, 27, 45, 0.05);
+}
+
+.method-edu-principle-num,
+.method-edu-habit-meta,
+.method-edu-timeline-step {
+  color: var(--marketing-green) !important;
+}
+
+.method-edu-timeline-step {
+  background: var(--marketing-green) !important;
+  color: #fff !important;
+}
+
+.method-edu-chip-list li {
+  background: rgba(37, 99, 235, 0.08);
+  border-color: rgba(37, 99, 235, 0.16);
+  color: #1e3a8a;
+}
+
+.method-edu-mantra {
+  border-top-color: var(--marketing-green);
+}
+
+.method-edu-cta {
+  background:
+    radial-gradient(ellipse 60% 70% at 70% 0%, rgba(37, 99, 235, 0.35), transparent 55%),
+    #0b1220;
+  color: #f4f7fb;
+  text-align: center;
+}
+
+/* Home: match new palette */
+.marketing-main--home-vivid {
+  --home-ink: #0f1b2d;
+  --home-muted: rgba(15, 27, 45, 0.62);
+  --home-line: rgba(15, 27, 45, 0.08);
+  --home-green: #2563eb;
+  --home-paper: #f4f7fb;
+  --home-wash: #e7eef8;
+  --home-teal: #2563eb;
+  --home-teal-mid: #3b82f6;
+}
+
+.marketing-main--home-vivid .marketing-hero--rank {
+  background:
+    radial-gradient(ellipse 55% 70% at 85% 15%, rgba(37, 99, 235, 0.4), transparent 55%),
+    radial-gradient(ellipse 40% 50% at 10% 90%, rgba(14, 165, 233, 0.12), transparent 50%),
+    #0b1220 !important;
+  color: #f4f7fb;
+}
+
+.marketing-main--home-vivid .marketing-hero-rank-eyebrow {
+  color: #7dd3fc;
+}
+
+.marketing-main--home-vivid .marketing-hero-highlight {
+  background: linear-gradient(120deg, #93c5fd, #2563eb);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.marketing-main--home-vivid .marketing-cta-primary--rank {
+  background: #2563eb;
+  border-color: #2563eb;
+  box-shadow: 0 12px 28px rgba(37, 99, 235, 0.35);
+}
+
+.marketing-main--home-vivid .home-band--paper {
+  background: #fff;
+}
+
+.marketing-main--home-vivid .home-band--wash {
+  background: var(--home-wash);
+}
+
+.marketing-main--home-vivid .home-dash-available,
+.marketing-main--home-vivid .home-snap-label--teal,
+.marketing-main--home-vivid .home-outcome-num,
+.marketing-main--home-vivid .home-compare-col--accent .home-compare-tag,
+.marketing-main--home-vivid .home-compare-highlight {
+  color: #2563eb;
+}
+
+.marketing-main--home-vivid .home-compare-col--accent {
+  box-shadow: inset 0 3px 0 #2563eb;
+}
+
+.marketing-main--home-vivid .home-cta-band,
+.home-cta-band {
+  background:
+    radial-gradient(ellipse 70% 70% at 80% 0%, rgba(37, 99, 235, 0.4), transparent 55%),
+    #0b1220;
+}
+
+/* Pricing / auth / shared CTA greens → blue via vars already; polish footer */
+.marketing-footer {
+  background: #0b1220;
+  color: rgba(244, 247, 251, 0.72);
+}
+
+.marketing-cta-band--pop {
+  background:
+    radial-gradient(ellipse 60% 70% at 30% 0%, rgba(37, 99, 235, 0.35), transparent 55%),
+    #0b1220;
+}
+
+.btn-primary.marketing-cta-primary,
+.marketing-shell .btn-primary {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.marketing-shell .btn-primary:hover {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
 }
