@@ -1,39 +1,25 @@
-import { SetupAccruingCycleDemo } from '../onboarding/SetupAccruingCycleDemo'
-
 /**
- * Homepage visuals that match the copy’s feeling:
- * - Bank section = the unanswered questions after you check the balance
- * - Does section = known costs building (same animation as How it works)
+ * Homepage visuals — light, dashboard-faithful snapshots (no brown banking mock, no live animation).
  */
 
-const MENTAL_QUESTIONS = [
-  'Can I afford this?',
-  'What’s already spoken for?',
-  'Have I allowed for VAT?',
-  'What about payroll next week?',
-  'Is that insurance renewal covered?',
+const BUILDING = [
+  { name: 'Rent', monthly: '£2,500 / mo', accrued: '£2,150', progress: 0.86, accent: '#0369a1' },
+  { name: 'Utilities', monthly: '£420 / mo', accrued: '£230', progress: 0.55, accent: '#0f766e' },
+  { name: 'Wages', monthly: '£8,400 / mo', accrued: '£1,680', progress: 0.2, accent: '#0d8f5b' },
 ] as const
 
 export function HomeSpokenForPanel() {
   return (
-    <aside className="home-stage" aria-label="The questions behind a healthy bank balance">
-      <div className="home-mind">
-        <div className="home-mind-bank">
-          <p className="home-mind-kicker">Banking app</p>
-          <p className="home-mind-balance">£48,200</p>
-          <p className="home-mind-status">Looks fine</p>
-        </div>
-        <p className="home-mind-bridge" aria-hidden>
-          But before you put the phone down…
+    <aside className="home-snap" aria-label="Bank balance does not show what is free to spend">
+      <div className="home-snap-card">
+        <p className="home-snap-label">Bank balance</p>
+        <p className="home-snap-big">£48,200</p>
+        <p className="home-snap-sub">In the account today</p>
+        <div className="home-snap-divider" />
+        <p className="home-snap-question">How much of that can you actually spend?</p>
+        <p className="home-snap-hint">
+          The bank can’t say. Payroll, VAT, rent and the rest are still only in your head.
         </p>
-        <ul className="home-mind-questions">
-          {MENTAL_QUESTIONS.map((question, index) => (
-            <li key={question} style={{ ['--q' as string]: index }}>
-              {question}
-            </li>
-          ))}
-        </ul>
-        <p className="home-mind-foot">The balance never answers those. Your head does.</p>
       </div>
     </aside>
   )
@@ -41,17 +27,37 @@ export function HomeSpokenForPanel() {
 
 export function HomeAvailablePanel() {
   return (
-    <aside className="home-stage home-stage--demo" aria-label="Known costs building toward Available">
-      <div className="home-accrue">
-        <p className="home-accrue-kicker">What Cash Prophet is doing</p>
-        <p className="home-accrue-title">Known costs building every day</p>
-        <div className="home-accrue-stage">
-          <SetupAccruingCycleDemo />
+    <aside className="home-snap home-snap--wide" aria-label="Dashboard snapshot of Available and building costs">
+      <div className="home-dash">
+        <div className="home-dash-hero">
+          <p className="home-snap-label home-snap-label--teal">Available</p>
+          <p className="home-dash-available">£19,450</p>
+          <p className="home-snap-sub">After commitments already building</p>
         </div>
-        <p className="home-accrue-foot">
-          Regular bills and reserves build into today’s Available Balance — so you don’t have to keep
-          them in your head.
-        </p>
+
+        <div className="home-dash-building">
+          <p className="home-dash-building-label">Known costs building</p>
+          <ul className="home-dash-rows">
+            {BUILDING.map((item) => (
+              <li key={item.name}>
+                <div className="home-dash-row-top">
+                  <span className="home-dash-name">{item.name}</span>
+                  <span className="home-dash-accrued">{item.accrued}</span>
+                </div>
+                <div className="home-dash-bar" aria-hidden>
+                  <span
+                    className="home-dash-bar-fill"
+                    style={{
+                      width: `${Math.round(item.progress * 100)}%`,
+                      background: item.accent,
+                    }}
+                  />
+                </div>
+                <p className="home-dash-meta">{item.monthly}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </aside>
   )

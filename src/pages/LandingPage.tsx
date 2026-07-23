@@ -108,12 +108,12 @@ export function LandingPage() {
         </section>
 
         <section
-          className="home-band home-band--ink"
+          className="home-band home-band--mist"
           id="what-it-does"
           aria-labelledby="does-heading"
         >
           <div className="marketing-section-inner marketing-section-inner--home home-does">
-            <div className="home-split-copy home-split-copy--on-ink home-does-copy">
+            <div className="home-split-copy home-does-copy">
               <h2 id="does-heading">{HOME_DOES.heading}</h2>
               {HOME_DOES.body.map((paragraph) => (
                 <p key={paragraph} className="home-split-prose">
