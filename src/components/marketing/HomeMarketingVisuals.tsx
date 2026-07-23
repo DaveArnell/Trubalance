@@ -1,32 +1,22 @@
 /**
- * Homepage product visuals — echo the in-app Available / spoken-for language.
+ * Homepage product visuals — bank vs Available, told clearly.
  */
-
-const SPOKEN_FOR = [
-  'Payroll',
-  'VAT',
-  'Tax',
-  'Rent',
-  'Insurance',
-  'Suppliers',
-] as const
 
 export function HomeSpokenForPanel() {
   return (
-    <aside className="home-viz home-viz--spoken" aria-label="Bank balance versus money already spoken for">
-      <div className="home-viz-card home-viz-card--bank">
-        <p className="home-viz-label">Bank balance</p>
-        <p className="home-viz-amount">£48,200</p>
-        <p className="home-viz-note">Looks fine on the screen</p>
-      </div>
-      <div className="home-viz-card home-viz-card--spoken">
-        <p className="home-viz-label home-viz-label--warn">Already spoken for</p>
-        <ul className="home-viz-chips">
-          {SPOKEN_FOR.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-        <p className="home-viz-note">The bank doesn’t know until it leaves</p>
+    <aside className="home-stage" aria-label="Why the bank balance is not enough">
+      <div className="home-stage-scene home-stage-scene--problem">
+        <p className="home-stage-kicker">What the bank shows</p>
+        <p className="home-stage-figure">£48,200</p>
+        <p className="home-stage-caption">Cash in the account today</p>
+        <div className="home-stage-fog" aria-hidden>
+          <span>Payroll?</span>
+          <span>VAT?</span>
+          <span>Rent?</span>
+          <span>Tax?</span>
+          <span>Insurance?</span>
+        </div>
+        <p className="home-stage-punch">You still have to work the rest out yourself.</p>
       </div>
     </aside>
   )
@@ -34,37 +24,34 @@ export function HomeSpokenForPanel() {
 
 export function HomeAvailablePanel() {
   return (
-    <aside className="home-viz home-viz--available" aria-label="Available Balance after commitments">
-      <div className="home-viz-app">
-        <div className="home-viz-app-bar">
-          <span className="home-viz-app-dot" aria-hidden />
-          <span className="home-viz-app-dot" aria-hidden />
-          <span className="home-viz-app-dot" aria-hidden />
-          <span className="home-viz-app-title">Cash Prophet</span>
+    <aside className="home-stage" aria-label="Available Balance after commitments">
+      <div className="home-stage-scene home-stage-scene--answer">
+        <div className="home-stage-chrome" aria-hidden>
+          <span />
+          <span />
+          <span />
         </div>
-        <div className="home-viz-app-body">
-          <p className="home-viz-label">Available Balance</p>
-          <p className="home-viz-amount home-viz-amount--available">£19,450</p>
-          <p className="home-viz-note">After commitments already building</p>
-          <div className="home-viz-rows" aria-hidden>
-            <div className="home-viz-row">
-              <span>Bank &amp; cash</span>
-              <span>£48,200</span>
-            </div>
-            <div className="home-viz-row home-viz-row--muted">
-              <span>Known commitments</span>
-              <span>−£22,100</span>
-            </div>
-            <div className="home-viz-row home-viz-row--muted">
-              <span>Reserve building</span>
-              <span>−£6,650</span>
-            </div>
-            <div className="home-viz-row home-viz-row--final">
-              <span>Available</span>
-              <span>£19,450</span>
-            </div>
-          </div>
-        </div>
+        <p className="home-stage-kicker home-stage-kicker--teal">Available Balance</p>
+        <p className="home-stage-figure home-stage-figure--teal">£19,450</p>
+        <p className="home-stage-caption">What you can rely on today</p>
+        <ul className="home-stage-ledger">
+          <li>
+            <span>Bank &amp; cash</span>
+            <strong>£48,200</strong>
+          </li>
+          <li>
+            <span>Known commitments</span>
+            <strong>−£22,100</strong>
+          </li>
+          <li>
+            <span>Reserves building</span>
+            <strong>−£6,650</strong>
+          </li>
+          <li className="home-stage-ledger-final">
+            <span>Available</span>
+            <strong>£19,450</strong>
+          </li>
+        </ul>
       </div>
     </aside>
   )
@@ -96,30 +83,18 @@ export function HomeOutcomeBeats({
 
 export function HomeCompareStrip() {
   return (
-    <div className="home-compare" role="table" aria-label="How Cash Prophet sits beside accounting and banking">
-      <div className="home-compare-col home-compare-col--muted" role="row">
-        <p className="home-compare-tag" role="rowheader">
-          Accounting
-        </p>
-        <p className="home-compare-body" role="cell">
-          Records the past
-        </p>
+    <div className="home-compare" aria-label="How Cash Prophet sits beside accounting and banking">
+      <div className="home-compare-col home-compare-col--muted">
+        <p className="home-compare-tag">Accounting</p>
+        <p className="home-compare-body">Records the past</p>
       </div>
-      <div className="home-compare-col home-compare-col--muted" role="row">
-        <p className="home-compare-tag" role="rowheader">
-          Your bank
-        </p>
-        <p className="home-compare-body" role="cell">
-          Shows today’s cash
-        </p>
+      <div className="home-compare-col home-compare-col--muted">
+        <p className="home-compare-tag">Your bank</p>
+        <p className="home-compare-body">Shows today’s cash</p>
       </div>
-      <div className="home-compare-col home-compare-col--accent" role="row">
-        <p className="home-compare-tag" role="rowheader">
-          Cash Prophet
-        </p>
-        <p className="home-compare-body" role="cell">
-          Helps you make today’s decisions
-        </p>
+      <div className="home-compare-col home-compare-col--accent">
+        <p className="home-compare-tag">Cash Prophet</p>
+        <p className="home-compare-body">Helps you make today’s decisions</p>
         <p className="home-compare-highlight">Available Balance you can rely on</p>
       </div>
     </div>
