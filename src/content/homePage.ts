@@ -8,8 +8,25 @@ export const HOME_HERO = {
   headline: 'Stop carrying your business finances around in your head.',
   headlineStart: 'Stop carrying your business finances',
   headlineHighlight: 'around in your head.',
-  subheading:
-    "You already know what's coming. You shouldn't have to keep subtracting it every time you open the bank.",
+  subheading: [
+    "You already know what's coming. Payroll. VAT. Rent. Insurance.",
+    "Cash Prophet keeps track of those commitments for you, so you always know what's genuinely available to spend.",
+  ],
+  note: 'Less stress. More confidence. One number you can trust.',
+  compare: {
+    bank: {
+      label: 'Bank balance',
+      showsLabel: 'Shows',
+      shows: 'Money in the account today.',
+      gapLabel: "Doesn't know",
+      gap: ['Payroll.', 'VAT.', 'Rent.', 'Insurance.'],
+    },
+    prophet: {
+      label: 'Cash Prophet',
+      body: "Keeps track of everything you've already committed to.",
+      outcome: 'Shows one number you can actually make decisions from.',
+    },
+  },
 } as const
 
 /** Shared recognition — normalise the bank-check loop before introducing Cash Prophet */

@@ -50,7 +50,11 @@ export function LandingPage() {
                 {HOME_HERO.headlineStart}{' '}
                 <span className="marketing-hero-highlight">{HOME_HERO.headlineHighlight}</span>
               </h1>
-              <p className="marketing-lead">{HOME_HERO.subheading}</p>
+              <div className="marketing-lead marketing-lead--stack">
+                {HOME_HERO.subheading.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </div>
               <div className="marketing-cta-row">
                 <Link
                   to="/signup"
@@ -65,9 +69,7 @@ export function LandingPage() {
                   See how it feels
                 </Link>
               </div>
-              <p className="marketing-hero-rank-note">
-                Less stress · More confidence · One number you can trust
-              </p>
+              <p className="marketing-hero-rank-note">{HOME_HERO.note}</p>
               {!isSupabaseConfigured && (
                 <p className="marketing-config-hint">
                   Cloud signup needs Supabase in <code>.env.local</code>, or{' '}
