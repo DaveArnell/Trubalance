@@ -10,10 +10,9 @@ export const METHOD_BLOG_CATEGORY = 'Cash Prophet' as const
 export const METHOD_PAGE_TITLE = 'Cash Prophet'
 
 export const METHOD_PAGE_SUBTITLE =
-  "You open the bank. The number looks fine. And somehow you're still not sure. That isn't you being rubbish with money — the bank only shows what's sitting there, not what's already spoken for."
+  "The bank balance isn't lying. It's just answering the wrong question."
 
-export const METHOD_MANTRA =
-  "You don't need another accounting system. You need to stop doing the sums in your head every time you check the bank."
+export const METHOD_MANTRA = "That's exactly what Cash Prophet fixes."
 
 export const METHOD_OUTCOME =
   'Less stress, more confidence. Always knowing what’s already committed, and what you can actually afford today.'

@@ -8,9 +8,9 @@ export const HOME_SEO = {
 } as const
 
 export const METHOD_SEO = {
-  title: 'Why Cash Prophet — Why checking the bank feels so stressful',
+  title: 'Why Cash Prophet — The bank balance isn’t lying',
   description:
-    'You open the bank. The number looks fine. And somehow you’re still not sure. Why that happens — and what changes when you stop doing the sums in your head every time.',
+    "The bank balance isn't lying. It's just answering the wrong question. Cash Prophet keeps track of the commitments you're already carrying around in your head.",
   path: '/cash-prophet',
 } as const
 

@@ -14378,6 +14378,20 @@ tr.sheet-row--received td {
   padding: 88px 0;
 }
 
+.marketing-method-page--why .method-edu-hero .method-edu-prose,
+.marketing-method-page--why .method-edu-section .method-edu-prose {
+  margin-bottom: 0.55rem;
+}
+
+.marketing-method-page--why .method-edu-prose--lead {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.marketing-method-page--why .method-edu-hero .method-edu-mantra {
+  margin-top: 1.5rem;
+}
+
 .method-edu-hero {
   padding: 64px 0 48px;
   text-align: left;
