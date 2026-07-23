@@ -13611,7 +13611,7 @@ tr.sheet-row--received td {
 }
 
 .marketing-main--home .marketing-who-home-grid {
-  max-width: 44rem;
+  max-width: 36rem;
   margin: 0 auto;
 }
 
@@ -13619,28 +13619,37 @@ tr.sheet-row--received td {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 0;
-  max-width: 44rem;
+  max-width: 36rem;
+  border-top: 1px solid rgba(16, 20, 24, 0.12);
 }
 
 .marketing-who-home-grid li {
-  padding: 18px 0;
+  padding: 1.15rem 0 1.15rem 1.15rem;
   border-radius: 0;
   border: none;
   border-bottom: 1px solid rgba(16, 20, 24, 0.1);
+  border-left: 3px solid rgba(14, 122, 82, 0.35);
   background: transparent;
-  font-size: 1.1rem;
+  font-size: 1.12rem;
   font-weight: 550;
+  line-height: 1.45;
   color: var(--marketing-ink, #101418);
 }
 
-.marketing-who-home-grid li:last-child:nth-child(odd) {
-  grid-column: 1 / -1;
-  max-width: 100%;
-  border-bottom: none;
-  padding-top: 22px;
+.marketing-who-home-grid li:last-child {
+  margin-top: 0.75rem;
+  padding: 1.35rem 0 0;
+  border: none;
+  border-top: 1px solid rgba(16, 20, 24, 0.12);
+  font-family: 'Bricolage Grotesque', var(--font-display);
+  font-size: clamp(1.15rem, 2.4vw, 1.35rem);
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: center;
+  color: var(--marketing-ink, #101418);
 }
 
 .marketing-how-home {
@@ -14046,7 +14055,6 @@ tr.sheet-row--received td {
 @media (max-width: 900px) {
   .marketing-bank-gap-grid,
   .marketing-outcome-pillars,
-  .marketing-who-home-grid,
   .marketing-different-grid,
   .marketing-how-illust-grid {
     grid-template-columns: 1fr;
