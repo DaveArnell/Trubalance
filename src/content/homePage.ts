@@ -54,19 +54,22 @@ export const HOME_DOES = {
 export const HOME_OUTCOME = {
   heading: 'The result is confidence',
   lead: "The result isn't another financial report.",
-  body: [
-    "You know your commitments are already being accounted for. You know future costs are already building into today's position. You know the balance you're looking at reflects what your business can realistically afford.",
-    'That means less second-guessing, fewer financial surprises and better decisions — less time worrying about cash, and more time running your business.',
+  beats: [
+    'You know your commitments are already being accounted for.',
+    "You know future costs are already building into today's position.",
+    "You know the balance you're looking at reflects what your business can realistically afford.",
   ],
+  closing:
+    'That means less second-guessing, fewer financial surprises and better decisions — less time worrying about cash, and more time running your business.',
 } as const
 
 /** Positioning beside accounting and banking */
 export const HOME_WHY_IT_WORKS = {
   heading: 'Why Cash Prophet is different',
-  body: [
+  intro:
     'Your accounting software records the past. Your bank shows today’s cash. Cash Prophet helps you make today’s decisions.',
+  close:
     'By continuously accounting for your financial commitments, it gives you a clearer picture of what your business can safely afford right now. That’s why the Available Balance becomes the number you rely on instead of your bank balance.',
-  ],
 } as const
 
 export const HOME_FOUNDER = {

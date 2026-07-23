@@ -7,6 +7,12 @@ import {
   scrollToMarketingSection,
 } from '../components/marketing/MarketingLayout'
 import { HeroBalanceGraphs } from '../components/marketing/HeroBalanceGraphs'
+import {
+  HomeAvailablePanel,
+  HomeCompareStrip,
+  HomeOutcomeBeats,
+  HomeSpokenForPanel,
+} from '../components/marketing/HomeMarketingVisuals'
 import { CompanyLegalNotice } from '../components/marketing/CompanyLegalNotice'
 import {
   HOME_CTA,
@@ -23,7 +29,7 @@ import { usePageMeta } from '../hooks/usePageMeta'
 import { homePageJsonLd, MarketingJsonLd } from '../components/marketing/MarketingJsonLd'
 
 /**
- * Homepage — Available Balance you can trust; mechanics support the promise.
+ * Homepage — Available Balance you can trust; visuals support the settled copy.
  */
 export function LandingPage() {
   usePageMeta(HOME_SEO)
@@ -40,7 +46,7 @@ export function LandingPage() {
       <MarketingJsonLd data={jsonLd} />
       <MarketingHeader />
 
-      <main className="marketing-main marketing-main--home">
+      <main className="marketing-main marketing-main--home marketing-main--home-vivid">
         <section className="marketing-hero marketing-hero--rank marketing-surface--hero">
           <div className="marketing-hero-rank-inner">
             <div className="marketing-hero-rank-copy">
@@ -83,99 +89,90 @@ export function LandingPage() {
         </section>
 
         <section
-          className="marketing-bank-gap marketing-surface--panel"
+          className="home-band home-band--panel"
           id="why-bank-balance"
           aria-labelledby="need-heading"
         >
-          <div className="marketing-section-inner marketing-section-inner--home">
-            <div className="marketing-section-head">
+          <div className="marketing-section-inner marketing-section-inner--home home-split">
+            <div className="home-split-copy">
               <h2 id="need-heading">{HOME_NEED.heading}</h2>
-              <p className="marketing-section-lead marketing-section-lead--home">{HOME_NEED.lead}</p>
-              <div className="marketing-section-lead marketing-section-lead--home marketing-section-lead--prose">
-                {HOME_NEED.body.map((paragraph) => (
-                  <p key={paragraph}>{paragraph}</p>
-                ))}
-              </div>
+              <p className="home-split-lead">{HOME_NEED.lead}</p>
+              {HOME_NEED.body.map((paragraph) => (
+                <p key={paragraph} className="home-split-prose">
+                  {paragraph}
+                </p>
+              ))}
             </div>
+            <HomeSpokenForPanel />
           </div>
         </section>
 
         <section
-          className="marketing-bank-gap marketing-surface--mist"
+          className="home-band home-band--ink"
           id="what-it-does"
           aria-labelledby="does-heading"
         >
-          <div className="marketing-section-inner marketing-section-inner--home">
-            <div className="marketing-section-head">
+          <div className="marketing-section-inner marketing-section-inner--home home-split home-split--flip">
+            <div className="home-split-copy home-split-copy--on-ink">
               <h2 id="does-heading">{HOME_DOES.heading}</h2>
-              <div className="marketing-section-lead marketing-section-lead--home marketing-section-lead--prose">
-                {HOME_DOES.body.map((paragraph) => (
-                  <p key={paragraph}>{paragraph}</p>
-                ))}
-              </div>
+              {HOME_DOES.body.map((paragraph) => (
+                <p key={paragraph} className="home-split-prose">
+                  {paragraph}
+                </p>
+              ))}
             </div>
+            <HomeAvailablePanel />
           </div>
         </section>
 
         <section
-          className="marketing-bank-gap marketing-surface--paper"
+          className="home-band home-band--mist"
           id="what-changes"
           aria-labelledby="outcome-heading"
         >
           <div className="marketing-section-inner marketing-section-inner--home">
-            <div className="marketing-section-head">
+            <div className="home-band-head">
               <h2 id="outcome-heading">{HOME_OUTCOME.heading}</h2>
-              <p className="marketing-section-lead marketing-section-lead--home">{HOME_OUTCOME.lead}</p>
-              <div className="marketing-section-lead marketing-section-lead--home marketing-section-lead--prose">
-                {HOME_OUTCOME.body.map((paragraph) => (
-                  <p key={paragraph}>{paragraph}</p>
-                ))}
-              </div>
+              <p className="home-split-lead">{HOME_OUTCOME.lead}</p>
             </div>
+            <HomeOutcomeBeats beats={HOME_OUTCOME.beats} closing={HOME_OUTCOME.closing} />
           </div>
         </section>
 
         <section
-          className="marketing-different-questions marketing-surface--panel"
+          className="home-band home-band--panel"
           id="why-it-works"
           aria-labelledby="why-heading"
         >
           <div className="marketing-section-inner marketing-section-inner--home">
-            <div className="marketing-section-head">
+            <div className="home-band-head">
               <h2 id="why-heading">{HOME_WHY_IT_WORKS.heading}</h2>
-              <div className="marketing-section-lead marketing-section-lead--home marketing-section-lead--prose">
-                {HOME_WHY_IT_WORKS.body.map((paragraph) => (
-                  <p key={paragraph}>{paragraph}</p>
-                ))}
-              </div>
+              <p className="home-split-prose home-split-prose--intro">{HOME_WHY_IT_WORKS.intro}</p>
+            </div>
+            <HomeCompareStrip />
+            <p className="home-split-prose home-why-close">{HOME_WHY_IT_WORKS.close}</p>
+          </div>
+        </section>
+
+        <section className="home-band home-band--founder" aria-label="Why Cash Prophet exists">
+          <div className="marketing-section-inner marketing-section-inner--home home-founder">
+            <p className="marketing-how-eyebrow">{HOME_FOUNDER.eyebrow}</p>
+            <h2>{HOME_FOUNDER.heading}</h2>
+            <div className="home-founder-prose">
+              {HOME_FOUNDER.body.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
             </div>
           </div>
         </section>
 
-        <section
-          className="marketing-company-band marketing-surface--ink-soft"
-          aria-label="Why Cash Prophet exists"
-        >
-          <div className="marketing-section-inner marketing-section-inner--home">
-            <div className="marketing-section-head">
-              <p className="marketing-how-eyebrow">{HOME_FOUNDER.eyebrow}</p>
-              <h2>{HOME_FOUNDER.heading}</h2>
-              <div className="marketing-section-lead marketing-section-lead--home marketing-section-lead--prose">
-                {HOME_FOUNDER.body.map((paragraph) => (
-                  <p key={paragraph}>{paragraph}</p>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="marketing-company-band marketing-surface--paper" aria-label="Company information">
+        <section className="marketing-company-band home-band--legal" aria-label="Company information">
           <div className="marketing-section-inner">
             <CompanyLegalNotice variant="inline" />
           </div>
         </section>
 
-        <section className="marketing-cta-band marketing-cta-band--pop">
+        <section className="marketing-cta-band marketing-cta-band--pop home-cta-band">
           <div className="marketing-cta-band-inner">
             <h2>{HOME_CTA.heading}</h2>
             <p>{HOME_CTA.body}</p>

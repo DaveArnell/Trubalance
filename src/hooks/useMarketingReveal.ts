@@ -2,6 +2,8 @@ import { useEffect, type RefObject } from 'react'
 
 const REVEAL_SELECTOR = [
   '.marketing-main--home > section',
+  '.marketing-main--home .home-outcome-beat',
+  '.marketing-main--home .home-compare-col',
   '.marketing-method-page > header.method-edu-hero',
   '.marketing-method-page > section',
   '.marketing-method-page > .marketing-accruing-demo',
