@@ -189,7 +189,7 @@ export function LandingPage() {
             <div className="marketing-section-head">
               <p className="marketing-how-eyebrow">{HOME_FOUNDER.eyebrow}</p>
               <h2>{HOME_FOUNDER.heading}</h2>
-              <div className="marketing-section-lead marketing-section-lead--home marketing-section-lead--stack">
+              <div className="marketing-section-lead marketing-section-lead--home marketing-section-lead--prose">
                 {HOME_FOUNDER.body.map((paragraph) => (
                   <p key={paragraph}>{paragraph}</p>
                 ))}

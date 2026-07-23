@@ -132,15 +132,9 @@ export const HOME_FOUNDER = {
   eyebrow: 'Why I built this',
   heading: 'I’ve lived with that bank-check worry for years',
   body: [
-    'I built Cash Prophet because I was tired of second-guessing my own bank balance.',
-    'The accounts were up to date.',
-    'The business was healthy.',
-    'But I was still asking myself the same questions every time I opened the banking app.',
-    'Can I afford this?',
-    "What's already spoken for?",
-    'Have I forgotten something?',
-    "I realised I wasn't looking for another bookkeeping system.",
-    'I just wanted one number I could trust.',
+    'I built Cash Prophet because I was tired of second-guessing my own bank balance. The accounts were up to date and the business was healthy, but every time I opened the banking app I was still asking the same questions — can I afford this, what’s already spoken for, have I forgotten something?',
+    'For a long time I ran this method myself in spreadsheets. It worked, but it was slow, fiddly, and easy to let slip when the week got busy. I realised I wasn’t looking for another bookkeeping system. I just wanted one number I could trust, without rebuilding the picture by hand every time.',
+    'So I turned what I’d been doing into Cash Prophet: the same way of thinking, made more efficient and harder to get wrong — so checking the bank stops feeling like a second job.',
   ],
 } as const
 
