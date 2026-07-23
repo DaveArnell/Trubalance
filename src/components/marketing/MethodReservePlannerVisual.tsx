@@ -35,7 +35,7 @@ const DUE_LABELS: Record<number, string> = {
 }
 
 function buildYearPlan() {
-  const totalDues = DUES.reduce((sum, due) => sum + due, 0)
+  const totalDues = DUES.reduce((sum, due) => sum + due, 0 as number)
   // Opening so the year ends near the buffer after equal monthly funding.
   // Walk the year; nudge opening until the lowest month stays at/above buffer.
   let opening = BUFFER
