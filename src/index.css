@@ -25044,8 +25044,8 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .marketing-hero--rank h1 {
   margin: 0 0 22px;
-  max-width: 16ch;
-  font-size: clamp(2.4rem, 5.2vw, 3.75rem);
+  max-width: 18ch;
+  font-size: clamp(2.25rem, 5vw, 3.5rem);
   font-weight: 800;
   line-height: 1.02;
   letter-spacing: -0.04em;

@@ -45,7 +45,7 @@ export function homePageJsonLd() {
       name: COMPANY_INFO.productName,
       url: COMPANY_INFO.website,
       description:
-        'Cash Prophet keeps track of the money your business has already committed, so you know what you can actually afford today.',
+        "Cash Prophet continuously accounts for your business's financial commitments, giving you a reliable Available Balance for everyday decisions.",
       publisher: { '@type': 'Organization', name: COMPANY_INFO.legalName },
     },
     {

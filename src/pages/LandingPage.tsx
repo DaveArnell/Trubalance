@@ -23,7 +23,7 @@ import { usePageMeta } from '../hooks/usePageMeta'
 import { homePageJsonLd, MarketingJsonLd } from '../components/marketing/MarketingJsonLd'
 
 /**
- * Homepage — what Cash Prophet gives you, why you need it, how, outcome.
+ * Homepage — Available Balance you can trust; mechanics support the promise.
  */
 export function LandingPage() {
   usePageMeta(HOME_SEO)
@@ -89,6 +89,7 @@ export function LandingPage() {
           <div className="marketing-section-inner marketing-section-inner--home">
             <div className="marketing-section-head">
               <h2 id="need-heading">{HOME_NEED.heading}</h2>
+              <p className="marketing-section-lead marketing-section-lead--home">{HOME_NEED.lead}</p>
               <div className="marketing-section-lead marketing-section-lead--home marketing-section-lead--prose">
                 {HOME_NEED.body.map((paragraph) => (
                   <p key={paragraph}>{paragraph}</p>
@@ -123,6 +124,7 @@ export function LandingPage() {
           <div className="marketing-section-inner marketing-section-inner--home">
             <div className="marketing-section-head">
               <h2 id="outcome-heading">{HOME_OUTCOME.heading}</h2>
+              <p className="marketing-section-lead marketing-section-lead--home">{HOME_OUTCOME.lead}</p>
               <div className="marketing-section-lead marketing-section-lead--home marketing-section-lead--prose">
                 {HOME_OUTCOME.body.map((paragraph) => (
                   <p key={paragraph}>{paragraph}</p>
@@ -146,17 +148,6 @@ export function LandingPage() {
                 ))}
               </div>
             </div>
-            <div className="marketing-different-grid">
-              {HOME_WHY_IT_WORKS.items.map((item) => (
-                <article key={item.title} className="marketing-different-card">
-                  <h3>{item.title}</h3>
-                  <p>{item.body}</p>
-                </article>
-              ))}
-            </div>
-            <p className="marketing-section-lead marketing-section-lead--home marketing-home-why-close">
-              {HOME_WHY_IT_WORKS.close}
-            </p>
           </div>
         </section>
 
