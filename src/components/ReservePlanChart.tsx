@@ -12,6 +12,8 @@ interface ReservePlanChartProps {
   columnWidths?: number[]
   /** Equal-width chart when not embedded in the sheet table */
   standalone?: boolean
+  /** Allow drag-to-rotate the year window (like Month view). Default true when standalone. */
+  rotatable?: boolean
 }
 
 interface PlotLayout {
@@ -35,6 +37,12 @@ function actualBalanceForMonth(
     return currentActualBalance
   }
   return null
+}
+
+function rotateMonths<T>(items: T[], startIdx: number): T[] {
+  if (items.length === 0) return items
+  const start = ((startIdx % items.length) + items.length) % items.length
+  return [...items.slice(start), ...items.slice(0, start)]
 }
 
 function usePlotLayout(columnWidths: number[] | undefined, standalone: boolean) {
@@ -105,8 +113,18 @@ export function ReservePlanChart({
   currentActualBalance,
   columnWidths,
   standalone = false,
+  rotatable,
 }: ReservePlanChartProps) {
+  const canRotate = rotatable ?? standalone
   const { anchorRef, layout } = usePlotLayout(standalone ? undefined : columnWidths, standalone)
+  const [windowStart, setWindowStart] = useState(0)
+  const [dragging, setDragging] = useState(false)
+  const dragRef = useRef<{ startX: number; startWindow: number } | null>(null)
+
+  const visibleMonths = useMemo(
+    () => (canRotate ? rotateMonths(months, windowStart) : months),
+    [canRotate, months, windowStart],
+  )
 
   const chart = useMemo(() => {
     if (months.length === 0) return null
@@ -130,6 +148,7 @@ export function ReservePlanChart({
   const plotWidth = layout?.plotWidth ?? 1
   const plotLeft = layout?.plotLeft ?? 0
   const canDraw = Boolean(layout && layout.plotWidth > 1)
+  const monthCount = Math.max(visibleMonths.length, 1)
 
   const yForValue = (value: number) => {
     const range = chart.yMax - chart.yMin || 1
@@ -140,11 +159,11 @@ export function ReservePlanChart({
     if (layout?.centers[index] != null) {
       return layout.centers[index]! - layout.plotLeft
     }
-    const slot = plotWidth / months.length
+    const slot = plotWidth / monthCount
     return slot * index + slot / 2
   }
 
-  const balancePoints = months.map((month, index) => ({
+  const balancePoints = visibleMonths.map((month, index) => ({
     month,
     x: xForIndex(index),
     y: yForValue(month.balanceAfterBills),
@@ -152,7 +171,7 @@ export function ReservePlanChart({
     due: month.totalDue,
   }))
 
-  // Horizontal planned balance segments only — bill drops are separate red verticals.
+  // Segments between consecutive months in the visible window (includes Dec→Jan when adjacent).
   const horizontalSegments = balancePoints.slice(0, -1).map((point, index) => {
     const next = balancePoints[index + 1]!
     const endY = next.due > 0 ? next.beforeBillsY : next.y
@@ -165,7 +184,6 @@ export function ReservePlanChart({
     }
   })
 
-  // Stepped path for the filled area under the plan line.
   const steppedPoints = balancePoints.flatMap((point) =>
     point.due > 0
       ? [
@@ -178,15 +196,72 @@ export function ReservePlanChart({
   const bufferY = yForValue(bufferAmount)
   const zeroY = chart.yMin <= 0 && chart.yMax >= 0 ? yForValue(0) : null
   const monthSlotWidth = (index: number) =>
-    layout?.monthWidths[index] ?? plotWidth / Math.max(months.length, 1)
+    layout?.monthWidths[index] ?? plotWidth / monthCount
+
+  const beginDrag = (clientX: number) => {
+    if (!canRotate) return
+    dragRef.current = { startX: clientX, startWindow: windowStart }
+    setDragging(true)
+  }
+
+  const moveDrag = (clientX: number) => {
+    if (!canRotate || !dragRef.current || plotWidth < 2) return
+    const dx = clientX - dragRef.current.startX
+    const monthShift = Math.round(-dx / (plotWidth / monthCount))
+    if (monthShift === 0) {
+      setWindowStart(dragRef.current.startWindow)
+      return
+    }
+    const next = (((dragRef.current.startWindow + monthShift) % monthCount) + monthCount) % monthCount
+    setWindowStart(next)
+  }
+
+  const endDrag = () => {
+    dragRef.current = null
+    setDragging(false)
+  }
 
   return (
     <div
       ref={anchorRef}
-      className={`reserve-plan-chart${standalone ? ' reserve-plan-chart--standalone' : ''}`}
+      className={`reserve-plan-chart${standalone ? ' reserve-plan-chart--standalone' : ''}${
+        canRotate ? ' reserve-plan-chart--rotatable' : ''
+      }${dragging ? ' reserve-plan-chart--dragging' : ''}`}
       role="img"
-      aria-label="Reserve balance plan chart"
+      aria-label="Reserve balance plan chart. Drag to rotate the year."
+      onPointerDown={
+        canRotate
+          ? (event) => {
+              if ((event.target as HTMLElement).closest('button, a, input')) return
+              event.currentTarget.setPointerCapture(event.pointerId)
+              beginDrag(event.clientX)
+            }
+          : undefined
+      }
+      onPointerMove={
+        canRotate
+          ? (event) => {
+              if (!dragRef.current) return
+              moveDrag(event.clientX)
+            }
+          : undefined
+      }
+      onPointerUp={
+        canRotate
+          ? (event) => {
+              if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+                event.currentTarget.releasePointerCapture(event.pointerId)
+              }
+              endDrag()
+            }
+          : undefined
+      }
+      onPointerCancel={canRotate ? endDrag : undefined}
+      title={canRotate ? 'Drag to rotate the year' : undefined}
     >
+      {canRotate ? (
+        <p className="reserve-plan-chart-hint muted">Drag the chart to rotate the year — Dec into Jan stays continuous.</p>
+      ) : null}
       {canDraw ? (
         <svg
           viewBox={`0 0 ${plotWidth} ${CHART_HEIGHT}`}
@@ -229,8 +304,8 @@ export function ReservePlanChart({
             </g>
           )}
 
-          {months.map((month, index) => {
-            if (index !== currentMonthIdx) return null
+          {visibleMonths.map((month, index) => {
+            if (month.monthIndex !== currentMonthIdx) return null
             const x = xForIndex(index)
             const half = monthSlotWidth(index) / 2
             return (
@@ -304,15 +379,15 @@ export function ReservePlanChart({
             </g>
           ))}
 
-          {months.map((month, index) => {
+          {visibleMonths.map((month, index) => {
             const x = xForIndex(index)
             return (
               <text
-                key={`label-${month.month}`}
+                key={`label-${month.month}-${index}`}
                 x={x}
                 y={CHART_HEIGHT - 8}
                 textAnchor="middle"
-                className={`reserve-plan-chart-month${index === currentMonthIdx ? ' reserve-plan-chart-month--current' : ''}`}
+                className={`reserve-plan-chart-month${month.monthIndex === currentMonthIdx ? ' reserve-plan-chart-month--current' : ''}`}
               >
                 {month.month.slice(0, 3)}
               </text>

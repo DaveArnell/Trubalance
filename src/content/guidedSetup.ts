@@ -47,8 +47,9 @@ export const WHY_TRUE_BALANCE_CONTENT = {
   title: 'One honest number',
   lead: 'Your bank balance hides money already spoken for and bigger bills building in the background.',
   bullets: [
-    'See what is committed vs genuinely available',
-    'Plan monthly savings for irregular bills like VAT and insurance',
+    'See what’s committed versus genuinely available',
+    'Keep a separate savings account for VAT, tax and insurance',
+    'Transfer a steady monthly amount so those bills are already covered',
   ],
 } as const
 

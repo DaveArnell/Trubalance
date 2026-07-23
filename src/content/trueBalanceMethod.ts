@@ -139,18 +139,17 @@ export const METHOD_RESERVE_PLANNER = {
 export const METHOD_FIRST_SETUP = {
   heading: 'The first setup matters',
   lead: [
-    'The only part that takes a little thought is the beginning. Cash Prophet can only carry the mental load once it understands your business — and once your money has somewhere clear to sit.',
+    'The only part that takes a little thought is the beginning. Cash Prophet can only carry the mental load once it understands your business.',
   ],
   body: [
-    "You'll set up your business and accounts first. That includes a separate reserve savings account — not just another label on the current account. Cash Prophet tracks the planned monthly transfer into that account so VAT, tax and insurance are covered when they fall due.",
-    "Then you'll list your regular monthly commitments, your annual bills and any other predictable costs. Most business owners already know these things — they've just never written them down in one place.",
+    "During setup you'll list your regular monthly commitments, your annual bills and any other predictable costs. Most business owners already know these things — they've just never written them down in one place, and that process often gives a clearer picture of the business than they've had before.",
     "Once it's done, Cash Prophet takes over. From then on you're updating the picture, not rebuilding it from scratch every week.",
   ],
   timeline: [
-    'Set up your business',
-    'Add a reserve savings account',
-    'List bills and commitments',
+    'Know your bills',
+    'Build your commitments',
     'Cash Prophet takes over',
+    'Simple daily updates',
   ],
 } as const
 

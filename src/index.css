@@ -18186,13 +18186,14 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .setup-flow-main--reserve .setup-flow-content {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: stretch;
   width: 100%;
   min-height: 0;
   max-width: none;
-  padding: clamp(40px, 7vh, 88px) clamp(32px, 5vw, 56px) clamp(28px, 4vh, 48px);
+  padding: clamp(20px, 3vh, 36px) clamp(24px, 4vw, 48px) clamp(20px, 3vh, 36px);
   box-sizing: border-box;
+  overflow-y: auto;
 }
 
 .setup-flow-main--wide .setup-flow-step-panel,
@@ -28374,4 +28375,40 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .onboarding-banner {
   background: linear-gradient(135deg, rgba(37, 99, 235, 0.12) 0%, rgba(14, 165, 233, 0.08) 100%);
   border-color: rgba(37, 99, 235, 0.22);
+}
+
+.reserve-plan-chart--rotatable {
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+
+.reserve-plan-chart--dragging {
+  cursor: grabbing;
+}
+
+.reserve-plan-chart-hint {
+  margin: 0 0 8px;
+  font-size: 0.8rem;
+}
+
+.method-reserve-viz-frame {
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+
+.method-reserve-viz-frame--dragging {
+  cursor: grabbing;
+}
+
+.method-reserve-viz-drag-hint {
+  margin: 6px 0 0;
+  font-size: 0.85rem;
+  color: rgba(15, 27, 45, 0.5);
+}
+
+.setup-flow-main--reserve .setup-reserve-step {
+  overflow-x: auto;
+  max-width: 100%;
 }

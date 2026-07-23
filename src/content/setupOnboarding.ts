@@ -21,79 +21,79 @@ export interface SetupOnboardingStep {
 export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
   {
     id: 'why',
-    title: 'What Available is.',
+    title: 'Why Cash Prophet exists',
     explain:
-      'Your bank balance isn’t all spendable — some of it already belongs to bills. Available shows what’s left after money that’s spoken for.\n\nWatch the short intro below when it’s ready, then we’ll set up your structure.',
+      'Your bank balance only shows what’s in the account. It doesn’t show rent, wages, VAT or tax already spoken for.\n\nCash Prophet keeps those commitments in the picture, so Available is a number you can actually decide from.',
   },
   {
     id: 'business',
-    title: 'Your businesses and accounts.',
+    title: 'Your businesses and accounts',
     explain:
-      'Add the businesses and venues you want to track, plus their bank accounts.\n\nInclude a separate savings account for reserves — Cash Prophet needs somewhere real for the monthly VAT/tax transfers to go. Keep it simple; you can add more accounts later.',
+      'Add the businesses and venues you want to track, plus their bank accounts.\n\nInclude a separate savings account for reserves — ideally one that pays a decent interest rate. That’s where monthly VAT and tax transfers will go. Keep it simple; you can add more later.',
   },
   {
     id: 'committed-explain',
-    title: 'How accruing costs work.',
+    title: 'How known costs build',
     explain:
-      'Regular bills (rent, wages) build up a little every day. When the due date hits, they move to Due until you mark them Paid. Watch the demo.',
+      'Regular bills like rent and wages build a little every day. When the due date arrives, they move to Due until you mark them Paid.\n\nWatch the short demo below.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="committed-funds"]',
   },
   {
     id: 'month-view',
-    title: 'Month view.',
+    title: 'Month view',
     explain:
-      'Month view shows how committed money builds through the month and drops when bills are paid — handy for spotting tight weeks.',
+      'Month view shows how committed money builds through the month and drops when bills are paid. Drag the chart to shift the period — useful for spotting tight weeks.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="committed-funds"]',
   },
   {
     id: 'due-explain',
-    title: 'Due — ready to pay.',
+    title: 'Due — ready to pay',
     explain:
-      'Monthly bills land here when they’re due, and stay until you mark Paid.\n\nYou can also add one-off costs with a future date:\n\nEarmark now — take the full amount out of Available today.\n\nBuild up — set a little aside each day until that date.',
+      'Monthly bills land here when they’re due, and stay until you mark Paid.\n\nYou can also add one-off costs with a future date: earmark the full amount now, or build up a little each day until that date.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="due"]',
   },
   {
     id: 'receipts-explain',
-    title: 'Expected receipts — money in.',
+    title: 'Expected receipts',
     explain:
-      'Add money you know is coming. It stays until you mark it Received.\n\nFor a future date: count it all now, or build up a little each day.',
+      'Add money you know is coming in. It stays in the picture until you mark it Received.\n\nFor a future date you can count it all now, or build it up day by day.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="expected-receipts"]',
   },
   {
     id: 'reserve',
-    title: 'Reserve — a separate savings account.',
+    title: 'Reserve — separate savings account',
     explain:
-      'Some costs land in lumps — VAT, insurance, tax. Keep those in a separate savings account (not your current account). A higher-interest savings account is ideal, so the money building for bigger bills earns something while it waits.\n\nThe Reserve Planner turns them into a monthly transfer amount. Each month you move that amount into the reserve account so the money is ready when the bill arrives.\n\nTry the check-in below: tick Transfer done, confirm, and you’ll see the new reserve balance.',
+      'VAT, insurance and tax arrive in lumps. Keep that money in a separate savings account — not your current account. A higher-interest savings account is ideal so it earns while it waits.\n\nThe Reserve Planner turns those bills into one monthly transfer amount. Each month you move that amount into the reserve account.\n\nDrag the outlook chart to rotate the year. Try the check-in below when you’re ready.',
     page: 'reserve-planner',
     spotlight: '[data-tour="reserve-planner-month"]',
     skippable: true,
   },
   {
     id: 'trends-explain',
-    title: 'Trends.',
+    title: 'Trends',
     explain:
-      'Trends charts your balance, committed costs, and Available over time — so you can see if things are going up or down.',
+      'Trends charts your balance, committed costs and Available over time — so you can see whether things are heading up or down.',
     page: 'trends',
     spotlight: '[data-widget-id="trends-chart"]',
   },
   {
     id: 'forecast-explain',
-    title: 'Forecast.',
+    title: 'Forecast',
     explain:
-      'Because income arrives in lumps for you, Forecast looks ahead at money out and money in — useful for spotting quiet weeks early.',
+      'Because your income arrives in lumps, Forecast looks ahead at money out and money in — useful for spotting quiet weeks early.',
     page: 'forecast',
     spotlight: '[data-widget-id="forecast-cash-outlook"]',
     lumpyOnly: true,
   },
   {
     id: 'handoff',
-    title: 'Now set it up on your dashboard.',
+    title: 'Set it up on your dashboard',
     explain:
-      'You’ve seen how it works. Next we’ll open your live dashboard and walk you through adding balances, monthly costs, due items, and receipts — then your reserve plan.',
+      'You’ve seen how it works. Next we’ll open your live dashboard and walk you through balances, monthly costs, due items and receipts — then your reserve plan.',
     page: 'committed-funds',
   },
 ]

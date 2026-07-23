@@ -1,7 +1,9 @@
 /**
  * Marketing Reserve Planner graph — equal monthly transfers, bill drops only.
- * Inspired by the in-app chart (Cornerstone Coffee Co. shape).
+ * Year window starts so Dec→Jan is visible; drag to rotate like the in-app chart.
  */
+
+import { useRef, useState } from 'react'
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] as const
 
@@ -35,9 +37,6 @@ const DUE_LABELS: Record<number, string> = {
 }
 
 function buildYearPlan() {
-  const totalDues = DUES.reduce((sum, due) => sum + due, 0 as number)
-  // Opening so the year ends near the buffer after equal monthly funding.
-  // Walk the year; nudge opening until the lowest month stays at/above buffer.
   let opening = BUFFER
   for (let attempt = 0; attempt < 40; attempt++) {
     let balance = opening
@@ -62,7 +61,7 @@ function buildYearPlan() {
   }
 
   const peak = Math.max(...afterDeposit, BUFFER)
-  return { afterDeposit, afterBills, peak, totalDues, opening }
+  return { afterDeposit, afterBills, peak, opening }
 }
 
 const PLAN = buildYearPlan()
@@ -74,6 +73,9 @@ const PAD_R = 16
 const PAD_T = 28
 const PAD_B = 36
 const Y_MAX = Math.ceil((PLAN.peak * 1.08) / 500) * 500
+
+/** Start at Nov so Dec→Jan climb is on-screen by default. */
+const DEFAULT_START = 10
 
 function xAt(i: number) {
   const plotW = W - PAD_L - PAD_R
@@ -100,17 +102,22 @@ function formatAxis(v: number): string {
 
 export function MethodReservePlannerVisual() {
   const { afterDeposit, afterBills } = PLAN
+  const [windowStart, setWindowStart] = useState(DEFAULT_START)
+  const [dragging, setDragging] = useState(false)
+  const dragRef = useRef<{ startX: number; startWindow: number } | null>(null)
+
+  const order = Array.from({ length: 12 }, (_, i) => (windowStart + i) % 12)
   const plotBottom = H - PAD_B
   const bufferY = yAt(BUFFER)
   const ticks = axisTicks(Y_MAX)
 
   const stepped: { x: number; y: number }[] = []
-  afterBills.forEach((_, i) => {
-    if (DUES[i]! > 0) {
-      stepped.push({ x: xAt(i), y: yAt(afterDeposit[i]!) })
-      stepped.push({ x: xAt(i), y: yAt(afterBills[i]!) })
+  order.forEach((monthIdx, i) => {
+    if (DUES[monthIdx]! > 0) {
+      stepped.push({ x: xAt(i), y: yAt(afterDeposit[monthIdx]!) })
+      stepped.push({ x: xAt(i), y: yAt(afterBills[monthIdx]!) })
     } else {
-      stepped.push({ x: xAt(i), y: yAt(afterBills[i]!) })
+      stepped.push({ x: xAt(i), y: yAt(afterBills[monthIdx]!) })
     }
   })
 
@@ -120,20 +127,58 @@ export function MethodReservePlannerVisual() {
     `${xAt(0)},${plotBottom}`,
   ].join(' ')
 
+  const beginDrag = (clientX: number) => {
+    dragRef.current = { startX: clientX, startWindow: windowStart }
+    setDragging(true)
+  }
+
+  const moveDrag = (clientX: number) => {
+    if (!dragRef.current) return
+    const plotW = W - PAD_L - PAD_R
+    const dx = clientX - dragRef.current.startX
+    const monthShift = Math.round(-dx / (plotW / 12))
+    const next = (((dragRef.current.startWindow + monthShift) % 12) + 12) % 12
+    setWindowStart(next)
+  }
+
+  const endDrag = () => {
+    dragRef.current = null
+    setDragging(false)
+  }
+
   return (
     <figure className="method-reserve-viz" aria-label="Example reserve plan chart">
-      <div className="method-reserve-viz-frame">
+      <div
+        className={`method-reserve-viz-frame${dragging ? ' method-reserve-viz-frame--dragging' : ''}`}
+        onPointerDown={(event) => {
+          event.currentTarget.setPointerCapture(event.pointerId)
+          beginDrag(event.clientX)
+        }}
+        onPointerMove={(event) => {
+          if (!dragRef.current) return
+          moveDrag(event.clientX)
+        }}
+        onPointerUp={(event) => {
+          if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+            event.currentTarget.releasePointerCapture(event.pointerId)
+          }
+          endDrag()
+        }}
+        onPointerCancel={endDrag}
+        title="Drag to rotate the year"
+      >
         <div className="method-reserve-viz-meta">
           <p className="method-reserve-viz-kicker">Example · Cornerstone Coffee Co.</p>
           <p className="method-reserve-viz-title">
             £{MONTHLY_DEPOSIT.toLocaleString('en-GB')} into the reserve every month
           </p>
+          <p className="method-reserve-viz-drag-hint">Drag to rotate the year — Dec into Jan stays continuous</p>
         </div>
 
         <svg className="method-reserve-viz-svg" viewBox={`0 0 ${W} ${H}`} role="img">
           <title>
-            Planned reserve balance rises by the same monthly transfer each month, then drops when
-            corporation tax, VAT or insurance is due
+            Planned reserve balance rises by the same monthly transfer each month, including from
+            December into January, then drops when bills are due
           </title>
 
           <rect
@@ -178,15 +223,15 @@ export function MethodReservePlannerVisual() {
 
           <polygon points={areaPoints} className="method-reserve-viz-area" />
 
-          {/* Equal green rises: always end-of-month balance → next month after deposit */}
-          {afterBills.slice(0, -1).map((_, i) => {
-            const nextDue = DUES[i + 1]! > 0
-            const y2 = nextDue ? yAt(afterDeposit[i + 1]!) : yAt(afterBills[i + 1]!)
+          {order.slice(0, -1).map((monthIdx, i) => {
+            const nextIdx = order[i + 1]!
+            const nextDue = DUES[nextIdx]! > 0
+            const y2 = nextDue ? yAt(afterDeposit[nextIdx]!) : yAt(afterBills[nextIdx]!)
             return (
               <line
-                key={`seg-${i}`}
+                key={`seg-${monthIdx}-${nextIdx}`}
                 x1={xAt(i)}
-                y1={yAt(afterBills[i]!)}
+                y1={yAt(afterBills[monthIdx]!)}
                 x2={xAt(i + 1)}
                 y2={y2}
                 className="method-reserve-viz-line"
@@ -194,36 +239,48 @@ export function MethodReservePlannerVisual() {
             )
           })}
 
-          {afterBills.map((bal, i) => {
-            if (DUES[i]! <= 0) return null
+          {order.map((monthIdx, i) => {
+            if (DUES[monthIdx]! <= 0) return null
             return (
-              <g key={`due-${i}`}>
+              <g key={`due-${monthIdx}`}>
                 <line
                   x1={xAt(i)}
-                  y1={yAt(afterDeposit[i]!)}
+                  y1={yAt(afterDeposit[monthIdx]!)}
                   x2={xAt(i)}
-                  y2={yAt(bal)}
+                  y2={yAt(afterBills[monthIdx]!)}
                   className="method-reserve-viz-drop"
                 />
                 <text
                   x={xAt(i)}
-                  y={yAt(afterDeposit[i]!) - 8}
+                  y={yAt(afterDeposit[monthIdx]!) - 8}
                   textAnchor="middle"
                   className="method-reserve-viz-due-label"
                 >
-                  {DUE_LABELS[i]}
+                  {DUE_LABELS[monthIdx]}
                 </text>
               </g>
             )
           })}
 
-          {afterBills.map((bal, i) => (
-            <circle key={`dot-${i}`} cx={xAt(i)} cy={yAt(bal)} r={3.2} className="method-reserve-viz-dot" />
+          {order.map((monthIdx, i) => (
+            <circle
+              key={`dot-${monthIdx}`}
+              cx={xAt(i)}
+              cy={yAt(afterBills[monthIdx]!)}
+              r={3.2}
+              className="method-reserve-viz-dot"
+            />
           ))}
 
-          {MONTHS.map((month, i) => (
-            <text key={month} x={xAt(i)} y={H - 10} textAnchor="middle" className="method-reserve-viz-month">
-              {month}
+          {order.map((monthIdx, i) => (
+            <text
+              key={`label-${monthIdx}`}
+              x={xAt(i)}
+              y={H - 10}
+              textAnchor="middle"
+              className="method-reserve-viz-month"
+            >
+              {MONTHS[monthIdx]}
             </text>
           ))}
         </svg>
@@ -242,9 +299,9 @@ export function MethodReservePlannerVisual() {
       </div>
 
       <figcaption className="method-reserve-viz-caption">
-        The same amount goes into the reserve every month, so the green line climbs at a steady rate.
-        When corporation tax, VAT or insurance is due, the red drop shows that money leaving — already
-        set aside, not a surprise from the current account.
+        The same amount goes into the reserve every month, so the green line climbs at a steady rate —
+        including from December into January. When corporation tax, VAT or insurance is due, the red
+        drop shows that money leaving.
       </figcaption>
     </figure>
   )
