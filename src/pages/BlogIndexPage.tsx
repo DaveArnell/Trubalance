@@ -28,27 +28,29 @@ export function BlogIndexPage() {
       <MarketingHeader />
 
       <main className="blog-page">
-        <div className="blog-page-inner">
-          <header className="blog-index-header">
+        <header className="method-edu-hero marketing-surface--hero blog-index-hero">
+          <div className="method-edu-inner">
             <p className="marketing-how-eyebrow">Clarity</p>
             <h1>Articles on knowing where you stand</h1>
-            <p className="blog-index-lead">
+            <p className="method-edu-hero-lead">
               Why your bank balance isn’t enough, how known commitments build before payday, how to
               stop VAT and annual bills catching you out, and the light habits that keep the picture
               honest.
             </p>
             <div className="blog-index-cta">
-              <Link to="/how-it-works" className="btn-primary">
+              <Link to="/how-it-works" className="btn-primary marketing-cta-btn-on-dark">
                 How it works
               </Link>
-              <Link to="/see-how-it-works" className="btn-secondary">
+              <Link to="/see-how-it-works" className="btn-ghost btn-large marketing-cta-ghost">
                 See how it feels
               </Link>
-              <Link to="/signup" className="btn-secondary">
+              <Link to="/signup" className="btn-ghost btn-large marketing-cta-ghost">
                 Get started
               </Link>
             </div>
-          </header>
+          </div>
+        </header>
+        <div className="blog-page-inner">
 
           <div className="blog-category-tags" aria-label="Categories">
             <button

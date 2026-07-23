@@ -27951,3 +27951,149 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   background: #1d4ed8;
   border-color: #1d4ed8;
 }
+
+/* ─── Consistency pass — blue shell, green Available signal ─── */
+
+.marketing-shell {
+  --marketing-available: #0d8f5b;
+  --marketing-available-dark: #086644;
+  --marketing-available-soft: rgba(13, 143, 91, 0.12);
+}
+
+/* Carry cool blue through body surfaces (not stark white after hero) */
+.marketing-surface--paper,
+.method-edu-section.marketing-surface--paper,
+.marketing-main--home-vivid .home-band--paper {
+  background:
+    radial-gradient(ellipse 80% 50% at 0% 0%, rgba(37, 99, 235, 0.06), transparent 55%),
+    #eef3fb !important;
+}
+
+.marketing-surface--mist,
+.method-edu-section.marketing-surface--mist,
+.marketing-main--home-vivid .home-band--wash {
+  background:
+    radial-gradient(ellipse 70% 55% at 100% 0%, rgba(37, 99, 235, 0.12), transparent 55%),
+    #e2eaf7 !important;
+}
+
+.marketing-surface--panel,
+.method-edu-section.marketing-surface--panel {
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 100%, rgba(37, 99, 235, 0.08), transparent 50%),
+    #f3f6fc !important;
+}
+
+.marketing-shell {
+  background:
+    radial-gradient(ellipse 70% 45% at 100% 0%, rgba(37, 99, 235, 0.14), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 0% 30%, rgba(14, 165, 233, 0.08), transparent 50%),
+    #eef3fb;
+}
+
+/* Green = Available / calm graph */
+.hero-graph-card--true {
+  border-color: rgba(13, 143, 91, 0.28);
+}
+
+.hero-graph-tag--true,
+.hero-graph-footnote--true {
+  color: var(--marketing-available-dark) !important;
+}
+
+.hero-graph-line--true {
+  stroke: var(--marketing-available) !important;
+}
+
+.hero-graph-area {
+  fill: var(--marketing-available-soft) !important;
+}
+
+.hero-graph-day-dot {
+  fill: var(--marketing-available) !important;
+}
+
+.marketing-main--home-vivid .home-dash-available,
+.marketing-main--home-vivid .home-snap-label--teal {
+  color: var(--marketing-available) !important;
+}
+
+.marketing-main--home-vivid .home-dash-bar-fill {
+  /* keep inline accents; Available figure is the green signal */
+}
+
+/* Platform / software cards: readable ink on white cards */
+.marketing-surface--ink-soft .method-edu-software-card,
+.marketing-surface--mist .method-edu-software-card,
+.method-edu-software-card {
+  color: var(--marketing-ink);
+}
+
+.marketing-surface--ink-soft .method-edu-software-card h3,
+.marketing-surface--mist .method-edu-software-card h3,
+.method-edu-software-card h3 {
+  color: var(--marketing-ink) !important;
+}
+
+.marketing-surface--ink-soft .method-edu-software-card p,
+.marketing-surface--ink-soft .method-edu-software-card li,
+.marketing-surface--mist .method-edu-software-card p,
+.marketing-surface--mist .method-edu-software-card li,
+.method-edu-software-card p,
+.method-edu-software-card li {
+  color: rgba(15, 27, 45, 0.72) !important;
+}
+
+.marketing-surface--ink-soft .method-edu-software-card .muted,
+.method-edu-software-card .muted {
+  color: rgba(15, 27, 45, 0.55) !important;
+}
+
+/* Undo blanket light text on dark sections when cards are white */
+.marketing-surface--ink-soft .method-edu-software-card p {
+  color: rgba(15, 27, 45, 0.72) !important;
+}
+
+.method-edu-hero-lead--secondary {
+  margin-top: 0.75rem !important;
+  font-size: 1rem !important;
+  color: rgba(244, 247, 251, 0.58) !important;
+}
+
+.method-edu-hero-lead--secondary a {
+  color: #93c5fd;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.blog-index-hero .blog-index-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 28px;
+}
+
+.blog-page-inner {
+  background: transparent;
+}
+
+.demo-scenarios-section--landing {
+  padding-top: 48px;
+}
+
+.who-for-page .marketing-clarity-questions,
+.who-for-page .marketing-method-audience {
+  margin-top: 0;
+}
+
+.marketing-pricing-section--pop {
+  background: transparent;
+}
+
+/* Snap panels sit cleanly on blue wash */
+.marketing-main--home-vivid .home-snap-card,
+.marketing-main--home-vivid .home-dash {
+  background: #fff;
+  border-color: rgba(37, 99, 235, 0.12);
+}

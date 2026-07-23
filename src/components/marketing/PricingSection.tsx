@@ -10,15 +10,17 @@ import {
 } from '../../config/subscriptionTiers'
 import { FOUNDER_PROGRAM_FOOTNOTE, FOUNDER_PROGRAM_HEADLINE } from '../../config/founderProgram'
 
-export function PricingSection() {
+export function PricingSection({ hideIntro = false }: { hideIntro?: boolean }) {
   return (
-        <section id="pricing" className="marketing-pricing-section marketing-pricing-section--pop">
+        <section id="pricing" className="marketing-pricing-section marketing-pricing-section--pop marketing-surface--mist">
           <div className="marketing-section-inner">
-            <div className="marketing-section-head">
-              <p className="marketing-how-eyebrow">Pricing</p>
-          <h2>{PRICING_HEADLINE}</h2>
-          <p className="marketing-section-lead marketing-section-lead--home">{PRICING_SUBHEADLINE}</p>
-        </div>
+            {!hideIntro && (
+              <div className="marketing-section-head">
+                <p className="marketing-how-eyebrow">Pricing</p>
+                <h2>{PRICING_HEADLINE}</h2>
+                <p className="marketing-section-lead marketing-section-lead--home">{PRICING_SUBHEADLINE}</p>
+              </div>
+            )}
 
         <div className="marketing-trial-banner">
           <strong>{FOUNDER_PROGRAM_HEADLINE}</strong>

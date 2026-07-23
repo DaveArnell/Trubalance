@@ -5,7 +5,7 @@
 const BUILDING = [
   { name: 'Rent', monthly: '£2,500 / mo', accrued: '£2,150', progress: 0.86, accent: '#0d8f5b' },
   { name: 'Utilities', monthly: '£420 / mo', accrued: '£230', progress: 0.55, accent: '#0f766e' },
-  { name: 'Wages', monthly: '£8,400 / mo', accrued: '£1,680', progress: 0.2, accent: '#086644' },
+  { name: 'Wages', monthly: '£8,400 / mo', accrued: '£1,680', progress: 0.2, accent: '#059669' },
 ] as const
 
 export function HomeSpokenForPanel() {

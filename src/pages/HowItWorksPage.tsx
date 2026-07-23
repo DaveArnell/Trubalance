@@ -187,7 +187,7 @@ export function HowItWorksPage() {
         </section>
 
         <section
-          className="method-edu-section marketing-surface--ink-soft"
+          className="method-edu-section marketing-surface--mist"
           aria-labelledby="platform-heading"
           id="platform"
         >

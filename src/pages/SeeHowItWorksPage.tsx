@@ -16,19 +16,24 @@ export function SeeHowItWorksPage() {
       <MarketingHeader />
 
       <main className="marketing-main">
-        <section className="demo-scenarios-section demo-scenarios-section--landing">
+        <header className="method-edu-hero marketing-surface--hero">
+          <div className="method-edu-inner">
+            <p className="marketing-how-eyebrow">Try a demo</p>
+            <h1>See it with a live business</h1>
+            <p className="method-edu-hero-lead">
+              Pick an example workspace and explore Cash Prophet — no signup needed. Each demo is a
+              frozen snapshot as of {formatSnapshotDateLong(DEMO_FROZEN_DATE_KEY)}, so figures stay
+              stable while you look around.
+            </p>
+            <p className="method-edu-hero-lead method-edu-hero-lead--secondary">
+              Prefer to understand the system first? <Link to="/how-it-works">See how it works</Link>.
+            </p>
+          </div>
+        </header>
+        <section className="demo-scenarios-section demo-scenarios-section--landing marketing-surface--mist">
           <div className="marketing-section-inner">
-            <div className="marketing-section-head demo-scenarios-head">
-              <p className="marketing-how-eyebrow">Try a demo</p>
-              <h1>See it with a live business</h1>
-              <p className="marketing-section-lead marketing-section-lead--home">
-                Pick an example workspace and explore Cash Prophet — no signup needed. Each demo is a
-                frozen snapshot as of {formatSnapshotDateLong(DEMO_FROZEN_DATE_KEY)}, so figures stay
-                stable while you look around.
-              </p>
-              <p className="marketing-section-lead marketing-section-lead--home muted">
-                Prefer to understand the system first? <Link to="/how-it-works">See how it works</Link>.
-              </p>
+            <div className="marketing-section-head demo-scenarios-head sr-only">
+              <h2>Demo workspaces</h2>
             </div>
 
             <div className="demo-scenarios-grid">

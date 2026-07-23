@@ -2,17 +2,71 @@ import { HOME_HERO } from '../../content/homePage'
 
 /**
  * Hero visual — bank balance (jagged, lump hits) vs Cash Prophet calm line.
+ * Dots are placed on the same coordinates as the path vertices.
  */
 
+type Pt = { x: number; y: number }
+
+const BANK_POINTS: Pt[] = [
+  { x: 14, y: 58 },
+  { x: 92, y: 38 },
+  { x: 96, y: 88 },
+  { x: 174, y: 46 },
+  { x: 178, y: 80 },
+  { x: 256, y: 36 },
+  { x: 260, y: 74 },
+  { x: 338, y: 40 },
+  { x: 342, y: 82 },
+  { x: 426, y: 50 },
+]
+
 const BANK_DROPS = [
-  { x: 96, y: 96, label: 'Payroll' },
-  { x: 178, y: 88, label: 'VAT' },
-  { x: 260, y: 82, label: 'Rent' },
-  { x: 342, y: 90, label: 'Insurance' },
+  { x: 96, y: 88, label: 'Payroll' },
+  { x: 178, y: 80, label: 'VAT' },
+  { x: 260, y: 74, label: 'Rent' },
+  { x: 342, y: 82, label: 'Insurance' },
 ] as const
+
+/** Gentle downward Available line — dots sit on these exact points. */
+const PROPHET_POINTS: Pt[] = [
+  { x: 14, y: 68 },
+  { x: 60, y: 64 },
+  { x: 120, y: 58 },
+  { x: 180, y: 53 },
+  { x: 240, y: 48 },
+  { x: 300, y: 44 },
+  { x: 360, y: 41 },
+  { x: 426, y: 38 },
+]
+
+function polylinePath(points: Pt[]): string {
+  return points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x} ${p.y}`).join(' ')
+}
+
+/** Smooth cubic through consecutive points (dots still land on the vertices). */
+function smoothPath(points: Pt[]): string {
+  if (points.length < 2) return ''
+  let d = `M${points[0].x} ${points[0].y}`
+  for (let i = 0; i < points.length - 1; i++) {
+    const a = points[i]
+    const b = points[i + 1]
+    const mx = (a.x + b.x) / 2
+    d += ` C${mx} ${a.y}, ${mx} ${b.y}, ${b.x} ${b.y}`
+  }
+  return d
+}
+
+function areaUnder(points: Pt[], baselineY: number): string {
+  const last = points[points.length - 1]
+  const first = points[0]
+  return `${smoothPath(points)} L${last.x} ${baselineY} L${first.x} ${baselineY} Z`
+}
 
 export function HeroBalanceGraphs() {
   const { bank, prophet } = HOME_HERO.graphs
+  const bankPath = polylinePath(BANK_POINTS)
+  const prophetPath = smoothPath(PROPHET_POINTS)
+  const prophetArea = areaUnder(PROPHET_POINTS, 98)
 
   return (
     <div className="hero-graphs" aria-label="Bank balance versus Cash Prophet Available Balance">
@@ -31,15 +85,7 @@ export function HeroBalanceGraphs() {
           <line x1="12" y1="82" x2="428" y2="82" className="hero-graph-gridline" />
           <line x1="12" y1="46" x2="428" y2="46" className="hero-graph-gridline" />
 
-          <path
-            className="hero-graph-line hero-graph-line--bank"
-            d="M14 58
-               L92 38 L96 88
-               L174 46 L178 80
-               L256 36 L260 74
-               L338 40 L342 82
-               L426 50"
-          />
+          <path className="hero-graph-line hero-graph-line--bank" d={bankPath} />
 
           {BANK_DROPS.map((drop) => (
             <g key={drop.label}>
@@ -71,17 +117,11 @@ export function HeroBalanceGraphs() {
           <line x1="12" y1="98" x2="428" y2="98" className="hero-graph-axis" />
           <line x1="12" y1="64" x2="428" y2="64" className="hero-graph-gridline" />
 
-          <path
-            className="hero-graph-area"
-            d="M14 68 C 110 62, 200 56, 290 50 S 400 42, 426 40 L426 98 L14 98 Z"
-          />
-          <path
-            className="hero-graph-line hero-graph-line--true"
-            d="M14 68 C 110 62, 200 56, 290 50 S 400 42, 426 40"
-          />
+          <path className="hero-graph-area" d={prophetArea} />
+          <path className="hero-graph-line hero-graph-line--true" d={prophetPath} />
 
-          {[60, 120, 180, 240, 300, 360].map((x, i) => (
-            <circle key={x} cx={x} cy={66 - i * 3.2} r="4" className="hero-graph-day-dot" />
+          {PROPHET_POINTS.slice(1, -1).map((p) => (
+            <circle key={`${p.x}-${p.y}`} cx={p.x} cy={p.y} r="4" className="hero-graph-day-dot" />
           ))}
         </svg>
         <p className="hero-graph-footnote hero-graph-footnote--true">{prophet.caption}</p>

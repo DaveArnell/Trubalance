@@ -18,15 +18,20 @@ export function WhoItsForPage() {
     <MarketingShell>
       <MarketingHeader />
       <main className="marketing-main who-for-page">
+        <header className="method-edu-hero marketing-surface--hero">
+          <div className="method-edu-inner">
+            <p className="marketing-how-eyebrow">Fit</p>
+            <h1>Who Cash Prophet is for</h1>
+            <p className="method-edu-hero-lead">
+              Owners who want confidence without complexity — especially if these questions sound
+              familiar.
+            </p>
+          </div>
+        </header>
         <section className="demo-scenarios-section demo-scenarios-section--landing marketing-surface--mist">
           <div className="marketing-section-inner">
-            <div className="marketing-section-head demo-scenarios-head">
-              <p className="marketing-how-eyebrow">Fit</p>
-              <h1>Who Cash Prophet is for</h1>
-              <p className="marketing-section-lead marketing-section-lead--home">
-                Owners who want confidence without complexity — especially if these questions sound
-                familiar.
-              </p>
+            <div className="marketing-section-head demo-scenarios-head sr-only">
+              <h2>Who it suits</h2>
             </div>
 
             <ul className="marketing-clarity-questions" aria-label="Familiar questions">
