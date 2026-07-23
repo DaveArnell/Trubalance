@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react'
+import { useRef, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { isSupabaseConfigured } from '../../lib/supabase'
@@ -6,6 +6,7 @@ import { COMPANY_INFO } from '../../content/companyInfo'
 import { FOUNDER_PROGRAM_FOOTNOTE, FOUNDER_PROGRAM_HEADLINE } from '../../config/founderProgram'
 import { REGULATORY_POSITION } from '../../content/regulatoryNotice'
 import { CompanyLegalNotice } from './CompanyLegalNotice'
+import { useMarketingReveal } from '../../hooks/useMarketingReveal'
 
 /** Primary nav follows the buying journey, not the site map. Habits & blog live in the footer. */
 const PRIMARY_NAV = [
@@ -29,7 +30,14 @@ export function scrollToMarketingSection(id: string) {
 }
 
 export function MarketingShell({ children }: { children: ReactNode }) {
-  return <div className="marketing-shell">{children}</div>
+  const shellRef = useRef<HTMLDivElement>(null)
+  useMarketingReveal(shellRef)
+
+  return (
+    <div className="marketing-shell" ref={shellRef}>
+      {children}
+    </div>
+  )
 }
 
 export function MarketingHeader() {

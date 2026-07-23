@@ -18,8 +18,8 @@ export function WhoItsForPage() {
   return (
     <MarketingShell>
       <MarketingHeader />
-      <main className="marketing-main">
-        <section className="demo-scenarios-section demo-scenarios-section--landing">
+      <main className="marketing-main who-for-page">
+        <section className="demo-scenarios-section demo-scenarios-section--landing marketing-surface--mist">
           <div className="marketing-section-inner">
             <div className="marketing-section-head demo-scenarios-head">
               <p className="marketing-how-eyebrow">Fit</p>

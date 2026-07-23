@@ -15,7 +15,7 @@ export function TrueBalanceMethodPage() {
       <MarketingHeader />
 
       <main className="marketing-main marketing-method-page marketing-method-page--why">
-        <header className="method-edu-hero">
+        <header className="method-edu-hero marketing-surface--hero">
           <div className="method-edu-inner method-edu-inner--narrow">
             <p className="marketing-how-eyebrow">Why Cash Prophet</p>
             <h1>Cash Prophet</h1>
@@ -39,7 +39,10 @@ export function TrueBalanceMethodPage() {
           </div>
         </header>
 
-        <section className="method-edu-section" aria-labelledby="method-problem-heading">
+        <section
+          className="method-edu-section marketing-surface--mist"
+          aria-labelledby="method-problem-heading"
+        >
           <div className="method-edu-inner method-edu-inner--narrow">
             <h2 id="method-problem-heading">You already know what&apos;s coming</h2>
             <p className="method-edu-prose method-edu-prose--lead">
@@ -60,7 +63,7 @@ export function TrueBalanceMethodPage() {
         </section>
 
         <section
-          className="method-edu-section method-edu-section--tint"
+          className="method-edu-section method-edu-section--tint marketing-surface--panel"
           aria-labelledby="method-outcome-heading"
         >
           <div className="method-edu-inner method-edu-inner--narrow">
@@ -94,7 +97,10 @@ export function TrueBalanceMethodPage() {
           </div>
         </section>
 
-        <section className="method-edu-section" aria-label="What Cash Prophet does">
+        <section
+          className="method-edu-section marketing-surface--ink-soft"
+          aria-label="What Cash Prophet does"
+        >
           <div className="method-edu-inner method-edu-inner--narrow">
             <p className="method-edu-prose method-edu-prose--lead">
               Cash Prophet doesn&apos;t make your business richer.

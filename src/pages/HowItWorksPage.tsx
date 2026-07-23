@@ -37,7 +37,7 @@ export function HowItWorksPage() {
       <MarketingHeader />
 
       <main className="marketing-main marketing-method-page">
-        <header className="method-edu-hero">
+        <header className="method-edu-hero marketing-surface--hero">
           <div className="method-edu-inner">
             <p className="marketing-how-eyebrow">How it works</p>
             <h1>From commitments to one number you can trust</h1>
@@ -55,7 +55,7 @@ export function HowItWorksPage() {
         </header>
 
         <section
-          className="method-edu-section"
+          className="method-edu-section marketing-surface--paper"
           aria-labelledby="principles-heading"
           id="how-cash-prophet-works"
         >
@@ -90,7 +90,7 @@ export function HowItWorksPage() {
         <MarketingAccruingDemo variant="method" />
 
         <section
-          className="method-edu-section"
+          className="method-edu-section marketing-surface--mist"
           aria-labelledby="reserve-heading"
           id="reserve-planner"
         >
@@ -111,7 +111,7 @@ export function HowItWorksPage() {
         </section>
 
         <section
-          className="method-edu-section method-edu-section--tint"
+          className="method-edu-section method-edu-section--tint marketing-surface--panel"
           aria-labelledby="example-heading"
           id="worked-example"
         >
@@ -132,7 +132,7 @@ export function HowItWorksPage() {
         </section>
 
         <section
-          className="method-edu-section"
+          className="method-edu-section marketing-surface--paper"
           aria-labelledby="first-setup-heading"
           id="first-setup"
         >
@@ -160,7 +160,11 @@ export function HowItWorksPage() {
           </div>
         </section>
 
-        <section className="method-edu-section method-edu-section--tint" aria-labelledby="habits-heading" id="habits">
+        <section
+          className="method-edu-section method-edu-section--tint marketing-surface--mist"
+          aria-labelledby="habits-heading"
+          id="habits"
+        >
           <div className="method-edu-inner">
             <div className="method-edu-section-head">
               <h2 id="habits-heading">Two light habits</h2>
@@ -190,7 +194,7 @@ export function HowItWorksPage() {
         </section>
 
         <section
-          className="method-edu-section"
+          className="method-edu-section marketing-surface--ink-soft"
           aria-labelledby="platform-heading"
           id="platform"
         >

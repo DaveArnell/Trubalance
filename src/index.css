@@ -12766,7 +12766,10 @@ tr.sheet-row--received td {
   overflow-x: hidden;
   overflow-y: auto;
   scroll-behavior: smooth;
-  background: var(--marketing-paper);
+  background:
+    radial-gradient(ellipse 90% 55% at 8% -8%, rgba(14, 122, 82, 0.1), transparent 55%),
+    radial-gradient(ellipse 70% 45% at 92% 12%, rgba(16, 20, 24, 0.05), transparent 50%),
+    var(--marketing-paper);
   color: var(--marketing-ink);
   display: flex;
   flex-direction: column;
@@ -12776,7 +12779,7 @@ tr.sheet-row--received td {
 .marketing-main {
   display: block;
   flex: 1;
-  background: var(--marketing-paper);
+  background: transparent;
 }
 
 .marketing-header {
@@ -13442,8 +13445,8 @@ tr.sheet-row--received td {
 
 .marketing-bank-gap {
   padding: 64px 0;
-  border-top: 1px solid rgba(16, 20, 24, 0.08);
-  background: #fff;
+  border-top: 1px solid rgba(16, 20, 24, 0.06);
+  background: transparent;
 }
 
 .marketing-bank-gap-rows {
@@ -13588,8 +13591,8 @@ tr.sheet-row--received td {
 
 .marketing-who-home {
   padding: 64px 0;
-  border-top: 1px solid rgba(16, 20, 24, 0.08);
-  background: #fff;
+  border-top: 1px solid rgba(16, 20, 24, 0.06);
+  background: transparent;
 }
 
 .marketing-main--home .marketing-who-home {
@@ -13986,7 +13989,7 @@ tr.sheet-row--received td {
 .marketing-different-questions {
   padding: 64px 0;
   border-top: 1px solid rgba(16, 20, 24, 0.08);
-  background: #fff;
+  background: transparent;
 }
 
 .marketing-section-inner--narrow {
@@ -16043,7 +16046,9 @@ tr.sheet-row--received td {
 }
 
 .marketing-pricing-section {
-  background: var(--marketing-paper, #f7f5ef);
+  background:
+    radial-gradient(ellipse 70% 50% at 85% 0%, rgba(14, 122, 82, 0.08), transparent 55%),
+    transparent;
 }
 
 .marketing-trial-banner {
@@ -16206,7 +16211,7 @@ tr.sheet-row--received td {
 
 .marketing-cta-band {
   padding: 72px 24px;
-  background: linear-gradient(135deg, #18181b 0%, #312e81 100%);
+  background: linear-gradient(145deg, #101418 0%, #0a5c3e 120%);
   color: #fafafa;
 }
 
@@ -16327,7 +16332,7 @@ tr.sheet-row--received td {
 
 .marketing-company-band {
   padding: 28px 24px 0;
-  background: #fff;
+  background: transparent;
 }
 
 .company-legal-notice--legal {
@@ -16356,12 +16361,16 @@ tr.sheet-row--received td {
 /* ─── Marketing v2 (Spendable-inspired) ───────────────────── */
 
 .marketing-shell {
-  background: var(--marketing-paper, #f7f5ef);
+  background:
+    radial-gradient(ellipse 90% 55% at 8% -8%, rgba(14, 122, 82, 0.1), transparent 55%),
+    radial-gradient(ellipse 70% 45% at 92% 12%, rgba(16, 20, 24, 0.05), transparent 50%),
+    radial-gradient(ellipse 60% 40% at 50% 70%, rgba(14, 122, 82, 0.045), transparent 55%),
+    var(--marketing-paper, #f7f5ef);
 }
 
 .marketing-header {
   border-bottom-color: rgba(15, 23, 42, 0.06);
-  background: rgba(255, 255, 255, 0.88);
+  background: rgba(247, 245, 239, 0.88);
 }
 
 .marketing-hero--v2 {
@@ -17351,13 +17360,15 @@ tr.sheet-row--received td {
 }
 
 .marketing-reserve-preview--pop {
-  background: linear-gradient(180deg, #f5f3ff, #fff);
-  border-color: rgba(139, 92, 246, 0.2);
+  background: linear-gradient(180deg, rgba(14, 122, 82, 0.06), #fff);
+  border-color: rgba(14, 122, 82, 0.18);
 }
 
 .marketing-pricing-section--pop {
   padding: 72px 28px;
-  background: var(--marketing-paper, #f7f5ef);
+  background:
+    radial-gradient(ellipse 70% 50% at 85% 0%, rgba(14, 122, 82, 0.08), transparent 55%),
+    transparent;
 }
 
 .marketing-pricing-section--pop .marketing-trial-banner {
@@ -24723,9 +24734,205 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   font-family: 'Bricolage Grotesque', var(--font-display);
 }
 
+/* ─── Marketing atmosphere + scroll life ─────────────────────── */
+.marketing-surface--hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 70% 60% at 85% 20%, rgba(14, 122, 82, 0.12), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 10% 90%, rgba(16, 20, 24, 0.04), transparent 50%),
+    transparent;
+}
+
+.marketing-surface--hero::after {
+  content: '';
+  position: absolute;
+  inset: auto -10% -40% auto;
+  width: min(48vw, 28rem);
+  height: min(48vw, 28rem);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(14, 122, 82, 0.1), transparent 68%);
+  pointer-events: none;
+  z-index: 0;
+  animation: marketing-orb-drift 18s ease-in-out infinite alternate;
+}
+
+.marketing-surface--hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.marketing-surface--paper {
+  background: transparent;
+}
+
+.marketing-shell .marketing-surface--panel {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.72) 0%,
+    rgba(255, 255, 255, 0.92) 100%
+  );
+  border-top-color: rgba(16, 20, 24, 0.05);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.marketing-shell .marketing-surface--mist {
+  background:
+    radial-gradient(ellipse 80% 70% at 50% 0%, rgba(14, 122, 82, 0.08), transparent 60%),
+    linear-gradient(180deg, rgba(247, 245, 239, 0.35), rgba(255, 255, 255, 0.55));
+  border-top-color: rgba(14, 122, 82, 0.08);
+}
+
+.marketing-shell .marketing-surface--ink-soft {
+  background:
+    linear-gradient(180deg, rgba(16, 20, 24, 0.035), rgba(16, 20, 24, 0.02)),
+    rgba(255, 255, 255, 0.45);
+  border-top: 1px solid rgba(16, 20, 24, 0.06);
+}
+
 .marketing-main--home {
-  background: var(--marketing-paper);
+  background: transparent;
   color: var(--marketing-ink);
+}
+
+.marketing-method-page {
+  background: transparent;
+}
+
+.marketing-method-page .method-edu-hero {
+  background:
+    radial-gradient(ellipse 70% 55% at 90% 0%, rgba(14, 122, 82, 0.1), transparent 55%),
+    transparent;
+  border-bottom-color: rgba(16, 20, 24, 0.05);
+}
+
+.marketing-method-page .method-edu-section {
+  background: transparent;
+}
+
+.marketing-method-page .method-edu-section--tint {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0.82) 100%
+  );
+  border-top-color: rgba(16, 20, 24, 0.05);
+}
+
+.marketing-method-page .method-edu-cta {
+  background:
+    radial-gradient(ellipse 70% 80% at 50% 100%, rgba(14, 122, 82, 0.08), transparent 55%),
+    transparent;
+}
+
+.marketing-cta-band--pop {
+  background:
+    radial-gradient(ellipse 80% 70% at 80% 0%, rgba(14, 122, 82, 0.35), transparent 55%),
+    #101418;
+}
+
+.marketing-reveal {
+  opacity: 0;
+  transform: translate3d(0, 1.35rem, 0);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.marketing-reveal--visible {
+  opacity: 1;
+  transform: none;
+}
+
+.marketing-reveal--visible .marketing-bank-gap-row,
+.marketing-reveal--visible .marketing-who-home-grid li,
+.marketing-reveal--visible .marketing-different-card,
+.marketing-reveal--visible .method-edu-principle-card,
+.marketing-reveal--visible .method-edu-habit-card,
+.marketing-reveal--visible .method-edu-compare-card,
+.marketing-reveal--visible .method-setup-timeline li {
+  animation: marketing-item-rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.marketing-reveal--visible .marketing-bank-gap-row:nth-child(1),
+.marketing-reveal--visible .marketing-who-home-grid li:nth-child(1),
+.marketing-reveal--visible .marketing-different-card:nth-child(1),
+.marketing-reveal--visible .method-edu-principle-card:nth-child(1),
+.marketing-reveal--visible .method-edu-habit-card:nth-child(1),
+.marketing-reveal--visible .method-edu-compare-card:nth-child(1),
+.marketing-reveal--visible .method-setup-timeline li:nth-child(1) {
+  animation-delay: 0.05s;
+}
+
+.marketing-reveal--visible .marketing-bank-gap-row:nth-child(2),
+.marketing-reveal--visible .marketing-who-home-grid li:nth-child(2),
+.marketing-reveal--visible .marketing-different-card:nth-child(2),
+.marketing-reveal--visible .method-edu-principle-card:nth-child(2),
+.marketing-reveal--visible .method-edu-habit-card:nth-child(2),
+.marketing-reveal--visible .method-edu-compare-card:nth-child(2),
+.marketing-reveal--visible .method-setup-timeline li:nth-child(2) {
+  animation-delay: 0.12s;
+}
+
+.marketing-reveal--visible .marketing-bank-gap-row:nth-child(3),
+.marketing-reveal--visible .marketing-who-home-grid li:nth-child(3),
+.marketing-reveal--visible .marketing-different-card:nth-child(3),
+.marketing-reveal--visible .method-edu-principle-card:nth-child(3),
+.marketing-reveal--visible .method-setup-timeline li:nth-child(3) {
+  animation-delay: 0.19s;
+}
+
+.marketing-reveal--visible .marketing-who-home-grid li:nth-child(4),
+.marketing-reveal--visible .method-setup-timeline li:nth-child(4) {
+  animation-delay: 0.26s;
+}
+
+.marketing-reveal--visible .marketing-who-home-grid li:nth-child(5) {
+  animation-delay: 0.33s;
+}
+
+@keyframes marketing-item-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0.7rem, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes marketing-orb-drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(-6%, 8%, 0) scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marketing-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .marketing-reveal--visible .marketing-bank-gap-row,
+  .marketing-reveal--visible .marketing-who-home-grid li,
+  .marketing-reveal--visible .marketing-different-card,
+  .marketing-reveal--visible .method-edu-principle-card,
+  .marketing-reveal--visible .method-edu-habit-card,
+  .marketing-reveal--visible .method-edu-compare-card,
+  .marketing-reveal--visible .method-setup-timeline li {
+    animation: none;
+  }
+
+  .marketing-surface--hero::after {
+    animation: none;
+  }
 }
 
 .marketing-main--home .marketing-section-inner--home {

@@ -42,7 +42,7 @@ export function LandingPage() {
       <MarketingHeader />
 
       <main className="marketing-main marketing-main--home">
-        <section className="marketing-hero marketing-hero--rank">
+        <section className="marketing-hero marketing-hero--rank marketing-surface--hero">
           <div className="marketing-hero-rank-inner">
             <div className="marketing-hero-rank-copy">
               <p className="marketing-hero-rank-eyebrow">{HOME_HERO.eyebrow}</p>
@@ -81,7 +81,11 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section className="marketing-who-home" id="who" aria-labelledby="who-home-heading">
+        <section
+          className="marketing-who-home marketing-surface--paper"
+          id="who"
+          aria-labelledby="who-home-heading"
+        >
           <div className="marketing-section-inner marketing-section-inner--home">
             <div className="marketing-section-head">
               <h2 id="who-home-heading">{HOME_WHO_FOR.heading}</h2>
@@ -99,7 +103,11 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section className="marketing-bank-gap" id="why-it-stresses" aria-labelledby="stress-heading">
+        <section
+          className="marketing-bank-gap marketing-surface--panel"
+          id="why-it-stresses"
+          aria-labelledby="stress-heading"
+        >
           <div className="marketing-section-inner marketing-section-inner--home">
             <div className="marketing-section-head">
               <p className="marketing-how-eyebrow">{HOME_STRESS.eyebrow}</p>
@@ -121,7 +129,11 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section className="marketing-bank-gap" id="the-relief" aria-labelledby="relief-heading">
+        <section
+          className="marketing-bank-gap marketing-surface--mist"
+          id="the-relief"
+          aria-labelledby="relief-heading"
+        >
           <div className="marketing-section-inner marketing-section-inner--home">
             <div className="marketing-section-head">
               <p className="marketing-how-eyebrow">{HOME_RELIEF.eyebrow}</p>
@@ -143,7 +155,7 @@ export function LandingPage() {
         </section>
 
         <section
-          className="marketing-different-questions"
+          className="marketing-different-questions marketing-surface--paper"
           id="why-it-works"
           aria-labelledby="why-heading"
         >
@@ -167,7 +179,10 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section className="marketing-company-band" aria-label="Why Cash Prophet exists">
+        <section
+          className="marketing-company-band marketing-surface--ink-soft"
+          aria-label="Why Cash Prophet exists"
+        >
           <div className="marketing-section-inner marketing-section-inner--home">
             <div className="marketing-section-head">
               <p className="marketing-how-eyebrow">{HOME_FOUNDER.eyebrow}</p>
@@ -181,7 +196,7 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section className="marketing-company-band" aria-label="Company information">
+        <section className="marketing-company-band marketing-surface--paper" aria-label="Company information">
           <div className="marketing-section-inner">
             <CompanyLegalNotice variant="inline" />
           </div>

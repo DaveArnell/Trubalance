@@ -9,9 +9,9 @@ export function PricingPage() {
   return (
     <MarketingShell>
       <MarketingHeader />
-      <main>
+      <main className="marketing-main">
         <PricingSection />
-        <section id="billing" className="marketing-billing-section">
+        <section id="billing" className="marketing-billing-section marketing-surface--mist">
           <div className="marketing-section-inner">
             <div className="marketing-section-head">
               <p className="marketing-how-eyebrow">Billing</p>
