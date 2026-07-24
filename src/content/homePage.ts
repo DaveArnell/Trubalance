@@ -18,14 +18,14 @@ export const HOME_HERO = {
   graphs: {
     bank: {
       tag: 'Bank balance',
-      title: 'Looks healthy... until reality catches up.',
+      title: 'Looks fine until the payments hit.',
       caption: 'Your bank balance only changes when money moves.',
     },
     prophet: {
-      tag: 'Cash Prophet',
+      tag: 'Available Balance',
       title: 'Your commitments are already accounted for.',
       caption:
-        "Future costs build into today's Available Balance, giving you a clearer picture of what your business can actually rely on.",
+        'Future costs build into your Available Balance, so you see what the business can actually rely on.',
     },
   },
 } as const

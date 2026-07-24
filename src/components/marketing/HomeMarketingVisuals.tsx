@@ -1,11 +1,12 @@
 /**
- * Homepage visuals — light dashboard snapshots that match the real product language.
+ * Homepage visuals — dashboard-faithful snapshots.
  */
 
-const BUILDING = [
-  { name: 'Rent', monthly: '£2,500 / mo', accrued: '£2,150', progress: 0.86, accent: '#0d8f5b' },
-  { name: 'Utilities', monthly: '£420 / mo', accrued: '£230', progress: 0.55, accent: '#0f766e' },
-  { name: 'Wages', monthly: '£8,400 / mo', accrued: '£1,680', progress: 0.2, accent: '#059669' },
+const DUE_CARDS = [
+  { scope: 'High Street', due: 'Due 28th', name: 'Wages', accrued: '£1,680', total: '£8,400', kind: 'cost' },
+  { scope: 'High Street', due: 'Due 1st', name: 'Rent', accrued: '£2,150', total: '£2,500', kind: 'cost' },
+  { scope: 'Market stall', due: 'Due 10th', name: 'Utilities', accrued: '£230', total: '£420', kind: 'cost' },
+  { scope: 'Reserve', due: 'Due 31st', name: 'Reserve transfer', accrued: '£1,840', total: '£2,200', kind: 'reserve' },
 ] as const
 
 export function HomeSpokenForPanel() {
@@ -27,37 +28,32 @@ export function HomeSpokenForPanel() {
 
 export function HomeAvailablePanel() {
   return (
-    <aside className="home-snap home-snap--wide" aria-label="Dashboard snapshot of Available and building costs">
-      <div className="home-dash">
+    <aside className="home-snap home-snap--wide" aria-label="Dashboard snapshot of Available Balance">
+      <div className="home-dash home-dash--cards">
         <div className="home-dash-hero">
-          <p className="home-snap-label home-snap-label--teal">Available</p>
+          <p className="home-snap-label home-snap-label--teal">Available Balance</p>
           <p className="home-dash-available">£19,450</p>
           <p className="home-snap-sub">After commitments already building</p>
         </div>
 
-        <div className="home-dash-building">
-          <p className="home-dash-building-label">Known costs building</p>
-          <ul className="home-dash-rows">
-            {BUILDING.map((item) => (
-              <li key={item.name}>
-                <div className="home-dash-row-top">
-                  <span className="home-dash-name">{item.name}</span>
-                  <span className="home-dash-accrued">{item.accrued}</span>
-                </div>
-                <div className="home-dash-bar" aria-hidden>
-                  <span
-                    className="home-dash-bar-fill"
-                    style={{
-                      width: `${Math.round(item.progress * 100)}%`,
-                      background: item.accent,
-                    }}
-                  />
-                </div>
-                <p className="home-dash-meta">{item.monthly}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <ul className="home-dash-cards">
+          {DUE_CARDS.map((card) => (
+            <li
+              key={`${card.name}-${card.due}`}
+              className={`home-dash-card${card.kind === 'reserve' ? ' home-dash-card--reserve' : ''}`}
+            >
+              <div className="home-dash-card-meta">
+                <span className="home-dash-card-scope">{card.scope}</span>
+                <span className="home-dash-card-due">{card.due}</span>
+              </div>
+              <p className="home-dash-card-name">{card.name}</p>
+              <p className="home-dash-card-amount">
+                <strong>{card.accrued}</strong>
+                <span> / {card.total}</span>
+              </p>
+            </li>
+          ))}
+        </ul>
       </div>
     </aside>
   )

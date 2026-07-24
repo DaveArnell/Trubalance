@@ -1,13 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useMorphCycle } from './useMorphCycle'
 
 /**
- * Month of obligations: spiked red bars (bills hitting) morph into even green bars
- * (commitments accounted for steadily). Used in “The result is confidence”.
+ * Month of obligations: spiked red bars morph into lower even green bars.
  */
 
 const BAR_COUNT = 24
 
-/** Tall spikes on a few days; most days near zero — unlabeled. */
 const SPIKE_HEIGHTS = Array.from({ length: BAR_COUNT }, (_, i) => {
   const spikes: Record<number, number> = {
     3: 0.72,
@@ -20,92 +18,26 @@ const SPIKE_HEIGHTS = Array.from({ length: BAR_COUNT }, (_, i) => {
   return spikes[i] ?? 0.08
 })
 
-const EVEN_HEIGHT = 0.42
-
-function easeInOut(t: number) {
-  return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2
-}
-
-type Phase = 'spiked' | 'to-even' | 'even' | 'to-spiked'
+/** Keep the even state clearly lower than the spikes. */
+const EVEN_HEIGHT = 0.28
 
 export function HomeConfidenceBars() {
-  const [phase, setPhase] = useState<Phase>('spiked')
-  const [progress, setProgress] = useState(0)
-
-  useEffect(() => {
-    let raf = 0
-    let start = 0
-    let cancelled = false
-
-    const HOLD_MS = 2200
-    const MORPH_MS = 1400
-
-    const run = (duration: number, from: number, to: number, after: Phase) => {
-      start = performance.now()
-      const tick = (now: number) => {
-        if (cancelled) return
-        const t = Math.min(1, (now - start) / duration)
-        setProgress(from + (to - from) * easeInOut(t))
-        if (t < 1) {
-          raf = requestAnimationFrame(tick)
-        } else {
-          setPhase(after)
-        }
-      }
-      raf = requestAnimationFrame(tick)
-    }
-
-    if (phase === 'spiked') {
-      setProgress(0)
-      const id = window.setTimeout(() => setPhase('to-even'), HOLD_MS)
-      return () => {
-        cancelled = true
-        window.clearTimeout(id)
-        cancelAnimationFrame(raf)
-      }
-    }
-
-    if (phase === 'to-even') {
-      run(MORPH_MS, 0, 1, 'even')
-      return () => {
-        cancelled = true
-        cancelAnimationFrame(raf)
-      }
-    }
-
-    if (phase === 'even') {
-      setProgress(1)
-      const id = window.setTimeout(() => setPhase('to-spiked'), HOLD_MS)
-      return () => {
-        cancelled = true
-        window.clearTimeout(id)
-        cancelAnimationFrame(raf)
-      }
-    }
-
-    run(MORPH_MS, 1, 0, 'spiked')
-    return () => {
-      cancelled = true
-      cancelAnimationFrame(raf)
-    }
-  }, [phase])
-
-  const towardEven = progress
+  const towardEven = useMorphCycle(2200, 1400)
   const isEvenish = towardEven > 0.55
 
   return (
     <figure
       className="home-confidence-bars"
-      aria-label="Obligations as spikes through the month, then smoothed into an even daily picture"
+      aria-label="Payment forecast morphing from bill spikes to an even monthly picture"
     >
       <div className="home-confidence-bars-head">
         <p className={`home-confidence-bars-tag${isEvenish ? ' home-confidence-bars-tag--green' : ''}`}>
-          {isEvenish ? 'Cash Prophet' : 'Bank view'}
+          Payment forecast
         </p>
         <p className="home-confidence-bars-title">
           {isEvenish
-            ? 'The same commitments, accounted for steadily'
-            : 'Bills hit as spikes — then disappear from view until payday'}
+            ? 'The same bills, spread through the month'
+            : 'Bills land as spikes when money leaves'}
         </p>
       </div>
 
@@ -129,8 +61,8 @@ export function HomeConfidenceBars() {
       </div>
 
       <figcaption className="home-confidence-bars-caption">
-        Spikes are when money leaves. Cash Prophet spreads those commitments through the month so
-        Available stays honest every day — not only on payday.
+        Cash Prophet spreads commitments through the month so your Available Balance stays honest
+        every day.
       </figcaption>
     </figure>
   )
