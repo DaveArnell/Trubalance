@@ -31,43 +31,61 @@ Bank statement import is disabled in the app (`BANK_IMPORT_ENABLED = false`). On
 
 - [x] `usePageMeta` on landing, pricing, see-how-it-works, legal, auth, demo, app
 - [x] `noindex` on `/app`, `/demo`, `/login`, password-reset flows
-- [x] Default Open Graph / Twitter image URL wired (`/og-image.png`)
-- [x] Homepage JSON-LD (`Organization` + `WebSite`)
+- [x] Default Open Graph / Twitter image URL wired (`/og-image.webp`)
+- [x] Homepage JSON-LD (`Organization` + `WebSite` + `SiteNavigationElement`)
 - [x] `robots.txt` disallows app/demo/auth/admin paths
-- [x] Sitemap auto-generated at build from `blogPosts.ts`
+- [x] Sitemap auto-generated at build from indexable routes + blog posts
 - [x] Unique title + meta description per public route
 - [x] Full OG + Twitter Card tags (image, dimensions, alt)
-- [x] `public/og-image.png` (1200×630 share image)
-- [x] Build-time HTML shells so social crawlers see route-specific meta without JS
+- [x] Absolute canonical hrefs + trailing-slash redirects
+- [x] Checkout ignores client `priceId` (server resolves Stripe prices)
+- [x] Admin OTP uses secure random + lockout after failed attempts
 
 **Manual — do before / after launch:**
 
-- [ ] [Google Search Console](https://search.google.com/search-console) — verify `truebalanceapp.io`, submit sitemap `https://truebalanceapp.io/sitemap.xml`
+- [ ] [Google Search Console](https://search.google.com/search-console) — verify current domain, submit sitemap
 - [ ] Optional: Plausible or Google Analytics 4 for traffic/signup attribution
 - [ ] After deploy: refresh Facebook Sharing Debugger / LinkedIn Post Inspector for key URLs
-- [ ] Optional: deeper prerender of above-the-fold body content for crawlers that skip JavaScript
+
+---
+
+## Domain cutover (planned: cashprophet.co.uk)
+
+Live site today: **truebalanceapp.io**. Planned production domain: **cashprophet.co.uk** (confirm spelling before buying/DNS).
+
+When you cut over:
+
+1. Add `cashprophet.co.uk` (+ `www`) in Vercel → Domains
+2. Point DNS at Vercel; keep `truebalanceapp.io` redirecting to the new domain for a while
+3. Set Supabase Auth Site URL + redirect URLs to the new domain
+4. Set edge function secret `SITE_URL=https://cashprophet.co.uk`
+5. Change `COMPANY_INFO.website` in `src/content/companyInfo.ts` to the new origin
+6. Re-submit sitemap in Google Search Console for the new property
 
 ---
 
 ## Hosting (Vercel + domain)
 
-- [ ] Connect GitHub repo to [Vercel](https://vercel.com)
+- [x] Connect GitHub repo to [Vercel](https://vercel.com)
 - [ ] Set production env vars: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_APP_ENV=production`
-- [ ] Add domain `truebalanceapp.io` (+ `www`) in Vercel → Settings → Domains
+- [ ] Add planned domain `cashprophet.co.uk` (+ `www`) when ready
 - [ ] Point DNS at registrar per Vercel instructions (apex A or CNAME)
-- [ ] Confirm SSL active and `https://truebalanceapp.io` loads the app
+- [ ] Confirm SSL active on the live domain
 
 ---
 
 ## Supabase (production project)
 
-- [ ] Run all SQL migrations in `supabase/migrations/` (including `010_receipt_received_date.sql`)
+- [ ] Run all SQL migrations in `supabase/migrations/` (including **020** workspace edit lock and **021** admin OTP lockout)
 - [ ] Upload email templates from `supabase/email-templates/` (optional)
 - [ ] Grant yourself admin after first signup:
   ```sql
   UPDATE profiles SET role = 'super_admin' WHERE email = 'your@email.com';
   ```
-
+- [ ] Deploy updated edge functions after billing/admin security changes:
+  `npx supabase functions deploy create-checkout-session`
+  `npx supabase functions deploy admin-auth`
+  `npx supabase functions deploy create-billing-portal`
 ---
 
 ## Google login (next step after above)

@@ -23,7 +23,6 @@ export async function startCheckout(options: CheckoutOptions): Promise<void> {
   const supabase = getSupabase()
   const { data, error } = await supabase.functions.invoke('create-checkout-session', {
     body: {
-      priceId,
       tierId: options.tierId,
       billingInterval: options.billingInterval,
       deferUntilTrialEnd: options.deferUntilTrialEnd ?? true,

@@ -6,7 +6,13 @@ export const COMPANY_INFO = {
   vatNumber: 'GB 516647086',
   registeredAddressLines: ['15 Springhill Close', 'Swindon', 'SN5 7BG'],
   contactEmail: 'admin@vocatio.io',
+  /**
+   * Live canonical origin today.
+   * Planned cutover: https://cashprophet.co.uk (confirm spelling before switching DNS + this value).
+   */
   website: 'https://truebalanceapp.io',
+  /** Future production domain — keep in sync when DNS/Vercel/Supabase redirect URLs change. */
+  plannedWebsite: 'https://cashprophet.co.uk',
   parentWebsite: 'https://vocatio.io',
   jurisdiction: 'England and Wales',
 } as const

@@ -5,7 +5,7 @@
 
 export const HOME_HERO = {
   eyebrow: 'Cash Prophet',
-  tagline: "Your business's financial co-pilot.",
+  tagline: 'Cash clarity for UK small and medium-sized businesses.',
   headline: 'Finally, a balance you can trust.',
   headlineStart: 'Finally, a balance',
   headlineHighlight: 'you can trust.',

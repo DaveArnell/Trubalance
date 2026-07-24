@@ -22,7 +22,7 @@ Deno.serve(async (req) => {
     const stripeKey = Deno.env.get('STRIPE_SECRET_KEY')
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
-    const siteUrl = Deno.env.get('SITE_URL') ?? 'https://www.truebalanceapp.io'
+    const siteUrl = (Deno.env.get('SITE_URL') ?? 'https://truebalanceapp.io').replace(/\/+$/, '')
 
     if (!stripeKey || !supabaseUrl || !serviceRoleKey) {
       return jsonResponse({ error: 'Billing is not configured' }, 503)

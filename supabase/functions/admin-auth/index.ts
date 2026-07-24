@@ -7,6 +7,8 @@ const corsHeaders = {
 
 const SESSION_DAYS = Number(Deno.env.get('ADMIN_SESSION_DAYS') ?? '30')
 const CODE_MINUTES = 10
+const MAX_FAILED_ATTEMPTS = 5
+const LOCKOUT_MINUTES = 15
 const ADMIN_EMAIL_DOMAIN = '@vocatio.io'
 
 function jsonResponse(body: unknown, status = 200) {
@@ -28,8 +30,11 @@ function codeExpiry(): string {
   return new Date(Date.now() + CODE_MINUTES * 60 * 1000).toISOString()
 }
 
+/** Cryptographically secure 6-digit code (000000–999999). */
 function generateCode(): string {
-  return String(Math.floor(100000 + Math.random() * 900000))
+  const buf = new Uint32Array(1)
+  crypto.getRandomValues(buf)
+  return String(buf[0]! % 1_000_000).padStart(6, '0')
 }
 
 async function hashCode(code: string): Promise<string> {
@@ -67,13 +72,16 @@ async function getAuthedUser(req: Request) {
   }
 
   if (!isVocatioEmail(user.email)) {
-    return jsonResponse(
-      {
-        state: 'wrong_account',
-        error: 'Admin access requires an @vocatio.io account. Sign out and sign in with your Vocatio email.',
-      },
-      403,
-    )
+    return {
+      error: jsonResponse(
+        {
+          state: 'wrong_account',
+          error:
+            'Admin access requires an @vocatio.io account. Sign out and sign in with your Vocatio email.',
+        },
+        403,
+      ),
+    }
   }
 
   return { user, userClient, adminClient }
@@ -81,7 +89,7 @@ async function getAuthedUser(req: Request) {
 
 async function sendAdminCodeEmail(to: string, code: string): Promise<{ error?: string }> {
   const resendKey = Deno.env.get('RESEND_API_KEY')
-  const from = Deno.env.get('ADMIN_FROM_EMAIL') ?? 'True Balance Admin <onboarding@resend.dev>'
+  const from = Deno.env.get('ADMIN_FROM_EMAIL') ?? 'Cash Prophet Admin <onboarding@resend.dev>'
 
   if (!resendKey) {
     return {
@@ -99,7 +107,7 @@ async function sendAdminCodeEmail(to: string, code: string): Promise<{ error?: s
     body: JSON.stringify({
       from,
       to: [to],
-      subject: 'Your True Balance admin code',
+      subject: 'Your Cash Prophet admin code',
       html: `
         <p>Your admin verification code is:</p>
         <p style="font-size:28px;font-weight:bold;letter-spacing:4px;margin:16px 0">${code}</p>
@@ -145,6 +153,43 @@ async function createAdminSession(
   return { expiresAt }
 }
 
+async function readLockout(
+  adminClient: ReturnType<typeof createClient>,
+  userId: string,
+) {
+  const { data } = await adminClient
+    .from('admin_auth_lockouts')
+    .select('failed_attempts, locked_until')
+    .eq('user_id', userId)
+    .maybeSingle()
+  return data as { failed_attempts: number; locked_until: string | null } | null
+}
+
+async function clearLockout(adminClient: ReturnType<typeof createClient>, userId: string) {
+  await adminClient.from('admin_auth_lockouts').delete().eq('user_id', userId)
+}
+
+async function recordFailedAttempt(
+  adminClient: ReturnType<typeof createClient>,
+  userId: string,
+): Promise<{ locked: boolean; lockedUntil?: string }> {
+  const existing = await readLockout(adminClient, userId)
+  const failed = (existing?.failed_attempts ?? 0) + 1
+  const lockedUntil =
+    failed >= MAX_FAILED_ATTEMPTS
+      ? new Date(Date.now() + LOCKOUT_MINUTES * 60 * 1000).toISOString()
+      : null
+
+  await adminClient.from('admin_auth_lockouts').upsert({
+    user_id: userId,
+    failed_attempts: failed,
+    locked_until: lockedUntil,
+    updated_at: new Date().toISOString(),
+  })
+
+  return { locked: Boolean(lockedUntil), lockedUntil: lockedUntil ?? undefined }
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -187,6 +232,18 @@ Deno.serve(async (req) => {
     })
   }
 
+  const lockout = await readLockout(adminClient, user.id)
+  if (lockout?.locked_until && new Date(lockout.locked_until) > new Date()) {
+    return jsonResponse(
+      {
+        state: 'needs_2fa',
+        email: platformAdmin.email,
+        error: `Too many failed attempts. Try again after ${new Date(lockout.locked_until).toUTCString()}.`,
+      },
+      429,
+    )
+  }
+
   const { data: activeSession } = await adminClient
     .from('admin_sessions')
     .select('id, expires_at')
@@ -222,6 +279,7 @@ Deno.serve(async (req) => {
       user_id: user.id,
       code_hash: codeHash,
       expires_at: codeExpiry(),
+      attempt_count: 0,
     })
 
     if (insertError) {
@@ -249,7 +307,7 @@ Deno.serve(async (req) => {
     const codeHash = await hashCode(code)
     const { data: storedCode, error: codeError } = await adminClient
       .from('admin_email_codes')
-      .select('id, expires_at, used_at')
+      .select('id, expires_at, used_at, attempt_count')
       .eq('user_id', user.id)
       .eq('code_hash', codeHash)
       .is('used_at', null)
@@ -263,6 +321,17 @@ Deno.serve(async (req) => {
     }
 
     if (!storedCode) {
+      const failure = await recordFailedAttempt(adminClient, user.id)
+      if (failure.locked) {
+        return jsonResponse(
+          {
+            error: `Too many failed attempts. Try again after ${failure.lockedUntil}.`,
+            state: 'needs_2fa',
+            email: platformAdmin.email,
+          },
+          429,
+        )
+      }
       return jsonResponse({ error: 'Invalid or expired code. Request a new one.' }, 401)
     }
 
@@ -270,6 +339,8 @@ Deno.serve(async (req) => {
       .from('admin_email_codes')
       .update({ used_at: new Date().toISOString() })
       .eq('id', storedCode.id)
+
+    await clearLockout(adminClient, user.id)
 
     const session = await createAdminSession(adminClient, platformAdmin.id, user.id)
     if (session.error) {

@@ -6,6 +6,40 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+type TierId = 'solo' | 'multi' | 'group'
+type BillingInterval = 'monthly' | 'annual'
+
+/** Server-side Stripe Price IDs — never trust a client-supplied priceId. */
+function resolvePriceId(tierId: TierId, interval: BillingInterval): string | null {
+  const envKeys: Record<TierId, Record<BillingInterval, string[]>> = {
+    solo: {
+      monthly: ['STRIPE_PRICE_SOLO_MONTHLY'],
+      annual: ['STRIPE_PRICE_SOLO_ANNUAL'],
+    },
+    multi: {
+      monthly: ['STRIPE_PRICE_MULTI_MONTHLY', 'STRIPE_PRICE_BUSINESS_MONTHLY'],
+      annual: ['STRIPE_PRICE_MULTI_ANNUAL', 'STRIPE_PRICE_BUSINESS_ANNUAL'],
+    },
+    group: {
+      monthly: ['STRIPE_PRICE_GROUP_MONTHLY'],
+      annual: ['STRIPE_PRICE_GROUP_ANNUAL'],
+    },
+  }
+
+  for (const key of envKeys[tierId][interval]) {
+    const value = Deno.env.get(key)?.trim()
+    if (value) return value
+  }
+  return null
+}
+
+function normalizeTierId(raw: string): TierId {
+  if (raw === 'multi' || raw === 'group' || raw === 'solo') return raw
+  if (raw === 'business' || raw === 'professional') return 'multi'
+  if (raw === 'enterprise') return 'group'
+  return 'solo'
+}
+
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -22,7 +56,7 @@ Deno.serve(async (req) => {
     const stripeKey = Deno.env.get('STRIPE_SECRET_KEY')
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
-    const siteUrl = Deno.env.get('SITE_URL') ?? 'https://www.truebalanceapp.io'
+    const siteUrl = (Deno.env.get('SITE_URL') ?? 'https://truebalanceapp.io').replace(/\/+$/, '')
 
     if (!stripeKey || !supabaseUrl || !serviceRoleKey) {
       return jsonResponse({ error: 'Billing is not configured' }, 503)
@@ -43,18 +77,18 @@ Deno.serve(async (req) => {
     if (userError || !user) return jsonResponse({ error: 'Unauthorized' }, 401)
 
     const body = await req.json()
-    const priceId = String(body.priceId ?? '')
-    const rawTier = String(body.tierId ?? 'solo')
-    const tierId =
-      rawTier === 'multi' || rawTier === 'group'
-        ? rawTier
-        : rawTier === 'business' || rawTier === 'professional'
-          ? 'multi'
-          : 'solo'
-    const billingInterval = body.billingInterval === 'annual' ? 'annual' : 'monthly'
+    const tierId = normalizeTierId(String(body.tierId ?? 'solo'))
+    const billingInterval: BillingInterval =
+      body.billingInterval === 'annual' ? 'annual' : 'monthly'
     const deferUntilTrialEnd = body.deferUntilTrialEnd !== false
 
-    if (!priceId) return jsonResponse({ error: 'Missing priceId' }, 400)
+    const priceId = resolvePriceId(tierId, billingInterval)
+    if (!priceId) {
+      return jsonResponse(
+        { error: `Stripe price is not configured for ${tierId}/${billingInterval}` },
+        503,
+      )
+    }
 
     const { data: membership, error: membershipError } = await supabaseAdmin
       .from('workspace_members')

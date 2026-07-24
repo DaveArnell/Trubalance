@@ -7,7 +7,7 @@ interface MarketingBrowserFrameProps {
 
 export function MarketingBrowserFrame({
   children,
-  url = 'app.truebalanceapp.io',
+  url = 'app.cashprophet.co.uk',
 }: MarketingBrowserFrameProps) {
   return (
     <div className="marketing-browser-frame">
