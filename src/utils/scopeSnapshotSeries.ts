@@ -56,12 +56,13 @@ export function getEffectiveSnapshotsForScope(
   return dates
     .map((date) => {
       const stored = storedByDate.get(date)
+      if (state.workspaceOrigin === 'builtin-demo') {
+        // Only authored demo points — never invent derived days from live accruals.
+        return stored && isPersistedSnapshot(stored) ? stored : null
+      }
+
       const derived = buildDerivedSnapshot(state, scope, date)
       if (!stored) return derived
-
-      if (state.workspaceOrigin === 'builtin-demo' && isPersistedSnapshot(stored)) {
-        return stored
-      }
 
       const display = withEffectiveSnapshotMetrics(state, stored)
       if (display.trueBalance === 0 && derived.trueBalance !== 0) {
@@ -69,5 +70,6 @@ export function getEffectiveSnapshotsForScope(
       }
       return display
     })
+    .filter((snap): snap is BalanceSnapshot => snap != null)
     .sort((a, b) => a.date.localeCompare(b.date))
 }

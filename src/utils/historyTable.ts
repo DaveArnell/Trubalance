@@ -324,7 +324,8 @@ export function buildHistoryTable(
       if (columns.some((col) => col.isTotal)) {
         values[totalKey] = cellFromSnapshot(state, parentSnap, metric, granularity)
         // Group total can reconcile venues + GROUP column; business total is its own saved figure.
-        if (viewScope.type === 'group') {
+        // Builtin demos keep the authored parent Available line (no child rollup spikes).
+        if (viewScope.type === 'group' && state.workspaceOrigin !== 'builtin-demo') {
           const rolledUp = rollupTotalValue(values, columns)
           if (rolledUp != null) {
             values[totalKey] = {
@@ -344,6 +345,7 @@ export function buildHistoryTable(
 /**
  * Parent-scope chart lines should match the balance log Total column (rollup of children),
  * not a separately saved group/business snapshot that can drift after child corrections.
+ * Builtin demos keep their authored parent series so Trends stay calmly smooth.
  */
 export function alignSnapshotsWithBalanceLogRollup(
   state: AppState,
@@ -355,6 +357,7 @@ export function alignSnapshotsWithBalanceLogRollup(
   granularity: HistoryGranularity = 'daily',
   fromDate?: string | null,
 ): BalanceSnapshot[] {
+  if (state.workspaceOrigin === 'builtin-demo') return snapshots
   if (scope.type !== viewScope.type || scope.id !== viewScope.id) {
     return snapshots
   }

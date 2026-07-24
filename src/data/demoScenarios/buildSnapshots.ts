@@ -72,7 +72,7 @@ function trueBalanceForScope(
 ): number {
   const progressMonths = months - monthsAgo
   const trend = scope.baseTrue + scope.growthPerMonth * progressMonths
-  // One soft cycle per year — no mid-history spike or crash.
+  // Tiny annual ripple only — demos must look stable (Available is the product story).
   const wobble = scope.annualWobble ?? 0
   const seasonal =
     wobble === 0 ? 0 : wobble * Math.sin((progressMonths / 12) * Math.PI * 2 - Math.PI / 2)

@@ -86,6 +86,9 @@ export function refreshSnapshotMetricsAt(
 
 /** Recompute every saved snapshot so Trends matches History after load or bulk fixes. */
 export function refreshAllSnapshotMetrics(state: AppState, now: string): AppState {
+  // Builtin demos ship an authored Available Balance series for sales — do not overwrite
+  // it with live accrual math (that makes Trends look violently spiky).
+  if (state.workspaceOrigin === 'builtin-demo') return state
   if (state.snapshots.length === 0) return state
   return {
     ...state,
@@ -93,13 +96,14 @@ export function refreshAllSnapshotMetrics(state: AppState, now: string): AppStat
   }
 }
 
-/** Recompute committed funds and true balance on every saved snapshot from a date forward. */
+/** Rebuild history when commitments change — never rewrite builtin demo sales trends. */
 export function rebuildSnapshotsFromDate(
   state: AppState,
   fromDateKey: string,
   scopes: ViewScope[],
   now: string,
 ): AppState {
+  if (state.workspaceOrigin === 'builtin-demo') return state
   if (scopes.length === 0) return state
 
   const scopeKeys = new Set(scopes.map(scopeKey))

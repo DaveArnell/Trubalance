@@ -20,7 +20,8 @@ export function getEffectiveSnapshotMetric(
   if (isSnapshotMetricCorrected(snapshot, metric)) {
     return snapshot[metric]
   }
-  if (useStoredDemoSnapshotMetrics(state, snapshot) && snapshot[metric] !== 0) {
+  // Demo Trends are authored for a calm Available story — never recompute from accruals.
+  if (useStoredDemoSnapshotMetrics(state, snapshot)) {
     return snapshot[metric]
   }
   const scope = { type: snapshot.scopeType, id: snapshot.scopeId } as const
