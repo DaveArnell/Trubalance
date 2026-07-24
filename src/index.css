@@ -4113,6 +4113,7 @@ body.widget-canvas-resizing * {
   overflow-y: auto;
   scrollbar-gutter: stable;
   -webkit-overflow-scrolling: touch;
+  padding-bottom: var(--space-4);
 }
 
 .widget-grid > .card:not(.card-scroll),
@@ -22018,11 +22019,22 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 }
 
 .interactive-demo-shell .app-shell {
-  flex: 1;
+  flex: 1 1 0;
+  min-height: 0;
+  /* Override the app's 100vh so the demo banner doesn't push the bottom off-screen */
+  height: auto;
+  max-height: 100%;
+}
+
+.interactive-demo-shell .sidebar,
+.interactive-demo-shell .main-content {
+  height: 100%;
+  max-height: 100%;
   min-height: 0;
 }
 
