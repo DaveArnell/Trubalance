@@ -93,7 +93,7 @@ export const METHOD_TWO_HABITS = [
 /** Live demo of continuous accrual. */
 export const METHOD_ACCRUING_DEMO = {
   heading: 'See known costs building',
-  lead: 'Rent and wages grow a little every day until payday.',
+  lead: 'Meaningful costs such as rent and wages grow a little every day until paid.',
 } as const
 
 /** How Cash Prophet works — three short pillars. */

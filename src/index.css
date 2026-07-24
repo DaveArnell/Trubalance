@@ -19167,6 +19167,12 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   width: 100%;
 }
 
+.setup-accruing-cycle--building-only {
+  grid-template-columns: 1fr;
+  max-width: 22rem;
+  margin-inline: auto;
+}
+
 .setup-accruing-day {
   width: 100%;
   max-width: min(100%, 40rem);
@@ -19268,6 +19274,43 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .setup-accruing-cycle-card-wrap.is-spawn {
   animation: setup-accruing-spawn 0.55s ease both;
+}
+
+.setup-accruing-cycle-card-wrap.is-paid {
+  position: relative;
+  z-index: 2;
+  animation: setup-accruing-paid 1.1s ease forwards;
+}
+
+.setup-accruing-cycle-card-wrap.is-paid::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 14px;
+  border: 2px solid #16a34a;
+  box-shadow:
+    0 0 0 0 rgba(22, 163, 74, 0.55),
+    0 0 18px rgba(22, 163, 74, 0.35);
+  pointer-events: none;
+  animation: setup-accruing-paid-ring 1.1s ease forwards;
+}
+
+.setup-accruing-cycle-card-wrap.is-paid::after {
+  content: 'Paid';
+  position: absolute;
+  top: -10px;
+  right: 8px;
+  z-index: 3;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #16a34a;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.35);
+  animation: setup-accruing-paid-badge 1.1s ease both;
 }
 
 @keyframes setup-accruing-depart {

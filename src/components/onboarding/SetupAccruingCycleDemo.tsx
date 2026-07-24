@@ -11,13 +11,7 @@ type Template = {
 type BuildingCard = Template & {
   key: string
   progress: number
-  phase: 'idle' | 'departing' | 'spawn'
-}
-
-type DueCard = Template & {
-  key: string
-  amount: number
-  phase: 'arriving' | 'waiting' | 'paid'
+  phase: 'idle' | 'paid' | 'spawn'
 }
 
 const TEMPLATES: Template[] = [
@@ -26,36 +20,34 @@ const TEMPLATES: Template[] = [
   { name: 'Wages', monthly: 8400, accent: '#0f766e' },
 ]
 
-/** Same calendar rate for every card — the month advances together. */
+/** Same calendar rate for every card. The month advances together. */
 const FILL_PER_TICK = 0.0042
 const TICK_MS = 50
-const DEPART_MS = 700
-const ARRIVE_MS = 420
-const DUE_HOLD_MS = 2400
-/** Hold paid + green pop long enough to read before fade-out. */
-const PAID_FADE_MS = 1100
+/** Hold green paid pop, then restart from the bottom. */
+const PAID_HOLD_MS = 1100
 
-/** Different due dates → different points in the same month. Most full = next due = top. */
+/** Different due dates: most full = next due = top. */
 const INITIAL_PROGRESS = [0.9, 0.55, 0.2]
 
 function sortBuilding(cards: BuildingCard[]): BuildingCard[] {
   return [...cards].sort((a, b) => {
-    if (a.phase === 'departing' && b.phase !== 'departing') return -1
-    if (b.phase === 'departing' && a.phase !== 'departing') return 1
+    if (a.phase === 'paid' && b.phase !== 'paid') return -1
+    if (b.phase === 'paid' && a.phase !== 'paid') return 1
     return b.progress - a.progress
   })
 }
 
+/**
+ * Marketing / onboarding demo: known costs build day by day.
+ * When a bar hits full it gets a green paid pop, then drops to the bottom and builds again.
+ * No Due column (keeps the first explanation focused on building).
+ */
 export function SetupAccruingCycleDemo() {
   const uid = useId().replace(/:/g, '')
-  const seq = useRef(0)
   const busy = useRef(false)
   const buildingRef = useRef<BuildingCard[]>([])
+  const dayProgressRef = useRef(0.72)
   const timers = useRef<number[]>([])
-  const nextKey = () => {
-    seq.current += 1
-    return `${uid}-${seq.current}`
-  }
 
   const [building, setBuilding] = useState<BuildingCard[]>(() => {
     const initial = sortBuilding(
@@ -69,8 +61,7 @@ export function SetupAccruingCycleDemo() {
     buildingRef.current = initial
     return initial
   })
-  const [due, setDue] = useState<DueCard[]>([])
-  const [transferPulse, setTransferPulse] = useState(false)
+  const [monthDay, setMonthDay] = useState(22)
 
   const updateBuilding = (next: BuildingCard[]) => {
     const sorted = sortBuilding(next)
@@ -102,22 +93,16 @@ export function SetupAccruingCycleDemo() {
           phase: 'idle' as const,
         })),
       )
-      setDue([
-        {
-          key: `${uid}-due-static`,
-          name: 'Insurance',
-          monthly: 1200,
-          amount: 1200,
-          accent: '#c2410c',
-          phase: 'waiting',
-        },
-      ])
+      setMonthDay(22)
       return clearTimers
     }
 
     const interval = window.setInterval(() => {
+      dayProgressRef.current = (dayProgressRef.current + FILL_PER_TICK) % 1
+      setMonthDay(Math.max(1, Math.min(30, Math.round(dayProgressRef.current * 30) || 1)))
+
       const advanced = buildingRef.current.map((row) =>
-        row.phase === 'departing'
+        row.phase === 'paid'
           ? row
           : {
               ...row,
@@ -137,67 +122,25 @@ export function SetupAccruingCycleDemo() {
       }
 
       busy.current = true
-      setTransferPulse(true)
       updateBuilding(
         advanced.map((row) =>
-          row.key === full.key ? { ...row, progress: 1, phase: 'departing' as const } : row,
+          row.key === full.key ? { ...row, progress: 1, phase: 'paid' as const } : row,
         ),
       )
 
       schedule(() => {
         const template = TEMPLATES.find((entry) => entry.name === full.name) ?? TEMPLATES[0]!
-        const freshKey = nextKey()
-
         updateBuilding([
           ...buildingRef.current.filter((row) => row.key !== full.key),
           {
             ...template,
-            key: freshKey,
+            key: full.key,
             progress: 0,
             phase: 'spawn',
           },
         ])
-
-        setDue((prev) =>
-          [
-            {
-              key: full.key,
-              name: full.name,
-              monthly: full.monthly,
-              amount: full.monthly,
-              accent: full.accent,
-              phase: 'arriving' as const,
-            },
-            ...prev,
-          ].slice(0, 3),
-        )
-
-        schedule(() => {
-          setDue((prev) =>
-            prev.map((entry) =>
-              entry.key === full.key ? { ...entry, phase: 'waiting' as const } : entry,
-            ),
-          )
-          updateBuilding(
-            buildingRef.current.map((row) =>
-              row.key === freshKey ? { ...row, phase: 'idle' as const } : row,
-            ),
-          )
-          setTransferPulse(false)
-          busy.current = false
-        }, ARRIVE_MS)
-
-        schedule(() => {
-          setDue((prev) =>
-            prev.map((entry) =>
-              entry.key === full.key ? { ...entry, phase: 'paid' as const } : entry,
-            ),
-          )
-          schedule(() => {
-            setDue((prev) => prev.filter((entry) => entry.key !== full.key))
-          }, PAID_FADE_MS)
-        }, DUE_HOLD_MS)
-      }, DEPART_MS)
+        busy.current = false
+      }, PAID_HOLD_MS)
     }, TICK_MS)
 
     return () => {
@@ -206,12 +149,6 @@ export function SetupAccruingCycleDemo() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- demo loop keyed to uid only
   }, [uid])
-
-  const referenceCard =
-    building.find((card) => card.name === 'Wages') ?? building[0] ?? null
-  const monthDay = referenceCard
-    ? Math.max(1, Math.min(30, Math.round(referenceCard.progress * 30) || 1))
-    : 1
 
   return (
     <div className="setup-edu-visual setup-edu-visual--cards">
@@ -234,7 +171,7 @@ export function SetupAccruingCycleDemo() {
           />
         </div>
       </div>
-      <div className="setup-accruing-cycle" aria-hidden="true">
+      <div className="setup-accruing-cycle setup-accruing-cycle--building-only" aria-hidden="true">
         <div className="setup-accruing-cycle-col">
           <p className="setup-accruing-cycle-heading">Building up</p>
           <div className="setup-accruing-cycle-list">
@@ -242,7 +179,7 @@ export function SetupAccruingCycleDemo() {
               <div
                 key={card.key}
                 className={`setup-accruing-cycle-card-wrap${
-                  card.phase === 'departing' ? ' is-departing' : ''
+                  card.phase === 'paid' ? ' is-paid' : ''
                 }${card.phase === 'spawn' ? ' is-spawn' : ''}`}
               >
                 <MobileRecordCard
@@ -255,39 +192,6 @@ export function SetupAccruingCycleDemo() {
                 />
               </div>
             ))}
-          </div>
-        </div>
-        <div
-          className={`setup-accruing-cycle-arrow${transferPulse ? ' is-active' : ''}`}
-          aria-hidden
-        >
-          →
-        </div>
-        <div className="setup-accruing-cycle-col">
-          <p className="setup-accruing-cycle-heading">Due</p>
-          <div className="setup-accruing-cycle-list">
-            {due.length === 0 ? (
-              <p className="setup-accruing-cycle-empty muted">When a bar fills, it moves here</p>
-            ) : (
-              due.map((card) => (
-                <div
-                  key={card.key}
-                  className={`setup-accruing-cycle-due-wrap${
-                    card.phase === 'arriving' ? ' is-arriving' : ''
-                  }${card.phase === 'paid' ? ' is-paid' : ''}`}
-                >
-                  <MobileRecordCard
-                    title={card.name}
-                    amount={formatCurrency(card.amount)}
-                    amountNegative
-                    progress={1}
-                    progressColor={card.accent}
-                    accentColor={card.accent}
-                    meta={card.phase === 'paid' ? 'Paid' : undefined}
-                  />
-                </div>
-              ))
-            )}
           </div>
         </div>
       </div>
