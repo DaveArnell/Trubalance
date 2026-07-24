@@ -3,7 +3,7 @@ import { useMorphCycle, lerp } from './useMorphCycle'
 /**
  * Hero visuals — one shared month story, two chart types morphing together:
  * 1) Payment forecast (bars): bill spikes → even daily build
- * 2) Balance (line): bank sawtooth → Available Balance (gentle upward wave)
+ * 2) Balance (line): bank sawtooth → Available Balance (gentle upward wave, low on chart)
  * Spike days match drop days so bar height and line plunge share the same events.
  */
 
@@ -13,7 +13,7 @@ const W = 440
 const H_LINE = 150
 const N = 24
 const BASELINE = 126
-const EVEN_BAR = 0.28
+const EVEN_BAR = 0.24
 
 /** Shared payment events — bar spikes and bank-line drops use the same indices. */
 const EVENTS = [
@@ -50,7 +50,6 @@ const BANK_Y = (() => {
   ys[0] = 66
   ys[N - 1] = 58
 
-  // Climb between trough and next peak
   for (let e = 0; e < EVENTS.length; e++) {
     const troughI = EVENTS[e]!.i
     const nextPeakI = e + 1 < EVENTS.length ? EVENTS[e + 1]!.i - 1 : N - 1
@@ -72,11 +71,14 @@ const BANK_Y = (() => {
   return ys
 })()
 
-/** Available Balance: slight wave, overall upward, sit lower on the chart. */
+/**
+ * Available Balance: slight wave, overall upward, sits low on the chart
+ * (closer to the axis = less “left” once commitments are in).
+ */
 const AVAILABLE_Y = Array.from({ length: N }, (_, i) => {
   const t = i / (N - 1)
-  const trend = 92 - t * 22
-  const wave = Math.sin(t * Math.PI * 2.2) * 5.5 + Math.sin(t * Math.PI * 5.1) * 2.2
+  const trend = 108 - t * 14
+  const wave = Math.sin(t * Math.PI * 2.2) * 4 + Math.sin(t * Math.PI * 5.1) * 1.8
   return trend + wave
 })
 
@@ -105,6 +107,36 @@ function areaUnder(points: Pt[], baselineY: number): string {
   const last = points[points.length - 1]!
   const first = points[0]!
   return `${smoothPath(points)} L${last.x} ${baselineY} L${first.x} ${baselineY} Z`
+}
+
+/** Crossfade two labels in place — no snap. */
+function MorphText({
+  before,
+  after,
+  t,
+  className,
+  beforeClassName = '',
+  afterClassName = '',
+}: {
+  before: string
+  after: string
+  t: number
+  className: string
+  beforeClassName?: string
+  afterClassName?: string
+}) {
+  const beforeOpacity = Math.max(0, Math.min(1, 1 - t / 0.45))
+  const afterOpacity = Math.max(0, Math.min(1, (t - 0.4) / 0.4))
+  return (
+    <div className={`hero-graph-morph-text ${className}`}>
+      <p className={beforeClassName} style={{ opacity: beforeOpacity }} aria-hidden={beforeOpacity < 0.15}>
+        {before}
+      </p>
+      <p className={afterClassName} style={{ opacity: afterOpacity }} aria-hidden={afterOpacity < 0.15}>
+        {after}
+      </p>
+    </div>
+  )
 }
 
 function BarChart({ heights, towardEven }: { heights: number[]; towardEven: number }) {
@@ -137,10 +169,12 @@ function BalanceLine({ towardEven }: { towardEven: number }) {
     x: p.x,
     y: lerp(p.y, availPts[i]!.y, towardEven),
   }))
-  const useSmooth = towardEven > 0.45
-  const path = useSmooth ? smoothPath(mixed) : jaggedPath(mixed)
+  // Blend jagged → smooth so the path style doesn’t snap mid-morph
+  const jagged = jaggedPath(mixed)
+  const smooth = smoothPath(mixed)
   const area = areaUnder(mixed, BASELINE)
-  const isGreen = towardEven > 0.55
+  const bankOpacity = Math.max(0, 1 - towardEven / 0.55)
+  const greenOpacity = Math.max(0, Math.min(1, (towardEven - 0.35) / 0.4))
 
   return (
     <svg className="hero-graph-svg" viewBox={`0 0 ${W} ${H_LINE}`} aria-hidden>
@@ -148,51 +182,57 @@ function BalanceLine({ towardEven }: { towardEven: number }) {
       <line x1="12" y1="90" x2="428" y2="90" className="hero-graph-gridline" />
       <line x1="12" y1="54" x2="428" y2="54" className="hero-graph-gridline" />
 
-      {towardEven > 0.35 ? (
-        <path className="hero-graph-area" d={area} opacity={Math.min(1, (towardEven - 0.35) / 0.4)} />
-      ) : null}
+      <path className="hero-graph-area" d={area} opacity={greenOpacity * 0.9} />
 
       <path
-        className={`hero-graph-line ${isGreen ? 'hero-graph-line--true' : 'hero-graph-line--bank'}`}
-        d={path}
+        className="hero-graph-line hero-graph-line--bank"
+        d={towardEven < 0.5 ? jagged : smooth}
+        opacity={bankOpacity}
+      />
+      <path
+        className="hero-graph-line hero-graph-line--true"
+        d={smooth}
+        opacity={greenOpacity}
       />
 
       {EVENTS.map((event) => {
         const p = mixed[event.i]!
-        if (towardEven > 0.7) {
-          return (
+        return (
+          <g key={event.label}>
             <circle
-              key={event.label}
               cx={p.x}
               cy={p.y}
-              r="3"
-              className="hero-graph-day-dot"
-              opacity={Math.min(1, (towardEven - 0.7) / 0.3)}
+              r="4"
+              className="hero-graph-drop-dot"
+              opacity={bankOpacity}
             />
-          )
-        }
-        return (
-          <g key={event.label} opacity={Math.max(0, 1 - towardEven * 1.2)}>
-            <circle cx={p.x} cy={p.y} r="4" className="hero-graph-drop-dot" />
             <text
               x={p.x}
               y={Math.min(BASELINE - 6, p.y + 20)}
               className="hero-graph-drop-label"
               textAnchor="middle"
+              opacity={bankOpacity}
             >
               {event.label}
             </text>
+            <circle
+              cx={p.x}
+              cy={p.y}
+              r="3"
+              className="hero-graph-day-dot"
+              opacity={greenOpacity}
+            />
           </g>
         )
       })}
-
     </svg>
   )
 }
 
 export function HeroBalanceGraphs() {
-  const towardEven = useMorphCycle(2600, 2000)
-  const isEvenish = towardEven > 0.55
+  // Longer morph so bars ease like the line, not snap between states
+  const towardEven = useMorphCycle(2400, 2800)
+  const cardTone = towardEven > 0.5 ? 'true' : 'bank'
 
   const barHeights = SPIKE_BARS.map((spike) => spike + (EVEN_BAR - spike) * towardEven)
 
@@ -201,28 +241,39 @@ export function HeroBalanceGraphs() {
       className="hero-graphs hero-graphs--sync"
       aria-label="Payment spikes and bank balance morph into an even Available Balance"
     >
-      <figure className={`hero-graph-card ${isEvenish ? 'hero-graph-card--true' : 'hero-graph-card--bank'}`}>
+      <figure className={`hero-graph-card hero-graph-card--${cardTone}`}>
         <div className="hero-graph-header">
-          <p className={`hero-graph-tag ${isEvenish ? 'hero-graph-tag--true' : 'hero-graph-tag--bank'}`}>
-            Payment forecast
-          </p>
-          <p className="hero-graph-title">
-            {isEvenish
-              ? 'Build towards commitments daily through the month'
-              : 'Bills land as spikes when they leave the account'}
-          </p>
+          <p className={`hero-graph-tag hero-graph-tag--${cardTone}`}>Payment forecast</p>
+          <MorphText
+            className="hero-graph-title-stack"
+            before="Bills land as spikes when they leave the account"
+            after="Build towards commitments daily through the month"
+            t={towardEven}
+            beforeClassName="hero-graph-title"
+            afterClassName="hero-graph-title"
+          />
         </div>
         <BarChart heights={barHeights} towardEven={towardEven} />
       </figure>
 
-      <figure className={`hero-graph-card ${isEvenish ? 'hero-graph-card--true' : 'hero-graph-card--bank'}`}>
+      <figure className={`hero-graph-card hero-graph-card--${cardTone}`}>
         <div className="hero-graph-header">
-          <p className={`hero-graph-tag ${isEvenish ? 'hero-graph-tag--true' : 'hero-graph-tag--bank'}`}>
-            {isEvenish ? 'Available Balance' : 'Bank balance'}
-          </p>
-          <p className="hero-graph-title">
-            {isEvenish ? 'A clearer picture of your finances' : 'Looks fine until the payments hit'}
-          </p>
+          <MorphText
+            className="hero-graph-tag-stack"
+            before="Bank balance"
+            after="Available Balance"
+            t={towardEven}
+            beforeClassName="hero-graph-tag hero-graph-tag--bank"
+            afterClassName="hero-graph-tag hero-graph-tag--true"
+          />
+          <MorphText
+            className="hero-graph-title-stack"
+            before="Looks fine until the payments hit"
+            after="A clearer picture of your finances"
+            t={towardEven}
+            beforeClassName="hero-graph-title"
+            afterClassName="hero-graph-title"
+          />
         </div>
         <BalanceLine towardEven={towardEven} />
       </figure>

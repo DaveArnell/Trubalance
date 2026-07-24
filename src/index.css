@@ -28536,7 +28536,29 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   flex: 1;
   min-width: 0;
   border-radius: 3px 3px 1px 1px;
-  transition: height 40ms linear;
+  /* Height is driven by RAF morph — CSS transition fights it and looks like a snap */
+  transition: none;
+}
+
+.hero-graph-morph-text {
+  position: relative;
+  display: grid;
+}
+
+.hero-graph-morph-text > p {
+  grid-area: 1 / 1;
+  margin: 0;
+  transition: none;
+  pointer-events: none;
+}
+
+.hero-graph-tag-stack {
+  margin: 0 0 8px;
+  min-height: 1.1em;
+}
+
+.hero-graph-title-stack {
+  min-height: 2.6em;
 }
 
 .hero-graph-area--muted {
