@@ -4,7 +4,12 @@ import { MarketingFooter, MarketingHeader, MarketingShell } from '../components/
 import { useAuth } from '../contexts/AuthContext'
 import { isSupabaseConfigured } from '../lib/supabase'
 import { LOGIN_ASIDE, SIGNUP_ASIDE, SIGNUP_FORM } from '../content/authPages'
-import { LOGIN_SEO, SIGNUP_SEO } from '../content/marketingSeo'
+import {
+  FORGOT_PASSWORD_SEO,
+  LOGIN_SEO,
+  RESET_PASSWORD_SEO,
+  SIGNUP_SEO,
+} from '../content/marketingSeo'
 import { usePageMeta } from '../hooks/usePageMeta'
 
 interface AuthFormProps {
@@ -259,12 +264,7 @@ export function SignupPage() {
 }
 
 export function ForgotPasswordPage() {
-  usePageMeta({
-    title: 'Forgot password',
-    description: 'Reset your Cash Prophet password.',
-    path: '/forgot-password',
-    noindex: true,
-  })
+  usePageMeta(FORGOT_PASSWORD_SEO)
   const { resetPassword } = useAuth()
   const [email, setEmail] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -342,12 +342,7 @@ export function ForgotPasswordPage() {
 }
 
 export function ResetPasswordPage() {
-  usePageMeta({
-    title: 'Reset password',
-    description: 'Choose a new Cash Prophet password.',
-    path: '/reset-password',
-    noindex: true,
-  })
+  usePageMeta(RESET_PASSWORD_SEO)
   const { updatePassword } = useAuth()
   const navigate = useNavigate()
   const [password, setPassword] = useState('')

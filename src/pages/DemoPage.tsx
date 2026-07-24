@@ -14,7 +14,6 @@ import { usePageMeta } from '../hooks/usePageMeta'
 import { formatSnapshotDateLong } from '../utils/snapshots'
 
 export function DemoPage() {
-  usePageMeta(DEMO_SEO)
   const { scenarioId } = useParams<{ scenarioId?: string }>()
   const navigate = useNavigate()
   const resolvedId = scenarioId ?? DEFAULT_DEMO_SCENARIO_ID
@@ -25,6 +24,14 @@ export function DemoPage() {
   const activeId = DEMO_SCENARIOS[scenarioIndex]?.id ?? DEFAULT_DEMO_SCENARIO_ID
 
   const { meta, state: initialState } = useMemo(() => buildDemoScenarioState(activeId), [activeId])
+
+  usePageMeta({
+    ...DEMO_SEO,
+    title: `${meta.title} Demo | Cash Prophet Available Balance`,
+    description: meta.description,
+    path: `/demo/${meta.id}`,
+    imageAlt: `${meta.title} — Cash Prophet interactive demo`,
+  })
   const canEditDemo = false
   const [demoState, setDemoState] = useState(initialState)
   const [loadedScenarioId, setLoadedScenarioId] = useState(activeId)

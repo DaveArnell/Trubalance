@@ -11,10 +11,11 @@ import '../admin.css'
 
 export function AdminLayout() {
   usePageMeta({
-    title: 'Platform admin',
-    description: 'Cash Prophet platform administration.',
+    title: 'Platform Admin | Cash Prophet',
+    description: 'Cash Prophet platform administration — Vocatio staff only.',
     path: '/vocatio-admin',
     noindex: true,
+    imageAlt: 'Cash Prophet platform admin',
   })
   const { signOut } = useAuth()
   const { logoutAdmin, email, expiresAt } = useAdminAuth()

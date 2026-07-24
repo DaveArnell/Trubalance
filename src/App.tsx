@@ -511,9 +511,10 @@ function AppShellInner({
 
   usePageMeta({
     title: documentTitle,
-    description: `${pageMeta.label} in Cash Prophet — cash clarity for UK business owners.`,
+    description: `${pageMeta.label} in Cash Prophet — your Available Balance workspace for UK business owners.`,
     path: '/app',
     noindex: true,
+    imageAlt: 'Cash Prophet workspace',
   })
 
   useEffect(() => {

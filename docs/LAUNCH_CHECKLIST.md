@@ -35,14 +35,17 @@ Bank statement import is disabled in the app (`BANK_IMPORT_ENABLED = false`). On
 - [x] Homepage JSON-LD (`Organization` + `WebSite`)
 - [x] `robots.txt` disallows app/demo/auth/admin paths
 - [x] Sitemap auto-generated at build from `blogPosts.ts`
+- [x] Unique title + meta description per public route
+- [x] Full OG + Twitter Card tags (image, dimensions, alt)
+- [x] `public/og-image.png` (1200×630 share image)
+- [x] Build-time HTML shells so social crawlers see route-specific meta without JS
 
 **Manual — do before / after launch:**
 
-- [ ] Add **`public/og-image.png`** (1200×630) — branded share image for social links
-- [ ] Add **`public/favicon.svg`** or fix favicon (currently references missing file)
 - [ ] [Google Search Console](https://search.google.com/search-console) — verify `truebalanceapp.io`, submit sitemap `https://truebalanceapp.io/sitemap.xml`
 - [ ] Optional: Plausible or Google Analytics 4 for traffic/signup attribution
-- [ ] Optional: prerender `/` and `/blog/*` for crawlers that skip JavaScript
+- [ ] After deploy: refresh Facebook Sharing Debugger / LinkedIn Post Inspector for key URLs
+- [ ] Optional: deeper prerender of above-the-fold body content for crawlers that skip JavaScript
 
 ---
 

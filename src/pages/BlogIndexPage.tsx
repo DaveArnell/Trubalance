@@ -5,6 +5,7 @@ import {
   MarketingShell,
 } from '../components/marketing/MarketingLayout'
 import { BLOG_CATEGORIES, BLOG_POSTS } from '../content/blogPosts'
+import { BLOG_INDEX_SEO } from '../content/marketingSeo'
 import { METHOD_BLOG_CATEGORY } from '../content/trueBalanceMethod'
 import { usePageMeta } from '../hooks/usePageMeta'
 
@@ -13,10 +14,14 @@ export function BlogIndexPage() {
   const activeCategory = searchParams.get('category')
 
   usePageMeta({
-    title: 'Blog — Financial clarity for UK business owners | Cash Prophet',
-    description:
-      'Articles on mental load, known commitments, VAT reserves, and why bookkeeping and daily clarity answer different questions.',
-    path: activeCategory ? `/blog?category=${encodeURIComponent(activeCategory)}` : '/blog',
+    ...BLOG_INDEX_SEO,
+    title: activeCategory
+      ? `${activeCategory} Cash Guides | Cash Prophet Blog`
+      : BLOG_INDEX_SEO.title,
+    description: activeCategory
+      ? `${activeCategory} articles on Available Balance, committed funds and cash clarity for UK business owners.`
+      : BLOG_INDEX_SEO.description,
+    path: activeCategory ? `/blog?category=${encodeURIComponent(activeCategory)}` : BLOG_INDEX_SEO.path,
   })
 
   const sorted = [...BLOG_POSTS]

@@ -9,11 +9,22 @@ interface LegalPageLayoutProps {
   updated: string
   description: string
   path: string
+  /** Document title / OG title when different from the visible H1. */
+  seoTitle?: string
+  imageAlt?: string
   children: ReactNode
 }
 
-export function LegalPageLayout({ title, updated, description, path, children }: LegalPageLayoutProps) {
-  usePageMeta({ title, description, path })
+export function LegalPageLayout({
+  title,
+  updated,
+  description,
+  path,
+  seoTitle,
+  imageAlt,
+  children,
+}: LegalPageLayoutProps) {
+  usePageMeta({ title: seoTitle ?? title, description, path, imageAlt })
   return (
     <MarketingShell>
       <MarketingHeader />

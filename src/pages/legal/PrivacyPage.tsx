@@ -7,9 +7,11 @@ export function PrivacyPage() {
   return (
     <LegalPageLayout
       title="Privacy policy"
+      seoTitle={PRIVACY_SEO.title}
       updated="16 July 2026"
       description={PRIVACY_SEO.description}
       path={PRIVACY_SEO.path}
+      imageAlt={PRIVACY_SEO.imageAlt}
     >
       <p>
         {COMPANY_INFO.productName} (&quot;the service&quot;) is owned and operated by{' '}

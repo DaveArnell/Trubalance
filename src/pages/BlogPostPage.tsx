@@ -22,6 +22,8 @@ export function BlogPostPage() {
     type: post ? 'article' : 'website',
     publishedTime: post ? `${post.publishedAt}T09:00:00Z` : undefined,
     modifiedTime: post ? `${post.updatedAt}T09:00:00Z` : undefined,
+    imageAlt: post?.title ?? 'Cash Prophet blog article',
+    noindex: !post,
   })
 
   useEffect(() => {

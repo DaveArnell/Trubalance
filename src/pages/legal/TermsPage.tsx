@@ -7,9 +7,11 @@ export function TermsPage() {
   return (
     <LegalPageLayout
       title="Terms of service"
+      seoTitle={TERMS_SEO.title}
       updated="16 July 2026"
       description={TERMS_SEO.description}
       path={TERMS_SEO.path}
+      imageAlt={TERMS_SEO.imageAlt}
     >
       <p>
         These terms govern your use of {COMPANY_INFO.productName} (&quot;the service&quot;), operated
