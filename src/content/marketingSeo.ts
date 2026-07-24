@@ -71,9 +71,9 @@ export const LOGIN_SEO = {
 } as const
 
 export const SIGNUP_SEO = {
-  title: 'Sign up — Start with calmer day-to-day finances',
+  title: 'Sign up — Start free with Cash Prophet',
   description:
-    'Create your Cash Prophet account. Founder access during early access for UK small business owners.',
+    'Create your Cash Prophet account. Three months free, guided onboarding, and a balance you can rely on for everyday decisions.',
   path: '/signup',
 } as const
 

@@ -3,11 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { MarketingFooter, MarketingHeader, MarketingShell } from '../components/marketing/MarketingLayout'
 import { useAuth } from '../contexts/AuthContext'
 import { isSupabaseConfigured } from '../lib/supabase'
-import {
-  FOUNDER_PROGRAM_BODY,
-  FOUNDER_PROGRAM_FOOTNOTE,
-  FOUNDER_PROGRAM_HEADLINE,
-} from '../config/founderProgram'
+import { LOGIN_ASIDE, SIGNUP_ASIDE, SIGNUP_FORM } from '../content/authPages'
 import { LOGIN_SEO, SIGNUP_SEO } from '../content/marketingSeo'
 import { usePageMeta } from '../hooks/usePageMeta'
 
@@ -16,31 +12,18 @@ interface AuthFormProps {
 }
 
 function AuthAside({ mode }: { mode: 'login' | 'signup' }) {
+  const copy = mode === 'login' ? LOGIN_ASIDE : SIGNUP_ASIDE
   return (
     <aside className="auth-aside">
       <div className="auth-aside-inner">
-        <p className="marketing-eyebrow">Cash Prophet</p>
-        <h2>{mode === 'login' ? 'Welcome back' : 'Join early access'}</h2>
-        <p className="auth-aside-lead">
-          {mode === 'login'
-            ? 'Pick up where you left off — balances, commitments, and reserves in one place.'
-            : `Let Cash Prophet organise known commitments for you. ${FOUNDER_PROGRAM_HEADLINE}. ${FOUNDER_PROGRAM_BODY}`}
-        </p>
+        <p className="marketing-eyebrow">{copy.eyebrow}</p>
+        <h2>{copy.heading}</h2>
+        <p className="auth-aside-lead">{copy.lead}</p>
         <ul className="auth-aside-points">
-          <li>{FOUNDER_PROGRAM_HEADLINE}</li>
-          <li>Full access — every feature unlocked</li>
-          <li>No payment details required</li>
-          <li>{FOUNDER_PROGRAM_FOOTNOTE}</li>
-          <li>Guided setup on first login</li>
+          {copy.points.map((point) => (
+            <li key={point}>{point}</li>
+          ))}
         </ul>
-        <div className="auth-aside-video">
-          <div className="marketing-video-placeholder marketing-video-placeholder--compact">
-            <span className="marketing-video-play marketing-video-play--small" aria-hidden>
-              â–¶
-            </span>
-            <p>Product overview video</p>
-          </div>
-        </div>
       </div>
     </aside>
   )
@@ -119,7 +102,7 @@ export function AuthForm({ mode }: AuthFormProps) {
           Continue without account (local only)
         </Link>
         <p className="auth-switch">
-          <Link to="/">â† Back to home</Link>
+          <Link to="/">← Back to home</Link>
         </p>
       </div>
     )
@@ -130,8 +113,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       <div className="auth-card">
         <h1>Check your email</h1>
         <p className="muted">
-          We sent a confirmation link to <strong>{email}</strong>. Once confirmed, log in and we will walk you
-          through setup. If you are among the first 50 accounts, you will have lifetime free access.
+          We sent a confirmation link to <strong>{email}</strong>. {SIGNUP_FORM.successNote}
         </p>
         <Link to="/login" className="btn-primary btn-large">
           Go to log in
@@ -142,11 +124,9 @@ export function AuthForm({ mode }: AuthFormProps) {
 
   return (
     <div className="auth-card">
-      <h1>{mode === 'login' ? 'Log in' : 'Create your account'}</h1>
+      <h1>{mode === 'login' ? 'Log in' : SIGNUP_FORM.heading}</h1>
       <p className="auth-card-lead muted">
-        {mode === 'signup'
-          ? `Confirm your email to get started. ${FOUNDER_PROGRAM_HEADLINE} if you are among the first 50 accounts — otherwise your 3-month trial begins when you confirm.`
-          : 'Open your Cash Prophet dashboard.'}
+        {mode === 'signup' ? SIGNUP_FORM.lead : 'Open your Cash Prophet dashboard.'}
       </p>
 
       <form className="auth-form" onSubmit={onSubmit}>
@@ -348,7 +328,7 @@ export function ForgotPasswordPage() {
                   </button>
                 </form>
                 <p className="auth-switch">
-                  <Link to="/login">â† Back to log in</Link>
+                  <Link to="/login">← Back to log in</Link>
                 </p>
               </>
             )}

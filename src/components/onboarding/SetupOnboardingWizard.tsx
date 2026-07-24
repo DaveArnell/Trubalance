@@ -16,7 +16,6 @@ import { SetupStructureTree } from './SetupStructureTree'
 import { SetupAccruingCycleDemo } from './SetupAccruingCycleDemo'
 import { SetupDueCardsDemo } from './SetupDueCardsDemo'
 import { SetupReceiptCardsDemo } from './SetupReceiptCardsDemo'
-import { SetupVideoSlot } from './SetupVideoSlot'
 import { useAuth } from '../../contexts/AuthContext'
 import { trackEvent } from '../../services/eventTracking'
 
@@ -37,17 +36,6 @@ const PREVIEW_STEP_IDS = new Set([
   'month-view',
   'due-explain',
   'receipts-explain',
-  'trends-explain',
-  'forecast-explain',
-])
-
-const TEACH_VIDEO_STEPS = new Set([
-  'why',
-  'committed-explain',
-  'month-view',
-  'due-explain',
-  'receipts-explain',
-  'reserve',
   'trends-explain',
   'forecast-explain',
 ])
@@ -276,8 +264,6 @@ export function SetupOnboardingWizard({
             {para}
           </p>
         ))}
-
-        {TEACH_VIDEO_STEPS.has(step.id) ? <SetupVideoSlot label="Watch video" /> : null}
 
         {step.id === 'why' && (
           <ul className="setup-why-bullets">
