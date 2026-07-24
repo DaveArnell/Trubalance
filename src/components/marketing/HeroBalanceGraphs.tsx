@@ -72,10 +72,10 @@ const BANK_Y = (() => {
   return ys
 })()
 
-/** Available Balance: slight wave, overall upward (lower y over time). */
+/** Available Balance: slight wave, overall upward, sit lower on the chart. */
 const AVAILABLE_Y = Array.from({ length: N }, (_, i) => {
   const t = i / (N - 1)
-  const trend = 78 - t * 28
+  const trend = 92 - t * 22
   const wave = Math.sin(t * Math.PI * 2.2) * 5.5 + Math.sin(t * Math.PI * 5.1) * 2.2
   return trend + wave
 })
@@ -186,34 +186,12 @@ function BalanceLine({ towardEven }: { towardEven: number }) {
         )
       })}
 
-      {towardEven < 0.4 ? (
-        <text
-          x="330"
-          y="26"
-          className="hero-graph-scribble"
-          textAnchor="middle"
-          opacity={1 - towardEven / 0.4}
-        >
-          sudden hits ↓
-        </text>
-      ) : null}
-      {towardEven > 0.6 ? (
-        <text
-          x="150"
-          y="34"
-          className="hero-graph-scribble hero-graph-scribble--true"
-          textAnchor="middle"
-          opacity={Math.min(1, (towardEven - 0.6) / 0.35)}
-        >
-          already accounted for
-        </text>
-      ) : null}
     </svg>
   )
 }
 
 export function HeroBalanceGraphs() {
-  const towardEven = useMorphCycle(2400, 1500)
+  const towardEven = useMorphCycle(2600, 2000)
   const isEvenish = towardEven > 0.55
 
   const barHeights = SPIKE_BARS.map((spike) => spike + (EVEN_BAR - spike) * towardEven)
@@ -230,7 +208,7 @@ export function HeroBalanceGraphs() {
           </p>
           <p className="hero-graph-title">
             {isEvenish
-              ? 'Commitments build evenly through the month'
+              ? 'Build towards commitments daily through the month'
               : 'Bills land as spikes when they leave the account'}
           </p>
         </div>
@@ -243,9 +221,7 @@ export function HeroBalanceGraphs() {
             {isEvenish ? 'Available Balance' : 'Bank balance'}
           </p>
           <p className="hero-graph-title">
-            {isEvenish
-              ? 'A calmer number trending the right way'
-              : 'Looks fine until the payments hit'}
+            {isEvenish ? 'A clearer picture of your finances' : 'Looks fine until the payments hit'}
           </p>
         </div>
         <BalanceLine towardEven={towardEven} />

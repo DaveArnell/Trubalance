@@ -2,11 +2,12 @@
  * Homepage visuals — dashboard-faithful snapshots.
  */
 
+/** Sorted most-full first, like the live accruing list. */
 const DUE_CARDS = [
-  { scope: 'High Street', due: 'Due 28th', name: 'Wages', accrued: '£1,680', total: '£8,400', kind: 'cost' },
-  { scope: 'High Street', due: 'Due 1st', name: 'Rent', accrued: '£2,150', total: '£2,500', kind: 'cost' },
-  { scope: 'Market stall', due: 'Due 10th', name: 'Utilities', accrued: '£230', total: '£420', kind: 'cost' },
-  { scope: 'Reserve', due: 'Due 31st', name: 'Reserve transfer', accrued: '£1,840', total: '£2,200', kind: 'reserve' },
+  { scope: 'High Street', dueIn: 'Due in 2 days', name: 'Rent', accrued: '£2,150', total: '£2,500', fill: 0.86 },
+  { scope: 'Reserve', dueIn: 'Due in 4 days', name: 'Reserve transfer', accrued: '£1,840', total: '£2,200', fill: 0.84 },
+  { scope: 'Market stall', dueIn: 'Due in 15 days', name: 'Utilities', accrued: '£230', total: '£420', fill: 0.55 },
+  { scope: 'High Street', dueIn: 'Due in 22 days', name: 'Wages', accrued: '£1,680', total: '£8,400', fill: 0.2 },
 ] as const
 
 export function HomeSpokenForPanel() {
@@ -38,19 +39,23 @@ export function HomeAvailablePanel() {
 
         <ul className="home-dash-cards">
           {DUE_CARDS.map((card) => (
-            <li
-              key={`${card.name}-${card.due}`}
-              className={`home-dash-card${card.kind === 'reserve' ? ' home-dash-card--reserve' : ''}`}
-            >
+            <li key={card.name} className="home-dash-card">
+              <div
+                className="home-dash-card-progress"
+                aria-hidden
+                style={{ ['--home-dash-fill' as string]: `${card.fill * 100}%` }}
+              />
               <div className="home-dash-card-meta">
                 <span className="home-dash-card-scope">{card.scope}</span>
-                <span className="home-dash-card-due">{card.due}</span>
+                <span className="home-dash-card-due">{card.dueIn}</span>
               </div>
-              <p className="home-dash-card-name">{card.name}</p>
-              <p className="home-dash-card-amount">
-                <strong>{card.accrued}</strong>
-                <span> / {card.total}</span>
-              </p>
+              <div className="home-dash-card-row">
+                <p className="home-dash-card-name">{card.name}</p>
+                <p className="home-dash-card-amount">
+                  <strong>{card.accrued}</strong>
+                  <span> / {card.total}</span>
+                </p>
+              </div>
             </li>
           ))}
         </ul>
