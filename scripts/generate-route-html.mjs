@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const site = 'https://truebalanceapp.io'
-const ogImage = `${site}/og-image.png`
+const ogImage = `${site}/og-image.webp`
 const ogAltDefault = 'Cash Prophet — Available Balance you can trust for UK business owners'
 
 const marketingSource = readFileSync(join(root, 'src/content/marketingSeo.ts'), 'utf8')
@@ -337,7 +337,7 @@ function injectMeta(html, { title, description, path, imageAlt, type = 'website'
   const extras = [
     ['og:locale', 'en_GB', 'property'],
     ['og:image:secure_url', ogImage, 'property'],
-    ['og:image:type', 'image/png', 'property'],
+    ['og:image:type', 'image/webp', 'property'],
     ['og:image:width', '1200', 'property'],
     ['og:image:height', '630', 'property'],
     ['og:image:alt', imageAlt, 'property'],
@@ -360,6 +360,9 @@ function injectMeta(html, { title, description, path, imageAlt, type = 'website'
       next = next.replace('</head>', `    ${tag}\n  </head>`)
     }
   }
+
+  // Force OG/Twitter image URLs to the WebP asset even if the shell still had .png.
+  next = next.replaceAll(`${site}/og-image.png`, ogImage)
 
   if (noindex) {
     next = next.replace(/<link rel="canonical"[^>]*>\s*/g, '')

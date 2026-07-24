@@ -20,7 +20,7 @@ import type { BlogPost } from './blogTypes'
 
 const site = COMPANY_INFO.website
 const ogImage = `${site}${SITE_OG_IMAGE}`
-const logoUrl = `${site}/icon-512.png`
+const logoUrl = `${site}/logo-mark.webp`
 
 export type JsonLd = Record<string, unknown>
 

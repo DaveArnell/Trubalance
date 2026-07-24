@@ -71,8 +71,14 @@ export function usePageMeta({
   useEffect(() => {
     const fullTitle = brandTitle(title)
     const url = absoluteUrl(path || '/')
-    const ogImage = absoluteUrl(image ?? SITE_OG_IMAGE)
+    const imagePath = image ?? SITE_OG_IMAGE
+    const ogImage = absoluteUrl(imagePath)
     const ogAlt = imageAlt ?? SITE_OG_IMAGE_ALT
+    const imageType = imagePath.endsWith('.webp')
+      ? 'image/webp'
+      : imagePath.endsWith('.jpg') || imagePath.endsWith('.jpeg')
+        ? 'image/jpeg'
+        : 'image/png'
 
     document.title = fullTitle
     upsertMeta('description', description)
@@ -84,7 +90,7 @@ export function usePageMeta({
     upsertMeta('og:locale', 'en_GB', 'property')
     upsertMeta('og:image', ogImage, 'property')
     upsertMeta('og:image:secure_url', ogImage, 'property')
-    upsertMeta('og:image:type', 'image/png', 'property')
+    upsertMeta('og:image:type', imageType, 'property')
     upsertMeta('og:image:width', String(SITE_OG_IMAGE_WIDTH), 'property')
     upsertMeta('og:image:height', String(SITE_OG_IMAGE_HEIGHT), 'property')
     upsertMeta('og:image:alt', ogAlt, 'property')

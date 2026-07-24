@@ -10,7 +10,7 @@ export function HeroBalanceEquation() {
     <div
       className="hero-balance-equation"
       role="img"
-      aria-label={`Bank balance ${bankBalance} minus committed money ${committed} plus expected receipts ${expectedReceipts} equals Available ${trueBalance}`}
+      aria-label={`Cash Prophet Available Balance equation: bank balance ${bankBalance} minus committed money ${committed} plus expected receipts ${expectedReceipts} equals Available ${trueBalance}`}
     >
       <div className="hero-balance-equation-row hero-balance-equation-row--bank">
         <div className="hero-balance-equation-term">

@@ -29,7 +29,7 @@ function dueInLabel(days: number) {
 /** NEED section — bank figure plus what’s already spoken for. */
 export function HomeSpokenForPanel() {
   return (
-    <aside className="home-viz home-viz--spoken" aria-label="Bank balance versus money already spoken for">
+    <aside className="home-viz home-viz--spoken" aria-label="Cash Prophet comparison: bank balance versus money already spoken for in a UK business">
       <div className="home-viz-card home-viz-card--bank">
         <p className="home-viz-label">Bank balance</p>
         <p className="home-viz-amount">£48,200</p>
@@ -54,7 +54,7 @@ export function HomeSpokenForPanel() {
 /** DOES section — monthly accruing bills snapshot. */
 export function HomeAvailablePanel() {
   return (
-    <aside className="home-snap home-snap--wide" aria-label="Monthly accruing bills">
+    <aside className="home-snap home-snap--wide" aria-label="Cash Prophet monthly accruing bills building toward Available Balance">
       <div className="home-dash home-dash--cards home-dash--accruing">
         <div className="home-dash-hero home-dash-hero--accruing">
           <p className="home-snap-label home-snap-label--teal">Monthly accruing bills</p>
@@ -122,7 +122,7 @@ export function HomeOutcomeBeats({
 /** WHY — accounting, bank, and Available Balance. */
 export function HomeCompareStrip() {
   return (
-    <div className="home-compare" aria-label="How Cash Prophet sits beside accounting and banking">
+    <div className="home-compare" aria-label="How Cash Prophet Available Balance sits beside accounting software and banking apps">
       <div className="home-compare-col home-compare-col--muted">
         <p className="home-compare-tag">Accounting</p>
         <p className="home-compare-body">Records the past</p>
@@ -191,7 +191,7 @@ export function HabitsTrendVisual() {
   const trendPath = `M${first.x} ${first.y} L${endX} ${endY}`
 
   return (
-    <figure className="habits-trend" aria-label="Balance history from daily logs with a forward trend line">
+    <figure className="habits-trend" aria-label="Cash Prophet Available Balance history from daily logs with a forward trend line">
       <figcaption className="habits-trend-caption">Daily logs build your trend</figcaption>
       <svg className="habits-trend-svg" viewBox="0 0 360 100" aria-hidden>
         <line x1="12" y1="88" x2="348" y2="88" className="habits-trend-axis" />

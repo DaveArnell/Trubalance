@@ -1,6 +1,6 @@
 /** SEO copy for public marketing routes (used with usePageMeta + build-time HTML shells). */
 
-export const SITE_OG_IMAGE = '/og-image.png' as const
+export const SITE_OG_IMAGE = '/og-image.webp' as const
 export const SITE_OG_IMAGE_ALT =
   'Cash Prophet — Available Balance you can trust for UK business owners' as const
 export const SITE_OG_IMAGE_WIDTH = 1200

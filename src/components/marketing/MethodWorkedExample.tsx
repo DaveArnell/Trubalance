@@ -46,7 +46,7 @@ export function MethodWorkedExample() {
     <div
       className="method-worked-example"
       role="img"
-      aria-label={`Bank balance ${ex.bankBalance}, minus monthly costs accrued ${ex.monthlyAccrued}, minus monthly reserve transfer ${ex.reservesBuilding}, plus expected receipts ${ex.expectedReceipts}, equals Available Balance ${ex.trueBalance}`}
+      aria-label={`Cash Prophet Available Balance worked example: bank ${ex.bankBalance}, minus monthly costs accrued ${ex.monthlyAccrued}, minus monthly reserve transfer ${ex.reservesBuilding}, plus expected receipts ${ex.expectedReceipts}, equals Available Balance ${ex.trueBalance}`}
     >
       {rows.map((row) => (
         <div key={row.label} className={`method-worked-example-row method-worked-example-row--${row.tone}`}>

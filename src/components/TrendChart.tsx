@@ -533,7 +533,7 @@ export function TrendChart({
               className={`trend-svg${embedded ? ' trend-svg--embedded' : ''}`}
               preserveAspectRatio="xMidYMid meet"
               role="img"
-              aria-label="Balance trend chart"
+              aria-label="Cash Prophet Available Trend chart — Available Balance over time for your business"
               onMouseMove={handleSvgMouseMove}
               onMouseLeave={() => setHoverDate(null)}
             >

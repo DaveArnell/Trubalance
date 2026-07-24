@@ -236,7 +236,7 @@ export function HeroBalanceGraphs() {
   return (
     <div
       className="hero-graphs hero-graphs--sync"
-      aria-label="Payment spikes and bank balance morph into an even Available Balance"
+      aria-label="Cash Prophet hero: payment spikes and bank balance morph into an even Available Balance for UK businesses"
     >
       <figure className={`hero-graph-card hero-graph-card--${cardTone}`}>
         <div className="hero-graph-header">

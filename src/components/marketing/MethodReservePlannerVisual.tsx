@@ -182,7 +182,10 @@ export function MethodReservePlannerVisual() {
   }
 
   return (
-    <figure className="method-reserve-viz" aria-label="Example reserve plan chart">
+    <figure
+      className="method-reserve-viz"
+      aria-label="Cash Prophet Reserve Planner chart — planned set-asides for large UK business bills across the year"
+    >
       <div
         className={`method-reserve-viz-frame${dragging ? ' method-reserve-viz-frame--dragging' : ''}`}
         onPointerDown={(event) => {
@@ -213,7 +216,12 @@ export function MethodReservePlannerVisual() {
           </p>
         </div>
 
-        <svg className="method-reserve-viz-svg" viewBox={`0 0 ${W} ${H}`} role="img">
+        <svg
+          className="method-reserve-viz-svg"
+          viewBox={`0 0 ${W} ${H}`}
+          role="img"
+          aria-label="Cash Prophet reserve balance rises with equal monthly transfers, then drops when bills are due"
+        >
           <title>
             Planned reserve balance rises with equal monthly transfers, then drops when bills are due.
             Drag to rotate the continuous year.

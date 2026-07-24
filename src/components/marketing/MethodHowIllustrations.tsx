@@ -6,7 +6,7 @@
 /** Step 01 — known costs build day by day before payday */
 export function IllustCommitmentsBuild() {
   return (
-    <div className="how-diagram" aria-label="Payroll building day by day before payday">
+    <div className="how-diagram" aria-label="Cash Prophet example: payroll accruing day by day before payday toward Available Balance">
       <p className="how-diagram-kicker">Example: payroll</p>
       <div className="how-diagram-days" role="img" aria-hidden>
         {[
@@ -42,7 +42,7 @@ export function IllustCommitmentsBuild() {
 /** Step 02 — annual bill → monthly reserve transfer */
 export function IllustReservePlanner() {
   return (
-    <div className="how-diagram" aria-label="Annual VAT broken into a monthly reserve transfer">
+    <div className="how-diagram" aria-label="Cash Prophet Reserve Planner: annual VAT broken into a monthly set-aside for UK businesses">
       <p className="how-diagram-kicker">Example: VAT</p>
       <div className="how-diagram-flow">
         <div className="how-diagram-flow-block">
@@ -69,7 +69,7 @@ export function IllustReservePlanner() {
 /** Step 03 — one calm number for today */
 export function IllustTrueBalanceNumber() {
   return (
-    <div className="how-diagram" aria-label="What’s available equation for today">
+    <div className="how-diagram" aria-label="Cash Prophet Available Balance equation for today after known commitments">
       <p className="how-diagram-kicker">Today’s number</p>
       <ul className="how-diagram-eq">
         <li>

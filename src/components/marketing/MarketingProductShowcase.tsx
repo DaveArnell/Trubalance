@@ -85,7 +85,7 @@ export function MarketingProductShowcase() {
               <div
                 className="marketing-reserve-preview marketing-reserve-preview--pop"
                 role="img"
-                aria-label="Reserve planner preview"
+                aria-label="Cash Prophet Reserve Planner preview — monthly set-asides for VAT and annual UK business bills"
               >
                 <div className="marketing-reserve-preview-head">
                   <span>Monthly set-aside</span>
