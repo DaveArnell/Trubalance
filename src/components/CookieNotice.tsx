@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { CanonicalLink } from './CanonicalLink'
 
 const CONSENT_KEY = 'trubalance-essential-cookies-notice'
 
@@ -35,7 +35,7 @@ export function CookieNotice() {
           <strong>Essential cookies only.</strong> Cash Prophet uses strictly necessary storage to
           keep you signed in and remember your preferences. We do not use advertising or third-party
           analytics cookies.{' '}
-          <Link to="/privacy#cookies">Privacy policy</Link>
+          <CanonicalLink to="/privacy#cookies">Privacy policy</CanonicalLink>
         </p>
         <button
           type="button"

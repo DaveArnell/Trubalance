@@ -1,11 +1,11 @@
 import { useEffect } from 'react'
-import { COMPANY_INFO } from '../content/companyInfo'
 import {
   SITE_OG_IMAGE,
   SITE_OG_IMAGE_ALT,
   SITE_OG_IMAGE_HEIGHT,
   SITE_OG_IMAGE_WIDTH,
 } from '../content/marketingSeo'
+import { canonicalUrl } from '../lib/canonicalUrl'
 
 export interface PageMeta {
   title: string
@@ -16,16 +16,15 @@ export interface PageMeta {
   modifiedTime?: string
   /** When true, sets robots noindex (app, demo, auth flows). */
   noindex?: boolean
-  /** Absolute or site-relative OG image; defaults to /og-image.png on the live domain. */
+  /** Absolute or site-relative OG image; defaults to /og-image.webp on the live domain. */
   image?: string
   /** Accessible / social alt text for the share image. */
   imageAlt?: string
 }
 
-function absoluteUrl(pathOrUrl: string): string {
+function assetUrl(pathOrUrl: string): string {
   if (pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://')) return pathOrUrl
-  const path = pathOrUrl.startsWith('/') ? pathOrUrl : `/${pathOrUrl}`
-  return `${COMPANY_INFO.website}${path}`
+  return canonicalUrl(pathOrUrl.startsWith('/') ? pathOrUrl : `/${pathOrUrl}`)
 }
 
 function upsertMeta(property: string, content: string, attribute: 'name' | 'property' = 'name') {
@@ -60,7 +59,7 @@ function brandTitle(title: string): string {
 export function usePageMeta({
   title,
   description,
-  path = '',
+  path = '/',
   type = 'website',
   publishedTime,
   modifiedTime,
@@ -70,9 +69,9 @@ export function usePageMeta({
 }: PageMeta) {
   useEffect(() => {
     const fullTitle = brandTitle(title)
-    const url = absoluteUrl(path || '/')
+    const url = canonicalUrl(path || '/')
     const imagePath = image ?? SITE_OG_IMAGE
-    const ogImage = absoluteUrl(imagePath)
+    const resolvedImage = assetUrl(imagePath)
     const ogAlt = imageAlt ?? SITE_OG_IMAGE_ALT
     const imageType = imagePath.endsWith('.webp')
       ? 'image/webp'
@@ -86,10 +85,10 @@ export function usePageMeta({
     upsertMeta('og:description', description, 'property')
     upsertMeta('og:type', type, 'property')
     upsertMeta('og:url', url, 'property')
-    upsertMeta('og:site_name', COMPANY_INFO.productName, 'property')
+    upsertMeta('og:site_name', 'Cash Prophet', 'property')
     upsertMeta('og:locale', 'en_GB', 'property')
-    upsertMeta('og:image', ogImage, 'property')
-    upsertMeta('og:image:secure_url', ogImage, 'property')
+    upsertMeta('og:image', resolvedImage, 'property')
+    upsertMeta('og:image:secure_url', resolvedImage, 'property')
     upsertMeta('og:image:type', imageType, 'property')
     upsertMeta('og:image:width', String(SITE_OG_IMAGE_WIDTH), 'property')
     upsertMeta('og:image:height', String(SITE_OG_IMAGE_HEIGHT), 'property')
@@ -97,20 +96,16 @@ export function usePageMeta({
     upsertMeta('twitter:card', 'summary_large_image')
     upsertMeta('twitter:title', fullTitle)
     upsertMeta('twitter:description', description)
-    upsertMeta('twitter:image', ogImage)
+    upsertMeta('twitter:image', resolvedImage)
     upsertMeta('twitter:image:alt', ogAlt)
 
     if (noindex) {
       upsertMeta('robots', 'noindex, nofollow')
       removeMeta('googlebot')
+      document.querySelector('link[rel="canonical"]')?.remove()
     } else {
       upsertMeta('robots', 'index, follow')
       removeMeta('googlebot')
-    }
-
-    if (noindex) {
-      document.querySelector('link[rel="canonical"]')?.remove()
-    } else {
       upsertCanonical(url)
     }
 

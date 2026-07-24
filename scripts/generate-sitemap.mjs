@@ -1,61 +1,97 @@
 /**
- * Regenerates public/sitemap.xml from blog post slugs in src/content/blogPosts.ts
- * Run automatically before production build (see package.json).
+ * Regenerates public/sitemap.xml with absolute canonical URLs (no trailing slashes)
+ * for every indexable marketing path + blog post. Runs automatically before build.
  */
 import { readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
-const blogSource = readFileSync(join(root, 'src/content/blogPosts.ts'), 'utf8')
-const methodBlogSource = readFileSync(join(root, 'src/content/methodBlogPosts.ts'), 'utf8')
-const cornerstoneBlogSource = readFileSync(join(root, 'src/content/cornerstoneBlogPosts.ts'), 'utf8')
 const site = 'https://truebalanceapp.io'
 
-const slugs = [
-  ...cornerstoneBlogSource.matchAll(/slug:\s*'([^']+)'/g),
-  ...blogSource.matchAll(/slug:\s*'([^']+)'/g),
-  ...methodBlogSource.matchAll(/slug:\s*'([^']+)'/g),
-].map((match) => match[1])
+function stripTrailingSlash(pathname) {
+  if (!pathname || pathname === '/') return '/'
+  return pathname.replace(/\/+$/, '') || '/'
+}
 
-const uniqueSlugs = [...new Set(slugs)]
+function canonicalLoc(path) {
+  const pathname = stripTrailingSlash(path.split(/[?#]/)[0] || '/')
+  if (pathname === '/') return `${site}/`
+  return `${site}${pathname}`
+}
 
-const staticPages = [
-  { loc: '/', priority: '1.0', changefreq: 'weekly' },
-  { loc: '/pricing', priority: '0.9', changefreq: 'monthly' },
-  { loc: '/how-it-works', priority: '0.9', changefreq: 'monthly' },
-  { loc: '/who-its-for', priority: '0.8', changefreq: 'monthly' },
-  { loc: '/see-how-it-works', priority: '0.9', changefreq: 'monthly' },
-  { loc: '/signup', priority: '0.9', changefreq: 'monthly' },
-  { loc: '/blog', priority: '0.9', changefreq: 'weekly' },
-  { loc: '/privacy', priority: '0.3', changefreq: 'yearly' },
-  { loc: '/terms', priority: '0.3', changefreq: 'yearly' },
-]
+function extractIndexableStaticRoutes() {
+  const source = readFileSync(join(root, 'src/content/indexableRoutes.ts'), 'utf8')
+  const block = source.match(/export const INDEXABLE_STATIC_ROUTES[^=]*=\s*\[([\s\S]*?)\]\s*as const/)
+  if (!block) throw new Error('INDEXABLE_STATIC_ROUTES not found')
+  const routes = []
+  const itemRe =
+    /\{\s*path:\s*'([^']+)',\s*priority:\s*'([^']+)',\s*changefreq:\s*'([^']+)'\s*\}/g
+  let match
+  while ((match = itemRe.exec(block[1])) !== null) {
+    routes.push({
+      path: stripTrailingSlash(match[1]),
+      priority: match[2],
+      changefreq: match[3],
+    })
+  }
+  if (routes.length === 0) throw new Error('No indexable static routes parsed')
+  return routes
+}
 
-const blogPages = uniqueSlugs.map((slug) => ({
-  loc: `/blog/${slug}`,
-  priority: '0.8',
-  changefreq: 'monthly',
-}))
+function extractBlogSlugs() {
+  const files = [
+    'src/content/cornerstoneBlogPosts.ts',
+    'src/content/blogPosts.ts',
+    'src/content/methodBlogPosts.ts',
+  ]
+  const slugs = []
+  for (const file of files) {
+    const source = readFileSync(join(root, file), 'utf8')
+    for (const match of source.matchAll(/slug:\s*'([^']+)'/g)) {
+      slugs.push(match[1])
+    }
+  }
+  return [...new Set(slugs)]
+}
 
+const staticRoutes = extractIndexableStaticRoutes()
+const blogSlugs = extractBlogSlugs()
 const today = new Date().toISOString().slice(0, 10)
 
-const urls = [...staticPages, ...blogPages]
+const seen = new Set()
+const urls = []
+
+for (const route of staticRoutes) {
+  const loc = canonicalLoc(route.path)
+  if (seen.has(loc)) continue
+  seen.add(loc)
+  urls.push({ loc, priority: route.priority, changefreq: route.changefreq })
+}
+
+for (const slug of blogSlugs) {
+  const loc = canonicalLoc(`/blog/${slug}`)
+  if (seen.has(loc)) continue
+  seen.add(loc)
+  urls.push({ loc, priority: '0.8', changefreq: 'monthly' })
+}
+
+const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls
   .map(
     (page) => `  <url>
-    <loc>${site}${page.loc}</loc>
+    <loc>${page.loc}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>${page.changefreq}</changefreq>
     <priority>${page.priority}</priority>
   </url>`,
   )
-  .join('\n')
-
-const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls}
+  .join('\n')}
 </urlset>
 `
 
 writeFileSync(join(root, 'public/sitemap.xml'), xml, 'utf8')
-console.log(`sitemap.xml updated (${staticPages.length + blogPages.length} URLs, ${blogPages.length} blog posts)`)
+console.log(
+  `sitemap.xml updated (${urls.length} absolute canonical URLs, ${blogSlugs.length} blog posts)`,
+)

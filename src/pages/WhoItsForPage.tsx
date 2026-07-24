@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { CanonicalLink } from '../components/CanonicalLink'
 import {
   MarketingFooter,
   MarketingHeader,
@@ -60,18 +60,18 @@ export function WhoItsForPage() {
             </div>
 
             <p className="marketing-method-more">
-              Still exploring? <Link to="/how-it-works">See how it works</Link>
+              Still exploring? <CanonicalLink to="/how-it-works">See how it works</CanonicalLink>
               {' · '}
-              <Link to="/see-how-it-works">Try a demo</Link>
+              <CanonicalLink to="/see-how-it-works">Try a demo</CanonicalLink>
             </p>
 
             <div className="demo-scenarios-footer">
-              <Link to="/signup" className="btn-primary btn-large">
+              <CanonicalLink to="/signup" className="btn-primary btn-large">
                 Start free trial
-              </Link>
-              <Link to="/see-how-it-works" className="btn-secondary btn-large">
+              </CanonicalLink>
+              <CanonicalLink to="/see-how-it-works" className="btn-secondary btn-large">
                 See the Platform
-              </Link>
+              </CanonicalLink>
             </div>
           </div>
         </section>

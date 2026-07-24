@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import { CookieNotice } from './components/CookieNotice'
 import { WorkspaceProvider } from './contexts/WorkspaceContext'
+import { TrailingSlashGuard } from './components/TrailingSlashGuard'
 import { LandingPage } from './pages/LandingPage'
 import { PricingPage } from './pages/PricingPage'
 import { ForgotPasswordPage, LoginPage, ResetPasswordPage, SignupPage } from './pages/AuthPages'
@@ -21,6 +22,7 @@ import { isSupabaseConfigured } from './lib/supabase'
 export function AppRouter() {
   return (
     <BrowserRouter>
+      <TrailingSlashGuard />
       <AuthProvider>
         <WorkspaceProvider>
           <Routes>

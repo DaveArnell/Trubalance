@@ -17,16 +17,16 @@ import {
   type SubscriptionTierId,
 } from '../config/subscriptionTiers'
 import type { BlogPost } from './blogTypes'
+import { SITE_ORIGIN, canonicalUrl } from '../lib/canonicalUrl'
 
-const site = COMPANY_INFO.website
-const ogImage = `${site}${SITE_OG_IMAGE}`
-const logoUrl = `${site}/logo-mark.webp`
+const site = SITE_ORIGIN
+const ogImage = canonicalUrl(SITE_OG_IMAGE)
+const logoUrl = canonicalUrl('/logo-mark.webp')
 
 export type JsonLd = Record<string, unknown>
 
 function absolutePath(path: string): string {
-  if (path.startsWith('http')) return path
-  return `${site}${path.startsWith('/') ? path : `/${path}`}`
+  return canonicalUrl(path)
 }
 
 export function organizationJsonLd(): JsonLd {

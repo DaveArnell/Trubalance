@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { CanonicalLink } from '../CanonicalLink'
 import { MarketingBrowserFrame } from './MarketingBrowserFrame'
 
 const FORECAST_POINTS_CASH =
@@ -122,9 +122,9 @@ export function LandingAppPreview({ variant = 'section' }: LandingAppPreviewProp
           <p className="muted">
             Pick a café, trades business or leisure group. Every page is live in the demo.
           </p>
-          <Link to="/see-how-it-works" className="btn-primary btn-large">
+          <CanonicalLink to="/see-how-it-works" className="btn-primary btn-large">
             Explore the demo
-          </Link>
+          </CanonicalLink>
         </div>
       </div>
     </section>

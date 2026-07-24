@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { CanonicalLink } from '../components/CanonicalLink'
 import {
   MarketingFooter,
   MarketingHeader,
@@ -66,23 +66,23 @@ export function LandingPage() {
               </div>
               <p className="marketing-hero-sizzle">{HOME_HERO.sizzle}</p>
               <div className="marketing-cta-row">
-                <Link
+                <CanonicalLink
                   to="/signup"
                   className="btn-primary btn-large marketing-cta-primary marketing-cta-primary--rank"
                 >
                   {HOME_HERO.primaryCta}
-                </Link>
-                <Link
+                </CanonicalLink>
+                <CanonicalLink
                   to="/how-it-works"
                   className="btn-secondary btn-large marketing-cta-secondary--rank"
                 >
                   {HOME_HERO.secondaryCta}
-                </Link>
+                </CanonicalLink>
               </div>
               {!isSupabaseConfigured && (
                 <p className="marketing-config-hint">
                   Cloud signup needs Supabase in <code>.env.local</code>, or{' '}
-                  <Link to="/app">try the app locally</Link> without an account.
+                  <CanonicalLink to="/app">try the app locally</CanonicalLink> without an account.
                 </p>
               )}
             </div>
@@ -190,12 +190,12 @@ export function LandingPage() {
             <h2>{HOME_CTA.heading}</h2>
             <p>{HOME_CTA.body}</p>
             <div className="marketing-cta-row marketing-cta-row--center">
-              <Link to="/signup" className="btn-primary btn-large marketing-cta-btn-on-dark">
+              <CanonicalLink to="/signup" className="btn-primary btn-large marketing-cta-btn-on-dark">
                 {HOME_HERO.primaryCta}
-              </Link>
-              <Link to="/how-it-works" className="btn-ghost btn-large marketing-cta-ghost">
+              </CanonicalLink>
+              <CanonicalLink to="/how-it-works" className="btn-ghost btn-large marketing-cta-ghost">
                 {HOME_HERO.secondaryCta}
-              </Link>
+              </CanonicalLink>
             </div>
           </div>
         </section>

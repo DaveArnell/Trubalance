@@ -1,4 +1,5 @@
-import { Link, Navigate, useParams } from 'react-router-dom'
+import { Navigate, useParams } from 'react-router-dom'
+import { CanonicalLink } from '../components/CanonicalLink'
 import { BlogProse } from '../components/marketing/BlogProse'
 import {
   MarketingFooter,
@@ -51,9 +52,9 @@ export function BlogPostPage() {
       <main className="blog-page">
         <article className="blog-article blog-page-inner">
           <nav className="blog-breadcrumb" aria-label="Breadcrumb">
-            <Link to="/">Home</Link>
+            <CanonicalLink to="/">Home</CanonicalLink>
             <span aria-hidden> / </span>
-            <Link to="/blog">Blog</Link>
+            <CanonicalLink to="/blog">Blog</CanonicalLink>
           </nav>
 
           <header className="blog-article-header">
@@ -86,15 +87,15 @@ export function BlogPostPage() {
               </>
             )}
             <div className="blog-index-cta">
-              <Link to="/how-it-works" className="btn-ghost">
+              <CanonicalLink to="/how-it-works" className="btn-ghost">
                 How it works
-              </Link>
-              <Link to="/see-how-it-works" className="btn-primary">
+              </CanonicalLink>
+              <CanonicalLink to="/see-how-it-works" className="btn-primary">
                 Try demo
-              </Link>
-              <Link to="/signup" className="btn-secondary">
+              </CanonicalLink>
+              <CanonicalLink to="/signup" className="btn-secondary">
                 Get started
-              </Link>
+              </CanonicalLink>
             </div>
           </aside>
 
@@ -104,7 +105,7 @@ export function BlogPostPage() {
               <ul>
                 {related.map((entry) => (
                   <li key={entry.slug}>
-                    <Link to={`/blog/${entry.slug}`}>{entry.title}</Link>
+                    <CanonicalLink to={`/blog/${entry.slug}`}>{entry.title}</CanonicalLink>
                   </li>
                 ))}
               </ul>

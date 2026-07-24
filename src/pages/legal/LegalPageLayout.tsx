@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Link } from 'react-router-dom'
+import { CanonicalLink } from '../../components/CanonicalLink'
 import { MarketingFooter, MarketingHeader, MarketingShell } from '../../components/marketing/MarketingLayout'
 import { CompanyLegalNotice } from '../../components/marketing/CompanyLegalNotice'
 import { usePageMeta } from '../../hooks/usePageMeta'
@@ -31,7 +31,7 @@ export function LegalPageLayout({
       <main className="legal-page">
         <div className="legal-page-inner">
           <p className="marketing-eyebrow">
-            <Link to="/">Cash Prophet</Link>
+            <CanonicalLink to="/">Cash Prophet</CanonicalLink>
           </p>
           <h1>{title}</h1>
           <p className="legal-page-updated muted">Last updated: {updated}</p>

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { CanonicalLink } from './CanonicalLink'
 import {
   SUBSCRIPTION_TIERS,
   TRIAL_DAYS,
@@ -169,9 +169,9 @@ export function AccountSubscriptionPanel({ state, embedded = false }: AccountSub
             </p>
             <div className="account-plan-actions">
               <ManageBillingButton />
-              <Link to="/pricing" className="btn-secondary btn-tiny">
+              <CanonicalLink to="/pricing" className="btn-secondary btn-tiny">
                 Full plan comparison
-              </Link>
+              </CanonicalLink>
             </div>
           </>
         ) : (
@@ -181,12 +181,12 @@ export function AccountSubscriptionPanel({ state, embedded = false }: AccountSub
               When billing is live, you will manage your subscription here and download invoices.
             </p>
             <div className="account-plan-actions">
-              <Link to="/pricing#billing" className="btn-primary btn-tiny">
+              <CanonicalLink to="/pricing#billing" className="btn-primary btn-tiny">
                 View pricing
-              </Link>
-              <Link to="/pricing" className="btn-secondary btn-tiny">
+              </CanonicalLink>
+              <CanonicalLink to="/pricing" className="btn-secondary btn-tiny">
                 Full plan comparison
-              </Link>
+              </CanonicalLink>
             </div>
           </>
         )}

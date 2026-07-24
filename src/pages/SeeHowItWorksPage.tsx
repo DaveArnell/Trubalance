@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { CanonicalLink } from '../components/CanonicalLink'
 import {
   MarketingFooter,
   MarketingHeader,
@@ -28,7 +28,7 @@ export function SeeHowItWorksPage() {
               stable while you look around.
             </p>
             <p className="method-edu-hero-lead method-edu-hero-lead--secondary">
-              Prefer to understand the system first? <Link to="/how-it-works">See how it works</Link>.
+              Prefer to understand the system first? <CanonicalLink to="/how-it-works">See how it works</CanonicalLink>.
             </p>
           </div>
         </header>
@@ -45,23 +45,23 @@ export function SeeHowItWorksPage() {
                   <p className="demo-scenario-type">{scenario.businessType}</p>
                   <h3>{scenario.title}</h3>
                   <p className="demo-scenario-subtitle">{scenario.subtitle}</p>
-                  <Link
+                  <CanonicalLink
                     to={`/demo/${scenario.id}`}
                     className="btn-primary btn-large demo-scenario-cta"
                   >
                     Explore this demo
-                  </Link>
+                  </CanonicalLink>
                 </article>
               ))}
             </div>
 
             <div className="demo-scenarios-footer">
-              <Link to="/" className="btn-ghost">
+              <CanonicalLink to="/" className="btn-ghost">
                 ← Back to home
-              </Link>
-              <Link to="/signup" className="btn-secondary btn-large">
+              </CanonicalLink>
+              <CanonicalLink to="/signup" className="btn-secondary btn-large">
                 Follow the Method in your business
-              </Link>
+              </CanonicalLink>
             </div>
           </div>
         </section>

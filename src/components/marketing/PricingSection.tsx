@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { CanonicalLink } from '../CanonicalLink'
 import {
   ANNUAL_SAVINGS_COPY,
   PRICING_FOOTNOTE,
@@ -47,9 +47,9 @@ export function PricingSection({ hideIntro = false }: { hideIntro?: boolean }) {
                     <li key={item}>{item}</li>
                   ))}
                 </ul>
-                <Link to="/signup" className="btn-primary">
+                <CanonicalLink to="/signup" className="btn-primary">
                   Start free trial
-                </Link>
+                </CanonicalLink>
               </article>
             )
           })}

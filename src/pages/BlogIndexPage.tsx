@@ -1,4 +1,5 @@
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
+import { CanonicalLink } from '../components/CanonicalLink'
 import {
   MarketingFooter,
   MarketingHeader,
@@ -22,7 +23,7 @@ export function BlogIndexPage() {
     description: activeCategory
       ? `${activeCategory} articles on Available Balance, committed funds and cash clarity for UK business owners.`
       : BLOG_INDEX_SEO.description,
-    path: activeCategory ? `/blog?category=${encodeURIComponent(activeCategory)}` : BLOG_INDEX_SEO.path,
+    path: BLOG_INDEX_SEO.path,
   })
 
   const sorted = [...BLOG_POSTS]
@@ -45,15 +46,15 @@ export function BlogIndexPage() {
               honest.
             </p>
             <div className="blog-index-cta">
-              <Link to="/how-it-works" className="btn-primary marketing-cta-btn-on-dark">
+              <CanonicalLink to="/how-it-works" className="btn-primary marketing-cta-btn-on-dark">
                 How it works
-              </Link>
-              <Link to="/see-how-it-works" className="btn-ghost btn-large marketing-cta-ghost">
+              </CanonicalLink>
+              <CanonicalLink to="/see-how-it-works" className="btn-ghost btn-large marketing-cta-ghost">
                 See how it feels
-              </Link>
-              <Link to="/signup" className="btn-ghost btn-large marketing-cta-ghost">
+              </CanonicalLink>
+              <CanonicalLink to="/signup" className="btn-ghost btn-large marketing-cta-ghost">
                 Get started
-              </Link>
+              </CanonicalLink>
             </div>
           </div>
         </header>
@@ -96,12 +97,12 @@ export function BlogIndexPage() {
                   <span className="blog-card-read">{post.readMinutes} min read</span>
                 </p>
                 <h2>
-                  <Link to={`/blog/${post.slug}`}>{post.title}</Link>
+                  <CanonicalLink to={`/blog/${post.slug}`}>{post.title}</CanonicalLink>
                 </h2>
                 <p className="blog-card-excerpt">{post.excerpt}</p>
-                <Link to={`/blog/${post.slug}`} className="blog-card-link">
+                <CanonicalLink to={`/blog/${post.slug}`} className="blog-card-link">
                   Read guide →
-                </Link>
+                </CanonicalLink>
               </article>
             ))}
           </div>

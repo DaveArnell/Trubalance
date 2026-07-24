@@ -1,5 +1,5 @@
 import { useRef, type ReactNode } from 'react'
-import { Link } from 'react-router-dom'
+import { CanonicalLink } from '../CanonicalLink'
 import { useAuth } from '../../contexts/AuthContext'
 import { isSupabaseConfigured } from '../../lib/supabase'
 import { COMPANY_INFO } from '../../content/companyInfo'
@@ -39,31 +39,31 @@ export function MarketingHeader() {
   return (
     <header className="marketing-header">
       <div className="marketing-header-inner">
-        <Link to="/" className="marketing-logo" aria-label="Cash Prophet home">
+        <CanonicalLink to="/" className="marketing-logo" aria-label="Cash Prophet home">
           <CashProphetLogo variant="header" />
-        </Link>
+        </CanonicalLink>
 
         <nav className="marketing-nav" aria-label="Main">
           {PRIMARY_NAV.map((item) => (
-            <Link key={item.to} to={item.to}>
+            <CanonicalLink key={item.to} to={item.to}>
               {item.label}
-            </Link>
+            </CanonicalLink>
           ))}
         </nav>
 
         <div className="marketing-header-cta">
           {!loading && user ? (
-            <Link to="/app" className="btn-primary marketing-nav-btn">
+            <CanonicalLink to="/app" className="btn-primary marketing-nav-btn">
               Dashboard
-            </Link>
+            </CanonicalLink>
           ) : (
             <>
-              <Link to="/login" className="btn-ghost marketing-nav-btn">
+              <CanonicalLink to="/login" className="btn-ghost marketing-nav-btn">
                 Log in
-              </Link>
-              <Link to="/signup" className="btn-primary marketing-nav-btn">
+              </CanonicalLink>
+              <CanonicalLink to="/signup" className="btn-primary marketing-nav-btn">
                 Get started
-              </Link>
+              </CanonicalLink>
             </>
           )}
         </div>
@@ -77,9 +77,9 @@ export function MarketingFooter() {
     <footer className="marketing-footer">
       <div className="marketing-footer-inner">
         <div className="marketing-footer-brand">
-          <Link to="/" className="marketing-logo marketing-logo--footer" aria-label="Cash Prophet home">
+          <CanonicalLink to="/" className="marketing-logo marketing-logo--footer" aria-label="Cash Prophet home">
             <CashProphetLogo variant="footer" />
-          </Link>
+          </CanonicalLink>
           <p className="marketing-footer-tagline">
             Stop carrying your business finances around in your head.
           </p>
@@ -94,23 +94,23 @@ export function MarketingFooter() {
           </div>
           <div>
             <p className="marketing-footer-heading">Learn</p>
-            <Link to="/how-it-works">How it works</Link>
-            <Link to="/who-its-for">Who it’s for</Link>
-            <Link to="/how-it-works#habits">Habits</Link>
-            <Link to="/blog">Blog</Link>
+            <CanonicalLink to="/how-it-works">How it works</CanonicalLink>
+            <CanonicalLink to="/who-its-for">Who it’s for</CanonicalLink>
+            <CanonicalLink to="/how-it-works#habits">Habits</CanonicalLink>
+            <CanonicalLink to="/blog">Blog</CanonicalLink>
           </div>
           <div>
             <p className="marketing-footer-heading">Product</p>
-            <Link to="/see-how-it-works">See it</Link>
-            <Link to="/pricing">Pricing</Link>
-            <Link to="/signup">Start free trial</Link>
-            <Link to="/login">Log in</Link>
-            {!isSupabaseConfigured && <Link to="/app">Try locally</Link>}
+            <CanonicalLink to="/see-how-it-works">See it</CanonicalLink>
+            <CanonicalLink to="/pricing">Pricing</CanonicalLink>
+            <CanonicalLink to="/signup">Start free trial</CanonicalLink>
+            <CanonicalLink to="/login">Log in</CanonicalLink>
+            {!isSupabaseConfigured && <CanonicalLink to="/app">Try locally</CanonicalLink>}
           </div>
           <div>
             <p className="marketing-footer-heading">Legal</p>
-            <Link to="/privacy">Privacy policy</Link>
-            <Link to="/terms">Terms of service</Link>
+            <CanonicalLink to="/privacy">Privacy policy</CanonicalLink>
+            <CanonicalLink to="/terms">Terms of service</CanonicalLink>
           </div>
         </div>
       </div>
@@ -118,9 +118,9 @@ export function MarketingFooter() {
       <div className="marketing-footer-bottom">
         <p>
           © {new Date().getFullYear()} {COMPANY_INFO.legalName}. All rights reserved.{' '}
-          <Link to="/privacy">Privacy</Link>
+          <CanonicalLink to="/privacy">Privacy</CanonicalLink>
           {' · '}
-          <Link to="/terms">Terms</Link>
+          <CanonicalLink to="/terms">Terms</CanonicalLink>
         </p>
         <p className="marketing-footer-trial muted">
           {FOUNDER_PROGRAM_HEADLINE}. {FOUNDER_PROGRAM_FOOTNOTE}

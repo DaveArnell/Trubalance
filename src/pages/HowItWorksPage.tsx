@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { CanonicalLink } from '../components/CanonicalLink'
 import {
   MarketingFooter,
   MarketingHeader,
@@ -230,12 +230,12 @@ export function HowItWorksPage() {
             <h2 id="how-cta-heading">See it with a live business</h2>
             <p>Open a demo, or start free and set up your own picture.</p>
             <div className="marketing-cta-row">
-              <Link to="/see-how-it-works" className="btn-primary btn-large">
+              <CanonicalLink to="/see-how-it-works" className="btn-primary btn-large">
                 See it
-              </Link>
-              <Link to="/signup" className="btn-secondary btn-large">
+              </CanonicalLink>
+              <CanonicalLink to="/signup" className="btn-secondary btn-large">
                 Get started
-              </Link>
+              </CanonicalLink>
             </div>
           </div>
         </section>

@@ -5,6 +5,9 @@ Disallow: /demo
 Disallow: /login
 Disallow: /forgot-password
 Disallow: /reset-password
+Disallow: /vocatio-admin
 Disallow: /platform-admin
 
 Sitemap: https://truebalanceapp.io/sitemap.xml
+
+# Trailing-slash URLs redirect to the canonical non-slash form (see vercel.json).

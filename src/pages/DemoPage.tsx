@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
+import { CanonicalLink } from '../components/CanonicalLink'
 import { ReferenceDateProvider } from '../contexts/ReferenceDateContext'
 import { DemoModeProvider } from '../contexts/DemoModeContext'
 import { AppShell } from '../App'
@@ -106,15 +107,15 @@ export function DemoPage() {
               {canEditDemo && (
                 <span className="interactive-demo-admin-hint">Admin edit mode</span>
               )}
-              <Link to="/" className="btn-ghost btn-tiny">
+              <CanonicalLink to="/" className="btn-ghost btn-tiny">
                 Home
-              </Link>
-              <Link to="/see-how-it-works" className="btn-ghost btn-tiny">
+              </CanonicalLink>
+              <CanonicalLink to="/see-how-it-works" className="btn-ghost btn-tiny">
                 All demos
-              </Link>
-              <Link to="/signup" className="btn-primary btn-tiny">
+              </CanonicalLink>
+              <CanonicalLink to="/signup" className="btn-primary btn-tiny">
                 Start free trial
-              </Link>
+              </CanonicalLink>
             </div>
           </div>
 

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { CanonicalLink } from '../components/CanonicalLink'
 import { MarketingFooter, MarketingHeader, MarketingShell } from '../components/marketing/MarketingLayout'
 import { MarketingFaqSection } from '../components/marketing/MarketingFaqSection'
 import { MarketingJsonLd, pricingPageJsonLd } from '../components/marketing/MarketingJsonLd'
@@ -38,12 +38,12 @@ export function PricingPage() {
               will be available there once billing goes live.
             </p>
             <p className="marketing-billing-cta">
-              <Link to="/signup" className="btn-primary">
+              <CanonicalLink to="/signup" className="btn-primary">
                 Start free trial
-              </Link>
-              <Link to="/app" className="btn-ghost">
+              </CanonicalLink>
+              <CanonicalLink to="/app" className="btn-ghost">
                 Back to app
-              </Link>
+              </CanonicalLink>
             </p>
           </div>
         </section>

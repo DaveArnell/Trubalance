@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { CanonicalLink } from '../components/CanonicalLink'
 import { MarketingFooter, MarketingHeader, MarketingShell } from '../components/marketing/MarketingLayout'
 import { useAuth } from '../contexts/AuthContext'
 import { isSupabaseConfigured } from '../lib/supabase'
@@ -103,11 +104,11 @@ export function AuthForm({ mode }: AuthFormProps) {
           Supabase is not configured. Copy <code>.env.example</code> to <code>.env.local</code> and add your
           project URL and anon key, then restart the dev server.
         </p>
-        <Link to="/app" className="btn-primary btn-large">
+        <CanonicalLink to="/app" className="btn-primary btn-large">
           Continue without account (local only)
-        </Link>
+        </CanonicalLink>
         <p className="auth-switch">
-          <Link to="/">← Back to home</Link>
+          <CanonicalLink to="/">← Back to home</CanonicalLink>
         </p>
       </div>
     )
@@ -120,9 +121,9 @@ export function AuthForm({ mode }: AuthFormProps) {
         <p className="muted">
           We sent a confirmation link to <strong>{email}</strong>. {SIGNUP_FORM.successNote}
         </p>
-        <Link to="/login" className="btn-primary btn-large">
+        <CanonicalLink to="/login" className="btn-primary btn-large">
           Go to log in
-        </Link>
+        </CanonicalLink>
       </div>
     )
   }
@@ -200,26 +201,26 @@ export function AuthForm({ mode }: AuthFormProps) {
 
         {mode === 'signup' && (
           <p className="auth-legal muted">
-            By starting a trial you agree to our <Link to="/terms">Terms of service</Link> and{' '}
-            <Link to="/privacy">Privacy policy</Link>.
+            By starting a trial you agree to our <CanonicalLink to="/terms">Terms of service</CanonicalLink> and{' '}
+            <CanonicalLink to="/privacy">Privacy policy</CanonicalLink>.
           </p>
         )}
       </form>
 
       {mode === 'login' && (
         <p className="auth-forgot">
-          <Link to="/forgot-password">Forgot your password?</Link>
+          <CanonicalLink to="/forgot-password">Forgot your password?</CanonicalLink>
         </p>
       )}
 
       <p className="auth-switch">
         {mode === 'login' ? (
           <>
-            No account? <Link to="/signup">Start free trial</Link>
+            No account? <CanonicalLink to="/signup">Start free trial</CanonicalLink>
           </>
         ) : (
           <>
-            Already have an account? <Link to="/login">Log in</Link>
+            Already have an account? <CanonicalLink to="/login">Log in</CanonicalLink>
           </>
         )}
       </p>
@@ -301,9 +302,9 @@ export function ForgotPasswordPage() {
                   If an account exists for <strong>{email}</strong>, we've sent a password reset link.
                   Check your inbox and follow the link to set a new password.
                 </p>
-                <Link to="/login" className="btn-primary btn-large">
+                <CanonicalLink to="/login" className="btn-primary btn-large">
                   Back to log in
-                </Link>
+                </CanonicalLink>
               </>
             ) : (
               <>
@@ -328,7 +329,7 @@ export function ForgotPasswordPage() {
                   </button>
                 </form>
                 <p className="auth-switch">
-                  <Link to="/login">← Back to log in</Link>
+                  <CanonicalLink to="/login">← Back to log in</CanonicalLink>
                 </p>
               </>
             )}
