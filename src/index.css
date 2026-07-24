@@ -27096,21 +27096,22 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .marketing-footer {
-  background: #07120e;
-  color: rgba(243, 239, 230, 0.75);
-  border-top: none;
+  background: #0b1220 !important;
+  color: rgba(244, 247, 251, 0.78) !important;
+  border-top: none !important;
 }
 
 .marketing-footer a {
-  color: rgba(243, 239, 230, 0.8);
+  color: rgba(244, 247, 251, 0.9) !important;
 }
 
 .marketing-footer-heading {
-  color: #5fd4a0;
+  color: #93c5fd !important;
 }
 
-.marketing-footer .marketing-logo {
-  color: #fff;
+.marketing-footer .marketing-logo,
+.marketing-footer .cp-logo-word {
+  color: #f8fafc !important;
 }
 
 @media (max-width: 900px) {
@@ -28301,7 +28302,49 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 /* Pricing / auth / shared CTA greens → blue via vars already; polish footer */
 .marketing-footer {
   background: #0b1220;
-  color: rgba(244, 247, 251, 0.72);
+  color: rgba(244, 247, 251, 0.78);
+  border-top: none;
+}
+
+.marketing-footer a {
+  color: rgba(244, 247, 251, 0.9);
+}
+
+.marketing-footer a:hover {
+  color: #93c5fd;
+}
+
+.marketing-footer-heading {
+  color: #93c5fd;
+}
+
+.marketing-footer-tagline,
+.marketing-footer-plain,
+.marketing-footer-bottom,
+.marketing-footer-bottom a,
+.marketing-footer-trial,
+.marketing-footer-regulatory,
+.marketing-footer .company-legal-notice--footer,
+.marketing-footer .company-legal-notice--footer p {
+  color: rgba(244, 247, 251, 0.7);
+}
+
+.marketing-footer .marketing-logo,
+.marketing-footer .cp-logo-word {
+  color: #f8fafc;
+}
+
+.marketing-footer .cp-logo-cash {
+  opacity: 0.9;
+}
+
+.marketing-footer .cp-logo-prophet {
+  color: #fff;
+  font-weight: 800;
+}
+
+.marketing-footer-bottom {
+  border-top-color: rgba(244, 247, 251, 0.12);
 }
 
 .marketing-cta-band--pop {
