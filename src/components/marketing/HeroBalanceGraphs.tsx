@@ -244,7 +244,7 @@ export function HeroBalanceGraphs() {
           <MorphText
             className="hero-graph-title-stack"
             before="Payments leave as spikes through the month"
-            after="Build towards commitments daily through the month"
+            after="Future commitments are accounted for every day"
             t={towardEven}
             beforeClassName="hero-graph-title"
             afterClassName="hero-graph-title"
@@ -266,7 +266,7 @@ export function HeroBalanceGraphs() {
           <MorphText
             className="hero-graph-title-stack"
             before="Looks fine until the payments hit"
-            after="A clearer picture of your finances"
+            after="A balance that reflects what's already committed"
             t={towardEven}
             beforeClassName="hero-graph-title"
             afterClassName="hero-graph-title"
