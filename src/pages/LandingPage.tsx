@@ -64,6 +64,7 @@ export function LandingPage() {
                   <p key={paragraph}>{paragraph}</p>
                 ))}
               </div>
+              <p className="marketing-hero-sizzle">{HOME_HERO.sizzle}</p>
               <div className="marketing-cta-row">
                 <Link
                   to="/signup"

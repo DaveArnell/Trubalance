@@ -25250,6 +25250,17 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   color: var(--text-secondary);
 }
 
+.marketing-hero-sizzle {
+  margin: 4px 0 26px;
+  max-width: 18ch;
+  font-family: var(--marketing-display, inherit);
+  font-size: clamp(1.55rem, 3.2vw, 2rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: var(--marketing-ink, #0f1b2d);
+}
+
 .marketing-hero--rank h1 {
   margin: 0 0 22px;
   max-width: 12ch;
@@ -29000,6 +29011,10 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .marketing-main--home-vivid .marketing-hero--rank .marketing-lead,
 .marketing-main--home-vivid .marketing-hero-tagline {
   color: rgba(244, 247, 251, 0.78) !important;
+}
+
+.marketing-main--home-vivid .marketing-hero-sizzle {
+  color: #7dd3fc;
 }
 
 .marketing-main--home-vivid .marketing-hero--rank h1 {
