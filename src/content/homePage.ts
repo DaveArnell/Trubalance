@@ -10,9 +10,8 @@ export const HOME_HERO = {
   headlineStart: 'Finally, a balance',
   headlineHighlight: 'you can trust.',
   subheading: [
-    "Running a business means making decisions every day, but your bank balance only tells you how much money is in the account. It doesn't tell you how much has already been committed.",
-    "Cash Prophet continuously accounts for your business's financial commitments in the background, so every day you have a reliable Available Balance that reflects where your business really stands.",
-    "That means you can stop mentally keeping track of payroll, VAT, tax, rent, insurance and everything else that's still to come. You know it's already being accounted for, giving you the confidence to make decisions without constantly second-guessing your finances.",
+    "Your bank balance only shows what’s in the account — not what’s already committed to payroll, VAT, tax, rent and the rest.",
+    "Cash Prophet keeps those commitments in the picture, so every day you have an Available Balance you can actually decide from.",
   ],
   primaryCta: 'Start Free',
   secondaryCta: 'See How It Works',

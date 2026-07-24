@@ -297,12 +297,6 @@ export function MethodReservePlannerVisual() {
           </span>
         </div>
       </div>
-
-      <figcaption className="method-reserve-viz-caption">
-        The same amount goes into the reserve every month, so the green line climbs at a steady rate —
-        including from December into January. When corporation tax, VAT or insurance is due, the red
-        drop shows that money leaving.
-      </figcaption>
     </figure>
   )
 }

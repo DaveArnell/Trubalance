@@ -1203,8 +1203,7 @@ export function ReservePlannerPanel({
                         bufferAmount={planner.bufferAmount}
                         currentMonthIdx={currentMonthIdx}
                         currentActualBalance={suggestedReserveBalance}
-                        standalone
-                        rotatable
+                        columnWidths={columnWidths}
                       />
                     </td>
                     <td className="sheet-row-total-cell reserve-total-col reserve-total-col--annual" />

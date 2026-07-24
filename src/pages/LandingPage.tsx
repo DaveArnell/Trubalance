@@ -13,6 +13,7 @@ import {
   HomeOutcomeBeats,
   HomeSpokenForPanel,
 } from '../components/marketing/HomeMarketingVisuals'
+import { HomeConfidenceBars } from '../components/marketing/HomeConfidenceBars'
 import { CompanyLegalNotice } from '../components/marketing/CompanyLegalNotice'
 import {
   HOME_CTA,
@@ -136,6 +137,7 @@ export function LandingPage() {
             <div className="home-band-head home-band-head--center">
               <h2 id="outcome-heading">{HOME_OUTCOME.heading}</h2>
             </div>
+            <HomeConfidenceBars />
             <HomeOutcomeBeats beats={HOME_OUTCOME.beats} closing={HOME_OUTCOME.closing} />
           </div>
         </section>
