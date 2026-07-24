@@ -28752,6 +28752,13 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .marketing-main--home-vivid .home-viz-card--bank {
   border-top: 4px solid rgba(15, 27, 45, 0.28);
+  text-align: center;
+}
+
+.marketing-main--home-vivid .home-viz-card--bank .home-viz-label,
+.marketing-main--home-vivid .home-viz-card--bank .home-viz-amount,
+.marketing-main--home-vivid .home-viz-card--bank .home-viz-note {
+  text-align: center;
 }
 
 .marketing-main--home-vivid .home-viz-card--spoken {
