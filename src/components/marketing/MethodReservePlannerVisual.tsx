@@ -1,9 +1,10 @@
 /**
  * Marketing Reserve Planner graph — equal monthly transfers, bill drops only.
- * Year window starts so Dec→Jan is visible; drag to rotate like the in-app chart.
+ * Drag rotates a continuous year window; the line extends past both edges so
+ * wrap-around (e.g. Dec → Jan) never looks cut off.
  */
 
-import { useRef, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] as const
 
@@ -73,18 +74,18 @@ const PAD_R = 16
 const PAD_T = 28
 const PAD_B = 36
 const Y_MAX = Math.ceil((PLAN.peak * 1.08) / 500) * 500
+const PLOT_W = W - PAD_L - PAD_R
+const PLOT_H = H - PAD_T - PAD_B
 
 /** Start at Nov so Dec→Jan climb is on-screen by default. */
 const DEFAULT_START = 10
 
 function xAt(i: number) {
-  const plotW = W - PAD_L - PAD_R
-  return PAD_L + (plotW / 12) * i + plotW / 24
+  return PAD_L + (PLOT_W / 12) * i + PLOT_W / 24
 }
 
 function yAt(v: number) {
-  const plotH = H - PAD_T - PAD_B
-  return PAD_T + (1 - v / Y_MAX) * plotH
+  return PAD_T + (1 - v / Y_MAX) * PLOT_H
 }
 
 function axisTicks(max: number): number[] {
@@ -100,32 +101,67 @@ function formatAxis(v: number): string {
   return `£${v}`
 }
 
+function monthAt(windowStart: number, offset: number) {
+  return (((windowStart + offset) % 12) + 12) % 12
+}
+
+/** Stepped path through one month: peak then drop when a bill is due. */
+function pointsForMonth(
+  monthIdx: number,
+  slot: number,
+  afterDeposit: number[],
+  afterBills: number[],
+): { x: number; y: number }[] {
+  if (DUES[monthIdx]! > 0) {
+    return [
+      { x: xAt(slot), y: yAt(afterDeposit[monthIdx]!) },
+      { x: xAt(slot), y: yAt(afterBills[monthIdx]!) },
+    ]
+  }
+  return [{ x: xAt(slot), y: yAt(afterBills[monthIdx]!) }]
+}
+
 export function MethodReservePlannerVisual() {
+  const clipId = useId().replace(/:/g, '')
   const { afterDeposit, afterBills } = PLAN
   const [windowStart, setWindowStart] = useState(DEFAULT_START)
   const [dragging, setDragging] = useState(false)
   const dragRef = useRef<{ startX: number; startWindow: number } | null>(null)
 
-  const order = Array.from({ length: 12 }, (_, i) => (windowStart + i) % 12)
+  /** Visible months 0–11, plus one neighbour either side for continuous edges. */
+  const extendedSlots = Array.from({ length: 14 }, (_, i) => i - 1)
+  const visibleOrder = Array.from({ length: 12 }, (_, i) => monthAt(windowStart, i))
+
+  const stepped: { x: number; y: number }[] = []
+  for (const slot of extendedSlots) {
+    const monthIdx = monthAt(windowStart, slot)
+    stepped.push(...pointsForMonth(monthIdx, slot, afterDeposit, afterBills))
+  }
+
+  // Climb segments between consecutive months (including into edge ghosts)
+  const climbSegments: { x1: number; y1: number; x2: number; y2: number; key: string }[] = []
+  for (let slot = -1; slot < 12; slot++) {
+    const monthIdx = monthAt(windowStart, slot)
+    const nextIdx = monthAt(windowStart, slot + 1)
+    const nextDue = DUES[nextIdx]! > 0
+    climbSegments.push({
+      key: `climb-${slot}-${monthIdx}-${nextIdx}`,
+      x1: xAt(slot),
+      y1: yAt(afterBills[monthIdx]!),
+      x2: xAt(slot + 1),
+      y2: nextDue ? yAt(afterDeposit[nextIdx]!) : yAt(afterBills[nextIdx]!),
+    })
+  }
+
   const plotBottom = H - PAD_B
   const bufferY = yAt(BUFFER)
   const ticks = axisTicks(Y_MAX)
 
-  const stepped: { x: number; y: number }[] = []
-  order.forEach((monthIdx, i) => {
-    if (DUES[monthIdx]! > 0) {
-      stepped.push({ x: xAt(i), y: yAt(afterDeposit[monthIdx]!) })
-      stepped.push({ x: xAt(i), y: yAt(afterBills[monthIdx]!) })
-    } else {
-      stepped.push({ x: xAt(i), y: yAt(afterBills[monthIdx]!) })
-    }
-  })
+  const linePath = stepped
+    .map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(2)} ${p.y.toFixed(2)}`)
+    .join(' ')
 
-  const areaPoints = [
-    ...stepped.map((p) => `${p.x},${p.y}`),
-    `${xAt(11)},${plotBottom}`,
-    `${xAt(0)},${plotBottom}`,
-  ].join(' ')
+  const areaPath = `${linePath} L${xAt(12).toFixed(2)} ${plotBottom} L${xAt(-1).toFixed(2)} ${plotBottom} Z`
 
   const beginDrag = (clientX: number) => {
     dragRef.current = { startX: clientX, startWindow: windowStart }
@@ -134,9 +170,8 @@ export function MethodReservePlannerVisual() {
 
   const moveDrag = (clientX: number) => {
     if (!dragRef.current) return
-    const plotW = W - PAD_L - PAD_R
     const dx = clientX - dragRef.current.startX
-    const monthShift = Math.round(-dx / (plotW / 12))
+    const monthShift = Math.round(-dx / (PLOT_W / 12))
     const next = (((dragRef.current.startWindow + monthShift) % 12) + 12) % 12
     setWindowStart(next)
   }
@@ -180,14 +215,25 @@ export function MethodReservePlannerVisual() {
 
         <svg className="method-reserve-viz-svg" viewBox={`0 0 ${W} ${H}`} role="img">
           <title>
-            Planned reserve balance rises with equal monthly transfers, then drops when bills are due
+            Planned reserve balance rises with equal monthly transfers, then drops when bills are due.
+            Drag to rotate the continuous year.
           </title>
+
+          <defs>
+            <clipPath id={`${clipId}-plot`}>
+              <rect x={PAD_L} y={PAD_T} width={PLOT_W} height={PLOT_H} rx="8" />
+            </clipPath>
+            <linearGradient id={`${clipId}-area`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#0d8f5b" stopOpacity="0.38" />
+              <stop offset="100%" stopColor="#0d8f5b" stopOpacity="0.06" />
+            </linearGradient>
+          </defs>
 
           <rect
             x={PAD_L}
             y={PAD_T}
-            width={W - PAD_L - PAD_R}
-            height={H - PAD_T - PAD_B}
+            width={PLOT_W}
+            height={PLOT_H}
             className="method-reserve-viz-plot"
             rx="8"
           />
@@ -223,60 +269,68 @@ export function MethodReservePlannerVisual() {
             Buffer
           </text>
 
-          <polygon points={areaPoints} className="method-reserve-viz-area" />
+          <g clipPath={`url(#${clipId}-plot)`}>
+            <path d={areaPath} fill={`url(#${clipId}-area)`} className="method-reserve-viz-area" />
 
-          {order.slice(0, -1).map((monthIdx, i) => {
-            const nextIdx = order[i + 1]!
-            const nextDue = DUES[nextIdx]! > 0
-            const y2 = nextDue ? yAt(afterDeposit[nextIdx]!) : yAt(afterBills[nextIdx]!)
-            return (
+            {climbSegments.map((seg) => (
               <line
-                key={`seg-${monthIdx}-${nextIdx}`}
-                x1={xAt(i)}
-                y1={yAt(afterBills[monthIdx]!)}
-                x2={xAt(i + 1)}
-                y2={y2}
+                key={seg.key}
+                x1={seg.x1}
+                y1={seg.y1}
+                x2={seg.x2}
+                y2={seg.y2}
                 className="method-reserve-viz-line"
               />
-            )
-          })}
+            ))}
 
-          {order.map((monthIdx, i) => {
-            if (DUES[monthIdx]! <= 0) return null
-            return (
-              <g key={`due-${monthIdx}`}>
+            {extendedSlots.map((slot) => {
+              const monthIdx = monthAt(windowStart, slot)
+              if (DUES[monthIdx]! <= 0) return null
+              return (
                 <line
-                  x1={xAt(i)}
+                  key={`due-line-${slot}-${monthIdx}`}
+                  x1={xAt(slot)}
                   y1={yAt(afterDeposit[monthIdx]!)}
-                  x2={xAt(i)}
+                  x2={xAt(slot)}
                   y2={yAt(afterBills[monthIdx]!)}
                   className="method-reserve-viz-drop"
                 />
-                <text
-                  x={xAt(i)}
-                  y={yAt(afterDeposit[monthIdx]!) - 8}
-                  textAnchor="middle"
-                  className="method-reserve-viz-due-label"
-                >
-                  {DUE_LABELS[monthIdx]}
-                </text>
-              </g>
+              )
+            })}
+
+            {extendedSlots.map((slot) => {
+              const monthIdx = monthAt(windowStart, slot)
+              return (
+                <circle
+                  key={`dot-${slot}-${monthIdx}`}
+                  cx={xAt(slot)}
+                  cy={yAt(afterBills[monthIdx]!)}
+                  r={slot >= 0 && slot < 12 ? 3.2 : 2.4}
+                  className="method-reserve-viz-dot"
+                  opacity={slot >= 0 && slot < 12 ? 1 : 0.55}
+                />
+              )
+            })}
+          </g>
+
+          {visibleOrder.map((monthIdx, i) => {
+            if (DUES[monthIdx]! <= 0) return null
+            return (
+              <text
+                key={`due-label-${monthIdx}-${i}`}
+                x={xAt(i)}
+                y={yAt(afterDeposit[monthIdx]!) - 8}
+                textAnchor="middle"
+                className="method-reserve-viz-due-label"
+              >
+                {DUE_LABELS[monthIdx]}
+              </text>
             )
           })}
 
-          {order.map((monthIdx, i) => (
-            <circle
-              key={`dot-${monthIdx}`}
-              cx={xAt(i)}
-              cy={yAt(afterBills[monthIdx]!)}
-              r={3.2}
-              className="method-reserve-viz-dot"
-            />
-          ))}
-
-          {order.map((monthIdx, i) => (
+          {visibleOrder.map((monthIdx, i) => (
             <text
-              key={`label-${monthIdx}`}
+              key={`label-${monthIdx}-${i}`}
               x={xAt(i)}
               y={H - 10}
               textAnchor="middle"

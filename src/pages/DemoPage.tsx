@@ -18,22 +18,32 @@ export function DemoPage() {
   const { scenarioId } = useParams<{ scenarioId?: string }>()
   const navigate = useNavigate()
   const resolvedId = scenarioId ?? DEFAULT_DEMO_SCENARIO_ID
+  const scenarioIndex = Math.max(
+    0,
+    DEMO_SCENARIOS.findIndex((scenario) => scenario.id === resolvedId),
+  )
+  const activeId = DEMO_SCENARIOS[scenarioIndex]?.id ?? DEFAULT_DEMO_SCENARIO_ID
 
-  const { meta, state: initialState } = useMemo(() => buildDemoScenarioState(resolvedId), [resolvedId])
+  const { meta, state: initialState } = useMemo(() => buildDemoScenarioState(activeId), [activeId])
   const canEditDemo = false
   const [demoState, setDemoState] = useState(initialState)
-  const [loadedScenarioId, setLoadedScenarioId] = useState(resolvedId)
+  const [loadedScenarioId, setLoadedScenarioId] = useState(activeId)
 
-  if (resolvedId !== loadedScenarioId) {
-    setLoadedScenarioId(resolvedId)
+  if (activeId !== loadedScenarioId) {
+    setLoadedScenarioId(activeId)
     setDemoState(initialState)
   }
 
   const externalState = canEditDemo ? demoState : initialState
 
   const handleScenarioChange = (nextId: string) => {
-    if (nextId === resolvedId) return
+    if (nextId === activeId) return
     navigate(`/demo/${nextId}`, { replace: true })
+  }
+
+  const cycleScenario = (direction: -1 | 1) => {
+    const nextIndex = (scenarioIndex + direction + DEMO_SCENARIOS.length) % DEMO_SCENARIOS.length
+    handleScenarioChange(DEMO_SCENARIOS[nextIndex]!.id)
   }
 
   return (
@@ -48,20 +58,39 @@ export function DemoPage() {
             <span className="interactive-demo-badge" aria-hidden>
               Demo
             </span>
-            <label className="interactive-demo-scenario-picker">
+            <div className="interactive-demo-scenario-picker">
               <span className="interactive-demo-scenario-picker-label">Example business</span>
-              <select
-                value={resolvedId}
-                onChange={(e) => handleScenarioChange(e.target.value)}
-                className="interactive-demo-scenario-select"
-              >
-                {DEMO_SCENARIOS.map((scenario) => (
-                  <option key={scenario.id} value={scenario.id}>
-                    {scenario.title}
-                  </option>
-                ))}
-              </select>
-            </label>
+              <div className="interactive-demo-scenario-controls">
+                <button
+                  type="button"
+                  className="interactive-demo-scenario-nav"
+                  onClick={() => cycleScenario(-1)}
+                  aria-label="Previous example business"
+                >
+                  ‹
+                </button>
+                <select
+                  value={activeId}
+                  onChange={(e) => handleScenarioChange(e.target.value)}
+                  className="interactive-demo-scenario-select"
+                  aria-label="Choose example business"
+                >
+                  {DEMO_SCENARIOS.map((scenario) => (
+                    <option key={scenario.id} value={scenario.id}>
+                      {scenario.title}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  className="interactive-demo-scenario-nav"
+                  onClick={() => cycleScenario(1)}
+                  aria-label="Next example business"
+                >
+                  ›
+                </button>
+              </div>
+            </div>
             <p className="interactive-demo-banner-message">
               Frozen snapshot as of {formatSnapshotDateLong(DEMO_FROZEN_DATE_KEY)} — explore freely.
               Nothing here is saved.
@@ -83,10 +112,10 @@ export function DemoPage() {
           </div>
 
           <AppShell
-            key={resolvedId}
+            key={activeId}
             workspaceId={null}
             externalState={externalState}
-            externalStateVersion={`${resolvedId}:${meta.historyMonths}:v2`}
+            externalStateVersion={`${activeId}:${meta.historyMonths}:v2`}
             defaultViewScope={meta.defaultViewScope}
             readOnly={!canEditDemo}
             skipLocalPersist

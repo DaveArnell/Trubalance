@@ -22029,6 +22029,8 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   /* Override the app's 100vh so the demo banner doesn't push the bottom off-screen */
   height: auto;
   max-height: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 .interactive-demo-shell .sidebar,
@@ -22039,6 +22041,8 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .interactive-demo-banner {
+  position: relative;
+  z-index: 60;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -22049,6 +22053,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   border-bottom: 1px solid rgba(99, 102, 241, 0.2);
   font-size: 0.84rem;
   flex-shrink: 0;
+  pointer-events: auto;
 }
 
 .interactive-demo-badge {
@@ -22095,6 +22100,35 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   min-width: 0;
 }
 
+.interactive-demo-scenario-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.interactive-demo-scenario-nav {
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.interactive-demo-scenario-nav:hover {
+  border-color: rgba(37, 99, 235, 0.45);
+  color: #1d4ed8;
+}
+
 .interactive-demo-scenario-picker-label {
   font-size: 0.82rem;
   font-weight: 600;
@@ -22109,6 +22143,9 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   border: 1px solid var(--border);
   background: #fff;
   max-width: min(100%, 280px);
+  pointer-events: auto;
+  position: relative;
+  z-index: 1;
 }
 
 .interactive-demo-shell--locked .sheet-input,
@@ -28485,7 +28522,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .method-reserve-viz-area {
-  fill: rgba(13, 143, 91, 0.12);
+  /* Fill comes from the SVG gradient on the marketing chart */
 }
 
 .method-reserve-viz-line {

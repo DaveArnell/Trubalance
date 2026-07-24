@@ -10,8 +10,8 @@ export const HOME_HERO = {
   headlineStart: 'Finally, a balance',
   headlineHighlight: 'you can trust.',
   subheading: [
-    "Your bank balance only shows the money in your account. It doesn't tell you how much has already been committed.",
-    'Cash Prophet continuously accounts for those commitments, giving you a balance that reflects where your business really stands. So instead of mentally working everything out yourself, you simply know what your business can safely rely on.',
+    "Your bank balance only shows the money in your account. It doesn't tell you how much of it is already spoken for.",
+    "Cash Prophet continuously accounts for those commitments, giving you a balance that reflects where your business really stands today. So instead of mentally keeping track of what's coming next, you can simply get on with running your business.",
   ],
   sizzle: 'Less stress. More clarity.',
   primaryCta: 'Start Free',
