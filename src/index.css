@@ -28713,3 +28713,152 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
     display: none;
   }
 }
+
+/* Homepage visual rhythm — spoken-for, bank vs Available, founder, CTA */
+.marketing-main--home-vivid .home-band--mist {
+  background:
+    radial-gradient(ellipse 70% 55% at 100% 0%, rgba(37, 99, 235, 0.12), transparent 55%),
+    #e2eaf7 !important;
+}
+
+.marketing-main--home-vivid .home-band--founder {
+  background:
+    radial-gradient(ellipse 70% 55% at 10% 0%, rgba(13, 143, 91, 0.14), transparent 50%),
+    linear-gradient(180deg, #dfe8f6, #eef3fb) !important;
+  padding: 64px 0 !important;
+  border-top: 1px solid rgba(15, 27, 45, 0.08);
+}
+
+.marketing-main--home-vivid .home-viz {
+  width: 100%;
+  max-width: 26rem;
+  margin: 0;
+  justify-self: center;
+}
+
+.marketing-main--home-vivid .home-viz--spoken {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.marketing-main--home-vivid .home-viz-card {
+  background: #fff;
+  border: 1px solid rgba(15, 27, 45, 0.1);
+  border-radius: 14px;
+  padding: 18px 20px;
+  box-shadow: 0 10px 28px rgba(15, 27, 45, 0.06);
+}
+
+.marketing-main--home-vivid .home-viz-card--bank {
+  border-top: 4px solid rgba(15, 27, 45, 0.28);
+}
+
+.marketing-main--home-vivid .home-viz-card--spoken {
+  border-top: 4px solid #9f1239;
+  background: linear-gradient(180deg, #fff8f8, #fff);
+}
+
+.marketing-main--home-vivid .home-viz-label {
+  margin: 0 0 6px;
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(15, 27, 45, 0.45);
+}
+
+.marketing-main--home-vivid .home-viz-label--warn {
+  color: #9f1239;
+}
+
+.marketing-main--home-vivid .home-viz-amount {
+  margin: 0;
+  font-family: var(--marketing-display);
+  font-size: clamp(2rem, 3.4vw, 2.45rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--marketing-ink);
+}
+
+.marketing-main--home-vivid .home-viz-note {
+  margin: 8px 0 0;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: rgba(15, 27, 45, 0.58);
+}
+
+.marketing-main--home-vivid .home-viz-chips {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.marketing-main--home-vivid .home-viz-chips li {
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(159, 18, 57, 0.08);
+  border: 1px solid rgba(159, 18, 57, 0.16);
+  font-size: 0.86rem;
+  font-weight: 650;
+  color: #9f1239;
+}
+
+.marketing-main--home-vivid .home-compare--bank-available {
+  max-width: 44rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.marketing-main--home-vivid .home-compare-detail {
+  margin: 10px 0 0;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: rgba(15, 27, 45, 0.55);
+}
+
+.marketing-main--home-vivid .home-compare-col--accent .home-compare-tag,
+.marketing-main--home-vivid .home-compare-highlight,
+.marketing-main--home-vivid .home-outcome-num {
+  color: var(--marketing-available, #0d8f5b) !important;
+}
+
+.marketing-main--home-vivid .home-compare-col--accent {
+  box-shadow: inset 0 3px 0 var(--marketing-available, #0d8f5b) !important;
+}
+
+.marketing-main--home-vivid .marketing-hero--rank {
+  background:
+    radial-gradient(ellipse 55% 50% at 92% 8%, rgba(13, 143, 91, 0.18), transparent 55%),
+    radial-gradient(ellipse 45% 40% at 0% 85%, rgba(37, 99, 235, 0.12), transparent 50%),
+    #e8eef8 !important;
+}
+
+.marketing-main--home-vivid .home-cta-band,
+.home-cta-band.marketing-cta-band--pop {
+  background:
+    radial-gradient(ellipse 70% 70% at 85% 0%, rgba(13, 143, 91, 0.28), transparent 55%),
+    radial-gradient(ellipse 50% 50% at 10% 100%, rgba(37, 99, 235, 0.28), transparent 50%),
+    #0b1220 !important;
+  padding: 88px 24px;
+}
+
+.marketing-main--home-vivid .home-split--flip .home-viz,
+.marketing-main--home-vivid .home-split--flip .home-snap {
+  order: 1;
+}
+
+@media (max-width: 900px) {
+  .marketing-main--home-vivid .home-compare--bank-available {
+    grid-template-columns: 1fr;
+  }
+
+  .marketing-main--home-vivid .home-split--flip .home-viz,
+  .marketing-main--home-vivid .home-split--flip .home-snap {
+    order: initial;
+  }
+}
+

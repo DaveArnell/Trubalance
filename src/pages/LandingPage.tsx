@@ -141,7 +141,7 @@ export function LandingPage() {
         </section>
 
         <section
-          className="home-band home-band--wash"
+          className="home-band home-band--mist"
           id="why-it-works"
           aria-labelledby="why-heading"
         >
@@ -154,7 +154,7 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section className="home-band home-band--paper" aria-label="Why Cash Prophet exists">
+        <section className="home-band home-band--founder" aria-label="Why Cash Prophet exists">
           <div className="marketing-section-inner marketing-section-inner--home home-founder">
             <p className="marketing-how-eyebrow">{HOME_FOUNDER.eyebrow}</p>
             <h2>{HOME_FOUNDER.heading}</h2>

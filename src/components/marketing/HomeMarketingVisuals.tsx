@@ -1,5 +1,6 @@
 /**
- * Homepage visuals — dashboard-faithful snapshots.
+ * Homepage visuals — Available Balance made visible.
+ * Motif panels for the settled homepage copy (no messaging rewrites).
  */
 
 import { MobileRecordCard } from '../mobile/MobileRecordList'
@@ -37,6 +38,8 @@ const BUILDING_CARDS = [
   },
 ] as const
 
+const SPOKEN_FOR = ['Payroll', 'VAT', 'Rent', 'Insurance', 'Tax'] as const
+
 const CARD_ACCENT = '#0d8f5b'
 
 function dueInLabel(days: number) {
@@ -45,23 +48,31 @@ function dueInLabel(days: number) {
   return `Due in ${days} days`
 }
 
+/** NEED section — bank figure plus what’s already spoken for. */
 export function HomeSpokenForPanel() {
   return (
-    <aside className="home-snap" aria-label="Bank balance does not show what is free to spend">
-      <div className="home-snap-card">
-        <p className="home-snap-label">Bank balance</p>
-        <p className="home-snap-big">£48,200</p>
-        <p className="home-snap-sub">In the account today</p>
-        <div className="home-snap-divider" />
-        <p className="home-snap-question">How much of that can you actually spend?</p>
-        <p className="home-snap-hint">
-          The bank can’t say. Payroll, VAT, rent and the rest are still only in your head.
+    <aside className="home-viz home-viz--spoken" aria-label="Bank balance versus money already spoken for">
+      <div className="home-viz-card home-viz-card--bank">
+        <p className="home-viz-label">Bank balance</p>
+        <p className="home-viz-amount">£48,200</p>
+        <p className="home-viz-note">In the account today</p>
+      </div>
+      <div className="home-viz-card home-viz-card--spoken">
+        <p className="home-viz-label home-viz-label--warn">Already spoken for</p>
+        <ul className="home-viz-chips">
+          {SPOKEN_FOR.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+        <p className="home-viz-note">
+          The bank doesn’t show any of this until the money leaves.
         </p>
       </div>
     </aside>
   )
 }
 
+/** DOES section — Available Balance product snapshot. */
 export function HomeAvailablePanel() {
   return (
     <aside className="home-snap home-snap--wide" aria-label="Dashboard snapshot of Available Balance">
@@ -95,6 +106,7 @@ export function HomeAvailablePanel() {
   )
 }
 
+/** OUTCOME — three chunked beats, not one text slab. */
 export function HomeOutcomeBeats({
   beats,
   closing,
@@ -119,21 +131,19 @@ export function HomeOutcomeBeats({
   )
 }
 
+/** WHY — bank vs Available Balance (muted vs accent). */
 export function HomeCompareStrip() {
   return (
-    <div className="home-compare" aria-label="How Cash Prophet sits beside accounting and banking">
+    <div className="home-compare home-compare--bank-available" aria-label="Bank balance versus Available Balance">
       <div className="home-compare-col home-compare-col--muted">
-        <p className="home-compare-tag">Accounting</p>
-        <p className="home-compare-body">Records the past</p>
-      </div>
-      <div className="home-compare-col home-compare-col--muted">
-        <p className="home-compare-tag">Your bank</p>
-        <p className="home-compare-body">Shows today’s cash</p>
+        <p className="home-compare-tag">Bank balance</p>
+        <p className="home-compare-body">Shows what’s in the account</p>
+        <p className="home-compare-detail">Silent about payroll, VAT, rent and the rest until money leaves.</p>
       </div>
       <div className="home-compare-col home-compare-col--accent">
-        <p className="home-compare-tag">Cash Prophet</p>
-        <p className="home-compare-body">Helps you make today’s decisions</p>
-        <p className="home-compare-highlight">Available Balance you can rely on</p>
+        <p className="home-compare-tag">Available Balance</p>
+        <p className="home-compare-body">Shows what you can actually decide from</p>
+        <p className="home-compare-highlight">Commitments already in the picture</p>
       </div>
     </div>
   )
