@@ -23,6 +23,7 @@ export const METHOD_CLARITY_QUESTIONS = [
   'Can I actually afford to spend this money?',
   'Why do I keep getting caught out by VAT or annual bills?',
   'How much of my bank balance is actually already spoken for?',
+  'Am I accounting for all the bills that might be coming up?',
   'Do I really know where my business stands today?',
 ] as const
 
