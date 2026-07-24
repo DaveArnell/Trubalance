@@ -253,6 +253,8 @@ export function ensureDailySnapshotAtDate(
   )
   const noteChanges = scopeChanges.length > 0 ? scopeChanges : mergedChanges
   const { note, noteSource } = noteForScope(scope, noteChanges, noteText, existing)
+  const keepAuthoredDemoMetrics =
+    workingState.workspaceOrigin === 'builtin-demo' && existing != null
 
   const snapshot: BalanceSnapshot = {
     id: existing?.id ?? newId(),
@@ -261,18 +263,23 @@ export function ensureDailySnapshotAtDate(
     scopeId: scope.id,
     viewName: getScopeLabel(workingState, scope),
     cash:
-      existing && isSnapshotMetricCorrected(existing, 'cash') ? existing.cash : metrics.cash,
+      keepAuthoredDemoMetrics || (existing && isSnapshotMetricCorrected(existing, 'cash'))
+        ? existing!.cash
+        : metrics.cash,
     committedFunds:
-      existing && isSnapshotMetricCorrected(existing, 'committedFunds')
-        ? existing.committedFunds
+      keepAuthoredDemoMetrics ||
+      (existing && isSnapshotMetricCorrected(existing, 'committedFunds'))
+        ? existing!.committedFunds
         : metrics.committedFunds,
     expectedReceipts:
-      existing && isSnapshotMetricCorrected(existing, 'expectedReceipts')
-        ? existing.expectedReceipts
+      keepAuthoredDemoMetrics ||
+      (existing && isSnapshotMetricCorrected(existing, 'expectedReceipts'))
+        ? existing!.expectedReceipts
         : metrics.expectedReceipts,
     trueBalance:
-      existing && isSnapshotMetricCorrected(existing, 'trueBalance')
-        ? existing.trueBalance
+      keepAuthoredDemoMetrics ||
+      (existing && isSnapshotMetricCorrected(existing, 'trueBalance'))
+        ? existing!.trueBalance
         : metrics.trueBalance,
     note,
     noteSource,
@@ -305,6 +312,10 @@ export function upsertDailySnapshot(
 
 /** Create missing group / business / venue snapshots for every saved day in the tree. */
 export function backfillScopeSnapshots(state: AppState, now: string): AppState {
+  // Builtin demos already include a full authored Available history — backfill would
+  // recompute those days from accruals and turn Trends into a sawtooth.
+  if (state.workspaceOrigin === 'builtin-demo') return state
+
   let snapshots = [...state.snapshots]
   const touched = new Set<string>()
 
