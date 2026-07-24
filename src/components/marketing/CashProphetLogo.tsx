@@ -10,7 +10,7 @@ type CashProphetLogoProps = {
 
 /**
  * Cash Prophet wordmark + mark for marketing chrome.
- * Mark: foresight spark over a rising balance path — clarity looking ahead.
+ * Mark: three calm accruing bars — known costs building, not a stock chart.
  */
 export function CashProphetLogo({
   variant = 'header',
@@ -33,28 +33,20 @@ export function CashProphetLogo({
             <stop offset="100%" stopColor="#1d4ed8" />
           </linearGradient>
           <linearGradient id={`${uid}-shine`} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#fff" stopOpacity="0.35" />
+            <stop offset="0%" stopColor="#fff" stopOpacity="0.28" />
             <stop offset="100%" stopColor="#fff" stopOpacity="0" />
           </linearGradient>
         </defs>
         <rect width="40" height="40" rx="11" fill={`url(#${uid}-fill)`} />
         <rect width="40" height="40" rx="11" fill={`url(#${uid}-shine)`} />
-        <path
-          d="M9 27.5 L15.5 22.5 L21 25 L31 14"
-          fill="none"
-          stroke="#fff"
-          strokeWidth="2.6"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <circle cx="31" cy="14" r="2.4" fill="#fff" />
-        <path
-          d="M31 8.2 V10.4 M31 17.6 V19.8 M25.2 14 H27.4 M34.6 14 H36.8"
-          stroke="#fff"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          opacity="0.9"
-        />
+        {/* Soft tracks */}
+        <rect x="8" y="10" width="24" height="5.5" rx="2.75" fill="#fff" opacity="0.22" />
+        <rect x="8" y="17.25" width="24" height="5.5" rx="2.75" fill="#fff" opacity="0.22" />
+        <rect x="8" y="24.5" width="24" height="5.5" rx="2.75" fill="#fff" opacity="0.22" />
+        {/* Accruing fills — different stages of building */}
+        <rect x="8" y="10" width="20" height="5.5" rx="2.75" fill="#fff" />
+        <rect x="8" y="17.25" width="14" height="5.5" rx="2.75" fill="#fff" opacity="0.92" />
+        <rect x="8" y="24.5" width="8" height="5.5" rx="2.75" fill="#fff" opacity="0.85" />
       </svg>
       <span className="cp-logo-word">
         <span className="cp-logo-cash">Cash</span>
