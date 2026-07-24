@@ -26,9 +26,10 @@ export function PricingSection({ hideIntro = false }: { hideIntro?: boolean }) {
         <div className="marketing-pricing-grid">
           {TIER_ORDER.map((tierId) => {
             const plan = SUBSCRIPTION_TIERS[tierId]
+            const PlanHeading = hideIntro ? 'h2' : 'h3'
             return (
               <article key={tierId} className="marketing-price-card">
-                <h3>{plan.name}</h3>
+                <PlanHeading>{plan.name}</PlanHeading>
                 <p className="marketing-price">
                   <span className="marketing-price-amount">
                     {formatPriceGbp(plan.priceMonthlyGbp)}

@@ -41,7 +41,7 @@ export function SeeHowItWorksPage() {
                 <article key={scenario.id} className="demo-scenario-card demo-scenario-card--compact">
                   <span className="demo-scenario-badge">Demo</span>
                   <p className="demo-scenario-type">{scenario.businessType}</p>
-                  <h2>{scenario.title}</h2>
+                  <h3>{scenario.title}</h3>
                   <p className="demo-scenario-subtitle">{scenario.subtitle}</p>
                   <Link
                     to={`/demo/${scenario.id}`}

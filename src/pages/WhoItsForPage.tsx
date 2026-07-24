@@ -30,10 +30,6 @@ export function WhoItsForPage() {
         </header>
         <section className="demo-scenarios-section demo-scenarios-section--landing marketing-surface--mist">
           <div className="marketing-section-inner">
-            <div className="marketing-section-head demo-scenarios-head sr-only">
-              <h2>Who it suits</h2>
-            </div>
-
             <ul className="marketing-clarity-questions" aria-label="Familiar questions">
               {METHOD_CLARITY_QUESTIONS.map((question) => (
                 <li key={question}>{question}</li>

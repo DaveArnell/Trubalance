@@ -17,7 +17,7 @@ function AuthAside({ mode }: { mode: 'login' | 'signup' }) {
     <aside className="auth-aside">
       <div className="auth-aside-inner">
         <p className="marketing-eyebrow">{copy.eyebrow}</p>
-        <h2>{copy.heading}</h2>
+        <p className="auth-aside-title">{copy.heading}</p>
         <p className="auth-aside-lead">{copy.lead}</p>
         <ul className="auth-aside-points">
           {copy.points.map((point) => (
