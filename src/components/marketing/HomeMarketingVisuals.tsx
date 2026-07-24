@@ -2,13 +2,48 @@
  * Homepage visuals — dashboard-faithful snapshots.
  */
 
-/** Sorted most-full first, like the live accruing list. */
-const DUE_CARDS = [
-  { scope: 'High Street', dueIn: 'Due in 2 days', name: 'Rent', accrued: '£2,150', total: '£2,500', fill: 0.86 },
-  { scope: 'Reserve', dueIn: 'Due in 4 days', name: 'Reserve transfer', accrued: '£1,840', total: '£2,200', fill: 0.84 },
-  { scope: 'Market stall', dueIn: 'Due in 15 days', name: 'Utilities', accrued: '£230', total: '£420', fill: 0.55 },
-  { scope: 'High Street', dueIn: 'Due in 22 days', name: 'Wages', accrued: '£1,680', total: '£8,400', fill: 0.2 },
+import { MobileRecordCard } from '../mobile/MobileRecordList'
+import { formatCurrency } from '../../utils/format'
+
+/** Sorted fullest-first, matching the live accruing timeline. */
+const BUILDING_CARDS = [
+  {
+    scope: 'High Street',
+    dueInDays: 2,
+    name: 'Rent',
+    accrued: 2150,
+    total: 2500,
+  },
+  {
+    scope: 'Reserve',
+    dueInDays: 4,
+    name: 'Reserve transfer',
+    accrued: 1840,
+    total: 2200,
+  },
+  {
+    scope: 'Market stall',
+    dueInDays: 15,
+    name: 'Utilities',
+    accrued: 230,
+    total: 420,
+  },
+  {
+    scope: 'High Street',
+    dueInDays: 24,
+    name: 'Wages',
+    accrued: 1680,
+    total: 8400,
+  },
 ] as const
+
+const CARD_ACCENT = '#0d8f5b'
+
+function dueInLabel(days: number) {
+  if (days <= 0) return 'Due today'
+  if (days === 1) return 'Due in 1 day'
+  return `Due in ${days} days`
+}
 
 export function HomeSpokenForPanel() {
   return (
@@ -38,26 +73,22 @@ export function HomeAvailablePanel() {
         </div>
 
         <ul className="home-dash-cards">
-          {DUE_CARDS.map((card) => (
-            <li key={card.name} className="home-dash-card">
-              <div
-                className="home-dash-card-progress"
-                aria-hidden
-                style={{ ['--home-dash-fill' as string]: `${card.fill * 100}%` }}
-              />
-              <div className="home-dash-card-meta">
-                <span className="home-dash-card-scope">{card.scope}</span>
-                <span className="home-dash-card-due">{card.dueIn}</span>
-              </div>
-              <div className="home-dash-card-row">
-                <p className="home-dash-card-name">{card.name}</p>
-                <p className="home-dash-card-amount">
-                  <strong>{card.accrued}</strong>
-                  <span> / {card.total}</span>
-                </p>
-              </div>
-            </li>
-          ))}
+          {BUILDING_CARDS.map((card) => {
+            const progress = card.accrued / card.total
+            return (
+              <li key={card.name} className="home-dash-card-row">
+                <MobileRecordCard
+                  title={card.name}
+                  scopeLabel={card.scope}
+                  meta={dueInLabel(card.dueInDays)}
+                  amount={formatCurrency(card.accrued)}
+                  amountSecondary={`/ ${formatCurrency(card.total)}`}
+                  progress={progress}
+                  accentColor={CARD_ACCENT}
+                />
+              </li>
+            )
+          })}
         </ul>
       </div>
     </aside>

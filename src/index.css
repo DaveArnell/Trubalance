@@ -28536,15 +28536,14 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   flex: 1;
   min-width: 0;
   border-radius: 3px 3px 1px 1px;
-  transform-origin: bottom center;
-  will-change: height, background;
+  transition: height 40ms linear;
 }
 
 .hero-graph-area--muted {
   fill: rgba(225, 29, 72, 0.06);
 }
 
-/* DOES section: condensed dashboard cards (list-style fill like accruing) */
+/* DOES section: dashboard-style accruing cards */
 .home-dash--cards .home-dash-building {
   display: none;
 }
@@ -28552,90 +28551,143 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .home-dash-cards {
   list-style: none;
   margin: 0;
-  padding: 10px 12px 12px;
+  padding: 8px 10px 12px;
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.home-dash-card {
-  position: relative;
-  margin: 0;
-  padding: 8px 11px;
-  border-radius: 8px;
-  background: #fff;
-  border: 1.5px solid rgba(15, 27, 45, 0.12);
-  text-align: left;
-  overflow: hidden;
-}
-
-.home-dash-card-progress {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background: linear-gradient(
-    90deg,
-    rgba(13, 143, 91, 0.22) 0,
-    rgba(13, 143, 91, 0.22) var(--home-dash-fill, 0%),
-    transparent var(--home-dash-fill, 0%)
-  );
-}
-
-.home-dash-card-meta,
 .home-dash-card-row {
+  margin: 0;
+  min-width: 0;
+}
+
+/* Force the three-column desktop card layout inside the marketing snap */
+.home-dash--cards .mobile-record-card {
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(15, 27, 45, 0.1);
+  box-shadow: none;
+}
+
+.home-dash--cards .mobile-record-card-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
   position: relative;
+  min-height: 2.2rem;
+}
+
+.home-dash--cards .mobile-record-card-scope-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1px;
+  position: relative;
+  z-index: 2;
+  min-width: 0;
+  max-width: 32%;
+  flex: 0 1 auto;
+}
+
+.home-dash--cards .mobile-record-card-scope,
+.home-dash--cards .mobile-record-card-scope-meta {
+  display: block;
+  margin: 0;
+  min-width: 0;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-dash--cards .mobile-record-card-scope {
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #52525b;
+}
+
+.home-dash--cards .mobile-record-card-scope-meta {
+  font-size: 0.68rem;
+  font-weight: 650;
+  line-height: 1.2;
+  color: #71717a;
+}
+
+.home-dash--cards .mobile-record-card-text {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
   z-index: 1;
 }
 
-.home-dash-card-meta {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 2px;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: rgba(15, 27, 45, 0.45);
-}
-
-.home-dash-card-due {
-  color: rgba(15, 27, 45, 0.55);
-  text-transform: none;
-  letter-spacing: 0;
-  font-weight: 650;
-}
-
-.home-dash-card-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.home-dash-card-name {
+.home-dash--cards .mobile-record-card-title,
+.home-dash--cards .mobile-record-card h3.mobile-record-card-title {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 0.88rem;
   font-weight: 700;
+  line-height: 1.2;
+  color: #0f1b2d;
+  text-align: center;
+}
+
+.home-dash--cards .mobile-record-card-meta--stacked {
+  display: none;
+}
+
+.home-dash--cards .mobile-record-card-amount-block {
+  position: relative;
+  z-index: 2;
+  margin-left: auto;
+  text-align: right;
+  flex: 0 0 auto;
+}
+
+.home-dash--cards .mobile-record-card-amount {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 800;
   color: #0f1b2d;
 }
 
-.home-dash-card-amount {
-  margin: 0;
-  flex-shrink: 0;
-  font-size: 0.9rem;
-  font-variant-numeric: tabular-nums;
-  color: rgba(15, 27, 45, 0.55);
+.home-dash--cards .mobile-record-card-amount-secondary {
+  margin: 1px 0 0;
+  font-size: 0.7rem;
+  color: #71717a;
 }
 
-.home-dash-card-amount strong {
-  color: #0d8f5b;
-  font-weight: 800;
+.home-dash--cards .mobile-record-card-progress-fill {
+  opacity: 0.22;
 }
 
 @media (max-width: 520px) {
-  .home-dash-cards {
-    gap: 5px;
+  .home-dash--cards .mobile-record-card-scope-block {
+    max-width: 38%;
+  }
+
+  .home-dash--cards .mobile-record-card-text {
+    position: static;
+    justify-content: flex-start;
+    flex: 1;
+    pointer-events: auto;
+  }
+
+  .home-dash--cards .mobile-record-card-title,
+  .home-dash--cards .mobile-record-card h3.mobile-record-card-title {
+    text-align: left;
+  }
+
+  .home-dash--cards .mobile-record-card-meta--stacked {
+    display: block;
+  }
+
+  .home-dash--cards .mobile-record-card-scope-block {
+    display: none;
   }
 }
