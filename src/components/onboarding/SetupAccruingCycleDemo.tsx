@@ -32,7 +32,8 @@ const TICK_MS = 50
 const DEPART_MS = 700
 const ARRIVE_MS = 420
 const DUE_HOLD_MS = 2400
-const PAID_FADE_MS = 750
+/** Hold paid + green pop long enough to read before fade-out. */
+const PAID_FADE_MS = 1100
 
 /** Different due dates → different points in the same month. Most full = next due = top. */
 const INITIAL_PROGRESS = [0.9, 0.55, 0.2]
@@ -232,10 +233,6 @@ export function SetupAccruingCycleDemo() {
             style={{ left: `${((monthDay - 1) / 29) * 100}%` }}
           />
         </div>
-        <p className="setup-accruing-day-hint muted">
-          Costs build a little each day. When the bar hits the due day, it moves to Due and
-          starts again from day 1.
-        </p>
       </div>
       <div className="setup-accruing-cycle" aria-hidden="true">
         <div className="setup-accruing-cycle-col">

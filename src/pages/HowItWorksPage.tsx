@@ -125,9 +125,8 @@ export function HowItWorksPage() {
             </div>
             <MethodWorkedExample />
             <p className="method-edu-prose method-edu-example-note">
-              Monthly costs already building, a monthly transfer into your reserve savings account
-              for irregular bills, and only receipts you can realistically rely on. The result is
-              what&apos;s available for day-to-day decisions.
+              Monthly costs, a reserve transfer for irregular bills, and realistic receipts. The
+              result is your Available Balance for day-to-day decisions.
             </p>
           </div>
         </section>
@@ -170,8 +169,7 @@ export function HowItWorksPage() {
             <div className="method-edu-section-head">
               <h2 id="habits-heading">Two light habits</h2>
               <p className="method-edu-section-lead">
-                A light check when something changes — daily or weekly — and a short monthly reserve
-                review are enough to keep the picture honest without turning it into another job.
+                A light check when something changes, and a short monthly reserve review.
               </p>
             </div>
             <div className="method-edu-habits">

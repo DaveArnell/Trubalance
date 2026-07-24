@@ -69,7 +69,7 @@ export const METHOD_TWO_HABITS = [
     title: 'Daily to weekly',
     time: 'Light logging',
     lead: 'Keep the picture honest',
-    body: 'A short update when something changes is enough — for many businesses, once a week is plenty. Cash Prophet does the calculations from there.',
+    body: 'When you update your bank balance, Cash Prophet logs it. That history keeps today’s Available Balance accurate and helps you look ahead.',
     tasks: [
       'Update balances when needed',
       'Mark payments paid',
@@ -92,7 +92,7 @@ export const METHOD_TWO_HABITS = [
 /** Live demo of continuous accrual. */
 export const METHOD_ACCRUING_DEMO = {
   heading: 'See known costs building',
-  lead: 'Rent and wages grow a little every day until payday — so today’s position already includes what’s spoken for.',
+  lead: 'Rent and wages grow a little every day until payday.',
 } as const
 
 /** How Cash Prophet works — three short pillars. */
@@ -101,7 +101,7 @@ export const METHOD_THREE_PRINCIPLES = [
     id: 'continuous-accrual',
     title: 'Daily financial clarity',
     lead: 'Known costs build every day, not only on payday.',
-    body: 'Payroll, rent and similar bills accrue continuously, so today’s position already shows money spoken for — instead of waiting until the payment date to feel the hit.',
+    body: 'Payroll, rent and similar bills accrue continuously, so today’s position already shows money spoken for, instead of waiting until the payment date to feel the hit.',
     examples: ['Payroll', 'Rent', 'Utilities', 'Subscriptions'],
   },
   {
@@ -114,7 +114,7 @@ export const METHOD_THREE_PRINCIPLES = [
   {
     id: 'one-decision-number',
     title: 'One number you can trust',
-    lead: 'Available is what’s left after commitments already building.',
+    lead: 'Available Balance is what’s left after commitments already building.',
     body: 'The bank balance stays as a reference. Cash Prophet shows what you can actually work with today, after the commitments you already know about.',
     examples: ['Purchases', 'Quiet months', 'Owner drawings'],
   },
@@ -123,10 +123,10 @@ export const METHOD_THREE_PRINCIPLES = [
 export const METHOD_RESERVE_PLANNER = {
   title: 'How the Reserve Planner works',
   lead:
-    'Irregular bills like VAT, insurance and tax do not fit monthly accruing. The Reserve Planner turns them into a steady monthly transfer into a separate savings account — your reserve account — so the money is waiting when the bill arrives.',
+    'Irregular bills like VAT, insurance and tax become a steady monthly transfer into a separate reserve savings account.',
   notSavings:
-    "This isn't money that stays in your current account. You keep a separate reserve savings account and transfer the planned amount into it each month. Those monthly transfers also feed into your everyday Available Balance.",
-  tip: 'Ideally that reserve account is a proper savings account earning a decent interest rate — not another current account — so the money building for bigger bills is working for you while it waits.',
+    'Keep the reserve in its own savings account. The monthly transfer feeds into your Available Balance.',
+  tip: 'Use a proper savings account with a decent interest rate, not another current account.',
   steps: [
     'Open a separate savings account for reserves.',
     'List your annual and irregular bills.',
