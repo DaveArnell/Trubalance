@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 
 const TRUE_BALANCE_MID = 7_500
-const TRUE_BALANCE_SWING = 2_500
+const TRUE_BALANCE_SWING = 650
 const MONTH_DAYS = 30
 const CYCLE_MS = 18_000
 const POT_MIN_SCALE = 0.56

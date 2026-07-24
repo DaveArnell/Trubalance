@@ -169,13 +169,14 @@ function smoothThrough(points: readonly { x: number; y: number }[]): string {
  * Compact trends sketch — logged history with a blue trend line painted forward.
  */
 export function HabitsTrendVisual() {
+  // Gently rising Available — calm story, not a jagged path.
   const logged = [
-    { x: 36, y: 74 },
-    { x: 88, y: 66 },
-    { x: 140, y: 48 },
-    { x: 178, y: 52 },
-    { x: 220, y: 58 },
-    { x: 258, y: 46 },
+    { x: 36, y: 72 },
+    { x: 88, y: 68 },
+    { x: 140, y: 64 },
+    { x: 178, y: 61 },
+    { x: 220, y: 56 },
+    { x: 258, y: 52 },
   ] as const
 
   const pastPath = smoothThrough(logged)

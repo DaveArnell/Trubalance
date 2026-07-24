@@ -19,15 +19,15 @@ const venuePromenade = 'demo-venue-promenade'
 export const leisureDefaultViewScope = { type: 'group' as const, id: groupId }
 
 const LEISURE_SNAPSHOT_SCOPES = [
-  { id: groupId, type: 'group' as const, name: 'Summit Leisure Group', baseTrue: 72000, growthPerMonth: 2800, seasonality: 18000 },
-  { id: bizMain, type: 'business' as const, name: 'Summit Adventures Ltd', baseTrue: 42000, growthPerMonth: 1600, seasonality: 12000 },
-  { id: bizNorth, type: 'business' as const, name: 'Northgate Venues Ltd', baseTrue: 18000, growthPerMonth: 700, seasonality: 5000 },
-  { id: bizCoast, type: 'business' as const, name: 'Coastal Attractions Ltd', baseTrue: 12000, growthPerMonth: 500, seasonality: 4000 },
-  { id: venueRiverside, type: 'venue' as const, name: 'Riverside Centre', baseTrue: 16000, growthPerMonth: 600, seasonality: 4500 },
-  { id: venueCity, type: 'venue' as const, name: 'City Centre', baseTrue: 14000, growthPerMonth: 550, seasonality: 4000 },
-  { id: venueHarbour, type: 'venue' as const, name: 'Harbour Lounge', baseTrue: 9000, growthPerMonth: 350, seasonality: 2500 },
-  { id: venueNorthgate, type: 'venue' as const, name: 'Northgate', baseTrue: 18000, growthPerMonth: 700, seasonality: 5000 },
-  { id: venuePromenade, type: 'venue' as const, name: 'Promenade', baseTrue: 12000, growthPerMonth: 500, seasonality: 4000 },
+  { id: groupId, type: 'group' as const, name: 'Summit Leisure Group', baseTrue: 98000, growthPerMonth: 420, annualWobble: 2800 },
+  { id: bizMain, type: 'business' as const, name: 'Summit Adventures Ltd', baseTrue: 56000, growthPerMonth: 240, annualWobble: 1600 },
+  { id: bizNorth, type: 'business' as const, name: 'Northgate Venues Ltd', baseTrue: 24000, growthPerMonth: 100, annualWobble: 700 },
+  { id: bizCoast, type: 'business' as const, name: 'Coastal Attractions Ltd', baseTrue: 18000, growthPerMonth: 80, annualWobble: 550 },
+  { id: venueRiverside, type: 'venue' as const, name: 'Riverside Centre', baseTrue: 22000, growthPerMonth: 90, annualWobble: 650 },
+  { id: venueCity, type: 'venue' as const, name: 'City Centre', baseTrue: 19000, growthPerMonth: 80, annualWobble: 550 },
+  { id: venueHarbour, type: 'venue' as const, name: 'Harbour Lounge', baseTrue: 15000, growthPerMonth: 70, annualWobble: 400 },
+  { id: venueNorthgate, type: 'venue' as const, name: 'Northgate', baseTrue: 24000, growthPerMonth: 100, annualWobble: 700 },
+  { id: venuePromenade, type: 'venue' as const, name: 'Promenade', baseTrue: 18000, growthPerMonth: 80, annualWobble: 550 },
 ]
 
 /** Fictional multi-site leisure group — 3 years of trend history. */

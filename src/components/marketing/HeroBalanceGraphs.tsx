@@ -76,8 +76,9 @@ const BANK_Y = (() => {
  */
 const AVAILABLE_Y = Array.from({ length: N }, (_, i) => {
   const t = i / (N - 1)
-  const trend = 78 - t * 16
-  const wave = Math.sin(t * Math.PI * 2.2) * 4.5 + Math.sin(t * Math.PI * 5.1) * 2
+  const trend = 78 - t * 14
+  // Soft ripple only — Available should look stable vs the bank sawtooth.
+  const wave = Math.sin(t * Math.PI * 2) * 2.2
   return trend + wave
 })
 

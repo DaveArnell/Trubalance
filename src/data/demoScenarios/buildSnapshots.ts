@@ -7,9 +7,15 @@ export interface SnapshotScope {
   id: string
   type: BalanceSnapshot['scopeType']
   name: string
+  /** Available Balance at the start of the history window (£). */
   baseTrue: number
+  /** Gentle monthly rise — demos should look stable, not explosive. */
   growthPerMonth: number
-  seasonality?: number
+  /**
+   * Soft annual wobble amplitude in £ (peak deviation from the trend).
+   * Keep small vs baseTrue so the Trends chart reads as calm and reliable.
+   */
+  annualWobble?: number
 }
 
 function dateKey(d: Date): string {
@@ -64,12 +70,13 @@ function trueBalanceForScope(
   months: number,
   monthsAgo: number,
 ): number {
-  const t = months === 0 ? 1 : (months - monthsAgo) / months
-  const season =
-    scope.seasonality != null
-      ? Math.exp(-Math.pow((t - 0.55) / 0.22, 2)) * scope.seasonality
-      : 0
-  return Math.round(scope.baseTrue + scope.growthPerMonth * (months - monthsAgo) + season)
+  const progressMonths = months - monthsAgo
+  const trend = scope.baseTrue + scope.growthPerMonth * progressMonths
+  // One soft cycle per year — no mid-history spike or crash.
+  const wobble = scope.annualWobble ?? 0
+  const seasonal =
+    wobble === 0 ? 0 : wobble * Math.sin((progressMonths / 12) * Math.PI * 2 - Math.PI / 2)
+  return Math.round(trend + seasonal)
 }
 
 function accountChangesForCash(
@@ -105,7 +112,7 @@ function accountChangesForCash(
 
 /**
  * Deep demo history for Trends / balance log / forecasting.
- * Weekly points across the full span, denser recent entries, plus monthly anchors.
+ * Weekly points plus monthly anchors — calm Available series for sales demos.
  * Anchored to the frozen demo calendar so charts stay stable.
  */
 export function buildScenarioSnapshots(
@@ -117,9 +124,8 @@ export function buildScenarioSnapshots(
   const snapshots: BalanceSnapshot[] = []
   const seen = new Set<string>()
   const spanDays = Math.round(months * 30.4375)
+  // Weekly cadence keeps the line smooth without overcrowding the chart.
   const weeklyPoints = Math.ceil(spanDays / 7)
-  // Extra points every ~3 days over the last year so forecast has visible depth.
-  const denseRecentDays = Math.min(spanDays, 365)
 
   const addSnapshot = (date: string, scope: SnapshotScope, monthsAgo: number) => {
     const key = `${scope.type}:${scope.id}:${date}`
@@ -147,14 +153,6 @@ export function buildScenarioSnapshots(
     const daysAgo = w * 7
     const date = daysAgoDate(daysAgo, today)
     const monthsAgo = daysAgo / 30.4375
-    for (const scope of scopes) {
-      addSnapshot(date, scope, monthsAgo)
-    }
-  }
-
-  for (let d = denseRecentDays; d >= 0; d -= 3) {
-    const date = daysAgoDate(d, today)
-    const monthsAgo = d / 30.4375
     for (const scope of scopes) {
       addSnapshot(date, scope, monthsAgo)
     }

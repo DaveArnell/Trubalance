@@ -12,7 +12,7 @@ const bizId = 'trades-biz'
 export const tradesDefaultViewScope = { type: 'business' as const, id: bizId }
 
 const TRADES_SNAPSHOT_SCOPES = [
-  { id: bizId, type: 'business' as const, name: 'Riverside Building Ltd', baseTrue: 18000, growthPerMonth: 2200 },
+  { id: bizId, type: 'business' as const, name: 'Riverside Building Ltd', baseTrue: 14500, growthPerMonth: 160, annualWobble: 450 },
 ]
 
 /** Growing building trades business — multi-year balance history. */
