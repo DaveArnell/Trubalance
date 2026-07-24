@@ -162,8 +162,8 @@ export function buildLimitUpgradePrompt(
 
   if (limit === 'businesses') {
     return {
-      headline: "You're ready for Business Group.",
-      body: `Your current plan (${currentTier.name}) is for a single company. Upgrade to ${tier.name} for ${price} when you need unlimited businesses, switching between companies, and group reporting.`,
+      headline: "You're ready for Multi-business / Group.",
+      body: `Your current plan (${currentTier.name}) is for a single company. Upgrade to ${tier.name} for ${price} when you need unlimited businesses and group reporting.`,
     }
   }
 
@@ -182,8 +182,8 @@ export function buildFeatureUpgradePrompt(
 
   if (feature === 'groupReporting' || feature === 'consolidatedDashboards' || feature === 'multiCompanyRollups') {
     return {
-      headline: "You're ready for Business Group.",
-      body: `Group reporting and a consolidated view across companies are on the Business Group plan (${price}).`,
+      headline: "You're ready for Multi-business / Group.",
+      body: `Group reporting and consolidated balances across companies are on the Multi-business / Group plan (${price}).`,
     }
   }
 

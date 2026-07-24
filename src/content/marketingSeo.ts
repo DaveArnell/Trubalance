@@ -15,9 +15,9 @@ export const METHOD_SEO = {
 } as const
 
 export const PRICING_SEO = {
-  title: 'Pricing — Solo, Multi-site & Business Group',
+  title: 'Pricing — Solo, Multi-site & Multi-business',
   description:
-    'Solo Business £10, Multi-site Business £15, Business Group £20 — monthly or annual (2 months free). Start free and set up however you like; after trial, plans match your structure. Founder access during early access.',
+    'Solo Business £5, Multi-site Business £10, Multi-business / Group £15 — monthly or annual (2 months free). Start free and set up however you like; after trial, plans match your structure.',
   path: '/pricing',
 } as const
 

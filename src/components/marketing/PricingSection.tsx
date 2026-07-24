@@ -8,26 +8,18 @@ import {
   TIER_ORDER,
   formatPriceGbp,
 } from '../../config/subscriptionTiers'
-import { FOUNDER_PROGRAM_FOOTNOTE, FOUNDER_PROGRAM_HEADLINE } from '../../config/founderProgram'
 
 export function PricingSection({ hideIntro = false }: { hideIntro?: boolean }) {
   return (
-        <section id="pricing" className="marketing-pricing-section marketing-pricing-section--pop marketing-surface--mist">
-          <div className="marketing-section-inner">
-            {!hideIntro && (
-              <div className="marketing-section-head">
-                <p className="marketing-how-eyebrow">Pricing</p>
-                <h2>{PRICING_HEADLINE}</h2>
-                <p className="marketing-section-lead marketing-section-lead--home">{PRICING_SUBHEADLINE}</p>
-              </div>
-            )}
-
-        <div className="marketing-trial-banner">
-          <strong>{FOUNDER_PROGRAM_HEADLINE}</strong>
-          <span>
-            Full access to every feature · No payment details required · {FOUNDER_PROGRAM_FOOTNOTE}
-          </span>
-        </div>
+    <section id="pricing" className="marketing-pricing-section marketing-pricing-section--pop marketing-surface--mist">
+      <div className="marketing-section-inner">
+        {!hideIntro && (
+          <div className="marketing-section-head">
+            <p className="marketing-how-eyebrow">Pricing</p>
+            <h2>{PRICING_HEADLINE}</h2>
+            <p className="marketing-section-lead marketing-section-lead--home">{PRICING_SUBHEADLINE}</p>
+          </div>
+        )}
 
         <p className="marketing-annual-note">{ANNUAL_SAVINGS_COPY}</p>
 
@@ -62,7 +54,7 @@ export function PricingSection({ hideIntro = false }: { hideIntro?: boolean }) {
           })}
         </div>
 
-        <p className="marketing-pricing-footnote muted">{PRICING_FOOTNOTE}</p>
+        <p className="marketing-pricing-footnote">{PRICING_FOOTNOTE}</p>
       </div>
     </section>
   )

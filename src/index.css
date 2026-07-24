@@ -16175,10 +16175,12 @@ tr.sheet-row--received td {
 
 .marketing-pricing-footnote {
   margin: 28px 0 8px;
-  max-width: 36rem;
+  max-width: 40rem;
   text-align: left;
-  font-size: 0.9rem;
-  line-height: 1.5;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.45;
+  color: var(--marketing-ink, #0f1b2d);
 }
 
 .marketing-pricing-stripe-note {
@@ -26075,12 +26077,32 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .marketing-pricing-section .marketing-section-lead,
 .marketing-billing-section .marketing-section-lead,
 .marketing-annual-note,
-.marketing-pricing-footnote,
 .marketing-billing-note,
 .marketing-billing-cta {
   margin-left: auto;
   margin-right: auto;
   text-align: center;
+}
+
+.marketing-pricing-footnote {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  font-size: 1.12rem;
+  font-weight: 750;
+  color: var(--marketing-ink, #0f1b2d);
+}
+
+.method-edu-hero--compact {
+  padding: 36px 0 28px;
+}
+
+.marketing-main--pricing .marketing-pricing-section--pop {
+  padding-top: 36px;
+}
+
+.marketing-main--pricing .method-edu-hero--compact .method-edu-hero-lead {
+  margin-top: 12px;
 }
 
 .marketing-pricing-section .marketing-trial-banner {

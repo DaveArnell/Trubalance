@@ -58,7 +58,7 @@ export function homePageJsonLd() {
         '@type': 'Offer',
         price: '0',
         priceCurrency: 'GBP',
-        description: 'Founder lifetime access during early access',
+        description: 'Three-month free trial, then from £5/month',
       },
       description:
         'A trusted financial companion for UK business owners: organises known commitments and shows what is genuinely available.',

@@ -61,7 +61,7 @@ export function AccountSubscriptionPanel({ state, embedded = false }: AccountSub
 
   const verdictDetail =
     recommendedTierId === 'group'
-      ? `You are running ${usage.businesses} companies — Business Group includes switching between them, group reporting, and unlimited venues.`
+      ? `You are running ${usage.businesses} companies — Multi-business / Group covers them in one workspace, with group reporting and unlimited venues.`
       : recommendedTierId === 'multi'
         ? `You have one business with ${usage.venues} venue${usage.venues === 1 ? '' : 's'} — Multi-site Business fits that structure.`
         : 'You are tracking one business without separate venues — Solo Business is the right fit when your trial ends.'
@@ -83,8 +83,8 @@ export function AccountSubscriptionPanel({ state, embedded = false }: AccountSub
               <dd>One company with unlimited venues and a consolidated view across those sites.</dd>
             </div>
             <div>
-              <dt>Business Group</dt>
-              <dd>Unlimited companies and group reporting.</dd>
+              <dt>Multi-business / Group</dt>
+              <dd>Unlimited companies with group reporting and consolidated balances.</dd>
             </div>
           </dl>
         )}

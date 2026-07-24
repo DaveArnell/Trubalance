@@ -65,7 +65,7 @@ export const PRICING_HEADLINE =
   'Plans that grow with how your business is structured.'
 
 export const PRICING_SUBHEADLINE =
-  'Start with one business. Add venues when you expand. Move to Business Group when you operate more than one company. Every plan supports clearer day-to-day financial decisions.'
+  'Start with one business. Add venues when you expand. Move to Multi-business / Group when you operate more than one company. Every plan supports clearer day-to-day financial decisions.'
 
 export const PRICING_FOOTNOTE =
   'Not sure which plan you need? Start free and set up however you like. After your trial, we recommend the plan that matches what you have built.'
@@ -127,7 +127,7 @@ const MULTI_FEATURES: Record<SubscriptionFeatureFlag, boolean> = {
   advancedReports: true,
 }
 
-/** Business Group: unlimited companies + consolidated group reporting. */
+/** Multi-business / Group: unlimited companies + consolidated group reporting. */
 const GROUP_FEATURES: Record<SubscriptionFeatureFlag, boolean> = {
   ...MULTI_FEATURES,
   consolidatedDashboards: true,
@@ -140,13 +140,12 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTierId, SubscriptionTierDefi
   solo: {
     id: 'solo',
     name: 'Solo Business',
-    priceMonthlyGbp: 10,
-    priceAnnualGbp: 100,
-    perfectFor: 'Owner-managed businesses operating as a single company — no separate venues or sites.',
+    priceMonthlyGbp: 5,
+    priceAnnualGbp: 50,
+    perfectFor: 'One business without separate venues or sites.',
     marketingFeatures: [
       '1 business',
       'Business-level accounts (current & savings)',
-      'No venues / sites',
       'Full Cash Prophet dashboard',
       'Reserve Planner & commitments',
       'Expected receipts',
@@ -166,15 +165,14 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTierId, SubscriptionTierDefi
   multi: {
     id: 'multi',
     name: 'Multi-site Business',
-    priceMonthlyGbp: 15,
-    priceAnnualGbp: 150,
-    perfectFor: 'One business with multiple venues or sites — consolidated view across those locations.',
+    priceMonthlyGbp: 10,
+    priceAnnualGbp: 100,
+    perfectFor: 'One business with multiple venues or sites — a clear view across those locations.',
     marketingFeatures: [
       'Everything in Solo Business',
       '1 business',
-      'Unlimited venues / sites',
-      'Consolidated dashboard across venues in that business',
-      'Cannot add a second business',
+      'Unlimited sub venues / sites',
+      'Dashboard across venues in that business',
     ],
     limits: {
       workspaces: 1,
@@ -190,16 +188,15 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTierId, SubscriptionTierDefi
   },
   group: {
     id: 'group',
-    name: 'Business Group',
-    priceMonthlyGbp: 20,
-    priceAnnualGbp: 200,
-    perfectFor: 'Owners who operate more than one company — switch between businesses and roll up the group.',
+    name: 'Multi-business / Group',
+    priceMonthlyGbp: 15,
+    priceAnnualGbp: 150,
+    perfectFor: 'Owners who run more than one company and want them together in one workspace.',
     marketingFeatures: [
       'Everything in Multi-site Business',
       'Unlimited businesses',
       'Unlimited venues / sites',
-      'Switch between businesses',
-      'Group reporting & consolidated Available',
+      'Group reporting & consolidated balances',
     ],
     limits: {
       workspaces: null,
@@ -228,7 +225,7 @@ export function minimumTierForUsage(usage: {
  * Best-fit plan from business size:
  * - Solo: one business, no venues
  * - Multi-site: one business with venues
- * - Business Group: more than one business
+ * - Multi-business / Group: more than one business
  */
 export function recommendTierForWorkspace(usage: {
   businesses: number

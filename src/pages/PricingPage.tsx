@@ -10,8 +10,8 @@ export function PricingPage() {
   return (
     <MarketingShell>
       <MarketingHeader />
-      <main className="marketing-main">
-        <header className="method-edu-hero marketing-surface--hero">
+      <main className="marketing-main marketing-main--pricing">
+        <header className="method-edu-hero method-edu-hero--compact marketing-surface--hero">
           <div className="method-edu-inner">
             <p className="marketing-how-eyebrow">Pricing</p>
             <h1>{PRICING_HEADLINE}</h1>
