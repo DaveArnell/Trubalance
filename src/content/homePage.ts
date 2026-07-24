@@ -10,8 +10,8 @@ export const HOME_HERO = {
   headlineStart: 'Finally, a balance',
   headlineHighlight: 'you can trust.',
   subheading: [
-    "Your bank balance only shows what’s in the account — not what’s already committed to payroll, VAT, tax, rent and the rest.",
-    "Cash Prophet keeps those commitments in the picture, so every day you have an Available Balance you can actually decide from.",
+    "Your bank balance only shows the money in your account. It doesn't tell you how much has already been committed.",
+    'Cash Prophet continuously accounts for those commitments, giving you a balance that reflects where your business really stands. So instead of mentally working everything out yourself, you simply know what your business can safely rely on.',
   ],
   sizzle: 'Less stress. More clarity.',
   primaryCta: 'Start Free',

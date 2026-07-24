@@ -239,14 +239,6 @@ export function HeroBalanceGraphs() {
       aria-label="Payment spikes and bank balance morph into an even Available Balance"
     >
       <figure className={`hero-graph-card hero-graph-card--${cardTone}`}>
-        <MorphText
-          className="hero-graph-mode"
-          before="Without Cash Prophet"
-          after="With Cash Prophet"
-          t={towardEven}
-          beforeClassName="hero-graph-mode-label hero-graph-mode-label--without"
-          afterClassName="hero-graph-mode-label hero-graph-mode-label--with"
-        />
         <div className="hero-graph-header">
           <p className={`hero-graph-tag hero-graph-tag--${cardTone}`}>Payment forecast</p>
           <MorphText
@@ -261,15 +253,16 @@ export function HeroBalanceGraphs() {
         <BarChart heights={barHeights} towardEven={towardEven} />
       </figure>
 
+      <MorphText
+        className={`hero-graph-mode hero-graph-mode--shared hero-graph-mode--${cardTone}`}
+        before="Without Cash Prophet"
+        after="With Cash Prophet"
+        t={towardEven}
+        beforeClassName="hero-graph-mode-label hero-graph-mode-label--without"
+        afterClassName="hero-graph-mode-label hero-graph-mode-label--with"
+      />
+
       <figure className={`hero-graph-card hero-graph-card--${cardTone}`}>
-        <MorphText
-          className="hero-graph-mode"
-          before="Without Cash Prophet"
-          after="With Cash Prophet"
-          t={towardEven}
-          beforeClassName="hero-graph-mode-label hero-graph-mode-label--without"
-          afterClassName="hero-graph-mode-label hero-graph-mode-label--with"
-        />
         <div className="hero-graph-header">
           <MorphText
             className="hero-graph-tag-stack"
@@ -282,7 +275,7 @@ export function HeroBalanceGraphs() {
           <MorphText
             className="hero-graph-title-stack"
             before="Looks fine until the payments hit"
-            after="A balance that reflects what's already committed"
+            after="A balance you can rely on"
             t={towardEven}
             beforeClassName="hero-graph-title"
             afterClassName="hero-graph-title"
