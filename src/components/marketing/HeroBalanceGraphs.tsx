@@ -239,6 +239,14 @@ export function HeroBalanceGraphs() {
       aria-label="Payment spikes and bank balance morph into an even Available Balance"
     >
       <figure className={`hero-graph-card hero-graph-card--${cardTone}`}>
+        <MorphText
+          className="hero-graph-mode"
+          before="Without Cash Prophet"
+          after="With Cash Prophet"
+          t={towardEven}
+          beforeClassName="hero-graph-mode-label hero-graph-mode-label--without"
+          afterClassName="hero-graph-mode-label hero-graph-mode-label--with"
+        />
         <div className="hero-graph-header">
           <p className={`hero-graph-tag hero-graph-tag--${cardTone}`}>Payment forecast</p>
           <MorphText
@@ -254,6 +262,14 @@ export function HeroBalanceGraphs() {
       </figure>
 
       <figure className={`hero-graph-card hero-graph-card--${cardTone}`}>
+        <MorphText
+          className="hero-graph-mode"
+          before="Without Cash Prophet"
+          after="With Cash Prophet"
+          t={towardEven}
+          beforeClassName="hero-graph-mode-label hero-graph-mode-label--without"
+          afterClassName="hero-graph-mode-label hero-graph-mode-label--with"
+        />
         <div className="hero-graph-header">
           <MorphText
             className="hero-graph-tag-stack"

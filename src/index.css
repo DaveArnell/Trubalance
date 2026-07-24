@@ -25226,6 +25226,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .hero-graph-card {
+  position: relative;
   background: #fff;
   border: 1px solid rgba(16, 20, 24, 0.12);
   border-radius: 16px;
@@ -25241,8 +25242,35 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   border-color: rgba(14, 122, 82, 0.28);
 }
 
+.hero-graph-mode {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  z-index: 2;
+  min-width: 9.5rem;
+  text-align: right;
+  pointer-events: none;
+}
+
+.hero-graph-mode-label {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+
+.hero-graph-mode-label--without {
+  color: #9f1239;
+}
+
+.hero-graph-mode-label--with {
+  color: #0d8f5b;
+}
+
 .hero-graph-header {
   margin: 0 0 14px;
+  padding-right: 7.5rem;
 }
 
 .hero-graph-tag {
