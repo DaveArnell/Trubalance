@@ -28,7 +28,6 @@ import { isSupabaseConfigured } from '../lib/supabase'
 import { HOME_SEO } from '../content/marketingSeo'
 import { usePageMeta } from '../hooks/usePageMeta'
 import { homePageJsonLd, MarketingJsonLd } from '../components/marketing/MarketingJsonLd'
-import { MarketingPicture, OG_IMAGE_ALT } from '../components/marketing/MarketingPicture'
 
 /**
  * Homepage — Available Balance you can trust; visuals support the settled copy.
@@ -167,15 +166,6 @@ export function LandingPage() {
                 <p key={paragraph}>{paragraph}</p>
               ))}
             </div>
-            <MarketingPicture
-              className="marketing-share-visual"
-              webpSrc="/og-image.webp"
-              fallbackSrc="/og-image.png"
-              alt={OG_IMAGE_ALT}
-              width={1200}
-              height={630}
-              loading="lazy"
-            />
           </div>
         </section>
 
