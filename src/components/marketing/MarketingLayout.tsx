@@ -6,6 +6,7 @@ import { COMPANY_INFO } from '../../content/companyInfo'
 import { FOUNDER_PROGRAM_FOOTNOTE, FOUNDER_PROGRAM_HEADLINE } from '../../config/founderProgram'
 import { REGULATORY_POSITION } from '../../content/regulatoryNotice'
 import { CompanyLegalNotice } from './CompanyLegalNotice'
+import { CashProphetLogo } from './CashProphetLogo'
 import { useMarketingReveal } from '../../hooks/useMarketingReveal'
 
 /** Primary nav follows the buying journey, not the site map. Habits & blog live in the footer. */
@@ -45,9 +46,8 @@ export function MarketingHeader() {
   return (
     <header className="marketing-header">
       <div className="marketing-header-inner">
-        <Link to="/" className="marketing-logo">
-          <span className="marketing-logo-mark" aria-hidden />
-          Cash Prophet
+        <Link to="/" className="marketing-logo" aria-label="Cash Prophet home">
+          <CashProphetLogo variant="header" />
         </Link>
 
         <nav className="marketing-nav" aria-label="Main">
@@ -84,9 +84,8 @@ export function MarketingFooter() {
     <footer className="marketing-footer">
       <div className="marketing-footer-inner">
         <div className="marketing-footer-brand">
-          <Link to="/" className="marketing-logo marketing-logo--footer">
-            <span className="marketing-logo-mark" aria-hidden />
-            Cash Prophet
+          <Link to="/" className="marketing-logo marketing-logo--footer" aria-label="Cash Prophet home">
+            <CashProphetLogo variant="footer" />
           </Link>
           <p className="marketing-footer-tagline">
             Stop carrying your business finances around in your head.

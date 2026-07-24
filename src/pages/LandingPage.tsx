@@ -6,6 +6,7 @@ import {
   MarketingShell,
   scrollToMarketingSection,
 } from '../components/marketing/MarketingLayout'
+import { CashProphetLogo } from '../components/marketing/CashProphetLogo'
 import { HeroBalanceGraphs } from '../components/marketing/HeroBalanceGraphs'
 import {
   HomeAvailablePanel,
@@ -50,7 +51,9 @@ export function LandingPage() {
         <section className="marketing-hero marketing-hero--rank marketing-surface--hero">
           <div className="marketing-hero-rank-inner">
             <div className="marketing-hero-rank-copy">
-              <p className="marketing-hero-rank-eyebrow">{HOME_HERO.eyebrow}</p>
+              <div className="marketing-hero-brand">
+                <CashProphetLogo variant="hero" onDark />
+              </div>
               <p className="marketing-hero-tagline">{HOME_HERO.tagline}</p>
               <h1>
                 {HOME_HERO.headlineStart}{' '}

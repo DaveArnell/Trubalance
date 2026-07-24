@@ -251,7 +251,7 @@ export function HeroBalanceGraphs() {
           <p className={`hero-graph-tag hero-graph-tag--${cardTone}`}>Payment forecast</p>
           <MorphText
             className="hero-graph-title-stack"
-            before="Payments leave as spikes through the month"
+            before="Payments hit as spikes through the month"
             after="Future commitments are accounted for every day"
             t={towardEven}
             beforeClassName="hero-graph-title"

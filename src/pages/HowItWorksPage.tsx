@@ -193,10 +193,7 @@ export function HowItWorksPage() {
         >
           <div className="method-edu-inner">
             <div className="method-edu-section-head">
-              <h2 id="platform-heading">How the platform makes Cash Prophet effortless</h2>
-              <p className="method-edu-section-lead">
-                The app keeps the system up to date without turning it into another job.
-              </p>
+              <h2 id="platform-heading">Cash Prophet makes the process effortless</h2>
             </div>
             <div className="method-edu-software-grid">
               <div className="method-edu-software-card">

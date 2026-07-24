@@ -201,9 +201,6 @@ export function HabitsTrendVisual() {
         {logged.map((dot) => (
           <circle key={dot.x} cx={dot.x} cy={dot.y} r="3.5" className="habits-trend-dot" />
         ))}
-        <text x="160" y="96" className="habits-trend-label" textAnchor="middle">
-          Logged
-        </text>
         <text x="310" y="22" className="habits-trend-label habits-trend-label--forecast" textAnchor="middle">
           Ahead
         </text>
