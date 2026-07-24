@@ -25402,6 +25402,16 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   opacity: 0.9;
 }
 
+.hero-graph-scribble {
+  font-family: 'Caveat', cursive;
+  font-size: 19px;
+  fill: #be123c;
+}
+
+.hero-graph-scribble--true {
+  fill: var(--marketing-green-dark);
+}
+
 /* Is this you — editorial list, no card */
 .marketing-is-you-section {
   padding: 64px 0 72px;
@@ -28503,73 +28513,6 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   max-width: 100%;
 }
 
-/* Confidence bars — spiked obligations morph to even daily picture */
-.home-confidence-bars {
-  width: 100%;
-  max-width: 44rem;
-  margin: 0 auto 32px;
-}
-
-.home-confidence-bars-head {
-  text-align: center;
-  margin-bottom: 14px;
-}
-
-.home-confidence-bars-tag {
-  margin: 0 0 6px;
-  font-size: 0.72rem;
-  font-weight: 750;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #9f1239;
-}
-
-.home-confidence-bars-tag--green {
-  color: #0d8f5b;
-}
-
-.home-confidence-bars-title {
-  margin: 0;
-  font-size: 1.05rem;
-  font-weight: 600;
-  line-height: 1.35;
-  color: var(--home-ink, #0f1b2d);
-}
-
-.home-confidence-bars-chart {
-  display: flex;
-  align-items: flex-end;
-  gap: 3px;
-  height: 140px;
-  padding: 16px 14px 12px;
-  background: #fff;
-  border: 1px solid rgba(15, 27, 45, 0.08);
-  border-radius: 14px;
-  box-shadow: 0 10px 28px rgba(15, 27, 45, 0.05);
-}
-
-.home-confidence-bars-bar {
-  flex: 1 1 0;
-  min-width: 0;
-  border-radius: 3px 3px 1px 1px;
-  transition: none;
-}
-
-.home-confidence-bars-caption {
-  margin: 12px auto 0;
-  max-width: 36rem;
-  text-align: center;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  color: rgba(15, 27, 45, 0.58);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .home-confidence-bars-bar {
-    transition: height 0.01ms, background 0.01ms;
-  }
-}
-
 /* Hero synced graphs (no vs) */
 .hero-graphs--sync {
   display: flex;
@@ -28579,6 +28522,21 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .hero-graphs--sync .hero-graph-vs {
   display: none;
+}
+
+.hero-bars-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 96px;
+  padding: 4px 2px 0;
+}
+
+.hero-bars-bar {
+  flex: 1;
+  min-width: 0;
+  border-radius: 3px 3px 1px 1px;
+  transition: height 40ms linear;
 }
 
 .hero-graph-area--muted {

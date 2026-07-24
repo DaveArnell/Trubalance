@@ -1,48 +1,84 @@
 import { useMorphCycle, lerp } from './useMorphCycle'
 
 /**
- * Hero visuals: two synced line graphs (not versus).
- * 1) Payment forecast: bill spikes → even daily build
- * 2) Balance: bank drops → Available Balance calm line
+ * Hero visuals — one shared month story, two chart types morphing together:
+ * 1) Payment forecast (bars): bill spikes → even daily build
+ * 2) Balance (line): bank sawtooth → Available Balance (gentle upward wave)
+ * Spike days match drop days so bar height and line plunge share the same events.
  */
 
 type Pt = { x: number; y: number }
 
 const W = 440
-const H = 120
+const H_LINE = 150
 const N = 24
+const BASELINE = 126
+const EVEN_BAR = 0.28
+
+/** Shared payment events — bar spikes and bank-line drops use the same indices. */
+const EVENTS = [
+  { i: 4, amount: 0.78, label: 'Payroll' },
+  { i: 9, amount: 0.62, label: 'VAT' },
+  { i: 14, amount: 0.9, label: 'Rent' },
+  { i: 19, amount: 0.7, label: 'Insurance' },
+] as const
+
+const EVENT_BY_I = new Map<number, (typeof EVENTS)[number]>(EVENTS.map((e) => [e.i, e]))
 
 function sampleX(i: number) {
   return 14 + (i / (N - 1)) * 412
 }
 
-/** Spike y values (higher y = lower on chart in SVG). */
-const PAYMENT_SPIKE_Y = Array.from({ length: N }, (_, i) => {
-  const spikes: Record<number, number> = {
-    3: 28,
-    7: 18,
-    11: 48,
-    14: 22,
-    18: 40,
-    21: 14,
+/** Bar heights 0–1 for the spiked (bank) month. */
+const SPIKE_BARS = Array.from({ length: N }, (_, i) => {
+  const hit = EVENT_BY_I.get(i)
+  return hit ? hit.amount : 0.08
+})
+
+/**
+ * Bank balance in SVG y (higher y = lower balance).
+ * Climbs into each bill day, then drops — same indices as bar spikes.
+ */
+const BANK_Y = (() => {
+  const ys = Array.from({ length: N }, () => 60)
+  for (const event of EVENTS) {
+    ys[event.i] = Math.min(112, 88 + event.amount * 22)
+    if (event.i > 0) {
+      ys[event.i - 1] = Math.max(38, 48 - event.amount * 8)
+    }
   }
-  return spikes[i] ?? 88
+  ys[0] = 66
+  ys[N - 1] = 58
+
+  // Climb between trough and next peak
+  for (let e = 0; e < EVENTS.length; e++) {
+    const troughI = EVENTS[e]!.i
+    const nextPeakI = e + 1 < EVENTS.length ? EVENTS[e + 1]!.i - 1 : N - 1
+    const fromY = ys[troughI]!
+    const toY = ys[nextPeakI]!
+    const span = nextPeakI - troughI
+    for (let i = troughI + 1; i < nextPeakI; i++) {
+      const t = (i - troughI) / span
+      ys[i] = fromY + (toY - fromY) * t
+    }
+    if (e === 0) {
+      const firstPeak = Math.max(0, troughI - 1)
+      for (let i = 1; i < firstPeak; i++) {
+        const t = i / firstPeak
+        ys[i] = ys[0]! + (ys[firstPeak]! - ys[0]!) * t
+      }
+    }
+  }
+  return ys
+})()
+
+/** Available Balance: slight wave, overall upward (lower y over time). */
+const AVAILABLE_Y = Array.from({ length: N }, (_, i) => {
+  const t = i / (N - 1)
+  const trend = 78 - t * 28
+  const wave = Math.sin(t * Math.PI * 2.2) * 5.5 + Math.sin(t * Math.PI * 5.1) * 2.2
+  return trend + wave
 })
-
-const PAYMENT_EVEN_Y = Array.from({ length: N }, () => 62)
-
-/** Bank balance: high line with sudden drops (high y = lower balance). */
-const BANK_Y = Array.from({ length: N }, (_, i) => {
-  const base = 36
-  // Drop windows
-  if (i === 4 || i === 5) return 86
-  if (i === 10 || i === 11) return 78
-  if (i === 16 || i === 17) return 82
-  if (i === 21 || i === 22) return 90
-  return base + (i % 3) * 2
-})
-
-const AVAILABLE_Y = Array.from({ length: N }, (_, i) => 58 + i * 0.55)
 
 function pointsFromYs(ys: number[]): Pt[] {
   return ys.map((y, i) => ({ x: sampleX(i), y }))
@@ -60,71 +96,132 @@ function smoothPath(points: Pt[]): string {
   return d
 }
 
+function jaggedPath(points: Pt[]): string {
+  if (points.length < 2) return ''
+  return points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x} ${p.y}`).join(' ')
+}
+
 function areaUnder(points: Pt[], baselineY: number): string {
   const last = points[points.length - 1]!
   const first = points[0]!
   return `${smoothPath(points)} L${last.x} ${baselineY} L${first.x} ${baselineY} Z`
 }
 
-function morphYs(from: number[], to: number[], t: number): number[] {
-  return from.map((y, i) => lerp(y, to[i]!, t))
+function BarChart({ heights, towardEven }: { heights: number[]; towardEven: number }) {
+  const chartH = 88
+  return (
+    <div className="hero-bars-chart" aria-hidden>
+      {heights.map((h, i) => {
+        const r = Math.round(225 + (13 - 225) * towardEven)
+        const g = Math.round(29 + (143 - 29) * towardEven)
+        const b = Math.round(72 + (91 - 72) * towardEven)
+        return (
+          <span
+            key={i}
+            className="hero-bars-bar"
+            style={{
+              height: `${Math.max(4, h * chartH)}px`,
+              background: `rgb(${r}, ${g}, ${b})`,
+            }}
+          />
+        )
+      })}
+    </div>
+  )
 }
 
-function LineChart({
-  ys,
-  tone,
-  showArea,
-}: {
-  ys: number[]
-  tone: 'red' | 'green'
-  showArea?: boolean
-}) {
-  const points = pointsFromYs(ys)
-  const path = smoothPath(points)
-  const area = areaUnder(points, 108)
+function BalanceLine({ towardEven }: { towardEven: number }) {
+  const bankPts = pointsFromYs(BANK_Y)
+  const availPts = pointsFromYs(AVAILABLE_Y)
+  const mixed = bankPts.map((p, i) => ({
+    x: p.x,
+    y: lerp(p.y, availPts[i]!.y, towardEven),
+  }))
+  const useSmooth = towardEven > 0.45
+  const path = useSmooth ? smoothPath(mixed) : jaggedPath(mixed)
+  const area = areaUnder(mixed, BASELINE)
+  const isGreen = towardEven > 0.55
+
   return (
-    <svg className="hero-graph-svg" viewBox={`0 0 ${W} ${H}`} aria-hidden>
-      <line x1="12" y1="108" x2="428" y2="108" className="hero-graph-axis" />
-      <line x1="12" y1="72" x2="428" y2="72" className="hero-graph-gridline" />
-      <line x1="12" y1="40" x2="428" y2="40" className="hero-graph-gridline" />
-      {showArea ? (
-        <path
-          className={tone === 'green' ? 'hero-graph-area' : 'hero-graph-area hero-graph-area--muted'}
-          d={area}
-          opacity={tone === 'green' ? 1 : 0.15}
-        />
+    <svg className="hero-graph-svg" viewBox={`0 0 ${W} ${H_LINE}`} aria-hidden>
+      <line x1="12" y1={BASELINE} x2="428" y2={BASELINE} className="hero-graph-axis" />
+      <line x1="12" y1="90" x2="428" y2="90" className="hero-graph-gridline" />
+      <line x1="12" y1="54" x2="428" y2="54" className="hero-graph-gridline" />
+
+      {towardEven > 0.35 ? (
+        <path className="hero-graph-area" d={area} opacity={Math.min(1, (towardEven - 0.35) / 0.4)} />
       ) : null}
+
       <path
-        className={`hero-graph-line ${tone === 'green' ? 'hero-graph-line--true' : 'hero-graph-line--bank'}`}
+        className={`hero-graph-line ${isGreen ? 'hero-graph-line--true' : 'hero-graph-line--bank'}`}
         d={path}
       />
-      {points
-        .filter((_, i) => i % 3 === 0)
-        .map((p) => (
-          <circle
-            key={`${p.x}-${p.y}`}
-            cx={p.x}
-            cy={p.y}
-            r="3.5"
-            className={tone === 'green' ? 'hero-graph-day-dot' : 'hero-graph-drop-dot'}
-          />
-        ))}
+
+      {EVENTS.map((event) => {
+        const p = mixed[event.i]!
+        if (towardEven > 0.7) {
+          return (
+            <circle
+              key={event.label}
+              cx={p.x}
+              cy={p.y}
+              r="3"
+              className="hero-graph-day-dot"
+              opacity={Math.min(1, (towardEven - 0.7) / 0.3)}
+            />
+          )
+        }
+        return (
+          <g key={event.label} opacity={Math.max(0, 1 - towardEven * 1.2)}>
+            <circle cx={p.x} cy={p.y} r="4" className="hero-graph-drop-dot" />
+            <text
+              x={p.x}
+              y={Math.min(BASELINE - 6, p.y + 20)}
+              className="hero-graph-drop-label"
+              textAnchor="middle"
+            >
+              {event.label}
+            </text>
+          </g>
+        )
+      })}
+
+      {towardEven < 0.4 ? (
+        <text
+          x="330"
+          y="26"
+          className="hero-graph-scribble"
+          textAnchor="middle"
+          opacity={1 - towardEven / 0.4}
+        >
+          sudden hits ↓
+        </text>
+      ) : null}
+      {towardEven > 0.6 ? (
+        <text
+          x="150"
+          y="34"
+          className="hero-graph-scribble hero-graph-scribble--true"
+          textAnchor="middle"
+          opacity={Math.min(1, (towardEven - 0.6) / 0.35)}
+        >
+          already accounted for
+        </text>
+      ) : null}
     </svg>
   )
 }
 
 export function HeroBalanceGraphs() {
-  const progress = useMorphCycle(2400, 1500)
-  const towardEven = progress
+  const towardEven = useMorphCycle(2400, 1500)
   const isEvenish = towardEven > 0.55
 
-  const paymentYs = morphYs(PAYMENT_SPIKE_Y, PAYMENT_EVEN_Y, towardEven)
-  const balanceYs = morphYs(BANK_Y, AVAILABLE_Y, towardEven)
+  const barHeights = SPIKE_BARS.map((spike) => spike + (EVEN_BAR - spike) * towardEven)
 
   return (
     <div
       className="hero-graphs hero-graphs--sync"
-      aria-label="How Cash Prophet spreads monthly bills and shows Available Balance"
+      aria-label="Payment spikes and bank balance morph into an even Available Balance"
     >
       <figure className={`hero-graph-card ${isEvenish ? 'hero-graph-card--true' : 'hero-graph-card--bank'}`}>
         <div className="hero-graph-header">
@@ -137,7 +234,7 @@ export function HeroBalanceGraphs() {
               : 'Bills land as spikes when they leave the account'}
           </p>
         </div>
-        <LineChart ys={paymentYs} tone={isEvenish ? 'green' : 'red'} />
+        <BarChart heights={barHeights} towardEven={towardEven} />
       </figure>
 
       <figure className={`hero-graph-card ${isEvenish ? 'hero-graph-card--true' : 'hero-graph-card--bank'}`}>
@@ -147,11 +244,11 @@ export function HeroBalanceGraphs() {
           </p>
           <p className="hero-graph-title">
             {isEvenish
-              ? 'A calmer number you can decide from'
+              ? 'A calmer number trending the right way'
               : 'Looks fine until the payments hit'}
           </p>
         </div>
-        <LineChart ys={balanceYs} tone={isEvenish ? 'green' : 'red'} showArea={isEvenish} />
+        <BalanceLine towardEven={towardEven} />
       </figure>
     </div>
   )
