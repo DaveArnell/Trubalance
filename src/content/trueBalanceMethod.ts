@@ -70,7 +70,7 @@ export const METHOD_TWO_HABITS = [
     title: 'Daily to weekly',
     time: 'Light logging',
     lead: 'Keep the picture honest',
-    body: 'When you update your bank balance, Cash Prophet logs that day. That history keeps every day of the month accurate and helps you look ahead.',
+    body: 'When you update your bank balance, Cash Prophet logs that day. That history paints a picture of the direction of travel for the business and its outlook.',
     tasks: [
       'Update balances when needed',
       'Mark payments paid',
@@ -125,9 +125,6 @@ export const METHOD_RESERVE_PLANNER = {
   title: 'How the Reserve Planner works',
   lead:
     'Irregular bills like VAT, insurance and tax become a steady monthly transfer into a separate reserve savings account.',
-  notSavings:
-    'Keep the reserve in its own savings account. The monthly transfer feeds into your Available Balance.',
-  tip: 'Use a proper savings account with a decent interest rate, not another current account.',
   steps: [
     'Open a separate savings account for reserves.',
     'List your annual and irregular bills.',

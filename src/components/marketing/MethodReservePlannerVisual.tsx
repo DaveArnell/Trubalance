@@ -172,13 +172,15 @@ export function MethodReservePlannerVisual() {
           <p className="method-reserve-viz-title">
             £{MONTHLY_DEPOSIT.toLocaleString('en-GB')} into the reserve every month
           </p>
-          <p className="method-reserve-viz-drag-hint">Drag to rotate the year — Dec into Jan stays continuous</p>
+          <p className="method-reserve-viz-drag-hint">
+            Cash Prophet turns large bills into manageable monthly amounts, so they don&apos;t land as
+            sudden hits on your everyday balance.
+          </p>
         </div>
 
         <svg className="method-reserve-viz-svg" viewBox={`0 0 ${W} ${H}`} role="img">
           <title>
-            Planned reserve balance rises by the same monthly transfer each month, including from
-            December into January, then drops when bills are due
+            Planned reserve balance rises with equal monthly transfers, then drops when bills are due
           </title>
 
           <rect
