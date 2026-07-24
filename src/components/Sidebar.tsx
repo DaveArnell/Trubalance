@@ -12,7 +12,7 @@ import {
 import { useNavLayout } from '../hooks/useNavLayout'
 import { getOrderedPages } from '../utils/navLayout'
 import { getPlannerDisplayName, getReservePlannerIdForScope } from '../utils/reserveCalculations'
-import { ScopeFreshnessLegend, SidebarScopeTree } from './SidebarScopeTree'
+import { SidebarScopeTree } from './SidebarScopeTree'
 import { MobileTourLinks } from './TourMenu'
 import { useSubscription } from '../contexts/SubscriptionContext'
 import { useAuth } from '../contexts/AuthContext'
@@ -248,7 +248,6 @@ export function Sidebar({
         {!showCollapsed && (
           <div>
             <h1>Cash Prophet</h1>
-            <p className="brand-tagline">One number you can trust</p>
           </div>
         )}
         {isMobile ? (
@@ -280,12 +279,9 @@ export function Sidebar({
           viewScope={viewScope}
           onSelect={handleSelectScope}
           compact={showCollapsed}
-          showFreshnessLegend={false}
         />
 
         <div className="sidebar-bottom">
-          {!showCollapsed ? <ScopeFreshnessLegend /> : null}
-
           <div className="sidebar-divider" aria-hidden="true" />
 
           <nav className="sidebar-nav" aria-label="Main">

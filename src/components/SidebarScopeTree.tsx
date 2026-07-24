@@ -78,30 +78,59 @@ function FreshnessDot({
       className={`overview-freshness-dot overview-freshness-dot--${freshness.level}${
         compact ? ' overview-freshness-dot--compact' : ''
       }`}
-      title={`Current account: ${freshness.label}`}
-      aria-label={`Current account ${freshness.label}`}
+      title={freshness.label}
+      aria-label={freshness.label}
     />
   )
 }
 
-export function ScopeFreshnessLegend() {
+const FRESHNESS_KEYS: Array<{ level: HealthLevel; label: string }> = [
+  { level: 'green', label: 'Updated today' },
+  { level: 'yellow', label: '1–3 days ago' },
+  { level: 'orange', label: '4–7 days ago' },
+  { level: 'red', label: 'Over a week' },
+]
+
+/** Levels present on any current-account dot in the structure tree. */
+function collectPresentFreshnessLevels(state: AppState): HealthLevel[] {
+  const present = new Set<HealthLevel>()
+  for (const group of state.groups) {
+    const f = getScopeCurrentAccountFreshness(state, { type: 'group', id: group.id })
+    if (f) present.add(f.level)
+  }
+  for (const business of state.businesses) {
+    const f = getScopeCurrentAccountFreshness(state, { type: 'business', id: business.id })
+    if (f) present.add(f.level)
+  }
+  for (const venue of state.venues) {
+    const f = getScopeCurrentAccountFreshness(state, { type: 'venue', id: venue.id })
+    if (f) present.add(f.level)
+  }
+  return FRESHNESS_KEYS.map((k) => k.level).filter((level) => present.has(level))
+}
+
+export function ScopeFreshnessLegend({ state }: { state: AppState }) {
+  const levels = collectPresentFreshnessLevels(state)
+  if (levels.length === 0) return null
+
+  const keys = FRESHNESS_KEYS.filter((k) => levels.includes(k.level))
+
+  // All green: one quiet tag, no full key
+  if (levels.length === 1 && levels[0] === 'green') {
+    return (
+      <div className="scope-freshness-legend scope-freshness-legend--tag" aria-label="Updated today">
+        <span className="overview-freshness-dot overview-freshness-dot--green" aria-hidden />
+        <span>Updated today</span>
+      </div>
+    )
+  }
+
   return (
-    <div className="scope-freshness-legend" aria-label="Current account freshness">
-      <p className="scope-freshness-legend-title">Current account freshness</p>
+    <div className="scope-freshness-legend" aria-label="Account update status">
       <ul>
-        {(
-          [
-            ['green', 'Updated today'],
-            ['yellow', '1–3 days ago'],
-            ['orange', '4–7 days ago'],
-            ['red', 'Over a week'],
-          ] as const
-        ).map(([level, label]) => (
+        {keys.map(({ level, label }) => (
           <li key={level}>
-            <span
-              className={`overview-freshness-dot overview-freshness-dot--${level as HealthLevel}`}
-              aria-hidden
-            />
+            <span className={`overview-freshness-dot overview-freshness-dot--${level}`} aria-hidden />
             <span>{label}</span>
           </li>
         ))}
@@ -233,8 +262,8 @@ export function SidebarScopeTree({
             className={`overview-freshness-dot overview-freshness-dot--${currentFreshness.level}${
               compact ? ' overview-freshness-dot--compact' : ''
             }`}
-            title={`Current account: ${currentFreshness.label}`}
-            aria-label={`Current account ${currentFreshness.label}`}
+            title={currentFreshness.label}
+            aria-label={currentFreshness.label}
           />
         ) : null}
       </p>
@@ -282,7 +311,7 @@ export function SidebarScopeTree({
       </ul>
       ) : null}
 
-      {showFreshnessLegend && !compact ? <ScopeFreshnessLegend /> : null}
+      {showFreshnessLegend && !compact ? <ScopeFreshnessLegend state={state} /> : null}
     </section>
   )
 }
