@@ -9,6 +9,7 @@ import {
 import { MethodWorkedExample } from '../components/marketing/MethodWorkedExample'
 import { MethodReservePlannerVisual } from '../components/marketing/MethodReservePlannerVisual'
 import { MarketingAccruingDemo } from '../components/marketing/MarketingAccruingDemo'
+import { HabitsTrendVisual } from '../components/marketing/HomeMarketingVisuals'
 import {
   METHOD_FIRST_SETUP,
   METHOD_RESERVE_PLANNER,
@@ -124,10 +125,6 @@ export function HowItWorksPage() {
               </p>
             </div>
             <MethodWorkedExample />
-            <p className="method-edu-prose method-edu-example-note">
-              Same picture covers money still owed, plus ad-hoc bills and planned spend you add so
-              future costs sit in the number before they hit. The result is your Available Balance.
-            </p>
           </div>
         </section>
 
@@ -172,7 +169,7 @@ export function HowItWorksPage() {
                 A light check when something changes, and a short monthly reserve review.
               </p>
             </div>
-            <div className="method-edu-habits">
+            <div className="method-edu-habits method-edu-habits--with-trend">
               {METHOD_TWO_HABITS.map((habit) => (
                 <article key={habit.id} className="method-edu-habit-card">
                   <p className="method-edu-habit-meta">
@@ -188,6 +185,7 @@ export function HowItWorksPage() {
                   </ul>
                 </article>
               ))}
+              <HabitsTrendVisual />
             </div>
           </div>
         </section>

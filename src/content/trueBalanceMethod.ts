@@ -69,7 +69,7 @@ export const METHOD_TWO_HABITS = [
     title: 'Daily to weekly',
     time: 'Light logging',
     lead: 'Keep the picture honest',
-    body: 'When you update your bank balance, Cash Prophet logs it. That history keeps today’s Available Balance accurate and helps you look ahead.',
+    body: 'When you update your bank balance, Cash Prophet logs that day. That history keeps every day of the month accurate and helps you look ahead.',
     tasks: [
       'Update balances when needed',
       'Mark payments paid',

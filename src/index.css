@@ -28862,3 +28862,187 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   }
 }
 
+/* DOES panel — monthly accruing bars */
+.home-dash-hero--accruing {
+  padding-bottom: 12px !important;
+}
+
+.home-dash-kpis {
+  margin-top: 12px;
+}
+
+.home-dash-kpis .compact-kpi-strip {
+  margin: 0;
+  background: rgba(13, 143, 91, 0.06);
+  border-color: rgba(13, 143, 91, 0.14);
+}
+
+.home-dash-cards--bars {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px 12px;
+}
+
+.home-accrue-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(5.5rem, 0.9fr) minmax(0, 1.4fr) auto;
+  align-items: center;
+  gap: 8px;
+  min-height: 2.35rem;
+  padding: 6px 10px;
+  border: 1px solid rgba(15, 27, 45, 0.1);
+  border-radius: 10px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.home-accrue-row-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  opacity: 0.22;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.home-accrue-row-due,
+.home-accrue-row-name,
+.home-accrue-row-amount {
+  position: relative;
+  z-index: 1;
+}
+
+.home-accrue-row-due {
+  font-size: 0.72rem;
+  font-weight: 650;
+  color: rgba(15, 27, 45, 0.55);
+  white-space: nowrap;
+}
+
+.home-accrue-row-name {
+  font-size: 0.9rem;
+  font-weight: 750;
+  color: #0f1b2d;
+  text-align: center;
+}
+
+.home-accrue-row-amount {
+  font-size: 0.88rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+  color: rgba(15, 27, 45, 0.55);
+}
+
+.home-accrue-row-amount strong {
+  color: #0f1b2d;
+  font-weight: 800;
+}
+
+/* Habits trend sketch */
+.method-edu-habits--with-trend {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: stretch;
+}
+
+.method-edu-habits--with-trend .habits-trend {
+  grid-column: 1 / -1;
+  margin: 4px 0 0;
+  padding: 14px 16px 10px;
+  background: #fff;
+  border: 1px solid rgba(15, 27, 45, 0.1);
+  border-radius: 12px;
+}
+
+.habits-trend-caption {
+  margin: 0 0 6px;
+  font-size: 0.78rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(15, 27, 45, 0.5);
+}
+
+.habits-trend-svg {
+  display: block;
+  width: 100%;
+  max-width: 28rem;
+  height: auto;
+  margin: 0 auto;
+}
+
+.habits-trend-axis {
+  stroke: rgba(15, 27, 45, 0.16);
+  stroke-width: 1.5;
+}
+
+.habits-trend-grid {
+  stroke: rgba(15, 27, 45, 0.07);
+  stroke-width: 1;
+  stroke-dasharray: 4 5;
+}
+
+.habits-trend-line {
+  fill: none;
+  stroke: #0d8f5b;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.habits-trend-line--forecast {
+  stroke: rgba(13, 143, 91, 0.45);
+  stroke-dasharray: 6 6;
+  stroke-width: 2.5;
+}
+
+.habits-trend-dot {
+  fill: #fff;
+  stroke: #0d8f5b;
+  stroke-width: 2.5;
+}
+
+.habits-trend-label {
+  font-size: 10px;
+  font-weight: 700;
+  fill: rgba(15, 27, 45, 0.45);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.habits-trend-label--forecast {
+  fill: rgba(13, 143, 91, 0.75);
+}
+
+@media (max-width: 720px) {
+  .method-edu-habits--with-trend {
+    grid-template-columns: 1fr;
+  }
+
+  .home-accrue-row {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+  }
+
+  .home-accrue-row-due {
+    grid-column: 1;
+  }
+
+  .home-accrue-row-amount {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+  }
+
+  .home-accrue-row-name {
+    grid-column: 1;
+    text-align: left;
+  }
+}
+
+
