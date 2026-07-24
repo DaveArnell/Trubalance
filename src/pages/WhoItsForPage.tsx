@@ -4,11 +4,14 @@ import {
   MarketingHeader,
   MarketingShell,
 } from '../components/marketing/MarketingLayout'
+import { MarketingFaqSection } from '../components/marketing/MarketingFaqSection'
+import { MarketingJsonLd, whoItsForPageJsonLd } from '../components/marketing/MarketingJsonLd'
 import {
   METHOD_CLARITY_QUESTIONS,
   METHOD_WHO_FOR,
   METHOD_WHO_NOT_FOR,
 } from '../content/trueBalanceMethod'
+import { WHO_FOR_FAQS } from '../content/marketingFaqs'
 import { WHO_FOR_SEO } from '../content/marketingSeo'
 import { usePageMeta } from '../hooks/usePageMeta'
 
@@ -16,6 +19,7 @@ export function WhoItsForPage() {
   usePageMeta(WHO_FOR_SEO)
   return (
     <MarketingShell>
+      <MarketingJsonLd data={whoItsForPageJsonLd(WHO_FOR_FAQS)} />
       <MarketingHeader />
       <main className="marketing-main who-for-page">
         <header className="method-edu-hero marketing-surface--hero">
@@ -71,6 +75,11 @@ export function WhoItsForPage() {
             </div>
           </div>
         </section>
+        <MarketingFaqSection
+          heading="Fit questions"
+          lead="Quick answers if you are not sure Cash Prophet is for you."
+          items={WHO_FOR_FAQS}
+        />
       </main>
       <MarketingFooter />
     </MarketingShell>

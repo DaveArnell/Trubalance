@@ -18,7 +18,10 @@ import {
   METHOD_TWO_HABITS,
 } from '../content/trueBalanceMethod'
 import { HOW_IT_WORKS_SEO } from '../content/marketingSeo'
+import { HOW_IT_WORKS_FAQS } from '../content/marketingFaqs'
 import { usePageMeta } from '../hooks/usePageMeta'
+import { MarketingFaqSection } from '../components/marketing/MarketingFaqSection'
+import { MarketingJsonLd, howItWorksPageJsonLd } from '../components/marketing/MarketingJsonLd'
 
 /**
  * How it works — enough to understand the system, not a feature manual.
@@ -35,6 +38,7 @@ export function HowItWorksPage() {
 
   return (
     <MarketingShell>
+      <MarketingJsonLd data={howItWorksPageJsonLd(HOW_IT_WORKS_FAQS)} />
       <MarketingHeader />
 
       <main className="marketing-main marketing-method-page">
@@ -214,6 +218,12 @@ export function HowItWorksPage() {
             </div>
           </div>
         </section>
+
+        <MarketingFaqSection
+          heading="Common questions"
+          lead="Short answers about Available Balance, reserves and daily effort."
+          items={HOW_IT_WORKS_FAQS}
+        />
 
         <section className="method-edu-cta" aria-labelledby="how-cta-heading">
           <div className="method-edu-inner method-edu-inner--narrow">

@@ -23431,6 +23431,52 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   margin-bottom: var(--space-4);
 }
 
+.marketing-faq-section {
+  padding: clamp(2.5rem, 6vw, 4rem) 0;
+}
+
+.marketing-faq-list {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 42rem;
+}
+
+.marketing-faq-item {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface, #fff);
+  padding: 0.85rem 1rem;
+}
+
+.marketing-faq-item summary {
+  cursor: pointer;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  list-style: none;
+}
+
+.marketing-faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.marketing-faq-item summary::after {
+  content: '+';
+  float: right;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.marketing-faq-item[open] summary::after {
+  content: '–';
+}
+
+.marketing-faq-item p {
+  margin: 0.75rem 0 0;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
 .blog-cta-box {
   margin-top: var(--space-8);
   padding: var(--space-5);

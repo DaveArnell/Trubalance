@@ -8,11 +8,13 @@ import { DEMO_SCENARIOS, DEMO_FROZEN_DATE_KEY } from '../data/demoScenarios'
 import { SEE_HOW_SEO } from '../content/marketingSeo'
 import { usePageMeta } from '../hooks/usePageMeta'
 import { formatSnapshotDateLong } from '../utils/snapshots'
+import { MarketingJsonLd, seeHowPageJsonLd } from '../components/marketing/MarketingJsonLd'
 
 export function SeeHowItWorksPage() {
   usePageMeta(SEE_HOW_SEO)
   return (
     <MarketingShell>
+      <MarketingJsonLd data={seeHowPageJsonLd()} />
       <MarketingHeader />
 
       <main className="marketing-main">

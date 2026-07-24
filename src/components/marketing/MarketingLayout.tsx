@@ -8,14 +8,7 @@ import { REGULATORY_POSITION } from '../../content/regulatoryNotice'
 import { CompanyLegalNotice } from './CompanyLegalNotice'
 import { CashProphetLogo } from './CashProphetLogo'
 import { useMarketingReveal } from '../../hooks/useMarketingReveal'
-
-/** Primary nav follows the buying journey, not the site map. Habits & blog live in the footer. */
-const PRIMARY_NAV = [
-  { to: '/how-it-works', label: 'How it works' },
-  { to: '/who-its-for', label: 'Who it’s for' },
-  { to: '/see-how-it-works', label: 'See it' },
-  { to: '/pricing', label: 'Pricing' },
-] as const
+import { PRIMARY_NAV } from '../../content/marketingNav'
 
 export function scrollToMarketingSection(id: string) {
   const shell = document.querySelector('.marketing-shell')

@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { BlogProse } from '../components/marketing/BlogProse'
 import {
@@ -6,7 +5,11 @@ import {
   MarketingHeader,
   MarketingShell,
 } from '../components/marketing/MarketingLayout'
-import { COMPANY_INFO } from '../content/companyInfo'
+import {
+  MarketingJsonLd,
+  blogPostJsonLd,
+  breadcrumbJsonLd,
+} from '../components/marketing/MarketingJsonLd'
 import { getBlogPost, getRelatedPosts } from '../content/blogPosts'
 import { METHOD_BLOG_CATEGORY } from '../content/trueBalanceMethod'
 import { usePageMeta } from '../hooks/usePageMeta'
@@ -26,72 +29,23 @@ export function BlogPostPage() {
     noindex: !post,
   })
 
-  useEffect(() => {
-    if (!post) return undefined
-
-    const articleUrl = `${COMPANY_INFO.website}/blog/${post.slug}`
-    const jsonLd = {
-      '@context': 'https://schema.org',
-      '@type': 'BlogPosting',
-      headline: post.title,
-      description: post.metaDescription,
-      datePublished: post.publishedAt,
-      dateModified: post.updatedAt,
-      author: {
-        '@type': 'Organization',
-        name: COMPANY_INFO.legalName,
-        url: COMPANY_INFO.website,
-      },
-      publisher: {
-        '@type': 'Organization',
-        name: COMPANY_INFO.productName,
-        url: COMPANY_INFO.website,
-      },
-      mainEntityOfPage: articleUrl,
-      keywords: post.keywords.join(', '),
-    }
-
-    const faqSection = post.sections.find((section) => section.type === 'faq')
-    const faqJsonLd =
-      faqSection && faqSection.type === 'faq'
-        ? {
-            '@context': 'https://schema.org',
-            '@type': 'FAQPage',
-            mainEntity: faqSection.items.map((item) => ({
-              '@type': 'Question',
-              name: item.q,
-              acceptedAnswer: {
-                '@type': 'Answer',
-                text: item.a,
-              },
-            })),
-          }
-        : null
-
-    const scripts: HTMLScriptElement[] = []
-    for (const data of [jsonLd, faqJsonLd]) {
-      if (!data) continue
-      const script = document.createElement('script')
-      script.type = 'application/ld+json'
-      script.text = JSON.stringify(data)
-      document.head.appendChild(script)
-      scripts.push(script)
-    }
-    return () => {
-      for (const script of scripts) {
-        script.remove()
-      }
-    }
-  }, [post])
-
   if (!post) {
     return <Navigate to="/blog" replace />
   }
 
   const related = getRelatedPosts(post.slug)
+  const jsonLd = [
+    ...blogPostJsonLd(post),
+    breadcrumbJsonLd([
+      { name: 'Home', path: '/' },
+      { name: 'Blog', path: '/blog' },
+      { name: post.title, path: `/blog/${post.slug}` },
+    ]),
+  ]
 
   return (
     <MarketingShell>
+      <MarketingJsonLd data={jsonLd} />
       <MarketingHeader />
 
       <main className="blog-page">
@@ -118,7 +72,7 @@ export function BlogPostPage() {
               <>
                 <h2>Let Cash Prophet carry the load</h2>
                 <p>
-                  Cash Prophet organises known commitments and shows what’s genuinely available —
+                  Cash Prophet organises known commitments and shows what&apos;s genuinely available —
                   without spreadsheet logic.
                 </p>
               </>

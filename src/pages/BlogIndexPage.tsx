@@ -8,6 +8,7 @@ import { BLOG_CATEGORIES, BLOG_POSTS } from '../content/blogPosts'
 import { BLOG_INDEX_SEO } from '../content/marketingSeo'
 import { METHOD_BLOG_CATEGORY } from '../content/trueBalanceMethod'
 import { usePageMeta } from '../hooks/usePageMeta'
+import { MarketingJsonLd, blogIndexJsonLd } from '../components/marketing/MarketingJsonLd'
 
 export function BlogIndexPage() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -30,6 +31,7 @@ export function BlogIndexPage() {
 
   return (
     <MarketingShell>
+      <MarketingJsonLd data={blogIndexJsonLd()} />
       <MarketingHeader />
 
       <main className="blog-page">

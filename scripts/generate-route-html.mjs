@@ -99,7 +99,210 @@ function brandTitle(title) {
   return `${title} | Cash Prophet`
 }
 
-function injectMeta(html, { title, description, path, imageAlt, type = 'website', noindex = false }) {
+function extractFaqConst(name) {
+  const source = readFileSync(join(root, 'src/content/marketingFaqs.ts'), 'utf8')
+  const re = new RegExp(`export const ${name}: FaqItem\\[] = \\[([\\s\\S]*?)\\]\\n`, 'm')
+  const match = source.match(re)
+  if (!match) return []
+  const items = []
+  const itemRe = /\{\s*q:\s*'((?:\\'|[^'])*)',\s*a:\s*'((?:\\'|[^'])*)',\s*\}/g
+  let item
+  while ((item = itemRe.exec(match[1])) !== null) {
+    items.push({
+      q: item[1].replace(/\\'/g, "'"),
+      a: item[2].replace(/\\'/g, "'"),
+    })
+  }
+  return items
+}
+
+function faqGraph(faqs, pageUrl) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    '@id': `${pageUrl}#faq`,
+    url: pageUrl,
+    mainEntity: faqs.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: { '@type': 'Answer', text: item.a },
+    })),
+  }
+}
+
+function organizationGraph() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    '@id': `${site}/#organization`,
+    name: 'Cash Prophet',
+    legalName: 'Vocatio Ltd',
+    url: site,
+    logo: { '@type': 'ImageObject', url: `${site}/icon-512.png` },
+  }
+}
+
+function websiteGraph(description) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${site}/#website`,
+    name: 'Cash Prophet',
+    url: site,
+    description,
+    inLanguage: 'en-GB',
+    publisher: { '@id': `${site}/#organization` },
+  }
+}
+
+function siteNavigationGraph() {
+  const links = [
+    { to: '/how-it-works', label: 'How it works' },
+    { to: '/who-its-for', label: "Who it's for" },
+    { to: '/see-how-it-works', label: 'See it' },
+    { to: '/pricing', label: 'Pricing' },
+    { to: '/blog', label: 'Blog' },
+    { to: '/signup', label: 'Get started' },
+  ]
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    '@id': `${site}/#site-navigation`,
+    name: 'Main navigation',
+    itemListElement: links.map((item, index) => ({
+      '@type': 'SiteNavigationElement',
+      position: index + 1,
+      name: item.label,
+      url: `${site}${item.to}`,
+    })),
+  }
+}
+
+function productGraph(description) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    '@id': `${site}/pricing#cash-prophet`,
+    name: 'Cash Prophet',
+    description,
+    image: ogImage,
+    brand: { '@type': 'Brand', name: 'Cash Prophet' },
+    offers: {
+      '@type': 'AggregateOffer',
+      priceCurrency: 'GBP',
+      lowPrice: '5',
+      highPrice: '15',
+      offerCount: 6,
+      availability: 'https://schema.org/InStock',
+      url: `${site}/pricing`,
+    },
+  }
+}
+
+function articleGraph(post) {
+  const url = `${site}/blog/${post.slug}`
+  return {
+    '@context': 'https://schema.org',
+    '@type': ['Article', 'BlogPosting'],
+    '@id': `${url}#article`,
+    headline: post.title,
+    description: post.description,
+    image: [ogImage],
+    inLanguage: 'en-GB',
+    author: { '@type': 'Organization', name: 'Vocatio Ltd', url: site },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Cash Prophet',
+      logo: { '@type': 'ImageObject', url: `${site}/icon-512.png` },
+    },
+    mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+  }
+}
+
+function jsonLdForRoute(path, routeMeta, blogPost) {
+  if (path === '/') {
+    return [
+      organizationGraph(),
+      websiteGraph(routeMeta.description),
+      siteNavigationGraph(),
+      {
+        '@context': 'https://schema.org',
+        '@type': ['SoftwareApplication', 'Product'],
+        name: 'Cash Prophet',
+        applicationCategory: 'FinanceApplication',
+        operatingSystem: 'Web',
+        description: routeMeta.description,
+        offers: {
+          '@type': 'AggregateOffer',
+          priceCurrency: 'GBP',
+          lowPrice: '5',
+          highPrice: '15',
+          url: `${site}/pricing`,
+        },
+      },
+    ]
+  }
+  if (path === '/pricing') {
+    return [
+      organizationGraph(),
+      productGraph(routeMeta.description),
+      faqGraph(extractFaqConst('PRICING_FAQS'), `${site}/pricing`),
+    ]
+  }
+  if (path === '/how-it-works') {
+    return [
+      organizationGraph(),
+      faqGraph(extractFaqConst('HOW_IT_WORKS_FAQS'), `${site}/how-it-works`),
+    ]
+  }
+  if (path === '/who-its-for') {
+    return [
+      organizationGraph(),
+      faqGraph(extractFaqConst('WHO_FOR_FAQS'), `${site}/who-its-for`),
+    ]
+  }
+  if (path === '/see-how-it-works') {
+    return [
+      organizationGraph(),
+      {
+        '@context': 'https://schema.org',
+        '@type': ['SoftwareApplication', 'Product'],
+        name: 'Cash Prophet interactive demos',
+        applicationCategory: 'FinanceApplication',
+        operatingSystem: 'Web',
+        description: routeMeta.description,
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'GBP' },
+      },
+    ]
+  }
+  if (path === '/blog') {
+    return [
+      organizationGraph(),
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Blog',
+        name: routeMeta.title,
+        description: routeMeta.description,
+        url: `${site}/blog`,
+        publisher: { '@id': `${site}/#organization` },
+      },
+    ]
+  }
+  if (blogPost) {
+    return [organizationGraph(), articleGraph(blogPost)]
+  }
+  return [organizationGraph()]
+}
+
+function injectJsonLd(html, graphs) {
+  if (!graphs?.length) return html
+  const scripts = graphs
+    .map((graph) => `<script type="application/ld+json">${JSON.stringify(graph)}</script>`)
+    .join('\n    ')
+  return html.replace('</head>', `    ${scripts}\n  </head>`)
+}
+
+function injectMeta(html, { title, description, path, imageAlt, type = 'website', noindex = false, jsonLd }) {
   const fullTitle = brandTitle(title)
   const url = `${site}${path === '/' ? '/' : path}`
   const robots = noindex ? 'noindex, nofollow' : 'index, follow'
@@ -162,7 +365,7 @@ function injectMeta(html, { title, description, path, imageAlt, type = 'website'
     next = next.replace(/<link rel="canonical"[^>]*>\s*/g, '')
   }
 
-  return next
+  return injectJsonLd(next, jsonLd)
 }
 
 function writeRouteHtml(path, html) {
@@ -173,12 +376,18 @@ function writeRouteHtml(path, html) {
   writeFileSync(outFile, html, 'utf8')
 }
 
-// Homepage overwrites dist/index.html with the same asset references + homepage meta.
-writeRouteHtml('/', injectMeta(shell, staticRoutes.find((r) => r.path === '/') ))
+const homeRoute = staticRoutes.find((r) => r.path === '/')
+writeRouteHtml(
+  '/',
+  injectMeta(shell, { ...homeRoute, jsonLd: jsonLdForRoute('/', homeRoute) }),
+)
 
 for (const route of staticRoutes) {
   if (route.path === '/') continue
-  writeRouteHtml(route.path, injectMeta(shell, route))
+  writeRouteHtml(
+    route.path,
+    injectMeta(shell, { ...route, jsonLd: jsonLdForRoute(route.path, route) }),
+  )
 }
 
 for (const post of uniqueBlog) {
@@ -191,10 +400,11 @@ for (const post of uniqueBlog) {
       path,
       imageAlt: post.title,
       type: 'article',
+      jsonLd: jsonLdForRoute(path, { description: post.description, title: post.title }, post),
     }),
   )
 }
 
 console.log(
-  `SEO HTML shells written (${staticRoutes.length} marketing + ${uniqueBlog.length} blog routes)`,
+  `SEO HTML shells written (${staticRoutes.length} marketing + ${uniqueBlog.length} blog routes, with JSON-LD)`,
 )
