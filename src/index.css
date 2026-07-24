@@ -28789,23 +28789,39 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   color: rgba(15, 27, 45, 0.58);
 }
 
-.marketing-main--home-vivid .home-viz-chips {
-  list-style: none;
-  margin: 10px 0 0;
-  padding: 0;
+.marketing-main--home-vivid .home-viz-unknown {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 18px;
+  min-height: 4.5rem;
+  margin: 8px 0 4px;
+  padding: 8px 4px 0;
 }
 
-.marketing-main--home-vivid .home-viz-chips li {
-  padding: 6px 10px;
-  border-radius: 8px;
-  background: rgba(159, 18, 57, 0.08);
-  border: 1px solid rgba(159, 18, 57, 0.16);
-  font-size: 0.86rem;
-  font-weight: 650;
-  color: #9f1239;
+.marketing-main--home-vivid .home-viz-q {
+  font-family: var(--marketing-display);
+  font-weight: 700;
+  line-height: 1;
+  color: rgba(159, 18, 57, 0.55);
+  user-select: none;
+}
+
+.marketing-main--home-vivid .home-viz-q--lg {
+  font-size: 3rem;
+  transform: translateY(2px) rotate(-6deg);
+  color: rgba(159, 18, 57, 0.72);
+}
+
+.marketing-main--home-vivid .home-viz-q--md {
+  font-size: 2.15rem;
+  transform: rotate(5deg);
+}
+
+.marketing-main--home-vivid .home-viz-q--sm {
+  font-size: 1.55rem;
+  transform: translateY(-6px) rotate(-3deg);
+  opacity: 0.7;
 }
 
 .marketing-main--home-vivid .home-compare--bank-available {
@@ -28832,9 +28848,30 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .marketing-main--home-vivid .marketing-hero--rank {
   background:
-    radial-gradient(ellipse 55% 50% at 92% 8%, rgba(13, 143, 91, 0.18), transparent 55%),
-    radial-gradient(ellipse 45% 40% at 0% 85%, rgba(37, 99, 235, 0.12), transparent 50%),
-    #e8eef8 !important;
+    radial-gradient(ellipse 55% 70% at 85% 15%, rgba(37, 99, 235, 0.4), transparent 55%),
+    radial-gradient(ellipse 40% 50% at 10% 90%, rgba(14, 165, 233, 0.12), transparent 50%),
+    #0b1220 !important;
+  color: #f4f7fb;
+}
+
+.marketing-main--home-vivid .marketing-hero--rank .marketing-lead,
+.marketing-main--home-vivid .marketing-hero-tagline {
+  color: rgba(244, 247, 251, 0.78) !important;
+}
+
+.marketing-main--home-vivid .marketing-hero--rank h1 {
+  color: #fff !important;
+}
+
+.marketing-main--home-vivid .marketing-cta-secondary--rank {
+  background: transparent !important;
+  border-color: rgba(244, 247, 251, 0.35) !important;
+  color: #f4f7fb !important;
+}
+
+.hero-graph-drop-dot {
+  fill: #fff !important;
+  stroke: #e11d48 !important;
 }
 
 .marketing-main--home-vivid .home-cta-band,
@@ -29001,6 +29038,13 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   stroke-width: 2.5;
 }
 
+.habits-trend-line--trend {
+  stroke: #2563eb;
+  stroke-width: 2;
+  stroke-dasharray: 5 5;
+  opacity: 0.9;
+}
+
 .habits-trend-dot {
   fill: #fff;
   stroke: #0d8f5b;
@@ -29016,7 +29060,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .habits-trend-label--forecast {
-  fill: rgba(13, 143, 91, 0.75);
+  fill: #2563eb;
 }
 
 @media (max-width: 720px) {

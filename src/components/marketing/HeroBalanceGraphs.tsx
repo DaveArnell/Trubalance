@@ -72,13 +72,12 @@ const BANK_Y = (() => {
 })()
 
 /**
- * Available Balance: slight wave, overall upward, sits low on the chart
- * (closer to the axis = less “left” once commitments are in).
+ * Available Balance: slight wave, overall upward, mid-chart (not hugging the axis).
  */
 const AVAILABLE_Y = Array.from({ length: N }, (_, i) => {
   const t = i / (N - 1)
-  const trend = 108 - t * 14
-  const wave = Math.sin(t * Math.PI * 2.2) * 4 + Math.sin(t * Math.PI * 5.1) * 1.8
+  const trend = 78 - t * 16
+  const wave = Math.sin(t * Math.PI * 2.2) * 4.5 + Math.sin(t * Math.PI * 5.1) * 2
   return trend + wave
 })
 
@@ -197,31 +196,29 @@ function BalanceLine({ towardEven }: { towardEven: number }) {
 
       {EVENTS.map((event) => {
         const p = mixed[event.i]!
-        return (
-          <g key={event.label}>
+        if (towardEven > 0.55) {
+          return (
             <circle
-              cx={p.x}
-              cy={p.y}
-              r="4"
-              className="hero-graph-drop-dot"
-              opacity={bankOpacity}
-            />
-            <text
-              x={p.x}
-              y={Math.min(BASELINE - 6, p.y + 20)}
-              className="hero-graph-drop-label"
-              textAnchor="middle"
-              opacity={bankOpacity}
-            >
-              {event.label}
-            </text>
-            <circle
+              key={event.label}
               cx={p.x}
               cy={p.y}
               r="3"
               className="hero-graph-day-dot"
               opacity={greenOpacity}
             />
+          )
+        }
+        return (
+          <g key={event.label} opacity={bankOpacity}>
+            <circle cx={p.x} cy={p.y} r="4" className="hero-graph-drop-dot" />
+            <text
+              x={p.x}
+              y={Math.min(BASELINE - 6, p.y + 20)}
+              className="hero-graph-drop-label"
+              textAnchor="middle"
+            >
+              {event.label}
+            </text>
           </g>
         )
       })}
@@ -246,7 +243,7 @@ export function HeroBalanceGraphs() {
           <p className={`hero-graph-tag hero-graph-tag--${cardTone}`}>Payment forecast</p>
           <MorphText
             className="hero-graph-title-stack"
-            before="Bills land as spikes when they leave the account"
+            before="Payments leave as spikes through the month"
             after="Build towards commitments daily through the month"
             t={towardEven}
             beforeClassName="hero-graph-title"

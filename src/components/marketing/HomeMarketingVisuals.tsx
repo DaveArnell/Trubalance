@@ -9,12 +9,10 @@ import { formatCurrency } from '../../utils/format'
 /** Sorted fullest-first; progress tracks “due in X days”. */
 const BUILDING_CARDS = [
   { dueInDays: 2, name: 'Rent', accrued: 2300, total: 2500 },
-  { dueInDays: 4, name: 'Reserve transfer', accrued: 1580, total: 2200 },
+  { dueInDays: 8, name: 'Reserve transfer', accrued: 1580, total: 2200 },
   { dueInDays: 15, name: 'Utilities', accrued: 210, total: 420 },
   { dueInDays: 24, name: 'Wages', accrued: 1680, total: 8400 },
 ] as const
-
-const SPOKEN_FOR = ['Payroll', 'VAT', 'Rent', 'Insurance', 'Tax'] as const
 
 const CARD_ACCENT = '#0d8f5b'
 
@@ -39,13 +37,14 @@ export function HomeSpokenForPanel() {
       </div>
       <div className="home-viz-card home-viz-card--spoken">
         <p className="home-viz-label home-viz-label--warn">Already spoken for</p>
-        <ul className="home-viz-chips">
-          {SPOKEN_FOR.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
+        <div className="home-viz-unknown" aria-hidden>
+          <span className="home-viz-q home-viz-q--lg">?</span>
+          <span className="home-viz-q home-viz-q--md">?</span>
+          <span className="home-viz-q home-viz-q--sm">?</span>
+          <span className="home-viz-q home-viz-q--md">?</span>
+        </div>
         <p className="home-viz-note">
-          The bank doesn’t show any of this until the money leaves.
+          Payroll, VAT, rent and the rest are still only in your head.
         </p>
       </div>
     </aside>
@@ -120,56 +119,71 @@ export function HomeOutcomeBeats({
   )
 }
 
-/** WHY — bank vs Available Balance (muted vs accent). */
+/** WHY — accounting, bank, and Available Balance. */
 export function HomeCompareStrip() {
   return (
-    <div className="home-compare home-compare--bank-available" aria-label="Bank balance versus Available Balance">
+    <div className="home-compare" aria-label="How Cash Prophet sits beside accounting and banking">
       <div className="home-compare-col home-compare-col--muted">
-        <p className="home-compare-tag">Bank balance</p>
-        <p className="home-compare-body">Shows what’s in the account</p>
-        <p className="home-compare-detail">Silent about payroll, VAT, rent and the rest until money leaves.</p>
+        <p className="home-compare-tag">Accounting</p>
+        <p className="home-compare-body">Records the past</p>
+        <p className="home-compare-detail">Bookkeeping and reports after the fact.</p>
+      </div>
+      <div className="home-compare-col home-compare-col--muted">
+        <p className="home-compare-tag">Your bank</p>
+        <p className="home-compare-body">Shows today’s cash</p>
+        <p className="home-compare-detail">Silent about what’s already spoken for.</p>
       </div>
       <div className="home-compare-col home-compare-col--accent">
-        <p className="home-compare-tag">Available Balance</p>
-        <p className="home-compare-body">Shows what you can actually decide from</p>
-        <p className="home-compare-highlight">Commitments already in the picture</p>
+        <p className="home-compare-tag">Cash Prophet</p>
+        <p className="home-compare-body">Helps you decide today</p>
+        <p className="home-compare-highlight">Available Balance you can rely on</p>
       </div>
     </div>
   )
 }
 
 /**
- * Compact trends sketch for Two light habits — logged history + light forward projection.
+ * Compact trends sketch — logged history with a blue trend line painted forward.
  */
 export function HabitsTrendVisual() {
-  // Past logs (solid), then dashed projection
-  const past =
-    'M12 78 C 40 72, 70 68, 100 58 S 160 42, 190 48 S 230 62, 260 52'
-  const future = 'M260 52 C 290 44, 320 40, 348 36'
-  const dots = [
-    { x: 40, y: 70 },
-    { x: 100, y: 58 },
-    { x: 160, y: 44 },
-    { x: 190, y: 48 },
-    { x: 230, y: 60 },
-    { x: 260, y: 52 },
-  ]
+  const logged = [
+    { x: 36, y: 74 },
+    { x: 88, y: 66 },
+    { x: 140, y: 48 },
+    { x: 178, y: 52 },
+    { x: 220, y: 58 },
+    { x: 258, y: 46 },
+  ] as const
+
+  const pastPath = logged
+    .map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x} ${p.y}`)
+    .join(' ')
+
+  // Straight trend through first → last, extended ahead
+  const first = logged[0]!
+  const last = logged[logged.length - 1]!
+  const dx = last.x - first.x
+  const dy = last.y - first.y
+  const endX = 348
+  const tExtend = (endX - first.x) / dx
+  const endY = first.y + dy * tExtend
+  const trendPath = `M${first.x} ${first.y} L${endX} ${endY}`
 
   return (
-    <figure className="habits-trend" aria-label="Balance history from daily logs with a light forward projection">
+    <figure className="habits-trend" aria-label="Balance history from daily logs with a forward trend line">
       <figcaption className="habits-trend-caption">Daily logs build your trend</figcaption>
       <svg className="habits-trend-svg" viewBox="0 0 360 100" aria-hidden>
         <line x1="12" y1="88" x2="348" y2="88" className="habits-trend-axis" />
         <line x1="12" y1="50" x2="348" y2="50" className="habits-trend-grid" />
-        <path className="habits-trend-line" d={past} />
-        <path className="habits-trend-line habits-trend-line--forecast" d={future} />
-        {dots.map((dot) => (
+        <path className="habits-trend-line habits-trend-line--trend" d={trendPath} />
+        <path className="habits-trend-line" d={pastPath} />
+        {logged.map((dot) => (
           <circle key={dot.x} cx={dot.x} cy={dot.y} r="3.5" className="habits-trend-dot" />
         ))}
-        <text x="190" y="96" className="habits-trend-label" textAnchor="middle">
+        <text x="160" y="96" className="habits-trend-label" textAnchor="middle">
           Logged
         </text>
-        <text x="310" y="28" className="habits-trend-label habits-trend-label--forecast" textAnchor="middle">
+        <text x="310" y="22" className="habits-trend-label habits-trend-label--forecast" textAnchor="middle">
           Ahead
         </text>
       </svg>
