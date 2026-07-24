@@ -201,9 +201,9 @@ export const METHOD_WHY_IT_WORKS = [
 ] as const
 
 export const METHOD_SOFTWARE_HELPS = [
-  'Tracks daily accruals',
-  'Runs Reserve Planner recommendations',
-  'Updates what’s available as things change',
+  'Does the daily calculations around your payment cycle',
+  'Tracks accruals and Reserve Planner recommendations',
+  'Keeps Available Balance current when you update the bank',
 ] as const
 
 /** @deprecated Prefer METHOD_TWO_HABITS / METHOD_THREE_PRINCIPLES. */

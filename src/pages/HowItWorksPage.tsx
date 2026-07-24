@@ -57,8 +57,8 @@ export function HowItWorksPage() {
             <div className="method-edu-section-head">
               <h2 id="principles-heading">How Cash Prophet works</h2>
               <p className="method-edu-section-lead">
-                Known costs build every day, bigger irregular bills become monthly amounts, and one
-                number stays clear enough to make decisions from.
+                Cash Prophet does the daily calculations for you. Keep your bank balance up to date
+                and it keeps your Available Balance current around your normal payment cycle.
               </p>
             </div>
             <div className="method-edu-principles">
@@ -120,13 +120,13 @@ export function HowItWorksPage() {
             <div className="method-edu-section-head">
               <h2 id="example-heading">A worked example</h2>
               <p className="method-edu-section-lead">
-                How the bank figure becomes one clearer number you can trust.
+                How the bank figure becomes your Available Balance.
               </p>
             </div>
             <MethodWorkedExample />
             <p className="method-edu-prose method-edu-example-note">
-              Monthly costs, a reserve transfer for irregular bills, and realistic receipts. The
-              result is your Available Balance for day-to-day decisions.
+              Same picture covers money still owed, plus ad-hoc bills and planned spend you add so
+              future costs sit in the number before they hit. The result is your Available Balance.
             </p>
           </div>
         </section>
