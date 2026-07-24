@@ -28,7 +28,7 @@ export const HOME_SEO = {
 export const PRICING_SEO = {
   title: 'Cash Prophet Pricing | Solo, Multi-site & Group Plans',
   description:
-    'Cash Prophet plans from £5/month: Solo, Multi-site, and Multi-business / Group. Rolling monthly or annual (2 months free). Start with a free trial.',
+    'Cash Prophet plans from £10/month: Solo, Multi-site, and Multi-business / Group. Rolling monthly or annual (2 months free). Start with a free trial.',
   path: '/pricing',
   imageAlt: 'Cash Prophet pricing — plans for solo, multi-site and group businesses',
 } as const satisfies RouteSeo
