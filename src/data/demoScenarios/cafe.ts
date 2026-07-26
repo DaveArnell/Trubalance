@@ -70,7 +70,7 @@ export function buildCafeDemoState(): AppState {
         name: 'Cornerstone Reserve Plan',
         businessId: bizId,
         reserveAccountId: 'cafe-acc-5',
-        bufferAmount: 800,
+        bufferAmount: 0,
         actualBalance: 4500,
         bills: [
           {

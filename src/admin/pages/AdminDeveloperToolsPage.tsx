@@ -160,9 +160,9 @@ export function AdminDeveloperToolsPage() {
                 <button
                   type="button"
                   className="btn-secondary btn-tiny"
-                  onClick={() => persistSub({ ...subscription, trialEndsAt: addDays(new Date(), 90) })}
+                  onClick={() => persistSub({ ...subscription, trialEndsAt: addDays(new Date(), 30) })}
                 >
-                  Extend trial 90d
+                  Extend trial 30d
                 </button>
                 <button
                   type="button"

@@ -3,32 +3,22 @@ import { daysAheadDateKey, daysAgoDateKey, todayDateKey } from './dateHelpers'
 
 /** Days ahead of “today” for each demo expected receipt (stable relative timing). */
 export const DEMO_EXPECTED_RECEIPT_DAYS_AHEAD: Readonly<Record<string, number>> = {
-  'lg-r-1': 9,
-  'lg-r-2': 4,
-  'lg-r-3': 18,
+  'ls-r-1': 4,
+  'ls-r-2': 18,
   'cafe-r-1': 5,
   'cafe-r-2': 12,
-  'trades-r-1': 14,
-  'trades-r-2': 3,
-  'trades-r-3': 21,
-  'trades-r-4': 7,
-  'trades-r-5': 38,
-  'trades-r-6': 52,
-  'trades-r-7': 28,
-  'trades-r-8': 45,
+  'salon-r-1': 9,
+  'salon-r-2': 16,
 }
 
 /** Accrual start offset (days before today) for demo receipts that build daily. */
-export const DEMO_EXPECTED_RECEIPT_ACCRUAL_DAYS_AGO: Readonly<Record<string, number>> = {
-  'trades-r-5': 10,
-}
+export const DEMO_EXPECTED_RECEIPT_ACCRUAL_DAYS_AGO: Readonly<Record<string, number>> = {}
 
 /** Days ahead of “today” for each demo planned commitment due date. */
 export const DEMO_PLANNED_COMMITMENT_DAYS_AHEAD: Readonly<Record<string, number>> = {
-  'lg-c-9': 42,
-  'lg-c-10': 35,
+  'ls-c-7': 42,
   'cafe-c-8': 42,
-  'trades-c-7': 90,
+  'salon-c-7': 56,
 }
 
 function rollExpectedReceipt(receipt: ExpectedReceipt, today: Date): ExpectedReceipt {

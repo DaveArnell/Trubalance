@@ -10,7 +10,6 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 
 /** Same transfer every month — the green climb is always this step. */
 const MONTHLY_DEPOSIT = 2200
-const BUFFER = 800
 
 /** Bills due in each month (index 0 = Jan). */
 const DUES = [
@@ -38,7 +37,7 @@ const DUE_LABELS: Record<number, string> = {
 }
 
 function buildYearPlan() {
-  let opening = BUFFER
+  let opening = 0
   for (let attempt = 0; attempt < 40; attempt++) {
     let balance = opening
     let lowest = Infinity
@@ -47,8 +46,8 @@ function buildYearPlan() {
       balance -= DUES[i]!
       if (balance < lowest) lowest = balance
     }
-    if (lowest >= BUFFER) break
-    opening += BUFFER - lowest
+    if (lowest >= 0) break
+    opening += 0 - lowest
   }
 
   const afterDeposit: number[] = []
@@ -61,7 +60,7 @@ function buildYearPlan() {
     afterBills.push(balance)
   }
 
-  const peak = Math.max(...afterDeposit, BUFFER)
+  const peak = Math.max(...afterDeposit, 0)
   return { afterDeposit, afterBills, peak, opening }
 }
 
@@ -154,7 +153,6 @@ export function MethodReservePlannerVisual() {
   }
 
   const plotBottom = H - PAD_B
-  const bufferY = yAt(BUFFER)
   const ticks = axisTicks(Y_MAX)
 
   const linePath = stepped
@@ -261,22 +259,6 @@ export function MethodReservePlannerVisual() {
             </g>
           ))}
 
-          <line
-            x1={PAD_L}
-            y1={bufferY}
-            x2={W - PAD_R}
-            y2={bufferY}
-            className="method-reserve-viz-buffer"
-          />
-          <text
-            x={W - PAD_R - 4}
-            y={bufferY - 6}
-            textAnchor="end"
-            className="method-reserve-viz-buffer-label"
-          >
-            Buffer
-          </text>
-
           <g clipPath={`url(#${clipId}-plot)`}>
             <path d={areaPath} fill={`url(#${clipId}-area)`} className="method-reserve-viz-area" />
 
@@ -355,9 +337,6 @@ export function MethodReservePlannerVisual() {
           </span>
           <span>
             <i className="method-reserve-viz-swatch method-reserve-viz-swatch--due" /> Bills due
-          </span>
-          <span>
-            <i className="method-reserve-viz-swatch method-reserve-viz-swatch--buffer" /> Minimum buffer
           </span>
         </div>
       </div>

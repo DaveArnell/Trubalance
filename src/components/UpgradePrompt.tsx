@@ -221,7 +221,7 @@ export function TrialBanner() {
 
   return (
     <div className="trial-banner" role="status">
-      <strong>{TRIAL_DAYS / 30}-month free trial</strong>
+      <strong>{TRIAL_DAYS} day free trial</strong>
       <span>
         Full access to every feature · No payment details required · {trialDaysLeft} day
         {trialDaysLeft === 1 ? '' : 's'} left · No charge until day {TRIAL_DAYS + 1}

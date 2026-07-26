@@ -703,7 +703,7 @@ export function getMockPlatformSettings(): PlatformSettings {
     logoUrl: '',
     primaryColor: '#0f766e',
     maintenanceMode: false,
-    defaultTrialDays: 90,
+    defaultTrialDays: 30,
     soloPriceGbp: 10,
     multiPriceGbp: 15,
     groupPriceGbp: 20,
@@ -727,7 +727,7 @@ export function getMockAuditLog(): AuditLogEntry[] {
     { id: 'aud2', adminEmail: 'admin@trubalance.app', action: 'subscription_changed', target: 'jordan.jones@example.com', metadata: 'solo → multi', createdAt: daysAgo(2) },
     { id: 'aud3', adminEmail: 'admin@trubalance.app', action: 'lifetime_granted', target: 'sam.williams@example.com', metadata: null, createdAt: daysAgo(5) },
     { id: 'aud4', adminEmail: 'admin@trubalance.app', action: 'email_template_updated', target: 'trial_ending', metadata: null, createdAt: daysAgo(7) },
-    { id: 'aud5', adminEmail: 'admin@trubalance.app', action: 'platform_setting_changed', target: 'default_trial_days', metadata: '90', createdAt: daysAgo(10) },
+    { id: 'aud5', adminEmail: 'admin@trubalance.app', action: 'platform_setting_changed', target: 'default_trial_days', metadata: '30', createdAt: daysAgo(10) },
   ]
 }
 

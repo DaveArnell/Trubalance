@@ -85,7 +85,7 @@ export function AdminOverviewPage() {
 
 function TrialPipelinePanel({ users }: { users: AdminUserListItem[] }) {
   const now = Date.now()
-  const TRIAL_DAYS = 90
+  const TRIAL_DAYS = 30
 
   const withDaysLeft = users.map((u) => {
     const created = new Date(u.createdAt).getTime()

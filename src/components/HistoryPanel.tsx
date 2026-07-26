@@ -442,8 +442,7 @@ function HistoryRecordDetail({
                   ) : null}
                   <span className="muted">
                     {' '}
-                    · balance {formatCurrency(planner.actualBalance)} · buffer{' '}
-                    {formatCurrency(planner.bufferAmount)}
+                    · balance {formatCurrency(planner.actualBalance)}
                   </span>
                 </li>
               )

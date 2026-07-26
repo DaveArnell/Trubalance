@@ -10,21 +10,21 @@ function OverviewWidget() {
   return (
     <div className="landing-preview-widget landing-preview-widget--overview">
       <div className="landing-preview-widget-head">
-        <span className="landing-preview-scope">Riverside Building Ltd</span>
+        <span className="landing-preview-scope">Harbour Adventures Ltd</span>
         <span className="landing-preview-badge">Demo</span>
       </div>
       <div className="landing-preview-kpis">
         <div className="landing-preview-kpi">
           <span className="landing-preview-kpi-label">Current account</span>
-          <strong>£34,200</strong>
+          <strong>£24,600</strong>
         </div>
         <div className="landing-preview-kpi landing-preview-kpi--committed">
           <span className="landing-preview-kpi-label">Committed</span>
-          <strong>£18,400</strong>
+          <strong>£12,400</strong>
         </div>
         <div className="landing-preview-kpi landing-preview-kpi--true">
           <span className="landing-preview-kpi-label">Cash Prophet Balance</span>
-          <strong>£19,850</strong>
+          <strong>£18,200</strong>
         </div>
       </div>
     </div>

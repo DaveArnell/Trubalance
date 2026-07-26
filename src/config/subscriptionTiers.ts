@@ -57,7 +57,7 @@ export interface SubscriptionTierDefinition {
   features: Record<SubscriptionFeatureFlag, boolean>
 }
 
-export const TRIAL_DAYS = 90
+export const TRIAL_DAYS = 30
 
 export const ANNUAL_SAVINGS_COPY = 'Pay annually and get 2 months free.'
 

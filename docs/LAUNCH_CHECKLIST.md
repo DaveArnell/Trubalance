@@ -49,16 +49,16 @@ Bank statement import is disabled in the app (`BANK_IMPORT_ENABLED = false`). On
 
 ---
 
-## Domain cutover (planned: cashprophet.co.uk)
+## Domain cutover (planned: cashprofit.co.uk)
 
-Live site today: **truebalanceapp.io**. Planned production domain: **cashprophet.co.uk** (confirm spelling before buying/DNS).
+Live site today: **truebalanceapp.io**. Planned production domain: **cashprofit.co.uk**.
 
 When you cut over:
 
-1. Add `cashprophet.co.uk` (+ `www`) in Vercel → Domains
+1. Add `cashprofit.co.uk` (+ `www`) in Vercel → Domains
 2. Point DNS at Vercel; keep `truebalanceapp.io` redirecting to the new domain for a while
 3. Set Supabase Auth Site URL + redirect URLs to the new domain
-4. Set edge function secret `SITE_URL=https://cashprophet.co.uk`
+4. Set edge function secret `SITE_URL=https://cashprofit.co.uk`
 5. Change `COMPANY_INFO.website` in `src/content/companyInfo.ts` to the new origin
 6. Re-submit sitemap in Google Search Console for the new property
 
@@ -68,7 +68,7 @@ When you cut over:
 
 - [x] Connect GitHub repo to [Vercel](https://vercel.com)
 - [ ] Set production env vars: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_APP_ENV=production`
-- [ ] Add planned domain `cashprophet.co.uk` (+ `www`) when ready
+- [ ] Add planned domain `cashprofit.co.uk` (+ `www`) when ready
 - [ ] Point DNS at registrar per Vercel instructions (apex A or CNAME)
 - [ ] Confirm SSL active on the live domain
 

@@ -169,19 +169,19 @@ function smoothThrough(points: readonly { x: number; y: number }[]): string {
  * Compact trends sketch — logged history with a blue trend line painted forward.
  */
 export function HabitsTrendVisual() {
-  // Gently rising Available — calm story, not a jagged path.
+  // Gentle upward wave so the forward trend line stays visible behind the path.
   const logged = [
-    { x: 36, y: 72 },
-    { x: 88, y: 68 },
-    { x: 140, y: 64 },
-    { x: 178, y: 61 },
-    { x: 220, y: 56 },
-    { x: 258, y: 52 },
+    { x: 36, y: 78 },
+    { x: 88, y: 62 },
+    { x: 140, y: 70 },
+    { x: 178, y: 48 },
+    { x: 220, y: 58 },
+    { x: 258, y: 42 },
   ] as const
 
   const pastPath = smoothThrough(logged)
 
-  // Straight trend through first → last, extended ahead
+  // Straight trend through first → last, extended ahead (sits clear of the waves)
   const first = logged[0]!
   const last = logged[logged.length - 1]!
   const dx = last.x - first.x
@@ -192,7 +192,7 @@ export function HabitsTrendVisual() {
   const trendPath = `M${first.x} ${first.y} L${endX} ${endY}`
 
   return (
-    <figure className="habits-trend" aria-label="Cash Prophet Available Balance history from daily logs with a forward trend line">
+    <figure className="habits-trend" aria-label="Cash Prophet Balance history from daily logs with a forward trend line">
       <figcaption className="habits-trend-caption">Daily logs build your trend</figcaption>
       <svg className="habits-trend-svg" viewBox="0 0 360 100" aria-hidden>
         <line x1="12" y1="88" x2="348" y2="88" className="habits-trend-axis" />

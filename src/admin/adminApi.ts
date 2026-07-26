@@ -887,7 +887,7 @@ export async function adminFetchSubscriptions(
   }
 
   const allUsers = await adminFetchUsers({ page: 1, pageSize: 200 })
-  const TRIAL_DAYS = 90
+  const TRIAL_DAYS = 30
   let items: AdminSubscriptionRow[] = allUsers.items.map((u) => {
     const created = new Date(u.createdAt)
     const trialEnd = new Date(created.getTime() + TRIAL_DAYS * 24 * 60 * 60 * 1000)

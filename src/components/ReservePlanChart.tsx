@@ -320,13 +320,15 @@ export function ReservePlanChart({
             )
           })}
 
-          <line
-            x1={0}
-            y1={bufferY}
-            x2={plotWidth}
-            y2={bufferY}
-            className="reserve-plan-chart-buffer"
-          />
+          {bufferAmount > 0 ? (
+            <line
+              x1={0}
+              y1={bufferY}
+              x2={plotWidth}
+              y2={bufferY}
+              className="reserve-plan-chart-buffer"
+            />
+          ) : null}
 
           <polygon
             className="reserve-plan-chart-area"
@@ -404,10 +406,6 @@ export function ReservePlanChart({
         <span className="reserve-plan-chart-legend-item">
           <span className="reserve-plan-chart-legend-swatch reserve-plan-chart-legend-swatch--outgoing" />
           Bills due
-        </span>
-        <span className="reserve-plan-chart-legend-item">
-          <span className="reserve-plan-chart-legend-swatch reserve-plan-chart-legend-swatch--buffer" />
-          Minimum buffer
         </span>
       </div>
     </div>

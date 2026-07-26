@@ -1,9 +1,9 @@
 import type { AppState } from '../types'
-import { buildLeisureGroupDemoState, leisureDefaultViewScope } from './demoScenarios/leisureGroup'
+import { buildLeisureSoloDemoState, leisureDefaultViewScope } from './demoScenarios/leisureSolo'
 import { applyDemoOperatingSnapshot } from './demoScenarios/operatingSnapshot'
 
 export function buildInitialState(): AppState {
-  return applyDemoOperatingSnapshot(buildLeisureGroupDemoState())
+  return applyDemoOperatingSnapshot(buildLeisureSoloDemoState())
 }
 
 /** @deprecated Prefer `buildInitialState()` for fresh rolling dates. */

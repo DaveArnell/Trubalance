@@ -8,11 +8,11 @@ export const COMPANY_INFO = {
   contactEmail: 'admin@vocatio.io',
   /**
    * Live canonical origin today.
-   * Planned cutover: https://cashprophet.co.uk (confirm spelling before switching DNS + this value).
+   * Planned cutover: https://cashprofit.co.uk (flip website here after DNS + Auth redirect URLs are ready).
    */
   website: 'https://truebalanceapp.io',
   /** Future production domain — keep in sync when DNS/Vercel/Supabase redirect URLs change. */
-  plannedWebsite: 'https://cashprophet.co.uk',
+  plannedWebsite: 'https://cashprofit.co.uk',
   parentWebsite: 'https://vocatio.io',
   jurisdiction: 'England and Wales',
 } as const

@@ -34,7 +34,7 @@ export const PRICING_FAQS: FaqItem[] = [
   },
   {
     q: 'Is there a free trial?',
-    a: 'Yes. New accounts get three months free so you can set up your picture and decide which plan matches your structure.',
+    a: 'Yes. New accounts get 30 days free so you can set up your picture and decide which plan matches your structure.',
   },
   {
     q: 'Which plan should I choose?',

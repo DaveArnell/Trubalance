@@ -1,11 +1,11 @@
 import type { AppState, ViewScope } from '../../types'
 import { buildCafeDemoState, cafeDefaultViewScope } from './cafe'
-import { buildLeisureGroupDemoState, leisureDefaultViewScope } from './leisureGroup'
 import { applyDemoOperatingSnapshot } from './operatingSnapshot'
-import { buildTradesDemoState, tradesDefaultViewScope } from './trades'
+import { buildLeisureSoloDemoState, leisureDefaultViewScope } from './leisureSolo'
+import { buildSalonDemoState, salonDefaultViewScope } from './salon'
 import { getDemoFrozenDate } from './demoFreeze'
 
-export type DemoScenarioId = 'leisure-group' | 'independent-cafe' | 'building-trades'
+export type DemoScenarioId = 'independent-leisure' | 'independent-cafe' | 'independent-salon'
 
 export { DEMO_FROZEN_DATE_KEY, getDemoFrozenDate } from './demoFreeze'
 
@@ -24,22 +24,22 @@ export interface DemoScenarioMeta {
 
 export const DEMO_SCENARIOS: readonly DemoScenarioMeta[] = [
   {
-    id: 'leisure-group',
-    title: 'Summit Leisure Group',
-    subtitle: 'Multi-site leisure operator',
+    id: 'independent-leisure',
+    title: 'Harbour Adventures Ltd',
+    subtitle: 'Single-site leisure centre',
     businessType: 'Leisure & entertainment',
-    historyLabel: '4 years of history',
-    historyMonths: 48,
+    historyLabel: '3 years of history',
+    historyMonths: 36,
     description:
-      'A fictional group with three businesses and five venues — continuous accrual of payroll and rent, VAT reserves building, and one Cash Prophet Balance across the group.',
+      'A fictional leisure centre with steady membership and bookings. Monthly costs accruing daily, larger bills reserved for, and one Cash Prophet Balance for the business.',
     highlights: [
-      'Continuous accrual across multiple sites',
-      'Reserve planning for VAT & corporation tax',
-      'Cash Prophet Balance at group and site level',
-      'Expected receipts in the cash outlook',
+      'Daily accrual of rent, payroll and utilities',
+      'Reserve planning for VAT and insurance',
+      'Cash Prophet Balance you can rely on',
+      'Expected bookings in the cash outlook',
     ],
     defaultViewScope: leisureDefaultViewScope,
-    buildState: buildLeisureGroupDemoState,
+    buildState: buildLeisureSoloDemoState,
   },
   {
     id: 'independent-cafe',
@@ -60,26 +60,26 @@ export const DEMO_SCENARIOS: readonly DemoScenarioMeta[] = [
     buildState: buildCafeDemoState,
   },
   {
-    id: 'building-trades',
-    title: 'Riverside Building Ltd',
-    subtitle: 'Sole trade growing into a team',
-    businessType: 'Building & trades',
+    id: 'independent-salon',
+    title: 'Grove Hair Studio',
+    subtitle: 'Single-site salon',
+    businessType: 'Retail & personal care',
     historyLabel: '3 years of history',
     historyMonths: 36,
     description:
-      'Explore commitments and Reserve Planner for van costs, CIS and corporation tax. Project-based income often still needs detailed cash flow forecasting — this demo shows how reserves and accruals still help.',
+      'A neighbourhood salon with steady appointment income. Simple cost picture, reserves for VAT and rates, and one Cash Prophet Balance for the shop.',
     highlights: [
-      'Continuous accrual for van, CIS & materials',
-      'Corporation tax and irregular costs reserved',
-      'Reserve Planner for predictable future costs',
-      'Pipeline of expected job receipts',
+      'Daily accrual of rent, wages and stock',
+      'Reserve planning for VAT and rates',
+      'Cash Prophet Balance for a static income business',
+      'Expected bookings in the cash outlook',
     ],
-    defaultViewScope: tradesDefaultViewScope,
-    buildState: buildTradesDemoState,
+    defaultViewScope: salonDefaultViewScope,
+    buildState: buildSalonDemoState,
   },
 ] as const
 
-export const DEFAULT_DEMO_SCENARIO_ID: DemoScenarioId = 'leisure-group'
+export const DEFAULT_DEMO_SCENARIO_ID: DemoScenarioId = 'independent-leisure'
 
 export function getDemoScenario(id: string | undefined): DemoScenarioMeta {
   return DEMO_SCENARIOS.find((s) => s.id === id) ?? DEMO_SCENARIOS[0]!

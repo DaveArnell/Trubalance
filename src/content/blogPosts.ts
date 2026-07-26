@@ -464,7 +464,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'Cash Prophet includes a Riverside Building demo, a trades business with realistic commitments and lumpy receipts. Try it without signing up.',
+        text: 'For lumpy income, Cash Prophet still helps with commitments and reserves. Steady income businesses get the most from the Cash Prophet Balance itself — try the Harbour Adventures or Cornerstone Coffee demos without signing up.',
       },
     ],
   },

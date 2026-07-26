@@ -3,7 +3,7 @@ export const SIGNUP_ASIDE = {
   eyebrow: 'Cash Prophet',
   heading: 'Start free. Decide later.',
   lead:
-    'Create your account and we will walk you through a short onboarding. A few real numbers from your business is enough to get Cash Prophet set up. You get three months free — only start paying once it has become part of how you run things.',
+    'Create your account and we will walk you through a short onboarding. A few real numbers from your business is enough to get Cash Prophet set up. You get 30 days free — only start paying once it has become part of how you run things.',
   points: [
     'Three months free — no payment details to start',
     'Guided onboarding on first login',
@@ -15,7 +15,7 @@ export const SIGNUP_ASIDE = {
 export const SIGNUP_FORM = {
   heading: 'Create your account',
   lead:
-    'Limited free slots for the first 50 businesses. After that, every new account still gets a full three-month free trial.',
+    'Limited free slots for the first 50 businesses. After that, every new account still gets a full 30 days free.',
   successNote:
     'Once confirmed, log in and we will walk you through setup. Your three free months start when you are in.',
 } as const
