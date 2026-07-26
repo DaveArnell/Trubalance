@@ -206,17 +206,8 @@ export function UpgradePrompt() {
 export function TrialBanner() {
   const { trialActive, trialDaysLeft, subscription } = useSubscription()
 
-  if (subscription.lifetimeAccess) {
-    return (
-      <div className="trial-banner trial-banner--founder" role="status">
-        <strong>Founder access</strong>
-        <span>
-          Lifetime free access — thank you for being part of Cash Prophet.
-        </span>
-      </div>
-    )
-  }
-
+  // Founder access is a compact chip in the top bar — not a full-width banner.
+  if (subscription.lifetimeAccess) return null
   if (!trialActive || trialDaysLeft == null) return null
 
   return (

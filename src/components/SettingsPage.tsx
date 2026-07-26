@@ -4,16 +4,20 @@ import type { AppActions } from '../hooks/useAppState'
 import { DisplayPreferencesPanel } from './DisplayPreferencesPanel'
 import { AccountSubscriptionPanel } from './AccountSubscriptionPanel'
 import { DataExportPanel } from './DataExportPanel'
-import { BankStatementImportPanel } from './bankImport/BankStatementImportPanel'
 import { StructureManagement } from './StructureManagement'
 
-type SettingsSectionId = 'display' | 'plan' | 'data' | 'structure'
+type SettingsSectionId = 'structure' | 'display' | 'plan' | 'data'
 
 const SECTIONS: {
   id: SettingsSectionId
   label: string
   lead: string
 }[] = [
+  {
+    id: 'structure',
+    label: 'Company structure',
+    lead: 'Groups, businesses, venues, and bank accounts.',
+  },
   {
     id: 'display',
     label: 'Display',
@@ -27,12 +31,7 @@ const SECTIONS: {
   {
     id: 'data',
     label: 'Your data',
-    lead: 'Backups, restore from file, and where your workspace is stored.',
-  },
-  {
-    id: 'structure',
-    label: 'Structure',
-    lead: 'Businesses, venues, and bank accounts.',
+    lead: 'Download a backup, restore from file, or delete your account.',
   },
 ]
 
@@ -52,7 +51,7 @@ export function SettingsPage({ state, actions }: SettingsPageProps) {
     } catch {
       /* ignore */
     }
-    return 'plan'
+    return 'structure'
   })
 
   const section = SECTIONS.find((item) => item.id === active) ?? SECTIONS[0]!
@@ -90,24 +89,17 @@ export function SettingsPage({ state, actions }: SettingsPageProps) {
           </header>
 
           <div className="settings-panel-body">
+            {active === 'structure' && (
+              <StructureManagement state={state} actions={actions} embedded />
+            )}
             {active === 'display' && <DisplayPreferencesPanel embedded />}
             {active === 'plan' && <AccountSubscriptionPanel state={state} embedded />}
             {active === 'data' && (
-              <>
-                <BankStatementImportPanel
-                  state={state}
-                  actions={actions}
-                  embedded
-                />
-                <DataExportPanel
-                  state={state}
-                  embedded
-                  onReplaceState={actions.replaceEntireState}
-                />
-              </>
-            )}
-            {active === 'structure' && (
-              <StructureManagement state={state} actions={actions} embedded />
+              <DataExportPanel
+                state={state}
+                embedded
+                onReplaceState={actions.replaceEntireState}
+              />
             )}
           </div>
         </div>

@@ -4153,6 +4153,21 @@ body.widget-canvas-resizing * {
   flex-shrink: 0;
 }
 
+.top-bar-founder-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(99, 102, 241, 0.28);
+  background: rgba(99, 102, 241, 0.1);
+  color: #4338ca;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 .mobile-menu-btn {
   display: none;
   flex-shrink: 0;
@@ -9793,7 +9808,7 @@ tr.sheet-due-row--planned-saving td.sheet-cell-active {
 .org-stack {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .org-group-card {
@@ -9808,12 +9823,12 @@ tr.sheet-due-row--planned-saving td.sheet-cell-active {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 7px 10px;
+  padding: 6px 10px;
   background:
     linear-gradient(135deg, rgba(99, 102, 241, 0.07) 0%, rgba(255, 255, 255, 0) 65%),
     var(--bg-surface-raised);
   border-bottom: 1px solid var(--border);
-  border-left: 2px solid var(--accent);
+  border-left: 3px solid var(--accent);
 }
 
 .org-accent-trigger {
@@ -9948,12 +9963,15 @@ tr.sheet-due-row--planned-saving td.sheet-cell-active {
 .org-group-body {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 6px;
+  gap: 8px;
+  padding: 10px 10px 10px 16px;
   background: #fafafa;
 }
 
 .org-business-card {
+  width: calc(100% - 12px);
+  max-width: 42rem;
+  margin-left: 4px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg-surface-raised);
@@ -9965,29 +9983,32 @@ tr.sheet-due-row--planned-saving td.sheet-cell-active {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 8px;
+  padding: 4px 8px;
 }
 
 .org-business-header {
   border-bottom: 1px solid var(--border);
-  border-left: 2px solid var(--accent);
+  border-left: 3px solid var(--accent);
   background: linear-gradient(90deg, rgba(99, 102, 241, 0.06) 0%, transparent 50%);
 }
 
 .org-business-body {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 5px 8px 6px;
+  gap: 6px;
+  padding: 8px 8px 8px 14px;
 }
 
 .org-site-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .org-site-card {
+  width: calc(100% - 14px);
+  max-width: 34rem;
+  margin-left: 6px;
   border: 1px solid rgba(16, 185, 129, 0.2);
   border-radius: 6px;
   background: linear-gradient(135deg, rgba(16, 185, 129, 0.04) 0%, #fff 65%);
@@ -9996,6 +10017,7 @@ tr.sheet-due-row--planned-saving td.sheet-cell-active {
 
 .org-site-header {
   border-bottom: 1px solid rgba(16, 185, 129, 0.12);
+  border-left: 3px solid rgba(16, 185, 129, 0.55);
 }
 
 .org-section-title {

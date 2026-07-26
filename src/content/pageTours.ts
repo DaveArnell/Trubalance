@@ -180,18 +180,18 @@ export const PAGE_TOURS: Partial<Record<PageId, PageTour>> = {
     description: 'Organisation and display.',
     steps: [
       {
+        id: 'st-structure',
+        target: '[data-tour="settings-structure"]',
+        title: 'Company structure',
+        body: 'Groups contain businesses, businesses contain venues. Add bank accounts at business or venue level.\n\nThis structure is the backbone of scope, colours, and reporting everywhere else in Cash Prophet.',
+        placement: 'top',
+      },
+      {
         id: 'st-display',
         target: '[data-tour="settings-display"]',
         title: 'Display preferences',
         body: 'Default table formatting across the app — alignment, wrap, and density.\n\nIndividual widgets can still override from their ⋯ menu when a single sheet needs different settings.',
         placement: 'bottom',
-      },
-      {
-        id: 'st-structure',
-        target: '[data-tour="settings-structure"]',
-        title: 'Organisation structure',
-        body: 'Groups contain businesses, businesses contain venues. Add bank accounts at business or venue level.\n\nThis structure is the backbone of scope, colours, and reporting everywhere else in Cash Prophet.',
-        placement: 'top',
       },
     ],
   },

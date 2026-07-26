@@ -152,7 +152,7 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTierId, SubscriptionTierDefi
     perfectFor: 'One business without separate venues or sites.',
     marketingFeatures: [
       '1 business',
-      'Business-level accounts (current & savings)',
+      'Current and savings accounts',
       'Full Cash Prophet dashboard',
       'Reserve Planner & commitments',
       'Expected receipts',

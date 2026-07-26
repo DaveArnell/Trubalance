@@ -1,12 +1,10 @@
 import { useMemo } from 'react'
-import { CanonicalLink } from './CanonicalLink'
 import {
   SUBSCRIPTION_TIERS,
   TRIAL_DAYS,
   TIER_ORDER,
   formatPriceGbp,
   recommendTierForWorkspace,
-  VAT_PRICE_FOOTNOTE,
   VAT_PRICE_NOTE,
   type SubscriptionTierId,
 } from '../config/subscriptionTiers'
@@ -90,7 +88,7 @@ export function AccountSubscriptionPanel({ state, embedded = false }: AccountSub
           <dl className="account-plan-compare-note">
             <div>
               <dt>Solo Business</dt>
-              <dd>One company, no venues — accounts on the business itself.</dd>
+              <dd>One company, no venues.</dd>
             </div>
             <div>
               <dt>Multi-site Business</dt>
@@ -203,28 +201,14 @@ export function AccountSubscriptionPanel({ state, embedded = false }: AccountSub
             </p>
             <div className="account-plan-actions">
               <ManageBillingButton />
-              <CanonicalLink to="/pricing" className="btn-secondary btn-tiny">
-                Full plan comparison
-              </CanonicalLink>
             </div>
           </>
         ) : (
-          <>
-            <p className="muted">
-              Online payments are being connected. Compare plans and see pricing on our pricing page.
-              When billing is live, you will manage your subscription here and download invoices.
-            </p>
-            <div className="account-plan-actions">
-              <CanonicalLink to="/pricing#billing" className="btn-primary btn-tiny">
-                View pricing
-              </CanonicalLink>
-              <CanonicalLink to="/pricing" className="btn-secondary btn-tiny">
-                Full plan comparison
-              </CanonicalLink>
-            </div>
-          </>
+          <p className="muted">
+            Online payments are being connected. When billing is live, you will manage your subscription
+            here and download invoices. Plan details are shown above.
+          </p>
         )}
-        <p className="muted">{VAT_PRICE_FOOTNOTE}</p>
         {user?.email && (
           <p className="muted account-plan-email">
             Signed in as <strong>{user.email}</strong> · workspace <strong>{summary.label}</strong>

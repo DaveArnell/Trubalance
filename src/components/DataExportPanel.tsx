@@ -154,58 +154,21 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
         <article className="data-export-block">
           <h3>Where it is saved</h3>
           {cloudBacked ? (
-            <ul className="data-export-points">
-              <li>
-                <strong>Your account</strong> — structure, balances, commitments, reserves, and history
-                sync to our database when you are signed in.
-              </li>
-              <li>
-                <strong>This browser</strong> — a working copy while you use the app. Changes save to your
-                account automatically.
-              </li>
-            </ul>
+            <p className="muted">
+              Your workspace syncs to your account when you are signed in. This browser keeps a working
+              copy while you use the app.
+            </p>
           ) : signedIn ? (
             <p className="muted">
               Cloud sync is not configured in this environment. Your workspace is stored in this browser
               only.
             </p>
           ) : (
-            <ul className="data-export-points">
-              <li>
-                <strong>This browser only</strong> — everything stays on this device until you create an
-                account or download a backup.
-              </li>
-              <li>
-                <Link to="/signup">Create a free account</Link> to keep your data when you switch
-                browsers or computers.
-              </li>
-            </ul>
+            <p className="muted">
+              Everything stays in this browser until you{' '}
+              <Link to="/signup">create a free account</Link> or download a backup.
+            </p>
           )}
-        </article>
-
-        <article className="data-export-block">
-          <h3>Could you lose it?</h3>
-          <ul className="data-export-points">
-            {cloudBacked ? (
-              <>
-                <li>
-                  Signing in on another device reloads your workspace from your account — you should not
-                  lose data by changing browser or computer.
-                </li>
-                <li>
-                  Download an export occasionally for your own records.
-                </li>
-              </>
-            ) : (
-              <>
-                <li>
-                  <strong className="data-export-risk">Yes, without an account</strong> — clearing browser
-                  data or using another device means starting fresh unless you have a backup file.
-                </li>
-                <li>Download a JSON export before trying anything that might reset this browser.</li>
-              </>
-            )}
-          </ul>
         </article>
       </div>
 
@@ -255,18 +218,13 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
           className="sr-only"
           onChange={handleFileChange}
         />
-        <p className="muted data-export-legal">
-          Read our <Link to="/privacy">Privacy policy</Link> and <Link to="/terms">Terms of service</Link>.
-        </p>
       </div>
 
       {signedIn && (
         <article className="data-export-block data-export-danger-zone">
           <h3>Delete your account and data</h3>
           <p className="muted">
-            Under UK GDPR you can request erasure of your personal data. This permanently removes your
-            account, workspace, balances, commitments, and history from our servers. Download an export
-            first if you want a copy.
+            Permanently removes your account and workspace. Download an export first if you want a copy.
           </p>
           <label className="data-export-delete-confirm">
             <span className="muted">Type DELETE to confirm</span>

@@ -239,6 +239,16 @@ function OverviewStripEditable(props: ComponentProps<typeof OverviewStrip>) {
   )
 }
 
+function FounderAccessChip() {
+  const { subscription } = useSubscription()
+  if (!subscription.lifetimeAccess) return null
+  return (
+    <span className="top-bar-founder-chip" title="Lifetime free access — thank you for being part of Cash Prophet.">
+      Founder
+    </span>
+  )
+}
+
 function AppShellInner({
   workspaceId,
   externalState,
@@ -970,17 +980,9 @@ function AppShellInner({
                   <div className="top-bar-inner">
                     <div className="top-bar-scope-block">
                       <p className="top-kicker">{pageMeta.label}</p>
-                      {showScopePicker ? (
-                        <ViewingScopePicker
-                          state={app.state}
-                          viewScope={app.viewScope}
-                          onSelect={app.setViewScope}
-                        />
-                      ) : (
-                        <ViewingScopeBar state={app.state} viewScope={app.viewScope} variant="full" />
-                      )}
                     </div>
                     <div className="top-bar-actions">
+                      {!isDemoSession && <FounderAccessChip />}
                       <TourMenuButton onSetupGuide={() => setSetupWizardOpen(true)} />
                       {isDemoSession ? (
                         <>
