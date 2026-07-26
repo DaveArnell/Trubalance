@@ -954,9 +954,24 @@ export function ReservePlannerPanel({
       <div className="card-scroll-body">
       <div className="reserve-planner-block reserve-planner-block--solo">
             <div className="reserve-planner-top">
-              <div className="reserve-planner-top-metrics" data-tour="reserve-planner-transfer">
+              <div className="reserve-planner-top-metrics" data-tour="reserve-planner-buffer">
+                <label className="reserve-buffer-field">
+                  <span>Buffer</span>
+                  <input
+                    className="sheet-input sheet-input--compact"
+                    type="number"
+                    step="0.01"
+                    value={planner.bufferAmount}
+                    onChange={(e) =>
+                      actions.updateReservePlanner(planner.id, { bufferAmount: Number(e.target.value) })
+                    }
+                    title="The reserve should not drop below this amount across the year"
+                    readOnly={editReadOnly}
+                  />
+                </label>
                 <div
                   className="reserve-transfer-field"
+                  data-tour="reserve-planner-transfer"
                   title="Fixed amount to move into reserve each month (annual bills ÷ 12)"
                 >
                   <span>Monthly transfer</span>
@@ -1185,7 +1200,7 @@ export function ReservePlannerPanel({
                     <td colSpan={12} className="reserve-plan-chart-cell">
                       <ReservePlanChart
                         months={monthEndBalances}
-                        bufferAmount={0}
+                        bufferAmount={planner.bufferAmount}
                         currentMonthIdx={currentMonthIdx}
                         currentActualBalance={suggestedReserveBalance}
                         columnWidths={columnWidths}

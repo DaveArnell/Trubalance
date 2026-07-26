@@ -58,7 +58,7 @@ export function buildLeisureSoloDemoState(): AppState {
         name: 'Harbour Reserve Plan',
         businessId: bizId,
         reserveAccountId: 'ls-acc-3',
-        bufferAmount: 0,
+        bufferAmount: 800,
         actualBalance: 6200,
         bills: [
           {

@@ -407,6 +407,10 @@ export function ReservePlanChart({
           <span className="reserve-plan-chart-legend-swatch reserve-plan-chart-legend-swatch--outgoing" />
           Bills due
         </span>
+        <span className="reserve-plan-chart-legend-item">
+          <span className="reserve-plan-chart-legend-swatch reserve-plan-chart-legend-swatch--buffer" />
+          Minimum buffer
+        </span>
       </div>
     </div>
   )

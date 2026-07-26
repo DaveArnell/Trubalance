@@ -105,8 +105,8 @@ export function ReadOnlyLockBanner() {
   return (
     <div className="read-only-lock-banner" role="status">
       <p>
-        <strong>View-only mode</strong> — your trial has ended. You can explore your dashboard, but
-        editing is locked until you subscribe. We recommend the {tier.name} plan for your setup.
+        <strong>View-only mode</strong> — you can still explore your dashboard, but editing is locked
+        until you have an active subscription. We recommend the {tier.name} plan for your setup.
       </p>
       <button
         type="button"
@@ -211,7 +211,7 @@ export function TrialBanner() {
       <div className="trial-banner trial-banner--founder" role="status">
         <strong>Founder access</strong>
         <span>
-          Lifetime free access — thank you for helping shape Cash Prophet in early access.
+          Lifetime free access — thank you for being part of Cash Prophet.
         </span>
       </div>
     )

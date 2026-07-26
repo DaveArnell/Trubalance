@@ -58,7 +58,7 @@ export function buildSalonDemoState(): AppState {
         name: 'Grove Reserve Plan',
         businessId: bizId,
         reserveAccountId: 'salon-acc-3',
-        bufferAmount: 0,
+        bufferAmount: 400,
         actualBalance: 2800,
         bills: [
           {

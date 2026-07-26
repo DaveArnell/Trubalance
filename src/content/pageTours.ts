@@ -180,6 +180,13 @@ export const PAGE_TOURS: Partial<Record<PageId, PageTour>> = {
         placement: 'bottom',
       },
       {
+        id: 'rp-buffer',
+        target: '[data-tour="reserve-planner-buffer"]',
+        title: 'Minimum buffer',
+        body: 'The lowest balance you want sitting in reserve across the year.\n\nThe outlook chart treats this as a floor, so you can see months that would dip below your comfort level.',
+        placement: 'bottom',
+      },
+      {
         id: 'rp-month',
         target: '[data-tour="reserve-planner-month"]',
         title: 'This month',
@@ -197,7 +204,7 @@ export const PAGE_TOURS: Partial<Record<PageId, PageTour>> = {
         id: 'rp-chart',
         target: '[data-tour="reserve-planner-chart"]',
         title: 'Balance outlook',
-        body: 'Shows how reserve should move through the year as bills land and transfers top it up.\n\nUse it to spot tight months early and adjust transfer amounts before you get there.',
+        body: 'Shows how reserve should move through the year as bills land and transfers top it up.\n\nUse it to spot tight months early and adjust buffers or transfer amounts before you get there.',
         placement: 'top',
       },
     ],

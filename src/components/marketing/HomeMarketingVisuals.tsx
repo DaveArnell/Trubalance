@@ -193,7 +193,7 @@ export function HabitsTrendVisual() {
 
   return (
     <figure className="habits-trend" aria-label="Cash Prophet Balance history from daily logs with a forward trend line">
-      <figcaption className="habits-trend-caption">Daily logs build your trend</figcaption>
+      <figcaption className="habits-trend-caption">Entry logs build your trend</figcaption>
       <svg className="habits-trend-svg" viewBox="0 0 360 100" aria-hidden>
         <line x1="12" y1="88" x2="348" y2="88" className="habits-trend-axis" />
         <line x1="12" y1="50" x2="348" y2="50" className="habits-trend-grid" />

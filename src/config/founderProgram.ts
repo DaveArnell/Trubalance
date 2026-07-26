@@ -1,10 +1,12 @@
-/** Founding Members program limit before public launch. */
-export const FOUNDER_LIFETIME_SIGNUP_LIMIT = 50
+/**
+ * Lifetime access is granted manually in Admin (not a public founding cohort).
+ * Kept as config so admin tooling and remaining helper copy stay in one place.
+ */
+export const FOUNDER_LIFETIME_SIGNUP_LIMIT = 0
 
-export const FOUNDER_PROGRAM_HEADLINE = 'Founding Members'
+export const FOUNDER_PROGRAM_HEADLINE = 'Start free'
 
 export const FOUNDER_PROGRAM_BODY =
-  'We are looking for the first 50 businesses to help shape Cash Prophet before public launch. Founding Members get lifetime access, direct input into future features, early access to new releases, and personal onboarding support.'
+  'New accounts get 30 days of full access. Subscribe when you are ready — or ask us for lifetime access if you are helping shape the product.'
 
-export const FOUNDER_PROGRAM_FOOTNOTE =
-  'Limited to the first 50 businesses.'
+export const FOUNDER_PROGRAM_FOOTNOTE = '30 days free. No card needed to start.'

@@ -5,7 +5,7 @@ export const SIGNUP_ASIDE = {
   lead:
     'Create your account and we will walk you through a short onboarding. A few real numbers from your business is enough to get Cash Prophet set up. You get 30 days free — only start paying once it has become part of how you run things.',
   points: [
-    'Three months free — no payment details to start',
+    '30 days free — no payment details to start',
     'Guided onboarding on first login',
     'A few figures from your business to get going',
     'Then a Cash Prophet Balance you can actually decide from',
@@ -14,10 +14,9 @@ export const SIGNUP_ASIDE = {
 
 export const SIGNUP_FORM = {
   heading: 'Create your account',
-  lead:
-    'Limited free slots for the first 50 businesses. After that, every new account still gets a full 30 days free.',
+  lead: 'Full access for 30 days. No card needed to start.',
   successNote:
-    'Once confirmed, log in and we will walk you through setup. Your three free months start when you are in.',
+    'Once confirmed, log in and we will walk you through setup. Your free trial starts when you are in.',
 } as const
 
 export const LOGIN_ASIDE = {
