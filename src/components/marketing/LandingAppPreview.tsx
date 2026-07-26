@@ -23,7 +23,7 @@ function OverviewWidget() {
           <strong>£18,400</strong>
         </div>
         <div className="landing-preview-kpi landing-preview-kpi--true">
-          <span className="landing-preview-kpi-label">Available</span>
+          <span className="landing-preview-kpi-label">Cash Prophet Balance</span>
           <strong>£19,850</strong>
         </div>
       </div>
@@ -68,7 +68,7 @@ function ForecastWidget() {
         <p className="landing-preview-widget-title">Cash outlook · 90 days</p>
         <span className="landing-preview-legend">
           <i className="landing-preview-legend-cash" /> Cash
-          <i className="landing-preview-legend-true" /> Available
+          <i className="landing-preview-legend-true" /> Balance
         </span>
       </div>
       <svg className="landing-preview-chart" viewBox="0 0 340 100" aria-hidden>
@@ -106,7 +106,7 @@ export function LandingAppPreview({ variant = 'section' }: LandingAppPreviewProp
           <h2 id="landing-preview-heading">Your real position — not just your bank balance</h2>
           <p className="marketing-section-lead">
             A quick look at what Cash Prophet shows: bank balance, committed money already
-            accounted for, and what is Available after those commitments.
+            accounted for, and your Cash Prophet Balance after those commitments.
           </p>
         </div>
 

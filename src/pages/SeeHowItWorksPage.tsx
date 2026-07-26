@@ -23,7 +23,8 @@ export function SeeHowItWorksPage() {
             <p className="marketing-how-eyebrow">Try a demo</p>
             <h1>See it with a live business</h1>
             <p className="method-edu-hero-lead">
-              Pick an example workspace and explore Cash Prophet — no signup needed. Each demo is a
+              Pick an example workspace and explore Cash Prophet — no signup needed. Leisure and
+              hospitality demos show the Cash Prophet Balance with consistent income. Each demo is a
               frozen snapshot as of {formatSnapshotDateLong(DEMO_FROZEN_DATE_KEY)}, so figures stay
               stable while you look around.
             </p>

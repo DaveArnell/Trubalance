@@ -234,7 +234,7 @@ function HistoryRecordDetail({
 
       <div className="history-record-metrics">
         <div className="history-metric-card history-metric-card--primary">
-          <span className="muted">Available</span>
+          <span className="muted">Cash Prophet Balance</span>
           <strong>{formatCurrency(record.summary.trueBalance)}</strong>
           <span className="history-metric-hint muted">Cash − committed + receipts</span>
         </div>

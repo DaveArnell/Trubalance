@@ -506,7 +506,7 @@ export function BreakdownTable({
             <td colSpan={columns.length + 1} />
           </tr>
           <tr className="sheet-row-final">
-            <td className="sheet-row-label">Available</td>
+            <td className="sheet-row-label">Cash Prophet Balance</td>
             {columns.map((col) => (
               <Cell
                 key={col.key}

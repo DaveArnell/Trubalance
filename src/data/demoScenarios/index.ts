@@ -31,11 +31,11 @@ export const DEMO_SCENARIOS: readonly DemoScenarioMeta[] = [
     historyLabel: '4 years of history',
     historyMonths: 48,
     description:
-      'A fictional group with three businesses and five venues — see continuous accrual of payroll and rent, VAT reserves building, and one group Available number.',
+      'A fictional group with three businesses and five venues — continuous accrual of payroll and rent, VAT reserves building, and one Cash Prophet Balance across the group.',
     highlights: [
       'Continuous accrual across multiple sites',
       'Reserve planning for VAT & corporation tax',
-      'One decision number at group and site level',
+      'Cash Prophet Balance at group and site level',
       'Expected receipts in the cash outlook',
     ],
     defaultViewScope: leisureDefaultViewScope,
@@ -49,11 +49,11 @@ export const DEMO_SCENARIOS: readonly DemoScenarioMeta[] = [
     historyLabel: '3 years of history',
     historyMonths: 36,
     description:
-      'A growing café with a high street site and a market stall. Smaller numbers, same Method — monthly costs accruing daily, quarterly VAT reserved, one Available number.',
+      'A growing café with a high street site and a market hall. Consistent trade income — monthly costs accruing daily, quarterly VAT reserved, one Cash Prophet Balance.',
     highlights: [
       'Daily accrual of rent, payroll & wholesale',
       'VAT and irregular bills in Reserve Planner',
-      'One Available number for spending decisions',
+      'Cash Prophet Balance for everyday confidence',
       'Expected catering income where realistic',
     ],
     defaultViewScope: cafeDefaultViewScope,
@@ -67,11 +67,11 @@ export const DEMO_SCENARIOS: readonly DemoScenarioMeta[] = [
     historyLabel: '3 years of history',
     historyMonths: 36,
     description:
-      'A trades business with van costs, materials, CIS and corporation tax building into today’s position. A healthy job pipeline keeps expected receipts realistic.',
+      'Explore commitments and Reserve Planner for van costs, CIS and corporation tax. Project-based income often still needs detailed cash flow forecasting — this demo shows how reserves and accruals still help.',
     highlights: [
       'Continuous accrual for van, CIS & materials',
       'Corporation tax and irregular costs reserved',
-      'One Available number before you quote or hire',
+      'Reserve Planner for predictable future costs',
       'Pipeline of expected job receipts',
     ],
     defaultViewScope: tradesDefaultViewScope,

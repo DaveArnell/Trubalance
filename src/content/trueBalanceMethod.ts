@@ -49,15 +49,16 @@ export const METHOD_WHY_COMPARE = {
 } as const
 
 export const METHOD_WHO_FOR = [
-  'run an owner-managed business without a finance team',
-  'rely on an accountant or bookkeeper, but still need a clearer daily picture',
+  'run an owner-managed business with relatively consistent income through the month',
+  'work in leisure, hospitality, gyms, childcare, subscriptions or similar recurring-revenue models',
   'look at the bank balance and wonder how much is already spoken for',
   'get caught out by VAT, tax or annual bills',
-  'want confidence in day-to-day decisions without complicated forecasts',
-  'have regular commitments and larger irregular costs to plan for',
+  'want one trusted financial number without replacing your accountant or detailed forecasts',
+  'have regular commitments and larger irregular costs to prepare for',
 ] as const
 
 export const METHOD_WHO_NOT_FOR = [
+  'Your income is highly irregular, project-based or occasional large contracts (for example construction or property development) — those businesses often need detailed cash flow forecasting first.',
   'You already have a finance department producing daily management information.',
   'Your business has very few financial commitments.',
   'You only need bookkeeping or accounting software — and nothing more.',
@@ -115,8 +116,8 @@ export const METHOD_THREE_PRINCIPLES = [
   {
     id: 'one-decision-number',
     title: 'One number you can trust',
-    lead: 'Available Balance is what’s left after commitments already building.',
-    body: 'The bank balance stays as a reference. Cash Prophet shows what you can actually work with today, after the commitments you already know about.',
+    lead: 'Cash Prophet Balance already reflects accrued commitments.',
+    body: 'The bank balance stays as a reference. Cash Prophet shows where your business really stands today, after the meaningful commitments you already know about.',
     examples: ['Purchases', 'Quiet months', 'Owner drawings'],
   },
 ] as const

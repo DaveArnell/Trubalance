@@ -29,7 +29,7 @@ import { getEffectiveSnapshotMetric, withEffectiveSnapshotMetrics } from '../uti
 type MetricKey = 'trueBalance' | 'cash' | 'committedFunds' | 'expectedReceipts'
 
 const metricConfig: Record<MetricKey, { label: string; shortLabel: string }> = {
-  trueBalance: { label: 'Available', shortLabel: 'Available' },
+  trueBalance: { label: 'Cash Prophet Balance', shortLabel: 'Balance' },
   cash: { label: 'Cash', shortLabel: 'Cash' },
   committedFunds: { label: 'Committed Funds', shortLabel: 'Committed' },
   expectedReceipts: { label: 'Expected Receipts', shortLabel: 'Receipts' },
@@ -469,7 +469,7 @@ export function TrendChart({
         : null
 
   const trendHelpText =
-    'Solid lines connect your saved balance entries. Each scope level (group, business, venue) has its own Available history. Use Forecast to add a separate smoothed trend line based on those entries. Set a From date to ignore anything earlier — useful after a big one-off change that would skew the trend. That date is remembered in this browser until you clear or change it.'
+    'Solid lines connect your saved balance entries. Each scope level (group, business, venue) has its own Cash Prophet Balance history. Use Forecast to add a separate smoothed trend line based on those entries. Set a From date to ignore anything earlier — useful after a big one-off change that would skew the trend. That date is remembered in this browser until you clear or change it.'
 
   const showLegend = series.length > 1 || activeMetricKeys.length > 1 || showProjection
 
@@ -533,7 +533,7 @@ export function TrendChart({
               className={`trend-svg${embedded ? ' trend-svg--embedded' : ''}`}
               preserveAspectRatio="xMidYMid meet"
               role="img"
-              aria-label="Cash Prophet Available Trend chart — Available Balance over time for your business"
+              aria-label="Cash Prophet Balance trend chart — financial position over time for your business"
               onMouseMove={handleSvgMouseMove}
               onMouseLeave={() => setHoverDate(null)}
             >
@@ -855,7 +855,7 @@ export function TrendChart({
                   {formatCurrency(getMetricValue(detailSnapshot, activeMetricKeys[0]!))}
                 </p>
               ) : null}
-              <p>Available: {formatCurrency(getEffectiveSnapshotMetric(state, detailSnapshot, 'trueBalance'))}</p>
+              <p>Cash Prophet Balance: {formatCurrency(getEffectiveSnapshotMetric(state, detailSnapshot, 'trueBalance'))}</p>
               <p>Cash: {formatCurrency(getEffectiveSnapshotMetric(state, detailSnapshot, 'cash'))}</p>
               <p>Committed Funds: {formatCurrency(getEffectiveSnapshotMetric(state, detailSnapshot, 'committedFunds'))}</p>
               <p>Expected Receipts: {formatCurrency(getEffectiveSnapshotMetric(state, detailSnapshot, 'expectedReceipts'))}</p>
@@ -1145,7 +1145,7 @@ export function TrendChart({
     <>
       <section id="trends-chart" className="card chart-card widget-span-2">
       <div className="card-head card-head-compact">
-        <h2>Available Trend</h2>
+        <h2>Cash Prophet Balance trend</h2>
         <HelpButton
           id="trend"
           openHelp={openHelp}

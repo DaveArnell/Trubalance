@@ -136,7 +136,7 @@ export function HomeCompareStrip() {
       <div className="home-compare-col home-compare-col--accent">
         <p className="home-compare-tag">Cash Prophet</p>
         <p className="home-compare-body">Helps you decide today</p>
-        <p className="home-compare-highlight">Available Balance you can rely on</p>
+        <p className="home-compare-highlight">Cash Prophet Balance you can trust</p>
       </div>
     </div>
   )

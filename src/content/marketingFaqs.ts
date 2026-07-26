@@ -1,11 +1,13 @@
 /** Visible FAQ copy — must match FAQPage JSON-LD on the same page (Google guideline). */
 
+import { CASH_PROPHET_BALANCE } from './brandFoundation'
+
 export type FaqItem = { q: string; a: string }
 
 export const HOW_IT_WORKS_FAQS: FaqItem[] = [
   {
-    q: 'What is Available Balance in Cash Prophet?',
-    a: 'Available Balance is what cash is genuinely yours to use after known commitments and expected receipts — not just the figure in your bank app.',
+    q: `What is the ${CASH_PROPHET_BALANCE}?`,
+    a: `The ${CASH_PROPHET_BALANCE} is Cash Prophet's calculation of your business's financial position. Unlike a bank balance, it already reflects accrued meaningful financial commitments — so you can see where your business really stands.`,
   },
   {
     q: 'How do monthly costs build before payday?',
@@ -13,11 +15,11 @@ export const HOW_IT_WORKS_FAQS: FaqItem[] = [
   },
   {
     q: 'What does the Reserve Planner do?',
-    a: 'It turns large irregular bills — VAT, corporation tax, annual costs — into manageable monthly amounts so you set money aside steadily instead of scrambling when the bill arrives.',
+    a: 'It helps you continuously save towards predictable future costs — VAT, corporation tax, annual bills — without multiple bank accounts or manual jam-jar budgeting. Reserve Planner is valuable whatever your income pattern.',
   },
   {
     q: 'Is Cash Prophet accounting software?',
-    a: 'No. It sits alongside tools like Xero or FreeAgent. Cash Prophet focuses on what you can safely spend next; bookkeeping records what already happened.',
+    a: 'No. It sits alongside tools like Xero or FreeAgent. Cash Prophet is not bookkeeping and not a replacement for accountants or detailed cash flow forecasting. It complements accounting with a continuously updated financial position you can understand every day.',
   },
   {
     q: 'How much daily effort does it take?',
@@ -51,14 +53,14 @@ export const PRICING_FAQS: FaqItem[] = [
 export const WHO_FOR_FAQS: FaqItem[] = [
   {
     q: 'Who is Cash Prophet for?',
-    a: 'Owner-managed UK businesses that look at the bank balance and mentally subtract what is coming — especially if you want confidence without a finance team or complex forecasts.',
+    a: `Primarily businesses with relatively consistent income through the month — leisure, hospitality, gyms, childcare, subscriptions and similar — where the ${CASH_PROPHET_BALANCE} gives a consistent measure of financial position.`,
   },
   {
-    q: 'Is Cash Prophet only for cafés or trades?',
-    a: 'No. It suits any owner-managed business with regular commitments and larger irregular costs — hospitality, trades, leisure, multi-site and multi-company structures.',
+    q: 'Is Cash Prophet only for cafés or leisure?',
+    a: 'No. It suits owner-managed businesses with regular weekly or monthly income and meaningful recurring commitments. Hospitality, leisure, childcare, subscriptions and many service businesses fit well.',
   },
   {
-    q: 'Who is Cash Prophet not for?',
-    a: 'If you already have a finance department producing daily management information, have almost no commitments, or only need bookkeeping software, you may not need Cash Prophet.',
+    q: 'Who is Cash Prophet Balance less suitable for?',
+    a: 'Businesses with highly irregular, project-based or occasional large-contract income (for example construction or property development) often need detailed cash flow forecasting because income timing is itself a major risk. Reserve Planner can still help those businesses save for predictable costs, but Cash Prophet Balance should not replace proper forecasting there.',
   },
 ]

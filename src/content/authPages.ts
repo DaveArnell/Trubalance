@@ -8,7 +8,7 @@ export const SIGNUP_ASIDE = {
     'Three months free — no payment details to start',
     'Guided onboarding on first login',
     'A few figures from your business to get going',
-    'Then an Available Balance you can actually decide from',
+    'Then a Cash Prophet Balance you can actually decide from',
   ],
 } as const
 
@@ -25,8 +25,8 @@ export const LOGIN_ASIDE = {
   heading: 'Welcome back',
   lead: 'Pick up where you left off — balances, commitments, and reserves in one place.',
   points: [
-    'Available Balance for everyday decisions',
-    'Known costs building every day',
+    'Cash Prophet Balance for everyday confidence',
+    'Meaningful costs building every day',
     'Reserve Planner for irregular bills',
   ],
 } as const

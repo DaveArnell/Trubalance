@@ -27,8 +27,9 @@ export function WhoItsForPage() {
             <p className="marketing-how-eyebrow">Fit</p>
             <h1>Who Cash Prophet is for</h1>
             <p className="method-edu-hero-lead">
-              Owners who want confidence without complexity — especially if these questions sound
-              familiar.
+              Designed primarily for businesses with relatively consistent income — leisure,
+              hospitality, gyms, childcare, subscriptions and similar — who want one trusted
+              financial number without replacing their accountant.
             </p>
           </div>
         </header>

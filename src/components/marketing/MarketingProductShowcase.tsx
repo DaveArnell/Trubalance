@@ -15,10 +15,10 @@ const RESERVE_MONTHLY_TARGET = Math.round(RESERVE_ANNUAL_TOTAL / 12)
 const TABS = [
   {
     id: 'balance',
-    label: 'Available',
+    label: 'Balance',
     accent: 'indigo',
-    title: 'One number that tells the truth',
-    body: 'Cash minus what is committed, plus expected receipts. Available rolls up every account so you see what is genuinely yours, not just what the bank app shows.',
+    title: 'One trusted financial number',
+    body: 'Cash Prophet Balance already reflects accrued commitments. See where your business really stands — not just what the bank app shows.',
   },
   {
     id: 'month',

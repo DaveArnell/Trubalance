@@ -36,7 +36,7 @@ export function MethodWorkedExample() {
     {
       tone: 'true' as const,
       op: '=',
-      label: 'Available Balance',
+      label: 'Cash Prophet Balance',
       hint: 'What you can work with after commitments',
       value: ex.trueBalance,
     },

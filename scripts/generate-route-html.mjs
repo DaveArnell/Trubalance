@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url'
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const site = 'https://truebalanceapp.io'
 const ogImage = `${site}/og-image.webp`
-const ogAltDefault = 'Cash Prophet — Available Balance you can trust for UK business owners'
+const ogAltDefault = 'Cash Prophet — Cash Prophet Balance, one trusted financial number for UK business owners'
 
 const marketingSource = readFileSync(join(root, 'src/content/marketingSeo.ts'), 'utf8')
 

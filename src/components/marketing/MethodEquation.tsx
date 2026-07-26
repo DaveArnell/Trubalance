@@ -17,7 +17,7 @@ export function MethodEquation({ variant = 'home' }: MethodEquationProps) {
   const receiptsLabel =
     variant === 'page' ? 'Realistic expected receipts' : 'Realistic expected receipts'
 
-  const ariaLabel = `Available cash ${availableCash}, minus committed and accrued money ${committed}, plus expected receipts ${expectedReceipts}, equals what’s available ${trueBalance}`
+  const ariaLabel = `Available cash ${availableCash}, minus committed and accrued money ${committed}, plus expected receipts ${expectedReceipts}, equals Cash Prophet Balance ${trueBalance}`
 
   return (
     <div className="hero-balance-equation method-equation" role="img" aria-label={ariaLabel}>
@@ -78,8 +78,8 @@ export function MethodEquation({ variant = 'home' }: MethodEquationProps) {
             ◈
           </span>
           <div>
-            <p className="hero-balance-equation-label">What’s available</p>
-            <p className="hero-balance-equation-hint">Your calm number after commitments</p>
+            <p className="hero-balance-equation-label">Cash Prophet Balance</p>
+            <p className="hero-balance-equation-hint">Where your business really stands</p>
           </div>
         </div>
         <p className="hero-balance-equation-value hero-balance-equation-value--true">{trueBalance}</p>

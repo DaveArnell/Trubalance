@@ -28,7 +28,7 @@ export function DemoPage() {
 
   usePageMeta({
     ...DEMO_SEO,
-    title: `${meta.title} Demo | Cash Prophet Available Balance`,
+    title: `${meta.title} Demo | Cash Prophet Balance`,
     description: meta.description,
     path: `/demo/${meta.id}`,
     imageAlt: `${meta.title} — Cash Prophet interactive demo`,

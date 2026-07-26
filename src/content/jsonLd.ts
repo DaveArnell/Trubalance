@@ -69,7 +69,7 @@ export function websiteJsonLd(): JsonLd {
     publisher: { '@id': `${site}/#organization` },
     about: {
       '@type': 'Thing',
-      name: 'Available Balance for UK businesses',
+      name: 'Cash Prophet Balance for UK businesses',
     },
   }
 }

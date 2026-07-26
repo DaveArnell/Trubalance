@@ -21,7 +21,7 @@ export function BlogIndexPage() {
       ? `${activeCategory} Cash Guides | Cash Prophet Blog`
       : BLOG_INDEX_SEO.title,
     description: activeCategory
-      ? `${activeCategory} articles on Available Balance, committed funds and cash clarity for UK business owners.`
+      ? `${activeCategory} articles on Cash Prophet Balance, financial position and clarity for UK business owners.`
       : BLOG_INDEX_SEO.description,
     path: BLOG_INDEX_SEO.path,
   })

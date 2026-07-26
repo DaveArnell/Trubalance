@@ -25380,6 +25380,16 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   color: var(--marketing-ink, #0f1b2d);
 }
 
+.marketing-hero-belief {
+  margin: 0 0 14px;
+  max-width: 28ch;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--text-secondary, #5b6575);
+}
+
 .marketing-hero--rank h1 {
   margin: 0 0 22px;
   max-width: 12ch;
@@ -29244,6 +29254,10 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .marketing-main--home-vivid .marketing-hero-sizzle {
   color: #7dd3fc;
+}
+
+.marketing-main--home-vivid .marketing-hero-belief {
+  color: rgba(244, 247, 251, 0.72);
 }
 
 .marketing-main--home-vivid .marketing-hero--rank h1 {

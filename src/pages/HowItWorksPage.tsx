@@ -63,7 +63,7 @@ export function HowItWorksPage() {
               <h2 id="principles-heading">How Cash Prophet works</h2>
               <p className="method-edu-section-lead">
                 Cash Prophet does the daily calculations for you. Keep your bank balance up to date
-                and it keeps your Available Balance current around your normal payment cycle.
+                and it keeps your Cash Prophet Balance current around your normal payment cycle.
               </p>
             </div>
             <div className="method-edu-principles">
@@ -121,7 +121,7 @@ export function HowItWorksPage() {
             <div className="method-edu-section-head">
               <h2 id="example-heading">A worked example</h2>
               <p className="method-edu-section-lead">
-                How the bank figure becomes your Available Balance.
+                How the bank figure becomes your Cash Prophet Balance.
               </p>
             </div>
             <MethodWorkedExample />
@@ -221,7 +221,7 @@ export function HowItWorksPage() {
 
         <MarketingFaqSection
           heading="Common questions"
-          lead="Short answers about Available Balance, reserves and daily effort."
+          lead="Short answers about Cash Prophet Balance, reserves and daily effort."
           items={HOW_IT_WORKS_FAQS}
         />
 

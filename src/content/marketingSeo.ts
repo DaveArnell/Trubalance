@@ -1,8 +1,8 @@
-/** SEO copy for public marketing routes (used with usePageMeta + build-time HTML shells). */
+/** SEO copy for public marketing routes — Brand & Product Foundation. */
 
 export const SITE_OG_IMAGE = '/og-image.webp' as const
 export const SITE_OG_IMAGE_ALT =
-  'Cash Prophet — Available Balance you can trust for UK business owners' as const
+  'Cash Prophet — Cash Prophet Balance, one trusted financial number for UK business owners' as const
 export const SITE_OG_IMAGE_WIDTH = 1200
 export const SITE_OG_IMAGE_HEIGHT = 630
 
@@ -18,9 +18,9 @@ export type RouteSeo = {
 
 /** Primary keyword near the front; brand at the end when not already in the title. */
 export const HOME_SEO = {
-  title: 'Available Balance for UK Businesses | Cash Prophet',
+  title: 'Cash Prophet Balance | One Trusted Financial Number | Cash Prophet',
   description:
-    'See what cash is genuinely available after known commitments — not just your bank balance. Cash Prophet keeps an Available Balance you can trust every day.',
+    'Every business deserves one financial number it can trust. Cash Prophet continuously accounts for meaningful commitments and calculates your Cash Prophet Balance — so you see where your business really stands.',
   path: '/',
   imageAlt: SITE_OG_IMAGE_ALT,
 } as const satisfies RouteSeo
@@ -34,44 +34,44 @@ export const PRICING_SEO = {
 } as const satisfies RouteSeo
 
 export const HOW_IT_WORKS_SEO = {
-  title: 'How Available Balance Works | Cash Prophet Method',
+  title: 'How Cash Prophet Balance Works | Cash Prophet',
   description:
-    'How Cash Prophet turns known costs, reserves and light habits into one Available Balance. Accruing commitments, Reserve Planner, and a calm daily rhythm explained.',
+    'How Cash Prophet continuously accounts for meaningful financial commitments to calculate your Cash Prophet Balance. Accruing costs, Reserve Planner, and a calm daily rhythm.',
   path: '/how-it-works',
-  imageAlt: 'How Cash Prophet Available Balance works for UK business owners',
+  imageAlt: 'How Cash Prophet Balance works for UK business owners',
 } as const satisfies RouteSeo
 
 /** /habits redirects here — keep unique copy for any lingering links/sitemap. */
 export const HABITS_SEO = {
   title: 'Daily Cash Habits for Business Owners | Cash Prophet',
   description:
-    'A light daily balance update and a short monthly reserve review keep your Available Balance honest. Now part of How it works on Cash Prophet.',
+    'A light daily balance update and a short monthly reserve review keep your Cash Prophet Balance honest. Now part of How it works on Cash Prophet.',
   path: '/habits',
   imageAlt: SITE_OG_IMAGE_ALT,
 } as const satisfies RouteSeo
 
 export const WHO_FOR_SEO = {
-  title: 'Cash Clarity for UK Business Owners | Who Cash Prophet Is For',
+  title: 'Who Cash Prophet Is For | Consistent-Income UK Businesses',
   description:
-    'Cash Prophet suits owners who manage from the bank app and mentally subtract what is coming. Confidence without complex forecasting spreadsheets.',
+    'Cash Prophet is for leisure, hospitality, gyms, childcare, subscriptions and other businesses with relatively consistent income — so you can trust one financial number every day.',
   path: '/who-its-for',
-  imageAlt: 'Who Cash Prophet is for — UK business owners managing cash day to day',
+  imageAlt: 'Who Cash Prophet is for — UK businesses with consistent income',
 } as const satisfies RouteSeo
 
 export const SEE_HOW_SEO = {
-  title: 'Cash Prophet Live Demo | Try Available Balance with Sample Businesses',
+  title: 'Cash Prophet Live Demo | Try Cash Prophet Balance',
   description:
-    'Open café, trades or leisure demos and see known commitments organised, reserves building, and one Available Balance you can trust.',
+    'Open leisure, café or sample demos and see meaningful commitments accounted for — and one Cash Prophet Balance you can trust.',
   path: '/see-how-it-works',
   imageAlt: 'Try Cash Prophet with live demo businesses',
 } as const satisfies RouteSeo
 
 export const BLOG_INDEX_SEO = {
-  title: 'Business Cash Flow Blog | Available Balance Guides | Cash Prophet',
+  title: 'Business Financial Clarity Blog | Cash Prophet Balance | Cash Prophet',
   description:
-    'Guides on bank balance vs available cash, VAT reserves, committed funds, and cash clarity for UK small business owners — from the Cash Prophet team.',
+    'Guides on bank balance vs financial position, VAT reserves, committed funds, and why every business deserves one financial number it can trust.',
   path: '/blog',
-  imageAlt: 'Cash Prophet blog — cash clarity and Available Balance for UK businesses',
+  imageAlt: 'Cash Prophet blog — Cash Prophet Balance for UK businesses',
 } as const satisfies RouteSeo
 
 export const PRIVACY_SEO = {
@@ -91,24 +91,25 @@ export const TERMS_SEO = {
 } as const satisfies RouteSeo
 
 export const LOGIN_SEO = {
-  title: 'Log In to Cash Prophet | Access Your Available Balance',
-  description: 'Log in to your Cash Prophet workspace and pick up your Available Balance where you left off.',
+  title: 'Log In to Cash Prophet',
+  description:
+    'Log in to your Cash Prophet workspace and pick up your Cash Prophet Balance where you left off.',
   path: '/login',
   noindex: true,
   imageAlt: SITE_OG_IMAGE_ALT,
 } as const satisfies RouteSeo
 
 export const SIGNUP_SEO = {
-  title: 'Start Free Trial | Cash Prophet Available Balance for UK Businesses',
+  title: 'Start Free Trial | Cash Prophet',
   description:
-    'Create your Cash Prophet account. Three months free, guided onboarding, and an Available Balance you can rely on for everyday decisions.',
+    'Create your Cash Prophet account. Three months free, guided onboarding, and a Cash Prophet Balance that shows where your business really stands.',
   path: '/signup',
   imageAlt: 'Start a free Cash Prophet trial for your UK business',
 } as const satisfies RouteSeo
 
 export const FORGOT_PASSWORD_SEO = {
   title: 'Forgot Password | Cash Prophet',
-  description: 'Reset your Cash Prophet password and get back to your Available Balance workspace.',
+  description: 'Reset your Cash Prophet password and get back to your workspace.',
   path: '/forgot-password',
   noindex: true,
   imageAlt: SITE_OG_IMAGE_ALT,
@@ -123,17 +124,18 @@ export const RESET_PASSWORD_SEO = {
 } as const satisfies RouteSeo
 
 export const DEMO_SEO = {
-  title: 'Interactive Cash Prophet Demo | Sample Business Available Balance',
+  title: 'Interactive Cash Prophet Demo',
   description:
-    'Explore Cash Prophet in a sample business: organised commitments, reserves and one Available Balance for spending decisions.',
+    'Explore Cash Prophet in a sample business: organised commitments, reserves and one Cash Prophet Balance.',
   path: '/demo',
   noindex: true,
   imageAlt: 'Interactive Cash Prophet demo workspace',
 } as const satisfies RouteSeo
 
 export const APP_SEO = {
-  title: 'Cash Prophet Dashboard | Your Available Balance Workspace',
-  description: 'Your Cash Prophet workspace — Available Balance, commitments, reserves and cash outlook.',
+  title: 'Cash Prophet Dashboard',
+  description:
+    'Your Cash Prophet workspace — Cash Prophet Balance, commitments, reserves and cash outlook.',
   path: '/app',
   noindex: true,
   imageAlt: SITE_OG_IMAGE_ALT,

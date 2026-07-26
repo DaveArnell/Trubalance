@@ -38,7 +38,7 @@ export function MarketingPicture({
 }
 
 export const OG_IMAGE_ALT =
-  'Cash Prophet Available Balance for UK businesses — cash clarity after known commitments'
+  'Cash Prophet Balance for UK businesses — one trusted financial number after meaningful commitments'
 
 export const LOGO_MARK_ALT =
-  'Cash Prophet logo — Available Balance and cash clarity for UK business owners'
+  'Cash Prophet logo — one trusted financial number for UK business owners'
