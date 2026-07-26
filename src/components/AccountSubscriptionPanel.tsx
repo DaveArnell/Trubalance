@@ -6,6 +6,8 @@ import {
   TIER_ORDER,
   formatPriceGbp,
   recommendTierForWorkspace,
+  VAT_PRICE_FOOTNOTE,
+  VAT_PRICE_NOTE,
   type SubscriptionTierId,
 } from '../config/subscriptionTiers'
 import { ManageBillingButton } from './UpgradePrompt'
@@ -166,14 +168,14 @@ export function AccountSubscriptionPanel({ state, embedded = false }: AccountSub
               <p className="account-plan-tier-price-row">
                 <span className="account-plan-tier-price-main">
                   {formatPriceGbp(tier.priceMonthlyGbp)}
-                  <span className="account-plan-tier-price-unit">/ month</span>
+                  <span className="account-plan-tier-price-unit">/ month {VAT_PRICE_NOTE}</span>
                 </span>
                 <span className="account-plan-tier-price-note muted">Rolling monthly contract</span>
               </p>
               <p className="account-plan-tier-price-row account-plan-tier-price-row--annual">
                 <span className="account-plan-tier-price-main">
                   {formatPriceGbp(tier.priceAnnualGbp)}
-                  <span className="account-plan-tier-price-unit">/ year</span>
+                  <span className="account-plan-tier-price-unit">/ year {VAT_PRICE_NOTE}</span>
                 </span>
                 <span className="account-plan-tier-price-note muted">Paid upfront · 2 months free</span>
               </p>
@@ -222,6 +224,7 @@ export function AccountSubscriptionPanel({ state, embedded = false }: AccountSub
             </div>
           </>
         )}
+        <p className="muted">{VAT_PRICE_FOOTNOTE}</p>
         {user?.email && (
           <p className="muted account-plan-email">
             Signed in as <strong>{user.email}</strong> · workspace <strong>{summary.label}</strong>

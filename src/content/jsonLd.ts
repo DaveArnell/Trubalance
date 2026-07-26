@@ -120,7 +120,7 @@ export function softwareApplicationJsonLd(): JsonLd {
       offerCount: TIER_ORDER.length,
       availability: 'https://schema.org/InStock',
       url: absolutePath('/pricing'),
-      description: `${TRIAL_DAYS}-day free trial, then from £${SUBSCRIPTION_TIERS.solo.priceMonthlyGbp}/month`,
+      description: `${TRIAL_DAYS}-day free trial, then from £${SUBSCRIPTION_TIERS.solo.priceMonthlyGbp}/month + VAT`,
     },
   }
 }

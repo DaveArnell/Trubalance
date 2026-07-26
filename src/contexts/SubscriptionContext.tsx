@@ -207,5 +207,5 @@ export function useSubscriptionOptional() {
 
 export function formatUpgradeTierLabel(tierId: SubscriptionTierId): string {
   const tier = SUBSCRIPTION_TIERS[tierId]
-  return `${tier.name} — £${tier.priceMonthlyGbp.toFixed(2)}/month`
+  return `${tier.name} — £${tier.priceMonthlyGbp.toFixed(2)}/month + VAT`
 }

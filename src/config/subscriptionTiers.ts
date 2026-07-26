@@ -59,6 +59,13 @@ export interface SubscriptionTierDefinition {
 
 export const TRIAL_DAYS = 30
 
+/** Advertised plan prices are net of VAT. Stripe should charge net + UK VAT at checkout. */
+export const UK_VAT_RATE = 0.2
+export const PRICES_ARE_NET_OF_VAT = true
+export const VAT_PRICE_NOTE = '+ VAT'
+export const VAT_PRICE_FOOTNOTE =
+  'Prices shown exclude VAT. UK VAT (20%) is added at checkout. VAT-registered businesses can usually reclaim it.'
+
 export const ANNUAL_SAVINGS_COPY = 'Pay annually and get 2 months free.'
 
 export const PRICING_HEADLINE =
@@ -68,22 +75,22 @@ export const PRICING_SUBHEADLINE =
   'Start with one business. Add venues when you expand. Move to Multi-business / Group when you operate more than one company. Every plan supports clearer day-to-day financial decisions.'
 
 export const PRICING_FOOTNOTE =
-  'Not sure which plan you need? Start free and set up however you like. After your trial, we recommend the plan that matches what you have built.'
+  'Not sure which plan you need? Start free and set up however you like. After your trial, we recommend the plan that matches what you have built. Prices exclude VAT.'
 
 export function formatPriceGbp(amount: number): string {
   return `£${amount.toFixed(2)}`
 }
 
 export function formatTierPrice(tierId: SubscriptionTierId): string {
-  return formatPriceGbp(SUBSCRIPTION_TIERS[tierId].priceMonthlyGbp)
+  return `${formatPriceGbp(SUBSCRIPTION_TIERS[tierId].priceMonthlyGbp)} ${VAT_PRICE_NOTE}`
 }
 
 export function formatTierAnnualPrice(tierId: SubscriptionTierId): string {
-  return `${formatPriceGbp(SUBSCRIPTION_TIERS[tierId].priceAnnualGbp)}/year`
+  return `${formatPriceGbp(SUBSCRIPTION_TIERS[tierId].priceAnnualGbp)}/year ${VAT_PRICE_NOTE}`
 }
 
 export function formatTierPriceMonthly(tierId: SubscriptionTierId): string {
-  return `${formatPriceGbp(SUBSCRIPTION_TIERS[tierId].priceMonthlyGbp)}/month`
+  return `${formatPriceGbp(SUBSCRIPTION_TIERS[tierId].priceMonthlyGbp)}/month ${VAT_PRICE_NOTE}`
 }
 
 export const TIER_ORDER: SubscriptionTierId[] = ['solo', 'multi', 'group']

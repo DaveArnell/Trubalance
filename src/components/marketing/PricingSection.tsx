@@ -6,6 +6,8 @@ import {
   PRICING_SUBHEADLINE,
   SUBSCRIPTION_TIERS,
   TIER_ORDER,
+  VAT_PRICE_FOOTNOTE,
+  VAT_PRICE_NOTE,
   formatPriceGbp,
 } from '../../config/subscriptionTiers'
 
@@ -34,11 +36,11 @@ export function PricingSection({ hideIntro = false }: { hideIntro?: boolean }) {
                   <span className="marketing-price-amount">
                     {formatPriceGbp(plan.priceMonthlyGbp)}
                   </span>
-                  <span className="marketing-price-period">/ month</span>
+                  <span className="marketing-price-period">/ month {VAT_PRICE_NOTE}</span>
                 </p>
                 <p className="marketing-price-contract muted">Rolling monthly · cancel anytime</p>
                 <p className="marketing-price-annual">
-                  {formatPriceGbp(plan.priceAnnualGbp)}/year
+                  {formatPriceGbp(plan.priceAnnualGbp)}/year {VAT_PRICE_NOTE}
                   <span className="muted"> · paid upfront</span>
                 </p>
                 <p className="marketing-price-desc">{plan.perfectFor}</p>
@@ -55,6 +57,7 @@ export function PricingSection({ hideIntro = false }: { hideIntro?: boolean }) {
           })}
         </div>
 
+        <p className="marketing-pricing-footnote">{VAT_PRICE_FOOTNOTE}</p>
         <p className="marketing-pricing-footnote">{PRICING_FOOTNOTE}</p>
       </div>
     </section>

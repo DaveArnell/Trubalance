@@ -149,7 +149,7 @@ export function buildLimitUpgradePrompt(
 ): { headline: string; body: string } {
   const tier = SUBSCRIPTION_TIERS[requiredTier]
   const currentTier = SUBSCRIPTION_TIERS[subscribedTier(subscription)]
-  const price = `£${tier.priceMonthlyGbp.toFixed(2)}/month`
+  const price = `£${tier.priceMonthlyGbp.toFixed(2)}/month + VAT`
 
   if (limit === 'venues') {
     return {
@@ -176,7 +176,7 @@ export function buildFeatureUpgradePrompt(
   requiredTier: SubscriptionTierId,
 ): { headline: string; body: string } {
   const tier = SUBSCRIPTION_TIERS[requiredTier]
-  const price = `£${tier.priceMonthlyGbp.toFixed(2)}/month`
+  const price = `£${tier.priceMonthlyGbp.toFixed(2)}/month + VAT`
 
   if (feature === 'groupReporting' || feature === 'consolidatedDashboards' || feature === 'multiCompanyRollups') {
     return {
@@ -275,7 +275,7 @@ export function subscriptionNeedsUpgrade(
 }
 
 function formatTierMonthly(tierId: SubscriptionTierId): string {
-  return `£${SUBSCRIPTION_TIERS[tierId].priceMonthlyGbp.toFixed(2)}/month`
+  return `£${SUBSCRIPTION_TIERS[tierId].priceMonthlyGbp.toFixed(2)}/month + VAT`
 }
 
 export function buildRecommendedTierPrompt(usage: WorkspaceUsage): {
