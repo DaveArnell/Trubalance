@@ -8,7 +8,7 @@ type MarketingAccruingDemoProps = {
 
 /**
  * Educational accruing-cycle demo for marketing pages.
- * Reuses the setup walkthrough animation; video slot intentionally omitted.
+ * Uses the building-only loop (no Due column). Onboarding teaches the Due handoff separately.
  */
 export function MarketingAccruingDemo({ variant = 'home' }: MarketingAccruingDemoProps) {
   const sectionClass =
@@ -42,7 +42,7 @@ export function MarketingAccruingDemo({ variant = 'home' }: MarketingAccruingDem
           </p>
         </div>
         <div className="marketing-accruing-demo-stage">
-          <SetupAccruingCycleDemo />
+          <SetupAccruingCycleDemo mode="building-only" />
         </div>
       </div>
     </section>

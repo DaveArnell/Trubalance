@@ -11,7 +11,13 @@ type Template = {
 type BuildingCard = Template & {
   key: string
   progress: number
-  phase: 'idle' | 'paid' | 'spawn'
+  phase: 'idle' | 'departing' | 'paid' | 'spawn'
+}
+
+type DueCard = Template & {
+  key: string
+  amount: number
+  phase: 'arriving' | 'waiting' | 'paid'
 }
 
 const TEMPLATES: Template[] = [
@@ -23,7 +29,11 @@ const TEMPLATES: Template[] = [
 /** Same calendar rate for every card. The month advances together. */
 const FILL_PER_TICK = 0.0042
 const TICK_MS = 50
-/** Hold green paid pop, then restart from the bottom. */
+const DEPART_MS = 700
+const ARRIVE_MS = 420
+const DUE_HOLD_MS = 2400
+const PAID_FADE_MS = 750
+/** Hold green paid pop (building-only mode), then restart from the bottom. */
 const PAID_HOLD_MS = 1100
 
 /** Different due dates: most full = next due = top. */
@@ -31,23 +41,41 @@ const INITIAL_PROGRESS = [0.9, 0.55, 0.2]
 
 function sortBuilding(cards: BuildingCard[]): BuildingCard[] {
   return [...cards].sort((a, b) => {
-    if (a.phase === 'paid' && b.phase !== 'paid') return -1
-    if (b.phase === 'paid' && a.phase !== 'paid') return 1
+    if ((a.phase === 'departing' || a.phase === 'paid') && b.phase !== 'departing' && b.phase !== 'paid') {
+      return -1
+    }
+    if ((b.phase === 'departing' || b.phase === 'paid') && a.phase !== 'departing' && a.phase !== 'paid') {
+      return 1
+    }
     return b.progress - a.progress
   })
 }
 
+export type AccruingCycleDemoMode = 'with-due' | 'building-only'
+
+type SetupAccruingCycleDemoProps = {
+  /**
+   * `with-due` — onboarding teach flow: filled bars move into Due, then mark Paid.
+   * `building-only` — marketing / how-it-works: paid pop then restart from the bottom.
+   */
+  mode?: AccruingCycleDemoMode
+}
+
 /**
- * Marketing / onboarding demo: known costs build day by day.
- * When a bar hits full it gets a green paid pop, then drops to the bottom and builds again.
- * No Due column (keeps the first explanation focused on building).
+ * Educational accruing-cycle demo.
+ * Onboarding uses the Due column; How it works keeps the simpler building-only loop.
  */
-export function SetupAccruingCycleDemo() {
+export function SetupAccruingCycleDemo({ mode = 'with-due' }: SetupAccruingCycleDemoProps) {
   const uid = useId().replace(/:/g, '')
+  const seq = useRef(0)
   const busy = useRef(false)
   const buildingRef = useRef<BuildingCard[]>([])
   const dayProgressRef = useRef(0.72)
   const timers = useRef<number[]>([])
+  const nextKey = () => {
+    seq.current += 1
+    return `${uid}-${seq.current}`
+  }
 
   const [building, setBuilding] = useState<BuildingCard[]>(() => {
     const initial = sortBuilding(
@@ -61,6 +89,8 @@ export function SetupAccruingCycleDemo() {
     buildingRef.current = initial
     return initial
   })
+  const [due, setDue] = useState<DueCard[]>([])
+  const [transferPulse, setTransferPulse] = useState(false)
   const [monthDay, setMonthDay] = useState(22)
 
   const updateBuilding = (next: BuildingCard[]) => {
@@ -94,6 +124,18 @@ export function SetupAccruingCycleDemo() {
         })),
       )
       setMonthDay(22)
+      if (mode === 'with-due') {
+        setDue([
+          {
+            key: `${uid}-due-static`,
+            name: 'Insurance',
+            monthly: 1200,
+            amount: 1200,
+            accent: '#c2410c',
+            phase: 'waiting',
+          },
+        ])
+      }
       return clearTimers
     }
 
@@ -101,8 +143,52 @@ export function SetupAccruingCycleDemo() {
       dayProgressRef.current = (dayProgressRef.current + FILL_PER_TICK) % 1
       setMonthDay(Math.max(1, Math.min(30, Math.round(dayProgressRef.current * 30) || 1)))
 
+      if (mode === 'building-only') {
+        const advanced = buildingRef.current.map((row) =>
+          row.phase === 'paid'
+            ? row
+            : {
+                ...row,
+                progress: Math.min(1, row.progress + FILL_PER_TICK),
+                phase: row.phase === 'spawn' ? ('idle' as const) : row.phase,
+              },
+        )
+
+        const full =
+          !busy.current
+            ? advanced.find((row) => row.progress >= 0.999 && row.phase === 'idle')
+            : undefined
+
+        if (!full) {
+          updateBuilding(advanced)
+          return
+        }
+
+        busy.current = true
+        updateBuilding(
+          advanced.map((row) =>
+            row.key === full.key ? { ...row, progress: 1, phase: 'paid' as const } : row,
+          ),
+        )
+
+        schedule(() => {
+          const template = TEMPLATES.find((entry) => entry.name === full.name) ?? TEMPLATES[0]!
+          updateBuilding([
+            ...buildingRef.current.filter((row) => row.key !== full.key),
+            {
+              ...template,
+              key: full.key,
+              progress: 0,
+              phase: 'spawn',
+            },
+          ])
+          busy.current = false
+        }, PAID_HOLD_MS)
+        return
+      }
+
       const advanced = buildingRef.current.map((row) =>
-        row.phase === 'paid'
+        row.phase === 'departing'
           ? row
           : {
               ...row,
@@ -122,33 +208,77 @@ export function SetupAccruingCycleDemo() {
       }
 
       busy.current = true
+      setTransferPulse(true)
       updateBuilding(
         advanced.map((row) =>
-          row.key === full.key ? { ...row, progress: 1, phase: 'paid' as const } : row,
+          row.key === full.key ? { ...row, progress: 1, phase: 'departing' as const } : row,
         ),
       )
 
       schedule(() => {
         const template = TEMPLATES.find((entry) => entry.name === full.name) ?? TEMPLATES[0]!
+        const freshKey = nextKey()
+
         updateBuilding([
           ...buildingRef.current.filter((row) => row.key !== full.key),
           {
             ...template,
-            key: full.key,
+            key: freshKey,
             progress: 0,
             phase: 'spawn',
           },
         ])
-        busy.current = false
-      }, PAID_HOLD_MS)
+
+        setDue((prev) =>
+          [
+            {
+              key: full.key,
+              name: full.name,
+              monthly: full.monthly,
+              amount: full.monthly,
+              accent: full.accent,
+              phase: 'arriving' as const,
+            },
+            ...prev,
+          ].slice(0, 3),
+        )
+
+        schedule(() => {
+          setDue((prev) =>
+            prev.map((entry) =>
+              entry.key === full.key ? { ...entry, phase: 'waiting' as const } : entry,
+            ),
+          )
+          updateBuilding(
+            buildingRef.current.map((row) =>
+              row.key === freshKey ? { ...row, phase: 'idle' as const } : row,
+            ),
+          )
+          setTransferPulse(false)
+          busy.current = false
+        }, ARRIVE_MS)
+
+        schedule(() => {
+          setDue((prev) =>
+            prev.map((entry) =>
+              entry.key === full.key ? { ...entry, phase: 'paid' as const } : entry,
+            ),
+          )
+          schedule(() => {
+            setDue((prev) => prev.filter((entry) => entry.key !== full.key))
+          }, PAID_FADE_MS)
+        }, DUE_HOLD_MS)
+      }, DEPART_MS)
     }, TICK_MS)
 
     return () => {
       window.clearInterval(interval)
       clearTimers()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- demo loop keyed to uid only
-  }, [uid])
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- demo loop keyed to uid + mode
+  }, [uid, mode])
+
+  const buildingOnly = mode === 'building-only'
 
   return (
     <div className="setup-edu-visual setup-edu-visual--cards">
@@ -171,7 +301,10 @@ export function SetupAccruingCycleDemo() {
           />
         </div>
       </div>
-      <div className="setup-accruing-cycle setup-accruing-cycle--building-only" aria-hidden="true">
+      <div
+        className={`setup-accruing-cycle${buildingOnly ? ' setup-accruing-cycle--building-only' : ''}`}
+        aria-hidden="true"
+      >
         <div className="setup-accruing-cycle-col">
           <p className="setup-accruing-cycle-heading">Building up</p>
           <div className="setup-accruing-cycle-list">
@@ -179,8 +312,10 @@ export function SetupAccruingCycleDemo() {
               <div
                 key={card.key}
                 className={`setup-accruing-cycle-card-wrap${
-                  card.phase === 'paid' ? ' is-paid' : ''
-                }${card.phase === 'spawn' ? ' is-spawn' : ''}`}
+                  card.phase === 'departing' ? ' is-departing' : ''
+                }${card.phase === 'paid' ? ' is-paid' : ''}${
+                  card.phase === 'spawn' ? ' is-spawn' : ''
+                }`}
               >
                 <MobileRecordCard
                   title={card.name}
@@ -194,6 +329,43 @@ export function SetupAccruingCycleDemo() {
             ))}
           </div>
         </div>
+        {!buildingOnly && (
+          <>
+            <div
+              className={`setup-accruing-cycle-arrow${transferPulse ? ' is-active' : ''}`}
+              aria-hidden
+            >
+              →
+            </div>
+            <div className="setup-accruing-cycle-col">
+              <p className="setup-accruing-cycle-heading">Due</p>
+              <div className="setup-accruing-cycle-list">
+                {due.length === 0 ? (
+                  <p className="setup-accruing-cycle-empty muted">When a bar fills, it moves here</p>
+                ) : (
+                  due.map((card) => (
+                    <div
+                      key={card.key}
+                      className={`setup-accruing-cycle-due-wrap${
+                        card.phase === 'arriving' ? ' is-arriving' : ''
+                      }${card.phase === 'paid' ? ' is-paid' : ''}`}
+                    >
+                      <MobileRecordCard
+                        title={card.name}
+                        amount={formatCurrency(card.amount)}
+                        amountNegative
+                        progress={1}
+                        progressColor={card.accent}
+                        accentColor={card.accent}
+                        meta={card.phase === 'paid' ? 'Paid' : 'Stays until paid'}
+                      />
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   )
