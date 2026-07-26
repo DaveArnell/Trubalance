@@ -123,7 +123,7 @@ export function DemoPage() {
             key={activeId}
             workspaceId={null}
             externalState={externalState}
-            externalStateVersion={`${activeId}:${meta.historyMonths}:v4-wavy-trends`}
+            externalStateVersion={`${activeId}:${meta.historyMonths}:v5-short-wave`}
             defaultViewScope={meta.defaultViewScope}
             readOnly={!canEditDemo}
             skipLocalPersist
