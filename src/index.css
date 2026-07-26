@@ -5138,9 +5138,7 @@ button.overview-slim-col-label:not(:disabled) {
 }
 
 .overview-slim-tb::before {
-  content: 'TB ';
-  font-weight: 600;
-  opacity: 0.65;
+  content: none;
 }
 
 .overview-slim-tb--highlight { color: var(--status-green-text); }
@@ -18031,18 +18029,11 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .setup-flow-brand-mark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  background: color-mix(in srgb, #0f766e 35%, #18181b);
-  border: 1px solid color-mix(in srgb, #0f766e 45%, transparent);
-  color: #5eead4;
-  font-size: 0.82rem;
-  font-weight: 800;
-  letter-spacing: -0.04em;
+  object-fit: cover;
 }
 
 .setup-flow-brand-name {
@@ -28865,9 +28856,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .setup-flow-brand-mark {
-  background: linear-gradient(145deg, #2563eb, #1d4ed8);
-  border-color: rgba(147, 197, 253, 0.35);
-  color: #fff;
+  /* Image mark — gradient comes from the asset */
 }
 
 .setup-flow-kicker {

@@ -23,9 +23,15 @@ interface SetupOnboardingShellProps {
 export function SetupFlowBrand({ compact = false }: { compact?: boolean }) {
   return (
     <div className={`setup-flow-brand${compact ? ' setup-flow-brand--compact' : ''}`}>
-      <span className="setup-flow-brand-mark" aria-hidden="true">
-        CP
-      </span>
+      <img
+        className="setup-flow-brand-mark"
+        src="/logo-mark.webp"
+        width={40}
+        height={40}
+        alt=""
+        aria-hidden="true"
+        decoding="async"
+      />
       <div>
         <p className="setup-flow-brand-name">Cash Prophet</p>
         {!compact && <p className="setup-flow-brand-tag">One number you can trust</p>}
