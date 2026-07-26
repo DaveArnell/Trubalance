@@ -12,7 +12,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
-const site = 'https://truebalanceapp.io'
+const site = 'https://www.cashprophet.co.uk'
 const ogImage = `${site}/og-image.webp`
 const ogAltDefault = 'Cash Prophet — Cash Prophet Balance, one trusted financial number for UK business owners'
 

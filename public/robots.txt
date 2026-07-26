@@ -8,6 +8,6 @@ Disallow: /reset-password
 Disallow: /vocatio-admin
 Disallow: /platform-admin
 
-Sitemap: https://truebalanceapp.io/sitemap.xml
+Sitemap: https://www.cashprophet.co.uk/sitemap.xml
 
 # Trailing-slash URLs redirect to the canonical non-slash form (see vercel.json).

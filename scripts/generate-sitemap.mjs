@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
-const site = 'https://truebalanceapp.io'
+const site = 'https://www.cashprophet.co.uk'
 
 function stripTrailingSlash(pathname) {
   if (!pathname || pathname === '/') return '/'

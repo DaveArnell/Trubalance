@@ -49,17 +49,17 @@ Bank statement import is disabled in the app (`BANK_IMPORT_ENABLED = false`). On
 
 ---
 
-## Domain cutover (planned: cashprofit.co.uk)
+## Domain cutover (cashprophet.co.uk — P-H-E-T)
 
-Live site today: **truebalanceapp.io**. Planned production domain: **cashprofit.co.uk**.
+Live canonical: **https://www.cashprophet.co.uk**. Legacy: **truebalanceapp.io** (keep redirecting for a while).
 
 When you cut over:
 
-1. Add `cashprofit.co.uk` (+ `www`) in Vercel → Domains
+1. Add `cashprophet.co.uk` (+ `www`) in Vercel → Domains
 2. Point DNS at Vercel; keep `truebalanceapp.io` redirecting to the new domain for a while
 3. Set Supabase Auth Site URL + redirect URLs to the new domain
-4. Set edge function secret `SITE_URL=https://cashprofit.co.uk`
-5. Change `COMPANY_INFO.website` in `src/content/companyInfo.ts` to the new origin
+4. Set edge function secret `SITE_URL=https://www.cashprophet.co.uk`
+5. `COMPANY_INFO.website` / sitemap scripts already point at www.cashprophet.co.uk
 6. Re-submit sitemap in Google Search Console for the new property
 
 ---
@@ -68,9 +68,9 @@ When you cut over:
 
 - [x] Connect GitHub repo to [Vercel](https://vercel.com)
 - [ ] Set production env vars: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_APP_ENV=production`
-- [ ] Add planned domain `cashprofit.co.uk` (+ `www`) when ready
-- [ ] Point DNS at registrar per Vercel instructions (apex A or CNAME)
-- [ ] Confirm SSL active on the live domain
+- [x] Add domain `cashprophet.co.uk` (+ `www`)
+- [x] Point DNS at registrar per Vercel instructions (apex A or CNAME)
+- [x] Confirm SSL active on the live domain
 
 ---
 
@@ -98,8 +98,8 @@ When you cut over:
 - [ ] Authorized redirect URI: `https://qwwwijyljghmlerylbpi.supabase.co/auth/v1/callback`
 - [ ] Supabase → Authentication → Providers → Google → enable + paste Client ID/Secret
 - [ ] Supabase → Authentication → URL configuration:
-  - Site URL: `https://truebalanceapp.io`
-  - Redirect URLs: `https://truebalanceapp.io/app`, `https://truebalanceapp.io/reset-password`, plus `http://localhost:5173/...` for dev
+  - Site URL: `https://www.cashprophet.co.uk`
+  - Redirect URLs: `https://www.cashprophet.co.uk/**`, `https://cashprophet.co.uk/**`, plus legacy truebalanceapp entries and localhost for dev
 - [ ] **Keep your existing data when linking Google** (see below)
 
 ### Same email — email/password account + Google
