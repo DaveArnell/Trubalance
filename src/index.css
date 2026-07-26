@@ -17605,7 +17605,7 @@ tr.sheet-row--received td {
   background: rgba(15, 23, 42, 0.55);
   backdrop-filter: blur(4px);
   pointer-events: auto;
-  cursor: pointer;
+  cursor: default;
 }
 
 .guided-tour-shade--full {
@@ -17644,6 +17644,10 @@ tr.sheet-row--received td {
   box-shadow: var(--shadow-lg);
   pointer-events: auto;
   overflow: hidden;
+}
+
+.guided-tour-card--media-open {
+  max-height: min(92vh, 48rem);
 }
 
 .guided-tour-kicker {
@@ -18921,37 +18925,41 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .setup-video-slot {
-  display: flex;
-  align-items: center;
-  gap: 14px;
+  display: block;
   width: 100%;
   max-width: 28rem;
   margin: var(--space-3) auto var(--space-4);
-  padding: 14px 16px;
+}
+
+.setup-video-slot-frame {
+  position: relative;
+  display: grid;
+  place-content: center;
+  gap: 8px;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  padding: var(--space-4);
   border-radius: 14px;
   border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--border-subtle));
   background:
-    linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--accent) 10%, #fff) 0%,
-      color-mix(in srgb, #0f766e 6%, #f8fafc) 100%
-    );
+    radial-gradient(circle at 30% 20%, rgba(15, 118, 110, 0.18), transparent 45%),
+    linear-gradient(160deg, #18181b 0%, #27272a 100%);
+  text-align: center;
   box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
 }
 
 .setup-video-slot-play {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
   width: 44px;
   height: 44px;
+  margin: 0 auto;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--accent) 88%, #0f172a);
-  color: #fff;
+  background: rgba(255, 255, 255, 0.95);
+  color: #0f766e;
   font-size: 0.85rem;
   line-height: 1;
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 35%, transparent);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.25);
 }
 
 .setup-video-slot-copy {
@@ -18959,23 +18967,23 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   flex-direction: column;
   gap: 2px;
   min-width: 0;
+  color: #fafafa;
 }
 
 .setup-video-slot-copy strong {
   font-size: 0.92rem;
   font-weight: 700;
-  color: var(--text);
+  color: #fafafa;
 }
 
 .setup-video-slot-copy span {
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: #a1a1aa;
 }
 
 @media (max-width: 640px) {
   .setup-video-slot {
     max-width: none;
-    padding: 12px 14px;
   }
 
   .setup-video-slot-play {

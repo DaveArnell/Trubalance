@@ -36,25 +36,12 @@ function toEmbedUrl(url: string): string {
   return url
 }
 
-function TourOverlay({
-  rect,
-  onDismiss,
-}: {
-  rect: SpotlightRect | null
-  onDismiss: () => void
-}) {
+function TourOverlay({ rect }: { rect: SpotlightRect | null }) {
   const vw = typeof window !== 'undefined' ? window.innerWidth : 0
   const vh = typeof window !== 'undefined' ? window.innerHeight : 0
 
   if (!rect) {
-    return (
-      <button
-        type="button"
-        className="guided-tour-shade guided-tour-shade--full"
-        aria-label="Close tour"
-        onClick={onDismiss}
-      />
-    )
+    return <div className="guided-tour-shade guided-tour-shade--full" aria-hidden />
   }
 
   const { top, left, width, height } = rect
@@ -63,41 +50,26 @@ function TourOverlay({
 
   return (
     <>
-      {/* Four panels around the hole so clicks inside the spotlight reach the app */}
+      {/* Four panels around the hole so clicks inside the spotlight reach the app.
+          Outside clicks do not dismiss — only Skip tour / Done. */}
       {top > 0 ? (
-        <button
-          type="button"
-          className="guided-tour-shade"
-          style={{ top: 0, left: 0, width: '100%', height: top }}
-          aria-label="Close tour"
-          onClick={onDismiss}
-        />
+        <div className="guided-tour-shade" style={{ top: 0, left: 0, width: '100%', height: top }} aria-hidden />
       ) : null}
       {bottom > 0 ? (
-        <button
-          type="button"
+        <div
           className="guided-tour-shade"
           style={{ top: top + height, left: 0, width: '100%', height: bottom }}
-          aria-label="Close tour"
-          onClick={onDismiss}
+          aria-hidden
         />
       ) : null}
       {left > 0 ? (
-        <button
-          type="button"
-          className="guided-tour-shade"
-          style={{ top, left: 0, width: left, height }}
-          aria-label="Close tour"
-          onClick={onDismiss}
-        />
+        <div className="guided-tour-shade" style={{ top, left: 0, width: left, height }} aria-hidden />
       ) : null}
       {right > 0 ? (
-        <button
-          type="button"
+        <div
           className="guided-tour-shade"
           style={{ top, left: left + width, width: right, height }}
-          aria-label="Close tour"
-          onClick={onDismiss}
+          aria-hidden
         />
       ) : null}
 
@@ -110,47 +82,32 @@ function TourOverlay({
   )
 }
 
-function TourMedia({
-  videoUrl,
-  videoLabel,
-  open,
-  onToggle,
-}: {
-  videoUrl?: string
-  videoLabel?: string
-  open: boolean
-  onToggle: () => void
-}) {
-  const label = videoLabel || 'Watch video'
+function TourMedia({ videoUrl, videoLabel }: { videoUrl?: string; videoLabel?: string }) {
+  const label = videoLabel || 'Walkthrough'
 
   return (
-    <div className="guided-tour-media">
-      <button type="button" className="btn-secondary btn-tiny guided-tour-media-toggle" onClick={onToggle}>
-        {open ? 'Hide video' : label}
-      </button>
-      {open ? (
-        <div className="guided-tour-media-frame">
-          {videoUrl ? (
-            <iframe
-              className="guided-tour-media-embed"
-              src={toEmbedUrl(videoUrl)}
-              title={label}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          ) : (
-            <div className="guided-tour-media-placeholder" role="status">
-              <span className="guided-tour-media-play" aria-hidden>
-                ▶
-              </span>
-              <p>Video coming soon</p>
-              <p className="guided-tour-media-placeholder-hint">
-                A short walkthrough for this step will appear here.
-              </p>
-            </div>
-          )}
-        </div>
-      ) : null}
+    <div className="guided-tour-media guided-tour-media--always-open">
+      <div className="guided-tour-media-frame">
+        {videoUrl ? (
+          <iframe
+            className="guided-tour-media-embed"
+            src={toEmbedUrl(videoUrl)}
+            title={label}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        ) : (
+          <div className="guided-tour-media-placeholder" role="status">
+            <span className="guided-tour-media-play" aria-hidden>
+              ▶
+            </span>
+            <p>Video coming soon</p>
+            <p className="guided-tour-media-placeholder-hint">
+              A short walkthrough for this step will appear here.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
@@ -162,7 +119,6 @@ export function GuidedTour() {
   )
   const [rect, setRect] = useState<SpotlightRect | null>(null)
   const [missingTarget, setMissingTarget] = useState(false)
-  const [mediaOpen, setMediaOpen] = useState(false)
   const targetRef = useRef<Element | null>(null)
 
   const step = activeTour?.tour.steps[activeTour.stepIndex]
@@ -220,8 +176,14 @@ export function GuidedTour() {
   }, [activePageId, step?.id, step?.page, activeTour])
 
   useEffect(() => {
-    setMediaOpen(false)
-  }, [step?.id])
+    if (!activeTour) return
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight' || e.key === 'Enter') nextStep()
+      if (e.key === 'ArrowLeft') prevStep()
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [activeTour, nextStep, prevStep])
 
   useEffect(() => {
     if (!activeTour) return
@@ -233,17 +195,6 @@ export function GuidedTour() {
       window.removeEventListener('scroll', onResize, true)
     }
   }, [activeTour, step?.id])
-
-  useEffect(() => {
-    if (!activeTour) return
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') skipTour()
-      if (e.key === 'ArrowRight' || e.key === 'Enter') nextStep()
-      if (e.key === 'ArrowLeft') prevStep()
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [activeTour, nextStep, prevStep, skipTour])
 
   useEffect(() => {
     if (!activeTour) clearTargetHighlight()
@@ -263,7 +214,7 @@ export function GuidedTour() {
 
   if (!activeTour || !step || isMobile) return null
 
-  const cardHeight = mediaOpen ? CARD_HEIGHT + 180 : CARD_HEIGHT
+  const cardHeight = CARD_HEIGHT + 180
 
   const tooltipStyle = (): CSSProperties => {
     const cardWidth = CARD_WIDTH
@@ -338,9 +289,9 @@ export function GuidedTour() {
 
   return createPortal(
     <div className="guided-tour-root" role="presentation">
-      <TourOverlay rect={rect} onDismiss={skipTour} />
+      <TourOverlay rect={rect} />
       <div
-        className={`guided-tour-card${mediaOpen ? ' guided-tour-card--media-open' : ''}`}
+        className="guided-tour-card guided-tour-card--media-open"
         style={tooltipStyle()}
         role="dialog"
         aria-labelledby="guided-tour-title"
@@ -360,12 +311,7 @@ export function GuidedTour() {
             Back.
           </p>
         )}
-        <TourMedia
-          videoUrl={step.videoUrl}
-          videoLabel={step.videoLabel}
-          open={mediaOpen}
-          onToggle={() => setMediaOpen((value) => !value)}
-        />
+        <TourMedia videoUrl={step.videoUrl} videoLabel={step.videoLabel} />
         <div className="guided-tour-actions">
           <button type="button" className="btn-ghost btn-tiny" onClick={skipTour}>
             Skip tour

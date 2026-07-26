@@ -24,7 +24,7 @@ export const GUIDED_SETUP_PATH_OPTIONS = [
     title: 'Upload bank statements',
     badge: 'Assisted',
     subtitle: 'AI suggests — you approve everything',
-    lead: 'Upload CSV or PDF exports. AI reads your history and suggests monthly costs, reserve bills and receipts. Nothing is added until you say yes.',
+    lead: 'Upload CSV or PDF exports. AI reads your transactions and suggests monthly costs, reserve bills and receipts. Nothing is added until you say yes.',
     timeEstimate: '10–15 minutes',
     highlights: [
       'CSV works best',
@@ -40,7 +40,7 @@ export const STATEMENT_SETUP_STEPS = [
   { id: 'import', label: 'Upload statements' },
   { id: 'review', label: 'Review suggestions' },
   { id: 'manual', label: 'Finish setup' },
-  { id: 'complete', label: 'Your Available' },
+  { id: 'complete', label: 'Cash Prophet Balance' },
 ] as const
 
 export const WHY_TRUE_BALANCE_CONTENT = {

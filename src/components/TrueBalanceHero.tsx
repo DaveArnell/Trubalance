@@ -20,7 +20,7 @@ export function TrueBalanceHero({
   const handleBalanceSave = (changes: BalanceSaveChange[]) => {
     const result = onBalanceSave(changes)
     if (result.updated > 0) {
-      setSaveMessage(`Updated ${result.updated} account${result.updated === 1 ? '' : 's'}. History saved.`)
+      setSaveMessage(`Updated ${result.updated} account${result.updated === 1 ? '' : 's'}.`)
     }
   }
 

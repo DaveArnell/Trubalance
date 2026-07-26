@@ -418,7 +418,7 @@ export function TrueBalanceHistoryTable({
     <section id="balance-history" className="card history-card widget-span-2">
       <div className="card-head card-head-compact">
         <div>
-          <h2>Available History</h2>
+          <h2>Balance log</h2>
         </div>
         <div className="card-actions">
           {granularityControls}

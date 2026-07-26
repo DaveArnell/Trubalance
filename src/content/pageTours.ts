@@ -8,7 +8,7 @@ export interface TourStep {
   placement?: 'top' | 'bottom' | 'left' | 'right'
   /** Navigate to this page before spotlighting the target */
   page?: PageId
-  /** Optional walkthrough clip; omit = show placeholder CTA */
+  /** Optional walkthrough clip; omit = show placeholder */
   videoUrl?: string
   videoLabel?: string
 }
@@ -29,7 +29,7 @@ export const SETUP_TOUR: PageTour = {
       id: 'setup-balances',
       target: '[data-tour="overview-balances"]',
       title: 'Add your current accounts',
-      body: 'Enter what’s in each current account right now. That gives Available its starting point.\n\nSave when you’re done — each save also feeds Trends and History.\n\nYou can click inside the highlighted area to do this now — the guide stays open.',
+      body: 'Enter what’s in each current account right now. That gives your Cash Prophet Balance its starting point.\n\nSave when you’re done.',
       placement: 'left',
       page: 'committed-funds',
     },
@@ -37,7 +37,7 @@ export const SETUP_TOUR: PageTour = {
       id: 'setup-committed',
       target: '[data-widget-id="committed-funds"]',
       title: 'Add monthly accruing costs',
-      body: 'Rent, wages, subscriptions — regular bills that build up a little every day.\n\nUse + Add next to the view controls. You can click inside this area and add costs without leaving the guide.',
+      body: 'Rent, wages, subscriptions — regular bills that build up a little every day.\n\nUse + Add next to the view controls to add each one.',
       placement: 'top',
       page: 'committed-funds',
     },
@@ -45,7 +45,7 @@ export const SETUP_TOUR: PageTour = {
       id: 'setup-due',
       target: '[data-widget-id="due"]',
       title: 'Due and one-off costs',
-      body: 'Anything ready to pay lands here — monthly bills at their due date, plus one-offs you earmark or build up toward.\n\nUse + Add planned to add one. Click inside the highlight — the guide stays with you.',
+      body: 'Anything ready to pay lands here — monthly bills at their due date, plus one-offs you earmark or build up toward.\n\nUse + Add planned to add a one-off.',
       placement: 'top',
       page: 'committed-funds',
     },
@@ -53,15 +53,15 @@ export const SETUP_TOUR: PageTour = {
       id: 'setup-receipts',
       target: '[data-widget-id="expected-receipts"]',
       title: 'Expected receipts',
-      body: 'Money you know is coming — invoices, grants, refunds. Add them here so Available can count them in.\n\nMark Received when the cash lands. Click inside to add while this step is open.',
+      body: 'Money you know is coming — invoices, grants, refunds. Add them here so they can count toward your Cash Prophet Balance.\n\nMark Received when the cash lands.',
       placement: 'top',
       page: 'committed-funds',
     },
     {
       id: 'setup-true-balance',
       target: '[data-tour="overview-balances"]',
-      title: 'Your Available',
-      body: 'As you add balances and costs, Available updates — cash minus what’s spoken for, plus realistic receipts.\n\nThat’s the figure to trust day to day. When you’re ready for VAT and other lumpy bills, open Reserve Planner in the sidebar — a red alert marks it if you haven’t set one up yet.',
+      title: 'Your Cash Prophet Balance',
+      body: 'As you add balances and costs, your Cash Prophet Balance updates. That’s the figure to trust day to day.\n\nWhen you’re ready for VAT and other irregular bills, open Reserve Planner in the sidebar.',
       placement: 'bottom',
       page: 'committed-funds',
     },
@@ -78,7 +78,7 @@ export const PAGE_TOURS: Partial<Record<PageId, PageTour>> = {
         id: 'cf-hero',
         target: '[data-tour="overview-balances"]',
         title: 'Your balances',
-        body: 'Enter current account balances here. This is the starting point for Available, Trends, and History.\n\nSave whenever you reconcile so the numbers stay honest.',
+        body: 'Enter current account balances here. This is the starting point for your Cash Prophet Balance and Trends.\n\nSave whenever you reconcile so the numbers stay honest.',
         placement: 'bottom',
       },
       {
@@ -99,14 +99,14 @@ export const PAGE_TOURS: Partial<Record<PageId, PageTour>> = {
         id: 'cf-due',
         target: '[data-widget-id="due"]',
         title: 'Due now',
-        body: 'Everything that needs paying this cycle lands here — monthly costs at their due date, reserve bills, and one-off planned costs.\n\nColoured dots flag alerts you can acknowledge. Mark items paid once the money has left the account so Available stays in step with reality.',
+        body: 'Everything that needs paying this cycle lands here — monthly costs at their due date, reserve bills, and one-off planned costs.\n\nColoured dots flag alerts you can acknowledge. Mark items paid once the money has left the account so your Cash Prophet Balance stays in step with reality.',
         placement: 'top',
       },
       {
         id: 'cf-receipts',
         target: '[data-widget-id="expected-receipts"]',
         title: 'Expected receipts',
-        body: 'Money you expect in — grants, ticket sales, refunds, invoices. Accruing receipts can build up toward a date; lump sums sit until they land.\n\nMark received when the cash arrives so Available and the cash outlook stay accurate.',
+        body: 'Money you expect in — grants, ticket sales, refunds, invoices. Accruing receipts can build up toward a date; lump sums sit until they land.\n\nMark received when the cash arrives so your Cash Prophet Balance stays accurate.',
         placement: 'top',
       },
     ],
@@ -114,56 +114,21 @@ export const PAGE_TOURS: Partial<Record<PageId, PageTour>> = {
   trends: {
     id: 'trends',
     title: 'Trends',
-    description: 'Charts and balance history.',
+    description: 'Charts and balance log.',
     steps: [
       {
         id: 'tr-chart',
         target: '[data-widget-id="trends-chart"]',
         title: 'Balance chart',
-        body: 'Each point is recorded when you save bank balances in the overview. The chart shows how Available and related metrics move over time.\n\nToggle scopes and metrics to compare group, business, or venue levels and see which parts of the business drive the shape of the line.',
+        body: 'Each point is recorded when you save bank balances in the overview. The chart shows how your Cash Prophet Balance and related metrics move over time.\n\nToggle scopes and metrics to compare group, business, or venue levels and see which parts of the business drive the shape of the line.',
         placement: 'top',
       },
       {
         id: 'tr-log',
         target: '[data-widget-id="trends-history"]',
         title: 'Balance log',
-        body: 'The same data as the chart, in a table — one row per day you saved balances.\n\nClick a daily value to correct it if a save was wrong. Those corrections keep both the chart and your history honest.',
+        body: 'The same data as the chart, in a table — one row per day you saved balances.\n\nClick a daily value to correct it if a save was wrong. Those corrections keep the chart honest.',
         placement: 'left',
-      },
-    ],
-  },
-  forecast: {
-    id: 'forecast',
-    title: 'Forecast',
-    description: 'Forward cash outlook and trend projection.',
-    steps: [
-      {
-        id: 'fc-outlook',
-        target: '[data-widget-id="forecast-cash-outlook"]',
-        title: 'Cash outlook',
-        body: 'Projects your current account forward from scheduled outgoings, reserve transfers, and dated receipts.\n\nBest when you have identifiable incoming payments (invoices, contracts). For steady daily income such as retail or hospitality, this mainly shows outgoings — use Trends for your overall trajectory.',
-        placement: 'top',
-      },
-      {
-        id: 'fc-projection',
-        target: '[data-widget-id="forecast-projection"]',
-        title: 'Trend projection',
-        body: 'Extrapolates from saved balance history to estimate when you might hit a target balance.\n\nUse it alongside the cash outlook: one looks at scheduled cash movements, the other at the pattern of balances you have already recorded.',
-        placement: 'left',
-      },
-    ],
-  },
-  history: {
-    id: 'history',
-    title: 'History',
-    description: 'Full snapshots of past days.',
-    steps: [
-      {
-        id: 'hi-panel',
-        target: '[data-widget-id="history"]',
-        title: 'Saved days',
-        body: 'Each time you save balances, a full record is kept — accounts, due items, receipts, and commitments as they were that day.\n\nPick a date to browse what the business looked like then. It is a useful audit trail when something does not line up.',
-        placement: 'bottom',
       },
     ],
   },
