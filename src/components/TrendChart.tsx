@@ -160,7 +160,8 @@ export function TrendChart({
     [currentScopeKey]: true,
   }))
   const [hoverDate, setHoverDate] = useState<string | null>(null)
-  const [projectionMode, setProjectionMode] = useState<ProjectionMode>('off')
+  const [projectionMode] = useState<ProjectionMode>('off')
+  // Projection / forward forecast on Trends is muted — chart shows logged balances only.
   const [pinnedSnapshot, setPinnedSnapshot] = useState<{
     scopeKey: string
     snapshot: BalanceSnapshot
@@ -197,7 +198,7 @@ export function TrendChart({
   const activeScopeKeys = scopeOptions.filter((o) => enabledScopes[o.key]).map((o) => o.key)
   const activeMetricKeys = METRIC_KEYS.filter((key) => enabledMetrics[key])
 
-  const { series, sortedDates, xTickMarks, yTicks, yMin, yMax, zeroY, projections, projectionBoundaryX, seasonalAvailable } =
+  const { series, sortedDates, xTickMarks, yTicks, yMin, yMax, zeroY, projections, projectionBoundaryX } =
     useMemo(() => {
     const scopeSeries: ChartSeries[] = []
     const dateSet = new Set<string>()
@@ -469,7 +470,7 @@ export function TrendChart({
         : null
 
   const trendHelpText =
-    'Solid lines connect your saved balance entries. Each scope level (group, business, venue) has its own Cash Prophet Balance history. Use Forecast to add a separate smoothed trend line based on those entries. Set a From date to ignore anything earlier — useful after a big one-off change that would skew the trend. That date is remembered in this browser until you clear or change it.'
+    'Solid lines connect your saved balance entries. Each scope level (group, business, venue) has its own Cash Prophet Balance history. Set a From date to ignore anything earlier — useful after a big one-off change. That date is remembered in this browser until you clear or change it.'
 
   const showLegend = series.length > 1 || activeMetricKeys.length > 1 || showProjection
 
@@ -966,40 +967,6 @@ export function TrendChart({
             ))}
           </div>
         </div>
-
-        <div className="chart-control-block chart-control-inline chart-control-projection">
-          <p className="chart-control-label">Forecast</p>
-          <div className="range-toggles range-toggles--compact">
-            <button
-              type="button"
-              className={projectionMode === 'off' ? 'active' : ''}
-              onClick={() => setProjectionMode('off')}
-            >
-              Off
-            </button>
-            <button
-              type="button"
-              className={projectionMode === 'linear' ? 'active' : ''}
-              onClick={() => setProjectionMode('linear')}
-              title="Extend the average recent rate as a straight line"
-            >
-              Straight
-            </button>
-            <button
-              type="button"
-              className={projectionMode === 'seasonal' ? 'active' : ''}
-              onClick={() => setProjectionMode('seasonal')}
-              disabled={!seasonalAvailable}
-              title={
-                seasonalAvailable
-                  ? 'Follow the average rate with month-to-month seasonal variation'
-                  : 'Needs at least 6 snapshots across 4+ months'
-              }
-            >
-              Seasonal
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   )
@@ -1020,39 +987,6 @@ export function TrendChart({
                 {r.key === '30d' ? '30d' : r.key === '90d' ? '90d' : r.key === '12m' ? '12m' : 'All'}
               </button>
             ))}
-          </div>
-        </div>
-        <div className="trends-chart-rail-cluster">
-          <span className="trends-chart-rail-tag">Forecast</span>
-          <div className="trends-mini-toggles" role="group" aria-label="Forecast mode">
-            <button
-              type="button"
-              className={projectionMode === 'off' ? 'is-active' : ''}
-              onClick={() => setProjectionMode('off')}
-            >
-              Off
-            </button>
-            <button
-              type="button"
-              className={projectionMode === 'linear' ? 'is-active' : ''}
-              onClick={() => setProjectionMode('linear')}
-              title="Extend the average recent rate as a straight line"
-            >
-              Straight
-            </button>
-            <button
-              type="button"
-              className={projectionMode === 'seasonal' ? 'is-active' : ''}
-              onClick={() => setProjectionMode('seasonal')}
-              disabled={!seasonalAvailable}
-              title={
-                seasonalAvailable
-                  ? 'Follow the average rate with month-to-month seasonal variation'
-                  : 'Needs at least 6 snapshots across 4+ months'
-              }
-            >
-              Seasonal
-            </button>
           </div>
         </div>
         <HelpButton
@@ -1150,7 +1084,7 @@ export function TrendChart({
           id="trend"
           openHelp={openHelp}
           setOpenHelp={setOpenHelp}
-          text="Each point is recorded when you save account balances in the overview. Solid lines are your actual entries at each level. Forecast adds a separate smoothed trend line — not drawn through the same points."
+          text={trendHelpText}
         />
       </div>
       {chartBody}

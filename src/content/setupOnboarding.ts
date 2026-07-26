@@ -1,5 +1,4 @@
 import type { PageId } from '../navigation'
-import type { IncomePattern } from '../types'
 
 export interface SetupOnboardingStep {
   id: string
@@ -10,8 +9,6 @@ export interface SetupOnboardingStep {
   /** CSS selector to highlight on the dashboard while this step is active */
   spotlight?: string
   skippable?: boolean
-  /** Only include when income pattern is lumpy */
-  lumpyOnly?: boolean
 }
 
 /**
@@ -76,18 +73,9 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     id: 'trends-explain',
     title: 'Trends',
     explain:
-      'Trends charts your balance, committed costs and Available over time — so you can see whether things are heading up or down.',
+      'Trends charts your balance, committed costs and Available over time — so you can see whether things are heading up or down. You can correct a day’s figure if a save was wrong.',
     page: 'trends',
     spotlight: '[data-widget-id="trends-chart"]',
-  },
-  {
-    id: 'forecast-explain',
-    title: 'Forecast',
-    explain:
-      'Because your income arrives in lumps, Forecast looks ahead at money out and money in — useful for spotting quiet weeks early.',
-    page: 'forecast',
-    spotlight: '[data-widget-id="forecast-cash-outlook"]',
-    lumpyOnly: true,
   },
   {
     id: 'handoff',
@@ -98,17 +86,8 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
   },
 ]
 
-export function getSetupOnboardingSteps(incomePattern: IncomePattern): SetupOnboardingStep[] {
-  return SETUP_ONBOARDING_STEPS.filter(
-    (step) => !step.lumpyOnly || incomePattern === 'lumpy',
-  )
-}
-
-export const INCOME_PATTERN_HINTS: Record<'steady' | 'lumpy', string> = {
-  steady:
-    'Steady income: Trends will show whether you’re heading up or down. Keep balances fresh.',
-  lumpy:
-    'Irregular income: add Expected Receipts when you know money is coming, so Forecast can show the gaps.',
+export function getSetupOnboardingSteps(): SetupOnboardingStep[] {
+  return SETUP_ONBOARDING_STEPS
 }
 
 export const QUICK_COMMITMENT_TEMPLATES = [
@@ -132,7 +111,6 @@ export const SETUP_ONBOARDING_STEP_LABELS: Record<string, string> = {
   'receipts-explain': 'Receipts',
   reserve: 'Reserve',
   'trends-explain': 'Trends',
-  'forecast-explain': 'Forecast',
   handoff: 'Your dashboard',
 }
 

@@ -508,18 +508,6 @@ function BusinessCard({
           onChange={(color) => actions.setBusinessAccentColor(business.id, color)}
           label={business.name}
         />
-        <label className="org-income-pattern" title="Steady = day-to-day trading on forecast. Irregular = large dated receipts on forecast.">
-          <span className="sr-only">Income pattern for {business.name}</span>
-          <select
-            value={business.incomePattern ?? 'steady'}
-            onChange={(e) =>
-              actions.setBusinessIncomePattern(business.id, e.target.value as 'steady' | 'lumpy')
-            }
-          >
-            <option value="steady">Steady / daily income</option>
-            <option value="lumpy">Irregular / invoiced income</option>
-          </select>
-        </label>
         <EntityActions
           addItems={addItems}
           onRemove={() => actions.deleteBusiness(business.id)}

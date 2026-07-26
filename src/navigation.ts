@@ -2,7 +2,7 @@ export const APP_PAGES = [
   { id: 'committed-funds', label: 'Dashboard', kicker: 'Overview', icon: '⊞' },
   { id: 'due', label: 'Due', kicker: 'Payments due', icon: '●' },
   { id: 'receipts', label: 'Receipts', kicker: 'Expected in', icon: '↓' },
-  { id: 'trends', label: 'Trends', kicker: 'Charts & history', icon: '↗' },
+  { id: 'trends', label: 'Trends', kicker: 'Balance over time', icon: '↗' },
   { id: 'forecast', label: 'Forecast', kicker: 'Forward look', icon: '⇢' },
   { id: 'history', label: 'History', kicker: 'Saved days', icon: '◷' },
   { id: 'reserve-planner', label: 'Reserve Planner', kicker: 'Irregular bills', icon: '◎' },
@@ -11,7 +11,7 @@ export const APP_PAGES = [
 
 export type PageId = (typeof APP_PAGES)[number]['id']
 
-/** Due + Receipts are bottom-nav pages on mobile; desktop keeps them on the Dashboard. */
+/** Due + Receipts stay on the Dashboard on desktop; Forecast + History are muted for now. */
 export const MOBILE_PRIMARY_PAGES: PageId[] = [
   'committed-funds',
   'trends',
@@ -19,7 +19,14 @@ export const MOBILE_PRIMARY_PAGES: PageId[] = [
   'settings',
 ]
 
+/** Hidden from desktop sidebar (still reachable on mobile drawer unless also muted). */
 export const DESKTOP_SIDEBAR_HIDDEN_PAGES = new Set<PageId>(['due', 'receipts'])
+
+/**
+ * Pages kept in the codebase but removed from navigation.
+ * Deep links redirect to Trends so old bookmarks do not strand users.
+ */
+export const MUTED_APP_PAGES = new Set<PageId>(['forecast', 'history'])
 
 export interface AppRoute {
   page: PageId
@@ -37,6 +44,8 @@ const LEGACY_HASH: Record<string, PageId> = {
   'due-now': 'due',
   admin: 'committed-funds',
   'business-hub': 'committed-funds',
+  forecast: 'trends',
+  history: 'trends',
 }
 
 export const RESERVE_PLANNER_CREATE_ROUTE = 'new'
@@ -59,9 +68,13 @@ export function parseRoute(hash: string): AppRoute {
 
   const segments = raw.split('/').filter(Boolean)
   const pageSegment = segments[0] ?? 'committed-funds'
-  const page = PAGE_IDS.has(pageSegment as PageId)
+  let page = PAGE_IDS.has(pageSegment as PageId)
     ? (pageSegment as PageId)
     : LEGACY_HASH[pageSegment] ?? 'committed-funds'
+
+  if (MUTED_APP_PAGES.has(page)) {
+    page = LEGACY_HASH[page] ?? 'trends'
+  }
 
   const reservePlannerId =
     page === 'reserve-planner' && segments[1] ? segments[1] : null

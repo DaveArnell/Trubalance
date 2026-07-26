@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { AppActions } from '../../hooks/useAppState'
-import type { AppState, DashboardMetrics, IncomePattern, ViewScope } from '../../types'
+import type { AppState, DashboardMetrics, ViewScope } from '../../types'
 import {
   SETUP_ONBOARDING_STEP_LABELS,
   dismissSetupOnboardingLocally,
@@ -37,7 +37,6 @@ const PREVIEW_STEP_IDS = new Set([
   'due-explain',
   'receipts-explain',
   'trends-explain',
-  'forecast-explain',
 ])
 
 export function SetupOnboardingWizard({
@@ -51,15 +50,8 @@ export function SetupOnboardingWizard({
   startAtStepId,
 }: SetupOnboardingWizardProps) {
   const { user } = useAuth()
-  const PROGRESS_KEY = 'trubalance-setup-step-index-v3'
-  const [incomePatternDraft, setIncomePatternDraft] = useState<IncomePattern>(() => {
-    const existing = state.businesses[0]?.incomePattern
-    return existing === 'lumpy' ? 'lumpy' : 'steady'
-  })
-  const steps = useMemo(
-    () => getSetupOnboardingSteps(incomePatternDraft),
-    [incomePatternDraft],
-  )
+  const PROGRESS_KEY = 'trubalance-setup-step-index-v4'
+  const steps = useMemo(() => getSetupOnboardingSteps(), [])
 
   const initialStepIndex = (() => {
     if (startAtStepId) {
@@ -81,11 +73,6 @@ export function SetupOnboardingWizard({
   const [accountName, setAccountName] = useState('Current account')
   const [pendingBusinessAdvance, setPendingBusinessAdvance] = useState(false)
   const [structureError, setStructureError] = useState<string | null>(null)
-
-  // Keep index valid when forecast step appears/disappears
-  useEffect(() => {
-    setStepIndex((i) => Math.min(i, Math.max(0, steps.length - 1)))
-  }, [steps.length])
 
   const step = steps[stepIndex]!
   const stepCount = steps.length
@@ -129,9 +116,9 @@ export function SetupOnboardingWizard({
   useEffect(() => {
     if (!pendingBusinessAdvance || !primaryBusiness) return
     setPendingBusinessAdvance(false)
-    actions.setBusinessIncomePattern(primaryBusiness.id, incomePatternDraft)
+    actions.setBusinessIncomePattern(primaryBusiness.id, 'steady')
     setStepIndex((i) => i + 1)
-  }, [pendingBusinessAdvance, primaryBusiness, actions, incomePatternDraft])
+  }, [pendingBusinessAdvance, primaryBusiness, actions])
 
   useEffect(() => {
     document.querySelectorAll('[data-onboarding-focus]').forEach((el) => {
@@ -171,7 +158,7 @@ export function SetupOnboardingWizard({
         setStructureError('Add at least one current or savings account before continuing.')
         return
       }
-      actions.setBusinessIncomePattern(primaryBusiness.id, incomePatternDraft)
+      actions.setBusinessIncomePattern(primaryBusiness.id, 'steady')
       setStepIndex((i) => i + 1)
       return
     }
@@ -291,41 +278,6 @@ export function SetupOnboardingWizard({
                 {structureError}
               </p>
             )}
-            <fieldset className="setup-income-pattern">
-              <legend>How does money come into your business?</legend>
-              <label
-                className={`setup-income-option${incomePatternDraft === 'steady' ? ' setup-income-option--active' : ''}`}
-              >
-                <input
-                  type="radio"
-                  name="incomePattern"
-                  value="steady"
-                  checked={incomePatternDraft === 'steady'}
-                  onChange={() => setIncomePatternDraft('steady')}
-                />
-                <span>
-                  <strong>Steady / daily</strong>
-                  <small>Retail, hospitality, trade — money comes in most days</small>
-                </span>
-              </label>
-              <label
-                className={`setup-income-option${incomePatternDraft === 'lumpy' ? ' setup-income-option--active' : ''}`}
-              >
-                <input
-                  type="radio"
-                  name="incomePattern"
-                  value="lumpy"
-                  checked={incomePatternDraft === 'lumpy'}
-                  onChange={() => setIncomePatternDraft('lumpy')}
-                />
-                <span>
-                  <strong>Irregular / invoiced</strong>
-                  <small>
-                    Contractors, agencies, consultancies — larger payments at varying intervals
-                  </small>
-                </span>
-              </label>
-            </fieldset>
           </div>
         )}
 
@@ -339,7 +291,6 @@ export function SetupOnboardingWizard({
           </div>
         )}
         {step.id === 'trends-explain' && <SetupWidgetPreview previewId="trends" />}
-        {step.id === 'forecast-explain' && <SetupWidgetPreview previewId="forecast" />}
 
         {step.id === 'handoff' && (
           <ol className="setup-handoff-list">

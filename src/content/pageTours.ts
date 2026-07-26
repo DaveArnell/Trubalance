@@ -1,4 +1,4 @@
-import type { PageId } from '../navigation'
+import { MUTED_APP_PAGES, type PageId } from '../navigation'
 
 export interface TourStep {
   id: string
@@ -233,6 +233,7 @@ export const PAGE_TOURS: Partial<Record<PageId, PageTour>> = {
 }
 
 export function getTourForPage(pageId: PageId): PageTour | null {
+  if (MUTED_APP_PAGES.has(pageId)) return null
   return PAGE_TOURS[pageId] ?? null
 }
 

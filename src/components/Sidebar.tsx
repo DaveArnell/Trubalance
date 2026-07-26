@@ -7,6 +7,7 @@ import type { AppRoute, PageId } from '../navigation'
 import {
   buildHash,
   DESKTOP_SIDEBAR_HIDDEN_PAGES,
+  MUTED_APP_PAGES,
   RESERVE_PLANNER_CREATE_ROUTE,
 } from '../navigation'
 import { useNavLayout } from '../hooks/useNavLayout'
@@ -151,7 +152,9 @@ export function Sidebar({
   const [dragOverKey, setDragOverKey] = useState<string | null>(null)
 
   const pages = getOrderedPages(order).filter(
-    (page) => isMobile || !DESKTOP_SIDEBAR_HIDDEN_PAGES.has(page.id),
+    (page) =>
+      !MUTED_APP_PAGES.has(page.id) &&
+      (isMobile || !DESKTOP_SIDEBAR_HIDDEN_PAGES.has(page.id)),
   )
   const plannersById = new Map(state.reservePlanners.map((p) => [p.id, p]))
   const orderedPlanners = orderedPlannerIds
