@@ -6,7 +6,7 @@
 /** Step 01 — known costs build day by day before payday */
 export function IllustCommitmentsBuild() {
   return (
-    <div className="how-diagram" aria-label="Cash Prophet example: payroll accruing day by day before payday toward Available Balance">
+    <div className="how-diagram" aria-label="Cash Prophet example: payroll accruing day by day before payday toward Cash Prophet Balance">
       <p className="how-diagram-kicker">Example: payroll</p>
       <div className="how-diagram-days" role="img" aria-hidden>
         {[
@@ -69,7 +69,7 @@ export function IllustReservePlanner() {
 /** Step 03 — one calm number for today */
 export function IllustTrueBalanceNumber() {
   return (
-    <div className="how-diagram" aria-label="Cash Prophet Available Balance equation for today after known commitments">
+    <div className="how-diagram" aria-label="Cash Prophet Balance equation for today after known commitments">
       <p className="how-diagram-kicker">Today’s number</p>
       <ul className="how-diagram-eq">
         <li>

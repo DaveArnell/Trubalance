@@ -202,7 +202,7 @@ export const METHOD_WHY_IT_WORKS = [
 export const METHOD_SOFTWARE_HELPS = [
   'Does the daily calculations around your payment cycle',
   'Tracks accruals and Reserve Planner recommendations',
-  'Keeps Available Balance current when you update the bank',
+  'Keeps Cash Prophet Balance current when you update the bank',
 ] as const
 
 /** @deprecated Prefer METHOD_TWO_HABITS / METHOD_THREE_PRINCIPLES. */

@@ -9,8 +9,8 @@ const CORE_BLOG_POSTS: BlogPost[] = [
     slug: 'what-is-true-balance',
     title: 'What Is Cash Prophet? Cash Clarity for UK Business Owners',
     metaDescription:
-      'Cash Prophet shows the Available Balance you can genuinely spend, after commitments and expected receipts, not just your bank balance.',
-    keywords: ['available balance', 'cash clarity', 'UK small business', 'safe to spend', 'committed funds'],
+      'Cash Prophet shows the Cash Prophet Balance you can genuinely spend, after commitments and expected receipts, not just your bank balance.',
+    keywords: ['cash prophet balance', 'cash clarity', 'UK small business', 'safe to spend', 'committed funds'],
     publishedAt: '2026-06-01',
     updatedAt: '2026-07-24',
     category: 'Guides',
@@ -25,7 +25,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'h2',
-        text: 'How your Available Balance is calculated',
+        text: 'How your Cash Prophet Balance is calculated',
       },
       {
         type: 'ul',
@@ -68,7 +68,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
     title: 'Bank Balance vs Safe to Spend: What UK Owners Actually Need',
     metaDescription:
       'Why your UK business bank balance misleads you, what safe to spend really means, and how committed funds change the picture for SMEs.',
-    keywords: ['safe to spend', 'bank balance', 'UK business', 'cash clarity', 'available balance'],
+    keywords: ['safe to spend', 'bank balance', 'UK business', 'cash clarity', 'cash prophet balance'],
     publishedAt: '2026-06-03',
     updatedAt: '2026-07-24',
     category: 'Guides',
@@ -96,11 +96,11 @@ const CORE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'h2',
-        text: 'Safe to spend vs Available Balance',
+        text: 'Safe to spend vs Cash Prophet Balance',
       },
       {
         type: 'p',
-        text: 'Safe to spend usually means cash minus tax set asides. Available Balance goes further: it includes all committed funds, monthly costs accruing, Due items, planned one offs, and expected receipts on the other side.',
+        text: 'Safe to spend usually means cash minus tax set asides. Cash Prophet Balance goes further: it includes all committed funds, monthly costs accruing, Due items, planned one offs, and expected receipts on the other side.',
       },
       {
         type: 'faq',
@@ -146,11 +146,11 @@ const CORE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'h2',
-        text: 'Cash line vs Available Balance line',
+        text: 'Cash line vs Cash Prophet Balance line',
       },
       {
         type: 'p',
-        text: 'The cash line shows your current account balance forward. The Available Balance line adjusts for committed funds and expected receipts, so you see whether you are genuinely improving or just moving money around.',
+        text: 'The cash line shows your current account balance forward. The Cash Prophet Balance line adjusts for committed funds and expected receipts, so you see whether you are genuinely improving or just moving money around.',
       },
       {
         type: 'faq',
@@ -202,7 +202,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
         items: [
           {
             q: 'Should VAT money sit in my current account?',
-            a: 'Many owners use a separate reserve account. Cash Prophet tracks the transfer target each month so your Available Balance stays honest.',
+            a: 'Many owners use a separate reserve account. Cash Prophet tracks the transfer target each month so your Cash Prophet Balance stays honest.',
           },
         ],
       },
@@ -241,7 +241,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'Accounting software records tax after the fact. Cash Prophet helps you provision before the fact, so the Available Balance on the dashboard matches reality.',
+        text: 'Accounting software records tax after the fact. Cash Prophet helps you provision before the fact, so the Cash Prophet Balance on the dashboard matches reality.',
       },
     ],
   },
@@ -272,7 +272,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
         items: [
           'Spreadsheet: full control, high maintenance, no committed funds logic',
           'Bank connected forecasters: automatic transactions, subscription cost, categorisation cleanup',
-          'Cash Prophet: manual balances, commitment accruals, Reserve Planner, Available Balance',
+          'Cash Prophet: manual balances, commitment accruals, Reserve Planner, Cash Prophet Balance',
         ],
       },
       {
@@ -334,7 +334,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
         type: 'ul',
         items: [
           'Daily accruing committed funds',
-          'Forward cash outlook with the Available Balance line',
+          'Forward cash outlook with the Cash Prophet Balance line',
           'Reserve Planner for irregular tax and insurance bills',
           'Expected receipts for project based income',
         ],
@@ -369,7 +369,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
           'Invoice led apps: freelancers, tax vault, safe to spend from invoices',
           'Bank connected forecasters: scenario planning, established feeds',
           'Multi business forecasters: 90 day forecast, categorisation',
-          'Cash Prophet: UK SMEs, commitments plus reserves plus Available Balance, multi site',
+          'Cash Prophet: UK SMEs, commitments plus reserves plus Cash Prophet Balance, multi site',
         ],
       },
       {
@@ -415,7 +415,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
           'Cover overdue and Due commitments',
           'Top up reserve accounts to target',
           'Leave buffer for next payroll and VAT',
-          'Check your Available Balance, not just bank balance',
+          'Check your Cash Prophet Balance, not just bank balance',
           'Then consider dividend or extra salary',
         ],
       },
@@ -508,14 +508,14 @@ const CORE_BLOG_POSTS: BlogPost[] = [
     slug: 'multi-site-business-cash-dashboard',
     title: 'Multi Site Business Cash: One Dashboard for Every Location',
     metaDescription:
-      'Roll up cash, commitments and Available Balance across UK business sites, venues and group structures.',
+      'Roll up cash, commitments and Cash Prophet Balance across UK business sites, venues and group structures.',
     keywords: ['multi-site cash flow', 'multi-venue business UK', 'group cash dashboard', 'roll-up financial view'],
     publishedAt: '2026-06-28',
     updatedAt: '2026-07-24',
     category: 'Product',
     readMinutes: 2,
     excerpt:
-      'Two cafes and a head office should not mean three spreadsheets. One scope tree, one Available Balance.',
+      'Two cafes and a head office should not mean three spreadsheets. One scope tree, one Cash Prophet Balance.',
     relatedSlugs: ['cafe-restaurant-cash-flow-management', 'what-is-true-balance'],
     sections: [
       {
@@ -529,7 +529,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
       {
         type: 'ul',
         items: [
-          'Group: consolidated Available Balance across companies',
+          'Group: consolidated Cash Prophet Balance across companies',
           'Business: separate companies in one workspace',
           'Venue: site level accounts and commitments',
           'Sidebar scope picker switches view without losing context',
@@ -578,7 +578,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
     slug: 'committed-funds-explained',
     title: 'What Are Committed Funds? (UK Small Business Guide)',
     metaDescription:
-      'Committed funds explained: monthly accruals, Due items, planned costs and reserves, and how they affect your Available Balance.',
+      'Committed funds explained: monthly accruals, Due items, planned costs and reserves, and how they affect your Cash Prophet Balance.',
     keywords: ['committed funds', 'accruing costs', 'money spoken for', 'UK business commitments'],
     publishedAt: '2026-07-03',
     updatedAt: '2026-07-24',
@@ -601,7 +601,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
         items: [
           'Building up: monthly costs accruing, reserve targets, planned save to spend items',
           'Due now: overdue or current period items waiting for payment',
-          'Expected receipts: money owed to you, which reduces net commitments on your Available Balance',
+          'Expected receipts: money owed to you, which reduces net commitments on your Cash Prophet Balance',
         ],
       },
       {
@@ -647,7 +647,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'Cash Prophet accrues payroll and rent daily, so the Available Balance already reflects what is building, not just what has left the account. VAT sits in the Reserve Planner, funded monthly instead of arriving as a shock each quarter.',
+        text: 'Cash Prophet accrues payroll and rent daily, so the Cash Prophet Balance already reflects what is building, not just what has left the account. VAT sits in the Reserve Planner, funded monthly instead of arriving as a shock each quarter.',
       },
       {
         type: 'faq',
@@ -697,7 +697,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'Cash Prophet treats wages and rent as daily accruals rather than end of week surprises, so your Available Balance already reflects Thursday costs on a Tuesday. Stock and seasonal peaks can sit as planned commitments, funded ahead of time.',
+        text: 'Cash Prophet treats wages and rent as daily accruals rather than end of week surprises, so your Cash Prophet Balance already reflects Thursday costs on a Tuesday. Stock and seasonal peaks can sit as planned commitments, funded ahead of time.',
       },
       {
         type: 'faq',
@@ -747,7 +747,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'Cash Prophet scopes each site while rolling up to a group Available Balance, so a multi venue operator sees both the detail and the total. Reserve Planner handles VAT and annual costs so they stop arriving as surprises.',
+        text: 'Cash Prophet scopes each site while rolling up to a group Cash Prophet Balance, so a multi venue operator sees both the detail and the total. Reserve Planner handles VAT and annual costs so they stop arriving as surprises.',
       },
       {
         type: 'p',
@@ -792,7 +792,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'Cash Prophet lets you reserve during busy months for known quiet ones, so a strong October funds a flatter January. Trends shows the seasonal pattern over time, and the Available Balance keeps day to day decisions honest in between.',
+        text: 'Cash Prophet lets you reserve during busy months for known quiet ones, so a strong October funds a flatter January. Trends shows the seasonal pattern over time, and the Cash Prophet Balance keeps day to day decisions honest in between.',
       },
     ],
   },
@@ -833,7 +833,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'The most common mistake is spending from the bank balance instead of the Available Balance. The second is building a detailed spreadsheet once and never updating it. Cash Prophet fixes both: commitments accrue automatically, and the Available Balance updates the moment you refresh a bank balance.',
+        text: 'The most common mistake is spending from the bank balance instead of the Cash Prophet Balance. The second is building a detailed spreadsheet once and never updating it. Cash Prophet fixes both: commitments accrue automatically, and the Cash Prophet Balance updates the moment you refresh a bank balance.',
       },
       {
         type: 'faq',

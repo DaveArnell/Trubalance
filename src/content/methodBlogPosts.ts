@@ -2,7 +2,7 @@ import type { BlogPost } from './blogTypes'
 import { METHOD_BLOG_CATEGORY } from './trueBalanceMethod'
 
 const METHOD_CTA =
-  'Cash Prophet keeps committed funds, reserves and your Available Balance up to date, without spreadsheet logic.'
+  'Cash Prophet keeps committed funds, reserves and your Cash Prophet Balance up to date, without spreadsheet logic.'
 
 /** Educational articles for the Cash Prophet category. */
 export const METHOD_BLOG_POSTS: BlogPost[] = [
@@ -10,8 +10,8 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
     slug: 'what-is-the-true-balance-method',
     title: 'What Is Cash Prophet?',
     metaDescription:
-      'Cash Prophet helps UK business owners manage money from their Available Balance, not the bank balance alone. A plain English introduction.',
-    keywords: ['cash prophet', 'available balance', 'UK small business', 'financial management'],
+      'Cash Prophet helps UK business owners manage money from their Cash Prophet Balance, not the bank balance alone. A plain English introduction.',
+    keywords: ['cash prophet', 'cash prophet balance', 'UK small business', 'financial management'],
     publishedAt: '2026-07-08',
     updatedAt: '2026-07-24',
     category: METHOD_BLOG_CATEGORY,
@@ -45,7 +45,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
           'Start from cash in the bank',
           'Subtract money already committed or building up',
           'Add only realistic expected receipts',
-          'Use the result, your Available Balance, for everyday decisions',
+          'Use the result, your Cash Prophet Balance, for everyday decisions',
         ],
       },
       {
@@ -59,8 +59,8 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
     slug: 'why-business-bank-balance-is-not-all-yours',
     title: 'Why Your Business Bank Balance Is Not All Yours',
     metaDescription:
-      'Why a healthy UK business bank balance can still mislead you, and how committed funds change your real Available Balance.',
-    keywords: ['bank balance', 'committed funds', 'UK business', 'available balance'],
+      'Why a healthy UK business bank balance can still mislead you, and how committed funds change your real Cash Prophet Balance.',
+    keywords: ['bank balance', 'committed funds', 'UK business', 'cash prophet balance'],
     publishedAt: '2026-07-08',
     updatedAt: '2026-07-24',
     category: METHOD_BLOG_CATEGORY,
@@ -92,7 +92,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'Cash Prophet treats those items as part of your Available Balance now, not only on payment day. That single shift helps owners avoid decisions that look affordable on the bank app but are not.',
+        text: 'Cash Prophet treats those items as part of your Cash Prophet Balance now, not only on payment day. That single shift helps owners avoid decisions that look affordable on the bank app but are not.',
       },
       { type: 'p', text: METHOD_CTA },
     ],
@@ -145,7 +145,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
     slug: 'monthly-accruals-explained-small-business',
     title: 'Monthly Accruals Explained for Small Business Owners',
     metaDescription:
-      'What monthly accruals mean in plain English for UK small businesses, and why they matter for your Available Balance.',
+      'What monthly accruals mean in plain English for UK small businesses, and why they matter for your Cash Prophet Balance.',
     keywords: ['accruals', 'small business', 'payroll accrual', 'committed funds'],
     publishedAt: '2026-07-09',
     updatedAt: '2026-07-24',
@@ -173,7 +173,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'Cash Prophet includes that build up in your Available Balance. Waiting until payment day to notice the cost is how owners get caught out.',
+        text: 'Cash Prophet includes that build up in your Cash Prophet Balance. Waiting until payment day to notice the cost is how owners get caught out.',
       },
       { type: 'p', text: METHOD_CTA },
     ],
@@ -202,7 +202,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'In Cash Prophet, a reserve target is tracked in the Reserve Planner, for example VAT or corporation tax. It shows what ought to be held back from your Available Balance. It does not move money on its own.',
+        text: 'In Cash Prophet, a reserve target is tracked in the Reserve Planner, for example VAT or corporation tax. It shows what ought to be held back from your Cash Prophet Balance. It does not move money on its own.',
       },
       {
         type: 'h2',
@@ -219,19 +219,19 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
     slug: 'five-minute-financial-routine-business-owners',
     title: 'A Five Minute Financial Routine for Business Owners',
     metaDescription:
-      'A short, repeatable routine to keep your Available Balance current: bank balances, paid items, and a monthly reserve check.',
+      'A short, repeatable routine to keep your Cash Prophet Balance current: bank balances, paid items, and a monthly reserve check.',
     keywords: ['financial routine', 'small business', 'cash management', 'Cash Prophet'],
     publishedAt: '2026-07-10',
     updatedAt: '2026-07-24',
     category: METHOD_BLOG_CATEGORY,
     readMinutes: 2,
     excerpt:
-      'Little and often beats a monthly panic. A calm routine for keeping your Available Balance honest.',
+      'Little and often beats a monthly panic. A calm routine for keeping your Cash Prophet Balance honest.',
     relatedSlugs: ['what-is-the-true-balance-method', 'virtual-reserves-vs-separate-savings-accounts'],
     sections: [
       {
         type: 'p',
-        text: 'Cash Prophet does not ask for hours of bookkeeping. It asks for small, regular updates so the Available Balance stays trustworthy.',
+        text: 'Cash Prophet does not ask for hours of bookkeeping. It asks for small, regular updates so the Cash Prophet Balance stays trustworthy.',
       },
       {
         type: 'h2',
@@ -257,7 +257,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
     title: 'What Accounting Software Tells You, and What It Does Not',
     metaDescription:
       'Xero and similar tools record what happened. Cash Prophet focuses on what you can safely spend next. They work together.',
-    keywords: ['accounting software', 'Xero', 'available balance', 'Cash Prophet'],
+    keywords: ['accounting software', 'Xero', 'cash prophet balance', 'Cash Prophet'],
     publishedAt: '2026-07-11',
     updatedAt: '2026-07-24',
     category: METHOD_BLOG_CATEGORY,
@@ -289,7 +289,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
       {
         type: 'ul',
         items: [
-          'After everything building up, what is my Available Balance?',
+          'After everything building up, what is my Cash Prophet Balance?',
           'Have we set enough aside for VAT and tax?',
           'Can we afford this hire, purchase or quiet month?',
         ],

@@ -3,7 +3,7 @@ import { useMorphCycle, lerp } from './useMorphCycle'
 /**
  * Hero visuals — one shared month story, two chart types morphing together:
  * 1) Payment forecast (bars): bill spikes → even daily build
- * 2) Balance (line): bank sawtooth → Available Balance (gentle upward wave, low on chart)
+ * 2) Balance (line): bank sawtooth → Cash Prophet Balance (gentle upward wave, low on chart)
  * Spike days match drop days so bar height and line plunge share the same events.
  */
 
@@ -72,7 +72,7 @@ const BANK_Y = (() => {
 })()
 
 /**
- * Available Balance: slight wave, overall upward, mid-chart (not hugging the axis).
+ * Cash Prophet Balance: slight wave, overall upward, mid-chart (not hugging the axis).
  */
 const AVAILABLE_Y = Array.from({ length: N }, (_, i) => {
   const t = i / (N - 1)

@@ -52,7 +52,7 @@ function upsertCanonical(href: string) {
 }
 
 function brandTitle(title: string): string {
-  if (title.includes('Cash Prophet') || title.includes('True Balance')) return title
+    if (title.includes('Cash Prophet') || title.includes('Cash Prophet Balance')) return title
   return `${title} | Cash Prophet`
 }
 

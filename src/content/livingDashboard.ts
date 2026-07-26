@@ -1,6 +1,6 @@
 import type { HealthLevel } from '../types'
 
-/** Short line under the True Balance hero — living dashboard mindset. */
+/** Short line under the Cash Prophet Balance hero — living dashboard mindset. */
 export const LIVING_DASHBOARD_TAGLINE =
   'A living dashboard — update as life happens, and your Available number stays trustworthy.'
 

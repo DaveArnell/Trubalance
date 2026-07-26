@@ -1,5 +1,5 @@
 /**
- * Homepage marketing copy — Available Balance you can rely on.
+ * Homepage marketing copy — Cash Prophet Balance you can rely on.
  * Benefit first; mechanics support the promise.
  */
 

@@ -1,7 +1,7 @@
 import type { BlogPost } from './blogTypes'
 
 const CTA =
-  'Cash Prophet gives you one honest Available Balance, committed funds in view, and a Reserve Planner for VAT and tax (without replacing your accounting software).'
+  'Cash Prophet gives you one honest Cash Prophet Balance, committed funds in view, and a Reserve Planner for VAT and tax (without replacing your accounting software).'
 
 /**
  * Ten SEO cornerstone articles, owning "bank balance isn't available cash"
@@ -12,7 +12,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
     slug: 'your-bank-balance-is-lying-to-you',
     title: 'Your Bank Balance Is Lying To You',
     metaDescription:
-      'Your business bank balance is not your Available Balance. Here is why that number misleads UK owners, and what to check instead.',
+      'Your business bank balance is not your Cash Prophet Balance. Here is why that number misleads UK owners, and what to check instead.',
     keywords: [
       'bank balance is lying',
       'bank balance isnt available cash',
@@ -50,11 +50,11 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'h2',
-        text: 'Use your Available Balance instead',
+        text: 'Use your Cash Prophet Balance instead',
       },
       {
         type: 'p',
-        text: 'Cash Prophet calculates your Available Balance as cash minus committed funds, plus only realistic expected receipts. Before you spend from "what is in the account", check what is building up, what is Due, and what you are setting aside for tax. That shift is the whole point of Cash Prophet.',
+        text: 'Cash Prophet calculates your Cash Prophet Balance as cash minus committed funds, plus only realistic expected receipts. Before you spend from "what is in the account", check what is building up, what is Due, and what you are setting aside for tax. That shift is the whole point of Cash Prophet.',
       },
       {
         type: 'faq',
@@ -77,7 +77,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
       'bank balance isnt your money',
       'committed money',
       'how much cash is available in my business',
-      'Available Balance',
+      'Cash Prophet Balance',
     ],
     publishedAt: '2026-07-14',
     updatedAt: '2026-07-24',
@@ -97,13 +97,13 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'h2',
-        text: 'Committed funds vs Available Balance',
+        text: 'Committed funds vs Cash Prophet Balance',
       },
       {
         type: 'ul',
         items: [
           'Committed funds: already building or owed (payroll, VAT, rent, reserves)',
-          'Available Balance: what you can use without borrowing from those obligations',
+          'Cash Prophet Balance: what you can use without borrowing from those obligations',
           'Bank balance: the crude total that mixes both together',
         ],
       },
@@ -113,7 +113,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'That is the real question owners mean when they check their phone. Cash Prophet answers it with one figure: cash now, minus committed funds, plus only receipts you can realistically expect. Use that Available Balance for Tuesday decisions, not the raw bank total.',
+        text: 'That is the real question owners mean when they check their phone. Cash Prophet answers it with one figure: cash now, minus committed funds, plus only receipts you can realistically expect. Use that Cash Prophet Balance for Tuesday decisions, not the raw bank total.',
       },
       {
         type: 'faq',
@@ -131,7 +131,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
     slug: 'how-much-money-does-my-business-actually-have',
     title: 'How Much Money Does My Business Actually Have?',
     metaDescription:
-      'How much cash is available in my business? The difference between bank balance, profit, and a genuine Available Balance for UK SMEs.',
+      'How much cash is available in my business? The difference between bank balance, profit, and a genuine Cash Prophet Balance for UK SMEs.',
     keywords: [
       'how much money does my business actually have',
       'how much cash is available in my business',
@@ -143,7 +143,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
     category: 'Cornerstone',
     readMinutes: 2,
     excerpt:
-      'Profit, bank balance and Available Balance answer three different questions. Only one tells you what you can safely spend.',
+      'Profit, bank balance and Cash Prophet Balance answer three different questions. Only one tells you what you can safely spend.',
     relatedSlugs: [
       'bank-balance-vs-available-cash',
       'cash-flow-vs-profit-uk-small-business',
@@ -163,7 +163,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
         items: [
           'Profit: an accounting result for a period, not cash in the bank',
           'Bank balance: cash today, including money already spoken for',
-          'Available Balance: what is left after commitments and tax reserves',
+          'Cash Prophet Balance: what is left after commitments and tax reserves',
         ],
       },
       {
@@ -172,7 +172,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'List what builds every month. List irregular bills such as VAT, insurance and corporation tax. Track money you are confident will arrive. The gap between cash and those obligations is your Available Balance, and it is what Cash Prophet keeps current for you.',
+        text: 'List what builds every month. List irregular bills such as VAT, insurance and corporation tax. Track money you are confident will arrive. The gap between cash and those obligations is your Cash Prophet Balance, and it is what Cash Prophet keeps current for you.',
       },
       {
         type: 'faq',
@@ -188,12 +188,12 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: 'bank-balance-vs-available-cash',
-    title: 'The Difference Between Bank Balance And Available Balance',
+    title: 'The Difference Between Bank Balance And Cash Prophet Balance',
     metaDescription:
-      'Bank balance vs Available Balance for UK businesses: why they diverge, and how committed funds and VAT set asides change what you can spend.',
+      'Bank balance vs Cash Prophet Balance for UK businesses: why they diverge, and how committed funds and VAT set asides change what you can spend.',
     keywords: [
       'bank balance vs available cash',
-      'available balance business',
+      'cash prophet balance business',
       'committed money',
       'UK business cash',
     ],
@@ -211,17 +211,17 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
     sections: [
       {
         type: 'p',
-        text: 'Bank balance is what is in the account. Available Balance is what is left after you honour what is already committed. Confusing them is normal, and expensive.',
+        text: 'Bank balance is what is in the account. Cash Prophet Balance is what is left after you honour what is already committed. Confusing them is normal, and expensive.',
       },
       {
         type: 'h2',
-        text: 'Bank balance vs Available Balance',
+        text: 'Bank balance vs Cash Prophet Balance',
       },
       {
         type: 'ul',
         items: [
           'Bank balance: a live total from your bank, instant but silent about payroll or VAT building',
-          'Available Balance: cash minus committed funds, plus only receipts you are confident of',
+          'Cash Prophet Balance: cash minus committed funds, plus only receipts you are confident of',
           'The gap: monthly accruals, Due items, and reserve targets sitting in current',
         ],
       },
@@ -241,7 +241,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
         type: 'faq',
         items: [
           {
-            q: 'Is Available Balance the same as safe to spend?',
+            q: 'Is Cash Prophet Balance the same as safe to spend?',
             a: 'Similar idea. Freelancer tools often mean cash minus a tax percentage. SMEs usually need committed funds, reserves and expected receipts too.',
           },
         ],
@@ -253,7 +253,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
     slug: 'why-cash-flow-forecasts-usually-end-up-forgotten',
     title: 'Why Cash Flow Forecasts Usually End Up Forgotten',
     metaDescription:
-      'Why UK cash flow forecasts die in the spreadsheet, and why a live Available Balance beats a 12 month model you never update.',
+      'Why UK cash flow forecasts die in the spreadsheet, and why a live Cash Prophet Balance beats a 12 month model you never update.',
     keywords: [
       'cash flow forecast forgotten',
       'business cash management',
@@ -294,7 +294,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'A live Available Balance you refresh in minutes beats a stale forecast. Update balances, keep commitments current, mark VAT and tax reserves. Then, once the habit works, add Trends and a simple outlook on top.',
+        text: 'A live Cash Prophet Balance you refresh in minutes beats a stale forecast. Update balances, keep commitments current, mark VAT and tax reserves. Then, once the habit works, add Trends and a simple outlook on top.',
       },
       { type: 'p', text: CTA },
     ],
@@ -336,7 +336,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
           'Estimate the quarter early and update as you go',
           'Treat that amount as spoken for, not free cash',
           'Track it in the Reserve Planner or move it to a savings pot',
-          'Mark it paid when it leaves, so your Available Balance recovers honestly',
+          'Mark it paid when it leaves, so your Cash Prophet Balance recovers honestly',
         ],
       },
       {
@@ -363,10 +363,10 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
     slug: 'the-true-balance-method-explained',
     title: 'Cash Prophet Explained',
     metaDescription:
-      'Cash Prophet explained: manage UK business money from your Available Balance, not the bank balance, using committed funds and reserves.',
+      'Cash Prophet explained: manage UK business money from your Cash Prophet Balance, not the bank balance, using committed funds and reserves.',
     keywords: [
       'Cash Prophet explained',
-      'available balance',
+      'cash prophet balance',
       'managing business cash',
       'business cash management',
     ],
@@ -388,7 +388,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'h2',
-        text: 'How the Available Balance is built',
+        text: 'How the Cash Prophet Balance is built',
       },
       {
         type: 'ul',
@@ -459,7 +459,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'Do not replace your accounts. Add Cash Prophet for Available Balance, committed funds, Reserve Planner and expected receipts. Compliance tools stay. Clarity for spending decisions lives alongside them.',
+        text: 'Do not replace your accounts. Add Cash Prophet for Cash Prophet Balance, committed funds, Reserve Planner and expected receipts. Compliance tools stay. Clarity for spending decisions lives alongside them.',
       },
       {
         type: 'faq',
@@ -477,7 +477,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
     slug: 'business-reserve-planner-explained',
     title: 'Business Reserve Planner: Putting Money Aside Without Guessing',
     metaDescription:
-      'What a business reserve planner is: putting money aside for VAT, tax and irregular bills so your Available Balance stays honest.',
+      'What a business reserve planner is: putting money aside for VAT, tax and irregular bills so your Cash Prophet Balance stays honest.',
     keywords: [
       'business reserve planner',
       'putting money aside for VAT',
@@ -527,7 +527,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'Until a bill is paid, the reserve target counts as committed. When it leaves the bank, mark it paid so your Available Balance recovers honestly, with no double counting.',
+        text: 'Until a bill is paid, the reserve target counts as committed. When it leaves the bank, mark it paid so your Cash Prophet Balance recovers honestly, with no double counting.',
       },
       { type: 'p', text: CTA },
     ],
@@ -536,7 +536,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
     slug: 'business-financial-snapshot',
     title: 'Business Financial Snapshot: The Dashboard Owners Actually Use',
     metaDescription:
-      'A business financial snapshot for UK SMEs: Available Balance, committed funds and reserves without spreadsheet drag.',
+      'A business financial snapshot for UK SMEs: Cash Prophet Balance, committed funds and reserves without spreadsheet drag.',
     keywords: [
       'business financial snapshot',
       'business financial dashboard',
@@ -557,7 +557,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
     sections: [
       {
         type: 'p',
-        text: 'A "business financial dashboard" often means charts nobody opens. A useful snapshot is smaller: cash, committed funds, expected receipts, reserves, and one Available Balance, updated in the time it takes to sip coffee.',
+        text: 'A "business financial dashboard" often means charts nobody opens. A useful snapshot is smaller: cash, committed funds, expected receipts, reserves, and one Cash Prophet Balance, updated in the time it takes to sip coffee.',
       },
       {
         type: 'h2',
@@ -570,7 +570,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
           'Committed funds building and Due',
           'Expected receipts you trust',
           'VAT and tax set asides',
-          'One Available Balance for decisions',
+          'One Cash Prophet Balance for decisions',
         ],
       },
       {
@@ -579,7 +579,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'Small business cash planning fails when the system is heavier than the decision. Start from "bank balance is not Available Balance", keep commitments honest, and let the snapshot stop you spending money that is not really yours yet.',
+        text: 'Small business cash planning fails when the system is heavier than the decision. Start from "bank balance is not Cash Prophet Balance", keep commitments honest, and let the snapshot stop you spending money that is not really yours yet.',
       },
       { type: 'p', text: CTA },
     ],

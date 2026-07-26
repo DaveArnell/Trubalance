@@ -1,5 +1,5 @@
 /**
- * Homepage visuals — Available Balance made visible.
+ * Homepage visuals — Cash Prophet Balance made visible.
  * Motif panels for the settled homepage copy (no messaging rewrites).
  */
 
@@ -54,7 +54,7 @@ export function HomeSpokenForPanel() {
 /** DOES section — monthly accruing bills snapshot. */
 export function HomeAvailablePanel() {
   return (
-    <aside className="home-snap home-snap--wide" aria-label="Cash Prophet monthly accruing bills building toward Available Balance">
+    <aside className="home-snap home-snap--wide" aria-label="Cash Prophet monthly accruing bills building toward Cash Prophet Balance">
       <div className="home-dash home-dash--cards home-dash--accruing">
         <div className="home-dash-hero home-dash-hero--accruing">
           <p className="home-snap-label home-snap-label--teal">Monthly accruing bills</p>
@@ -119,10 +119,10 @@ export function HomeOutcomeBeats({
   )
 }
 
-/** WHY — accounting, bank, and Available Balance. */
+/** WHY — accounting, bank, and Cash Prophet Balance. */
 export function HomeCompareStrip() {
   return (
-    <div className="home-compare" aria-label="How Cash Prophet Available Balance sits beside accounting software and banking apps">
+    <div className="home-compare" aria-label="How Cash Prophet Balance sits beside accounting software and banking apps">
       <div className="home-compare-col home-compare-col--muted">
         <p className="home-compare-tag">Accounting</p>
         <p className="home-compare-body">Records the past</p>
