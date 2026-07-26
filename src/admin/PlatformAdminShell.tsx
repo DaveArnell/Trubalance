@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { AdminAuthProvider, useAdminAuth } from '../contexts/AdminAuthContext'
 import { isLocalDevMode } from '../lib/devMode'
 import { AdminLayout } from './components/AdminLayout'
@@ -17,14 +17,14 @@ import { AdminSupportPage } from './pages/AdminSupportPage'
 import { AdminUserDetailPage } from './pages/AdminUserDetailPage'
 import { AdminUserHealthPage } from './pages/AdminUserHealthPage'
 import { AdminUsersPage } from './pages/AdminUsersPage'
-import { VocatioAdminGate } from './pages/VocatioAdminGate'
+import { PlatformAdminGate } from './pages/VocatioAdminGate'
 
-function VocatioAdminRoutes() {
+function AdminRoutes() {
   const { isAdminReady, loading } = useAdminAuth()
   const localDev = isLocalDevMode()
 
   if (!localDev && !loading && !isAdminReady) {
-    return <VocatioAdminGate />
+    return <PlatformAdminGate />
   }
 
   if (!localDev && loading) {
@@ -59,15 +59,22 @@ function VocatioAdminRoutes() {
   )
 }
 
-export function VocatioAdminShell() {
+export function PlatformAdminShell() {
   return (
     <AdminAuthProvider>
-      <VocatioAdminRoutes />
+      <AdminRoutes />
     </AdminAuthProvider>
   )
 }
 
-/** @deprecated Use VocatioAdminShell at /vocatio-admin */
-export function PlatformAdminShell() {
-  return <Navigate to="/vocatio-admin" replace />
+/** @deprecated Alias — use PlatformAdminShell */
+export function VocatioAdminShell() {
+  return <PlatformAdminShell />
+}
+
+/** Old bookmarks: /vocatio-admin → /platform-admin */
+export function LegacyVocatioAdminRedirect() {
+  const location = useLocation()
+  const rest = location.pathname.replace(/^\/vocatio-admin/, '') || ''
+  return <Navigate to={`/platform-admin${rest}${location.search}`} replace />
 }

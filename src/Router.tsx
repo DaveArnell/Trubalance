@@ -16,7 +16,7 @@ import { WhoItsForPage } from './pages/WhoItsForPage'
 import { SeeHowItWorksPage } from './pages/SeeHowItWorksPage'
 import { BlogIndexPage } from './pages/BlogIndexPage'
 import { BlogPostPage } from './pages/BlogPostPage'
-import { VocatioAdminShell, PlatformAdminShell } from './admin/PlatformAdminShell'
+import { PlatformAdminShell, LegacyVocatioAdminRedirect } from './admin/PlatformAdminShell'
 import { isSupabaseConfigured } from './lib/supabase'
 
 export function AppRouter() {
@@ -45,8 +45,8 @@ export function AppRouter() {
             <Route path="/demo" element={<DemoPage />} />
             <Route path="/demo/:scenarioId" element={<DemoPage />} />
             <Route path="/app/*" element={<AppPage />} />
-            <Route path="/vocatio-admin/*" element={<VocatioAdminShell />} />
             <Route path="/platform-admin/*" element={<PlatformAdminShell />} />
+            <Route path="/vocatio-admin/*" element={<LegacyVocatioAdminRedirect />} />
             <Route
               path="*"
               element={<Navigate to={isSupabaseConfigured ? '/' : '/app'} replace />}

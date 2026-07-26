@@ -139,7 +139,7 @@ export function AdminUserDetailPage() {
       setDeleteError(error)
       return
     }
-    navigate('/vocatio-admin/users', { replace: true })
+    navigate('/platform-admin/users', { replace: true })
   }
 
   if (loading) return <p className="admin-loading muted">Loading user…</p>
@@ -147,7 +147,7 @@ export function AdminUserDetailPage() {
     return (
       <div className="admin-page">
         <p className="muted">User not found.</p>
-        <Link to="/vocatio-admin/users">← Back to users</Link>
+        <Link to="/platform-admin/users">← Back to users</Link>
       </div>
     )
   }
@@ -168,10 +168,10 @@ export function AdminUserDetailPage() {
         description={`${user.email} · ${user.workspaceName ?? 'No workspace'}`}
         actions={
           <>
-            <Link to="/vocatio-admin/users" className="btn-ghost btn-tiny">
+            <Link to="/platform-admin/users" className="btn-ghost btn-tiny">
               ← Users
             </Link>
-            <Link to="/vocatio-admin/user-health" className="btn-ghost btn-tiny">
+            <Link to="/platform-admin/user-health" className="btn-ghost btn-tiny">
               User health
             </Link>
             <button type="button" className="btn-secondary btn-tiny" disabled title="Coming soon">

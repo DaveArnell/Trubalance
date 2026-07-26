@@ -47,9 +47,9 @@ export function AdminDeveloperToolsPage() {
       hint: 'Run all files in supabase/migrations/ on each Supabase project',
     },
     {
-      label: 'Vocatio admin enrolled',
+      label: 'Platform admin enrolled',
       ok: info.supabaseConfigured,
-      hint: 'Insert your @vocatio.io user into platform_admins, deploy admin-auth, complete 2FA at /vocatio-admin',
+      hint: 'Insert your @vocatio.io user into platform_admins, deploy admin-auth, complete 2FA at /platform-admin',
     },
     {
       label: 'Users & workspaces (live data)',

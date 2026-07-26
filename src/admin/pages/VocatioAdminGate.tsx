@@ -8,7 +8,7 @@ function isVocatioEmail(email: string): boolean {
   return email.toLowerCase().endsWith('@vocatio.io')
 }
 
-export function VocatioAdminGate() {
+export function PlatformAdminGate() {
   const { signIn, signOut } = useAuth()
   const {
     loading,
@@ -46,7 +46,7 @@ export function VocatioAdminGate() {
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/vocatio-admin`,
+        redirectTo: `${window.location.origin}/platform-admin`,
       },
     })
     if (oauthError) setFormError(oauthError.message)
@@ -65,7 +65,7 @@ export function VocatioAdminGate() {
     return (
       <div className="admin-gate">
         <div className="auth-card">
-          <h1>Vocatio admin</h1>
+          <h1>Cash Prophet Admin</h1>
           <p className="muted">Supabase must be configured for the admin panel.</p>
           <Link to="/" className="btn-secondary">
             ← Home
@@ -130,10 +130,10 @@ export function VocatioAdminGate() {
     return (
       <div className="admin-gate">
         <div className="auth-card admin-auth-card">
-          <h1>Vocatio admin</h1>
+          <h1>Cash Prophet Admin</h1>
           <p className="muted">
-            Sign in with your <strong>@vocatio.io</strong> account. Your personal Cash Prophet login
-            cannot access this area.
+            Sign in with your enrolled operator account (<strong>@vocatio.io</strong>). Your personal
+            Cash Prophet customer login cannot access this area.
           </p>
           <form onSubmit={handleSignIn} className="admin-auth-form">
             <label>
@@ -180,7 +180,7 @@ export function VocatioAdminGate() {
           <h1>Access denied</h1>
           <p className="muted">
             {error ??
-              'This Vocatio account is not enrolled for platform admin. Ask an existing operator to add you in Supabase.'}
+              'This account is not enrolled for Cash Prophet Admin. Ask an existing operator to add you in Supabase.'}
           </p>
           <button
             type="button"

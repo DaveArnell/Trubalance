@@ -12,8 +12,8 @@ import '../admin.css'
 export function AdminLayout() {
   usePageMeta({
     title: 'Platform Admin | Cash Prophet',
-    description: 'Cash Prophet platform administration — Vocatio staff only.',
-    path: '/vocatio-admin',
+    description: 'Cash Prophet platform administration — operators only.',
+    path: '/platform-admin',
     noindex: true,
     imageAlt: 'Cash Prophet platform admin',
   })
@@ -37,7 +37,7 @@ export function AdminLayout() {
     <div className="admin-shell">
       <aside className="admin-sidebar">
         <div className="admin-sidebar-brand">
-          <Link to="/vocatio-admin" className="admin-sidebar-logo">
+          <Link to="/platform-admin" className="admin-sidebar-logo">
             <span className="admin-sidebar-mark" aria-hidden />
             <span>
               <strong>Cash Prophet</strong>
@@ -52,7 +52,7 @@ export function AdminLayout() {
             <NavLink
               key={item.id}
               to={item.path}
-              end={item.path === '/vocatio-admin'}
+              end={item.path === '/platform-admin'}
               className={({ isActive }) => `admin-sidebar-link${isActive ? ' admin-sidebar-link--active' : ''}`}
             >
               <span className="admin-sidebar-icon" aria-hidden>

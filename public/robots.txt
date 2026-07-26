@@ -5,8 +5,8 @@ Disallow: /demo
 Disallow: /login
 Disallow: /forgot-password
 Disallow: /reset-password
-Disallow: /vocatio-admin
 Disallow: /platform-admin
+Disallow: /vocatio-admin
 
 Sitemap: https://www.cashprophet.co.uk/sitemap.xml
 
