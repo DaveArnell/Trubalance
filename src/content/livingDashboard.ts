@@ -38,7 +38,7 @@ export const WIDGET_HELP = {
   trends:
     'Every time you save balances, a point is recorded. The chart shows whether you are drifting up or down over time.',
   cashOutlook:
-    'Projects your current account forward using dated monthly costs, planned payments, reserve transfers, and expected receipts. Works best for businesses with identifiable incoming payments (e.g. invoiced clients, grants, contract payments). For businesses with steady daily income (e.g. retail, hospitality), outgoings are plotted but income is not — your actual balance will be higher than shown. Set income pattern per business in Settings → Structure.',
+    'Projects your current account forward using dated monthly costs, planned payments, reserve transfers, and expected receipts. Works best for businesses with identifiable incoming payments (e.g. invoiced clients, grants, contract payments). For businesses with steady daily income (e.g. retail, hospitality), outgoings are plotted but income is not — your actual balance will be higher than shown.',
   forecast:
     'Forward-looking view: cash outlook from scheduled movements, plus trend projection from saved balance history. The cash outlook is most accurate for businesses with dated incoming payments. If your income arrives steadily (daily trade), the Trends page gives a better picture of your overall trajectory.',
 } as const

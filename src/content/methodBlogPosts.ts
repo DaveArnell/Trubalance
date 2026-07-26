@@ -2,7 +2,7 @@ import type { BlogPost } from './blogTypes'
 import { METHOD_BLOG_CATEGORY } from './trueBalanceMethod'
 
 const METHOD_CTA =
-  'Cash Prophet keeps committed funds, reserves and your Cash Prophet Balance up to date, without spreadsheet logic.'
+  'Cash Prophet continuously accounts for meaningful commitments to give you one trusted Cash Prophet Balance — confidence in where your business really stands, alongside your accounting software.'
 
 /** Educational articles for the Cash Prophet category. */
 export const METHOD_BLOG_POSTS: BlogPost[] = [
@@ -10,14 +10,14 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
     slug: 'what-is-the-true-balance-method',
     title: 'What Is Cash Prophet?',
     metaDescription:
-      'Cash Prophet helps UK business owners manage money from their Cash Prophet Balance, not the bank balance alone. A plain English introduction.',
+      'Cash Prophet helps UK business owners see where the business really stands with one trusted Cash Prophet Balance, not the bank balance alone.',
     keywords: ['cash prophet', 'cash prophet balance', 'UK small business', 'financial management'],
     publishedAt: '2026-07-08',
-    updatedAt: '2026-07-24',
+    updatedAt: '2026-07-26',
     category: METHOD_BLOG_CATEGORY,
     readMinutes: 2,
     excerpt:
-      'A simple way to see what your business can really afford, by accounting for committed money, reserves and realistic receipts.',
+      'One trusted financial number that accounts for committed money, reserves and realistic receipts, so you know where the business really stands.',
     relatedSlugs: [
       'why-business-bank-balance-is-not-all-yours',
       'what-accounting-software-tells-you-and-what-it-does-not',
@@ -25,7 +25,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
     sections: [
       {
         type: 'p',
-        text: 'Cash Prophet is a practical way to manage business money. It starts from a question most owners already ask quietly: how much of what is in the bank can I actually use?',
+        text: 'Cash Prophet is a practical way to manage business money. It starts from a quieter question most owners already ask: where does my business really stand once commitments are counted?',
       },
       {
         type: 'h2',
@@ -45,12 +45,12 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
           'Start from cash in the bank',
           'Subtract money already committed or building up',
           'Add only realistic expected receipts',
-          'Use the result, your Cash Prophet Balance, for everyday decisions',
+          'Use the result, your Cash Prophet Balance, as your trusted financial position',
         ],
       },
       {
         type: 'p',
-        text: 'It is financial management for owners who make spending decisions between accountant visits, not a replacement for accounting software or professional advice.',
+        text: 'It is financial management for owners who need day to day confidence between accountant visits, not a replacement for accounting software, professional advice or detailed cash flow forecasting.',
       },
       { type: 'p', text: METHOD_CTA },
     ],
@@ -62,16 +62,16 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
       'Why a healthy UK business bank balance can still mislead you, and how committed funds change your real Cash Prophet Balance.',
     keywords: ['bank balance', 'committed funds', 'UK business', 'cash prophet balance'],
     publishedAt: '2026-07-08',
-    updatedAt: '2026-07-24',
+    updatedAt: '2026-07-26',
     category: METHOD_BLOG_CATEGORY,
     readMinutes: 2,
     excerpt:
-      'Cash in the account is not the same as money you can safely use. Here is what is often already spoken for.',
+      'Cash in the account is not the same as a trusted financial position. Here is what is often already spoken for.',
     relatedSlugs: ['what-is-the-true-balance-method', 'monthly-accruals-explained-small-business'],
     sections: [
       {
         type: 'p',
-        text: 'Opening your banking app feels reassuring when the balance is healthy. The harder question is how much of that figure is still yours once obligations are counted.',
+        text: 'Opening your banking app feels reassuring when the balance is healthy. The harder question is where the business really stands once obligations are counted.',
       },
       {
         type: 'h2',
@@ -92,7 +92,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'Cash Prophet treats those items as part of your Cash Prophet Balance now, not only on payment day. That single shift helps owners avoid decisions that look affordable on the bank app but are not.',
+        text: 'Cash Prophet treats those items as part of your Cash Prophet Balance now, not only on payment day. That single shift helps owners trust the position they are looking at, instead of decisions that look fine on the bank app but are not.',
       },
       { type: 'p', text: METHOD_CTA },
     ],
@@ -104,7 +104,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
       'A calm approach to setting money aside for VAT, corporation tax and irregular UK business bills, using Reserve Planner and steady habits.',
     keywords: ['VAT reserve', 'tax reserve', 'irregular bills', 'UK small business'],
     publishedAt: '2026-07-09',
-    updatedAt: '2026-07-24',
+    updatedAt: '2026-07-26',
     category: METHOD_BLOG_CATEGORY,
     readMinutes: 2,
     excerpt:
@@ -148,7 +148,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
       'What monthly accruals mean in plain English for UK small businesses, and why they matter for your Cash Prophet Balance.',
     keywords: ['accruals', 'small business', 'payroll accrual', 'committed funds'],
     publishedAt: '2026-07-09',
-    updatedAt: '2026-07-24',
+    updatedAt: '2026-07-26',
     category: METHOD_BLOG_CATEGORY,
     readMinutes: 2,
     excerpt:
@@ -185,7 +185,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
       'Reserve targets in Cash Prophet are planning figures, not money moved automatically. How they work alongside a real savings account.',
     keywords: ['virtual reserves', 'savings account', 'tax reserve', 'cash management'],
     publishedAt: '2026-07-10',
-    updatedAt: '2026-07-24',
+    updatedAt: '2026-07-26',
     category: METHOD_BLOG_CATEGORY,
     readMinutes: 2,
     excerpt:
@@ -222,7 +222,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
       'A short, repeatable routine to keep your Cash Prophet Balance current: bank balances, paid items, and a monthly reserve check.',
     keywords: ['financial routine', 'small business', 'cash management', 'Cash Prophet'],
     publishedAt: '2026-07-10',
-    updatedAt: '2026-07-24',
+    updatedAt: '2026-07-26',
     category: METHOD_BLOG_CATEGORY,
     readMinutes: 2,
     excerpt:
@@ -256,19 +256,19 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
     slug: 'what-accounting-software-tells-you-and-what-it-does-not',
     title: 'What Accounting Software Tells You, and What It Does Not',
     metaDescription:
-      'Xero and similar tools record what happened. Cash Prophet focuses on what you can safely spend next. They work together.',
+      'Xero and similar tools record what happened. Cash Prophet focuses on a trusted financial position for day to day confidence. They work together.',
     keywords: ['accounting software', 'Xero', 'cash prophet balance', 'Cash Prophet'],
     publishedAt: '2026-07-11',
-    updatedAt: '2026-07-24',
+    updatedAt: '2026-07-26',
     category: METHOD_BLOG_CATEGORY,
     readMinutes: 2,
     excerpt:
-      'Accounting software is essential, but it is not designed to answer "what can I afford this week?"',
+      'Accounting software is essential, but it is not designed to answer where your business really stands today.',
     relatedSlugs: ['what-is-the-true-balance-method', 'true-balance-vs-accounting-software'],
     sections: [
       {
         type: 'p',
-        text: 'Accounting software does an important job: records, compliance, reports for your accountant. Most owners still need a separate answer for daily spending confidence.',
+        text: 'Accounting software does an important job: records, compliance, reports for your accountant. Most owners still need a separate answer for day to day financial confidence.',
       },
       {
         type: 'h2',
@@ -291,12 +291,12 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
         items: [
           'After everything building up, what is my Cash Prophet Balance?',
           'Have we set enough aside for VAT and tax?',
-          'Can we afford this hire, purchase or quiet month?',
+          'Where does the business really stand before a hire, purchase or quiet month?',
         ],
       },
       {
         type: 'p',
-        text: 'Cash Prophet sits alongside your accounts. It is not bookkeeping and not forecasting, it is a current position for decisions, kept honest with small regular updates.',
+        text: 'Cash Prophet sits alongside your accounts. It is not bookkeeping and not a replacement for detailed forecasting, it is a current trusted position for decisions, kept honest with small regular updates.',
       },
       { type: 'p', text: METHOD_CTA },
     ],

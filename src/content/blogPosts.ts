@@ -9,19 +9,19 @@ const CORE_BLOG_POSTS: BlogPost[] = [
     slug: 'what-is-true-balance',
     title: 'What Is Cash Prophet? Cash Clarity for UK Business Owners',
     metaDescription:
-      'Cash Prophet shows the Cash Prophet Balance you can genuinely spend, after commitments and expected receipts, not just your bank balance.',
-    keywords: ['cash prophet balance', 'cash clarity', 'UK small business', 'safe to spend', 'committed funds'],
+      'Cash Prophet calculates one trusted Cash Prophet Balance that shows where your UK business really stands, after meaningful commitments, not just your bank balance.',
+    keywords: ['cash prophet balance', 'cash clarity', 'UK small business', 'trusted financial position', 'committed funds'],
     publishedAt: '2026-06-01',
-    updatedAt: '2026-07-24',
+    updatedAt: '2026-07-26',
     category: 'Guides',
     readMinutes: 2,
     excerpt:
-      'Your bank balance is not your spending money. Cash Prophet shows what is left after everything already spoken for.',
+      'Your bank balance is not a reliable picture of where the business stands. Cash Prophet shows one trusted number after commitments are accounted for.',
     relatedSlugs: ['bank-balance-vs-safe-to-spend-uk', 'true-balance-vs-accounting-software'],
     sections: [
       {
         type: 'p',
-        text: 'Most UK business owners check their bank app and guess. Cash Prophet replaces guessing with one number: current cash, minus committed funds, plus expected receipts. It answers a simple question: how much is genuinely mine to use?',
+        text: 'Most UK business owners judge the business from the bank app. That number is heavily shaped by timing: payroll, VAT, suppliers and other commitments constantly distort the picture. Cash Prophet continuously accounts for those commitments to give one trusted financial number: your Cash Prophet Balance.',
       },
       {
         type: 'h2',
@@ -32,12 +32,12 @@ const CORE_BLOG_POSTS: BlogPost[] = [
         items: [
           'Current account cash: what is in the bank today',
           'Minus committed funds: payroll accruing, VAT building, planned costs, reserve targets',
-          'Plus expected receipts: invoices and project payments you are still owed',
+          'Plus expected receipts: invoices and payments you are still owed',
         ],
       },
       {
         type: 'p',
-        text: 'Cash Prophet is not accounting software. It does not replace Xero, FreeAgent or QuickBooks. It sits above your accounts as a cash position tool for owners who run the numbers themselves.',
+        text: 'Cash Prophet is not accounting software. It does not replace Xero, FreeAgent or QuickBooks. It complements your accounts with a continuously updated financial position for day to day confidence.',
       },
       {
         type: 'h2',
@@ -46,18 +46,22 @@ const CORE_BLOG_POSTS: BlogPost[] = [
       {
         type: 'ul',
         items: [
-          'Trades and contractors with lumpy project income',
-          'Cafes, restaurants and hospitality with payroll and rent cycles',
+          'Hospitality, leisure, gyms and childcare with relatively consistent income',
+          'Subscription and recurring service businesses',
           'Multi site operators who need one roll up view',
           'Limited companies juggling VAT, corporation tax and PAYE',
         ],
+      },
+      {
+        type: 'p',
+        text: 'Businesses with highly irregular or project based income often still need detailed cash flow forecasting. Reserve Planner remains useful for them; Cash Prophet Balance is not a substitute for that forecasting.',
       },
       {
         type: 'faq',
         items: [
           {
             q: 'Is Cash Prophet the same as my bank balance?',
-            a: 'No. Your bank balance ignores money already spoken for. Cash Prophet subtracts commitments and adds money you are still owed but have not received.',
+            a: 'No. Your bank balance ignores money already spoken for. Cash Prophet subtracts commitments and adds money you are still owed but have not received, so you see a trusted financial position.',
           },
         ],
       },
@@ -67,14 +71,14 @@ const CORE_BLOG_POSTS: BlogPost[] = [
     slug: 'bank-balance-vs-safe-to-spend-uk',
     title: 'Bank Balance vs Safe to Spend: What UK Owners Actually Need',
     metaDescription:
-      'Why your UK business bank balance misleads you, what safe to spend really means, and how committed funds change the picture for SMEs.',
+      'Why your UK business bank balance is an unreliable picture of where you stand, what safe to spend really means, and how committed funds change the picture.',
     keywords: ['safe to spend', 'bank balance', 'UK business', 'cash clarity', 'cash prophet balance'],
     publishedAt: '2026-06-03',
-    updatedAt: '2026-07-24',
+    updatedAt: '2026-07-26',
     category: 'Guides',
     readMinutes: 2,
     excerpt:
-      'Freelancer apps popularised safe to spend for invoices. UK SMEs with payroll and VAT need a deeper view.',
+      'Freelancer apps popularised safe to spend for invoices. UK SMEs with payroll and VAT need a trusted financial position, not a tax percentage alone.',
     relatedSlugs: ['what-is-true-balance', 'how-much-set-aside-vat-uk'],
     sections: [
       {
@@ -83,7 +87,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'h2',
-        text: 'Why the bank balance lies',
+        text: 'Why the bank balance misleads',
       },
       {
         type: 'ul',
@@ -100,14 +104,14 @@ const CORE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'Safe to spend usually means cash minus tax set asides. Cash Prophet Balance goes further: it includes all committed funds, monthly costs accruing, Due items, planned one offs, and expected receipts on the other side.',
+        text: 'Safe to spend usually means cash minus tax set asides. Cash Prophet Balance goes further: it continuously accounts for committed funds, monthly costs accruing, Due items, planned one offs, and expected receipts, so you see where the business really stands.',
       },
       {
         type: 'faq',
         items: [
           {
             q: 'What is the best safe to spend app for UK businesses?',
-            a: 'Freelancer apps suit solo operators with simple invoice flows. SMEs with payroll, reserves and irregular bills benefit from a commitment based tool like Cash Prophet.',
+            a: 'Freelancer apps suit solo operators with simple invoice flows. SMEs with payroll, reserves and irregular bills benefit from a commitment based position like Cash Prophet Balance.',
           },
         ],
       },
@@ -289,20 +293,20 @@ const CORE_BLOG_POSTS: BlogPost[] = [
     slug: 'true-balance-vs-accounting-software',
     title: 'Cash Prophet vs Accounting Software',
     metaDescription:
-      'Cash Prophet vs accounting software: why Xero, FreeAgent and QuickBooks do not answer what you can spend, and how they work together.',
+      'Cash Prophet vs accounting software: why Xero, FreeAgent and QuickBooks do not show a trusted day to day position, and how they work together.',
     keywords: [
       'Cash Prophet vs accounting software',
       'Cash Prophet vs Xero',
       'FreeAgent cash flow',
       'accounting software UK',
-      'what can I spend',
+      'trusted financial position',
     ],
     publishedAt: '2026-06-15',
-    updatedAt: '2026-07-24',
+    updatedAt: '2026-07-26',
     category: 'Comparisons',
     readMinutes: 2,
     excerpt:
-      'You still need accounting software for filings. You need something else for Tuesday morning spending decisions.',
+      'You still need accounting software for filings. You need something else for day to day confidence in where the business stands.',
     relatedSlugs: [
       'why-accounting-software-doesnt-tell-you-what-you-can-spend',
       'what-is-true-balance',
@@ -311,7 +315,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
     sections: [
       {
         type: 'p',
-        text: 'Xero, FreeAgent, Sage and QuickBooks excel at invoices, expenses, VAT returns and year end accounts. Their cash flow reports are backward looking and profit oriented, not built for "what can I spend this week".',
+        text: 'Xero, FreeAgent, Sage and QuickBooks excel at invoices, expenses, VAT returns and year end accounts. Their cash flow reports are backward looking and profit oriented, not built to show where the business really stands after commitments.',
       },
       {
         type: 'h2',
@@ -334,14 +338,14 @@ const CORE_BLOG_POSTS: BlogPost[] = [
         type: 'ul',
         items: [
           'Daily accruing committed funds',
-          'Forward cash outlook with the Cash Prophet Balance line',
+          'A continuously updated Cash Prophet Balance',
           'Reserve Planner for irregular tax and insurance bills',
-          'Expected receipts for project based income',
+          'Expected receipts for money still owed to you',
         ],
       },
       {
         type: 'p',
-        text: 'Use both: accounting software for compliance, Cash Prophet for operational cash decisions. That separation is the niche.',
+        text: 'Use both: accounting software for compliance, Cash Prophet for a trusted operational position. That separation is the niche.',
       },
     ],
   },
@@ -352,7 +356,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
       'Compare UK cash flow tools and approaches, from bank connected forecasters to reserve based platforms like Cash Prophet.',
     keywords: ['best cash flow software UK', 'cash flow tools comparison', 'SME finance apps 2026'],
     publishedAt: '2026-06-18',
-    updatedAt: '2026-07-24',
+    updatedAt: '2026-07-26',
     category: 'Comparisons',
     readMinutes: 2,
     excerpt:
@@ -382,7 +386,8 @@ const CORE_BLOG_POSTS: BlogPost[] = [
           'Solo freelancer with invoices: invoice native safe to spend apps',
           'Limited company with payroll: commitment based tools',
           'Multiple sites or companies: roll up scope and group view',
-          'Lumpy project income: expected receipts and forward outlook',
+          'Consistent recurring income: Cash Prophet Balance for day to day position',
+          'Lumpy project income: detailed forecasting first; Reserve Planner for known bills',
         ],
       },
     ],
@@ -434,19 +439,19 @@ const CORE_BLOG_POSTS: BlogPost[] = [
     slug: 'lumpy-income-cash-flow-building-trades',
     title: 'Cash Flow for UK Building Trades & Contractors',
     metaDescription:
-      'Manage lumpy project income, stage payments, CIS and equipment costs. Cash flow tips for UK builders and trades.',
+      'Manage lumpy project income, stage payments, CIS and equipment costs. Why trades still need forecasting, and how Reserve Planner helps.',
     keywords: ['building trades cash flow', 'contractor cash flow UK', 'construction stage payments', 'CIS cash flow'],
     publishedAt: '2026-06-22',
-    updatedAt: '2026-07-24',
+    updatedAt: '2026-07-26',
     category: 'Industries',
     readMinutes: 2,
     excerpt:
-      'Large deposits and quiet months are normal. Your cash view should reflect project timing, not monthly averages.',
+      'Large deposits and quiet months are normal. Project timing is a real risk, so detailed forecasting still matters for trades.',
     relatedSlugs: ['uk-small-business-cash-flow-forecast', 'what-is-true-balance'],
     sections: [
       {
         type: 'p',
-        text: 'A fit out deposit lands in March, payroll and materials run every month, CIS and subcontractor retainers add pressure, and a van replacement builds for ninety days before it hits. Generic budgeting apps miss this shape entirely.',
+        text: 'A fit out deposit lands in March, payroll and materials run every month, CIS and subcontractor retainers add pressure, and a van replacement builds for ninety days before it hits. For construction and contractors, the timing of income is itself a major financial risk.',
       },
       {
         type: 'h2',
@@ -464,7 +469,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'For lumpy income, Cash Prophet still helps with commitments and reserves. Steady income businesses get the most from the Cash Prophet Balance itself — try the Harbour Adventures or Cornerstone Coffee demos without signing up.',
+        text: 'Cash Prophet Balance is designed primarily for relatively consistent income. For lumpy project work it should not replace proper cash flow forecasting. Reserve Planner still helps you save toward VAT, tax and known equipment costs; try the Harbour Adventures or Cornerstone Coffee demos to see the consistent income case clearly.',
       },
     ],
   },
@@ -492,7 +497,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'Cash Prophet marks income pattern as steady or lumpy per business. For cafes, the forward outlook plots scheduled outgoings; your real balance trends higher than the chart because daily sales are not modelled. Use Trends for historical trajectory and the outlook for cost timing.',
+        text: 'For cafes, Trends shows how your Cash Prophet Balance has moved from the balances you save. Scheduled costs and reserves keep the day to day picture honest even when sales are steady.',
       },
       {
         type: 'ul',
@@ -714,10 +719,10 @@ const CORE_BLOG_POSTS: BlogPost[] = [
     slug: 'hospitality-cash-management-uk',
     title: 'Hospitality Cash Management: A UK Owner Overview',
     metaDescription:
-      'Cash management for UK hospitality businesses: cafes, restaurants, bars and pubs, and how commitments differ from retail or trades.',
+      'Cash management for UK hospitality businesses: cafes, restaurants, bars and pubs, and why commitments matter more than the bank balance.',
     keywords: ['hospitality cash management', 'hospitality finance UK', 'cafe restaurant bar cash flow', 'hospitality payroll'],
     publishedAt: '2026-07-24',
-    updatedAt: '2026-07-24',
+    updatedAt: '2026-07-26',
     category: 'Industries',
     readMinutes: 2,
     excerpt:
@@ -726,7 +731,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
     sections: [
       {
         type: 'p',
-        text: 'Hospitality businesses take money most days of the week, but the big costs, payroll, rent, wholesale suppliers and VAT, land in fixed lumps. That mismatch is why hospitality finance needs a different view from a shop or trades business.',
+        text: 'Hospitality businesses take money most days of the week, but the big costs, payroll, rent, wholesale suppliers and VAT, land in fixed lumps. That mismatch is why hospitality finance needs a trusted position, not the bank balance alone.',
       },
       {
         type: 'h2',
