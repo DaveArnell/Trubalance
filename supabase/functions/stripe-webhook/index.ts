@@ -1,8 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1'
 import Stripe from 'https://esm.sh/stripe@14.21.0?target=deno'
 
-const GRACE_DAYS = 7
-
 function tierFromMetadata(meta: Stripe.Metadata | null | undefined): string {
   const tier = meta?.tier_id
   if (tier === 'multi' || tier === 'group') return tier
@@ -20,17 +18,10 @@ async function syncSubscription(
     subscription.metadata.billing_interval === 'annual' ? 'annual' : 'monthly'
   const status = subscription.status
 
-  let gracePeriodEndsAt: string | null = null
-  if (status === 'past_due') {
-    const grace = new Date()
-    grace.setDate(grace.getDate() + GRACE_DAYS)
-    gracePeriodEndsAt = grace.toISOString()
-  }
-
   await supabaseAdmin.from('workspaces').update({
     subscription_tier: tierId,
     billing_interval: billingInterval,
-    grace_period_ends_at: gracePeriodEndsAt,
+    grace_period_ends_at: null,
   }).eq('id', workspaceId)
 
   await supabaseAdmin.from('subscriptions').upsert(
@@ -44,7 +35,7 @@ async function syncSubscription(
       current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
       cancel_at_period_end: subscription.cancel_at_period_end,
       billing_interval: billingInterval,
-      grace_period_ends_at: gracePeriodEndsAt,
+      grace_period_ends_at: null,
       updated_at: new Date().toISOString(),
     },
     { onConflict: 'workspace_id' },

@@ -54,6 +54,7 @@ export function LandingPage() {
               <div className="marketing-hero-brand">
                 <CashProphetLogo variant="hero" onDark />
               </div>
+              <p className="marketing-hero-belief">{HOME_HERO.tagline}</p>
               <h1>
                 {HOME_HERO.headlineStart}{' '}
                 <span className="marketing-hero-highlight">{HOME_HERO.headlineHighlight}</span>

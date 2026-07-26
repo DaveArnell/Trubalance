@@ -693,9 +693,6 @@ function mapWorkspaceSubscriptionRow(
     status = 'active'
   } else if (subscriptionRow?.status) {
     status = mapStripeStatus(String(subscriptionRow.status))
-    if (status === 'past_due' && gracePeriodEndsAt && new Date(gracePeriodEndsAt) > new Date()) {
-      status = 'grace_period'
-    }
   } else if (trialEndsAt && new Date(trialEndsAt) <= new Date()) {
     status = 'expired'
   }

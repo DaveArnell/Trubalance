@@ -41,31 +41,29 @@ export function isBillingExempt(subscription: WorkspaceSubscription): boolean {
 }
 
 export function isTrialActive(subscription: WorkspaceSubscription, now = new Date()): boolean {
-  if (subscription.status !== 'trialing') return false
-  if (!subscription.trialEndsAt) return true
+  if (isBillingExempt(subscription)) return false
+  if (!subscription.trialEndsAt) return false
+  if (subscription.status === 'active') return false
   return new Date(subscription.trialEndsAt) > now
 }
 
-export function isGracePeriodActive(subscription: WorkspaceSubscription, now = new Date()): boolean {
-  if (!subscription.gracePeriodEndsAt) return false
-  return new Date(subscription.gracePeriodEndsAt) > now
+/** Paid term still in force — uses Stripe current_period_end when present. */
+export function isPaidPeriodActive(subscription: WorkspaceSubscription, now = new Date()): boolean {
+  if (subscription.status !== 'active') return false
+  if (subscription.currentPeriodEnd && new Date(subscription.currentPeriodEnd) <= now) return false
+  return true
 }
 
 export function hasActiveBilling(subscription: WorkspaceSubscription, now = new Date()): boolean {
   if (isBillingExempt(subscription)) return true
-  if (subscription.status === 'active') return true
-  if (subscription.status === 'grace_period') return true
-  if (isGracePeriodActive(subscription, now)) return true
-  return false
+  return isPaidPeriodActive(subscription, now)
 }
 
 /** Whether the workspace can be edited (not view-only). */
 export function canEditWorkspace(subscription: WorkspaceSubscription, now = new Date()): boolean {
   if (isBillingExempt(subscription)) return true
   if (isTrialActive(subscription, now)) return true
-  if (subscription.status === 'active') return true
-  if (subscription.status === 'grace_period') return true
-  if (isGracePeriodActive(subscription, now)) return true
+  if (isPaidPeriodActive(subscription, now)) return true
   return false
 }
 
@@ -109,7 +107,7 @@ export function subscribedTier(subscription: WorkspaceSubscription): Subscriptio
 /**
  * Tier used for limit and feature checks after trial.
  * During trial / lifetime / beta → group (all features).
- * After trial, paid/grace workspaces keep capacity for what they built; unpaid → paid tier only.
+ * After trial, paid workspaces keep capacity for what they built; unpaid → paid tier only.
  */
 export function effectiveTier(
   subscription: WorkspaceSubscription,

@@ -15,7 +15,7 @@ import { useSubscription } from '../contexts/SubscriptionContext'
 import { summarizeAppState } from '../utils/localStateStorage'
 import type { AppState } from '../types'
 
-function formatTrialEnd(iso: string | null): string | null {
+function formatAccessDate(iso: string | null): string | null {
   if (!iso) return null
   try {
     return new Date(iso).toLocaleDateString('en-GB', {
@@ -51,7 +51,19 @@ export function AccountSubscriptionPanel({ state, embedded = false }: AccountSub
   const summary = summarizeAppState(state)
   const recommendedTierId = recommendTierForWorkspace(usage)
   const recommendedTier = SUBSCRIPTION_TIERS[recommendedTierId]
-  const trialEndLabel = formatTrialEnd(subscription.trialEndsAt)
+  const trialEndLabel = formatAccessDate(subscription.trialEndsAt)
+  const periodEndLabel = formatAccessDate(subscription.currentPeriodEnd)
+  const accessUntilLabel = trialActive
+    ? trialEndLabel
+    : subscription.status === 'active'
+      ? periodEndLabel
+      : null
+  const accessIntervalLabel =
+    subscription.billingInterval === 'annual'
+      ? 'Annual term'
+      : subscription.billingInterval === 'monthly'
+        ? 'Monthly term'
+        : null
 
   const trialProgress = useMemo(() => {
     if (!trialActive || trialDaysLeft == null) return null
@@ -114,6 +126,26 @@ export function AccountSubscriptionPanel({ state, embedded = false }: AccountSub
             >
               <span style={{ width: `${trialProgress}%` }} />
             </div>
+          )}
+          <p className="muted" style={{ marginTop: '0.75rem' }}>
+            Full editing stays open until that date. After it, the workspace becomes view only until you
+            subscribe.
+          </p>
+        </article>
+      )}
+
+      {!trialActive && (subscription.lifetimeAccess || accessUntilLabel || subscription.status === 'active') && (
+        <article className="account-plan-block">
+          <h4>Access window</h4>
+          {subscription.lifetimeAccess ? (
+            <p>Lifetime access — no renewal date.</p>
+          ) : (
+            <p>
+              {accessIntervalLabel ? `${accessIntervalLabel} · ` : ''}
+              Editing stays open until{' '}
+              <strong>{accessUntilLabel ?? 'the end of your paid term'}</strong>.
+              After that date the workspace becomes view only until the next payment succeeds.
+            </p>
           )}
         </article>
       )}
