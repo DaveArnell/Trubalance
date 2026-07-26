@@ -76,7 +76,13 @@ function trueBalanceForScope(
   const wobble = scope.annualWobble ?? 0
   const seasonal =
     wobble === 0 ? 0 : wobble * Math.sin((progressMonths / 12) * Math.PI * 2 - Math.PI / 2)
-  return Math.round(trend + seasonal)
+  // Shorter cycles so 30-day and 90-day ranges still show gentle movement, not a flat line.
+  const shortWave =
+    wobble === 0
+      ? 0
+      : wobble * 0.32 * Math.sin(progressMonths * Math.PI * 2) +
+        wobble * 0.16 * Math.sin(progressMonths * Math.PI * 4.5 + 0.7)
+  return Math.round(trend + seasonal + shortWave)
 }
 
 function accountChangesForCash(

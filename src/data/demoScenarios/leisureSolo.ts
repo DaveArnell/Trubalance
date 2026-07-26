@@ -11,7 +11,7 @@ const bizId = 'leisure-solo-biz'
 export const leisureDefaultViewScope = { type: 'business' as const, id: bizId }
 
 const LEISURE_SNAPSHOT_SCOPES = [
-  { id: bizId, type: 'business' as const, name: 'Harbour Adventures Ltd', baseTrue: 28500, growthPerMonth: 240, annualWobble: 1800 },
+  { id: bizId, type: 'business' as const, name: 'Harbour Adventures Ltd', baseTrue: 28500, growthPerMonth: 240, annualWobble: 2600 },
 ]
 
 /** Single-site leisure business — consistent membership and booking income. */

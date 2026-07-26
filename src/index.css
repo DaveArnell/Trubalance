@@ -18304,13 +18304,35 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .setup-flow-main--reserve .setup-flow-page-header,
 .setup-flow-main--reserve .setup-onboarding-explain,
 .setup-flow-main--reserve .setup-reserve-yours-hint {
-  max-width: 48rem;
+  max-width: 40rem;
   margin-inline: auto;
+  text-align: left;
+}
+
+.setup-flow-main--reserve .setup-flow-page-header {
   text-align: center;
+  margin-bottom: var(--space-3);
 }
 
 .setup-flow-main--reserve .setup-flow-page-header h2 {
   text-align: center;
+}
+
+.setup-flow-main--reserve .setup-flow-page-lead {
+  text-align: center;
+  max-width: 36rem;
+  margin: 0.35rem auto 0;
+  font-size: clamp(1rem, 1.5vw, 1.12rem);
+  line-height: 1.5;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.setup-flow-main--reserve .setup-onboarding-explain {
+  margin: 0 auto var(--space-3);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
 }
 
 .setup-flow-main--wide .setup-flow-step-panel--preview {
@@ -18320,13 +18342,31 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .setup-flow-main--wide .setup-flow-step-panel--preview .setup-flow-page-header,
 .setup-flow-main--wide .setup-flow-step-panel--preview .setup-onboarding-explain {
-  text-align: center;
-  max-width: 44rem;
+  text-align: left;
+  max-width: 40rem;
   margin-inline: auto;
 }
 
+.setup-flow-main--wide .setup-flow-step-panel--preview .setup-flow-page-header {
+  text-align: center;
+}
+
+.setup-flow-main--wide .setup-flow-step-panel--preview .setup-flow-page-lead {
+  text-align: center;
+  max-width: 36rem;
+  margin: 0.35rem auto 0;
+  font-size: clamp(1rem, 1.5vw, 1.12rem);
+  line-height: 1.5;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
 .setup-flow-main--wide .setup-flow-step-panel--preview .setup-onboarding-explain {
-  max-width: 48rem;
+  max-width: 40rem;
+  margin: 0 auto var(--space-3);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
 }
 
 .setup-flow-main--import .guided-setup-ai-body,

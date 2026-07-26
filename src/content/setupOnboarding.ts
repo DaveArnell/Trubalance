@@ -64,7 +64,7 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     id: 'reserve',
     title: 'Reserve — separate savings account',
     explain:
-      'VAT, insurance and tax arrive in lumps. Keep that money in a separate savings account — not your current account. A higher-interest savings account is ideal so it earns while it waits.\n\nThe Reserve Planner turns those bills into one monthly transfer amount. Each month you move that amount into the reserve account.\n\nDrag the outlook chart to rotate the year. Try the check-in below when you’re ready.',
+      'VAT, insurance and tax arrive in lumps. Keep that money in a separate savings account, not your everyday current account.\n\nAdd each irregular bill with its amounts and the months it is due — including the day of the month. Cash Prophet turns that into one monthly transfer into your reserve. When the due month arrives, the bill moves into Due so you can mark it paid.',
     page: 'reserve-planner',
     spotlight: '[data-tour="reserve-planner-month"]',
     skippable: true,
@@ -73,7 +73,7 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     id: 'trends-explain',
     title: 'Trends',
     explain:
-      'Trends charts your balance, committed costs and Available over time — so you can see whether things are heading up or down. You can correct a day’s figure if a save was wrong.',
+      'Every time you save your balances, that day is logged. Trends plots those entries so you can see whether your Cash Prophet Balance is heading up or down.\n\nIf a day was saved wrong, correct it in the balance log under the chart — the line updates with your correction. That is usually all you need to keep the picture honest.',
     page: 'trends',
     spotlight: '[data-widget-id="trends-chart"]',
   },
