@@ -742,7 +742,7 @@ export function StructureManagement({ state, actions, embedded = false }: Struct
     <section id="settings" className="card settings-card" data-tour="settings-structure">
       <div className="card-head org-card-head">
         <div>
-          <h2>Structure</h2>
+          <h2>Company structure</h2>
         </div>
         {headActions}
       </div>
