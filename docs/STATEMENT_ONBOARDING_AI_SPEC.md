@@ -38,10 +38,17 @@ Nothing activates until the user confirms. No ongoing per-customer model trainin
 2. Changing names, categories, amounts, or dates on the review screen (or after import) **must not** call OpenAI again — only your saved draft / Cash Prophet data changes.
 3. A new AI analysis only runs when the user **explicitly** uploads again or clicks “Analyse again”, and only if they still have entitlement left.
 4. Prefer CSV/XLSX over PDF where the user has a choice (cheaper, clearer).
-
-**Onboarding placement (agreed):** Option **B** — after teaching / structure, at the end of Getting started as “Prefill from statement” (or skip and enter manually on the dashboard). Manual path still lands ready to enter numbers live.
 5. **One pass** for normal jobs. No automatic multi-pass re-analysis. If evidence is thin, fall back to user review / manual fill — do not burn budget retrying.
-6. Optional fallback: give the user a **copy-pasteable ChatGPT prompt** + schema so they can run analysis themselves and enter results manually (trial multi-business or failed upload path).
+6. Optional fallback: give the user a **copy-pasteable ChatGPT prompt** so they can run analysis themselves and enter results manually (trial multi-business or failed upload path). See `docs/DIY_STATEMENT_CHATGPT_PROMPT.md`.
+
+**Meaningful monthly threshold (user-set)**
+
+- Onboarding asks: “What is a meaningful monthly amount?” (default suggestion **£200**).
+- That value is injected into the DIY prompt (`{{MIN_MONTHLY}}`) and later into the in-app AI job.
+- Filters tiny noise — must **not** strip large-but-variable monthly costs (finance, tax, revolving credit, utilities).
+- Run **per business** (most users = one business; multi-business = repeat).
+
+**Onboarding placement (agreed):** Option **B** — end of Getting started: optional “Prefill from statement” (or skip and enter manually on the dashboard).
 
 ---
 
