@@ -99,7 +99,27 @@ interface SeriesProjection {
   slopePerDay: number
 }
 
+const PROJECTION_STORAGE_KEY = 'trubalance-trends-projection-mode'
+
 type ProjectionMode = 'off' | ProjectionMethod
+
+const projectionModeOptions: { key: ProjectionMode; label: string; title: string }[] = [
+  { key: 'off', label: 'Off', title: 'Logged balances only' },
+  { key: 'linear', label: 'Straight', title: 'Straight trend through all entries' },
+  { key: 'weighted', label: 'Smoothed', title: 'Recent-weighted trend that can bend as momentum changes' },
+]
+
+function readStoredProjectionMode(): ProjectionMode {
+  try {
+    const saved = localStorage.getItem(PROJECTION_STORAGE_KEY)
+    if (saved === 'off' || saved === 'linear' || saved === 'weighted' || saved === 'seasonal') {
+      return saved === 'seasonal' ? 'weighted' : saved
+    }
+  } catch {
+    /* ignore */
+  }
+  return 'weighted'
+}
 
 function dateMs(dateKey: string): number {
   return new Date(`${dateKey}T12:00:00`).getTime()
@@ -160,8 +180,7 @@ export function TrendChart({
     [currentScopeKey]: true,
   }))
   const [hoverDate, setHoverDate] = useState<string | null>(null)
-  const [projectionMode] = useState<ProjectionMode>('off')
-  // Projection / forward forecast on Trends is muted — chart shows logged balances only.
+  const [projectionMode, setProjectionMode] = useState<ProjectionMode>(readStoredProjectionMode)
   const [pinnedSnapshot, setPinnedSnapshot] = useState<{
     scopeKey: string
     snapshot: BalanceSnapshot
@@ -169,6 +188,14 @@ export function TrendChart({
   const [noteEditorDate, setNoteEditorDate] = useState<string | null>(null)
   const svgRef = useRef<SVGSVGElement>(null)
   const scopeOptionKeys = scopeOptions.map((opt) => opt.key).join('|')
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(PROJECTION_STORAGE_KEY, projectionMode)
+    } catch {
+      /* ignore */
+    }
+  }, [projectionMode])
 
   useEffect(() => {
     if (!focusScope) return
@@ -298,13 +325,14 @@ export function TrendChart({
     let seasonalOk = false
 
     if (projectionMode !== 'off' && horizonDays > 0) {
+      const trendMethod: ProjectionMethod = projectionMode
       for (const entry of scopeSeries) {
         if (entry.snapshots.length < 2) continue
         if (canUseSeasonalProjection(entry.snapshots)) seasonalOk = true
         const line = buildSmoothedTrendSeries({
           snapshots: entry.snapshots,
           metric: entry.metric,
-          method: projectionMode,
+          method: trendMethod,
           horizonDays,
         })
         if (!line) continue
@@ -400,6 +428,28 @@ export function TrendChart({
   const hasData = series.some((s) => s.points.length > 0)
   const showProjection = projectionMode !== 'off' && projections.length > 0
   const primaryProjection = projections[0] ?? null
+  const trendLegendLabel =
+    primaryProjection?.effectiveMethod === 'weighted'
+      ? 'Smoothed trend'
+      : primaryProjection?.effectiveMethod === 'seasonal'
+        ? 'Seasonal trend'
+        : 'Straight trend'
+
+  const projectionToggle = (
+    <div className="trends-mini-toggles" role="group" aria-label="Trend projection">
+      {projectionModeOptions.map((option) => (
+        <button
+          key={option.key}
+          type="button"
+          className={projectionMode === option.key ? 'is-active' : ''}
+          title={option.title}
+          onClick={() => setProjectionMode(option.key)}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  )
 
   const xForHoverDate = (date: string) => {
     for (const entry of series) {
@@ -470,7 +520,7 @@ export function TrendChart({
         : null
 
   const trendHelpText =
-    'Solid lines connect your saved balance entries. Each scope level (group, business, venue) has its own Cash Prophet Balance history. Set a From date to ignore anything earlier — useful after a big one-off change. That date is remembered in this browser until you clear or change it.'
+    'Solid lines connect your saved balance entries. Use Trend to overlay a straight or smoothed line and forward forecast. Smoothed weights recent entries more heavily. Set a From date in History to ignore earlier entries after a big change.'
 
   const showLegend = series.length > 1 || activeMetricKeys.length > 1 || showProjection
 
@@ -492,7 +542,7 @@ export function TrendChart({
         <>
           <span className="chart-legend-item">
             <span className="chart-legend-dash chart-legend-dash--fit" />
-            Medium trend
+            {trendLegendLabel}
           </span>
           <span className="chart-legend-item">
             <span className="chart-legend-band chart-legend-band--high" />
@@ -838,9 +888,12 @@ export function TrendChart({
 
           {showProjection && primaryProjection && !embedded && (
             <p className="chart-projection-footnote muted">
-              Solid lines are your saved entries. The medium dashed line is a smoothed trend; high and
-              low bounds widen into the forecast based on how much your history has varied — not a
-              guarantee of future performance.
+              Solid lines are your saved entries. The dashed trend continues into the forecast zone;
+              high and low bounds widen based on how much your history has varied — not a guarantee of
+              future performance.
+              {primaryProjection.effectiveMethod === 'weighted'
+                ? ' Smoothed trend weights recent entries more heavily.'
+                : ' Straight trend fits one line through all entries.'}
             </p>
           )}
 
@@ -967,6 +1020,23 @@ export function TrendChart({
             ))}
           </div>
         </div>
+
+        <div className="chart-control-block chart-control-inline chart-control-range">
+          <p className="chart-control-label">Trend</p>
+          <div className="range-toggles range-toggles--compact">
+            {projectionModeOptions.map((option) => (
+              <button
+                key={option.key}
+                type="button"
+                className={projectionMode === option.key ? 'active' : ''}
+                title={option.title}
+                onClick={() => setProjectionMode(option.key)}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -988,6 +1058,10 @@ export function TrendChart({
               </button>
             ))}
           </div>
+        </div>
+        <div className="trends-chart-rail-cluster">
+          <span className="trends-chart-rail-tag">Trend</span>
+          {projectionToggle}
         </div>
         <HelpButton
           id="trend"

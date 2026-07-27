@@ -6,7 +6,7 @@ export type SnapshotMetric = keyof Pick<
   'trueBalance' | 'cash' | 'committedFunds' | 'expectedReceipts'
 >
 
-export type ProjectionMethod = 'linear' | 'seasonal'
+export type ProjectionMethod = 'linear' | 'weighted' | 'seasonal'
 
 export interface TrendProjectionInput {
   snapshots: BalanceSnapshot[]
@@ -68,6 +68,159 @@ function formatProjectionDate(dateKey: string): string {
 export function formatProjectionDateLabel(dateKey: string | null): string {
   if (!dateKey) return '—'
   return formatProjectionDate(dateKey)
+}
+
+export interface HoltFit {
+  originDate: string
+  fittedAtSnapshots: ChartProjectionPoint[]
+  level: number
+  trendPerDay: number
+  lastDate: string
+  sampleCount: number
+  residualStdError: number
+}
+
+function holtSmoothingAlphas(sampleCount: number): { alpha: number; beta: number } {
+  if (sampleCount <= 4) return { alpha: 0.5, beta: 0.3 }
+  if (sampleCount <= 8) return { alpha: 0.4, beta: 0.2 }
+  return { alpha: 0.3, beta: 0.12 }
+}
+
+/** Exponential smoothing — recent entries weigh more; the trend can bend as momentum changes. */
+export function fitHoltTrend(
+  snapshots: BalanceSnapshot[],
+  metric: SnapshotMetric = 'trueBalance',
+): HoltFit | null {
+  const sorted = [...snapshots].sort((a, b) => a.date.localeCompare(b.date))
+  if (sorted.length < 2) return null
+
+  const { alpha, beta } = holtSmoothingAlphas(sorted.length)
+  const originDate = sorted[0]!.date
+  const originMs = new Date(`${originDate}T12:00:00`).getTime()
+
+  let level = sorted[0]![metric] as number
+  let trendPerDay = 0
+  const fittedAtSnapshots: ChartProjectionPoint[] = [{ date: sorted[0]!.date, value: level }]
+
+  let ssRes = 0
+  let resCount = 0
+
+  for (let i = 1; i < sorted.length; i++) {
+    const snap = sorted[i]!
+    const y = snap[metric] as number
+    const dt = dayIndex(snap.date, originMs) - dayIndex(sorted[i - 1]!.date, originMs)
+    if (dt <= 0) continue
+
+    const forecast = level + trendPerDay * dt
+    ssRes += (y - forecast) ** 2
+    resCount++
+
+    const newLevel = alpha * y + (1 - alpha) * forecast
+    const newTrend = (beta * (newLevel - level)) / dt + (1 - beta) * trendPerDay
+    level = newLevel
+    trendPerDay = newTrend
+    fittedAtSnapshots.push({ date: snap.date, value: level })
+  }
+
+  const dof = Math.max(1, resCount - 1)
+  const residualStdError = resCount > 0 ? Math.sqrt(ssRes / dof) : 0
+
+  return {
+    originDate,
+    fittedAtSnapshots,
+    level,
+    trendPerDay,
+    lastDate: sorted[sorted.length - 1]!.date,
+    sampleCount: sorted.length,
+    residualStdError,
+  }
+}
+
+function interpolateFittedValue(dateKey: string, fitted: ChartProjectionPoint[]): number {
+  if (fitted.length === 0) return 0
+  if (dateKey <= fitted[0]!.date) return fitted[0]!.value
+  const last = fitted[fitted.length - 1]!
+  if (dateKey >= last.date) return last.value
+
+  for (let i = 1; i < fitted.length; i++) {
+    const prev = fitted[i - 1]!
+    const next = fitted[i]!
+    if (dateKey > next.date) continue
+    const prevMs = dateMs(prev.date)
+    const nextMs = dateMs(next.date)
+    const t = nextMs === prevMs ? 0 : (dateMs(dateKey) - prevMs) / (nextMs - prevMs)
+    return prev.value + t * (next.value - prev.value)
+  }
+
+  return last.value
+}
+
+function holtValueAt(holt: HoltFit, dateKey: string): number {
+  const lastMs = dateMs(holt.lastDate)
+  const days = (dateMs(dateKey) - lastMs) / 86_400_000
+  if (days <= 0) return interpolateFittedValue(dateKey, holt.fittedAtSnapshots)
+  return holt.level + holt.trendPerDay * days
+}
+
+function buildWeightedTrendSeries({
+  snapshots,
+  metric = 'trueBalance',
+  horizonDays,
+}: {
+  snapshots: BalanceSnapshot[]
+  metric?: SnapshotMetric
+  horizonDays: number
+}): SmoothedTrendSeries | null {
+  const sorted = [...snapshots].sort((a, b) => a.date.localeCompare(b.date))
+  if (sorted.length < 2 || horizonDays <= 0) return null
+
+  const holt = fitHoltTrend(sorted, metric)
+  if (!holt) return null
+
+  const firstDate = sorted[0]!.date
+  const lastActualDate = holt.lastDate
+  const forecastEnd = addDays(lastActualDate, horizonDays)
+  const stepDays = horizonDays <= 45 ? 7 : horizonDays <= 120 ? 14 : 30
+  const lastActualMs = dateMs(lastActualDate)
+
+  const historical = sampleDates(firstDate, lastActualDate, stepDays).map((date) => ({
+    date,
+    value: holtValueAt(holt, date),
+  }))
+
+  const forecastDates = sampleDates(lastActualDate, forecastEnd, stepDays)
+  const forecast: ChartProjectionPoint[] = []
+  const forecastHigh: ChartProjectionPoint[] = []
+  const forecastLow: ChartProjectionPoint[] = []
+
+  for (const date of forecastDates) {
+    const center = holtValueAt(holt, date)
+    const daysAhead = Math.max(0, (dateMs(date) - lastActualMs) / 86_400_000)
+    const base =
+      holt.residualStdError > 0
+        ? holt.residualStdError
+        : Math.max(500, Math.abs(center) * 0.04)
+    const funnelGrowth =
+      daysAhead <= 0 ? 0 : 1 + Math.sqrt(daysAhead / Math.max(14, horizonDays * 0.45))
+    const halfWidth = base * funnelGrowth * FORECAST_BAND_Z
+
+    forecast.push({ date, value: center })
+    forecastHigh.push({ date, value: center + halfWidth })
+    forecastLow.push({ date, value: center - halfWidth })
+  }
+
+  return {
+    historical,
+    forecast,
+    forecastHigh,
+    forecastLow,
+    slopePerDay: holt.trendPerDay,
+    method: 'weighted',
+    effectiveMethod: 'weighted',
+    horizonDays,
+    lastActualDate,
+    residualStdError: holt.residualStdError,
+  }
 }
 
 export interface LinearFit {
@@ -290,6 +443,10 @@ export function buildSmoothedTrendSeries({
 }): SmoothedTrendSeries | null {
   const sorted = [...snapshots].sort((a, b) => a.date.localeCompare(b.date))
   if (sorted.length < 2 || horizonDays <= 0) return null
+
+  if (method === 'weighted') {
+    return buildWeightedTrendSeries({ snapshots: sorted, metric, horizonDays })
+  }
 
   const fit = fitLinearTrend(sorted, metric)
   if (!fit) return null
