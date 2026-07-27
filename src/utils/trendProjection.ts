@@ -158,7 +158,7 @@ export interface WeightedCurveFit {
 
 /**
  * Recency-weighted quadratic: one gentle curve start→end (not wavy through each bump).
- * Forecast continues from the recent bend (value + slope + curvature at the join), not a ruler.
+ * Forecast uses a capped end-slope continuation — unconstrained acceleration blows up on short data.
  */
 export function fitWeightedCurve(
   snapshots: BalanceSnapshot[],
@@ -172,16 +172,19 @@ export function fitWeightedCurve(
   const originMs = dateMs(originDate)
   const spanDays = Math.max(1, (dateMs(lastDate) - originMs) / 86_400_000)
 
+  const ys = sorted.map((snap) => snap[metric] as number)
+  const yMin = Math.min(...ys)
+  const yMax = Math.max(...ys)
+  const dataRange = Math.max(1, yMax - yMin)
+
   const points = sorted.map((snap, index) => {
     const x = dayIndex(snap.date, originMs) / spanDays
     const y = snap[metric] as number
-    // Newer points weigh more; last point ~4× first when n is large.
     const recency = (index + 1) / sorted.length
     const w = 0.35 + 0.65 * recency * recency
     return { x, y, w }
   })
 
-  // Weighted least squares for y = a + b x + c x²
   let sw = 0
   let sx = 0
   let sx2 = 0
@@ -203,7 +206,6 @@ export function fitWeightedCurve(
     sx2y += p.w * x2 * p.y
   }
 
-  // Solve 3×3 via Cramer's rule / Gaussian elimination
   const m = [
     [sw, sx, sx2],
     [sx, sx2, sx3],
@@ -227,8 +229,8 @@ export function fitWeightedCurve(
   let b: number
   let c: number
 
-  if (Math.abs(D) < 1e-12) {
-    // Degenerate → weighted linear in normalized x
+  if (Math.abs(D) < 1e-12 || sorted.length < 4 || spanDays < 14) {
+    // Too little history for a stable curve — weighted linear only.
     const denom = sw * sx2 - sx * sx
     if (Math.abs(denom) < 1e-12) return null
     b = (sw * sxy - sx * sy) / denom
@@ -238,6 +240,12 @@ export function fitWeightedCurve(
     a = det3(replaceCol(0, rhs)) / D
     b = det3(replaceCol(1, rhs)) / D
     c = det3(replaceCol(2, rhs)) / D
+    // Cap curvature: mid-span bend must stay within half the observed data range.
+    const midBend = c * 0.25
+    const maxBend = dataRange * 0.5
+    if (Math.abs(midBend) > maxBend) {
+      c *= maxBend / Math.abs(midBend)
+    }
   }
 
   const valueAtNorm = (x: number) => a + b * x + c * x * x
@@ -250,7 +258,6 @@ export function fitWeightedCurve(
   const dof = Math.max(1, points.length - (Math.abs(c) < 1e-12 ? 2 : 3))
   const residualStdError = Math.sqrt(ssRes / dof)
 
-  // dy/dday = (b + 2 c x) / spanDays ; d²y/dday² = 2c / spanDays²
   const endSlopePerDay = (b + 2 * c * 1) / spanDays
   const endAccelPerDay2 = (2 * c) / (spanDays * spanDays)
 
@@ -273,30 +280,71 @@ function weightedCurveValueAt(fit: WeightedCurveFit, dateKey: string): number {
   return fit.a + fit.b * x + fit.c * x * x
 }
 
-/** Recent-window fit so forecast continues the bend you see at the end of the smooth line. */
-function fitRecentWeightedCurve(
-  snapshots: BalanceSnapshot[],
-  metric: SnapshotMetric,
-): WeightedCurveFit | null {
-  const sorted = [...snapshots].sort((a, b) => a.date.localeCompare(b.date))
-  if (sorted.length < 3) return fitWeightedCurve(sorted, metric)
-
-  const window = Math.max(4, Math.min(sorted.length, Math.ceil(sorted.length * 0.45)))
-  const recent = sorted.slice(-window)
-  return fitWeightedCurve(recent, metric)
+function seriesDataRange(snapshots: BalanceSnapshot[], metric: SnapshotMetric): number {
+  const ys = snapshots.map((s) => s[metric] as number)
+  return Math.max(1, Math.max(...ys) - Math.min(...ys))
 }
 
 /**
- * Forecast from the join: same value as the historical smooth line, then continue with
- * recent slope + curvature (Taylor), so flattening / steepening keeps going — not a ruler.
+ * Continue from the smooth-line tip: mostly the end slope.
+ * Any curvature fades quickly and is hard-capped so short noisy history cannot shoot to millions.
  */
 function forecastFromJoin(
   joinValue: number,
   slopePerDay: number,
   accelPerDay2: number,
   daysAhead: number,
+  dataRange: number,
+  horizonDays: number,
 ): number {
-  return joinValue + slopePerDay * daysAhead + 0.5 * accelPerDay2 * daysAhead * daysAhead
+  if (daysAhead <= 0) return joinValue
+
+  // Cap |slope| so a one-week wobble cannot imply £11k/week forever.
+  const maxWeeklyMove = Math.max(dataRange * 0.35, Math.abs(joinValue) * 0.03, 250)
+  const maxSlope = maxWeeklyMove / 7
+  const slope =
+    Math.sign(slopePerDay) * Math.min(Math.abs(slopePerDay), maxSlope)
+
+  // Accel contribution over the horizon ≤ 20% of observed range, and fades within ~3 weeks.
+  const maxAccel = (0.2 * dataRange) / Math.max(1, 0.5 * 21 * 21)
+  const accel =
+    Math.sign(accelPerDay2) * Math.min(Math.abs(accelPerDay2), maxAccel)
+  const damp = Math.exp(-daysAhead / 18)
+
+  const raw =
+    joinValue + slope * daysAhead + 0.5 * accel * daysAhead * daysAhead * damp
+
+  const rail = Math.max(
+    dataRange * 2,
+    Math.abs(joinValue) * 0.5,
+    Math.abs(slope) * horizonDays * 1.15,
+    2_500,
+  )
+  return Math.max(joinValue - rail, Math.min(joinValue + rail, raw))
+}
+
+function cappedBandHalfWidth(
+  residualStdError: number,
+  joinValue: number,
+  dataRange: number,
+  daysAhead: number,
+  horizonDays: number,
+  sampleCount: number,
+): number {
+  // Don't let a few noisy points invent a huge residual.
+  const cappedResidual = Math.min(
+    residualStdError > 0 ? residualStdError : dataRange * 0.25,
+    Math.max(dataRange * 0.4, Math.abs(joinValue) * 0.08, 200),
+  )
+  // Short samples → trust the band less width, not more.
+  const sampleFactor = sampleCount >= 10 ? 1 : sampleCount >= 5 ? 0.75 : 0.55
+  const funnel =
+    daysAhead <= 0
+      ? 0
+      : 1 + 0.4 * Math.sqrt(daysAhead / Math.max(30, horizonDays * 0.6))
+  const half = cappedResidual * sampleFactor * funnel * FORECAST_BAND_Z
+  const maxHalf = Math.max(dataRange * 1.25, Math.abs(joinValue) * 0.35, 1_500)
+  return Math.min(maxHalf, half)
 }
 
 function buildWeightedTrendSeries({
@@ -314,23 +362,30 @@ function buildWeightedTrendSeries({
   const curve = fitWeightedCurve(sorted, metric)
   if (!curve) return null
 
-  const recent = fitRecentWeightedCurve(sorted, metric) ?? curve
+  const linear = fitLinearTrend(sorted, metric)
+  const dataRange = seriesDataRange(sorted, metric)
   const firstDate = sorted[0]!.date
   const lastActualDate = curve.lastDate
   const forecastEnd = addDays(lastActualDate, horizonDays)
-  // Dense enough that a curve reads as a curve, not two straight segments.
   const stepDays = horizonDays <= 45 ? 3 : horizonDays <= 120 ? 5 : 7
   const lastActualMs = dateMs(lastActualDate)
   const joinValue = weightedCurveValueAt(curve, lastActualDate)
-  // Prefer recent-window slope/curvature so the forecast follows the end of the smooth line.
-  const slope = recent.endSlopePerDay
-  const accel = recent.endAccelPerDay2
 
-  const historical = sampleDates(firstDate, lastActualDate, stepDays).map((date) => ({
+  // Prefer stable linear slope when history is short; otherwise blend tip slope with linear.
+  const tipSlope = curve.endSlopePerDay
+  const linearSlope = linear?.slopePerDay ?? tipSlope
+  const slope =
+    sorted.length < 8 || curve.spanDays < 21
+      ? linearSlope
+      : 0.65 * tipSlope + 0.35 * linearSlope
+  const accel =
+    sorted.length < 8 || curve.spanDays < 21 ? 0 : curve.endAccelPerDay2 * 0.35
+
+  const histStep = Math.min(stepDays, Math.max(1, Math.round(curve.spanDays / 24)))
+  const historical = sampleDates(firstDate, lastActualDate, histStep).map((date) => ({
     date,
     value: weightedCurveValueAt(curve, date),
   }))
-  // Force exact join so history + forecast share one continuous tip.
   if (historical.length > 0) {
     historical[historical.length - 1] = { date: lastActualDate, value: joinValue }
   }
@@ -342,15 +397,22 @@ function buildWeightedTrendSeries({
 
   for (const date of forecastDates) {
     const daysAhead = Math.max(0, (dateMs(date) - lastActualMs) / 86_400_000)
-    const center =
-      daysAhead === 0 ? joinValue : forecastFromJoin(joinValue, slope, accel, daysAhead)
-    const base =
-      curve.residualStdError > 0
-        ? curve.residualStdError
-        : Math.max(500, Math.abs(center) * 0.04)
-    const funnelGrowth =
-      daysAhead <= 0 ? 0 : 1 + Math.sqrt(daysAhead / Math.max(14, horizonDays * 0.45))
-    const halfWidth = base * funnelGrowth * FORECAST_BAND_Z
+    const center = forecastFromJoin(
+      joinValue,
+      slope,
+      accel,
+      daysAhead,
+      dataRange,
+      horizonDays,
+    )
+    const halfWidth = cappedBandHalfWidth(
+      curve.residualStdError,
+      joinValue,
+      dataRange,
+      daysAhead,
+      horizonDays,
+      sorted.length,
+    )
 
     forecast.push({ date, value: center })
     forecastHigh.push({ date, value: center + halfWidth })
@@ -531,24 +593,32 @@ function forecastUncertaintyHalfWidth(
   daysAheadFromLast: number,
   horizonDays: number,
   z: number,
+  dataRange: number,
+  joinValue: number,
 ): number {
-  const base =
-    residualStdError > 0
-      ? residualStdError
-      : Math.max(500, Math.abs(fit.intercept + fit.slopePerDay * x) * 0.04)
+  const cappedResidual = Math.min(
+    residualStdError > 0 ? residualStdError : Math.max(dataRange * 0.25, Math.abs(joinValue) * 0.04),
+    Math.max(dataRange * 0.4, Math.abs(joinValue) * 0.08, 200),
+  )
 
   let regressionFactor = 1
   if (fit.sampleCount >= 3 && fit.sumSqDevX > 1e-9) {
     const xDev = x - fit.meanX
-    regressionFactor = Math.sqrt(1 + 1 / fit.sampleCount + (xDev * xDev) / fit.sumSqDevX)
+    // Soften the classic regression blow-up far from the mean.
+    regressionFactor = Math.sqrt(
+      1 + 1 / fit.sampleCount + Math.min(2.5, (xDev * xDev) / fit.sumSqDevX),
+    )
   }
+  const sampleFactor = fit.sampleCount >= 10 ? 1 : fit.sampleCount >= 5 ? 0.75 : 0.55
 
   const funnelGrowth =
     daysAheadFromLast <= 0
       ? 0
-      : 1 + Math.sqrt(daysAheadFromLast / Math.max(14, horizonDays * 0.45))
+      : 1 + 0.4 * Math.sqrt(daysAheadFromLast / Math.max(30, horizonDays * 0.6))
 
-  return base * regressionFactor * funnelGrowth * z
+  const half = cappedResidual * regressionFactor * sampleFactor * funnelGrowth * z
+  const maxHalf = Math.max(dataRange * 1.25, Math.abs(joinValue) * 0.35, 1_500)
+  return Math.min(maxHalf, half)
 }
 
 function fittedTrendValue(
@@ -626,6 +696,8 @@ export function buildSmoothedTrendSeries({
     fit,
     effectiveMethod === 'seasonal' ? seasonalOffsets : null,
   )
+  const dataRange = seriesDataRange(sorted, metric)
+  const joinValue = sorted[sorted.length - 1]![metric] as number
 
   const forecastDates = sampleDates(lastActualDate, forecastEnd, stepDays)
   const forecast: ChartProjectionPoint[] = []
@@ -647,6 +719,8 @@ export function buildSmoothedTrendSeries({
       daysAhead,
       horizonDays,
       FORECAST_BAND_Z,
+      dataRange,
+      joinValue,
     )
 
     forecast.push({ date, value: center })
