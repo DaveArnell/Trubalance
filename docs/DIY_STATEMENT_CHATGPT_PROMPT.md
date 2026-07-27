@@ -77,8 +77,11 @@ AMOUNTS
 - Large variable monthly → include with estimate; 🟠 or 🔴.
 
 NAMES
-- Short Cash Prophet label + Bank payee for matching.
-- Do not invent purpose when unsure → 🔴.
+- Name = short plain label for Cash Prophet (e.g. Electricity, Business rates, Pension, Payroll, Waste).
+- Do NOT put account numbers, policy refs, agreement IDs, or long reference codes in Name — keep those only in Bank payee if present.
+- Prefer a clear everyday label when the payee type is obvious; if purpose is unclear, use a short payee-based Name and Status 🔴.
+- Bank payee = as on the statement, for matching (may include refs).
+- Separate policies / agreements to the same insurer or lender → separate rows with distinct short Names if the amounts/schedules differ.
 
 STATUS
 🟢 consistent — enter
