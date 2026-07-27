@@ -1,10 +1,9 @@
 /**
  * DIY ChatGPT prompt for statement → Cash Prophet setup.
- * Keep generic — any UK business / bank. Inject thresholds before copy.
+ * Keep generic — any UK business / bank. Inject monthly threshold before copy.
  */
 
 export const DIY_STATEMENT_DEFAULT_MIN_MONTHLY = 200
-export const DIY_STATEMENT_DEFAULT_MIN_RESERVE_ANNUAL = 3000
 
 const DIY_STATEMENT_PROMPT_TEMPLATE = `You are helping me set up Cash Prophet (UK small-business cash position tool — not bookkeeping).
 
@@ -20,10 +19,6 @@ Tables first. No essay. Exact headers only.
 MEANINGFUL MONTHLY THRESHOLD = £{{MIN_MONTHLY}}
 - Drop small recurring noise clearly under this amount per month → Not imported.
 - Do not drop clear monthly costs that are around/above the threshold just because the amount varies.
-
-RESERVE SIZE THRESHOLD = about £{{MIN_RESERVE_ANNUAL}} per year (or a single payment that is material on that scale)
-- Prefer Reserve items at or above this scale. Skip small annual noise.
-- A quarterly bill of about £{{MIN_RESERVE_QUARTER}} or more also qualifies.
 
 ONE DAY ONLY
 - Day of month and Due day must be a single integer 1–31 (e.g. 2 or 24).
@@ -46,7 +41,7 @@ Include in Reserve when ANY of these fit:
 1) Quarterly-ish spacing (~80–100 days) or the same 4 month-slots each year — list ALL due months in the cycle (e.g. Mar, Jun, Sep, Dec) even if only some appear in the file; 🟠/🔴 if incomplete.
 2) Six-monthly or annual repeats (same month ± a few weeks across years).
 3) Large non-monthly bills that matter for cash planning: tax (VAT / corporation tax when identifiable), insurance, licences, large landlord/management/property-style payments, other big yearly charges.
-4) Respect the Reserve size threshold above.
+4) Prefer material amounts — skip tiny annual noise. Include anything that clearly matters to cash planning even if purpose is unclear (Status 🔴).
 
 Purpose unknown is fine: keep a payee-based Name, Status 🔴, but STILL list it in Reserve if the schedule and size qualify.
 
@@ -92,15 +87,7 @@ After tables, only:
 1) “Confirm these first” — max 5 bullets
 2) 🟢 enter · 🟠 enter then check · 🔴 decide before trusting`
 
-export function buildDiyStatementPrompt(options: {
-  minMonthly: number
-  minReserveAnnual: number
-}): string {
+export function buildDiyStatementPrompt(options: { minMonthly: number }): string {
   const minMonthly = Math.max(1, Math.round(options.minMonthly))
-  const minReserveAnnual = Math.max(1, Math.round(options.minReserveAnnual))
-  const minReserveQuarter = Math.max(1, Math.round(minReserveAnnual / 4))
-
   return DIY_STATEMENT_PROMPT_TEMPLATE.replaceAll('{{MIN_MONTHLY}}', String(minMonthly))
-    .replaceAll('{{MIN_RESERVE_ANNUAL}}', String(minReserveAnnual))
-    .replaceAll('{{MIN_RESERVE_QUARTER}}', String(minReserveQuarter))
 }

@@ -51,7 +51,6 @@ interface ReservePlannerPanelProps {
     | 'updateReserveBill'
     | 'deleteReserveBill'
     | 'duplicateReserveBill'
-    | 'copyReservePlannerBillsFrom'
     | 'reorderReserveBills'
     | 'confirmReserveMonth'
   >
@@ -826,20 +825,6 @@ export function ReservePlannerPanel({
     if (planner) actions.reorderReserveBills(planner.id, orderedIds)
   })
 
-  const otherPlanners = useMemo(
-    () => {
-      const currentId = summary?.planner?.id
-      if (!currentId) return []
-      return state.reservePlanners
-        .filter((p) => p.id !== currentId)
-        .map((p) => {
-          const business = state.businesses.find((b) => b.id === p.businessId)
-          return { id: p.id, label: p.name || business?.name || 'Reserve plan', billCount: p.bills.length }
-        })
-    },
-    [state.reservePlanners, state.businesses, summary?.planner?.id],
-  )
-
   if (!summary || !planner) {
     if (state.reservePlanners.length === 0 || showCreateForm || reserveRouteId === 'new') {
       return (
@@ -882,18 +867,12 @@ export function ReservePlannerPanel({
     currentMonthIdx,
   )
 
-  const copyFromPlanner = (sourcePlannerId: string) => {
-    const source = state.reservePlanners.find((p) => p.id === sourcePlannerId)
-    if (!source || source.bills.length === 0) return
-    const mode =
-      bills.length === 0
-        ? 'replace'
-        : window.confirm(
-            `Copy ${source.bills.length} bill${source.bills.length === 1 ? '' : 's'} from "${source.name}"?\n\nOK replaces your current bills.\nCancel adds them alongside.`,
-          )
-          ? 'replace'
-          : 'append'
-    actions.copyReservePlannerBillsFrom(planner.id, sourcePlannerId, mode)
+  const addBillRow = () => {
+    actions.addReserveBill({
+      plannerId: planner.id,
+      name: billTypeOptions[0] ?? 'VAT',
+      monthAmounts: {},
+    })
   }
 
   const saveMonthAmount = (
@@ -910,44 +889,58 @@ export function ReservePlannerPanel({
 
   return (
     <section id="reserve-planner" className="card reserve-box card-scroll">
-      <div className="card-head card-head-compact">
-        <div>
-          <h2 className="reserve-planner-business-heading">{businessName || planner.name}</h2>
-          {businessName && (
-            <input
-              className="planner-name-input planner-name-input--compact planner-name-input--subtitle"
-              value={planner.name}
-              onChange={(e) => actions.updateReservePlanner(planner.id, { name: e.target.value })}
-              aria-label="Reserve plan label"
-              readOnly={editReadOnly}
+      <div className="card-head card-head-compact card-head--widget-bar">
+        <div className="card-head-toolbar">
+          {!editReadOnly ? (
+            <button
+              type="button"
+              className="btn-primary btn-widget-add"
+              data-tour="reserve-planner-bills"
+              onClick={addBillRow}
+            >
+              + Add
+            </button>
+          ) : (
+            <span className="card-head-toolbar-spacer" aria-hidden />
+          )}
+          <div className="reserve-planner-heading-block">
+            <h2 className="reserve-planner-business-heading">{businessName || planner.name}</h2>
+            {businessName && (
+              <input
+                className="planner-name-input planner-name-input--compact planner-name-input--subtitle"
+                value={planner.name}
+                onChange={(e) => actions.updateReservePlanner(planner.id, { name: e.target.value })}
+                aria-label="Reserve plan label"
+                readOnly={editReadOnly}
+              />
+            )}
+          </div>
+          <div className="card-head-toolbar-right">
+            {!editReadOnly && (
+              <button
+                type="button"
+                className="btn-ghost btn-tiny reserve-delete-btn"
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      `Delete "${planner.name}"? Bills from this plan will no longer appear in Due.`,
+                    )
+                  ) {
+                    actions.deleteReservePlanner(planner.id)
+                    onPlannerDeleted(planner.id)
+                  }
+                }}
+              >
+                Delete plan
+              </button>
+            )}
+            <HelpButton
+              id="reserve"
+              openHelp={openHelp}
+              setOpenHelp={setOpenHelp}
+              text={WIDGET_HELP.reservePlanner}
             />
-          )}
-        </div>
-        <div className="card-actions">
-          {!editReadOnly && (
-          <button
-            type="button"
-            className="btn-ghost btn-tiny reserve-delete-btn"
-            onClick={() => {
-              if (
-                window.confirm(
-                  `Delete "${planner.name}"? Bills from this plan will no longer appear in Due.`,
-                )
-              ) {
-                actions.deleteReservePlanner(planner.id)
-                onPlannerDeleted(planner.id)
-              }
-            }}
-          >
-            Delete plan
-          </button>
-          )}
-          <HelpButton
-            id="reserve"
-            openHelp={openHelp}
-            setOpenHelp={setOpenHelp}
-            text={WIDGET_HELP.reservePlanner}
-          />
+          </div>
         </div>
       </div>
 
@@ -998,46 +991,6 @@ export function ReservePlannerPanel({
                   readOnly={editReadOnly}
                 />
               </div>
-
-              <div className="reserve-planner-top-actions" data-tour="reserve-planner-bills">
-                {!editReadOnly && otherPlanners.length > 0 && (
-                  <select
-                    className="reserve-copy-from-select"
-                    defaultValue=""
-                    aria-label="Copy bills from another plan"
-                    onChange={(e) => {
-                      const sourceId = e.target.value
-                      if (sourceId) {
-                        copyFromPlanner(sourceId)
-                        e.target.value = ''
-                      }
-                    }}
-                  >
-                    <option value="">Copy from…</option>
-                    {otherPlanners.map((item) => (
-                      <option key={item.id} value={item.id} disabled={item.billCount === 0}>
-                        {item.label}
-                        {item.billCount === 0 ? ' (empty)' : ` (${item.billCount})`}
-                      </option>
-                    ))}
-                  </select>
-                )}
-                {!editReadOnly && (
-                <button
-                  type="button"
-                  className="btn-secondary btn-tiny"
-                  onClick={() =>
-                    actions.addReserveBill({
-                      plannerId: planner.id,
-                      name: billTypeOptions[0] ?? 'VAT',
-                      monthAmounts: {},
-                    })
-                  }
-                >
-                  + Add bill row
-                </button>
-                )}
-              </div>
             </div>
 
             <div className="sheet-wrap reserve-sheet-wrap" ref={sheetWrapRef}>
@@ -1074,7 +1027,7 @@ export function ReservePlannerPanel({
                           <p><strong>Add your irregular bills here.</strong></p>
                           <p>Think: VAT, corporation tax, insurance, annual renewals — anything too big to pay from one month&apos;s income.</p>
                           <ol>
-                            <li>Click <strong>+ Add bill row</strong> above to add a bill.</li>
+                            <li>Click <strong>+ Add</strong> above to add a bill.</li>
                             <li>Click a <strong>month cell</strong> to enter the amount due that month and which day it&apos;s due.</li>
                             <li>Each month, the planner tells you exactly how much to transfer in or out of your savings account.</li>
                           </ol>

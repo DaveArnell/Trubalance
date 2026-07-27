@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { AppState, Commitment, CommitmentAccruingRow, ScopeLevel } from '../../types'
 import {
@@ -39,6 +39,7 @@ export function MobileAccruingDetailModal({
   const isReserve = row.source === 'reserve'
   const canEdit = !editReadOnly && !isReserve && Boolean(onSave)
   const progress = getAccrualProgress(commitment)?.progress ?? 0
+  const backdropPointerDown = useRef(false)
 
   const [name, setName] = useState(commitment.name)
   const [amount, setAmount] = useState(String(commitment.amount))
@@ -104,13 +105,25 @@ export function MobileAccruingDetailModal({
   }
 
   return createPortal(
-    <div className="snapshot-correction-backdrop" onClick={onClose}>
+    <div
+      className="snapshot-correction-backdrop"
+      onPointerDown={(e) => {
+        backdropPointerDown.current = e.target === e.currentTarget
+      }}
+      onClick={(e) => {
+        // Only close when the press started on the backdrop — not when text selection
+        // ends outside the dialog after starting inside an input.
+        if (backdropPointerDown.current && e.target === e.currentTarget) onClose()
+        backdropPointerDown.current = false
+      }}
+    >
       <div
         className="snapshot-correction-modal mobile-accruing-detail-modal"
         role="dialog"
         aria-modal="true"
         aria-labelledby="mobile-accruing-detail-title"
         onClick={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
         style={{ borderTop: `4px solid ${accentColor}` }}
       >
         <h3 id="mobile-accruing-detail-title">{canEdit ? 'Edit monthly cost' : commitment.name}</h3>

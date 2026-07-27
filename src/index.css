@@ -8416,6 +8416,24 @@ textarea:focus {
   margin-left: auto;
 }
 
+.reserve-planner-heading-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  flex: 1;
+  text-align: center;
+}
+
+.reserve-planner-heading-block .reserve-planner-business-heading {
+  margin: 0;
+}
+
+.reserve-planner-heading-block .planner-name-input--subtitle {
+  margin-top: 2px;
+}
+
 .reserve-buffer-field {
   display: grid;
   gap: 2px;
@@ -19308,12 +19326,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .setup-statement-helper-thresholds {
   display: grid;
   gap: var(--space-3);
-}
-
-@media (min-width: 720px) {
-  .setup-statement-helper-thresholds {
-    grid-template-columns: 1fr 1fr;
-  }
+  max-width: 22rem;
 }
 
 .setup-statement-helper-field {

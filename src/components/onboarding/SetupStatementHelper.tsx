@@ -1,16 +1,12 @@
 import { useMemo, useState } from 'react'
 import {
   DIY_STATEMENT_DEFAULT_MIN_MONTHLY,
-  DIY_STATEMENT_DEFAULT_MIN_RESERVE_ANNUAL,
   buildDiyStatementPrompt,
 } from '../../content/diyStatementPrompt'
 import { getCurrencySymbol } from '../../utils/format'
 
 export function SetupStatementHelper() {
   const [minMonthly, setMinMonthly] = useState(DIY_STATEMENT_DEFAULT_MIN_MONTHLY)
-  const [minReserveAnnual, setMinReserveAnnual] = useState(
-    DIY_STATEMENT_DEFAULT_MIN_RESERVE_ANNUAL,
-  )
   const [copied, setCopied] = useState(false)
   const [copyError, setCopyError] = useState<string | null>(null)
   const symbol = getCurrencySymbol()
@@ -19,11 +15,8 @@ export function SetupStatementHelper() {
     () =>
       buildDiyStatementPrompt({
         minMonthly: Number.isFinite(minMonthly) ? minMonthly : DIY_STATEMENT_DEFAULT_MIN_MONTHLY,
-        minReserveAnnual: Number.isFinite(minReserveAnnual)
-          ? minReserveAnnual
-          : DIY_STATEMENT_DEFAULT_MIN_RESERVE_ANNUAL,
       }),
-    [minMonthly, minReserveAnnual],
+    [minMonthly],
   )
 
   const handleCopy = async () => {
@@ -46,7 +39,7 @@ export function SetupStatementHelper() {
           more</strong> — longer history finds quarterly and annual bills more reliably.
         </li>
         <li>
-          Set your thresholds below, then <strong>Copy prompt</strong>. Open your own ChatGPT (or
+          Set your monthly minimum below, then <strong>Copy prompt</strong>. Open your own ChatGPT (or
           similar), paste the prompt, and upload the file. Repeat once per business if you have
           several.
         </li>
@@ -72,24 +65,6 @@ export function SetupStatementHelper() {
           </span>
           <span className="muted">Ignore recurring noise below this each month.</span>
         </label>
-
-        <label className="setup-statement-helper-field">
-          <span>Meaningful reserve / annual amount</span>
-          <span className="setup-statement-helper-input">
-            <span aria-hidden>{symbol}</span>
-            <input
-              type="number"
-              min={1}
-              step={100}
-              value={minReserveAnnual}
-              onChange={(e) => setMinReserveAnnual(Number(e.target.value) || 0)}
-              aria-label="Meaningful annual reserve amount in pounds"
-            />
-          </span>
-          <span className="muted">
-            Prefer Reserve items around this size per year (or a quarterly share of it).
-          </span>
-        </label>
       </div>
 
       <div className="setup-statement-helper-actions">
@@ -97,8 +72,7 @@ export function SetupStatementHelper() {
           {copied ? 'Copied' : 'Copy prompt'}
         </button>
         <p className="muted setup-statement-helper-hint">
-          The prompt is ready with your thresholds. You do not need to edit it — paste, then upload
-          the transaction file.
+          The prompt includes your monthly minimum. Paste it, then upload the transaction file.
         </p>
       </div>
 

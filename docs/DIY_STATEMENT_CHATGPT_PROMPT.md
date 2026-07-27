@@ -4,10 +4,10 @@
 
 During Getting started (per business):
 
-1. Ask for a **meaningful monthly amount** (default £200) and a **meaningful reserve/annual amount** (default £3,000).
-2. **Copy prompt** injects those values — user does not edit the prompt.
+1. Ask for a **meaningful monthly amount** (default £200).
+2. **Copy prompt** injects that value — user does not edit the prompt.
 3. User pastes into their own ChatGPT + uploads that business’s transaction log (CSV preferred; 2+ years ideal).
-4. They type the returned tables into Cash Prophet.
+4. They type the returned tables into Cash Prophet (including Reserve Planner items they choose to keep).
 
 Most customers = one business. Multi-business = repeat.
 
@@ -21,7 +21,6 @@ Cold-test on more than one business. Fail the run if:
 
 - Day columns contain ranges (must be one number)
 - A large ~quarterly same-amount payment is only in Not imported
-- Reserve has only tax when other large annual/quarterly patterns exist
 - Items clearly under the monthly threshold appear in Monthly
 - Weak / sparse items are forced into Monthly without a clear every-month history
 
