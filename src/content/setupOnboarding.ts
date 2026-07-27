@@ -4,6 +4,8 @@ export interface SetupOnboardingStep {
   id: string
   title: string
   explain: string
+  /** Shown under the video placeholder */
+  videoLabel?: string
   /** Navigate here while this step is active */
   page?: PageId
   /** CSS selector to highlight on the dashboard while this step is active */
@@ -12,59 +14,66 @@ export interface SetupOnboardingStep {
 }
 
 /**
- * Teach-first flow: intro → structure → concept demos → hand off to the live dashboard.
- * Data entry (balances, costs, receipts, reserve) continues via the setup tour on the app.
+ * Teach-first flow: short lessons → structure → concept demos → hand off to the live dashboard.
+ * Data entry continues via the setup tour on the app.
  */
 export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
   {
     id: 'why',
-    title: 'Why Cash Prophet exists',
+    title: 'One number you can trust',
+    videoLabel: 'What Cash Prophet is for',
     explain:
-      'Your bank balance only shows what’s in the account. It doesn’t show rent, wages, VAT or tax already spoken for.\n\nCash Prophet keeps those commitments in the picture, so Available is a number you can actually decide from.',
+      'Your bank balance only shows what is in the account. It does not show rent, wages, VAT or tax already spoken for.\n\nCash Prophet continuously accounts for those commitments and gives you a Cash Prophet Balance — so you can see where the business really stands.',
   },
   {
     id: 'business',
-    title: 'Your businesses and accounts',
+    title: 'Your company structure',
+    videoLabel: 'Businesses, venues and accounts',
     explain:
-      'Add the businesses and venues you want to track, plus their bank accounts.\n\nInclude a separate savings account for reserves — ideally one that pays a decent interest rate. That’s where monthly VAT and tax transfers will go. Keep it simple; you can add more later.',
+      'Add the businesses and venues you want to track, then their current and savings accounts.\n\nUse a separate savings account for reserves — VAT, tax and insurance. You can change names and colours later in Settings.',
   },
   {
     id: 'committed-explain',
-    title: 'How known costs build',
+    title: 'Monthly costs that build',
+    videoLabel: 'How accruing costs work',
     explain:
-      'Regular bills like rent and wages build a little every day. When the due date arrives, they move to Due until you mark them Paid.\n\nWatch the short demo below.',
+      'Regular bills like rent and wages build a little every day toward the month’s total.\n\nOn the due date they move into Due until you mark them paid.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="committed-funds"]',
   },
   {
     id: 'month-view',
     title: 'Month view',
+    videoLabel: 'Reading the month chart',
     explain:
-      'Month view shows how committed money builds through the month and drops when bills are paid. Drag the chart to shift the period — useful for spotting tight weeks.',
+      'Month view shows how committed money builds through the month and drops when bills are paid.\n\nUse it to spot tight weeks before they arrive.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="committed-funds"]',
   },
   {
     id: 'due-explain',
-    title: 'Due — ready to pay',
+    title: 'Due',
+    videoLabel: 'Paying what is ready',
     explain:
-      'Monthly bills land here when they’re due, and stay until you mark Paid.\n\nYou can also add one-off costs with a future date: earmark the full amount now, or build up a little each day until that date.',
+      'Anything ready to pay lands here — monthly costs at their due date, plus one-offs you have earmarked.\n\nMark items paid once the money has left the account.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="due"]',
   },
   {
     id: 'receipts-explain',
     title: 'Expected receipts',
+    videoLabel: 'Money you know is coming',
     explain:
-      'Add money you know is coming in. It stays in the picture until you mark it Received.\n\nFor a future date you can count it all now, or build it up day by day.',
+      'Add income you are confident will arrive — invoices, grants, refunds.\n\nMark Received when the cash lands so your Cash Prophet Balance stays accurate.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="expected-receipts"]',
   },
   {
     id: 'reserve',
-    title: 'Reserve — separate savings account',
+    title: 'Reserve Planner',
+    videoLabel: 'Funding VAT and big bills',
     explain:
-      'VAT, insurance and tax arrive in lumps. Keep that money in a separate savings account, not your everyday current account.\n\nAdd each irregular bill with its amounts and the months it is due — including the day of the month. Cash Prophet turns that into one monthly transfer into your reserve. When the due month arrives, the bill moves into Due so you can mark it paid.',
+      'Irregular bills like VAT and insurance arrive in lumps. Keep that money in a savings account, not your everyday current account.\n\nList each bill and when it is due. Cash Prophet turns that into one monthly transfer target.',
     page: 'reserve-planner',
     spotlight: '[data-tour="reserve-planner-month"]',
     skippable: true,
@@ -72,16 +81,18 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
   {
     id: 'trends-explain',
     title: 'Trends',
+    videoLabel: 'Your balance over time',
     explain:
-      'Every time you save your balances, that day is logged. Trends plots those entries so you can see whether your Cash Prophet Balance is heading up or down.\n\nIf a day was saved wrong, correct it in the balance log under the chart — the line updates with your correction. That is usually all you need to keep the picture honest.',
+      'Every time you save balances, that day is logged. Trends shows whether your Cash Prophet Balance is heading up or down.\n\nWrong day? Correct it in the balance log under the chart.',
     page: 'trends',
     spotlight: '[data-widget-id="trends-chart"]',
   },
   {
     id: 'handoff',
-    title: 'Set it up on your dashboard',
+    title: 'Add your real numbers',
+    videoLabel: 'What to do on the dashboard',
     explain:
-      'You’ve seen how it works. Next we’ll open your live dashboard and walk you through balances, monthly costs, due items and receipts — then your reserve plan.',
+      'You have seen how the pieces fit. Next we open your dashboard and walk you through entering balances, costs, due items and receipts — then your reserve plan if you want one.',
     page: 'committed-funds',
   },
 ]
@@ -105,9 +116,9 @@ export const QUICK_COMMITMENT_TEMPLATES = [
 export const SETUP_ONBOARDING_STEP_LABELS: Record<string, string> = {
   why: 'Introduction',
   business: 'Structure',
-  'committed-explain': 'Accruing',
+  'committed-explain': 'Monthly costs',
   'month-view': 'Month view',
-  'due-explain': 'Due costs',
+  'due-explain': 'Due',
   'receipts-explain': 'Receipts',
   reserve: 'Reserve',
   'trends-explain': 'Trends',

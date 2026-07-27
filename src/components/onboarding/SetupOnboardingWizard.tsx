@@ -16,6 +16,7 @@ import { SetupStructureTree } from './SetupStructureTree'
 import { SetupAccruingCycleDemo } from './SetupAccruingCycleDemo'
 import { SetupDueCardsDemo } from './SetupDueCardsDemo'
 import { SetupReceiptCardsDemo } from './SetupReceiptCardsDemo'
+import { SetupVideoSlot } from './SetupVideoSlot'
 import { useAuth } from '../../contexts/AuthContext'
 import { trackEvent } from '../../services/eventTracking'
 
@@ -50,7 +51,7 @@ export function SetupOnboardingWizard({
   startAtStepId,
 }: SetupOnboardingWizardProps) {
   const { user } = useAuth()
-  const PROGRESS_KEY = 'trubalance-setup-step-index-v4'
+  const PROGRESS_KEY = 'trubalance-setup-step-index-v5'
   const steps = useMemo(() => getSetupOnboardingSteps(), [])
 
   const initialStepIndex = (() => {
@@ -224,7 +225,13 @@ export function SetupOnboardingWizard({
 
   const panel = (
     <SetupOnboardingShell
-      kicker={startAtStepId ? 'App walkthrough' : 'Getting started'}
+      kicker={startAtStepId ? 'Walkthrough' : 'Getting started'}
+      sidebarTitle={startAtStepId ? undefined : 'Learn the picture'}
+      sidebarLead={
+        startAtStepId
+          ? undefined
+          : 'A short teach-through of how Cash Prophet works — then you enter your numbers on the dashboard.'
+      }
       steps={steps.map((item) => ({
         id: item.id,
         label: SETUP_ONBOARDING_STEP_LABELS[item.id] ?? item.title,
@@ -246,6 +253,9 @@ export function SetupOnboardingWizard({
           <h2 id="setup-onboarding-title">{step.title}</h2>
           <p className="setup-flow-page-lead">{leadParagraph}</p>
         </header>
+
+        <SetupVideoSlot label={step.videoLabel ?? step.title} />
+
         {detailParagraphs.map((para, i) => (
           <p key={i} className="setup-onboarding-explain">
             {para}
@@ -294,11 +304,11 @@ export function SetupOnboardingWizard({
 
         {step.id === 'handoff' && (
           <ol className="setup-handoff-list">
-            <li>Add today’s balances on your current accounts</li>
+            <li>Enter today’s current account balances</li>
             <li>Add monthly accruing costs</li>
-            <li>Add anything due or one-off</li>
+            <li>Check Due and any one-offs</li>
             <li>Add expected receipts</li>
-            <li>Set up your reserve plan (optional)</li>
+            <li>Optional: set up Reserve Planner</li>
           </ol>
         )}
       </div>

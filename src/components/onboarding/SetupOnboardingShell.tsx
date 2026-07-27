@@ -34,7 +34,7 @@ export function SetupFlowBrand({ compact = false }: { compact?: boolean }) {
       />
       <div>
         <p className="setup-flow-brand-name">Cash Prophet</p>
-        {!compact && <p className="setup-flow-brand-tag">One number you can trust</p>}
+        {!compact && <p className="setup-flow-brand-tag">Cash Prophet Balance</p>}
       </div>
     </div>
   )

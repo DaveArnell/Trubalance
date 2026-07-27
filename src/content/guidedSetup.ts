@@ -44,12 +44,12 @@ export const STATEMENT_SETUP_STEPS = [
 ] as const
 
 export const WHY_TRUE_BALANCE_CONTENT = {
-  title: 'One honest number',
-  lead: 'Your bank balance hides money already spoken for and bigger bills building in the background.',
+  title: 'One number you can trust',
+  lead: 'Your bank balance only shows what is in the account. Cash Prophet shows what is already spoken for.',
   bullets: [
-    'See what’s committed versus genuinely available',
-    'Keep a separate savings account for VAT, tax and insurance',
-    'Transfer a steady monthly amount so those bills are already covered',
+    'Cash Prophet Balance after commitments you have already made',
+    'Savings for VAT, tax and insurance — not mixed with day-to-day cash',
+    'A monthly transfer target so big bills stop arriving as surprises',
   ],
 } as const
 
