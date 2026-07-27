@@ -59,6 +59,14 @@ export function saveRevealFromOverrides(overrides: RevealFromOverrides) {
   }
 }
 
+/** Merge server overrides over local cache (server wins on key conflict). */
+export function mergeRevealFromOverrides(
+  local: RevealFromOverrides,
+  remote: RevealFromOverrides,
+): RevealFromOverrides {
+  return { ...local, ...remote }
+}
+
 function ancestorScopes(state: AppState, viewScope: ViewScope): ViewScope[] {
   const ancestors: ViewScope[] = []
 

@@ -21,6 +21,10 @@ import { GuidedSetupWizard } from './components/onboarding/GuidedSetupWizard'
 import { TourProvider, useTour, wasTourDismissedLocally } from './contexts/TourContext'
 import { wasSetupOnboardingDismissed } from './content/setupOnboarding'
 import { markOnboardingComplete } from './services/adminRepository'
+import {
+  loadWorkspaceRevealFrom,
+  saveWorkspaceRevealFrom,
+} from './services/workspaceRepository'
 import { isStagingEnvironment } from './lib/appEnvironment'
 import { useAppState, type UseAppStateOptions } from './hooks/useAppState'
 import { Sidebar } from './components/Sidebar'
@@ -59,6 +63,7 @@ import {
   setRevealFromForScope,
   getEffectiveRevealFromDate,
   getRevealFromContext,
+  mergeRevealFromOverrides,
   type RevealFromOverrides,
 } from './utils/dataRevealFrom'
 
@@ -316,6 +321,26 @@ function AppShellInner({
     useState<RevealFromOverrides>(loadRevealFromOverrides)
   const [historyGranularity, setHistoryGranularityState] =
     useState<HistoryGranularity>(loadHistoryGranularity)
+
+  useEffect(() => {
+    if (isDemoSession || !ctxWorkspaceId) return
+    let cancelled = false
+    void loadWorkspaceRevealFrom(ctxWorkspaceId).then((remote) => {
+      if (cancelled) return
+      const local = loadRevealFromOverrides()
+      const merged = mergeRevealFromOverrides(local, remote)
+      setRevealFromOverridesState(merged)
+      saveRevealFromOverrides(merged)
+      // If local had values and remote was empty, push local up once (migration after SQL applied).
+      if (Object.keys(remote).length === 0 && Object.keys(local).length > 0) {
+        void saveWorkspaceRevealFrom(ctxWorkspaceId, local)
+      }
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [ctxWorkspaceId, isDemoSession])
+
   const trendsUndoRef = useRef<
     Array<{ graphRange: GraphRange; revealFromOverrides: RevealFromOverrides }>
   >([])
@@ -361,8 +386,11 @@ function AppShellInner({
       pushTrendsHistory()
       setRevealFromOverridesState(next)
       saveRevealFromOverrides(next)
+      if (!isDemoSession && ctxWorkspaceId) {
+        void saveWorkspaceRevealFrom(ctxWorkspaceId, next)
+      }
     },
-    [revealFromOverrides, app.viewScope, pushTrendsHistory],
+    [revealFromOverrides, app.viewScope, pushTrendsHistory, isDemoSession, ctxWorkspaceId],
   )
 
   const setHistoryGranularity = useCallback((granularity: HistoryGranularity) => {
@@ -382,9 +410,12 @@ function AppShellInner({
     setGraphRangeState(previous.graphRange)
     setRevealFromOverridesState(previous.revealFromOverrides)
     saveRevealFromOverrides(previous.revealFromOverrides)
+    if (!isDemoSession && ctxWorkspaceId) {
+      void saveWorkspaceRevealFrom(ctxWorkspaceId, previous.revealFromOverrides)
+    }
     setTrendsHistoryTick((n) => n + 1)
     return true
-  }, [graphRange, revealFromOverrides])
+  }, [graphRange, revealFromOverrides, isDemoSession, ctxWorkspaceId])
 
   const redoTrendsView = useCallback(() => {
     const stack = trendsRedoRef.current
@@ -398,9 +429,12 @@ function AppShellInner({
     setGraphRangeState(next.graphRange)
     setRevealFromOverridesState(next.revealFromOverrides)
     saveRevealFromOverrides(next.revealFromOverrides)
+    if (!isDemoSession && ctxWorkspaceId) {
+      void saveWorkspaceRevealFrom(ctxWorkspaceId, next.revealFromOverrides)
+    }
     setTrendsHistoryTick((n) => n + 1)
     return true
-  }, [graphRange, revealFromOverrides])
+  }, [graphRange, revealFromOverrides, isDemoSession, ctxWorkspaceId])
 
   const handleUndo = useCallback(() => {
     if (activeRoute.page === 'trends' && undoTrendsView()) return

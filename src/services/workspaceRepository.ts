@@ -760,6 +760,49 @@ export async function loadWorkspaceSubscription(workspaceId: string): Promise<Wo
   return mapWorkspaceSubscriptionRow(row, subscriptionRow ?? null)
 }
 
+export async function loadWorkspaceRevealFrom(
+  workspaceId: string,
+): Promise<Record<string, string>> {
+  const supabase = tryGetSupabase()
+  if (!supabase) return {}
+
+  const { data, error } = await supabase
+    .from('workspaces')
+    .select('reveal_from_overrides')
+    .eq('id', workspaceId)
+    .maybeSingle()
+
+  if (error || !data) return {}
+
+  const raw = (data as { reveal_from_overrides?: unknown }).reveal_from_overrides
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {}
+
+  const entries = Object.entries(raw as Record<string, unknown>).filter(
+    (entry): entry is [string, string] =>
+      typeof entry[0] === 'string' &&
+      typeof entry[1] === 'string' &&
+      /^\d{4}-\d{2}-\d{2}$/.test(entry[1]),
+  )
+  return Object.fromEntries(entries)
+}
+
+export async function saveWorkspaceRevealFrom(
+  workspaceId: string,
+  overrides: Record<string, string>,
+): Promise<void> {
+  const supabase = tryGetSupabase()
+  if (!supabase) return
+
+  const { error } = await supabase
+    .from('workspaces')
+    .update({ reveal_from_overrides: overrides, updated_at: new Date().toISOString() })
+    .eq('id', workspaceId)
+
+  if (error) {
+    console.error('Failed to save reveal_from_overrides', error)
+  }
+}
+
 export async function getFounderSpotsRemaining(): Promise<number | null> {
   const supabase = tryGetSupabase()
   if (!supabase) return null

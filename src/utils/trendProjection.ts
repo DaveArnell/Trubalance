@@ -47,6 +47,10 @@ function dayIndex(dateKey: string, originMs: number): number {
   return (new Date(`${dateKey}T12:00:00`).getTime() - originMs) / 86_400_000
 }
 
+function dateMs(dateKey: string): number {
+  return new Date(`${dateKey}T12:00:00`).getTime()
+}
+
 export function addDays(dateKey: string, days: number): string {
   const d = new Date(`${dateKey}T12:00:00`)
   d.setDate(d.getDate() + Math.round(days))
@@ -86,7 +90,7 @@ function holtSmoothingAlphas(sampleCount: number): { alpha: number; beta: number
   return { alpha: 0.3, beta: 0.12 }
 }
 
-/** Exponential smoothing — recent entries weigh more; the trend can bend as momentum changes. */
+/** Exponential smoothing — used for residual / band sizing, not the drawn curve. */
 export function fitHoltTrend(
   snapshots: BalanceSnapshot[],
   metric: SnapshotMetric = 'trueBalance',
@@ -136,30 +140,133 @@ export function fitHoltTrend(
   }
 }
 
-function interpolateFittedValue(dateKey: string, fitted: ChartProjectionPoint[]): number {
-  if (fitted.length === 0) return 0
-  if (dateKey <= fitted[0]!.date) return fitted[0]!.value
-  const last = fitted[fitted.length - 1]!
-  if (dateKey >= last.date) return last.value
-
-  for (let i = 1; i < fitted.length; i++) {
-    const prev = fitted[i - 1]!
-    const next = fitted[i]!
-    if (dateKey > next.date) continue
-    const prevMs = dateMs(prev.date)
-    const nextMs = dateMs(next.date)
-    const t = nextMs === prevMs ? 0 : (dateMs(dateKey) - prevMs) / (nextMs - prevMs)
-    return prev.value + t * (next.value - prev.value)
-  }
-
-  return last.value
+export interface WeightedCurveFit {
+  originDate: string
+  lastDate: string
+  /** Days from origin → last actual (for normalizing). */
+  spanDays: number
+  a: number
+  b: number
+  c: number
+  sampleCount: number
+  residualStdError: number
+  /** Instantaneous slope at the last actual day (£/day). */
+  endSlopePerDay: number
 }
 
-function holtValueAt(holt: HoltFit, dateKey: string): number {
-  const lastMs = dateMs(holt.lastDate)
-  const days = (dateMs(dateKey) - lastMs) / 86_400_000
-  if (days <= 0) return interpolateFittedValue(dateKey, holt.fittedAtSnapshots)
-  return holt.level + holt.trendPerDay * days
+/**
+ * Recency-weighted quadratic: one gentle curve start→end (not wavy through each bump).
+ * Forecast continues the same polynomial — curved, not a dead-straight ruler.
+ */
+export function fitWeightedCurve(
+  snapshots: BalanceSnapshot[],
+  metric: SnapshotMetric = 'trueBalance',
+): WeightedCurveFit | null {
+  const sorted = [...snapshots].sort((a, b) => a.date.localeCompare(b.date))
+  if (sorted.length < 2) return null
+
+  const originDate = sorted[0]!.date
+  const lastDate = sorted[sorted.length - 1]!.date
+  const originMs = dateMs(originDate)
+  const spanDays = Math.max(1, (dateMs(lastDate) - originMs) / 86_400_000)
+
+  const points = sorted.map((snap, index) => {
+    const x = dayIndex(snap.date, originMs) / spanDays
+    const y = snap[metric] as number
+    // Newer points weigh more; last point ~4× first when n is large.
+    const recency = (index + 1) / sorted.length
+    const w = 0.35 + 0.65 * recency * recency
+    return { x, y, w }
+  })
+
+  // Weighted least squares for y = a + b x + c x²
+  let sw = 0
+  let sx = 0
+  let sx2 = 0
+  let sx3 = 0
+  let sx4 = 0
+  let sy = 0
+  let sxy = 0
+  let sx2y = 0
+
+  for (const p of points) {
+    const x2 = p.x * p.x
+    sw += p.w
+    sx += p.w * p.x
+    sx2 += p.w * x2
+    sx3 += p.w * x2 * p.x
+    sx4 += p.w * x2 * x2
+    sy += p.w * p.y
+    sxy += p.w * p.x * p.y
+    sx2y += p.w * x2 * p.y
+  }
+
+  // Solve 3×3 via Cramer's rule / Gaussian elimination
+  const m = [
+    [sw, sx, sx2],
+    [sx, sx2, sx3],
+    [sx2, sx3, sx4],
+  ]
+  const rhs = [sy, sxy, sx2y]
+
+  const det3 = (a: number[][]) =>
+    a[0]![0]! * (a[1]![1]! * a[2]![2]! - a[1]![2]! * a[2]![1]!) -
+    a[0]![1]! * (a[1]![0]! * a[2]![2]! - a[1]![2]! * a[2]![0]!) +
+    a[0]![2]! * (a[1]![0]! * a[2]![1]! - a[1]![1]! * a[2]![0]!)
+
+  const replaceCol = (col: number, values: number[]) => {
+    const copy = m.map((row) => [...row])
+    for (let r = 0; r < 3; r++) copy[r]![col] = values[r]!
+    return copy
+  }
+
+  const D = det3(m)
+  let a: number
+  let b: number
+  let c: number
+
+  if (Math.abs(D) < 1e-12) {
+    // Degenerate → weighted linear in normalized x
+    const denom = sw * sx2 - sx * sx
+    if (Math.abs(denom) < 1e-12) return null
+    b = (sw * sxy - sx * sy) / denom
+    a = (sy - b * sx) / sw
+    c = 0
+  } else {
+    a = det3(replaceCol(0, rhs)) / D
+    b = det3(replaceCol(1, rhs)) / D
+    c = det3(replaceCol(2, rhs)) / D
+  }
+
+  const valueAtNorm = (x: number) => a + b * x + c * x * x
+
+  let ssRes = 0
+  for (const p of points) {
+    const err = p.y - valueAtNorm(p.x)
+    ssRes += p.w * err * err
+  }
+  const dof = Math.max(1, points.length - (Math.abs(c) < 1e-12 ? 2 : 3))
+  const residualStdError = Math.sqrt(ssRes / dof)
+
+  // dy/dday = (b + 2 c x) / spanDays
+  const endSlopePerDay = (b + 2 * c * 1) / spanDays
+
+  return {
+    originDate,
+    lastDate,
+    spanDays,
+    a,
+    b,
+    c,
+    sampleCount: sorted.length,
+    residualStdError,
+    endSlopePerDay,
+  }
+}
+
+function weightedCurveValueAt(fit: WeightedCurveFit, dateKey: string): number {
+  const x = dayIndex(dateKey, dateMs(fit.originDate)) / fit.spanDays
+  return fit.a + fit.b * x + fit.c * x * x
 }
 
 function buildWeightedTrendSeries({
@@ -174,31 +281,32 @@ function buildWeightedTrendSeries({
   const sorted = [...snapshots].sort((a, b) => a.date.localeCompare(b.date))
   if (sorted.length < 2 || horizonDays <= 0) return null
 
-  const holt = fitHoltTrend(sorted, metric)
-  if (!holt) return null
+  const curve = fitWeightedCurve(sorted, metric)
+  if (!curve) return null
 
   const firstDate = sorted[0]!.date
-  const lastActualDate = holt.lastDate
+  const lastActualDate = curve.lastDate
   const forecastEnd = addDays(lastActualDate, horizonDays)
   const stepDays = horizonDays <= 45 ? 7 : horizonDays <= 120 ? 14 : 30
   const lastActualMs = dateMs(lastActualDate)
 
   const historical = sampleDates(firstDate, lastActualDate, stepDays).map((date) => ({
     date,
-    value: holtValueAt(holt, date),
+    value: weightedCurveValueAt(curve, date),
   }))
 
+  // Anchor historical + forecast at the fitted value on the last actual day so the join is seamless.
   const forecastDates = sampleDates(lastActualDate, forecastEnd, stepDays)
   const forecast: ChartProjectionPoint[] = []
   const forecastHigh: ChartProjectionPoint[] = []
   const forecastLow: ChartProjectionPoint[] = []
 
   for (const date of forecastDates) {
-    const center = holtValueAt(holt, date)
+    const center = weightedCurveValueAt(curve, date)
     const daysAhead = Math.max(0, (dateMs(date) - lastActualMs) / 86_400_000)
     const base =
-      holt.residualStdError > 0
-        ? holt.residualStdError
+      curve.residualStdError > 0
+        ? curve.residualStdError
         : Math.max(500, Math.abs(center) * 0.04)
     const funnelGrowth =
       daysAhead <= 0 ? 0 : 1 + Math.sqrt(daysAhead / Math.max(14, horizonDays * 0.45))
@@ -214,12 +322,12 @@ function buildWeightedTrendSeries({
     forecast,
     forecastHigh,
     forecastLow,
-    slopePerDay: holt.trendPerDay,
+    slopePerDay: curve.endSlopePerDay,
     method: 'weighted',
     effectiveMethod: 'weighted',
     horizonDays,
     lastActualDate,
-    residualStdError: holt.residualStdError,
+    residualStdError: curve.residualStdError,
   }
 }
 
@@ -518,10 +626,6 @@ export function buildSmoothedTrendSeries({
     lastActualDate,
     residualStdError,
   }
-}
-
-function dateMs(dateKey: string): number {
-  return new Date(`${dateKey}T12:00:00`).getTime()
 }
 
 export function buildChartProjectionLine({

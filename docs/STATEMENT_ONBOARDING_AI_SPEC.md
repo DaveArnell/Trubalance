@@ -29,15 +29,17 @@ Nothing activates until the user confirms. No ongoing per-customer model trainin
 | Who | What |
 |-----|------|
 | Trial | **One analysis per trial account** (one business). |
-| Paying | **One analysis per business** on the plan (explicit rerun only). |
+| Paying | **One analysis per business** included on the plan (explicit “run again” only). |
 | Cap | Soft business-count abuse protection later if needed; do not block launch on this. |
 
 **Hard rules**
 
 1. Store the successful analysis result; reopening the review **must not** call OpenAI again.
-2. Editing names, categories, amounts, dates, or confirm/exclude **must not** trigger another AI call.
-3. Rerun = explicit user action + entitlement check.
-4. Prefer CSV/XLSX over PDF when the user has a choice (cheaper, clearer).
+2. Changing names, categories, amounts, or dates on the review screen (or after import) **must not** call OpenAI again — only your saved draft / Cash Prophet data changes.
+3. A new AI analysis only runs when the user **explicitly** uploads again or clicks “Analyse again”, and only if they still have entitlement left.
+4. Prefer CSV/XLSX over PDF where the user has a choice (cheaper, clearer).
+
+**Onboarding placement (agreed):** Option **B** — after teaching / structure, at the end of Getting started as “Prefill from statement” (or skip and enter manually on the dashboard). Manual path still lands ready to enter numbers live.
 5. **One pass** for normal jobs. No automatic multi-pass re-analysis. If evidence is thin, fall back to user review / manual fill — do not burn budget retrying.
 6. Optional fallback: give the user a **copy-pasteable ChatGPT prompt** + schema so they can run analysis themselves and enter results manually (trial multi-business or failed upload path).
 
