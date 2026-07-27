@@ -152,11 +152,13 @@ export interface WeightedCurveFit {
   residualStdError: number
   /** Instantaneous slope at the last actual day (£/day). */
   endSlopePerDay: number
+  /** Instantaneous curvature at the last actual day (£/day²). */
+  endAccelPerDay2: number
 }
 
 /**
  * Recency-weighted quadratic: one gentle curve start→end (not wavy through each bump).
- * Forecast continues the same polynomial — curved, not a dead-straight ruler.
+ * Forecast continues from the recent bend (value + slope + curvature at the join), not a ruler.
  */
 export function fitWeightedCurve(
   snapshots: BalanceSnapshot[],
@@ -248,8 +250,9 @@ export function fitWeightedCurve(
   const dof = Math.max(1, points.length - (Math.abs(c) < 1e-12 ? 2 : 3))
   const residualStdError = Math.sqrt(ssRes / dof)
 
-  // dy/dday = (b + 2 c x) / spanDays
+  // dy/dday = (b + 2 c x) / spanDays ; d²y/dday² = 2c / spanDays²
   const endSlopePerDay = (b + 2 * c * 1) / spanDays
+  const endAccelPerDay2 = (2 * c) / (spanDays * spanDays)
 
   return {
     originDate,
@@ -261,12 +264,39 @@ export function fitWeightedCurve(
     sampleCount: sorted.length,
     residualStdError,
     endSlopePerDay,
+    endAccelPerDay2,
   }
 }
 
 function weightedCurveValueAt(fit: WeightedCurveFit, dateKey: string): number {
   const x = dayIndex(dateKey, dateMs(fit.originDate)) / fit.spanDays
   return fit.a + fit.b * x + fit.c * x * x
+}
+
+/** Recent-window fit so forecast continues the bend you see at the end of the smooth line. */
+function fitRecentWeightedCurve(
+  snapshots: BalanceSnapshot[],
+  metric: SnapshotMetric,
+): WeightedCurveFit | null {
+  const sorted = [...snapshots].sort((a, b) => a.date.localeCompare(b.date))
+  if (sorted.length < 3) return fitWeightedCurve(sorted, metric)
+
+  const window = Math.max(4, Math.min(sorted.length, Math.ceil(sorted.length * 0.45)))
+  const recent = sorted.slice(-window)
+  return fitWeightedCurve(recent, metric)
+}
+
+/**
+ * Forecast from the join: same value as the historical smooth line, then continue with
+ * recent slope + curvature (Taylor), so flattening / steepening keeps going — not a ruler.
+ */
+function forecastFromJoin(
+  joinValue: number,
+  slopePerDay: number,
+  accelPerDay2: number,
+  daysAhead: number,
+): number {
+  return joinValue + slopePerDay * daysAhead + 0.5 * accelPerDay2 * daysAhead * daysAhead
 }
 
 function buildWeightedTrendSeries({
@@ -284,26 +314,36 @@ function buildWeightedTrendSeries({
   const curve = fitWeightedCurve(sorted, metric)
   if (!curve) return null
 
+  const recent = fitRecentWeightedCurve(sorted, metric) ?? curve
   const firstDate = sorted[0]!.date
   const lastActualDate = curve.lastDate
   const forecastEnd = addDays(lastActualDate, horizonDays)
-  const stepDays = horizonDays <= 45 ? 7 : horizonDays <= 120 ? 14 : 30
+  // Dense enough that a curve reads as a curve, not two straight segments.
+  const stepDays = horizonDays <= 45 ? 3 : horizonDays <= 120 ? 5 : 7
   const lastActualMs = dateMs(lastActualDate)
+  const joinValue = weightedCurveValueAt(curve, lastActualDate)
+  // Prefer recent-window slope/curvature so the forecast follows the end of the smooth line.
+  const slope = recent.endSlopePerDay
+  const accel = recent.endAccelPerDay2
 
   const historical = sampleDates(firstDate, lastActualDate, stepDays).map((date) => ({
     date,
     value: weightedCurveValueAt(curve, date),
   }))
+  // Force exact join so history + forecast share one continuous tip.
+  if (historical.length > 0) {
+    historical[historical.length - 1] = { date: lastActualDate, value: joinValue }
+  }
 
-  // Anchor historical + forecast at the fitted value on the last actual day so the join is seamless.
   const forecastDates = sampleDates(lastActualDate, forecastEnd, stepDays)
   const forecast: ChartProjectionPoint[] = []
   const forecastHigh: ChartProjectionPoint[] = []
   const forecastLow: ChartProjectionPoint[] = []
 
   for (const date of forecastDates) {
-    const center = weightedCurveValueAt(curve, date)
     const daysAhead = Math.max(0, (dateMs(date) - lastActualMs) / 86_400_000)
+    const center =
+      daysAhead === 0 ? joinValue : forecastFromJoin(joinValue, slope, accel, daysAhead)
     const base =
       curve.residualStdError > 0
         ? curve.residualStdError
@@ -322,7 +362,7 @@ function buildWeightedTrendSeries({
     forecast,
     forecastHigh,
     forecastLow,
-    slopePerDay: curve.endSlopePerDay,
+    slopePerDay: slope,
     method: 'weighted',
     effectiveMethod: 'weighted',
     horizonDays,
