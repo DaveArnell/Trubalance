@@ -2,6 +2,8 @@
 
 Copy everything in the **Prompt** section into a **fresh ChatGPT** chat, then upload your bank statement / transaction CSV (or PDF). Use the tables to type into Cash Prophet.
 
+**Use this version only** — older prompts return extra columns and too many small lines.
+
 ---
 
 ## Prompt (copy from here)
@@ -9,64 +11,48 @@ Copy everything in the **Prompt** section into a **fresh ChatGPT** chat, then up
 ```
 You are helping me set up Cash Prophet (UK small-business cash position tool — not bookkeeping software).
 
-I will upload bank statement(s) or a transaction export (CSV preferred, PDF/Excel also fine). Read the outgoings carefully across the whole file.
+I will upload bank statement(s) or a transaction export (CSV preferred, PDF/Excel also fine). Read the outgoings carefully across the whole period.
 
 GOAL
-Produce a short, usable FIRST DRAFT of what I should type into Cash Prophet:
-A) Monthly commitments on the dashboard
-B) Reserve Planner bills (quarterly / six-monthly / annual only)
+A short FIRST DRAFT of what I should type into Cash Prophet — only meaningful recurring costs.
+Tables only first. No essay. No extra columns.
 
-Do NOT write a long essay. Tables first. Keep the list lean.
+HARD FILTER — READ BEFORE ANYTHING ELSE
+- MONTHLY table: only include a row if the typical amount is £200 or more per month.
+- Drop anything under £200/month (internet, small software, card terminal fees, small cylinders, etc.) → Not imported.
+- RESERVE table: only quarterly / six-monthly / annual patterns. A single payment is usually worth listing if about £500+.
+- If a payee is paid weekly or several times a month (e.g. entertainment / machine / drinks suppliers with multiple DDs), do NOT put them in Monthly. Put them in Not imported as “frequent operational spend”.
 
-MEANINGFUL AMOUNT FILTER (important)
-- Only include an item if its typical monthly total is about £200 or more (or a quarterly/annual bill whose single payment is material, generally £500+).
-- Ignore small subscriptions, tiny standing orders, and low-value noise unless I ask.
-- If the same payee appears as several small weekly payments, do NOT invent a monthly line for them — exclude as weekly ops spend.
-
-WHAT GOES WHERE
-1) MONTHLY COMMITMENTS
-   - Happens about once per month (roughly every 25–35 days), or once per calendar month on a recognisable day.
-   - Output: Status, Name, Bank payee, Day of month, Amount (£).
-   - One amount only — never a range.
-   - Sort the monthly table by Day of month ascending (1 → 31).
-
-2) RESERVE PLANNER (not monthly)
-   - Only if the pattern is clearly quarterly, six-monthly, or annual.
-   - You MUST list EVERY due month in the cycle (e.g. rent every quarter → Mar, Jun, Sep, Dec — all four, not two).
-   - If you only see two of four quarters in the file, still propose the full cycle if the spacing is clearly quarterly, and mark Status 🟠 or 🔴 with that limitation.
-   - Do NOT put ordinary monthly bills in Reserve Planner.
-   - Output: Status, Name, Bank payee, Due day, Due months, Amount (£).
-   - Sort by next logical due month / day if possible.
+WHAT GOES WHERE (strict)
+MONTHLY = one payment (or one clear monthly total) about once per calendar month, day usually within ±3 days.
+RESERVE = not monthly. Spacing roughly 80–100 days (quarterly), ~6 months, or ~yearly.
+- If it happens every month, it is MONTHLY — never Reserve. Example: HMRC SDDS every month → Monthly, not Reserve.
+- If it is quarterly, list ALL four due months even if the file only shows two (e.g. Mar/Jun seen → still output Mar, Jun, Sep, Dec) and use 🟠 or 🔴.
+- Never put a normal monthly bill in Reserve.
 
 PAYROLL
-- If many payments to different people cluster in the first few working days of each month (payroll/wage wording helps), output ONE monthly row named "Payroll" with the total of a typical recent payroll run.
-- Exclude dividends, reimbursements, and one-off transfers to individuals.
+- Cluster of payments to different people early in the month (payroll/wage group) → ONE Monthly row: Name = Payroll, one total from a recent run.
+- Not one row per employee. Exclude dividends.
 
-AMOUNT RULES
-- Always ONE number (e.g. 2950 not 2000–3000).
-- Identical repeats → latest repeated amount.
-- Stable but variable → median of last ~6 comparable payments, rounded sensibly.
-- Clear recent change (e.g. electricity jumped) → weight last 3–4 payments much more than older history.
-- Prefer recent run-rate over long historical average.
+AMOUNTS
+- One number only — never ranges.
+- Fixed repeats → latest repeated amount.
+- Variable but stable → median of last ~6, rounded.
+- Recent jump (e.g. electricity) → weight last 3–4 much more than older history.
 
-NAMING
-- "Name" = what I should type in Cash Prophet (short label). You may clarify (ENGIE → Electricity) OR keep the bank name if purpose is unclear.
-- Always keep "Bank payee" as seen on the statement so I can match it.
-- Do NOT invent purpose. If unsure (e.g. large quarterly transfer that might be rent), Name can stay as the payee and Status must be 🔴.
+NAMES
+- Name = short label for Cash Prophet (Electricity, Business Rates, Quantum Funding, Arkle Finance — keep finance lines DISTINCT, do not rename all to “Finance”).
+- Bank payee = exact-ish statement name for matching.
+- If purpose unknown, Name can match the payee; Status must be 🔴.
 
-EXCLUDE
-- Internal transfers between own accounts
-- Refunds / money in / card settlement income
-- One-offs and noise under the £200 monthly threshold
-- Weekly operational suppliers (list under Not imported only)
-- Do not turn weekly spend into a fake monthly commitment
+STATUS (only these meanings)
+🟢 Green = amount and day almost the same each time — enter as-is
+🟠 Amber = clear schedule, amount estimated — enter then check
+🔴 Red = draft only — I must decide (variable, purpose unknown, or incomplete history)
 
-STATUS COLOURS (use exactly these meanings)
-🟢 Green = highly consistent amount and timing — safe default to enter
-🟠 Amber = clear pattern, but amount or date needed estimating — enter then check
-🔴 Red = still worth entering as a draft, but I must decide (wildly variable amount, recent jump, incomplete quarter history, or purpose unknown)
+OUTPUT — use EXACTLY these headers. Do not add Category, Notes, or “How you got the amount”.
 
-OUTPUT FORMAT — exact headers, nothing extra in the tables
+Sort Monthly by Day of month (1→31).
 
 ### Monthly commitments
 | Status | Name | Bank payee | Day of month | Amount (£) |
@@ -80,24 +66,34 @@ OUTPUT FORMAT — exact headers, nothing extra in the tables
 | Bank payee | Why excluded |
 | --- | --- |
 
-After the tables, only:
-1) A 3–5 line "Confirm these first" checklist
-2) One line explaining Status colours again (🟢 / 🟠 / 🔴)
+After tables, only:
+1) “Confirm these first” — max 5 bullets
+2) One line: 🟢 enter · 🟠 enter then check · 🔴 decide before trusting
 ```
 
 ---
 
-## What good looks like
+## What this run taught us (Laser Quest sample)
 
-- Lean list (not dozens of tiny lines)
-- Monthly sorted by day
-- Payroll = one row
-- Quarterly rent / similar = all due months listed
-- No weekly items as monthly
-- No “how you calculated” / notes columns cluttering the table
+ChatGPT’s first reply was useful but used an older wide table and failed several rules. Expected cleanup:
 
-## Testing notes (for Dave)
+**Keep as Monthly (£200+)**  
+Payroll · Quantum Funding · NNDR · Arkle · Close Brothers · TNT Sports · Scanlite · ENGIE · Veolia · NEST  
+(Accountant £158 is under £200 — exclude unless you lower the threshold.)
 
-- Fresh ChatGPT chat each run
-- Check £200+ filter, day ordering, quarterly months complete, weekly excluded
-- Paste the model reply back here and we’ll tighten the prompt again
+**Drop from Monthly (under £200 or multi-per-month)**  
+Zen · Intuit · TakePayments ×2 · BOC · 501 Entertainment → Not imported
+
+**Reserve**  
+- VAT quarterly → Mar/Jun/Sep/Dec  
+- Papas £9,000 → Mar/Jun/**Sep/Dec** (all four), 🔴 purpose  
+- HMRC SDDS monthly → **Monthly**, not Reserve  
+- Riva insurance annual → Reserve, 🔴 confirm
+
+---
+
+## Testing notes
+
+- Fresh chat every time; paste **this** prompt only  
+- Fail the run if: any monthly row &lt; £200; monthly item in Reserve; quarterly missing months; extra columns  
+- Paste the next reply here to iterate again
