@@ -30,28 +30,7 @@ function roundMoney(value: number): number {
   return Math.round(value * 100) / 100
 }
 
-export const BILL_CATEGORIES = [
-  'VAT',
-  'Corporation Tax',
-  'Business Insurance',
-  'Building Insurance',
-  'Insurance',
-  'Rent',
-  'Rates',
-  'Utilities',
-  'Licences',
-  'Service Charge',
-  'Other',
-] as const
-
-export const NEW_BILL_TYPE = '__new__'
 export const DEFAULT_RESERVE_BILL_DUE_DAY = 1
-
-export function getBillTypeOptions(state: AppState): string[] {
-  const fromBills = state.reservePlanners.flatMap((p) => p.bills.map((b) => b.name))
-  const combined = [...BILL_CATEGORIES, ...fromBills]
-  return [...new Set(combined)].sort((a, b) => a.localeCompare(b))
-}
 
 export function billAmountInMonth(bill: ReserveBill, month: string): number {
   return toAmount(bill.monthAmounts[month])

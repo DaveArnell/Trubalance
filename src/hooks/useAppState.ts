@@ -1178,18 +1178,21 @@ export function useAppState(options?: UseAppStateOptions) {
     return id
   }
 
-  const addReserveBill = (bill: Omit<ReserveBill, 'id'>) =>
+  const addReserveBill = (bill: Omit<ReserveBill, 'id'>) => {
+    const id = newId()
     update((s) => ({
       ...s,
       reservePlanners: s.reservePlanners.map((p) =>
         p.id === bill.plannerId
           ? {
               ...p,
-              bills: [...p.bills, { ...bill, id: newId(), sortOrder: nextSortOrder(p.bills) }],
+              bills: [...p.bills, { ...bill, id, sortOrder: nextSortOrder(p.bills) }],
             }
           : p,
       ),
     }))
+    return id
+  }
 
   const updateReserveBill = (plannerId: string, billId: string, patch: Partial<ReserveBill>) =>
     update((s) => {

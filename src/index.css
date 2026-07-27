@@ -10538,6 +10538,10 @@ tr.sheet-due-row--planned-saving td.sheet-cell-active {
   text-overflow: clip;
 }
 
+.reserve-sheet-table td.reserve-bill-col .sheet-cell-inline-input {
+  text-align: left;
+}
+
 .reserve-sheet-table .reserve-bill-col.sheet-cell-active,
 .reserve-sheet-table td.reserve-bill-col.sheet-cell-active,
 .reserve-sheet-table .reserve-scope-col.sheet-cell-active,

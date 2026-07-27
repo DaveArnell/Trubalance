@@ -9,14 +9,12 @@ import {
   computeReserveMonthEndBalances,
   formatMonthlyNetTransfer,
   getBillDueDay,
-  getBillTypeOptions,
   getPlannerOperatingAccount,
   getPlannerReserveAccount,
   getSuggestedOperatingBalanceForMonth,
   getReserveBalanceForTransfer,
   monthAmountsFromPatch,
   monthDueDaysFromPatch,
-  NEW_BILL_TYPE,
   DEFAULT_RESERVE_BILL_DUE_DAY,
   type ReserveMonthEndBalance,
 } from '../utils/reserveCalculations'
@@ -36,6 +34,7 @@ import {
   sheetTableWidthStyle,
 } from './SheetResizableTable'
 import { useResizableSheetColumns } from '../hooks/useResizableSheetColumns'
+import { InlineTextCell } from './SheetInlineCells'
 
 interface ReservePlannerPanelProps {
   state: AppState
@@ -683,114 +682,6 @@ function BillScopeCell({
   )
 }
 
-function BillTypeCell({
-  cellId,
-  bill,
-  options,
-  isActive,
-  onActivate,
-  onDeactivate,
-  onRename,
-}: {
-  cellId: string
-  bill: ReserveBill
-  options: string[]
-  isActive: boolean
-  onActivate: () => void
-  onDeactivate: () => void
-  onRename: (name: string) => void
-}) {
-  const selectRef = useRef<HTMLSelectElement>(null)
-  const [addingNew, setAddingNew] = useState(false)
-  const [customName, setCustomName] = useState('')
-
-  useEffect(() => {
-    if (!isActive || addingNew) return
-    selectRef.current?.focus()
-    try {
-      selectRef.current?.showPicker?.()
-    } catch {
-      /* showPicker not supported */
-    }
-  }, [isActive, addingNew])
-
-  if (addingNew) {
-    return (
-      <td className="sheet-row-label reserve-bill-col reserve-bill-label sheet-cell-active">
-        <input
-          className="sheet-input"
-          placeholder="New bill type"
-          value={customName}
-          autoFocus
-          onChange={(e) => setCustomName(e.target.value)}
-          onBlur={() => {
-            const name = customName.trim()
-            if (name) onRename(name)
-            setAddingNew(false)
-            setCustomName('')
-          }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') e.currentTarget.blur()
-            if (e.key === 'Escape') {
-              setAddingNew(false)
-              setCustomName('')
-            }
-          }}
-        />
-      </td>
-    )
-  }
-
-  const className = [
-    'sheet-row-label',
-    'reserve-bill-col',
-    'sheet-cell-editable',
-    isActive ? 'sheet-cell-active' : '',
-  ]
-    .filter(Boolean)
-    .join(' ')
-
-  return (
-    <td
-      className={className}
-      onClick={!isActive ? onActivate : undefined}
-      title={bill.name}
-      data-cell-id={cellId}
-    >
-      {isActive ? (
-        <select
-          ref={selectRef}
-          className="sheet-cell-full-select"
-          value={bill.name}
-          onClick={(e) => e.stopPropagation()}
-          onChange={(e) => {
-            if (e.target.value === NEW_BILL_TYPE) {
-              setAddingNew(true)
-              onDeactivate()
-            } else {
-              onRename(e.target.value)
-              onDeactivate()
-            }
-          }}
-          onBlur={onDeactivate}
-          onKeyDown={(e) => {
-            if (e.key === 'Escape') onDeactivate()
-          }}
-        >
-          {options.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-          <option value={NEW_BILL_TYPE}>+ Add new…</option>
-        </select>
-      ) : (
-        <span className="sheet-cell-value">{bill.name}</span>
-      )}
-    </td>
-  )
-}
-
 export function ReservePlannerPanel({
   state,
   viewScope,
@@ -852,7 +743,6 @@ export function ReservePlannerPanel({
 
   const { businessName } = summary
   const monthEndBalances = computeReserveMonthEndBalances(planner)
-  const billTypeOptions = getBillTypeOptions(state)
   const currentMonthEnd = monthEndBalances[currentMonthIdx]!
   const currentMonthLabel = MONTHS[currentMonthIdx]!
   const isCurrentMonthConfirmed = !!currentMonthEnd.confirmation
@@ -868,11 +758,12 @@ export function ReservePlannerPanel({
   )
 
   const addBillRow = () => {
-    actions.addReserveBill({
+    const id = actions.addReserveBill({
       plannerId: planner.id,
-      name: billTypeOptions[0] ?? 'VAT',
+      name: '',
       monthAmounts: {},
     })
+    if (id) activateCell(`${id}-name`)
   }
 
   const saveMonthAmount = (
@@ -1056,14 +947,15 @@ export function ReservePlannerPanel({
                           </button>
                         </td>
                         )}
-                        <BillTypeCell
-                          cellId={`${bill.id}-type`}
-                          bill={bill}
-                          options={billTypeOptions}
-                          isActive={activeCell === `${bill.id}-type`}
-                          onActivate={() => activateCell(`${bill.id}-type`)}
+                        <InlineTextCell
+                          cellId={`${bill.id}-name`}
+                          value={bill.name}
+                          placeholder="Bill name"
+                          className="sheet-row-label reserve-bill-col"
+                          isActive={activeCell === `${bill.id}-name`}
+                          onActivate={() => activateCell(`${bill.id}-name`)}
                           onDeactivate={() => setActiveCell(null)}
-                          onRename={(name) => actions.updateReserveBill(planner.id, bill.id, { name })}
+                          onSave={(name) => actions.updateReserveBill(planner.id, bill.id, { name })}
                         />
                         <BillScopeCell
                           cellId={`${bill.id}-scope`}
