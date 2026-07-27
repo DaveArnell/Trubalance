@@ -5,12 +5,14 @@
 During onboarding (per business):
 
 1. Ask: **“What is a meaningful monthly amount for this business?”**  
-   Default suggestion: **£200** (user can change — e.g. £150 or £500).
-2. Show **Copy prompt** — the copied text already has their number filled in (replace `{{MIN_MONTHLY}}` below).
-3. User pastes into their own ChatGPT + uploads that business’s statement/CSV.
-4. They enter the tables into Cash Prophet for **that business** (repeat per business / as needed for multi-venue setups).
+   Default suggestion: **£200** (user can change).
+2. Show **Copy prompt** — their number is already filled in (replaces `{{MIN_MONTHLY}}`).
+3. User pastes into their own ChatGPT + uploads **that business’s** statement/CSV.
+4. They enter the tables into Cash Prophet for that business (repeat per business if needed).
 
-Most customers = one business. Multi-business = one analysis pass per business.
+Most customers = one business. Multi-business = one pass per business.
+
+This prompt must stay **generic** — any UK bank, any sector, any payees. Do not bake in one company’s suppliers.
 
 ---
 
@@ -19,62 +21,62 @@ Most customers = one business. Multi-business = one analysis pass per business.
 For a manual test: replace every `{{MIN_MONTHLY}}` with e.g. `200` before pasting into ChatGPT.
 
 ```
-You are helping me set up Cash Prophet (UK small-business cash position tool — not bookkeeping).
+You are helping me set up Cash Prophet (UK small-business cash position tool — not bookkeeping software).
 
-I will upload bank statement(s) or a transaction export for ONE business (CSV preferred).
+I will upload bank statement(s) or a transaction export for ONE business (CSV preferred; PDF/Excel also fine). Banks, payees and industries vary — work only from the file I give you. Do not assume a particular type of business.
 
 GOAL
 A short FIRST DRAFT of what I should type into Cash Prophet for this business:
 A) Monthly commitments (dashboard)
-B) Reserve Planner (quarterly / six-monthly / annual / large irregular)
+B) Reserve Planner (less frequent bills)
 
-Tables first. No essay. No extra columns beyond the headers given.
+Tables first. No essay. No columns beyond the headers below.
 
-MY MEANINGFUL MONTHLY THRESHOLD
-- Ignore tiny recurring noise under about £{{MIN_MONTHLY}} per month (small software, tiny terminal fees, etc.) → Not imported.
-- DO NOT use that threshold as an excuse to drop important regular costs that are clearly monthly but variable, or that sit near the line.
-- If a monthly payee is typically around or above £{{MIN_MONTHLY}}, INCLUDE it (use an average / median / recent weight as appropriate).
-- Examples that should usually STILL be included when they recur monthly: finance agreements, pensions, rates, utilities, waste, sports/TV if regular, drinks/wholesale if clearly monthly, HMRC monthly tax deductions, large revolving credit repayments (e.g. Capital on Tap) even when the amount moves.
+MY MEANINGFUL MONTHLY THRESHOLD = £{{MIN_MONTHLY}}
+- Use this only to drop small recurring noise below about that amount per month → Not imported.
+- Do not drop a clear monthly cost just because the amount varies, or because it sits near the threshold.
+- If a payee looks monthly and is typically around or above £{{MIN_MONTHLY}}, include it (with a single estimated amount).
 
-WEEKLY VS MONTHLY (critical)
-- If the same payee is paid roughly every 7 days, or several times in most months, that is WEEKLY / frequent operational spend → Not imported. Do NOT invent a single “monthly” total for it.
-- Entertainment / machine / supplier DDs that fire multiple times per month are weekly-style — exclude from Monthly.
-- Monthly = about one payment per calendar month (or one clear monthly standing order), day usually within ±3 days.
+WEEKLY VS MONTHLY
+- Roughly every 7 days, or several payments to the same payee in most months → frequent/weekly operational spend → Not imported. Do not collapse those into a fake monthly line.
+- Monthly = about one payment per calendar month (or one clear monthly standing order / direct debit), payment day usually within about ±3 days.
 
 WHAT GOES WHERE
 MONTHLY
-- Once per month (≈25–35 day spacing or once per calendar month).
-- Variable monthly is still MONTHLY (HMRC SDDS, Capital on Tap, utilities) — use 🟠 or 🔴, not Reserve.
-- Finance DDs that continue every month stay Monthly even if the amount changed once — use latest normal instalment or recent median; 🟠 if restructuring/uncertain.
-- Sort by Day of month (1→31).
-- Keep distinct Names (Quantum Funding, Arkle Finance, Close Brothers — not three rows all called “Finance”).
+- Recurs about once a month.
+- Variable amount is still Monthly (tax deductions, utilities, revolving credit repayments, finance instalments, etc.) — use 🟠 or 🔴, not Reserve.
+- If a monthly finance or subscription amount changed but still pays every month, keep it Monthly; use the latest normal amount or a recent median; mark 🟠 if uncertain.
+- Sort by Day of month (1 → 31).
+- Give each row a distinct Name (do not merge different payees under one vague label).
 
 RESERVE PLANNER
-- Only non-monthly: quarterly, six-monthly, annual, or large once-a-year style bills.
-- Quarterly: list ALL due months in the cycle (e.g. Mar, Jun, Sep, Dec) even if the file only shows some of them; mark 🟠/🔴 if incomplete evidence.
-- Also include large annual / irregular bills (insurance, licences, big one-offs that repeat yearly). Prefer items roughly in the thousands, or at least about half of a typical month’s total meaningful commitments for this business — skip small annual noise.
-- Never put a every-month payment in Reserve.
+- Only non-monthly patterns: quarterly, six-monthly, annual, or large bills that clearly do not fall every month.
+- Quarterly / cyclical: list every due month in the cycle (e.g. all four quarter-months), even if the file only shows some occurrences; mark 🟠 or 🔴 if evidence is incomplete.
+- Also include material annual or irregular bills when the history supports them (insurance, licences, large yearly charges). Prefer larger items — skip small annual noise.
+- Never put a payment that happens every month into Reserve.
 
 PAYROLL
-- Early-month cluster to multiple people / PAYROLL or WAGE group → ONE Monthly row “Payroll” with one recent-run total. Not per employee. Exclude dividends.
+- If several payments to different people cluster in the same few days each month (payroll/wage/salary wording helps), output ONE Monthly row named Payroll with one total from a typical recent run.
+- Not one row per person. Exclude dividends and one-off personal transfers.
 
 AMOUNTS
-- One number only — never ranges.
-- Fixed → latest repeated amount.
-- Stable variable → median of last ~6.
-- Recent jump → weight last 3–4 more heavily.
-- Large variable monthly (credit facility / tax) → recent average or median, Status 🔴 or 🟠, still INCLUDE in Monthly.
+- Always one number — never a range.
+- Same amount every time → that amount.
+- Stable but variable → median of recent comparable payments (about the last 6), rounded sensibly.
+- Clear recent change in level → weight the latest few payments more than older history.
+- Large but variable monthly costs → still include; estimate with recent average/median; Status 🟠 or 🔴.
 
 NAMES
-- Short Cash Prophet label + Bank payee for matching.
-- Unknown purpose (e.g. large quarterly transfer) → keep payee-like Name, Status 🔴.
+- Name = short label for Cash Prophet (you may clarify a payee into a plain English label when confident).
+- Bank payee = as on the statement, for matching.
+- If purpose is unclear, do not invent it — keep a payee-based Name and use Status 🔴.
 
 STATUS
-🟢 = consistent amount and day — enter as-is
+🟢 = amount and day highly consistent — safe to enter
 🟠 = clear schedule, amount estimated — enter then check
-🔴 = include as draft but I must decide (highly variable, purpose unknown, or incomplete cycle)
+🔴 = include as a draft but I must decide (highly variable, purpose unknown, or incomplete cycle)
 
-OUTPUT — exact headers only (no Category, Notes, or “how calculated”)
+OUTPUT — exact headers only
 
 ### Monthly commitments
 | Status | Name | Bank payee | Day of month | Amount (£) |
@@ -88,28 +90,21 @@ OUTPUT — exact headers only (no Category, Notes, or “how calculated”)
 | Bank payee | Why excluded |
 | --- | --- |
 
-After tables, only:
+After the tables, only:
 1) “Confirm these first” — max 5 bullets
 2) One line: 🟢 enter · 🟠 enter then check · 🔴 decide before trusting
 ```
 
 ---
 
-## Verdict on the second test run (for iteration)
+## Internal testing notes (not part of the prompt)
 
-**Better:** leaner table, correct columns, VAT + Papas with full quarter months, payroll one line, ENGIE recent-weighted.
+When cold-testing, use different businesses/statements. Check that the model:
 
-**Too aggressive / wrong exclusions:**
-- Dropped TNT, Vimto, Arkle, HMRC SDDS, Capital on Tap — those should stay as Monthly (variable → 🟠/🔴).
-- Included 501 Entertainment as Monthly — should be Not imported (weekly / multi-per-month).
-- Reserve only VAT + Papas — also hunt large annuals (insurance etc.) when evidence exists.
+- Respects the user’s `{{MIN_MONTHLY}}` without wiping variable monthlies above it  
+- Excludes true weeklies / multi-per-month payees  
+- Keeps variable-but-monthly items in Monthly (not Reserve)  
+- Lists full due-month cycles for quarterly/annual patterns  
+- Stays generic (no assumptions about industry)
 
-**Product fix:** `{{MIN_MONTHLY}}` is filled from the user’s onboarding answer (default 200), not hard-coded forever.
-
----
-
-## Testing
-
-1. Replace `{{MIN_MONTHLY}}` with `200` (or your chosen floor).  
-2. Fresh ChatGPT chat + this prompt + statement.  
-3. Expect: Arkle / Cap on Tap / HMRC monthly / TNT / Vimto in Monthly if ≥ threshold; 501 out; Papas+VAT in Reserve; more annual larges if present.
+Do not add named suppliers from one test business back into the copy-paste prompt.
