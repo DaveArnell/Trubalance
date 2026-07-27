@@ -12,71 +12,80 @@ During onboarding (per business):
 
 Most customers = one business. Multi-business = one pass per business.
 
-This prompt must stay **generic** — any UK bank, any sector, any payees. Do not bake in one company’s suppliers.
+This prompt must stay **generic** — any UK bank, any sector, any payees.
 
 ---
 
 ## Prompt (copy from here)
 
-For a manual test: replace every `{{MIN_MONTHLY}}` with e.g. `200` before pasting into ChatGPT.
+**Before testing:** replace `{{MIN_MONTHLY}}` with a number (e.g. `200`). When Cash Prophet copies the prompt, that replacement is automatic.
 
 ```
-You are helping me set up Cash Prophet (UK small-business cash position tool — not bookkeeping software).
+You are helping me set up Cash Prophet (UK small-business cash position tool — not bookkeeping).
 
-I will upload bank statement(s) or a transaction export for ONE business (CSV preferred; PDF/Excel also fine). Banks, payees and industries vary — work only from the file I give you. Do not assume a particular type of business.
+I will upload bank statement(s) or a transaction export for ONE business (CSV preferred). Work only from this file. Do not assume industry or known suppliers.
 
 GOAL
-A short FIRST DRAFT of what I should type into Cash Prophet for this business:
-A) Monthly commitments (dashboard)
-B) Reserve Planner (less frequent bills)
+FIRST DRAFT for Cash Prophet:
+A) Monthly commitments
+B) Reserve Planner (quarterly / six-monthly / annual / large non-monthly)
 
-Tables first. No essay. No columns beyond the headers below.
+Tables first. No essay. Exact headers only.
 
-MY MEANINGFUL MONTHLY THRESHOLD = £{{MIN_MONTHLY}}
-- Use this only to drop small recurring noise below about that amount per month → Not imported.
-- Do not drop a clear monthly cost just because the amount varies, or because it sits near the threshold.
-- If a payee looks monthly and is typically around or above £{{MIN_MONTHLY}}, include it (with a single estimated amount).
+MEANINGFUL MONTHLY THRESHOLD = £{{MIN_MONTHLY}}
+(If you still see the literal text "{{MIN_MONTHLY}}", treat it as 200.)
+- Drop small recurring noise clearly under this amount per month → Not imported.
+- Do not drop clear monthly costs that are around/above the threshold just because the amount varies.
 
-WEEKLY VS MONTHLY
-- Roughly every 7 days, or several payments to the same payee in most months → frequent/weekly operational spend → Not imported. Do not collapse those into a fake monthly line.
-- Monthly = about one payment per calendar month (or one clear monthly standing order / direct debit), payment day usually within about ±3 days.
+ONE DAY ONLY
+- Day of month and Due day must be a single integer 1–31 (e.g. 2 or 24).
+- Never output ranges like 1–2 or 26–30. Use the most common day, or the median of recent days if it wobbles.
 
-WHAT GOES WHERE
-MONTHLY
-- Recurs about once a month.
-- Variable amount is still Monthly (tax deductions, utilities, revolving credit repayments, finance instalments, etc.) — use 🟠 or 🔴, not Reserve.
-- If a monthly finance or subscription amount changed but still pays every month, keep it Monthly; use the latest normal amount or a recent median; mark 🟠 if uncertain.
-- Sort by Day of month (1 → 31).
-- Give each row a distinct Name (do not merge different payees under one vague label).
+WEEKLY VS MONTHLY VS RESERVE
+- Several times most months / ~weekly → Not imported (do not invent a monthly total).
+- About once per calendar month → Monthly.
+- Roughly every 3 / 6 / 12 months, or same month(s) each year → Reserve Planner — even if the payee name looks odd, like a person, brand, or “transfer”.
+- Do NOT dump large cyclical payments into Not imported as “irregular” or “internal” if the amount and spacing clearly repeat.
 
-RESERVE PLANNER
-- Only non-monthly patterns: quarterly, six-monthly, annual, or large bills that clearly do not fall every month.
-- Quarterly / cyclical: list every due month in the cycle (e.g. all four quarter-months), even if the file only shows some occurrences; mark 🟠 or 🔴 if evidence is incomplete.
-- Also include material annual or irregular bills when the history supports them (insurance, licences, large yearly charges). Prefer larger items — skip small annual noise.
-- Never put a payment that happens every month into Reserve.
+MONTHLY RULES
+- Variable monthly (tax, utilities, finance, revolving credit) stays Monthly — 🟠/🔴, not Reserve.
+- Must appear in most months across a meaningful stretch. If it only appears a few times a year, or only in a short recent window without a clear every-month pattern, do NOT force it into Monthly — put it in Reserve (if large/cyclical) or Not imported (if unclear).
+- Sort Monthly by Day of month ascending.
+- Distinct Names per payee (do not merge different finance agreements into one vague name).
+
+RESERVE PLANNER RULES (important — do not under-fill this table)
+First estimate a typical “meaningful monthly” total for this business from the Monthly candidates (rough sense of scale).
+
+Include in Reserve when ANY of these fit:
+1) Quarterly-ish spacing (~80–100 days) or the same 4 month-slots each year — list ALL due months in the cycle (e.g. Mar, Jun, Sep, Dec) even if only some appear in the file; 🟠/🔴 if incomplete.
+2) Six-monthly or annual repeats (same month ± a few weeks across years).
+3) Large non-monthly bills that matter for cash planning: tax (VAT / corporation tax when identifiable), insurance, licences, large landlord/management/property-style payments, other big yearly charges.
+4) Size guide: prefer items that are material versus monthly costs — typically hundreds to thousands, or at least about half of one typical meaningful monthly total for this business. Skip tiny annual noise.
+
+Purpose unknown is fine: keep a payee-based Name, Status 🔴, but STILL list it in Reserve if the schedule and size qualify.
+
+Never put every-month payments in Reserve.
 
 PAYROLL
-- If several payments to different people cluster in the same few days each month (payroll/wage/salary wording helps), output ONE Monthly row named Payroll with one total from a typical recent run.
-- Not one row per person. Exclude dividends and one-off personal transfers.
+- Early-month cluster to multiple people / payroll or wage wording → ONE Monthly row “Payroll”, one recent-run total. Not per person. Exclude dividends.
 
 AMOUNTS
-- Always one number — never a range.
-- Same amount every time → that amount.
-- Stable but variable → median of recent comparable payments (about the last 6), rounded sensibly.
-- Clear recent change in level → weight the latest few payments more than older history.
-- Large but variable monthly costs → still include; estimate with recent average/median; Status 🟠 or 🔴.
+- One number only — never ranges.
+- Fixed → latest repeated amount.
+- Stable variable → median of ~last 6.
+- Recent level change → weight last 3–4 more.
+- Large variable monthly → include with estimate; 🟠 or 🔴.
 
 NAMES
-- Name = short label for Cash Prophet (you may clarify a payee into a plain English label when confident).
-- Bank payee = as on the statement, for matching.
-- If purpose is unclear, do not invent it — keep a payee-based Name and use Status 🔴.
+- Short Cash Prophet label + Bank payee for matching.
+- Do not invent purpose when unsure → 🔴.
 
 STATUS
-🟢 = amount and day highly consistent — safe to enter
-🟠 = clear schedule, amount estimated — enter then check
-🔴 = include as a draft but I must decide (highly variable, purpose unknown, or incomplete cycle)
+🟢 consistent — enter
+🟠 estimated — enter then check
+🔴 draft — decide first
 
-OUTPUT — exact headers only
+OUTPUT
 
 ### Monthly commitments
 | Status | Name | Bank payee | Day of month | Amount (£) |
@@ -90,21 +99,21 @@ OUTPUT — exact headers only
 | Bank payee | Why excluded |
 | --- | --- |
 
-After the tables, only:
+After tables, only:
 1) “Confirm these first” — max 5 bullets
-2) One line: 🟢 enter · 🟠 enter then check · 🔴 decide before trusting
+2) 🟢 enter · 🟠 enter then check · 🔴 decide before trusting
 ```
 
 ---
 
 ## Internal testing notes (not part of the prompt)
 
-When cold-testing, use different businesses/statements. Check that the model:
+Cold-test on more than one business. Fail the run if:
 
-- Respects the user’s `{{MIN_MONTHLY}}` without wiping variable monthlies above it  
-- Excludes true weeklies / multi-per-month payees  
-- Keeps variable-but-monthly items in Monthly (not Reserve)  
-- Lists full due-month cycles for quarterly/annual patterns  
-- Stays generic (no assumptions about industry)
+- Day columns contain ranges (must be one number)  
+- A large ~quarterly same-amount payment is only in Not imported  
+- Reserve has only tax when other large annual/quarterly patterns exist in the file  
+- Items clearly under `MIN_MONTHLY` appear in Monthly  
+- Weak / sparse alarms or similar are forced into Monthly without a clear every-month history  
 
-Do not add named suppliers from one test business back into the copy-paste prompt.
+Do not put specific test-business payee names into the copy-paste prompt.
