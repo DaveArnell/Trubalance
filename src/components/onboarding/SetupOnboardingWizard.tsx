@@ -17,6 +17,7 @@ import { SetupAccruingCycleDemo } from './SetupAccruingCycleDemo'
 import { SetupDueCardsDemo } from './SetupDueCardsDemo'
 import { SetupReceiptCardsDemo } from './SetupReceiptCardsDemo'
 import { SetupVideoSlot } from './SetupVideoSlot'
+import { SetupStatementHelper } from './SetupStatementHelper'
 import { useAuth } from '../../contexts/AuthContext'
 import { trackEvent } from '../../services/eventTracking'
 
@@ -51,7 +52,7 @@ export function SetupOnboardingWizard({
   startAtStepId,
 }: SetupOnboardingWizardProps) {
   const { user } = useAuth()
-  const PROGRESS_KEY = 'trubalance-setup-step-index-v5'
+  const PROGRESS_KEY = 'trubalance-setup-step-index-v6'
   const steps = useMemo(() => getSetupOnboardingSteps(), [])
 
   const initialStepIndex = (() => {
@@ -230,7 +231,7 @@ export function SetupOnboardingWizard({
       sidebarLead={
         startAtStepId
           ? undefined
-          : 'A short teach-through of how Cash Prophet works — then you enter your numbers on the dashboard.'
+          : 'Short lessons, then an optional transaction-log helper — then your live dashboard.'
       }
       steps={steps.map((item) => ({
         id: item.id,
@@ -254,7 +255,7 @@ export function SetupOnboardingWizard({
           <p className="setup-flow-page-lead">{leadParagraph}</p>
         </header>
 
-        <SetupVideoSlot label={step.videoLabel ?? step.title} />
+        {!step.hideVideo && <SetupVideoSlot label={step.videoLabel ?? step.title} />}
 
         {detailParagraphs.map((para, i) => (
           <p key={i} className="setup-onboarding-explain">
@@ -301,6 +302,8 @@ export function SetupOnboardingWizard({
           </div>
         )}
         {step.id === 'trends-explain' && <SetupWidgetPreview previewId="trends" />}
+
+        {step.id === 'statement-helper' && <SetupStatementHelper />}
 
         {step.id === 'handoff' && (
           <ol className="setup-handoff-list">

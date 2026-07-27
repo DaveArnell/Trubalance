@@ -11,11 +11,12 @@ export interface SetupOnboardingStep {
   /** CSS selector to highlight on the dashboard while this step is active */
   spotlight?: string
   skippable?: boolean
+  /** Hide the teaching video slot on this step */
+  hideVideo?: boolean
 }
 
 /**
- * Teach-first flow: short lessons → structure → concept demos → hand off to the live dashboard.
- * Data entry continues via the setup tour on the app.
+ * Teach-first flow → optional statement helper → hand off to the live dashboard.
  */
 export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
   {
@@ -23,21 +24,21 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     title: 'One number you can trust',
     videoLabel: 'What Cash Prophet is for',
     explain:
-      'Your bank balance only shows what is in the account. It does not show rent, wages, VAT or tax already spoken for.\n\nCash Prophet continuously accounts for those commitments and gives you a Cash Prophet Balance — so you can see where the business really stands.',
+      'Your bank balance only shows what is sitting in the account. Cash Prophet accounts for commitments already spoken for — and gives you a Cash Prophet Balance you can trust.',
   },
   {
     id: 'business',
     title: 'Your company structure',
     videoLabel: 'Businesses, venues and accounts',
     explain:
-      'Add the businesses and venues you want to track, then their current and savings accounts.\n\nUse a separate savings account for reserves — VAT, tax and insurance. You can change names and colours later in Settings.',
+      'Add each business you want to track, then venues and accounts. Keep a separate savings account for reserves such as VAT, tax and insurance.',
   },
   {
     id: 'committed-explain',
     title: 'Monthly costs that build',
     videoLabel: 'How accruing costs work',
     explain:
-      'Regular bills like rent and wages build a little every day toward the month’s total.\n\nOn the due date they move into Due until you mark them paid.',
+      'Regular costs like rent and wages build a little every day toward the month’s total. On the due date they move into Due until you mark them paid.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="committed-funds"]',
   },
@@ -46,7 +47,7 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     title: 'Month view',
     videoLabel: 'Reading the month chart',
     explain:
-      'Month view shows how committed money builds through the month and drops when bills are paid.\n\nUse it to spot tight weeks before they arrive.',
+      'See how committed money builds through the month and drops when bills are paid — so tight weeks show up early.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="committed-funds"]',
   },
@@ -55,7 +56,7 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     title: 'Due',
     videoLabel: 'Paying what is ready',
     explain:
-      'Anything ready to pay lands here — monthly costs at their due date, plus one-offs you have earmarked.\n\nMark items paid once the money has left the account.',
+      'Anything ready to pay lands here — monthly costs on their due date, plus one-offs you have earmarked. Mark paid once the money has left the account.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="due"]',
   },
@@ -64,7 +65,7 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     title: 'Expected receipts',
     videoLabel: 'Money you know is coming',
     explain:
-      'Add income you are confident will arrive — invoices, grants, refunds.\n\nMark Received when the cash lands so your Cash Prophet Balance stays accurate.',
+      'Add income you are confident will arrive. Mark Received when it lands so your Cash Prophet Balance stays honest.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="expected-receipts"]',
   },
@@ -73,7 +74,7 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     title: 'Reserve Planner',
     videoLabel: 'Funding VAT and big bills',
     explain:
-      'Irregular bills like VAT and insurance arrive in lumps. Keep that money in a savings account, not your everyday current account.\n\nList each bill and when it is due. Cash Prophet turns that into one monthly transfer target.',
+      'VAT, insurance and similar bills arrive in lumps. List them here and Cash Prophet turns that into a steady monthly transfer into savings.',
     page: 'reserve-planner',
     spotlight: '[data-tour="reserve-planner-month"]',
     skippable: true,
@@ -83,16 +84,24 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     title: 'Trends',
     videoLabel: 'Your balance over time',
     explain:
-      'Every time you save balances, that day is logged. Trends shows whether your Cash Prophet Balance is heading up or down.\n\nWrong day? Correct it in the balance log under the chart.',
+      'Each time you save balances, that day is logged. Trends shows whether your Cash Prophet Balance is heading up or down.',
     page: 'trends',
     spotlight: '[data-widget-id="trends-chart"]',
   },
   {
+    id: 'statement-helper',
+    title: 'Speed up with a transaction log',
+    explain:
+      'Optional but powerful: download a transaction export for this business, copy our prompt into your own ChatGPT, and get a draft list of monthly costs and Reserve Planner bills to type in.',
+    hideVideo: true,
+    skippable: true,
+  },
+  {
     id: 'handoff',
-    title: 'Add your real numbers',
+    title: 'Add your numbers',
     videoLabel: 'What to do on the dashboard',
     explain:
-      'You have seen how the pieces fit. Next we open your dashboard and walk you through entering balances, costs, due items and receipts — then your reserve plan if you want one.',
+      'Open the dashboard next. Enter today’s balances, then your monthly costs and reserve bills — from the ChatGPT draft if you used it, or by hand.',
     page: 'committed-funds',
   },
 ]
@@ -122,6 +131,7 @@ export const SETUP_ONBOARDING_STEP_LABELS: Record<string, string> = {
   'receipts-explain': 'Receipts',
   reserve: 'Reserve',
   'trends-explain': 'Trends',
+  'statement-helper': 'Transaction log',
   handoff: 'Your dashboard',
 }
 
