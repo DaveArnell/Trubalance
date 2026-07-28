@@ -2,7 +2,7 @@ import { MobileRecordCard, MobileRecordList, MobileSectionLabel } from '../mobil
 import { formatCurrency } from '../../utils/format'
 
 /**
- * Static Due example — section labels teach the types; cards stay clean.
+ * Static Due example. Section labels teach the types; cards stay clean.
  */
 export function SetupDueCardsDemo() {
   return (
@@ -13,7 +13,7 @@ export function SetupDueCardsDemo() {
           <p className="setup-edu-due-demo-total">TOTAL {formatCurrency(13179)}</p>
         </div>
         <MobileRecordList>
-          <MobileSectionLabel>Monthly bill — due now</MobileSectionLabel>
+          <MobileSectionLabel>Monthly bill, due now</MobileSectionLabel>
           <MobileRecordCard
             title="Wages"
             amount={formatCurrency(8400)}
@@ -22,7 +22,7 @@ export function SetupDueCardsDemo() {
             progressColor="#0f766e"
             accentColor="#0f766e"
           />
-          <MobileSectionLabel>One-off — earmarked in full from today</MobileSectionLabel>
+          <MobileSectionLabel>One-off, earmarked in full from today</MobileSectionLabel>
           <MobileRecordCard
             title="Seasonal marketing"
             amount={formatCurrency(4500)}
@@ -31,7 +31,7 @@ export function SetupDueCardsDemo() {
             progressColor="#c2410c"
             accentColor="#c2410c"
           />
-          <MobileSectionLabel>One-off — building up a little each day</MobileSectionLabel>
+          <MobileSectionLabel>One-off, building up a little each day</MobileSectionLabel>
           <MobileRecordCard
             title="Activity equipment"
             amount={formatCurrency(279)}

@@ -46,10 +46,10 @@ export const STATEMENT_SETUP_STEPS = [
 export const WHY_CASH_PROPHET_CONTENT = {
   title: 'Your bank balance isn’t the whole story',
   lead:
-    'It shows what is in the account today. It does not show money already spoken for — rent, wages, VAT and the rest. Cash Prophet keeps those in view and gives you a Cash Prophet Balance you can check with more confidence.',
+    'It shows what is in the account today. It does not show money already spoken for, such as rent, wages, VAT and the rest. Cash Prophet keeps those in view and gives you a Cash Prophet Balance you can check with more confidence.',
   bullets: [
-    'Cash Prophet Balance — after meaningful costs you already know about',
-    'A separate savings pot for VAT, tax, insurance and similar lumps',
+    'Cash Prophet Balance after meaningful costs you already know about',
+    'Provisioning for VAT, tax, insurance and similar large bills',
     'A steady monthly transfer so those big bills are funded before they arrive',
   ],
 } as const

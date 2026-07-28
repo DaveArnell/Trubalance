@@ -36,7 +36,7 @@ export function SetupStatementHelper() {
         <li>
           From your bank or accounting software, download a{' '}
           <strong>transaction history / statement</strong> for this business (
-          <strong>PDF or CSV</strong> — either is fine). Prefer <strong>two years or more</strong> so
+          <strong>PDF or CSV</strong> are both fine). Prefer <strong>two years or more</strong> so
           quarterly and annual bills show up.
         </li>
         <li>
@@ -63,7 +63,7 @@ export function SetupStatementHelper() {
             />
           </span>
           <span className="muted">
-            Only include monthly bills at about this size or above — costs you genuinely want to
+            Only include monthly bills at about this size or above: costs you genuinely want to
             track and provision for. Smaller day-to-day spend stays out of the list.
           </span>
         </label>

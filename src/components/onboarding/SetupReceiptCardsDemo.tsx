@@ -2,7 +2,7 @@ import { MobileRecordCard, MobileRecordList, MobileSectionLabel } from '../mobil
 import { formatCurrency } from '../../utils/format'
 
 /**
- * Static Expected Receipts example — section labels teach the types; cards stay clean.
+ * Static Expected Receipts example. Section labels teach the types; cards stay clean.
  */
 export function SetupReceiptCardsDemo() {
   return (
@@ -13,7 +13,7 @@ export function SetupReceiptCardsDemo() {
           <p className="setup-edu-due-demo-total">TOTAL {formatCurrency(7400)}</p>
         </div>
         <MobileRecordList>
-          <MobileSectionLabel>Due in — waiting to be marked received</MobileSectionLabel>
+          <MobileSectionLabel>Due in, waiting to be marked received</MobileSectionLabel>
           <MobileRecordCard
             title="Client invoice"
             amount={formatCurrency(3200)}
@@ -22,7 +22,7 @@ export function SetupReceiptCardsDemo() {
             progressColor="#059669"
             accentColor="#059669"
           />
-          <MobileSectionLabel>Future date — counted in full from today</MobileSectionLabel>
+          <MobileSectionLabel>Future date, counted in full from today</MobileSectionLabel>
           <MobileRecordCard
             title="Venue hire deposit"
             amount={formatCurrency(1800)}
@@ -31,7 +31,7 @@ export function SetupReceiptCardsDemo() {
             progressColor="#059669"
             accentColor="#059669"
           />
-          <MobileSectionLabel>Future date — building up toward arrival</MobileSectionLabel>
+          <MobileSectionLabel>Future date, building up toward arrival</MobileSectionLabel>
           <MobileRecordCard
             title="Grant payment"
             amount={formatCurrency(840)}

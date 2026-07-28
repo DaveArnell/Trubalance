@@ -24,21 +24,21 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     title: 'Your bank balance isn’t the whole story',
     videoLabel: 'What Cash Prophet is for',
     explain:
-      'It shows what is in the account today. It does not show money already spoken for — rent, wages, VAT and the rest. Cash Prophet keeps those in view and gives you a Cash Prophet Balance you can check with more confidence.',
+      'It shows what is in the account today. It does not show money already spoken for, such as rent, wages, VAT and the rest. Cash Prophet keeps those in view and gives you a Cash Prophet Balance you can check with more confidence.',
   },
   {
     id: 'business',
     title: 'Businesses, sites and accounts',
     videoLabel: 'Businesses, sites and accounts',
     explain:
-      'Start with the business you want to track. Add sites if you have more than one. Add the bank accounts you use day to day — and a savings account if you want to keep money aside for bigger bills.',
+      'Start with the business you want to track. Add sites if you have more than one. Add every current and savings account the business holds, so Cash Prophet can see all the money you have in the bank. Do not add a reserve account here. That is linked later when you set up the Reserve Planner.',
   },
   {
     id: 'committed-explain',
     title: 'Monthly costs that build',
     videoLabel: 'How monthly costs build',
     explain:
-      'Costs that come round every month — rent, wages and similar — build a little each day toward the month’s total. That way your Cash Prophet Balance already reflects them before payday.',
+      'Costs that come round every month, such as rent, wages and similar, build a little each day toward the month’s total. That way your Cash Prophet Balance already reflects them before payday.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="committed-funds"]',
   },
@@ -47,7 +47,7 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     title: 'The month at a glance',
     videoLabel: 'Reading the month chart',
     explain:
-      'This chart shows committed money rising through the month, then falling when you mark bills paid. Use it to spot tight weeks before they arrive.',
+      'This chart shows committed money rising through the month, then falling when you mark bills paid. It gives you insight into cash flow through the month, and how much money needs to be assigned at different points.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="committed-funds"]',
   },
@@ -56,7 +56,7 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     title: 'Ready to pay',
     videoLabel: 'Paying what is due',
     explain:
-      'When a monthly cost reaches its due date — or you add a one-off you have set aside — it appears here. Mark it paid once the money has left the account.',
+      'When a monthly cost reaches its due date, or you add a one-off you have set aside, it appears here. These amounts count as deductions from your bank balance when Cash Prophet calculates your Cash Prophet Balance.\n\nMark them paid once the money has left the account. If what you paid differs from the estimate, enter the real amount when you mark it paid so that period’s history matches what actually went out.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="due"]',
   },
@@ -74,7 +74,7 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     title: 'Saving for big bills',
     videoLabel: 'Funding VAT and big bills',
     explain:
-      'VAT, insurance and other large non-monthly bills are listed here. Cash Prophet turns them into a regular monthly amount to move into savings.',
+      'VAT, insurance and other large bills that do not come every month are listed here. This method means you are always provisioning for them, month by month and day by day, so your Cash Prophet Balance stays a true reflection once those bills are accounted for.\n\nEach month, Cash Prophet tells you exactly how much to move into the reserve account, or how much you can transfer back out, depending on what is due. Follow that figure and the reserve stays on track.',
     page: 'reserve-planner',
     spotlight: '[data-tour="reserve-planner-month"]',
     skippable: true,
