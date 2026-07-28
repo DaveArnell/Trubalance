@@ -138,16 +138,16 @@ export const METHOD_RESERVE_PLANNER = {
 export const METHOD_FIRST_SETUP = {
   heading: 'The first setup matters',
   lead: [
-    'The only part that takes a little thought is the beginning. Cash Prophet can only carry the mental load once it understands your business.',
+    'Cash Prophet can only carry the mental load once it understands your business. That first setup used to mean remembering every bill yourself. It does not have to any more.',
   ],
   body: [
-    "During setup you'll list your regular monthly commitments, your annual bills and any other predictable costs. Most business owners already know these things — they've just never written them down in one place, and that process often gives a clearer picture of the business than they've had before.",
-    "Once it's done, Cash Prophet takes over. From then on you're updating the picture, not rebuilding it from scratch every week.",
+    'In Getting started you can download a bank transaction history, copy our prompt into ChatGPT, and get a draft list of monthly costs and Reserve bills. Most people can review that draft and enter the numbers in about 5 to 10 minutes.',
+    'You still choose what belongs in Cash Prophet. The draft just means you are not starting from a blank page. Once it is in, Cash Prophet takes over. From then on you are updating the picture, not rebuilding it from scratch every week.',
   ],
   timeline: [
-    'Know your bills',
-    'Build your commitments',
-    'Cash Prophet takes over',
+    'Download a bank history',
+    'Draft your bills with ChatGPT',
+    'Enter them into Cash Prophet',
     'Simple daily updates',
   ],
 } as const
@@ -156,22 +156,22 @@ export const METHOD_CUSTOMER_JOURNEY = [
   {
     step: '01',
     title: 'Connect your business',
-    body: 'Add your business, venues and bank accounts so you have a starting position.',
+    body: 'Add your business, sites and bank accounts so you have a starting position.',
   },
   {
     step: '02',
-    title: 'Add your monthly commitments',
-    body: 'Payroll, rent, utilities, subscriptions and other regular costs that should accrue every day.',
+    title: 'Add your monthly costs',
+    body: 'Use a bank export and our ChatGPT prompt for a draft, or enter rent, payroll and other regular costs by hand.',
   },
   {
     step: '03',
     title: 'Build your Reserve Planner',
-    body: 'Enter annual and irregular bills. The planner turns them into a month-by-month funding plan.',
+    body: 'Add VAT, insurance and other large non-monthly bills. The planner turns them into a month-by-month funding plan.',
   },
   {
     step: '04',
     title: 'Commitments build continuously',
-    body: 'Monthly costs and reserve requirements accrue automatically between updates — so you always see what’s spoken for.',
+    body: 'Monthly costs and reserve requirements accrue automatically between updates, so you always see what’s spoken for.',
   },
   {
     step: '05',
