@@ -171,7 +171,7 @@ export function LandingPage() {
         </section>
 
         <section className="marketing-company-band home-band--legal" aria-label="Company information">
-          <div className="marketing-section-inner">
+          <div className="marketing-section-inner marketing-section-inner--home">
             <CompanyLegalNotice variant="inline" />
           </div>
         </section>

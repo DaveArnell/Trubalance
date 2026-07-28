@@ -29833,4 +29833,95 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   }
 }
 
+/* Homepage: one content rail for every section (hero → CTA) */
+.marketing-main--home-vivid {
+  --home-rail: 74rem;
+  --home-gutter: 28px;
+}
+
+.marketing-main--home-vivid .marketing-hero--rank {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.marketing-main--home-vivid .home-cta-band,
+.marketing-main--home-vivid .home-cta-band.marketing-cta-band--pop,
+.home-cta-band.marketing-cta-band--pop {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.marketing-main--home-vivid .marketing-hero-rank-inner,
+.marketing-main--home-vivid .marketing-section-inner,
+.marketing-main--home-vivid .marketing-section-inner--home,
+.marketing-main--home-vivid .marketing-cta-band-inner {
+  max-width: var(--home-rail) !important;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--home-gutter) !important;
+  padding-right: var(--home-gutter) !important;
+  box-sizing: border-box;
+}
+
+.marketing-main--home-vivid .marketing-cta-band-inner {
+  text-align: center;
+}
+
+.marketing-main--home-vivid .home-band-stack {
+  align-items: stretch !important;
+}
+
+.marketing-main--home-vivid .home-founder,
+.marketing-main--home-vivid .home-band-head,
+.marketing-main--home-vivid .home-band-head--center,
+.marketing-main--home-vivid .home-outcome,
+.marketing-main--home-vivid .home-compare,
+.marketing-main--home-vivid .home-does-copy {
+  max-width: none !important;
+  width: 100%;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.marketing-main--home-vivid .home-band-head,
+.marketing-main--home-vivid .home-band-head--center,
+.marketing-main--home-vivid .home-founder {
+  text-align: left !important;
+}
+
+.marketing-main--home-vivid .home-band-head h2,
+.marketing-main--home-vivid .home-band-head--center h2,
+.marketing-main--home-vivid .home-founder h2,
+.marketing-main--home-vivid .home-does-copy h2 {
+  text-align: left !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  max-width: none !important;
+}
+
+.marketing-main--home-vivid .home-founder .marketing-how-eyebrow,
+.marketing-main--home-vivid .home-band-head .marketing-how-eyebrow {
+  justify-content: flex-start !important;
+}
+
+.marketing-main--home-vivid .home-why-close,
+.marketing-main--home-vivid .home-outcome-close {
+  width: 100%;
+  max-width: 46rem !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  text-align: left !important;
+}
+
+.marketing-main--home-vivid .home-founder-prose {
+  max-width: 46rem;
+}
+
+@media (max-width: 900px) {
+  .marketing-main--home-vivid {
+    --home-gutter: 18px;
+  }
+}
+
 
