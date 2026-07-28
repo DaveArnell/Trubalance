@@ -825,26 +825,26 @@ body {
 .sidebar-link {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.65rem;
   width: 100%;
   box-sizing: border-box;
   color: var(--text-inverse-muted);
   text-decoration: none;
-  padding: 7px var(--space-3);
+  padding: 10px var(--space-3);
   border-radius: var(--radius-sm);
-  font-size: 0.8rem;
-  font-weight: 500;
+  font-size: 0.92rem;
+  font-weight: 600;
   transition: background 0.15s ease, color 0.15s ease;
   border-left: 2px solid transparent;
   text-align: left;
 }
 
 .sidebar-nav-icon {
-  width: 1rem;
+  width: 1.2rem;
   text-align: center;
-  opacity: 0.85;
+  opacity: 0.9;
   flex-shrink: 0;
-  font-size: 0.92rem;
+  font-size: 1.05rem;
   line-height: 1;
 }
 
@@ -4679,6 +4679,256 @@ body.widget-canvas-resizing * {
   --overview-height: auto;
   overflow: hidden;
   font-size: 1rem;
+}
+
+.overview-strip--position-hero {
+  height: auto;
+  min-height: 0;
+}
+
+.overview-strip--position-hero .overview-strip-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: visible;
+}
+
+.balance-position-hero {
+  padding: var(--space-3) var(--space-4);
+  background: linear-gradient(180deg, rgba(15, 118, 110, 0.1) 0%, rgba(15, 118, 110, 0.02) 100%);
+  border-bottom: 1px solid transparent;
+}
+
+.overview-strip--expanded .balance-position-hero {
+  border-bottom-color: var(--border);
+}
+
+.balance-position-hero-main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.balance-position-hero-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.balance-position-hero-summary:hover .balance-position-hero-chevron,
+.balance-position-hero-summary:focus-visible .balance-position-hero-chevron {
+  color: var(--overview-accent);
+}
+
+.balance-position-hero-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.balance-position-hero-label-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.balance-position-hero-label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #0f766e;
+}
+
+.balance-position-hero-value {
+  font-size: clamp(1.65rem, 2.4vw, 2.15rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: #0b5f4a;
+}
+
+.balance-position-hero-freshness {
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.balance-position-hero-freshness--amber {
+  color: #b45309;
+}
+
+.balance-position-hero-freshness--red {
+  color: #b91c1c;
+}
+
+.balance-position-hero-deltas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.2rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.balance-position-delta--up {
+  color: #047857;
+}
+
+.balance-position-delta--down {
+  color: #b91c1c;
+}
+
+.balance-position-delta-sep {
+  opacity: 0.45;
+}
+
+.balance-position-hero-chevron {
+  flex-shrink: 0;
+  font-size: 1.15rem;
+  color: var(--text-secondary);
+  line-height: 1;
+}
+
+.balance-position-update-btn {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.overview-strip--position-hero .overview-strip-table {
+  padding: var(--space-2) var(--space-3) var(--space-3);
+}
+
+.due-moved-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  padding: 0.65rem 0.85rem;
+  border: 1px solid rgba(180, 83, 9, 0.28);
+  border-radius: var(--radius-md);
+  background: rgba(251, 191, 36, 0.12);
+}
+
+.due-moved-banner-copy {
+  min-width: 0;
+  font-size: 0.9rem;
+}
+
+.due-moved-banner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.update-balances-modal {
+  max-width: 42rem;
+  width: min(42rem, calc(100vw - 2rem));
+}
+
+.update-balances-modal-head {
+  padding: var(--space-4) var(--space-4) var(--space-2);
+}
+
+.update-balances-modal-head h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.2rem;
+}
+
+.update-balances-modal-body {
+  padding: 0 var(--space-4) var(--space-3);
+  max-height: min(60vh, 28rem);
+  overflow: auto;
+}
+
+.update-balances-modal-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  border-top: 1px solid var(--border);
+}
+
+.morning-checkin-modal {
+  max-width: 40rem;
+  width: min(40rem, calc(100vw - 1.5rem));
+  max-height: min(92vh, 44rem);
+  overflow: auto;
+}
+
+.morning-checkin-head {
+  padding: var(--space-4) var(--space-4) var(--space-2);
+}
+
+.morning-checkin-kicker {
+  margin: 0 0 0.25rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0f766e;
+}
+
+.morning-checkin-head h2 {
+  margin: 0 0 0.4rem;
+  font-size: 1.35rem;
+}
+
+.morning-checkin-section {
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--border);
+}
+
+.morning-checkin-section h3 {
+  margin: 0 0 0.45rem;
+  font-size: 0.95rem;
+}
+
+.morning-checkin-section--reserve {
+  background: rgba(15, 118, 110, 0.06);
+}
+
+.morning-checkin-due-list {
+  list-style: none;
+  margin: 0.75rem 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.morning-checkin-due-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: 0.55rem 0.7rem;
+  border-radius: var(--radius-sm);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+}
+
+.morning-checkin-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  border-top: 1px solid var(--border);
 }
 
 .overview-strip--balances-only {
@@ -12027,7 +12277,7 @@ tr.sheet-row--received td {
     color: var(--text-primary);
   }
 
-  /* ─── Compact True Balance strip ─────────────────────────────── */
+  /* ─── Compact Cash Prophet Balance strip ─────────────────────── */
   .mobile-overview {
     position: relative;
     top: auto;
@@ -12039,6 +12289,22 @@ tr.sheet-row--received td {
     overflow: hidden;
   }
 
+  .mobile-overview-hero-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.35rem;
+  }
+
+  .mobile-overview-hero-row .mobile-overview-summary {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .mobile-overview-update-btn {
+    flex-shrink: 0;
+    margin: 10px 10px 0 0;
+  }
+
   .mobile-overview-summary-label {
     font-size: 0.78rem;
     font-weight: 900;
@@ -12048,12 +12314,21 @@ tr.sheet-row--received td {
   }
 
   .mobile-overview-summary-value {
-    margin-left: auto;
-    font-size: 1.15rem;
+    font-size: 1.35rem;
     font-weight: 800;
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.02em;
     color: #0b5f4a;
+  }
+
+  .mobile-overview-deltas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.2rem;
+    margin-top: 0.15rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-secondary);
   }
 
   .mobile-home-section-tabs {

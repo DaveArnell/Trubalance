@@ -10,6 +10,8 @@ import { WidgetGrid } from './components/WidgetGrid'
 import { useOverviewSize } from './hooks/useOverviewSize'
 import { OverviewStrip } from './components/OverviewStrip'
 import { MobileOverview } from './components/mobile/MobileOverview'
+import { MorningCheckInModal } from './components/MorningCheckInModal'
+import { DueMovedBanner } from './components/DueMovedBanner'
 import { MobileBottomNav } from './components/mobile/MobileBottomNav'
 import {
   MobileHomeSectionTabs,
@@ -316,6 +318,7 @@ function AppShellInner({
   }, [isMobile, homeSection, activeRoute.page])
 
   const [openHelp, setOpenHelp] = useState<string | null>(null)
+  const [dueNotifyRefresh, setDueNotifyRefresh] = useState(0)
   const [graphRange, setGraphRangeState] = useState<GraphRange>(isDemoSession ? '12m' : '90d')
   const [revealFromOverrides, setRevealFromOverridesState] =
     useState<RevealFromOverrides>(loadRevealFromOverrides)
@@ -984,6 +987,16 @@ function AppShellInner({
                   onBalanceSave={handleBalanceSave}
                 />
 
+                <DueMovedBanner
+                  state={app.state}
+                  viewScope={app.viewScope}
+                  refreshKey={dueNotifyRefresh}
+                  onOpenDue={() => {
+                    setHomeSection('due')
+                    goToRoute('committed-funds')
+                  }}
+                />
+
                 {activePage === 'committed-funds' ? (
                   <MobileHomeSectionTabs
                     active={homeSection}
@@ -1061,6 +1074,13 @@ function AppShellInner({
                   onSizeChange={setOverviewSize}
                   onBalanceSave={handleBalanceSave}
                 />
+
+                <DueMovedBanner
+                  state={app.state}
+                  viewScope={app.viewScope}
+                  refreshKey={dueNotifyRefresh}
+                  onOpenDue={() => goToRoute('committed-funds')}
+                />
               </div>
 
               <div className="page-body">
@@ -1070,6 +1090,24 @@ function AppShellInner({
           )}
         </main>
         </div>
+
+        <MorningCheckInModal
+          state={app.state}
+          viewScope={app.viewScope}
+          breakdownColumns={breakdownColumns}
+          onBalanceSave={handleBalanceSave}
+          onMarkCommitmentPaid={(id) => app.markCommitmentPaid(id)}
+          onOpenDue={() => {
+            setHomeSection('due')
+            goToRoute('committed-funds')
+          }}
+          onOpenReserve={() => {
+            const first = app.state.reservePlanners[0]
+            goToRoute('reserve-planner', first?.id)
+          }}
+          onCheckInClosed={() => setDueNotifyRefresh((n) => n + 1)}
+          enabled={!isDemoSession}
+        />
       </DashboardViewPreferencesProvider>
       </TablePreferencesProvider>
     </TourProvider>
