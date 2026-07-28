@@ -4838,6 +4838,116 @@ body.widget-canvas-resizing * {
   background: #ea580c;
   box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.22);
   flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.due-new-notice--btn {
+  margin: 0 0.25rem 0 0;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+}
+
+.mobile-record-card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.mobile-record-card-title-text {
+  min-width: 0;
+}
+
+.mobile-record-card-title-badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+
+.morning-balances-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.morning-balances-group {
+  margin: 0.55rem 0 0.15rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #0f766e;
+}
+
+.morning-balances-group:first-child {
+  margin-top: 0;
+}
+
+.morning-balances-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(8rem, 10rem);
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.morning-balances-input-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+}
+
+.morning-balances-row-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.morning-balances-row-copy strong {
+  font-size: 0.9rem;
+}
+
+.morning-balances-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.morning-balances-input:focus {
+  outline: 2px solid rgba(15, 118, 110, 0.35);
+  outline-offset: 1px;
+}
+
+.morning-balances-saved {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #047857;
+}
+
+.morning-balances-hint {
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.morning-checkin-balances {
+  overflow: visible;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
 }
 
 .balance-position-hero {

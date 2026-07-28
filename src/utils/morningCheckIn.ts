@@ -98,7 +98,7 @@ export function getMorningReserveHint(
   }
 }
 
-const CHECKIN_KEY = 'trubalance-morning-checkin-date-v2'
+const CHECKIN_KEY = 'trubalance-morning-checkin-date-v3'
 const DUE_NOTIFY_KEY = 'trubalance-due-notify-periods'
 
 export function wasMorningCheckInDoneToday(today = getReferenceDateKey()): boolean {
@@ -144,8 +144,25 @@ export function clearPendingDueNotifyPeriods() {
   }
 }
 
+export function clearPendingDueNotifyKey(key: string) {
+  const next = getPendingDueNotifyPeriods().filter((entry) => entry !== key)
+  if (next.length === 0) clearPendingDueNotifyPeriods()
+  else setPendingDueNotifyPeriods(next)
+}
+
 export function dueNotifyKey(item: NewlyDueItem): string {
   return `${item.commitmentId}:${item.period}`
+}
+
+export function dueRowNotifyKey(row: { commitment: { id: string }; period: string; dueReferencePeriod?: string }): string {
+  return `${row.commitment.id}:${row.dueReferencePeriod ?? row.period}`
+}
+
+export function isPendingNewlyDueRow(
+  row: { commitment: { id: string }; period: string; dueReferencePeriod?: string },
+  pending: ReadonlySet<string> = new Set(getPendingDueNotifyPeriods()),
+): boolean {
+  return pending.has(dueRowNotifyKey(row))
 }
 
 /** How many “moved into Due today” notices are still waiting to be acknowledged. */

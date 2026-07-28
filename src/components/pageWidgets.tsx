@@ -40,8 +40,8 @@ export interface PageWidgetContext {
   onOpenReservePlanner?: (plannerId: string) => void
   trendsFocusScope?: ViewScope | null
   onTrendsFocusApplied?: () => void
-  showNewDueNotice?: boolean
-  onAcknowledgeNewDue?: () => void
+  newlyDueNotifyKeys?: string[]
+  onAcknowledgeNewlyDue?: (key: string) => void
 }
 
 export function buildPageWidgets(pageId: PageId, ctx: PageWidgetContext): Record<string, ReactNode> {
@@ -66,8 +66,8 @@ export function buildPageWidgets(pageId: PageId, ctx: PageWidgetContext): Record
     onOpenReservePlanner,
     trendsFocusScope,
     onTrendsFocusApplied,
-    showNewDueNotice = false,
-    onAcknowledgeNewDue,
+    newlyDueNotifyKeys = [],
+    onAcknowledgeNewlyDue,
   } = ctx
 
   switch (pageId) {
@@ -160,8 +160,8 @@ export function buildPageWidgets(pageId: PageId, ctx: PageWidgetContext): Record
             openHelp={openHelp}
             setOpenHelp={setOpenHelp}
             onOpenReservePlanner={onOpenReservePlanner}
-            showNewDueNotice={showNewDueNotice}
-            onAcknowledgeNewDue={onAcknowledgeNewDue}
+            newlyDueNotifyKeys={newlyDueNotifyKeys}
+            onAcknowledgeNewlyDue={onAcknowledgeNewlyDue}
           />
         ),
         'expected-receipts': (
@@ -185,8 +185,8 @@ export function buildPageWidgets(pageId: PageId, ctx: PageWidgetContext): Record
             openHelp={openHelp}
             setOpenHelp={setOpenHelp}
             onOpenReservePlanner={onOpenReservePlanner}
-            showNewDueNotice={showNewDueNotice}
-            onAcknowledgeNewDue={onAcknowledgeNewDue}
+            newlyDueNotifyKeys={newlyDueNotifyKeys}
+            onAcknowledgeNewlyDue={onAcknowledgeNewlyDue}
           />
         ),
       }

@@ -11,7 +11,12 @@ import { getCardScopeMetaLabel } from '../../utils/scope'
 import { formatCurrency } from '../../utils/format'
 import { getBusinessAccentColor, cardAccentForScope } from '../../utils/businessTheme'
 import { getReferenceDate } from '../../utils/referenceDate'
+import {
+  dueRowNotifyKey,
+  isPendingNewlyDueRow,
+} from '../../utils/morningCheckIn'
 import type { AppActions } from '../../hooks/useAppState'
+import { DueStatusDot } from '../committed/shared'
 import { MobileRecordCard, MobileRecordList, MobileSectionLabel } from './MobileRecordList'
 import { MobileDueDetailModal } from './MobileDueDetailModal'
 import { buildReserveDueAmountOverridePatch } from '../../utils/reserveCalculations'
@@ -30,6 +35,8 @@ interface MobileDueListProps {
     | 'updateReserveBill'
   >
   onOpenReservePlanner?: (plannerId: string) => void
+  newlyDueNotifyKeys?: string[]
+  onAcknowledgeNewlyDue?: (key: string) => void
 }
 
 /** Reserve and normal dues use the parent business colour so one family stays consistent. */
@@ -60,9 +67,12 @@ export function MobileDueList({
   commitmentViews,
   actions,
   onOpenReservePlanner,
+  newlyDueNotifyKeys = [],
+  onAcknowledgeNewlyDue,
 }: MobileDueListProps) {
   const [selected, setSelected] = useState<CommitmentDueRow | null>(null)
   const referenceDate = getReferenceDate()
+  const pendingNew = useMemo(() => new Set(newlyDueNotifyKeys), [newlyDueNotifyKeys])
   const sections = useMemo(
     () => buildDueRowSections(commitmentViews.due, referenceDate),
     [commitmentViews.due, referenceDate],
@@ -70,6 +80,12 @@ export function MobileDueList({
 
   if (commitmentViews.due.length === 0) {
     return <MobileRecordList emptyMessage="Nothing due or planned yet." />
+  }
+
+  const openRow = (row: CommitmentDueRow) => {
+    const key = dueRowNotifyKey(row)
+    if (pendingNew.has(key)) onAcknowledgeNewlyDue?.(key)
+    setSelected(row)
   }
 
   const listBody: ReactNode[] = []
@@ -85,11 +101,24 @@ export function MobileDueList({
       const accent = getDueRowAccentColor(state, row)
       const detailMeta = [timing, rolled].filter(Boolean).join(' · ') || undefined
       const funding = getDueRowCardFunding(row, referenceDate)
+      const isNewToday = isPendingNewlyDueRow(row, pendingNew)
 
       listBody.push(
         <MobileRecordCard
           key={row.id}
           title={item.name}
+          titleBadges={
+            <>
+              {isNewToday ? (
+                <span
+                  className="due-new-notice"
+                  title="Moved into Due today"
+                  aria-label="Moved into Due today"
+                />
+              ) : null}
+              <DueStatusDot row={row} />
+            </>
+          }
           scopeLabel={scopeLabel || undefined}
           amount={formatCurrency(funding.displayAmount)}
           amountSecondary={
@@ -100,7 +129,7 @@ export function MobileDueList({
           progress={funding.progress}
           progressColor={accent}
           accentColor={accent}
-          onClick={() => setSelected(row)}
+          onClick={() => openRow(row)}
         />,
       )
     }

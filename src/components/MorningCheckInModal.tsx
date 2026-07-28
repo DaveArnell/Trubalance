@@ -15,7 +15,7 @@ import {
   dueNotifyKey,
   wasMorningCheckInDoneToday,
 } from '../utils/morningCheckIn'
-import { BreakdownTable } from './BreakdownTable'
+import { MorningBalancesList } from './MorningBalancesList'
 
 interface MorningCheckInModalProps {
   state: AppState
@@ -44,7 +44,6 @@ export function MorningCheckInModal({
   enabled = true,
 }: MorningCheckInModalProps) {
   const [open, setOpen] = useState(false)
-  const [saveMessage, setSaveMessage] = useState('')
   const [paidIds, setPaidIds] = useState<string[]>([])
 
   const newlyDue = useMemo(() => getNewlyDueItemsToday(state, viewScope), [state, viewScope])
@@ -68,15 +67,6 @@ export function MorningCheckInModal({
     }
     setOpen(false)
     onCheckInClosed?.()
-  }
-
-  const handleSave = (changes: BalanceSaveChange[]) => {
-    if (!onBalanceSave) return
-    const result = onBalanceSave(changes)
-    if (result.updated > 0) {
-      setSaveMessage(`Saved ${result.updated} account${result.updated === 1 ? '' : 's'}.`)
-      window.setTimeout(() => setSaveMessage(''), 2500)
-    }
   }
 
   const handleMarkPaid = (id: string) => {
@@ -107,18 +97,15 @@ export function MorningCheckInModal({
           <section className="morning-checkin-panel">
             <div className="morning-checkin-panel-head">
               <h3>Bank balances</h3>
-              <p>Current and savings only — click a cell to edit.</p>
+              <p>Enter today’s current and savings figures — one account per row.</p>
             </div>
             {breakdownColumns.length > 0 ? (
               <div className="morning-checkin-balances">
-                <BreakdownTable
+                <MorningBalancesList
                   state={state}
                   columns={breakdownColumns}
-                  compact
-                  balancesOnly
-                  onBalanceSave={handleSave}
+                  onBalanceSave={onBalanceSave}
                 />
-                {saveMessage ? <p className="overview-accounts-save-msg">{saveMessage}</p> : null}
               </div>
             ) : (
               <p className="muted">Add accounts in Settings to update balances here.</p>

@@ -19,6 +19,7 @@ export function MobileSectionLabel({ children }: { children: ReactNode }) {
 
 export function MobileRecordCard({
   title,
+  titleBadges,
   scopeLabel,
   amount,
   amountSecondary,
@@ -33,6 +34,8 @@ export function MobileRecordCard({
   actions,
 }: {
   title: ReactNode
+  /** Status / new-due markers shown beside the title */
+  titleBadges?: ReactNode
   /** Site / business / venue — left on desktop; folded into meta on mobile */
   scopeLabel?: ReactNode
   amount: ReactNode
@@ -95,7 +98,10 @@ export function MobileRecordCard({
           </div>
         ) : null}
         <div className="mobile-record-card-text">
-          <h3 className="mobile-record-card-title">{title}</h3>
+          <h3 className="mobile-record-card-title">
+            <span className="mobile-record-card-title-text">{title}</span>
+            {titleBadges ? <span className="mobile-record-card-title-badges">{titleBadges}</span> : null}
+          </h3>
           {mobileMeta ? (
             <p className="mobile-record-card-meta mobile-record-card-meta--stacked">{mobileMeta}</p>
           ) : null}

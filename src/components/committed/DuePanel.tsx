@@ -52,6 +52,7 @@ import { DuplicateRowButton, DueStatusDot, SheetDragCell, SheetDragHeader, ordin
 import { MarkPaidConfirmButton } from './MarkPaidConfirmModal'
 import { MobileDueList } from '../mobile/MobileDueList'
 import { getCommitmentPayoffExpectedTotal } from '../../utils/commitmentCalculations'
+import { dueRowNotifyKey, isPendingNewlyDueRow } from '../../utils/morningCheckIn'
 
 interface DuePanelProps {
   state: AppState
@@ -77,9 +78,9 @@ interface DuePanelProps {
   openHelp: string | null
   setOpenHelp: (id: string | null) => void
   onOpenReservePlanner?: (plannerId: string) => void
-  /** Quiet notify when bills just moved into Due (cleared when Due title is clicked). */
-  showNewDueNotice?: boolean
-  onAcknowledgeNewDue?: () => void
+  /** Quiet notify keys for bills that moved into Due today. */
+  newlyDueNotifyKeys?: string[]
+  onAcknowledgeNewlyDue?: (key: string) => void
 }
 
 export function DuePanel({
@@ -90,11 +91,12 @@ export function DuePanel({
   openHelp,
   setOpenHelp,
   onOpenReservePlanner,
-  showNewDueNotice = false,
-  onAcknowledgeNewDue,
+  newlyDueNotifyKeys = [],
+  onAcknowledgeNewlyDue,
 }: DuePanelProps) {
   const editReadOnly = useEditReadOnly()
   const { useCards } = useDashboardViewPreferences()
+  const pendingNewlyDue = useMemo(() => new Set(newlyDueNotifyKeys), [newlyDueNotifyKeys])
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [highlightRowId, setHighlightRowId] = useState<string | null>(null)
   const [fundingDraft, setFundingDraft] = useState<PlannedFundingDraft | null>(null)
@@ -372,43 +374,13 @@ export function DuePanel({
               ) : (
                 <span className="card-head-toolbar-spacer" aria-hidden />
               )}
-              <h2>
-                <button
-                  type="button"
-                  className="due-title-btn"
-                  onClick={() => onAcknowledgeNewDue?.()}
-                >
-                  Due bills
-                  {showNewDueNotice ? (
-                    <span
-                      className="due-new-notice"
-                      title="New bills moved into Due today"
-                      aria-label="New bills moved into Due today"
-                    />
-                  ) : null}
-                </button>
-              </h2>
+              <h2>Due bills</h2>
               <HelpButton id="due" openHelp={openHelp} setOpenHelp={setOpenHelp} text={WIDGET_HELP.due} />
             </div>
           </>
         ) : (
           <>
-            <h2>
-              <button
-                type="button"
-                className="due-title-btn"
-                onClick={() => onAcknowledgeNewDue?.()}
-              >
-                Due bills
-                {showNewDueNotice ? (
-                  <span
-                    className="due-new-notice"
-                    title="New bills moved into Due today"
-                    aria-label="New bills moved into Due today"
-                  />
-                ) : null}
-              </button>
-            </h2>
+            <h2>Due bills</h2>
             <table className="kpi-table kpi-table--head kpi-table--totals" aria-label="Due total">
               <tbody>
                 <tr>
@@ -449,6 +421,8 @@ export function DuePanel({
             commitmentViews={commitmentViews}
             actions={actions}
             onOpenReservePlanner={onOpenReservePlanner}
+            newlyDueNotifyKeys={newlyDueNotifyKeys}
+            onAcknowledgeNewlyDue={onAcknowledgeNewlyDue}
           />
         ) : (
         <PlatformSheetWrap storageKey="due" columns={DUE_COLUMNS}>
@@ -508,6 +482,19 @@ export function DuePanel({
                           row.rolledPeriodCount && row.rolledPeriodCount > 1
                             ? `×${row.rolledPeriodCount}`
                             : null
+                        const showNewNotice = isPendingNewlyDueRow(row, pendingNewlyDue)
+                        const newDueBadge = showNewNotice ? (
+                          <button
+                            type="button"
+                            className="due-new-notice due-new-notice--btn"
+                            title="Moved into Due today — click to dismiss"
+                            aria-label="Moved into Due today"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              onAcknowledgeNewlyDue?.(dueRowNotifyKey(row))
+                            }}
+                          />
+                        ) : null
 
                         const fundingStats = isPlanned ? formatPlannedFundingStats(item) : null
                         const reservePlanner = row.reservePlannerId
@@ -605,15 +592,18 @@ export function DuePanel({
                             cellId={`due-${row.id}-timing`}
                             commitment={item}
                             statusDot={
-                              <DueStatusDot
-                                row={row}
-                                onDismiss={() =>
-                                  actions.acknowledgeCommitmentDueAlert(
-                                    item.id,
-                                    item.plannedDueDate?.slice(0, 7),
-                                  )
-                                }
-                              />
+                              <>
+                                {newDueBadge}
+                                <DueStatusDot
+                                  row={row}
+                                  onDismiss={() =>
+                                    actions.acknowledgeCommitmentDueAlert(
+                                      item.id,
+                                      item.plannedDueDate?.slice(0, 7),
+                                    )
+                                  }
+                                />
+                              </>
                             }
                             isActive={activeCell === `due-${row.id}-timing`}
                             onActivate={() => activate(`due-${row.id}-timing`)}
@@ -626,6 +616,7 @@ export function DuePanel({
                         ) : isReserveTransfer ? (
                           <td title={item.notes ?? undefined}>
                             <span className="sheet-cell-value muted">{formatDueRowTiming(row)}</span>
+                            {newDueBadge}
                             <DueStatusDot row={row} />
                           </td>
                         ) : (
@@ -636,23 +627,26 @@ export function DuePanel({
                             rolledHint={rolledHint}
                             rolledTooltip={rolledTooltip}
                             statusDot={
-                              <DueStatusDot
-                                row={row}
-                                onDismiss={() => {
-                                  if (isReserveBill && row.reservePlannerId && row.reserveBillId) {
-                                    actions.acknowledgeReserveBillDueAlert(
-                                      row.reservePlannerId,
-                                      row.reserveBillId,
-                                      row.dueReferencePeriod ?? row.period,
-                                    )
-                                  } else {
-                                    actions.acknowledgeCommitmentDueAlert(
-                                      item.id,
-                                      row.dueReferencePeriod ?? row.period,
-                                    )
-                                  }
-                                }}
-                              />
+                              <>
+                                {newDueBadge}
+                                <DueStatusDot
+                                  row={row}
+                                  onDismiss={() => {
+                                    if (isReserveBill && row.reservePlannerId && row.reserveBillId) {
+                                      actions.acknowledgeReserveBillDueAlert(
+                                        row.reservePlannerId,
+                                        row.reserveBillId,
+                                        row.dueReferencePeriod ?? row.period,
+                                      )
+                                    } else {
+                                      actions.acknowledgeCommitmentDueAlert(
+                                        item.id,
+                                        row.dueReferencePeriod ?? row.period,
+                                      )
+                                    }
+                                  }}
+                                />
+                              </>
                             }
                             isActive={activeCell === `due-${row.id}-timing`}
                             onActivate={() => activate(`due-${row.id}-timing`)}

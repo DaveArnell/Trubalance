@@ -12,8 +12,9 @@ import { OverviewStrip } from './components/OverviewStrip'
 import { MobileOverview } from './components/mobile/MobileOverview'
 import { MorningCheckInModal } from './components/MorningCheckInModal'
 import {
-  clearPendingDueNotifyPeriods,
+  clearPendingDueNotifyKey,
   countPendingNewlyDueNotices,
+  getPendingDueNotifyPeriods,
 } from './utils/morningCheckIn'
 import { MobileBottomNav } from './components/mobile/MobileBottomNav'
 import {
@@ -513,8 +514,13 @@ function AppShellInner({
     [app.state, app.viewScope, dueNotifyRefresh],
   )
 
-  const acknowledgeNewDue = useCallback(() => {
-    clearPendingDueNotifyPeriods()
+  const newlyDueNotifyKeys = useMemo(
+    () => getPendingDueNotifyPeriods(),
+    [dueNotifyRefresh, newDueNoticeCount],
+  )
+
+  const acknowledgeNewlyDueKey = useCallback((key: string) => {
+    clearPendingDueNotifyKey(key)
     setDueNotifyRefresh((n) => n + 1)
   }, [])
 
@@ -785,8 +791,8 @@ function AppShellInner({
         onOpenReservePlanner: (plannerId) => goToRoute('reserve-planner', plannerId),
         trendsFocusScope,
         onTrendsFocusApplied: clearTrendsFocus,
-        showNewDueNotice: newDueNoticeCount > 0,
-        onAcknowledgeNewDue: acknowledgeNewDue,
+        newlyDueNotifyKeys,
+        onAcknowledgeNewlyDue: acknowledgeNewlyDueKey,
       }),
     [
       activePage,
@@ -805,8 +811,8 @@ function AppShellInner({
       activeRoute.reservePlannerId,
       openHelp,
       trendsFocusScope,
-      newDueNoticeCount,
-      acknowledgeNewDue,
+      newlyDueNotifyKeys,
+      acknowledgeNewlyDueKey,
     ],
   )
 
@@ -1007,10 +1013,7 @@ function AppShellInner({
                 {activePage === 'committed-funds' ? (
                   <MobileHomeSectionTabs
                     active={homeSection}
-                    onChange={(section) => {
-                      setHomeSection(section)
-                      if (section === 'due') acknowledgeNewDue()
-                    }}
+                    onChange={setHomeSection}
                     dueBadgeCount={dueAttentionCount}
                     showNewDueNotice={newDueNoticeCount > 0}
                   />
