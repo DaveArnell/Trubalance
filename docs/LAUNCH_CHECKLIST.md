@@ -11,7 +11,8 @@ Manual steps and verification. Code tasks are done in the repo; SQL still needs 
 - **Bank PDF/CSV import in-app:** not shipping for now. Users use their own AI (ChatGPT) via the optional transaction-log helper instead — avoids import cost/red tape.
 - **Google Search Console:** sorted (domain + sitemap).
 - **Analytics (Plausible / GA4):** deferred — add later on its own page/setup when ready.
-- **ICO:** organisation-level for Vocatio Ltd (not per-website). Keep the existing registration current; add the ICO number to Privacy when you have it handy. No separate registration needed just because Cash Prophet is a product site.
+- **ICO:** organisation-level for Vocatio Ltd. Registration **CSN6799153** is on Privacy / legal notices.
+- **Support messages SQL (025):** run by Dave — Settings → Support → admin inbox should work.
 
 ---
 
@@ -34,7 +35,7 @@ When someone pastes a Cash Prophet link in WhatsApp, Slack, LinkedIn, or Faceboo
 
 ## Supabase
 
-- [ ] Run outstanding SQL migrations in Supabase SQL Editor (including **025_support_messages.sql** for Settings → Support → admin inbox)
+- [x] Support messages migration **025** run
 - [ ] Edge functions deployed when billing/admin changes land
 - [ ] Platform admin account granted for your vocatio.io user
 
