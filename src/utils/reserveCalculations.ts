@@ -14,7 +14,7 @@ import type {
 } from '../types'
 import { toAmount } from './amounts'
 import { getAccountBusinessId } from './accounts'
-import { currentPeriod } from './commitmentCalculations'
+import { currentPeriod, clampDueDay } from './commitmentCalculations'
 import { MONTHS, currentMonthIndex, formatCurrency } from './format'
 import { getBusinessIdsForScope, getVenueIdsForScope } from './scope'
 import { dateToKey, getReferenceDate } from './referenceDate'
@@ -198,13 +198,42 @@ export interface ReserveDueOccurrence {
   dueDay: number
 }
 
+function dateOnly(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate())
+}
+
+function getReserveDueDate(year: number, monthIndex: number, dueDay: number): Date {
+  return dateOnly(new Date(year, monthIndex, clampDueDay(year, monthIndex, dueDay)))
+}
+
+function parseReserveBillCreatedDate(bill: ReserveBill): Date | null {
+  if (!bill.createdAt) return null
+  const d = new Date(bill.createdAt)
+  if (isNaN(d.getTime())) return null
+  return dateOnly(d)
+}
+
+/** Reserve bills only roll into Due for periods whose due date is after the bill was added. */
+export function reserveBillEligibleForPeriodDue(
+  bill: ReserveBill,
+  year: number,
+  monthIndex: number,
+): boolean {
+  const created = parseReserveBillCreatedDate(bill)
+  if (!created) return true
+  const month = MONTHS[monthIndex]!
+  const dueDay = getBillDueDay(bill, month)
+  const periodDueDate = getReserveDueDate(year, monthIndex, dueDay)
+  return created.getTime() < periodDueDate.getTime()
+}
+
 /** Unpaid reserve bill due months in the current year through today (rolls prior months forward). */
 export function getUnpaidReserveBillDueOccurrences(
   bill: ReserveBill,
   referenceDate: Date = getReferenceDate(),
 ): ReserveDueOccurrence[] {
   const year = referenceDate.getFullYear()
-  const today = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), referenceDate.getDate())
+  const today = dateOnly(referenceDate)
   const results: ReserveDueOccurrence[] = []
 
   for (let monthIndex = 0; monthIndex <= today.getMonth(); monthIndex++) {
@@ -216,12 +245,17 @@ export function getUnpaidReserveBillDueOccurrences(
     if (isReserveBillPaidThisPeriod(bill, period, referenceDate)) continue
     if (isReserveBillDismissedThisPeriod(bill, period)) continue
 
+    const dueDay = getBillDueDay(bill, month)
+    const dueDate = getReserveDueDate(year, monthIndex, dueDay)
+    if (today.getTime() < dueDate.getTime()) continue
+    if (!reserveBillEligibleForPeriodDue(bill, year, monthIndex)) continue
+
     results.push({
       month,
       monthIndex,
       amount,
       period,
-      dueDay: getBillDueDay(bill, month),
+      dueDay,
     })
   }
 

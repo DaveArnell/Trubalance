@@ -168,6 +168,8 @@ export interface ReserveBill {
   duePeriodAmountOverrides?: Record<string, number>
   venueId?: string
   notes?: string
+  /** Calendar date (YYYY-MM-DD) the bill was added — Due only includes periods after this. */
+  createdAt?: string
   lastPaidPeriod?: string
   /** ISO date (YYYY-MM-DD) when marked paid — stops future accrual but preserves history before this day. */
   lastPaidOnDate?: string

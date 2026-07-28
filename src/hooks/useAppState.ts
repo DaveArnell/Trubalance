@@ -125,6 +125,7 @@ function migrateBill(raw: Record<string, unknown>): ReserveBill {
     duePeriodAmountOverrides,
     venueId: bill.venueId,
     notes: bill.notes,
+    createdAt: typeof bill.createdAt === 'string' ? bill.createdAt : undefined,
     lastPaidPeriod: bill.lastPaidPeriod,
     lastPaidOnDate: bill.lastPaidOnDate,
     dismissedDuePeriods: bill.dismissedDuePeriods,
@@ -1186,7 +1187,15 @@ export function useAppState(options?: UseAppStateOptions) {
         p.id === bill.plannerId
           ? {
               ...p,
-              bills: [...p.bills, { ...bill, id, sortOrder: nextSortOrder(p.bills) }],
+              bills: [
+                ...p.bills,
+                {
+                  ...bill,
+                  id,
+                  createdAt: bill.createdAt ?? todayDateKey(),
+                  sortOrder: nextSortOrder(p.bills),
+                },
+              ],
             }
           : p,
       ),
@@ -1255,7 +1264,9 @@ export function useAppState(options?: UseAppStateOptions) {
           monthAmounts: { ...source.monthAmounts },
           monthDueDays: source.monthDueDays ? { ...source.monthDueDays } : undefined,
           duePeriodAmountOverrides: undefined,
+          createdAt: todayDateKey(),
           lastPaidPeriod: undefined,
+          lastPaidOnDate: undefined,
           dismissedDuePeriods: [],
           acknowledgedDuePeriods: [],
           sortOrder: nextSortOrder(p.bills),
@@ -1286,7 +1297,9 @@ export function useAppState(options?: UseAppStateOptions) {
         venueId: bill.venueId && targetVenueIds.has(bill.venueId) ? bill.venueId : undefined,
         monthAmounts: { ...bill.monthAmounts },
         monthDueDays: bill.monthDueDays ? { ...bill.monthDueDays } : undefined,
+        createdAt: todayDateKey(),
         lastPaidPeriod: undefined,
+        lastPaidOnDate: undefined,
         dismissedDuePeriods: [],
         sortOrder,
       })
