@@ -1,19 +1,19 @@
 /**
- * Homepage marketing copy. Cash Prophet Balance first; calm and plain.
+ * Homepage marketing copy. Confidence first; Cash Prophet Balance later.
  */
 
 export const HOME_HERO = {
   eyebrow: 'Cash Prophet',
-  /** Short plain statement under the brand — what this is. */
-  tagline: 'One trusted financial number for your business.',
-  headline: 'Finally, a balance you can trust.',
-  headlineStart: 'Finally, a balance',
-  headlineHighlight: 'you can trust.',
+  /** Core belief under the brand. */
+  tagline: 'Every business deserves one financial number it can trust.',
+  headline: 'Finally understand where your business really stands.',
+  headlineStart: 'Finally understand',
+  headlineHighlight: 'where your business really stands.',
   subheading: [
     "Your bank balance only shows what's sitting in the account. It doesn't show money already spoken for: rent, wages, VAT and the rest.",
-    'Cash Prophet keeps those commitments in view and gives you a Cash Prophet Balance that shows where your business really stands today.',
+    'Cash Prophet continuously accounts for important financial commitments, giving you one trusted financial number that shows where your business really stands.',
   ],
-  sizzle: 'Less stress. More confidence.',
+  sizzle: 'Less guessing. More confidence.',
   primaryCta: 'Start Free',
   secondaryCta: 'See How It Works',
   graphs: {
@@ -23,10 +23,10 @@ export const HOME_HERO = {
       caption: 'Your bank balance only changes when money moves.',
     },
     prophet: {
-      tag: 'Cash Prophet Balance',
+      tag: 'Cash Prophet',
       title: 'Your commitments are already accounted for.',
       caption:
-        'Future costs build into your Cash Prophet Balance, so you see what the business can actually rely on.',
+        'Important costs are kept in view day by day, so you see what the business can actually rely on.',
     },
   },
 } as const
