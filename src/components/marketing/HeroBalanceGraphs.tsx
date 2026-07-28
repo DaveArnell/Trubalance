@@ -237,7 +237,7 @@ export function HeroBalanceGraphs() {
   return (
     <div
       className="hero-graphs hero-graphs--sync"
-      aria-label="Cash Prophet hero: payment spikes and bank balance morph into a calm Cash Prophet Balance for UK businesses"
+      aria-label="Cash Prophet hero: payment spikes and bank balance morph into one trusted financial number for UK businesses"
     >
       <figure className={`hero-graph-card hero-graph-card--${cardTone}`}>
         <div className="hero-graph-header">
@@ -268,7 +268,7 @@ export function HeroBalanceGraphs() {
           <MorphText
             className="hero-graph-tag-stack"
             before="Bank balance"
-            after="Cash Prophet Balance"
+            after="Cash Prophet"
             t={towardEven}
             beforeClassName="hero-graph-tag hero-graph-tag--bank"
             afterClassName="hero-graph-tag hero-graph-tag--true"
@@ -276,7 +276,7 @@ export function HeroBalanceGraphs() {
           <MorphText
             className="hero-graph-title-stack"
             before="Looks fine until the payments hit"
-            after="A balance you can rely on"
+            after="Where your business really stands"
             t={towardEven}
             beforeClassName="hero-graph-title"
             afterClassName="hero-graph-title"

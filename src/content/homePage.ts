@@ -26,7 +26,7 @@ export const HOME_HERO = {
       tag: 'Cash Prophet',
       title: 'Your commitments are already accounted for.',
       caption:
-        'Important costs are kept in view day by day, so you see what the business can actually rely on.',
+        'Important costs are kept in view day by day, so you see where the business really stands.',
     },
   },
 } as const
@@ -41,12 +41,12 @@ export const HOME_NEED = {
   ],
 } as const
 
-/** How Cash Prophet delivers the Cash Prophet Balance */
+/** How Cash Prophet does the mental accounting for you */
 export const HOME_DOES = {
   heading: 'Cash Prophet does that work for you',
   body: [
     'Regular costs build into today’s position. Larger bills are provisioned for steadily instead of arriving as a surprise. Expected income is reflected where it belongs.',
-    'Your Cash Prophet Balance updates every day, so you can stop interpreting the bank balance and get on with running the business.',
+    'That trusted number updates every day, so you can stop interpreting the bank balance and get on with running the business.',
   ],
 } as const
 
@@ -66,7 +66,7 @@ export const HOME_OUTCOME = {
 export const HOME_WHY_IT_WORKS = {
   heading: 'Why Cash Prophet is different',
   close:
-    'By continuously accounting for your financial commitments, it gives you a clearer picture of what your business can safely afford right now. That’s why the Cash Prophet Balance becomes the number you rely on instead of your bank balance.',
+    'By continuously accounting for your financial commitments, it gives you a clearer picture of what your business can safely afford right now. That’s the number you rely on instead of your bank balance.',
 } as const
 
 export const HOME_FOUNDER = {
@@ -80,6 +80,6 @@ export const HOME_FOUNDER = {
 } as const
 
 export const HOME_CTA = {
-  heading: 'Get a Cash Prophet Balance you can rely on',
+  heading: 'Know where your business really stands',
   body: 'Start free, or see how it works first.',
 } as const

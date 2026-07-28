@@ -54,7 +54,7 @@ export function HomeSpokenForPanel() {
 /** DOES section — monthly accruing bills snapshot. */
 export function HomeAvailablePanel() {
   return (
-    <aside className="home-snap home-snap--wide" aria-label="Cash Prophet monthly accruing bills building toward Cash Prophet Balance">
+    <aside className="home-snap home-snap--wide" aria-label="Cash Prophet monthly accruing bills building toward today’s trusted position">
       <div className="home-dash home-dash--cards home-dash--accruing">
         <div className="home-dash-hero home-dash-hero--accruing">
           <p className="home-snap-label home-snap-label--teal">Monthly accruing bills</p>
@@ -119,10 +119,10 @@ export function HomeOutcomeBeats({
   )
 }
 
-/** WHY — accounting, bank, and Cash Prophet Balance. */
+/** WHY — accounting, bank, and Cash Prophet. */
 export function HomeCompareStrip() {
   return (
-    <div className="home-compare" aria-label="How Cash Prophet Balance sits beside accounting software and banking apps">
+    <div className="home-compare" aria-label="How Cash Prophet sits beside accounting software and banking apps">
       <div className="home-compare-col home-compare-col--muted">
         <p className="home-compare-tag">Accounting</p>
         <p className="home-compare-body">Records the past</p>
@@ -136,7 +136,7 @@ export function HomeCompareStrip() {
       <div className="home-compare-col home-compare-col--accent">
         <p className="home-compare-tag">Cash Prophet</p>
         <p className="home-compare-body">Helps you decide today</p>
-        <p className="home-compare-highlight">Cash Prophet Balance you can trust</p>
+        <p className="home-compare-highlight">One number you can trust</p>
       </div>
     </div>
   )

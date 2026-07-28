@@ -112,13 +112,13 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* Visual left, text right */}
+        {/* Text left, visual right — same reading line as the section above */}
         <section
           className="home-band home-band--wash"
           id="what-it-does"
           aria-labelledby="does-heading"
         >
-          <div className="marketing-section-inner marketing-section-inner--home home-split home-split--flip">
+          <div className="marketing-section-inner marketing-section-inner--home home-split">
             <div className="home-split-copy">
               <h2 id="does-heading">{HOME_DOES.heading}</h2>
               {HOME_DOES.body.map((paragraph) => (
@@ -159,13 +159,15 @@ export function LandingPage() {
         </section>
 
         <section className="home-band home-band--founder" aria-label="Why Cash Prophet exists">
-          <div className="marketing-section-inner marketing-section-inner--home home-founder">
-            <p className="marketing-how-eyebrow">{HOME_FOUNDER.eyebrow}</p>
-            <h2>{HOME_FOUNDER.heading}</h2>
-            <div className="home-founder-prose">
-              {HOME_FOUNDER.body.map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
-              ))}
+          <div className="marketing-section-inner marketing-section-inner--home">
+            <div className="home-founder">
+              <p className="marketing-how-eyebrow">{HOME_FOUNDER.eyebrow}</p>
+              <h2>{HOME_FOUNDER.heading}</h2>
+              <div className="home-founder-prose">
+                {HOME_FOUNDER.body.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </div>
             </div>
           </div>
         </section>
