@@ -34,23 +34,32 @@ export function SetupStatementHelper() {
     <div className="setup-statement-helper">
       <ol className="setup-statement-helper-steps">
         <li>
-          From your bank or accounting software, download a{' '}
-          <strong>transaction history / statement</strong> for this business (
-          <strong>PDF or CSV</strong> are both fine). Prefer <strong>two years or more</strong> so
-          quarterly and annual bills show up.
+          <strong className="setup-statement-helper-step-label">Download your history</strong>
+          <p>
+            From your bank or accounting software, download a transaction history or statement for
+            this business. PDF or CSV both work. Prefer two years or more so quarterly and annual
+            bills show up.
+          </p>
         </li>
         <li>
-          Set the monthly minimum below, then <strong>Copy prompt</strong>. Paste it into ChatGPT,
-          then upload the file. Repeat once per business if you have several.
+          <strong className="setup-statement-helper-step-label">Copy the prompt into ChatGPT</strong>
+          <p>
+            Set the monthly minimum below, copy the prompt, paste it into ChatGPT, then attach the
+            file. Repeat once per business if you have several.
+          </p>
         </li>
         <li>
-          Type the tables it returns into Cash Prophet. Start with 🟢, check 🟠, decide on 🔴.
+          <strong className="setup-statement-helper-step-label">Type the draft into Cash Prophet</strong>
+          <p>
+            Use the tables ChatGPT returns. Start with green items, check amber ones, and decide on
+            red before you trust them.
+          </p>
         </li>
       </ol>
 
-      <div className="setup-statement-helper-thresholds">
+      <div className="setup-statement-helper-panel">
         <label className="setup-statement-helper-field">
-          <span>Meaningful monthly amount</span>
+          <span className="setup-statement-helper-field-label">Meaningful monthly amount</span>
           <span className="setup-statement-helper-input">
             <span aria-hidden>{symbol}</span>
             <input
@@ -62,20 +71,18 @@ export function SetupStatementHelper() {
               aria-label="Meaningful monthly amount in pounds"
             />
           </span>
-          <span className="muted">
-            Only include monthly bills at about this size or above: costs you genuinely want to
-            track and provision for. Smaller day-to-day spend stays out of the list.
+          <span className="setup-statement-helper-field-help">
+            Only include monthly bills at about this size or above: costs you genuinely want to track
+            and provision for. Smaller day-to-day spend stays out of the list.
           </span>
         </label>
-      </div>
 
-      <div className="setup-statement-helper-actions">
-        <button type="button" className="btn-primary" onClick={() => void handleCopy()}>
-          {copied ? 'Copied' : 'Copy prompt'}
-        </button>
-        <p className="muted setup-statement-helper-hint">
-          Paste into ChatGPT, then attach your file.
-        </p>
+        <div className="setup-statement-helper-actions">
+          <button type="button" className="btn-primary" onClick={() => void handleCopy()}>
+            {copied ? 'Copied' : 'Copy prompt'}
+          </button>
+          <p className="setup-statement-helper-hint">Paste into ChatGPT, then attach your file.</p>
+        </div>
       </div>
 
       {copyError && (

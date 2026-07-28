@@ -92,7 +92,7 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     id: 'statement-helper',
     title: 'Speed things up with a bank export',
     explain:
-      'Optional. Download a transaction history for this business, paste our prompt into ChatGPT, and get a draft list of monthly costs and Reserve bills to type into Cash Prophet.',
+      'Optional. Download a transaction history for this business, paste our prompt into ChatGPT, and get a draft list of monthly costs and Reserve bills to type in.',
     hideVideo: true,
     skippable: true,
   },
