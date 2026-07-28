@@ -99,7 +99,8 @@ export function getMorningReserveHint(
 }
 
 const CHECKIN_KEY = 'trubalance-morning-checkin-date-v3'
-const DUE_NOTIFY_KEY = 'trubalance-due-notify-periods'
+/** Keys the user has dismissed for “new in Due today” — resets each calendar day. */
+const DUE_NEW_ACK_KEY = 'trubalance-due-new-acked-v1'
 
 export function wasMorningCheckInDoneToday(today = getReferenceDateKey()): boolean {
   try {
@@ -117,61 +118,70 @@ export function markMorningCheckInDone(today = getReferenceDateKey()) {
   }
 }
 
-export function getPendingDueNotifyPeriods(): string[] {
-  try {
-    const raw = localStorage.getItem(DUE_NOTIFY_KEY)
-    if (!raw) return []
-    const parsed = JSON.parse(raw) as unknown
-    return Array.isArray(parsed) ? parsed.filter((x): x is string => typeof x === 'string') : []
-  } catch {
-    return []
-  }
-}
-
-export function setPendingDueNotifyPeriods(periods: string[]) {
-  try {
-    localStorage.setItem(DUE_NOTIFY_KEY, JSON.stringify([...new Set(periods)]))
-  } catch {
-    /* ignore */
-  }
-}
-
-export function clearPendingDueNotifyPeriods() {
-  try {
-    localStorage.removeItem(DUE_NOTIFY_KEY)
-  } catch {
-    /* ignore */
-  }
-}
-
-export function clearPendingDueNotifyKey(key: string) {
-  const next = getPendingDueNotifyPeriods().filter((entry) => entry !== key)
-  if (next.length === 0) clearPendingDueNotifyPeriods()
-  else setPendingDueNotifyPeriods(next)
-}
-
 export function dueNotifyKey(item: NewlyDueItem): string {
   return `${item.commitmentId}:${item.period}`
 }
 
-export function dueRowNotifyKey(row: { commitment: { id: string }; period: string; dueReferencePeriod?: string }): string {
+export function dueRowNotifyKey(row: {
+  commitment: { id: string }
+  period: string
+  dueReferencePeriod?: string
+}): string {
   return `${row.commitment.id}:${row.dueReferencePeriod ?? row.period}`
+}
+
+function readAcknowledgedNewlyDue(): { date: string; keys: string[] } {
+  try {
+    const raw = localStorage.getItem(DUE_NEW_ACK_KEY)
+    if (!raw) return { date: '', keys: [] }
+    const parsed = JSON.parse(raw) as { date?: unknown; keys?: unknown }
+    const date = typeof parsed.date === 'string' ? parsed.date : ''
+    const keys = Array.isArray(parsed.keys)
+      ? parsed.keys.filter((k): k is string => typeof k === 'string')
+      : []
+    return { date, keys }
+  } catch {
+    return { date: '', keys: [] }
+  }
+}
+
+export function getAcknowledgedNewlyDueKeys(today = getReferenceDateKey()): Set<string> {
+  const stored = readAcknowledgedNewlyDue()
+  if (stored.date !== today) return new Set()
+  return new Set(stored.keys)
+}
+
+export function acknowledgeNewlyDueKey(key: string, today = getReferenceDateKey()) {
+  const stored = readAcknowledgedNewlyDue()
+  const prev = stored.date === today ? stored.keys : []
+  try {
+    localStorage.setItem(
+      DUE_NEW_ACK_KEY,
+      JSON.stringify({ date: today, keys: [...new Set([...prev, key])] }),
+    )
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Active “new today” keys — newly due today and not yet dismissed. Expires overnight. */
+export function getActiveNewlyDueNotifyKeys(
+  state: AppState,
+  viewScope: ViewScope,
+): string[] {
+  const acked = getAcknowledgedNewlyDueKeys()
+  return getNewlyDueItemsToday(state, viewScope)
+    .map(dueNotifyKey)
+    .filter((key) => !acked.has(key))
 }
 
 export function isPendingNewlyDueRow(
   row: { commitment: { id: string }; period: string; dueReferencePeriod?: string },
-  pending: ReadonlySet<string> = new Set(getPendingDueNotifyPeriods()),
+  activeKeys: ReadonlySet<string>,
 ): boolean {
-  return pending.has(dueRowNotifyKey(row))
+  return activeKeys.has(dueRowNotifyKey(row))
 }
 
-/** How many “moved into Due today” notices are still waiting to be acknowledged. */
-export function countPendingNewlyDueNotices(
-  state: AppState,
-  viewScope: ViewScope,
-): number {
-  const pending = new Set(getPendingDueNotifyPeriods())
-  if (pending.size === 0) return 0
-  return getNewlyDueItemsToday(state, viewScope).filter((item) => pending.has(dueNotifyKey(item)))
-    .length
+export function countPendingNewlyDueNotices(state: AppState, viewScope: ViewScope): number {
+  return getActiveNewlyDueNotifyKeys(state, viewScope).length
 }

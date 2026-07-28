@@ -11,10 +11,18 @@ interface BalancePositionHeroProps {
   metrics: DashboardMetrics
   state: AppState
   viewScope: ViewScope
+  expanded?: boolean
+  onToggleExpanded?: () => void
 }
 
 /** Cash Prophet Balance hero with week / month change stacked underneath. */
-export function BalancePositionHero({ metrics, state, viewScope }: BalancePositionHeroProps) {
+export function BalancePositionHero({
+  metrics,
+  state,
+  viewScope,
+  expanded = false,
+  onToggleExpanded,
+}: BalancePositionHeroProps) {
   const deltas = useMemo(
     () => getBalancePositionDeltas(state, viewScope, metrics.trueBalance),
     [state, viewScope, metrics.trueBalance],
@@ -85,6 +93,17 @@ export function BalancePositionHero({ metrics, state, viewScope }: BalancePositi
             {monthLabel}
           </span>
         </div>
+        {onToggleExpanded ? (
+          <button
+            type="button"
+            className="balance-position-expand-btn"
+            aria-expanded={expanded}
+            onClick={onToggleExpanded}
+          >
+            {expanded ? 'Show less' : 'Show more detail'}
+            <span aria-hidden>{expanded ? '▴' : '▾'}</span>
+          </button>
+        ) : null}
       </div>
     </div>
   )

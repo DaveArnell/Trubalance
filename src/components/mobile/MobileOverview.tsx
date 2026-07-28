@@ -96,21 +96,21 @@ export function MobileOverview({
               : `${formatPositionChange(deltas.monthChange)} this month`}
           </span>
         </div>
+        {canShowTable ? (
+          <button
+            type="button"
+            className="balance-position-expand-btn"
+            aria-expanded={tableExpanded}
+            onClick={() => setTableExpanded((open) => !open)}
+          >
+            {tableExpanded ? 'Show less' : 'Show more detail'}
+            <span aria-hidden>{tableExpanded ? '▴' : '▾'}</span>
+          </button>
+        ) : null}
       </div>
 
       {canShowTable && state && summaryColumns.length > 0 ? (
         <div className="mobile-overview-breakdown">
-          <div className="overview-table-top">
-            <button
-              type="button"
-              className="overview-table-expand-btn"
-              aria-expanded={tableExpanded}
-              onClick={() => setTableExpanded((open) => !open)}
-            >
-              {tableExpanded ? 'Less' : 'More'}
-              <span aria-hidden>{tableExpanded ? '▴' : '▾'}</span>
-            </button>
-          </div>
           <BreakdownTable
             state={state}
             columns={summaryColumns}

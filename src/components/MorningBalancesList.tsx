@@ -13,25 +13,33 @@ interface MorningBalancesListProps {
 
 interface BalanceRow {
   account: Account
-  kind: 'current' | 'savings'
-  groupLabel: string
+  label: string
+  meta?: string
 }
 
-/** Vertical current/savings editors for the morning check-in (no wide scroll table). */
+/** One current-account balance per business/venue — named like the org structure. */
 export function MorningBalancesList({ state, columns, onBalanceSave }: MorningBalancesListProps) {
   const rows = useMemo(() => {
     const next: BalanceRow[] = []
     for (const column of columns) {
       if (column.isRollup) continue
-      for (const account of column.currentAccounts) {
-        next.push({ account, kind: 'current', groupLabel: column.label })
+      const accounts = column.currentAccounts
+      if (accounts.length === 0) continue
+      if (accounts.length === 1) {
+        next.push({ account: accounts[0]!, label: column.label })
+        continue
       }
-      for (const account of column.savingsAccounts) {
-        next.push({ account, kind: 'savings', groupLabel: column.label })
+      for (const account of accounts) {
+        const location = getAccountLocationLabel(state, account)
+        next.push({
+          account,
+          label: column.label,
+          meta: location !== column.label ? location : account.name,
+        })
       }
     }
     return next
-  }, [columns])
+  }, [columns, state])
 
   const [drafts, setDrafts] = useState<Record<string, string>>({})
   const [savedFlash, setSavedFlash] = useState<string | null>(null)
@@ -51,52 +59,40 @@ export function MorningBalancesList({ state, columns, onBalanceSave }: MorningBa
     }
   }
 
-  let lastGroup = ''
-
   return (
     <div className="morning-balances-list">
       {rows.map((row) => {
-        const showGroup = row.groupLabel !== lastGroup
-        lastGroup = row.groupLabel
-        const location = getAccountLocationLabel(state, row.account)
         const value = drafts[row.account.id] ?? String(Math.round(row.account.balance))
         return (
-          <div key={row.account.id}>
-            {showGroup ? <p className="morning-balances-group">{row.groupLabel}</p> : null}
-            <label className="morning-balances-row">
-              <span className="morning-balances-row-copy">
-                <strong>{row.kind === 'current' ? 'Current account' : 'Savings account'}</strong>
-                {location && location !== row.groupLabel ? (
-                  <span className="muted">{location}</span>
-                ) : null}
-              </span>
-              <div className="morning-balances-input-wrap">
-                <input
-                  className="morning-balances-input"
-                  type="number"
-                  step="1"
-                  inputMode="decimal"
-                  value={value}
-                  disabled={!onBalanceSave}
-                  aria-label={`${row.groupLabel} ${row.kind === 'current' ? 'current' : 'savings'} balance`}
-                  onChange={(e) =>
-                    setDrafts((prev) => ({ ...prev, [row.account.id]: e.target.value }))
-                  }
-                  onBlur={() => commit(row.account, value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.currentTarget.blur()
-                    }
-                  }}
-                />
-                {savedFlash === row.account.id ? (
-                  <span className="morning-balances-saved" aria-live="polite">
-                    Saved
-                  </span>
-                ) : null}
-              </div>
-            </label>
-          </div>
+          <label key={row.account.id} className="morning-balances-row">
+            <span className="morning-balances-row-copy">
+              <strong>{row.label}</strong>
+              {row.meta ? <span className="muted">{row.meta}</span> : null}
+            </span>
+            <div className="morning-balances-input-wrap">
+              <input
+                className="morning-balances-input"
+                type="number"
+                step="1"
+                inputMode="decimal"
+                value={value}
+                disabled={!onBalanceSave}
+                aria-label={`${row.label} balance`}
+                onChange={(e) =>
+                  setDrafts((prev) => ({ ...prev, [row.account.id]: e.target.value }))
+                }
+                onBlur={() => commit(row.account, value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') e.currentTarget.blur()
+                }}
+              />
+              {savedFlash === row.account.id ? (
+                <span className="morning-balances-saved" aria-live="polite">
+                  Saved
+                </span>
+              ) : null}
+            </div>
+          </label>
         )
       })}
     </div>

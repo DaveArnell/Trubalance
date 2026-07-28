@@ -77,21 +77,16 @@ export function OverviewStrip({
       <div className="overview-strip-body">
         <div className="overview-strip-split">
           <aside className="overview-strip-aside overview-strip-aside--hero">
-            <BalancePositionHero metrics={metrics} state={state} viewScope={viewScope} />
+            <BalancePositionHero
+              metrics={metrics}
+              state={state}
+              viewScope={viewScope}
+              expanded={expanded}
+              onToggleExpanded={() => onSizeChange(expanded ? 'default' : 'detailed')}
+            />
           </aside>
           <div className="overview-strip-divider" aria-hidden />
           <div className="overview-strip-table" data-tour="overview-balances">
-            <div className="overview-table-top">
-              <button
-                type="button"
-                className="overview-table-expand-btn"
-                aria-expanded={expanded}
-                onClick={() => onSizeChange(expanded ? 'default' : 'detailed')}
-              >
-                {expanded ? 'Less' : 'More'}
-                <span aria-hidden>{expanded ? '▴' : '▾'}</span>
-              </button>
-            </div>
             <BreakdownTable
               state={state}
               columns={breakdownColumns}

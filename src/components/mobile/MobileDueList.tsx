@@ -16,7 +16,6 @@ import {
   isPendingNewlyDueRow,
 } from '../../utils/morningCheckIn'
 import type { AppActions } from '../../hooks/useAppState'
-import { DueStatusDot } from '../committed/shared'
 import { MobileRecordCard, MobileRecordList, MobileSectionLabel } from './MobileRecordList'
 import { MobileDueDetailModal } from './MobileDueDetailModal'
 import { buildReserveDueAmountOverridePatch } from '../../utils/reserveCalculations'
@@ -108,16 +107,11 @@ export function MobileDueList({
           key={row.id}
           title={item.name}
           titleBadges={
-            <>
-              {isNewToday ? (
-                <span
-                  className="due-new-notice"
-                  title="Moved into Due today"
-                  aria-label="Moved into Due today"
-                />
-              ) : null}
-              <DueStatusDot row={row} />
-            </>
+            isNewToday ? (
+              <span className="due-new-badge" title="New in Due today" aria-label="New in Due today">
+                New
+              </span>
+            ) : null
           }
           scopeLabel={scopeLabel || undefined}
           amount={formatCurrency(funding.displayAmount)}

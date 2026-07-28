@@ -5,13 +5,11 @@ import type { AppState, ViewScope } from '../types'
 import type { BreakdownColumn } from '../utils/breakdownTable'
 import { formatCurrency } from '../utils/format'
 import {
-  clearPendingDueNotifyPeriods,
   getMorningReserveHint,
   getNewlyDueItemsToday,
   isStartOfMonth,
   markMorningCheckInDone,
   morningGreeting,
-  setPendingDueNotifyPeriods,
   dueNotifyKey,
   wasMorningCheckInDoneToday,
 } from '../utils/morningCheckIn'
@@ -58,13 +56,8 @@ export function MorningCheckInModal({
     return () => window.clearTimeout(timer)
   }, [enabled])
 
-  const close = (preferDueNotify: boolean) => {
+  const close = () => {
     markMorningCheckInDone()
-    if (visibleDue.length > 0 && preferDueNotify) {
-      setPendingDueNotifyPeriods(visibleDue.map(dueNotifyKey))
-    } else if (!preferDueNotify) {
-      clearPendingDueNotifyPeriods()
-    }
     setOpen(false)
     onCheckInClosed?.()
   }
@@ -89,7 +82,7 @@ export function MorningCheckInModal({
           <p className="morning-checkin-kicker">{morningGreeting()}</p>
           <h2 id="morning-checkin-title">Today’s check-in</h2>
           <p className="morning-checkin-lead">
-            Update bank balances, then note anything that moved into Due today.
+            Confirm today’s bank balances, then note anything that moved into Due.
           </p>
         </header>
 
@@ -97,7 +90,7 @@ export function MorningCheckInModal({
           <section className="morning-checkin-panel">
             <div className="morning-checkin-panel-head">
               <h3>Bank balances</h3>
-              <p>Enter today’s current and savings figures — one account per row.</p>
+              <p>One balance per business or venue — same names as your structure.</p>
             </div>
             {breakdownColumns.length > 0 ? (
               <div className="morning-checkin-balances">
@@ -182,18 +175,12 @@ export function MorningCheckInModal({
         </div>
 
         <footer className="morning-checkin-foot">
-          <button type="button" className="btn-primary" onClick={() => close(visibleDue.length > 0)}>
+          <button type="button" className="btn-primary" onClick={close}>
             Done for today
           </button>
-          {visibleDue.length > 0 ? (
-            <button type="button" className="btn-ghost" onClick={() => close(true)}>
-              Remind me about Due later
-            </button>
-          ) : (
-            <button type="button" className="btn-ghost" onClick={() => close(false)}>
-              Close
-            </button>
-          )}
+          <button type="button" className="btn-ghost" onClick={close}>
+            Close
+          </button>
         </footer>
       </div>
     </div>,

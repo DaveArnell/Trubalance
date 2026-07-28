@@ -12,9 +12,9 @@ import { OverviewStrip } from './components/OverviewStrip'
 import { MobileOverview } from './components/mobile/MobileOverview'
 import { MorningCheckInModal } from './components/MorningCheckInModal'
 import {
-  clearPendingDueNotifyKey,
+  acknowledgeNewlyDueKey as persistAcknowledgeNewlyDueKey,
   countPendingNewlyDueNotices,
-  getPendingDueNotifyPeriods,
+  getActiveNewlyDueNotifyKeys,
 } from './utils/morningCheckIn'
 import { MobileBottomNav } from './components/mobile/MobileBottomNav'
 import {
@@ -515,12 +515,12 @@ function AppShellInner({
   )
 
   const newlyDueNotifyKeys = useMemo(
-    () => getPendingDueNotifyPeriods(),
-    [dueNotifyRefresh, newDueNoticeCount],
+    () => getActiveNewlyDueNotifyKeys(app.state, app.viewScope),
+    [app.state, app.viewScope, dueNotifyRefresh, newDueNoticeCount],
   )
 
   const acknowledgeNewlyDueKey = useCallback((key: string) => {
-    clearPendingDueNotifyKey(key)
+    persistAcknowledgeNewlyDueKey(key)
     setDueNotifyRefresh((n) => n + 1)
   }, [])
 
