@@ -2,12 +2,20 @@
  * Canonical brand terms — keep in sync with docs/BRAND_AND_PRODUCT_FOUNDATION.md
  */
 
+/**
+ * Canonical brand terms — keep in sync with docs/BRAND_AND_PRODUCT_FOUNDATION.md
+ */
+
 /** Ownable daily number (customer-facing). */
 export const CASH_PROPHET_BALANCE = 'Cash Prophet Balance'
 
 /** Short chart / table label when space is tight. */
 export const CASH_PROPHET_BALANCE_SHORT = 'Balance'
 
+/** Customer-facing slogan (under the brand name). */
+export const BRAND_SLOGAN = 'A daily financial position you can trust.'
+
+/** Deeper brand belief — supports the slogan; not always shown under the logo. */
 export const CORE_BELIEF = 'Every business deserves one financial number it can trust.'
 
 export const BRAND_PROMISE =

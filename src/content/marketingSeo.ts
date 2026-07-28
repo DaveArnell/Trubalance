@@ -18,9 +18,9 @@ export type RouteSeo = {
 
 /** Primary keyword near the front; brand at the end when not already in the title. */
 export const HOME_SEO = {
-  title: 'Cash Prophet Balance | One Trusted Financial Number | Cash Prophet',
+  title: 'Cash Prophet | A daily financial position you can trust',
   description:
-    'Every business deserves one financial number it can trust. Cash Prophet continuously accounts for meaningful commitments and calculates your Cash Prophet Balance — so you see where your business really stands.',
+    'A daily financial position you can trust. Cash Prophet continuously accounts for meaningful commitments so you see where your business really stands — not just what the bank shows.',
   path: '/',
   imageAlt: SITE_OG_IMAGE_ALT,
 } as const satisfies RouteSeo

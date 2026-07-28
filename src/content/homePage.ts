@@ -2,10 +2,12 @@
  * Homepage marketing copy. Confidence first; Cash Prophet Balance later.
  */
 
+import { BRAND_SLOGAN } from './brandFoundation'
+
 export const HOME_HERO = {
   eyebrow: 'Cash Prophet',
-  /** Core belief under the brand. */
-  tagline: 'Every business deserves one financial number it can trust.',
+  /** Slogan under the brand. */
+  tagline: BRAND_SLOGAN,
   headline: 'Finally understand where your business really stands.',
   headlineStart: 'Finally understand',
   headlineHighlight: 'where your business really stands.',

@@ -3,6 +3,7 @@ import { CanonicalLink } from '../CanonicalLink'
 import { useAuth } from '../../contexts/AuthContext'
 import { isSupabaseConfigured } from '../../lib/supabase'
 import { COMPANY_INFO } from '../../content/companyInfo'
+import { BRAND_SLOGAN } from '../../content/brandFoundation'
 import { FOUNDER_PROGRAM_FOOTNOTE, FOUNDER_PROGRAM_HEADLINE } from '../../config/founderProgram'
 import { REGULATORY_POSITION } from '../../content/regulatoryNotice'
 import { CompanyLegalNotice } from './CompanyLegalNotice'
@@ -80,9 +81,7 @@ export function MarketingFooter() {
           <CanonicalLink to="/" className="marketing-logo marketing-logo--footer" aria-label="Cash Prophet home">
             <CashProphetLogo variant="footer" />
           </CanonicalLink>
-          <p className="marketing-footer-tagline">
-            Stop carrying your business finances around in your head.
-          </p>
+          <p className="marketing-footer-tagline">{BRAND_SLOGAN}</p>
           <CompanyLegalNotice variant="footer" />
         </div>
 

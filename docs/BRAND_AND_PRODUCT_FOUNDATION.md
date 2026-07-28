@@ -42,6 +42,14 @@ Everything else exists to support this belief.
 
 ---
 
+## Slogan
+
+**A daily financial position you can trust.**
+
+This is the customer-facing slogan under the Cash Prophet name (homepage, footer, and similar brand surfaces).
+
+---
+
 ## Product Philosophy
 
 Most business owners judge their business using their bank balance.
