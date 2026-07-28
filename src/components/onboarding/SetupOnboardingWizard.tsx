@@ -227,11 +227,11 @@ export function SetupOnboardingWizard({
   const panel = (
     <SetupOnboardingShell
       kicker={startAtStepId ? 'Walkthrough' : 'Getting started'}
-      sidebarTitle={startAtStepId ? undefined : 'How Cash Prophet works'}
+      sidebarTitle={startAtStepId ? undefined : 'Getting started'}
       sidebarLead={
         startAtStepId
           ? undefined
-          : 'A short tour of the main screens. At the end you can optionally use a bank export to speed up adding your bills.'
+          : 'Welcome. We will set up your structure, explain how Cash Prophet works, then walk you through the screens.'
       }
       steps={steps.map((item) => ({
         id: item.id,
@@ -264,11 +264,14 @@ export function SetupOnboardingWizard({
         ))}
 
         {step.id === 'why' && (
-          <ul className="setup-why-bullets">
-            {WHY_CASH_PROPHET_CONTENT.bullets.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
+          <div className="setup-welcome-agenda">
+            <p className="setup-welcome-agenda-label">What we will cover</p>
+            <ul className="setup-why-bullets">
+              {WHY_CASH_PROPHET_CONTENT.bullets.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
         )}
 
         {step.id === 'business' && (

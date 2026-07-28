@@ -44,13 +44,14 @@ export const STATEMENT_SETUP_STEPS = [
 ] as const
 
 export const WHY_CASH_PROPHET_CONTENT = {
-  title: 'Your bank balance isn’t the whole story',
+  title: 'Welcome to Cash Prophet',
   lead:
-    'It shows what is in the account today. It does not show money already spoken for, such as rent, wages, VAT and the rest. Cash Prophet keeps those in view and gives you a Cash Prophet Balance you can check with more confidence.',
+    'In this introduction we will help you set up your company structure, talk you through how Cash Prophet works, and then take you onto the screens to get you started.',
   bullets: [
-    'Cash Prophet Balance after meaningful costs you already know about',
-    'Provisioning for VAT, tax, insurance and similar large bills',
-    'A steady monthly transfer so those big bills are funded before they arrive',
+    'Set up your business, sites and bank accounts',
+    'Walk through how Cash Prophet keeps commitments in view',
+    'Show you each main screen as we go',
+    'Optionally use a bank export later to speed up adding bills',
   ],
 } as const
 

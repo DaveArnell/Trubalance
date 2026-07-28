@@ -18783,6 +18783,27 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   line-height: 1.55;
 }
 
+.setup-welcome-agenda {
+  margin: var(--space-3) 0 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: 12px;
+  border: 1px solid rgba(15, 27, 45, 0.08);
+  background: #fff;
+}
+
+.setup-welcome-agenda-label {
+  margin: 0 0 var(--space-2);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.setup-welcome-agenda .setup-why-bullets {
+  margin: 0;
+}
+
 .setup-why-bullets li + li {
   margin-top: var(--space-2);
 }

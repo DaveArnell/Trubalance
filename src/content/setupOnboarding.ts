@@ -21,10 +21,10 @@ export interface SetupOnboardingStep {
 export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
   {
     id: 'why',
-    title: 'Your bank balance isn’t the whole story',
-    videoLabel: 'What Cash Prophet is for',
+    title: 'Welcome to Cash Prophet',
+    videoLabel: 'Welcome to Cash Prophet',
     explain:
-      'It shows what is in the account today. It does not show money already spoken for, such as rent, wages, VAT and the rest. Cash Prophet keeps those in view and gives you a Cash Prophet Balance you can check with more confidence.',
+      'In this introduction we will help you set up your company structure, talk you through how Cash Prophet works, and then take you onto the screens to get you started.',
   },
   {
     id: 'business',
@@ -115,7 +115,7 @@ export const QUICK_COMMITMENT_TEMPLATES = [
 
 /** Short labels for setup wizard nav and admin funnel reporting. */
 export const SETUP_ONBOARDING_STEP_LABELS: Record<string, string> = {
-  why: 'Introduction',
+  why: 'Welcome',
   business: 'Structure',
   'committed-explain': 'Monthly costs',
   'month-view': 'Month view',
