@@ -24,6 +24,7 @@ export function CompanyLegalNotice({ variant = 'footer' }: CompanyLegalNoticePro
         </p>
         <p>Company number: {COMPANY_INFO.companyNumber}</p>
         <p>VAT: {COMPANY_INFO.vatNumber}</p>
+        <p>ICO registration: {COMPANY_INFO.icoRegistrationNumber}</p>
         <p>Registered office: {address}</p>
         <p>
           Email:{' '}

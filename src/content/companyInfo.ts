@@ -4,6 +4,8 @@ export const COMPANY_INFO = {
   productName: 'Cash Prophet',
   companyNumber: '17089857',
   vatNumber: 'GB 516647086',
+  /** UK ICO data controller registration (organisation-level for Vocatio Ltd). */
+  icoRegistrationNumber: 'CSN6799153',
   registeredAddressLines: ['15 Springhill Close', 'Swindon', 'SN5 7BG'],
   contactEmail: 'admin@vocatio.io',
   /** Canonical production origin (www — matches Vercel production domain). */
@@ -13,7 +15,7 @@ export const COMPANY_INFO = {
 } as const
 
 export function companyRegistrationLine(): string {
-  return `${COMPANY_INFO.legalName} · Company No. ${COMPANY_INFO.companyNumber} · VAT ${COMPANY_INFO.vatNumber}`
+  return `${COMPANY_INFO.legalName} · Company No. ${COMPANY_INFO.companyNumber} · VAT ${COMPANY_INFO.vatNumber} · ICO ${COMPANY_INFO.icoRegistrationNumber}`
 }
 
 export function registeredAddressBlock(): string {

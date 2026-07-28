@@ -8,7 +8,7 @@ export function PrivacyPage() {
     <LegalPageLayout
       title="Privacy policy"
       seoTitle={PRIVACY_SEO.title}
-      updated="16 July 2026"
+      updated="28 July 2026"
       description={PRIVACY_SEO.description}
       path={PRIVACY_SEO.path}
       imageAlt={PRIVACY_SEO.imageAlt}
@@ -24,7 +24,7 @@ export function PrivacyPage() {
       <p>
         Data controller: {COMPANY_INFO.legalName}. Registered office:{' '}
         {COMPANY_INFO.registeredAddressLines.join(', ')}. Company number: {COMPANY_INFO.companyNumber}.
-        VAT: {COMPANY_INFO.vatNumber}.
+        VAT: {COMPANY_INFO.vatNumber}. ICO registration number: {COMPANY_INFO.icoRegistrationNumber}.
       </p>
 
       <h2>What we collect</h2>
@@ -93,7 +93,12 @@ export function PrivacyPage() {
       </p>
       <p>
         You also have the right to lodge a complaint with the Information Commissioner&apos;s Office (ICO)
-        if you believe your data protection rights have been violated.
+        if you believe your data protection rights have been violated. We are registered with the ICO
+        under number {COMPANY_INFO.icoRegistrationNumber}. See{' '}
+        <a href="https://ico.org.uk" target="_blank" rel="noopener noreferrer">
+          ico.org.uk
+        </a>
+        .
       </p>
 
       <h2 id="cookies">Cookies and local storage</h2>
