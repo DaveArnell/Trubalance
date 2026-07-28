@@ -2195,6 +2195,15 @@ body.widget-canvas-resizing * {
   height: 100%;
 }
 
+.trends-chart-plot--embedded .chart-wrap {
+  flex: 1;
+  min-height: 0;
+}
+
+.trends-chart-plot--embedded .chart-legend {
+  flex-shrink: 0;
+}
+
 .trends-chart-panel--embedded .trends-chart-main {
   flex: 1;
   min-height: 0;
@@ -2693,31 +2702,40 @@ body.widget-canvas-resizing * {
 
 .trends-chart-panel .chart-legend {
   flex-shrink: 0;
-  margin-top: 2px;
-  padding-top: 2px;
+  margin-top: 4px;
+  padding-top: 4px;
 }
 
-.trends-chart-panel .chart-legend--overlay {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 2;
+.trends-chart-panel .chart-legend--compact {
   margin: 0;
-  padding: 3px 6px;
+  padding: 4px 2px 2px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px 8px;
-  font-size: 0.58rem;
-  line-height: 1.2;
-  background: color-mix(in srgb, var(--bg-surface-raised) 88%, transparent);
+  gap: 4px 10px;
+  font-size: 0.62rem;
+  line-height: 1.25;
   border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
-  pointer-events: none;
 }
 
-.trends-chart-panel .chart-legend--overlay .chart-legend-item {
+.trends-chart-panel .chart-legend--compact .chart-legend-item {
   margin: 0;
+  gap: 4px;
+  font-size: inherit;
+}
+
+.trends-chart-panel .chart-legend--compact .chart-legend-line {
+  width: 14px;
+}
+
+.trends-chart-panel .chart-legend--compact .chart-legend-band {
+  width: 14px;
+  height: 8px;
+  margin-right: 0;
+}
+
+.trends-chart-panel .chart-legend--compact .chart-legend-dash {
+  width: 14px;
 }
 
 .trends-chart-panel .chart-tooltip {

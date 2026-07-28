@@ -56,7 +56,7 @@ const CHART_HEIGHT = 260
 const PAD_LEFT = 64
 const PAD_RIGHT = 20
 const PAD_TOP = 16
-const PAD_BOTTOM = 30
+const PAD_BOTTOM = 36
 
 interface TrendChartProps {
   state: AppState
@@ -525,7 +525,7 @@ export function TrendChart({
   const showLegend = series.length > 1 || activeMetricKeys.length > 1 || showProjection
 
   const legendBlock = showLegend ? (
-    <div className={`chart-legend${embedded ? ' chart-legend--overlay' : ''}`}>
+    <div className={`chart-legend${embedded ? ' chart-legend--compact' : ''}`}>
       {series.map((entry) => (
         <span key={entry.key} className="chart-legend-item">
           <span
@@ -881,10 +881,9 @@ export function TrendChart({
                 )}
               </div>
             )}
-            {embedded ? legendBlock : null}
           </div>
 
-          {!embedded ? legendBlock : null}
+          {legendBlock}
 
           {showProjection && primaryProjection && !embedded && (
             <p className="chart-projection-footnote muted">
