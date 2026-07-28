@@ -20,7 +20,7 @@ export type RouteSeo = {
 export const HOME_SEO = {
   title: 'Cash Prophet | A daily financial position you can trust',
   description:
-    'A daily financial position you can trust. Cash Prophet continuously accounts for meaningful commitments so you see where your business really stands — not just what the bank shows.',
+    'Cash Prophet is financial management software that helps business owners understand where their business really stands by continuously accounting for meaningful financial commitments.',
   path: '/',
   imageAlt: SITE_OG_IMAGE_ALT,
 } as const satisfies RouteSeo

@@ -1,4 +1,5 @@
 import { COMPANY_INFO } from './companyInfo'
+import { PRODUCT_DEFINITION } from './brandFoundation'
 import { PRIMARY_NAV, SECONDARY_NAV } from './marketingNav'
 import type { FaqItem } from './marketingFaqs'
 import {
@@ -36,6 +37,7 @@ export function organizationJsonLd(): JsonLd {
     '@id': `${site}/#organization`,
     name: COMPANY_INFO.productName,
     legalName: COMPANY_INFO.legalName,
+    description: PRODUCT_DEFINITION,
     url: site,
     email: COMPANY_INFO.contactEmail,
     logo: {

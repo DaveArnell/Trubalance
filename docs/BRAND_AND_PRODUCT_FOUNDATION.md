@@ -68,7 +68,7 @@ Cash Prophet continuously accounts for meaningful financial commitments to calcu
 
 ## Product Positioning
 
-Cash Prophet is software that continuously calculates your business's financial position by accounting for meaningful financial commitments.
+Cash Prophet is financial management software that helps business owners understand where their business really stands by continuously accounting for meaningful financial commitments.
 
 It produces one trusted financial number called the **Cash Prophet Balance**.
 
