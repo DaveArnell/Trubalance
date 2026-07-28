@@ -134,20 +134,20 @@ export const METHOD_RESERVE_PLANNER = {
   ],
 } as const
 
-/** First setup — valuable, not difficult. */
+/** First setup — simple onboarding via bank history + ChatGPT draft. */
 export const METHOD_FIRST_SETUP = {
-  heading: 'The first setup matters',
+  heading: 'Getting set up is straightforward',
   lead: [
-    'Cash Prophet can only carry the mental load once it understands your business. That first setup used to mean remembering every bill yourself. It does not have to any more.',
+    'You do not need to rebuild your bills from memory. A bank history and a prompt we give you do most of the work.',
   ],
   body: [
-    'In Getting started you can download a bank transaction history, copy our prompt into ChatGPT, and get a draft list of monthly costs and Reserve bills. Most people can review that draft and enter the numbers in about 5 to 10 minutes.',
-    'You still choose what belongs in Cash Prophet. The draft just means you are not starting from a blank page. Once it is in, Cash Prophet takes over. From then on you are updating the picture, not rebuilding it from scratch every week.',
+    'In Getting started, copy our detailed prompt into your own ChatGPT, then upload a transaction history from your bank. Together they produce a draft of the monthly costs and Reserve bills to enter into Cash Prophet.',
+    'Review the draft, type in what you want to keep, and you are set up in about 5 to 10 minutes. After that, Cash Prophet carries the day-to-day picture for you.',
   ],
   timeline: [
     'Download a bank history',
-    'Draft your bills with ChatGPT',
-    'Enter them into Cash Prophet',
+    'Paste our prompt into ChatGPT',
+    'Enter the draft into Cash Prophet',
     'Simple daily updates',
   ],
 } as const
