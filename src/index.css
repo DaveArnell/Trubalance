@@ -26125,6 +26125,45 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
     max-width: none;
   }
 
+  .marketing-main--home-vivid .marketing-hero--rank {
+    padding: 40px 18px 48px;
+  }
+
+  .marketing-main--home-vivid .marketing-hero--rank h1 {
+    font-size: clamp(2.1rem, 9vw, 2.75rem);
+    max-width: none;
+  }
+
+  .marketing-main--home-vivid .marketing-hero-belief {
+    max-width: none;
+    font-size: 1.08rem;
+    line-height: 1.4;
+    color: rgba(244, 247, 251, 0.94);
+  }
+
+  .marketing-main--home-vivid .marketing-hero--rank .marketing-lead {
+    max-width: none;
+    font-size: 1.12rem;
+    line-height: 1.6;
+    color: rgba(244, 247, 251, 0.94) !important;
+  }
+
+  .marketing-main--home-vivid .marketing-hero-sizzle {
+    max-width: none;
+    font-size: 1.45rem;
+  }
+
+  .marketing-main--home-vivid .home-split-prose,
+  .marketing-main--home-vivid .home-founder-prose p {
+    font-size: 1.1rem;
+    line-height: 1.65;
+    color: rgba(15, 27, 45, 0.88);
+  }
+
+  .marketing-main--home-vivid .home-split-lead {
+    font-size: 1.2rem;
+  }
+
   .marketing-vs-points {
     grid-template-columns: 1fr;
     gap: 20px;
@@ -27133,9 +27172,10 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .marketing-main--home-vivid .marketing-hero--rank .marketing-lead {
   max-width: 46ch;
-  font-size: 1.12rem;
-  line-height: 1.7;
-  color: rgba(243, 239, 230, 0.78);
+  font-size: 1.18rem;
+  line-height: 1.65;
+  font-weight: 500;
+  color: rgba(243, 239, 230, 0.92);
 }
 
 .marketing-main--home-vivid .marketing-cta-primary--rank {
@@ -27904,7 +27944,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .marketing-main--home-vivid {
   --home-ink: #0c1210;
-  --home-muted: rgba(12, 18, 16, 0.62);
+  --home-muted: rgba(12, 18, 16, 0.78);
   --home-line: rgba(12, 18, 16, 0.08);
   --home-green: #0d8f5b;
   --home-paper: #f7f5ef;
@@ -27985,8 +28025,9 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .marketing-main--home-vivid .home-split-prose {
   margin: 0 0 0.85rem;
   max-width: 36rem;
-  font-size: 1.05rem;
+  font-size: 1.08rem;
   line-height: 1.65;
+  font-weight: 500;
   color: var(--home-muted);
 }
 
@@ -28574,7 +28615,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 /* Home: match new palette */
 .marketing-main--home-vivid {
   --home-ink: #0f1b2d;
-  --home-muted: rgba(15, 27, 45, 0.62);
+  --home-muted: rgba(15, 27, 45, 0.78);
   --home-line: rgba(15, 27, 45, 0.08);
   --home-green: #2563eb;
   --home-paper: #f4f7fb;
@@ -29516,15 +29557,18 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .marketing-main--home-vivid .marketing-hero--rank .marketing-lead,
 .marketing-main--home-vivid .marketing-hero-tagline {
-  color: rgba(244, 247, 251, 0.78) !important;
+  color: rgba(244, 247, 251, 0.92) !important;
+}
+
+.marketing-main--home-vivid .marketing-hero-belief {
+  color: rgba(244, 247, 251, 0.9);
+  font-size: 1.05rem;
+  font-weight: 650;
+  max-width: 32ch;
 }
 
 .marketing-main--home-vivid .marketing-hero-sizzle {
   color: #7dd3fc;
-}
-
-.marketing-main--home-vivid .marketing-hero-belief {
-  color: rgba(244, 247, 251, 0.72);
 }
 
 .marketing-main--home-vivid .marketing-hero--rank h1 {

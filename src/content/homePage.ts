@@ -1,19 +1,19 @@
 /**
- * Homepage marketing copy — Cash Prophet Balance you can rely on.
- * Benefit first; mechanics support the promise.
+ * Homepage marketing copy. Cash Prophet Balance first; calm and plain.
  */
 
 export const HOME_HERO = {
   eyebrow: 'Cash Prophet',
-  tagline: 'Cash clarity for UK small and medium sized businesses.',
+  /** Short plain statement under the brand — what this is. */
+  tagline: 'One trusted financial number for your business.',
   headline: 'Finally, a balance you can trust.',
   headlineStart: 'Finally, a balance',
   headlineHighlight: 'you can trust.',
   subheading: [
-    "Your bank balance only shows the money in your account. It doesn't tell you how much of it is already spoken for.",
-    "Cash Prophet continuously accounts for those commitments, giving you a balance that reflects where your business really stands today. So instead of mentally keeping track of what's coming next, you can simply get on with running your business.",
+    "Your bank balance only shows what's sitting in the account. It doesn't show money already spoken for: rent, wages, VAT and the rest.",
+    'Cash Prophet keeps those commitments in view and gives you a Cash Prophet Balance that shows where your business really stands today.',
   ],
-  sizzle: 'Less stress. More clarity.',
+  sizzle: 'Less stress. More confidence.',
   primaryCta: 'Start Free',
   secondaryCta: 'See How It Works',
   graphs: {
@@ -36,8 +36,8 @@ export const HOME_NEED = {
   heading: "Your bank balance tells you what's in the account",
   lead: "It doesn't tell you what's already committed.",
   body: [
-    "Every business has money that's already spoken for: payroll, VAT, tax, rent, insurance, supplier payments, annual renewals and equipment replacements. The bank doesn't recognise any of those until the money actually leaves your account.",
-    "That's why so many business owners never quite trust the balance they're looking at. Before making almost any decision, they mentally work through everything that's coming before deciding what they can really afford.",
+    "Payroll, VAT, tax, rent, insurance and supplier payments are already spoken for, but the bank doesn't show that until the money leaves.",
+    "That's why so many owners never quite trust the balance they're looking at. Before almost any decision, they run through everything that's coming in their head.",
   ],
 } as const
 
@@ -45,8 +45,8 @@ export const HOME_NEED = {
 export const HOME_DOES = {
   heading: 'Cash Prophet does that work for you',
   body: [
-    "Instead of expecting you to remember every future commitment yourself, Cash Prophet continuously accounts for them in the background. Regular costs build into today's financial position. Larger future costs are steadily reserved for instead of arriving all at once. Expected income is reflected where appropriate.",
-    "Every day your Cash Prophet Balance is recalculated to reflect where your business really stands. You no longer have to interpret your bank balance. You have a financial position that's already been interpreted for you.",
+    'Regular costs build into today’s position. Larger bills are provisioned for steadily instead of arriving as a surprise. Expected income is reflected where it belongs.',
+    'Your Cash Prophet Balance updates every day, so you can stop interpreting the bank balance and get on with running the business.',
   ],
 } as const
 
@@ -59,28 +59,27 @@ export const HOME_OUTCOME = {
     "You know the balance you're looking at reflects what your business can realistically afford.",
   ],
   closing:
-    'Less second-guessing, fewer financial surprises, and better decisions. Less time worrying about cash, and more time running your business.',
+    'Less second-guessing, fewer surprises, and better decisions. Less time worrying about cash, and more time running the business.',
 } as const
 
 /** Positioning beside accounting and banking */
 export const HOME_WHY_IT_WORKS = {
   heading: 'Why Cash Prophet is different',
   close:
-    "By continuously accounting for your financial commitments, it gives you a clearer picture of what your business can safely afford right now. That's why the Cash Prophet Balance becomes the number you rely on instead of your bank balance.",
+    'By continuously accounting for your financial commitments, it gives you a clearer picture of what your business can safely afford right now. That’s why the Cash Prophet Balance becomes the number you rely on instead of your bank balance.',
 } as const
 
 export const HOME_FOUNDER = {
   eyebrow: 'Why I built this',
-  heading: "I built Cash Prophet because I realised I wasn't short of financial information",
+  heading: "I built Cash Prophet because I wasn't short of financial information",
   body: [
-    'I was short of financial clarity.',
-    'Like many business owners, I found myself checking the bank balance and then mentally accounting for payroll, VAT, tax, supplier payments and everything else I knew was coming before I could make even simple decisions.',
-    "The information already existed. It just wasn't brought together in a way that helped me decide what the business could actually afford today.",
-    'Cash Prophet solves that problem. It quietly keeps track of those commitments for me, so I can stop carrying them in my head and get on with running the business.',
+    'I was short of a number I could trust.',
+    'Like many business owners, I checked the bank and then mentally accounted for payroll, VAT, tax and everything else before I could decide what we could actually afford.',
+    'Cash Prophet keeps those commitments in view for me, so I can stop carrying them in my head and get on with the business.',
   ],
 } as const
 
 export const HOME_CTA = {
   heading: 'Get a Cash Prophet Balance you can rely on',
-  body: "Cash Prophet continuously accounts for your business's financial commitments, so you can make everyday decisions with confidence. Start free, or see how it works first.",
+  body: 'Start free, or see how it works first.',
 } as const
