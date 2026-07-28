@@ -472,6 +472,11 @@ export function getDueTimingOffsetForPeriod(
   return daysBetweenDates(dateOnly(referenceDate), dueDate)
 }
 
+function formatFutureDueOffset(offset: number): string {
+  if (offset === 1) return 'due in 1 day'
+  return `due in ${offset} days`
+}
+
 export function formatDueRowTiming(row: CommitmentDueRow, referenceDate: Date = getReferenceDate()): string | null {
   if (row.reserveTransferDirection) return 'Reserve planner'
 
@@ -482,7 +487,7 @@ export function formatDueRowTiming(row: CommitmentDueRow, referenceDate: Date = 
     }
     if (offset < 0) return offset === -1 ? '1 day over' : `${-offset} days over`
     if (offset === 0) return 'Due'
-    return offset === 1 ? 'in 1 day' : `in ${offset} days`
+    return formatFutureDueOffset(offset)
   }
 
   const referencePeriod = row.dueReferencePeriod ?? row.period
@@ -490,7 +495,7 @@ export function formatDueRowTiming(row: CommitmentDueRow, referenceDate: Date = 
   if (offset === null) return formatDueTiming(row.commitment, referenceDate)
   if (offset < 0) return offset === -1 ? '1 day over' : `${-offset} days over`
   if (offset === 0) return 'Due'
-  return offset === 1 ? 'in 1 day' : `in ${offset} days`
+  return formatFutureDueOffset(offset)
 }
 
 export function formatRolledDueTooltip(row: CommitmentDueRow): string | null {
@@ -673,7 +678,7 @@ export function formatDueTiming(commitment: Commitment, referenceDate: Date = ge
   if (offset === null) return null
   if (offset < 0) return offset === -1 ? '1 day over' : `${-offset} days over`
   if (offset === 0) return 'Due'
-  return offset === 1 ? 'in 1 day' : `in ${offset} days`
+  return formatFutureDueOffset(offset)
 }
 
 /** Most overdue / earliest due date first; furthest from due date last. */
@@ -690,7 +695,7 @@ const DUE_SECTION_LABELS: Record<DueRowKind, string> = {
   reserve: 'From reserve plans',
   'planned-due': 'Planned · due now',
   'planned-open': 'Planned · no date yet',
-  'planned-saving': 'Saving for',
+  'planned-saving': 'Provisioned for',
 }
 
 export function getDueRowKind(
@@ -715,7 +720,7 @@ export function getDueRowKindLabel(kind: DueRowKind): string {
     case 'planned-open':
       return 'No date'
     case 'planned-saving':
-      return 'Saving for'
+      return 'Provisioned for'
     case 'planned-due':
       return 'Due'
   }

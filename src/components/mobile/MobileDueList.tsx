@@ -14,6 +14,7 @@ import { getReferenceDate } from '../../utils/referenceDate'
 import type { AppActions } from '../../hooks/useAppState'
 import { MobileRecordCard, MobileRecordList, MobileSectionLabel } from './MobileRecordList'
 import { MobileDueDetailModal } from './MobileDueDetailModal'
+import { buildReserveDueAmountOverridePatch } from '../../utils/reserveCalculations'
 
 interface MobileDueListProps {
   state: AppState
@@ -23,8 +24,10 @@ interface MobileDueListProps {
     | 'markCommitmentPaid'
     | 'deleteCommitment'
     | 'duplicateCommitment'
+    | 'updateCommitment'
     | 'markReserveBillPaid'
     | 'duplicateReserveBill'
+    | 'updateReserveBill'
   >
   onOpenReservePlanner?: (plannerId: string) => void
 }
@@ -127,6 +130,29 @@ export function MobileDueList({
               actions.markCommitmentPaid(item.id, amount)
             }
           }}
+          onSave={
+            selected.source !== 'reserve'
+              ? (patch) => actions.updateCommitment(selected.commitment.id, patch)
+              : undefined
+          }
+          onSaveReserveAmount={
+            selected.source === 'reserve' &&
+            selected.reservePlannerId &&
+            selected.reserveBillId &&
+            !isReserveTransferDueRow(selected)
+              ? (amount) => {
+                  const planner = state.reservePlanners.find((p) => p.id === selected.reservePlannerId)
+                  const bill = planner?.bills.find((b) => b.id === selected.reserveBillId)
+                  if (!planner || !bill) return
+                  const period = selected.dueReferencePeriod ?? selected.period
+                  actions.updateReserveBill(
+                    planner.id,
+                    bill.id,
+                    buildReserveDueAmountOverridePatch(bill, period, amount),
+                  )
+                }
+              : undefined
+          }
           onDuplicate={
             selected.source === 'reserve' &&
             selected.reservePlannerId &&
