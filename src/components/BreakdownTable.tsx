@@ -413,8 +413,9 @@ export function BreakdownTable({
   if (columns.length === 0) return null
 
   const summaryMode = !balancesOnly && density === 'summary'
-  const hasSavings = !summaryMode && columns.some((col) => col.savingsAccounts.length > 0)
   const showDetailRows = !balancesOnly && !summaryMode
+  // Always reserve the Savings row when expanded so switching scopes doesn’t jump.
+  const showSavingsRow = showDetailRows
   const hasReceipts = showDetailRows && showReceipts && columns.some((col) => col.expectedReceipts !== 0)
   const showTrueBalance = !balancesOnly
 
@@ -427,6 +428,18 @@ export function BreakdownTable({
         const cellId = `${col.key}-${rowType}`
         const editable = canEditBalances && !col.isRollup && accounts.length > 0
         const columnClass = breakdownColumnClass(col)
+
+        if (rowType === 'savings' && !col.isRollup && accounts.length === 0) {
+          return (
+            <td
+              key={col.key}
+              className={['sheet-num', 'sheet-cell-empty', columnClass].filter(Boolean).join(' ')}
+              title="No savings account"
+            >
+              —
+            </td>
+          )
+        }
 
         if (col.isRollup) {
           return (
@@ -489,7 +502,7 @@ export function BreakdownTable({
         </thead>
         <tbody>
           {balanceRow('current', 'Current Acc')}
-          {hasSavings && balanceRow('savings', 'Savings Acc')}
+          {showSavingsRow && balanceRow('savings', 'Savings Acc')}
           {showDetailRows ? (
             <>
               <tr className="sheet-row-gap">
@@ -543,10 +556,10 @@ export function BreakdownTable({
       </table>
       <p className="sheet-edit-hint">
         {balancesOnly
-          ? `Click a Current Acc${hasSavings ? ' or Savings Acc' : ''} cell to update today’s balances.`
+          ? 'Click a Current Acc or Savings Acc cell to update today’s balances.'
           : summaryMode
-            ? 'Click a Current Acc cell to update balances. Expand for savings, costs, and receipts.'
-            : `Click a Current Acc${hasSavings ? ' or Savings Acc' : ''} cell to update balances. Click a Total costs cell for the breakdown.`}
+            ? 'Click a Current Acc cell to update balances.'
+            : 'Click a Current Acc or Savings Acc cell to update balances. Click a Total costs cell for the breakdown.'}
       </p>
     </div>
   )

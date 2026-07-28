@@ -1025,7 +1025,10 @@ body {
 
 .widget-slot {
   background: var(--bg-surface-raised);
-  border: 1.5px solid var(--border-strong);
+  border: 2px solid color-mix(in srgb, var(--border-strong) 55%, #94a3b8);
+  box-shadow:
+    0 0 0 1px rgba(15, 23, 42, 0.03),
+    0 2px 8px rgba(15, 23, 42, 0.07);
   overflow: hidden;
 }
 
@@ -4024,12 +4027,29 @@ body.widget-canvas-resizing * {
   margin: 0;
   justify-self: center;
   text-align: center;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   font-weight: 800;
   line-height: 1.2;
   letter-spacing: -0.02em;
   color: #09090b;
   white-space: nowrap;
+}
+
+.widget-slot-body > .card .card-head,
+.widget-slot-body > section.card .card-head,
+.widget-grid > .card .card-head {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.55rem;
+  margin-bottom: 0.65rem !important;
+}
+
+.card-head-toolbar h2,
+.card-head-title-row h2,
+.widget-slot-body > .card h2,
+.widget-slot-body > section.card > .card-head h2 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .card-head-toolbar .help-btn,
@@ -4715,7 +4735,7 @@ body.widget-canvas-resizing * {
 }
 
 .overview-strip--position-split .overview-strip-split {
-  grid-template-columns: minmax(12rem, 0.34fr) 1px minmax(0, 1fr);
+  grid-template-columns: minmax(15rem, 0.44fr) 1px minmax(0, 1fr);
   align-items: stretch;
 }
 
@@ -4746,25 +4766,31 @@ body.widget-canvas-resizing * {
 }
 
 .overview-strip--position-split .overview-strip-table {
-  padding: 0.35rem 0.55rem 0.45rem;
+  padding: 0.2rem 0.55rem 0.35rem;
   overflow: auto;
 }
 
-.overview-table-expand-btn {
+.overview-table-top {
   display: flex;
-  width: 100%;
+  justify-content: flex-end;
+  margin: 0 0 0.1rem;
+}
+
+.overview-table-expand-btn {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.35rem;
-  margin: 0.25rem 0 0;
-  padding: 0.4rem 0.5rem;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0.15rem 0.4rem;
   border: none;
   border-radius: var(--radius-sm);
   background: transparent;
   color: #0f766e;
   font: inherit;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 700;
+  line-height: 1.2;
   cursor: pointer;
 }
 
@@ -4783,8 +4809,12 @@ body.widget-canvas-resizing * {
 }
 
 .overview-strip--position-split .sheet-edit-hint {
-  font-size: 0.7rem;
-  margin-top: 0.2rem;
+  display: none;
+}
+
+.overview-strip--position-split .sheet-cell-empty {
+  color: var(--text-muted);
+  opacity: 0.7;
 }
 
 .overview-expand-toolbar,
@@ -4953,8 +4983,8 @@ body.widget-canvas-resizing * {
 .balance-position-hero {
   height: 100%;
   box-sizing: border-box;
-  padding: var(--space-3) var(--space-4);
-  background: linear-gradient(180deg, rgba(15, 118, 110, 0.1) 0%, rgba(15, 118, 110, 0.02) 100%);
+  padding: var(--space-4) var(--space-5);
+  background: linear-gradient(180deg, rgba(15, 118, 110, 0.12) 0%, rgba(15, 118, 110, 0.03) 100%);
   display: flex;
   align-items: center;
 }
@@ -4963,7 +4993,7 @@ body.widget-canvas-resizing * {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.15rem;
+  gap: 0.2rem;
   min-width: 0;
   width: 100%;
 }
@@ -4975,7 +5005,7 @@ body.widget-canvas-resizing * {
 }
 
 .balance-position-hero-label {
-  font-size: 0.72rem;
+  font-size: 0.8rem;
   font-weight: 800;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -4983,16 +5013,16 @@ body.widget-canvas-resizing * {
 }
 
 .balance-position-hero-value {
-  font-size: clamp(1.45rem, 2vw, 1.95rem);
+  font-size: clamp(1.85rem, 3vw, 2.55rem);
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.03em;
-  line-height: 1.1;
+  line-height: 1.05;
   color: #0b5f4a;
 }
 
 .balance-position-hero-freshness {
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 600;
 }
 
@@ -5008,9 +5038,9 @@ body.widget-canvas-resizing * {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.1rem;
-  margin-top: 0.35rem;
-  font-size: 0.82rem;
+  gap: 0.15rem;
+  margin-top: 0.45rem;
+  font-size: 0.92rem;
   font-weight: 600;
   color: var(--text-secondary);
 }
@@ -5099,7 +5129,7 @@ body.widget-canvas-resizing * {
 
 .morning-checkin-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(16rem, 0.9fr);
+  grid-template-columns: minmax(0, 1.15fr) minmax(16rem, 0.85fr);
   gap: 1rem;
   padding: 1rem 1.5rem;
   align-items: start;

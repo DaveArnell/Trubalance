@@ -81,6 +81,17 @@ export function OverviewStrip({
           </aside>
           <div className="overview-strip-divider" aria-hidden />
           <div className="overview-strip-table" data-tour="overview-balances">
+            <div className="overview-table-top">
+              <button
+                type="button"
+                className="overview-table-expand-btn"
+                aria-expanded={expanded}
+                onClick={() => onSizeChange(expanded ? 'default' : 'detailed')}
+              >
+                {expanded ? 'Less' : 'More'}
+                <span aria-hidden>{expanded ? '▴' : '▾'}</span>
+              </button>
+            </div>
             <BreakdownTable
               state={state}
               columns={breakdownColumns}
@@ -89,15 +100,6 @@ export function OverviewStrip({
               onBalanceSave={readOnly ? undefined : handleBalanceSave}
             />
             {saveMessage ? <p className="overview-accounts-save-msg">{saveMessage}</p> : null}
-            <button
-              type="button"
-              className="overview-table-expand-btn"
-              aria-expanded={expanded}
-              onClick={() => onSizeChange(expanded ? 'default' : 'detailed')}
-            >
-              <span aria-hidden>{expanded ? '▴' : '▾'}</span>
-              {expanded ? 'Show less' : 'Show savings, costs & receipts'}
-            </button>
           </div>
         </div>
       </div>

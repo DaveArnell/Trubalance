@@ -100,6 +100,17 @@ export function MobileOverview({
 
       {canShowTable && state && summaryColumns.length > 0 ? (
         <div className="mobile-overview-breakdown">
+          <div className="overview-table-top">
+            <button
+              type="button"
+              className="overview-table-expand-btn"
+              aria-expanded={tableExpanded}
+              onClick={() => setTableExpanded((open) => !open)}
+            >
+              {tableExpanded ? 'Less' : 'More'}
+              <span aria-hidden>{tableExpanded ? '▴' : '▾'}</span>
+            </button>
+          </div>
           <BreakdownTable
             state={state}
             columns={summaryColumns}
@@ -116,15 +127,6 @@ export function MobileOverview({
               {childBreakdownLabel(viewScope)}
             </button>
           ) : null}
-          <button
-            type="button"
-            className="overview-table-expand-btn"
-            aria-expanded={tableExpanded}
-            onClick={() => setTableExpanded((open) => !open)}
-          >
-            <span aria-hidden>{tableExpanded ? '▴' : '▾'}</span>
-            {tableExpanded ? 'Show less' : 'Show savings, costs & receipts'}
-          </button>
         </div>
       ) : null}
 
