@@ -2,7 +2,7 @@
 
 export const SITE_OG_IMAGE = '/og-image.webp' as const
 export const SITE_OG_IMAGE_ALT =
-  'Cash Prophet — Cash Prophet Balance, one trusted financial number for UK business owners' as const
+  'Cash Prophet — Know where your business really stands. Bank balance versus money already spoken for.' as const
 export const SITE_OG_IMAGE_WIDTH = 1200
 export const SITE_OG_IMAGE_HEIGHT = 630
 
