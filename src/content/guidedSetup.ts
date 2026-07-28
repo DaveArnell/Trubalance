@@ -43,15 +43,19 @@ export const STATEMENT_SETUP_STEPS = [
   { id: 'complete', label: 'Cash Prophet Balance' },
 ] as const
 
-export const WHY_TRUE_BALANCE_CONTENT = {
-  title: 'One number you can trust',
-  lead: 'Your bank balance only shows what is in the account. Cash Prophet shows what is already spoken for.',
+export const WHY_CASH_PROPHET_CONTENT = {
+  title: 'Your bank balance isn’t the whole story',
+  lead:
+    'It shows what is in the account today. It does not show money already spoken for — rent, wages, VAT and the rest. Cash Prophet keeps those in view and gives you a Cash Prophet Balance you can check with more confidence.',
   bullets: [
-    'Cash Prophet Balance after commitments you have already made',
-    'Savings for VAT, tax and insurance — not mixed with day-to-day cash',
-    'A monthly transfer target so big bills stop arriving as surprises',
+    'Cash Prophet Balance — after meaningful costs you already know about',
+    'A separate savings pot for VAT, tax, insurance and similar lumps',
+    'A steady monthly transfer so those big bills are funded before they arrive',
   ],
 } as const
+
+/** @deprecated Use WHY_CASH_PROPHET_CONTENT */
+export const WHY_TRUE_BALANCE_CONTENT = WHY_CASH_PROPHET_CONTENT
 
 export const RESERVE_BUFFER_HINT =
   'Optional cushion in your reserve account if a bill comes in higher than expected. You can change this anytime.'

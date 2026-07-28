@@ -4,9 +4,9 @@
 
 During Getting started (per business):
 
-1. Ask for a **meaningful monthly amount** (default £200).
+1. Ask for a **meaningful monthly amount** (default £200) — bills at about this size or above that you genuinely want to track and provision for; smaller day-to-day spend stays out.
 2. **Copy prompt** injects that value — user does not edit the prompt.
-3. User pastes into their own ChatGPT + uploads that business’s transaction log (CSV preferred; 2+ years ideal).
+3. User pastes into their own ChatGPT + uploads that business’s transaction history / statement (**PDF or CSV** — either is fine; 2+ years ideal).
 4. They type the returned tables into Cash Prophet (including Reserve Planner items they choose to keep).
 
 Most customers = one business. Multi-business = repeat.

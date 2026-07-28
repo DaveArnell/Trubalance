@@ -21,88 +21,80 @@ export interface SetupOnboardingStep {
 export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
   {
     id: 'why',
-    title: 'One number you can trust',
+    title: 'Your bank balance isn’t the whole story',
     videoLabel: 'What Cash Prophet is for',
     explain:
-      'Your bank balance only shows what is sitting in the account. Cash Prophet accounts for commitments already spoken for — and gives you a Cash Prophet Balance you can trust.',
+      'It shows what is in the account today. It does not show money already spoken for — rent, wages, VAT and the rest. Cash Prophet keeps those in view and gives you a Cash Prophet Balance you can check with more confidence.',
   },
   {
     id: 'business',
-    title: 'Your company structure',
-    videoLabel: 'Businesses, venues and accounts',
+    title: 'Businesses, sites and accounts',
+    videoLabel: 'Businesses, sites and accounts',
     explain:
-      'Add each business you want to track, then venues and accounts. Keep a separate savings account for reserves such as VAT, tax and insurance.',
+      'Start with the business you want to track. Add sites if you have more than one. Add the bank accounts you use day to day — and a savings account if you want to keep money aside for bigger bills.',
   },
   {
     id: 'committed-explain',
     title: 'Monthly costs that build',
-    videoLabel: 'How accruing costs work',
+    videoLabel: 'How monthly costs build',
     explain:
-      'Regular costs like rent and wages build a little every day toward the month’s total. On the due date they move into Due until you mark them paid.',
+      'Costs that come round every month — rent, wages and similar — build a little each day toward the month’s total. That way your Cash Prophet Balance already reflects them before payday.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="committed-funds"]',
   },
   {
     id: 'month-view',
-    title: 'Month view',
+    title: 'The month at a glance',
     videoLabel: 'Reading the month chart',
     explain:
-      'See how committed money builds through the month and drops when bills are paid — so tight weeks show up early.',
+      'This chart shows committed money rising through the month, then falling when you mark bills paid. Use it to spot tight weeks before they arrive.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="committed-funds"]',
   },
   {
     id: 'due-explain',
-    title: 'Due',
-    videoLabel: 'Paying what is ready',
+    title: 'Ready to pay',
+    videoLabel: 'Paying what is due',
     explain:
-      'Anything ready to pay lands here — monthly costs on their due date, plus one-offs you have earmarked. Mark paid once the money has left the account.',
+      'When a monthly cost reaches its due date — or you add a one-off you have set aside — it appears here. Mark it paid once the money has left the account.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="due"]',
   },
   {
     id: 'receipts-explain',
-    title: 'Expected receipts',
-    videoLabel: 'Money you know is coming',
+    title: 'Money you expect in',
+    videoLabel: 'Expected receipts',
     explain:
-      'Add income you are confident will arrive. Mark Received when it lands so your Cash Prophet Balance stays honest.',
+      'Add income you are confident will arrive. Mark it received when it lands so your Cash Prophet Balance stays up to date.',
     page: 'committed-funds',
     spotlight: '[data-widget-id="expected-receipts"]',
   },
   {
     id: 'reserve',
-    title: 'Reserve Planner',
+    title: 'Saving for big bills',
     videoLabel: 'Funding VAT and big bills',
     explain:
-      'VAT, insurance and similar bills arrive in lumps. List them here and Cash Prophet turns that into a steady monthly transfer into savings.',
+      'VAT, insurance and other large non-monthly bills are listed here. Cash Prophet turns them into a regular monthly amount to move into savings.',
     page: 'reserve-planner',
     spotlight: '[data-tour="reserve-planner-month"]',
     skippable: true,
   },
   {
     id: 'trends-explain',
-    title: 'Trends',
+    title: 'How you are travelling',
     videoLabel: 'Your balance over time',
     explain:
-      'Each time you save balances, that day is logged. Trends shows whether your Cash Prophet Balance is heading up or down.',
+      'Each time you save balances, that day is stored. Trends shows whether your Cash Prophet Balance is moving up or down over time.',
     page: 'trends',
     spotlight: '[data-widget-id="trends-chart"]',
   },
   {
     id: 'statement-helper',
-    title: 'Speed up with a transaction log',
+    title: 'Speed things up with a bank export',
     explain:
-      'Optional but powerful: download a transaction export for this business, copy our prompt into your own ChatGPT, and get a draft list of monthly costs and Reserve Planner bills to type in.',
+      'Optional. Download a transaction history for this business, paste our prompt into ChatGPT, and get a draft list of monthly costs and Reserve bills to type into Cash Prophet.',
     hideVideo: true,
     skippable: true,
-  },
-  {
-    id: 'handoff',
-    title: 'Add your numbers',
-    videoLabel: 'What to do on the dashboard',
-    explain:
-      'Open the dashboard next. Enter today’s balances, then your monthly costs and reserve bills — from the ChatGPT draft if you used it, or by hand.',
-    page: 'committed-funds',
   },
 ]
 
@@ -132,7 +124,6 @@ export const SETUP_ONBOARDING_STEP_LABELS: Record<string, string> = {
   reserve: 'Reserve',
   'trends-explain': 'Trends',
   'statement-helper': 'Transaction log',
-  handoff: 'Your dashboard',
 }
 
 export const SETUP_ONBOARDING_DISMISSED_KEY = 'trubalance-setup-onboarding-dismissed-v1'

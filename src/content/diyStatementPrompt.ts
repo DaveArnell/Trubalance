@@ -5,9 +5,9 @@
 
 export const DIY_STATEMENT_DEFAULT_MIN_MONTHLY = 200
 
-const DIY_STATEMENT_PROMPT_TEMPLATE = `You are helping me set up Cash Prophet (UK small-business cash position tool — not bookkeeping).
+const DIY_STATEMENT_PROMPT_TEMPLATE = `You are helping me set up Cash Prophet for a UK small business.
 
-I will upload bank statement(s) or a transaction export for ONE business (CSV preferred). Work only from this file. Do not assume industry or known suppliers.
+I will upload bank statement(s) or a transaction export for ONE business (PDF or CSV — either is fine). Work only from this file. Do not assume industry or known suppliers.
 
 GOAL
 FIRST DRAFT for Cash Prophet:
@@ -17,6 +17,7 @@ B) Reserve Planner (quarterly / six-monthly / annual / large non-monthly)
 Tables first. No essay. Exact headers only.
 
 MEANINGFUL MONTHLY THRESHOLD = £{{MIN_MONTHLY}}
+- This is the minimum size for monthly bills that are meaningful enough to track and provision for — not every small cost absorbed into day-to-day running.
 - Drop small recurring noise clearly under this amount per month → Not imported.
 - Do not drop clear monthly costs that are around/above the threshold just because the amount varies.
 

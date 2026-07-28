@@ -18222,6 +18222,10 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   text-align: center;
 }
 
+.setup-flow-main--default .setup-flow-step-panel .setup-flow-page-header {
+  text-align: center;
+}
+
 .setup-flow-main--default .setup-flow-step-panel .setup-flow-page-header h2 {
   font-size: clamp(2rem, 4.5vw, 3rem);
   line-height: 1.15;
@@ -18229,9 +18233,16 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .setup-flow-main--default .setup-flow-step-panel .setup-flow-page-lead {
-  max-width: none;
+  max-width: 40rem;
+  margin-inline: auto;
   font-size: clamp(1.1rem, 2vw, 1.35rem);
   line-height: 1.65;
+}
+
+.setup-flow-main--default .setup-flow-step-panel .setup-why-bullets {
+  display: inline-block;
+  text-align: left;
+  margin-inline: auto;
 }
 
 .setup-flow-main--default .setup-flow-step-panel .setup-onboarding-explain {

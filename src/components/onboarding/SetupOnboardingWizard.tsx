@@ -7,7 +7,7 @@ import {
   dismissSetupOnboardingLocally,
   getSetupOnboardingSteps,
 } from '../../content/setupOnboarding'
-import { WHY_TRUE_BALANCE_CONTENT } from '../../content/guidedSetup'
+import { WHY_CASH_PROPHET_CONTENT } from '../../content/guidedSetup'
 import { getOnboardingCashAccounts } from '../../utils/calculations'
 import type { PageId } from '../../navigation'
 import { SetupOnboardingShell } from './SetupOnboardingShell'
@@ -52,7 +52,7 @@ export function SetupOnboardingWizard({
   startAtStepId,
 }: SetupOnboardingWizardProps) {
   const { user } = useAuth()
-  const PROGRESS_KEY = 'trubalance-setup-step-index-v6'
+  const PROGRESS_KEY = 'trubalance-setup-step-index-v7'
   const steps = useMemo(() => getSetupOnboardingSteps(), [])
 
   const initialStepIndex = (() => {
@@ -227,11 +227,11 @@ export function SetupOnboardingWizard({
   const panel = (
     <SetupOnboardingShell
       kicker={startAtStepId ? 'Walkthrough' : 'Getting started'}
-      sidebarTitle={startAtStepId ? undefined : 'Learn the picture'}
+      sidebarTitle={startAtStepId ? undefined : 'How Cash Prophet works'}
       sidebarLead={
         startAtStepId
           ? undefined
-          : 'Short lessons, then an optional transaction-log helper — then your live dashboard.'
+          : 'A short tour of the main screens. At the end you can optionally use a bank export to speed up adding your bills.'
       }
       steps={steps.map((item) => ({
         id: item.id,
@@ -265,7 +265,7 @@ export function SetupOnboardingWizard({
 
         {step.id === 'why' && (
           <ul className="setup-why-bullets">
-            {WHY_TRUE_BALANCE_CONTENT.bullets.map((item) => (
+            {WHY_CASH_PROPHET_CONTENT.bullets.map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>
@@ -304,16 +304,6 @@ export function SetupOnboardingWizard({
         {step.id === 'trends-explain' && <SetupWidgetPreview previewId="trends" />}
 
         {step.id === 'statement-helper' && <SetupStatementHelper />}
-
-        {step.id === 'handoff' && (
-          <ol className="setup-handoff-list">
-            <li>Enter today’s current account balances</li>
-            <li>Add monthly accruing costs</li>
-            <li>Check Due and any one-offs</li>
-            <li>Add expected receipts</li>
-            <li>Optional: set up Reserve Planner</li>
-          </ol>
-        )}
       </div>
     </SetupOnboardingShell>
   )

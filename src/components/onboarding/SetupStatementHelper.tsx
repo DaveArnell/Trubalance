@@ -34,18 +34,17 @@ export function SetupStatementHelper() {
     <div className="setup-statement-helper">
       <ol className="setup-statement-helper-steps">
         <li>
-          From your bank or accounting software, download a <strong>transaction log / export</strong>{' '}
-          for this business (CSV is best; PDF statements also work). Aim for <strong>two years or
-          more</strong> — longer history finds quarterly and annual bills more reliably.
+          From your bank or accounting software, download a{' '}
+          <strong>transaction history / statement</strong> for this business (
+          <strong>PDF or CSV</strong> — either is fine). Prefer <strong>two years or more</strong> so
+          quarterly and annual bills show up.
         </li>
         <li>
-          Set your monthly minimum below, then <strong>Copy prompt</strong>. Open your own ChatGPT (or
-          similar), paste the prompt, and upload the file. Repeat once per business if you have
-          several.
+          Set the monthly minimum below, then <strong>Copy prompt</strong>. Paste it into ChatGPT,
+          then upload the file. Repeat once per business if you have several.
         </li>
         <li>
-          Use the tables it returns to enter monthly costs and Reserve Planner bills in Cash Prophet.
-          Start with 🟢, check 🟠, decide on 🔴.
+          Type the tables it returns into Cash Prophet. Start with 🟢, check 🟠, decide on 🔴.
         </li>
       </ol>
 
@@ -63,7 +62,10 @@ export function SetupStatementHelper() {
               aria-label="Meaningful monthly amount in pounds"
             />
           </span>
-          <span className="muted">Ignore recurring noise below this each month.</span>
+          <span className="muted">
+            Only include monthly bills at about this size or above — costs you genuinely want to
+            track and provision for. Smaller day-to-day spend stays out of the list.
+          </span>
         </label>
       </div>
 
@@ -72,7 +74,7 @@ export function SetupStatementHelper() {
           {copied ? 'Copied' : 'Copy prompt'}
         </button>
         <p className="muted setup-statement-helper-hint">
-          The prompt includes your monthly minimum. Paste it, then upload the transaction file.
+          Paste into ChatGPT, then attach your file.
         </p>
       </div>
 
