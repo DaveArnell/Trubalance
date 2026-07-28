@@ -18374,7 +18374,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .setup-flow-main--reserve .setup-reserve-yours-hint {
   max-width: 40rem;
   margin-inline: auto;
-  text-align: left;
+  text-align: center;
 }
 
 .setup-flow-main--reserve .setup-flow-page-header {
@@ -18384,23 +18384,28 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .setup-flow-main--reserve .setup-flow-page-header h2 {
   text-align: center;
+  font-size: clamp(2rem, 4.5vw, 3rem);
+  line-height: 1.15;
+  margin-bottom: clamp(16px, 2.5vh, 28px);
 }
 
 .setup-flow-main--reserve .setup-flow-page-lead {
   text-align: center;
-  max-width: 36rem;
-  margin: 0.35rem auto 0;
-  font-size: clamp(1rem, 1.5vw, 1.12rem);
-  line-height: 1.5;
+  max-width: 40rem;
+  margin: 0 auto;
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
+  line-height: 1.65;
   font-weight: 500;
   color: var(--text-primary);
 }
 
 .setup-flow-main--reserve .setup-onboarding-explain {
   margin: 0 auto var(--space-3);
-  font-size: 0.95rem;
-  line-height: 1.55;
+  font-size: clamp(1rem, 1.6vw, 1.2rem);
+  line-height: 1.7;
   color: var(--text-secondary);
+  text-align: center;
+  max-width: 44rem;
 }
 
 .setup-flow-main--wide .setup-flow-step-panel--preview {
@@ -18410,8 +18415,8 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .setup-flow-main--wide .setup-flow-step-panel--preview .setup-flow-page-header,
 .setup-flow-main--wide .setup-flow-step-panel--preview .setup-onboarding-explain {
-  text-align: left;
-  max-width: 40rem;
+  text-align: center;
+  max-width: 44rem;
   margin-inline: auto;
 }
 
@@ -18419,22 +18424,29 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   text-align: center;
 }
 
+.setup-flow-main--wide .setup-flow-step-panel--preview .setup-flow-page-header h2 {
+  font-size: clamp(2rem, 4.5vw, 3rem);
+  line-height: 1.15;
+  margin-bottom: clamp(16px, 2.5vh, 28px);
+}
+
 .setup-flow-main--wide .setup-flow-step-panel--preview .setup-flow-page-lead {
   text-align: center;
-  max-width: 36rem;
-  margin: 0.35rem auto 0;
-  font-size: clamp(1rem, 1.5vw, 1.12rem);
-  line-height: 1.5;
+  max-width: 40rem;
+  margin: 0 auto;
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
+  line-height: 1.65;
   font-weight: 500;
   color: var(--text-primary);
 }
 
 .setup-flow-main--wide .setup-flow-step-panel--preview .setup-onboarding-explain {
-  max-width: 40rem;
+  max-width: 44rem;
   margin: 0 auto var(--space-3);
-  font-size: 0.95rem;
-  line-height: 1.55;
+  font-size: clamp(1rem, 1.6vw, 1.2rem);
+  line-height: 1.7;
   color: var(--text-secondary);
+  text-align: center;
 }
 
 .setup-flow-main--import .guided-setup-ai-body,
@@ -19504,6 +19516,69 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   font-size: 0.72rem;
   line-height: 1.45;
   white-space: pre-wrap;
+}
+
+.support-message-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 36rem;
+}
+
+.support-message-lead {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.support-message-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.support-message-field input,
+.support-message-field textarea {
+  font: inherit;
+  font-weight: 500;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(15, 27, 45, 0.14);
+  background: #fff;
+  color: var(--text-primary);
+}
+
+.support-message-field textarea {
+  resize: vertical;
+  min-height: 8rem;
+}
+
+.support-message-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.support-message-success {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(13, 143, 91, 0.1);
+  color: #0b5f4a;
+  font-size: 0.95rem;
+}
+
+.admin-support-message-body {
+  margin: 0;
+  white-space: pre-wrap;
+  font-size: 0.98rem;
+  line-height: 1.55;
+  color: var(--text-primary);
 }
 
 .setup-edu-visual {

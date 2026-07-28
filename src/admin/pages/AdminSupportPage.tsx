@@ -36,7 +36,7 @@ export function AdminSupportPage() {
     <div className="admin-page">
       <AdminPageHeader
         title="Support"
-        description="Support tickets for Cash Prophet users. Conversation and replies are placeholders until messaging is integrated."
+        description="Messages sent from Settings → Support. Reply by email for now; in-app replies can come later."
       />
 
       <div className="admin-support-layout">
@@ -96,9 +96,11 @@ export function AdminSupportPage() {
                 <AdminBadge tone={priorityTone(selected.priority)}>{selected.priority}</AdminBadge>
               </div>
               <div className="admin-support-thread">
-                <p className="muted admin-empty">
-                  Conversation placeholder — connect your support provider to show messages here.
-                </p>
+                {selected.body ? (
+                  <p className="admin-support-message-body">{selected.body}</p>
+                ) : (
+                  <p className="muted admin-empty">No message body on this ticket.</p>
+                )}
               </div>
               <label className="admin-field-block">
                 <span>Admin notes</span>
@@ -110,9 +112,12 @@ export function AdminSupportPage() {
                   readOnly
                 />
               </label>
-              <button type="button" className="btn-secondary btn-tiny" disabled>
-                Reply (coming soon)
-              </button>
+              <a
+                className="btn-secondary btn-tiny"
+                href={`mailto:${selected.userEmail}?subject=${encodeURIComponent(`Re: ${selected.subject}`)}`}
+              >
+                Reply by email
+              </a>
             </>
           ) : (
             <p className="muted">Select a ticket</p>

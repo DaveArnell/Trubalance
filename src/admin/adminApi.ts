@@ -951,7 +951,44 @@ export async function adminFetchSupportTickets(
   const page = params.page ?? 1
   const pageSize = params.pageSize ?? DEFAULT_PAGE_SIZE
   if (await useMockData()) return paginate(getMockSupportTickets(), page, pageSize)
-  return paginate([], page, pageSize)
+
+  const supabase = tryGetSupabase()
+  if (!supabase) return paginate([], page, pageSize)
+
+  const from = (page - 1) * pageSize
+  const to = from + pageSize - 1
+  const { data, error, count } = await supabase
+    .from('support_messages')
+    .select(
+      'id, subject, body, status, priority, user_id, user_email, user_name, admin_notes, created_at, updated_at',
+      { count: 'exact' },
+    )
+    .order('created_at', { ascending: false })
+    .range(from, to)
+
+  if (error || !data) return paginate([], page, pageSize)
+
+  const items: SupportTicketRow[] = data.map((row) => ({
+    id: row.id as string,
+    subject: (row.subject as string) || 'Support request',
+    body: (row.body as string) || '',
+    status: (row.status as SupportTicketRow['status']) || 'open',
+    priority: (row.priority as SupportTicketRow['priority']) || 'normal',
+    assignedAdmin: null,
+    userId: row.user_id as string,
+    userEmail: (row.user_email as string) || '',
+    userName: (row.user_name as string) || '',
+    adminNotes: (row.admin_notes as string | null) ?? null,
+    createdAt: row.created_at as string,
+    updatedAt: row.updated_at as string,
+  }))
+
+  return {
+    items,
+    total: count ?? items.length,
+    page,
+    pageSize,
+  }
 }
 
 export async function adminFetchEmailTemplates(): Promise<EmailTemplateRow[]> {

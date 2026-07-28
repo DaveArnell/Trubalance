@@ -5,8 +5,9 @@ import { DisplayPreferencesPanel } from './DisplayPreferencesPanel'
 import { AccountSubscriptionPanel } from './AccountSubscriptionPanel'
 import { DataExportPanel } from './DataExportPanel'
 import { StructureManagement } from './StructureManagement'
+import { SupportMessagePanel } from './SupportMessagePanel'
 
-type SettingsSectionId = 'structure' | 'display' | 'plan' | 'data'
+type SettingsSectionId = 'structure' | 'display' | 'plan' | 'data' | 'support'
 
 const SECTIONS: {
   id: SettingsSectionId
@@ -29,6 +30,11 @@ const SECTIONS: {
     lead: 'Which plan fits your setup, trial progress, and billing.',
   },
   {
+    id: 'support',
+    label: 'Support',
+    lead: 'Send a message to the Cash Prophet team.',
+  },
+  {
     id: 'data',
     label: 'Your data',
     lead: 'Download a backup, restore from file, or delete your account.',
@@ -44,7 +50,13 @@ export function SettingsPage({ state, actions }: SettingsPageProps) {
   const [active, setActive] = useState<SettingsSectionId>(() => {
     try {
       const pending = sessionStorage.getItem('trubalance-settings-section')
-      if (pending === 'display' || pending === 'plan' || pending === 'data' || pending === 'structure') {
+      if (
+        pending === 'display' ||
+        pending === 'plan' ||
+        pending === 'data' ||
+        pending === 'structure' ||
+        pending === 'support'
+      ) {
         sessionStorage.removeItem('trubalance-settings-section')
         return pending
       }
@@ -94,6 +106,7 @@ export function SettingsPage({ state, actions }: SettingsPageProps) {
             )}
             {active === 'display' && <DisplayPreferencesPanel embedded />}
             {active === 'plan' && <AccountSubscriptionPanel state={state} embedded />}
+            {active === 'support' && <SupportMessagePanel embedded />}
             {active === 'data' && (
               <DataExportPanel
                 state={state}

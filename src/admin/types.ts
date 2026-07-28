@@ -308,6 +308,7 @@ export interface AdminAnalyticsSnapshot {
 export interface SupportTicketRow {
   id: string
   subject: string
+  body: string
   status: 'open' | 'pending' | 'resolved' | 'closed'
   priority: 'low' | 'normal' | 'high' | 'urgent'
   assignedAdmin: string | null

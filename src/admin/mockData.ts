@@ -630,6 +630,7 @@ export function getMockSupportTickets(): SupportTicketRow[] {
   return MOCK_USERS.slice(0, 12).map((u, i) => ({
     id: `tkt-${String(i + 1).padStart(3, '0')}`,
     subject: ['Trial extension request', 'Cannot add second business', 'Reserve planner help', 'Billing question'][i % 4]!,
+    body: 'Example support message body for local admin mock data.',
     status: (['open', 'pending', 'resolved', 'closed'] as const)[i % 4],
     priority: (['low', 'normal', 'high', 'urgent'] as const)[i % 4],
     assignedAdmin: i % 3 === 0 ? 'Platform admin' : null,

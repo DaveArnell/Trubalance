@@ -42,17 +42,28 @@ export function SetupStatementHelper() {
           </p>
         </li>
         <li>
+          <strong className="setup-statement-helper-step-label">Set a meaningful monthly amount</strong>
+          <p>
+            Below, choose the smallest monthly bill you want Cash Prophet to track and provision for.
+            Smaller day-to-day costs are usually absorbed into normal running and do not need a line
+            of their own. Use this minimum so ChatGPT only drafts the bills worth keeping in view —
+            rent, wages, VAT-sized costs, and similar.
+          </p>
+        </li>
+        <li>
           <strong className="setup-statement-helper-step-label">Copy the prompt into ChatGPT</strong>
           <p>
-            Set the monthly minimum below, copy the prompt, paste it into ChatGPT, then attach the
-            file. Repeat once per business if you have several.
+            Copy the prompt below, paste it into ChatGPT, then attach your file. ChatGPT will use
+            your meaningful monthly amount as the filter. Repeat once per business if you have
+            several.
           </p>
         </li>
         <li>
           <strong className="setup-statement-helper-step-label">Type the draft into Cash Prophet</strong>
           <p>
             Use the tables ChatGPT returns. Start with green items, check amber ones, and decide on
-            red before you trust them.
+            red before you trust them. You are only entering meaningful bills — not every small
+            transaction.
           </p>
         </li>
       </ol>

@@ -1,135 +1,65 @@
-# True Balance — pre-launch checklist
+# Cash Prophet — launch checklist
 
-Manual steps and verification before going live on **truebalanceapp.io**. Code tasks in the repo are ticked when merged; manual items stay open until you complete them in external dashboards.
+Live canonical: **https://www.cashprophet.co.uk**
 
----
-
-## Bank import (PDF / CSV)
-
-**Status: deferred — coming soon**
-
-Bank statement import is disabled in the app (`BANK_IMPORT_ENABLED = false`). Onboarding is **manual only** until detection quality is ready. Re-enable in `src/config/setupAutomation.ts` when ready to test again.
-
-**Code retained for later:**
-
-- PDF/CSV parsing pipeline in `src/bankImport/`
-- Import UI in Settings shows a “Coming soon” card
-
-**Before re-enabling:**
-
-- [ ] Re-test Lloyds PDF with minimum monthly = 0
-- [ ] Confirm only clear monthly patterns are suggested (no due/reserve items from history)
-- [ ] Manual onboarding verified end-to-end
+Manual steps and verification. Code tasks are done in the repo; SQL still needs running in Supabase when noted.
 
 ---
 
-## Bank import (archived notes)
+## Decisions (confirmed)
 
-## SEO
-
-**Code (in repo):**
-
-- [x] `usePageMeta` on landing, pricing, see-how-it-works, legal, auth, demo, app
-- [x] `noindex` on `/app`, `/demo`, `/login`, password-reset flows
-- [x] Default Open Graph / Twitter image URL wired (`/og-image.webp`)
-- [x] Homepage JSON-LD (`Organization` + `WebSite` + `SiteNavigationElement`)
-- [x] `robots.txt` disallows app/demo/auth/admin paths
-- [x] Sitemap auto-generated at build from indexable routes + blog posts
-- [x] Unique title + meta description per public route
-- [x] Full OG + Twitter Card tags (image, dimensions, alt)
-- [x] Absolute canonical hrefs + trailing-slash redirects
-- [x] Checkout ignores client `priceId` (server resolves Stripe prices)
-- [x] Admin OTP uses secure random + lockout after failed attempts
-
-**Manual — do before / after launch:**
-
-- [ ] [Google Search Console](https://search.google.com/search-console) — verify current domain, submit sitemap
-- [ ] Optional: Plausible or Google Analytics 4 for traffic/signup attribution
-- [ ] After deploy: refresh Facebook Sharing Debugger / LinkedIn Post Inspector for key URLs
+- **Bank PDF/CSV import in-app:** not shipping for now. Users use their own AI (ChatGPT) via the optional transaction-log helper instead — avoids import cost/red tape.
+- **Google Search Console:** sorted (domain + sitemap).
+- **Analytics (Plausible / GA4):** deferred — add later on its own page/setup when ready.
+- **ICO:** organisation-level for Vocatio Ltd (not per-website). Keep the existing registration current; add the ICO number to Privacy when you have it handy. No separate registration needed just because Cash Prophet is a product site.
 
 ---
 
-## Domain cutover (cashprophet.co.uk — P-H-E-T)
+## SEO / social share image (OG)
 
-Live canonical: **https://www.cashprophet.co.uk**. Legacy: **truebalanceapp.io** (keep redirecting for a while).
+When someone pastes a Cash Prophet link in WhatsApp, Slack, LinkedIn, or Facebook, the preview card uses an **Open Graph (OG) image** — the picture next to the title/description.
 
-When you cut over:
-
-1. Add `cashprophet.co.uk` (+ `www`) in Vercel → Domains
-2. Point DNS at Vercel; keep `truebalanceapp.io` redirecting to the new domain for a while
-3. Set Supabase Auth Site URL + redirect URLs to the new domain
-4. Set edge function secret `SITE_URL=https://www.cashprophet.co.uk`
-5. `COMPANY_INFO.website` / sitemap scripts already point at www.cashprophet.co.uk
-6. Re-submit sitemap in Google Search Console for the new property
+- Wired in code to `/og-image.webp` on the live domain.
+- **Check:** share `https://www.cashprophet.co.uk` in a private Slack/WhatsApp message and confirm the image looks right. If missing or wrong, replace `public/og-image.webp`.
 
 ---
 
-## Hosting (Vercel + domain)
+## Hosting / domain
 
-- [x] Connect GitHub repo to [Vercel](https://vercel.com)
-- [ ] Set production env vars: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_APP_ENV=production`
-- [x] Add domain `cashprophet.co.uk` (+ `www`)
-- [x] Point DNS at registrar per Vercel instructions (apex A or CNAME)
-- [x] Confirm SSL active on the live domain
+- [x] Vercel + `cashprophet.co.uk` / `www`
+- [x] SSL
+- [ ] Confirm production env vars on Vercel if anything still looks “demo-only”
 
 ---
 
-## Supabase (production project)
+## Supabase
 
-- [ ] Run all SQL migrations in `supabase/migrations/` (including **020** workspace edit lock and **021** admin OTP lockout)
-- [ ] Upload email templates from `supabase/email-templates/` (optional)
-- [ ] Grant yourself admin after first signup:
-  ```sql
-  UPDATE profiles SET role = 'super_admin' WHERE email = 'your@email.com';
-  ```
-- [ ] Deploy updated edge functions after billing/admin security changes:
-  `npx supabase functions deploy create-checkout-session`
-  `npx supabase functions deploy admin-auth`
-  `npx supabase functions deploy create-billing-portal`
----
-
-## Google login (next step after above)
-
-**Code:** “Continue with Google” is already wired in the app.
-
-**Manual:**
-
-- [ ] Google Cloud Console → OAuth 2.0 Client ID (Web)
-- [ ] Authorized redirect URI: `https://qwwwijyljghmlerylbpi.supabase.co/auth/v1/callback`
-- [ ] Supabase → Authentication → Providers → Google → enable + paste Client ID/Secret
-- [ ] Supabase → Authentication → URL configuration:
-  - Site URL: `https://www.cashprophet.co.uk`
-  - Redirect URLs: `https://www.cashprophet.co.uk/**`, `https://cashprophet.co.uk/**`, plus legacy truebalanceapp entries and localhost for dev
-- [ ] **Keep your existing data when linking Google** (see below)
-
-### Same email — email/password account + Google
-
-Your workspace is tied to your Supabase **user id**, not the login method.
-
-If you already signed up with **email + password** using your Gmail address:
-
-1. In Supabase Dashboard → **Authentication → Settings**, ensure **“Enable manual linking”** or automatic identity linking is enabled (Supabase v2 links same verified email when configured).
-2. Log out, click **Continue with Google** with the **same email**.
-3. Supabase should attach the Google identity to your existing user — **same user id → same workspace data**.
-
-If Google creates a **second** account instead:
-
-- Do **not** delete the old account yet.
-- In Supabase Dashboard → Authentication → Users, use **Link identity** to merge Google onto the original user, or contact support / use SQL to merge (advanced).
-- Test on **staging** first if unsure.
-
-**Recommendation:** Enable Google OAuth on staging, test link with a throwaway account, then enable on production before switching your main login.
+- [ ] Run outstanding SQL migrations in Supabase SQL Editor (including **025_support_messages.sql** for Settings → Support → admin inbox)
+- [ ] Edge functions deployed when billing/admin changes land
+- [ ] Platform admin account granted for your vocatio.io user
 
 ---
 
-## Post-launch smoke test
+## Google login
 
-- [ ] Sign up / log in (email and Google)
-- [ ] Workspace syncs after refresh
-- [ ] Bank PDF import finds recurring costs
-- [ ] `/blog` and a blog post show correct title in browser tab
-- [ ] Share link preview shows title + description (once `og-image.png` exists)
+**Code ready.** Manual: Google Cloud OAuth client + Supabase Google provider + redirect URLs for cashprophet.co.uk (optional until you want it).
 
 ---
 
-*Last updated: July 2026 — update this file as launch steps complete.*
+## Support inbox
+
+- **In app:** Settings → Support (message form)
+- **Admin:** `/platform-admin/support` lists messages; reply by email for now
+- Requires migration **025** run in Supabase
+
+---
+
+## Admin stats (honest status)
+
+**Good enough for early ops / beta:** users, trials, setup funnel, user health, feature adoption counts.
+
+**Not real yet (placeholders until Stripe is live):** MRR/ARR charts, revenue trend, churn. Ignore fake £ figures on Payments until billing is connected.
+
+---
+
+*Last updated: July 2026*
