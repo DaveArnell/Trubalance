@@ -23,7 +23,23 @@ import { sortByOrder } from './sortOrder'
 
 export function getPlannerDisplayName(state: AppState, planner: ReservePlanner): string {
   const business = state.businesses.find((b) => b.id === planner.businessId)
-  return business?.name ?? planner.name
+  const businessName = business?.name?.trim()
+  const planName = planner.name?.trim()
+  if (!planName) return businessName || 'Reserve plan'
+  if (!businessName) return planName
+
+  const normalizedPlan = planName.toLowerCase()
+  const normalizedBiz = businessName.toLowerCase()
+  // Default create labels often echo the business — show the business name once.
+  if (
+    normalizedPlan === normalizedBiz ||
+    normalizedPlan === `${normalizedBiz} reserve` ||
+    normalizedPlan === `${normalizedBiz} reserves` ||
+    normalizedPlan === `${normalizedBiz} reserve plan`
+  ) {
+    return businessName
+  }
+  return planName
 }
 
 function roundMoney(value: number): number {

@@ -11,7 +11,10 @@ import { useOverviewSize } from './hooks/useOverviewSize'
 import { OverviewStrip } from './components/OverviewStrip'
 import { MobileOverview } from './components/mobile/MobileOverview'
 import { MorningCheckInModal } from './components/MorningCheckInModal'
-import { DueMovedBanner } from './components/DueMovedBanner'
+import {
+  clearPendingDueNotifyPeriods,
+  countPendingNewlyDueNotices,
+} from './utils/morningCheckIn'
 import { MobileBottomNav } from './components/mobile/MobileBottomNav'
 import {
   MobileHomeSectionTabs,
@@ -505,6 +508,16 @@ function AppShellInner({
     [metrics.commitmentViews],
   )
 
+  const newDueNoticeCount = useMemo(
+    () => countPendingNewlyDueNotices(app.state, app.viewScope),
+    [app.state, app.viewScope, dueNotifyRefresh],
+  )
+
+  const acknowledgeNewDue = useCallback(() => {
+    clearPendingDueNotifyPeriods()
+    setDueNotifyRefresh((n) => n + 1)
+  }, [])
+
   const breakdownColumns = useMemo(
     () => buildBreakdownColumns(app.state, app.viewScope),
     [app.state, app.viewScope, referenceDateKey],
@@ -772,6 +785,8 @@ function AppShellInner({
         onOpenReservePlanner: (plannerId) => goToRoute('reserve-planner', plannerId),
         trendsFocusScope,
         onTrendsFocusApplied: clearTrendsFocus,
+        showNewDueNotice: newDueNoticeCount > 0,
+        onAcknowledgeNewDue: acknowledgeNewDue,
       }),
     [
       activePage,
@@ -790,6 +805,8 @@ function AppShellInner({
       activeRoute.reservePlannerId,
       openHelp,
       trendsFocusScope,
+      newDueNoticeCount,
+      acknowledgeNewDue,
     ],
   )
 
@@ -987,21 +1004,15 @@ function AppShellInner({
                   onBalanceSave={handleBalanceSave}
                 />
 
-                <DueMovedBanner
-                  state={app.state}
-                  viewScope={app.viewScope}
-                  refreshKey={dueNotifyRefresh}
-                  onOpenDue={() => {
-                    setHomeSection('due')
-                    goToRoute('committed-funds')
-                  }}
-                />
-
                 {activePage === 'committed-funds' ? (
                   <MobileHomeSectionTabs
                     active={homeSection}
-                    onChange={setHomeSection}
+                    onChange={(section) => {
+                      setHomeSection(section)
+                      if (section === 'due') acknowledgeNewDue()
+                    }}
                     dueBadgeCount={dueAttentionCount}
+                    showNewDueNotice={newDueNoticeCount > 0}
                   />
                 ) : null}
               </div>
@@ -1073,13 +1084,6 @@ function AppShellInner({
                   size={overviewSize}
                   onSizeChange={setOverviewSize}
                   onBalanceSave={handleBalanceSave}
-                />
-
-                <DueMovedBanner
-                  state={app.state}
-                  viewScope={app.viewScope}
-                  refreshKey={dueNotifyRefresh}
-                  onOpenDue={() => goToRoute('committed-funds')}
                 />
               </div>
 

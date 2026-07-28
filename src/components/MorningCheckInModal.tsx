@@ -179,9 +179,9 @@ export function MorningCheckInModal({
               <section className="morning-checkin-panel morning-checkin-panel--reserve">
                 <div className="morning-checkin-panel-head">
                   <h3>{isStartOfMonth() ? 'New month — reserve' : 'Reserve tip'}</h3>
+                  <p>{reserveHint.plannerName}</p>
                 </div>
                 <p className="morning-checkin-reserve-copy">
-                  <strong>{reserveHint.plannerName}</strong>
                   <span>{reserveHint.message}</span>
                 </p>
                 {onOpenReserve ? (

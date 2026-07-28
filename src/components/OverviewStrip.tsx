@@ -97,28 +97,27 @@ export function OverviewStrip({
       aria-label="Account balances"
       data-tour="overview-hero"
     >
-      <div className="overview-strip-body">
-        <div className="overview-expand-toolbar">
+        <div className="overview-strip-body">
           <button
             type="button"
-            className="overview-collapse-btn"
+            className="overview-collapse-bar"
             onClick={() => onSizeChange('default')}
           >
-            <span aria-hidden>▴</span> Show Cash Prophet Balance
+            <span aria-hidden>▴</span>
+            <span>Show Cash Prophet Balance</span>
           </button>
-        </div>
-        <div className="overview-strip-split overview-strip-split--solo">
-          <div className="overview-strip-table" data-tour="overview-balances">
-            <BreakdownTable
-              state={state}
-              columns={breakdownColumns}
-              compact
-              onBalanceSave={readOnly ? undefined : handleBalanceSave}
-            />
-            {saveMessage ? <p className="overview-accounts-save-msg">{saveMessage}</p> : null}
+          <div className="overview-strip-split overview-strip-split--solo">
+            <div className="overview-strip-table" data-tour="overview-balances">
+              <BreakdownTable
+                state={state}
+                columns={breakdownColumns}
+                compact
+                onBalanceSave={readOnly ? undefined : handleBalanceSave}
+              />
+              {saveMessage ? <p className="overview-accounts-save-msg">{saveMessage}</p> : null}
+            </div>
           </div>
         </div>
-      </div>
     </section>
   )
 }

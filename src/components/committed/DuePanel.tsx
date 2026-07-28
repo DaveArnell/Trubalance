@@ -77,6 +77,9 @@ interface DuePanelProps {
   openHelp: string | null
   setOpenHelp: (id: string | null) => void
   onOpenReservePlanner?: (plannerId: string) => void
+  /** Quiet notify when bills just moved into Due (cleared when Due title is clicked). */
+  showNewDueNotice?: boolean
+  onAcknowledgeNewDue?: () => void
 }
 
 export function DuePanel({
@@ -87,6 +90,8 @@ export function DuePanel({
   openHelp,
   setOpenHelp,
   onOpenReservePlanner,
+  showNewDueNotice = false,
+  onAcknowledgeNewDue,
 }: DuePanelProps) {
   const editReadOnly = useEditReadOnly()
   const { useCards } = useDashboardViewPreferences()
@@ -367,13 +372,43 @@ export function DuePanel({
               ) : (
                 <span className="card-head-toolbar-spacer" aria-hidden />
               )}
-              <h2>Due bills</h2>
+              <h2>
+                <button
+                  type="button"
+                  className="due-title-btn"
+                  onClick={() => onAcknowledgeNewDue?.()}
+                >
+                  Due bills
+                  {showNewDueNotice ? (
+                    <span
+                      className="due-new-notice"
+                      title="New bills moved into Due today"
+                      aria-label="New bills moved into Due today"
+                    />
+                  ) : null}
+                </button>
+              </h2>
               <HelpButton id="due" openHelp={openHelp} setOpenHelp={setOpenHelp} text={WIDGET_HELP.due} />
             </div>
           </>
         ) : (
           <>
-            <h2>Due bills</h2>
+            <h2>
+              <button
+                type="button"
+                className="due-title-btn"
+                onClick={() => onAcknowledgeNewDue?.()}
+              >
+                Due bills
+                {showNewDueNotice ? (
+                  <span
+                    className="due-new-notice"
+                    title="New bills moved into Due today"
+                    aria-label="New bills moved into Due today"
+                  />
+                ) : null}
+              </button>
+            </h2>
             <table className="kpi-table kpi-table--head kpi-table--totals" aria-label="Due total">
               <tbody>
                 <tr>

@@ -12,6 +12,7 @@ import {
   getReservePlannerIdForScope,
 } from './reserveCalculations'
 import { getScopeLabel } from './scope'
+import { formatCurrency } from './format'
 
 export interface NewlyDueItem {
   commitmentId: string
@@ -90,12 +91,14 @@ export function getMorningReserveHint(
   const planner = plannerId ? state.reservePlanners.find((p) => p.id === plannerId) : null
   return {
     plannerName: planner ? getPlannerDisplayName(state, planner) : 'Reserve',
-    message: row.commitment.notes || row.commitment.name,
+    message:
+      row.commitment.notes ||
+      `Move ${formatCurrency(row.amount)} between operating and reserve this month.`,
     amount: row.amount,
   }
 }
 
-const CHECKIN_KEY = 'trubalance-morning-checkin-date'
+const CHECKIN_KEY = 'trubalance-morning-checkin-date-v2'
 const DUE_NOTIFY_KEY = 'trubalance-due-notify-periods'
 
 export function wasMorningCheckInDoneToday(today = getReferenceDateKey()): boolean {
@@ -143,4 +146,15 @@ export function clearPendingDueNotifyPeriods() {
 
 export function dueNotifyKey(item: NewlyDueItem): string {
   return `${item.commitmentId}:${item.period}`
+}
+
+/** How many “moved into Due today” notices are still waiting to be acknowledged. */
+export function countPendingNewlyDueNotices(
+  state: AppState,
+  viewScope: ViewScope,
+): number {
+  const pending = new Set(getPendingDueNotifyPeriods())
+  if (pending.size === 0) return 0
+  return getNewlyDueItemsToday(state, viewScope).filter((item) => pending.has(dueNotifyKey(item)))
+    .length
 }

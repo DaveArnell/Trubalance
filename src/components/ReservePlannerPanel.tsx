@@ -796,15 +796,28 @@ export function ReservePlannerPanel({
           )}
           <div className="reserve-planner-heading-block">
             <h2 className="reserve-planner-business-heading">{businessName || planner.name}</h2>
-            {businessName && (
+            {!editReadOnly ? (
               <input
                 className="planner-name-input planner-name-input--compact planner-name-input--subtitle"
-                value={planner.name}
-                onChange={(e) => actions.updateReservePlanner(planner.id, { name: e.target.value })}
-                aria-label="Reserve plan label"
-                readOnly={editReadOnly}
+                value={
+                  !businessName ||
+                  !planner.name.trim() ||
+                  planner.name.trim().toLowerCase() === businessName.trim().toLowerCase() ||
+                  planner.name.trim().toLowerCase() === `${businessName.trim().toLowerCase()} reserve` ||
+                  planner.name.trim().toLowerCase() === `${businessName.trim().toLowerCase()} reserves`
+                    ? ''
+                    : planner.name
+                }
+                placeholder="Optional plan label"
+                onChange={(e) => {
+                  const next = e.target.value
+                  actions.updateReservePlanner(planner.id, {
+                    name: next.trim() || (businessName ? `${businessName} reserves` : 'Reserve plan'),
+                  })
+                }}
+                aria-label="Optional reserve plan label"
               />
-            )}
+            ) : null}
           </div>
           <div className="card-head-toolbar-right">
             {!editReadOnly && (

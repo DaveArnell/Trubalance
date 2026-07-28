@@ -69,10 +69,11 @@ export function MobileOverview({
         <div className="mobile-overview-expand-toolbar">
           <button
             type="button"
-            className="overview-collapse-btn"
+            className="overview-collapse-bar"
             onClick={() => setBalancesOpen(false)}
           >
-            <span aria-hidden>▴</span> Show Cash Prophet Balance
+            <span aria-hidden>▴</span>
+            <span>Show Cash Prophet Balance</span>
           </button>
         </div>
         <div className="mobile-overview-breakdown">
