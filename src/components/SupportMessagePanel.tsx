@@ -67,7 +67,8 @@ export function SupportMessagePanel({ embedded = false }: SupportMessagePanelPro
   const form = (
     <form className="support-message-form" onSubmit={(e) => void handleSubmit(e)}>
       <p className="support-message-lead">
-        Send a message to the Cash Prophet team. We read these in the admin inbox and reply by email.
+        Send a message to the Cash Prophet team. We read these in the admin inbox and reply by email
+        to your account address — there isn’t an in-app reply thread yet.
       </p>
 
       <label className="support-message-field">

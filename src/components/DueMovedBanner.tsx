@@ -40,7 +40,7 @@ export function DueMovedBanner({ state, viewScope, onOpenDue, refreshKey = 0 }: 
           {' '}
           {items
             .slice(0, 3)
-            .map((i) => `${i.name} (${formatCurrency(i.amount)})`)
+            .map((i) => `${i.name} · ${i.scopeLabel} (${formatCurrency(i.amount)})`)
             .join(' · ')}
           {items.length > 3 ? '…' : ''}
         </span>

@@ -1,6 +1,6 @@
 export const APP_PAGES = [
-  { id: 'committed-funds', label: 'Dashboard', kicker: 'Overview', icon: '⊞' },
-  { id: 'due', label: 'Due', kicker: 'Payments due', icon: '●' },
+  { id: 'committed-funds', label: 'Dashboard', kicker: 'Overview', icon: '▦' },
+  { id: 'due', label: 'Due', kicker: 'Payments due', icon: '✓' },
   { id: 'receipts', label: 'Receipts', kicker: 'Expected in', icon: '↓' },
   { id: 'trends', label: 'Trends', kicker: 'Balance over time', icon: '↗' },
   { id: 'forecast', label: 'Forecast', kicker: 'Forward look', icon: '⇢' },

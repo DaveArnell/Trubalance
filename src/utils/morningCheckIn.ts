@@ -4,18 +4,22 @@ import {
   getCommitmentDueRowAmount,
 } from './commitmentCalculations'
 import { getCommitmentsForScope } from './calculations'
+import { chartColorForScope } from './businessTheme'
 import { dateToKey, getReferenceDate, getReferenceDateKey } from './referenceDate'
 import {
   buildReserveTransferDueRows,
   getPlannerDisplayName,
   getReservePlannerIdForScope,
 } from './reserveCalculations'
+import { getScopeLabel } from './scope'
 
 export interface NewlyDueItem {
   commitmentId: string
   name: string
   amount: number
   period: string
+  scopeLabel: string
+  accentColor: string
 }
 
 function dueDateKey(year: number, monthIndex: number, dueDay: number): string {
@@ -42,11 +46,14 @@ export function getNewlyDueItemsToday(
     for (const occurrence of occurrences) {
       const key = dueDateKey(year, occurrence.monthIndex, commitment.dueDayOfMonth ?? 28)
       if (key !== today) continue
+      const scope = { type: commitment.scopeLevel, id: commitment.scopeId } as const
       items.push({
         commitmentId: commitment.id,
         name: commitment.name,
         amount: getCommitmentDueRowAmount(commitment, occurrences),
         period: occurrence.period,
+        scopeLabel: getScopeLabel(state, scope),
+        accentColor: chartColorForScope(state, scope),
       })
       break
     }

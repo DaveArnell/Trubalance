@@ -7,7 +7,6 @@ import type { AppState, AttentionItem, DashboardMetrics, ViewScope } from '../ty
 import type { BreakdownColumn } from '../utils/breakdownTable'
 import { BreakdownTable } from './BreakdownTable'
 import { BalancePositionHero } from './BalancePositionHero'
-import { UpdateBalancesModal } from './UpdateBalancesModal'
 
 interface OverviewStripProps {
   metrics: DashboardMetrics
@@ -26,8 +25,8 @@ interface OverviewStripProps {
 }
 
 /**
- * Desktop position hero: Cash Prophet Balance collapsed by default with week/month
- * change; expands to the full account breakdown table.
+ * Collapsed: Cash Prophet Balance + week/month change.
+ * Expanded: full account breakdown table (same as before), no duplicate hero.
  */
 export function OverviewStrip({
   metrics,
@@ -45,20 +44,18 @@ export function OverviewStrip({
   readOnly = false,
 }: OverviewStripProps) {
   const [saveMessage, setSaveMessage] = useState('')
-  const [balancesModalOpen, setBalancesModalOpen] = useState(false)
   const { isMobile } = useMobileNav()
 
   const showAccounts = breakdownColumns.length > 0 && !!state
   const expanded = size === 'detailed'
 
-  const handleBalanceSave = (changes: BalanceSaveChange[]): BalanceSaveResult => {
-    if (!onBalanceSave) return { updated: 0, snapshotted: false }
+  const handleBalanceSave = (changes: BalanceSaveChange[]) => {
+    if (!onBalanceSave) return
     const result = onBalanceSave(changes)
     if (result.updated > 0) {
       setSaveMessage(`Updated ${result.updated} account${result.updated === 1 ? '' : 's'}.`)
       window.setTimeout(() => setSaveMessage(''), 4000)
     }
-    return result
   }
 
   if (!showAccounts || !state) return null
@@ -68,27 +65,49 @@ export function OverviewStrip({
     '--overview-height': 'auto',
   } as CSSProperties
 
+  if (!expanded) {
+    return (
+      <section
+        className={`overview-strip overview-strip--position-hero overview-strip--collapsed${
+          isMobile ? ' overview-strip--mobile' : ''
+        }`}
+        style={stripStyle}
+        aria-label="Cash Prophet Balance"
+        data-tour="overview-hero"
+      >
+        <div className="overview-strip-body">
+          <BalancePositionHero
+            metrics={metrics}
+            state={state}
+            viewScope={viewScope}
+            onExpand={() => onSizeChange('detailed')}
+            readOnly={readOnly}
+          />
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section
-      className={`overview-strip overview-strip--position-hero${isMobile ? ' overview-strip--mobile' : ''}${
-        expanded ? ' overview-strip--expanded' : ' overview-strip--collapsed'
+      className={`overview-strip overview-strip--balances-only overview-strip--expanded${
+        isMobile ? ' overview-strip--mobile' : ''
       }`}
       style={stripStyle}
-      aria-label="Cash Prophet Balance"
+      aria-label="Account balances"
       data-tour="overview-hero"
     >
       <div className="overview-strip-body">
-        <BalancePositionHero
-          metrics={metrics}
-          state={state}
-          viewScope={viewScope}
-          expanded={expanded}
-          onToggleExpanded={() => onSizeChange(expanded ? 'default' : 'detailed')}
-          onUpdateBalances={() => setBalancesModalOpen(true)}
-          readOnly={readOnly}
-        />
-
-        {expanded ? (
+        <div className="overview-expand-toolbar">
+          <button
+            type="button"
+            className="overview-collapse-btn"
+            onClick={() => onSizeChange('default')}
+          >
+            <span aria-hidden>▴</span> Show Cash Prophet Balance
+          </button>
+        </div>
+        <div className="overview-strip-split overview-strip-split--solo">
           <div className="overview-strip-table" data-tour="overview-balances">
             <BreakdownTable
               state={state}
@@ -98,18 +117,8 @@ export function OverviewStrip({
             />
             {saveMessage ? <p className="overview-accounts-save-msg">{saveMessage}</p> : null}
           </div>
-        ) : null}
+        </div>
       </div>
-
-      {!readOnly ? (
-        <UpdateBalancesModal
-          open={balancesModalOpen}
-          onClose={() => setBalancesModalOpen(false)}
-          state={state}
-          columns={breakdownColumns}
-          onBalanceSave={handleBalanceSave}
-        />
-      ) : null}
     </section>
   )
 }

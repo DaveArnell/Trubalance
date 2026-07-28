@@ -29,6 +29,8 @@ interface BreakdownTableProps {
   columns: BreakdownColumn[]
   showReceipts?: boolean
   compact?: boolean
+  /** Current/savings rows only — for morning check-in and balance update. */
+  balancesOnly?: boolean
   onBalanceSave?: (changes: BalanceSaveChange[]) => void
 }
 
@@ -392,6 +394,7 @@ export function BreakdownTable({
   columns,
   showReceipts = true,
   compact = false,
+  balancesOnly = false,
   onBalanceSave,
 }: BreakdownTableProps) {
   const balanceCellIds = useMemo(() => breakdownBalanceCellIds(columns), [columns])
@@ -404,7 +407,7 @@ export function BreakdownTable({
   if (columns.length === 0) return null
 
   const hasSavings = columns.some((col) => col.savingsAccounts.length > 0)
-  const hasReceipts = showReceipts && columns.some((col) => col.expectedReceipts !== 0)
+  const hasReceipts = !balancesOnly && showReceipts && columns.some((col) => col.expectedReceipts !== 0)
 
   const balanceRow = (rowType: 'current' | 'savings', label: string) => (
     <tr className={`sheet-row-balance${rowType === 'savings' ? ' sheet-row-savings' : ''}`}>
@@ -478,50 +481,55 @@ export function BreakdownTable({
         <tbody>
           {balanceRow('current', 'Current Acc')}
           {hasSavings && balanceRow('savings', 'Savings Acc')}
-          <tr className="sheet-row-gap">
-            <td colSpan={columns.length + 1} />
-          </tr>
-          <tr className="sheet-row-costs">
-            <td className="sheet-row-label">Total costs</td>
-            {columns.map((col) => (
-              <CostsCell
-                key={col.key}
-                state={state}
-                column={col}
-                isOpen={openCostsKey === col.key}
-                onOpen={() => setOpenCostsKey(col.key)}
-                onClose={() => setOpenCostsKey(null)}
-              />
-            ))}
-          </tr>
-          {hasReceipts && (
-            <tr className="sheet-row-receipts">
-              <td className="sheet-row-label">Expected receipts</td>
-              {columns.map((col) => (
-                <Cell key={col.key} value={col.expectedReceipts} columnClass={breakdownColumnClass(col)} />
-              ))}
-            </tr>
-          )}
-          <tr className="sheet-row-gap">
-            <td colSpan={columns.length + 1} />
-          </tr>
-          <tr className="sheet-row-final">
-            <td className="sheet-row-label">Cash Prophet Balance</td>
-            {columns.map((col) => (
-              <Cell
-                key={col.key}
-                value={col.trueBalance}
-                highlight={col.isRollup && col.trueBalance > 0}
-                danger={col.isRollup && col.trueBalance < 0}
-                columnClass={breakdownColumnClass(col)}
-              />
-            ))}
-          </tr>
+          {!balancesOnly ? (
+            <>
+              <tr className="sheet-row-gap">
+                <td colSpan={columns.length + 1} />
+              </tr>
+              <tr className="sheet-row-costs">
+                <td className="sheet-row-label">Total costs</td>
+                {columns.map((col) => (
+                  <CostsCell
+                    key={col.key}
+                    state={state}
+                    column={col}
+                    isOpen={openCostsKey === col.key}
+                    onOpen={() => setOpenCostsKey(col.key)}
+                    onClose={() => setOpenCostsKey(null)}
+                  />
+                ))}
+              </tr>
+              {hasReceipts && (
+                <tr className="sheet-row-receipts">
+                  <td className="sheet-row-label">Expected receipts</td>
+                  {columns.map((col) => (
+                    <Cell key={col.key} value={col.expectedReceipts} columnClass={breakdownColumnClass(col)} />
+                  ))}
+                </tr>
+              )}
+              <tr className="sheet-row-gap">
+                <td colSpan={columns.length + 1} />
+              </tr>
+              <tr className="sheet-row-final">
+                <td className="sheet-row-label">Cash Prophet Balance</td>
+                {columns.map((col) => (
+                  <Cell
+                    key={col.key}
+                    value={col.trueBalance}
+                    highlight={col.isRollup && col.trueBalance > 0}
+                    danger={col.isRollup && col.trueBalance < 0}
+                    columnClass={breakdownColumnClass(col)}
+                  />
+                ))}
+              </tr>
+            </>
+          ) : null}
         </tbody>
       </table>
       <p className="sheet-edit-hint">
-        Click a Current Acc{hasSavings ? ' or Savings Acc' : ''} cell to update balances. Click a Total
-        costs cell for the breakdown.
+        {balancesOnly
+          ? `Click a Current Acc${hasSavings ? ' or Savings Acc' : ''} cell to update today’s balances.`
+          : `Click a Current Acc${hasSavings ? ' or Savings Acc' : ''} cell to update balances. Click a Total costs cell for the breakdown.`}
       </p>
     </div>
   )
