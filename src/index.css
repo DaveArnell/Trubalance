@@ -25535,7 +25535,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .marketing-main--home .marketing-section-inner--home {
-  max-width: 68rem;
+  max-width: 74rem;
   margin: 0 auto;
   padding-left: 28px;
   padding-right: 28px;
@@ -26157,13 +26157,37 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
   .marketing-main--home-vivid .home-split-prose,
   .marketing-main--home-vivid .home-founder-prose p {
-    font-size: 1.1rem;
+    font-size: 1.22rem;
     line-height: 1.65;
     color: rgba(15, 27, 45, 0.88);
   }
 
   .marketing-main--home-vivid .home-split-lead {
-    font-size: 1.2rem;
+    font-size: 1.32rem;
+  }
+
+  .marketing-main--home-vivid .home-split-copy h2,
+  .marketing-main--home-vivid .home-band-head h2,
+  .marketing-main--home-vivid .home-founder h2 {
+    font-size: clamp(1.85rem, 7.5vw, 2.35rem);
+  }
+
+  .marketing-main--home-vivid .home-viz-amount {
+    font-size: clamp(2.5rem, 10vw, 3.1rem);
+  }
+
+  .marketing-main--home-vivid .home-viz-chips li {
+    font-size: 1.05rem;
+  }
+
+  .marketing-main--home-vivid .home-outcome-beat p:last-child,
+  .marketing-main--home-vivid .home-why-close,
+  .marketing-main--home-vivid .home-outcome-close {
+    font-size: 1.18rem;
+  }
+
+  .marketing-main--home-vivid .home-compare-body {
+    font-size: 1.15rem;
   }
 
   .marketing-vs-points {
@@ -26177,8 +26201,8 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   }
 
   .marketing-main--home .marketing-section-inner--home {
-    padding-left: 20px;
-    padding-right: 20px;
+    padding-left: 18px;
+    padding-right: 18px;
   }
 }
 
@@ -26214,6 +26238,11 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   max-width: 68rem;
   margin-left: auto;
   margin-right: auto;
+}
+
+/* Homepage body matches hero width (74rem) */
+.marketing-shell .marketing-main--home .marketing-section-inner--home {
+  max-width: 74rem;
 }
 
 .marketing-shell .marketing-section-head {
@@ -26629,7 +26658,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .home-band-head h2 {
   margin: 0 0 12px;
-  font-size: clamp(1.85rem, 3.4vw, 2.55rem);
+  font-size: clamp(1.95rem, 3.6vw, 2.7rem);
   letter-spacing: -0.03em;
   color: var(--home-ink);
 }
@@ -26655,7 +26684,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .home-split-copy h2 {
   margin: 0 0 12px;
-  font-size: clamp(1.75rem, 3.2vw, 2.4rem);
+  font-size: clamp(1.95rem, 3.6vw, 2.7rem);
   letter-spacing: -0.03em;
   color: var(--home-ink);
   text-align: left;
@@ -26667,7 +26696,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .home-split-lead {
   margin: 0 0 1.1rem;
-  font-size: 1.2rem;
+  font-size: 1.28rem;
   font-weight: 600;
   line-height: 1.45;
   color: var(--home-ink);
@@ -26681,8 +26710,8 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .home-split-prose {
   margin: 0 0 1rem;
-  max-width: 40rem;
-  font-size: 1.08rem;
+  max-width: 46rem;
+  font-size: 1.16rem;
   line-height: 1.7;
   color: var(--text-secondary);
   text-align: left;
@@ -26695,12 +26724,12 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .home-why-close {
   margin: 28px auto 0 !important;
-  max-width: 40rem;
+  max-width: 46rem;
 }
 
 .home-viz {
   width: 100%;
-  max-width: 26rem;
+  max-width: 34rem;
   margin-left: auto;
   margin-right: auto;
 }
@@ -26730,7 +26759,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .home-viz-label {
   margin: 0 0 6px;
-  font-size: 0.78rem;
+  font-size: 0.85rem;
   font-weight: 750;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -26744,7 +26773,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .home-viz-amount {
   margin: 0;
   font-family: 'Bricolage Grotesque', var(--font-display);
-  font-size: clamp(2rem, 4vw, 2.6rem);
+  font-size: clamp(2.35rem, 5vw, 3rem);
   font-weight: 800;
   letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
@@ -26774,11 +26803,11 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .home-viz-chips li {
-  padding: 6px 10px;
+  padding: 8px 12px;
   border-radius: 8px;
   background: rgba(159, 18, 57, 0.08);
   border: 1px solid rgba(159, 18, 57, 0.16);
-  font-size: 0.88rem;
+  font-size: 0.98rem;
   font-weight: 650;
   color: var(--home-warn);
 }
@@ -26876,16 +26905,16 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .home-outcome-beat p:last-child {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 1.12rem;
   font-weight: 550;
-  line-height: 1.45;
+  line-height: 1.5;
   color: var(--home-ink);
 }
 
 .home-outcome-close {
   margin: 28px auto 0;
-  max-width: 40rem;
-  font-size: 1.1rem;
+  max-width: 46rem;
+  font-size: 1.16rem;
   line-height: 1.65;
   color: var(--text-secondary);
   text-align: left;
@@ -26933,7 +26962,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .home-compare-body {
   margin: 0;
   font-family: 'Bricolage Grotesque', var(--font-display);
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-weight: 700;
   line-height: 1.3;
   color: var(--home-ink);
@@ -26953,14 +26982,14 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .home-founder {
-  max-width: 40rem;
+  max-width: 48rem;
   margin: 0 auto;
   text-align: left;
 }
 
 .home-founder h2 {
   margin: 0 0 20px;
-  font-size: clamp(1.75rem, 3.2vw, 2.35rem);
+  font-size: clamp(1.95rem, 3.6vw, 2.7rem);
   letter-spacing: -0.03em;
   text-align: left;
 }
@@ -26978,7 +27007,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .home-founder-prose p {
   margin: 0;
-  font-size: 1.08rem;
+  font-size: 1.16rem;
   line-height: 1.7;
   color: var(--text-secondary);
 }
@@ -27247,11 +27276,11 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .home-split-copy--on-ink h2 {
   color: #fff;
-  max-width: 14ch;
+  max-width: min(100%, 16em);
 }
 
 .home-split-prose {
-  font-size: 1.12rem;
+  font-size: 1.16rem;
   line-height: 1.75;
 }
 
@@ -27696,7 +27725,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .marketing-main--home-vivid .home-founder {
-  max-width: 40rem;
+  max-width: 48rem;
 }
 
 .marketing-main--home-vivid .home-founder h2,
