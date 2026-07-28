@@ -4,12 +4,12 @@ import type { BalanceSaveChange, BalanceSaveResult } from '../../hooks/useAppSta
 import { useEditReadOnly } from '../../hooks/useEditReadOnly'
 import type { AppState, DashboardMetrics, ViewScope } from '../../types'
 import type { BreakdownColumn } from '../../utils/breakdownTable'
-import { formatCurrency } from '../../utils/format'
 import {
   formatPositionChange,
   getBalancePositionDeltas,
 } from '../../utils/balancePositionDeltas'
 import { getScopeCurrentAccountFreshness } from '../../utils/accountFreshness'
+import { formatCurrency } from '../../utils/format'
 import { BreakdownTable } from '../BreakdownTable'
 
 interface MobileOverviewProps {
@@ -32,7 +32,7 @@ function childBreakdownLabel(viewScope?: ViewScope): string {
   return 'View full breakdown'
 }
 
-/** Collapsed Cash Prophet Balance; expands to the account table (no duplicate hero). */
+/** Mobile: CPB hero always visible; compact Current Acc + CPB table underneath. */
 export function MobileOverview({
   metrics,
   state,
@@ -41,9 +41,9 @@ export function MobileOverview({
   onBalanceSave,
 }: MobileOverviewProps) {
   const editReadOnly = useEditReadOnly()
-  const [balancesOpen, setBalancesOpen] = useState(false)
+  const [tableExpanded, setTableExpanded] = useState(false)
   const [childModalOpen, setChildModalOpen] = useState(false)
-  const canExpand = Boolean(state && breakdownColumns.length > 0)
+  const canShowTable = Boolean(state && breakdownColumns.length > 0)
 
   const summaryColumns = useMemo(
     () => primaryBreakdownColumns(breakdownColumns),
@@ -63,24 +63,48 @@ export function MobileOverview({
 
   const showFreshness = freshness && freshness.level !== 'green'
 
-  if (balancesOpen && state && summaryColumns.length > 0) {
-    return (
-      <section className="mobile-overview mobile-overview--expanded" aria-label="Account balances">
-        <div className="mobile-overview-expand-toolbar">
-          <button
-            type="button"
-            className="overview-collapse-bar"
-            onClick={() => setBalancesOpen(false)}
+  return (
+    <section className="mobile-overview mobile-overview--split" aria-label="Position and balances">
+      <div className="mobile-overview-hero">
+        <span className="mobile-overview-summary-label-row">
+          <span className="mobile-overview-summary-label">Cash Prophet Balance</span>
+          {freshness ? (
+            <span
+              className={`overview-freshness-dot overview-freshness-dot--${freshness.level} mobile-overview-freshness-dot`}
+              title={`Current account: ${freshness.label}`}
+              aria-label={`Current account ${freshness.label}`}
+            />
+          ) : null}
+        </span>
+        {showFreshness ? (
+          <span
+            className={`mobile-overview-freshness mobile-overview-freshness--${freshness.level}`}
           >
-            <span aria-hidden>▴</span>
-            <span>Show Cash Prophet Balance</span>
-          </button>
+            {freshness.label}
+          </span>
+        ) : null}
+        <span className="mobile-overview-summary-value">{formatCurrency(metrics.trueBalance)}</span>
+        <div className="mobile-overview-deltas mobile-overview-deltas--stacked">
+          <span>
+            {deltas.weekChange == null
+              ? 'This week: —'
+              : `${formatPositionChange(deltas.weekChange)} this week`}
+          </span>
+          <span>
+            {deltas.monthChange == null
+              ? 'This month: —'
+              : `${formatPositionChange(deltas.monthChange)} this month`}
+          </span>
         </div>
+      </div>
+
+      {canShowTable && state && summaryColumns.length > 0 ? (
         <div className="mobile-overview-breakdown">
           <BreakdownTable
             state={state}
             columns={summaryColumns}
             compact
+            density={tableExpanded ? 'detailed' : 'summary'}
             onBalanceSave={editReadOnly ? undefined : onBalanceSave}
           />
           {hasChildBreakdown ? (
@@ -92,93 +116,53 @@ export function MobileOverview({
               {childBreakdownLabel(viewScope)}
             </button>
           ) : null}
+          <button
+            type="button"
+            className="overview-table-expand-btn"
+            aria-expanded={tableExpanded}
+            onClick={() => setTableExpanded((open) => !open)}
+          >
+            <span aria-hidden>{tableExpanded ? '▴' : '▾'}</span>
+            {tableExpanded ? 'Show less' : 'Show savings, costs & receipts'}
+          </button>
         </div>
+      ) : null}
 
-        {childModalOpen && breakdownColumns.length > 0
-          ? createPortal(
-              <div
-                className="snapshot-correction-backdrop"
-                onClick={() => setChildModalOpen(false)}
-              >
-                <div
-                  className="snapshot-correction-modal mobile-overview-breakdown-modal"
-                  role="dialog"
-                  aria-modal="true"
-                  aria-label={childBreakdownLabel(viewScope)}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <header className="mobile-overview-breakdown-modal-head">
-                    <h2>{childBreakdownLabel(viewScope)}</h2>
-                    <button
-                      type="button"
-                      className="btn-ghost btn-tiny"
-                      onClick={() => setChildModalOpen(false)}
-                    >
-                      Close
-                    </button>
-                  </header>
-                  <BreakdownTable
-                    state={state}
-                    columns={breakdownColumns}
-                    compact
-                    onBalanceSave={editReadOnly ? undefined : onBalanceSave}
-                  />
-                </div>
-              </div>,
-              document.body,
-            )
-          : null}
-      </section>
-    )
-  }
-
-  return (
-    <section className="mobile-overview" aria-label="Cash Prophet Balance">
-      <button
-        type="button"
-        className="mobile-overview-summary"
-        aria-expanded={false}
-        onClick={() => canExpand && setBalancesOpen(true)}
-      >
-        <span className="mobile-overview-summary-text">
-          <span className="mobile-overview-summary-label-row">
-            <span className="mobile-overview-summary-label">Cash Prophet Balance</span>
-            {freshness ? (
-              <span
-                className={`overview-freshness-dot overview-freshness-dot--${freshness.level} mobile-overview-freshness-dot`}
-                title={`Current account: ${freshness.label}`}
-                aria-label={`Current account ${freshness.label}`}
-              />
-            ) : null}
-          </span>
-          {showFreshness ? (
-            <span
-              className={`mobile-overview-freshness mobile-overview-freshness--${freshness.level}`}
+      {childModalOpen && state && breakdownColumns.length > 0
+        ? createPortal(
+            <div
+              className="snapshot-correction-backdrop"
+              onClick={() => setChildModalOpen(false)}
             >
-              {freshness.label}
-            </span>
-          ) : null}
-          <span className="mobile-overview-summary-value">{formatCurrency(metrics.trueBalance)}</span>
-          <span className="mobile-overview-deltas">
-            <span>
-              {deltas.weekChange == null
-                ? 'This week: —'
-                : `${formatPositionChange(deltas.weekChange)} this week`}
-            </span>
-            <span aria-hidden> · </span>
-            <span>
-              {deltas.monthChange == null
-                ? 'This month: —'
-                : `${formatPositionChange(deltas.monthChange)} this month`}
-            </span>
-          </span>
-        </span>
-        {canExpand ? (
-          <span className="mobile-overview-summary-hint" aria-hidden>
-            ▾
-          </span>
-        ) : null}
-      </button>
+              <div
+                className="snapshot-correction-modal mobile-overview-breakdown-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-label={childBreakdownLabel(viewScope)}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <header className="mobile-overview-breakdown-modal-head">
+                  <h2>{childBreakdownLabel(viewScope)}</h2>
+                  <button
+                    type="button"
+                    className="btn-ghost btn-tiny"
+                    onClick={() => setChildModalOpen(false)}
+                  >
+                    Close
+                  </button>
+                </header>
+                <BreakdownTable
+                  state={state}
+                  columns={breakdownColumns}
+                  compact
+                  density={tableExpanded ? 'detailed' : 'summary'}
+                  onBalanceSave={editReadOnly ? undefined : onBalanceSave}
+                />
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
     </section>
   )
 }

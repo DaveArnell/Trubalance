@@ -25,8 +25,8 @@ interface OverviewStripProps {
 }
 
 /**
- * Collapsed: Cash Prophet Balance + week/month change.
- * Expanded: full account breakdown table (same as before), no duplicate hero.
+ * Desktop split: Cash Prophet Balance hero on the left; compact Current Acc + CPB
+ * table on the right (expandable to full breakdown).
  */
 export function OverviewStrip({
   metrics,
@@ -65,59 +65,42 @@ export function OverviewStrip({
     '--overview-height': 'auto',
   } as CSSProperties
 
-  if (!expanded) {
-    return (
-      <section
-        className={`overview-strip overview-strip--position-hero overview-strip--collapsed${
-          isMobile ? ' overview-strip--mobile' : ''
-        }`}
-        style={stripStyle}
-        aria-label="Cash Prophet Balance"
-        data-tour="overview-hero"
-      >
-        <div className="overview-strip-body">
-          <BalancePositionHero
-            metrics={metrics}
-            state={state}
-            viewScope={viewScope}
-            onExpand={() => onSizeChange('detailed')}
-            readOnly={readOnly}
-          />
-        </div>
-      </section>
-    )
-  }
-
   return (
     <section
-      className={`overview-strip overview-strip--balances-only overview-strip--expanded${
-        isMobile ? ' overview-strip--mobile' : ''
-      }`}
+      className={`overview-strip overview-strip--position-split${
+        expanded ? ' overview-strip--expanded' : ' overview-strip--collapsed'
+      }${isMobile ? ' overview-strip--mobile' : ''}`}
       style={stripStyle}
-      aria-label="Account balances"
+      aria-label="Position and balances"
       data-tour="overview-hero"
     >
-        <div className="overview-strip-body">
-          <button
-            type="button"
-            className="overview-collapse-bar"
-            onClick={() => onSizeChange('default')}
-          >
-            <span aria-hidden>▴</span>
-            <span>Show Cash Prophet Balance</span>
-          </button>
-          <div className="overview-strip-split overview-strip-split--solo">
-            <div className="overview-strip-table" data-tour="overview-balances">
-              <BreakdownTable
-                state={state}
-                columns={breakdownColumns}
-                compact
-                onBalanceSave={readOnly ? undefined : handleBalanceSave}
-              />
-              {saveMessage ? <p className="overview-accounts-save-msg">{saveMessage}</p> : null}
-            </div>
+      <div className="overview-strip-body">
+        <div className="overview-strip-split">
+          <aside className="overview-strip-aside overview-strip-aside--hero">
+            <BalancePositionHero metrics={metrics} state={state} viewScope={viewScope} />
+          </aside>
+          <div className="overview-strip-divider" aria-hidden />
+          <div className="overview-strip-table" data-tour="overview-balances">
+            <BreakdownTable
+              state={state}
+              columns={breakdownColumns}
+              compact
+              density={expanded ? 'detailed' : 'summary'}
+              onBalanceSave={readOnly ? undefined : handleBalanceSave}
+            />
+            {saveMessage ? <p className="overview-accounts-save-msg">{saveMessage}</p> : null}
+            <button
+              type="button"
+              className="overview-table-expand-btn"
+              aria-expanded={expanded}
+              onClick={() => onSizeChange(expanded ? 'default' : 'detailed')}
+            >
+              <span aria-hidden>{expanded ? '▴' : '▾'}</span>
+              {expanded ? 'Show less' : 'Show savings, costs & receipts'}
+            </button>
           </div>
         </div>
+      </div>
     </section>
   )
 }

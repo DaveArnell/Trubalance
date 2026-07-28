@@ -29,8 +29,13 @@ interface BreakdownTableProps {
   columns: BreakdownColumn[]
   showReceipts?: boolean
   compact?: boolean
-  /** Current/savings rows only — for morning check-in and balance update. */
+  /** Current/savings rows only — for morning check-in. */
   balancesOnly?: boolean
+  /**
+   * `summary` = Current Acc + Cash Prophet Balance.
+   * `detailed` = full breakdown (default when not balancesOnly).
+   */
+  density?: 'summary' | 'detailed'
   onBalanceSave?: (changes: BalanceSaveChange[]) => void
 }
 
@@ -395,6 +400,7 @@ export function BreakdownTable({
   showReceipts = true,
   compact = false,
   balancesOnly = false,
+  density = 'detailed',
   onBalanceSave,
 }: BreakdownTableProps) {
   const balanceCellIds = useMemo(() => breakdownBalanceCellIds(columns), [columns])
@@ -406,8 +412,11 @@ export function BreakdownTable({
 
   if (columns.length === 0) return null
 
-  const hasSavings = columns.some((col) => col.savingsAccounts.length > 0)
-  const hasReceipts = !balancesOnly && showReceipts && columns.some((col) => col.expectedReceipts !== 0)
+  const summaryMode = !balancesOnly && density === 'summary'
+  const hasSavings = !summaryMode && columns.some((col) => col.savingsAccounts.length > 0)
+  const showDetailRows = !balancesOnly && !summaryMode
+  const hasReceipts = showDetailRows && showReceipts && columns.some((col) => col.expectedReceipts !== 0)
+  const showTrueBalance = !balancesOnly
 
   const balanceRow = (rowType: 'current' | 'savings', label: string) => (
     <tr className={`sheet-row-balance${rowType === 'savings' ? ' sheet-row-savings' : ''}`}>
@@ -481,7 +490,7 @@ export function BreakdownTable({
         <tbody>
           {balanceRow('current', 'Current Acc')}
           {hasSavings && balanceRow('savings', 'Savings Acc')}
-          {!balancesOnly ? (
+          {showDetailRows ? (
             <>
               <tr className="sheet-row-gap">
                 <td colSpan={columns.length + 1} />
@@ -510,26 +519,34 @@ export function BreakdownTable({
               <tr className="sheet-row-gap">
                 <td colSpan={columns.length + 1} />
               </tr>
-              <tr className="sheet-row-final">
-                <td className="sheet-row-label">Cash Prophet Balance</td>
-                {columns.map((col) => (
-                  <Cell
-                    key={col.key}
-                    value={col.trueBalance}
-                    highlight={col.isRollup && col.trueBalance > 0}
-                    danger={col.isRollup && col.trueBalance < 0}
-                    columnClass={breakdownColumnClass(col)}
-                  />
-                ))}
-              </tr>
             </>
+          ) : showTrueBalance ? (
+            <tr className="sheet-row-gap">
+              <td colSpan={columns.length + 1} />
+            </tr>
+          ) : null}
+          {showTrueBalance ? (
+            <tr className="sheet-row-final">
+              <td className="sheet-row-label">Cash Prophet Balance</td>
+              {columns.map((col) => (
+                <Cell
+                  key={col.key}
+                  value={col.trueBalance}
+                  highlight={col.isRollup && col.trueBalance > 0}
+                  danger={col.isRollup && col.trueBalance < 0}
+                  columnClass={breakdownColumnClass(col)}
+                />
+              ))}
+            </tr>
           ) : null}
         </tbody>
       </table>
       <p className="sheet-edit-hint">
         {balancesOnly
           ? `Click a Current Acc${hasSavings ? ' or Savings Acc' : ''} cell to update today’s balances.`
-          : `Click a Current Acc${hasSavings ? ' or Savings Acc' : ''} cell to update balances. Click a Total costs cell for the breakdown.`}
+          : summaryMode
+            ? 'Click a Current Acc cell to update balances. Expand for savings, costs, and receipts.'
+            : `Click a Current Acc${hasSavings ? ' or Savings Acc' : ''} cell to update balances. Click a Total costs cell for the breakdown.`}
       </p>
     </div>
   )
