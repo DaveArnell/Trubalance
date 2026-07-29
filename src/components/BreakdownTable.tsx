@@ -501,7 +501,7 @@ export function BreakdownTable({
           </tr>
         </thead>
         <tbody>
-          {balanceRow('current', balancesOnly || summaryMode ? 'Balance' : 'Current Acc')}
+          {balanceRow('current', 'Bank balance')}
           {showSavingsRow && balanceRow('savings', 'Savings Acc')}
           {showDetailRows ? (
             <>
@@ -552,10 +552,10 @@ export function BreakdownTable({
       </table>
       <p className="sheet-edit-hint">
         {balancesOnly
-          ? 'Click a Current Acc or Savings Acc cell to update today’s balances.'
+          ? 'Click a Bank balance or Savings Acc cell to update today’s balances.'
           : summaryMode
-            ? 'Click a Current Acc cell to update balances.'
-            : 'Click a Current Acc or Savings Acc cell to update balances. Click a Total costs cell for the breakdown.'}
+            ? 'Click a Bank balance cell to update balances.'
+            : 'Click a Bank balance or Savings Acc cell to update balances. Click a Total costs cell for the breakdown.'}
       </p>
     </div>
   )

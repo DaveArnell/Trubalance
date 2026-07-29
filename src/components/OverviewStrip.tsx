@@ -75,7 +75,7 @@ export function OverviewStrip({
       data-tour="overview-hero"
     >
       <div className="overview-strip-body">
-        <div className="overview-strip-split">
+        <div className="overview-strip-split overview-strip-split--position">
           <aside className="overview-strip-aside overview-strip-aside--hero">
             <BalancePositionHero
               metrics={metrics}

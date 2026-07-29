@@ -19,15 +19,17 @@ interface MobileOverviewProps {
   onBalanceSave?: (changes: BalanceSaveChange[]) => BalanceSaveResult
 }
 
-/** Scope columns only — no TOTAL rollup (saves space; rollup equals the closed hero). */
-function mobileBalanceColumns(columns: BreakdownColumn[]): BreakdownColumn[] {
-  const scopes = columns.filter((column) => !column.isRollup)
-  return scopes.length > 0 ? scopes : columns
+type MobileOverviewLevel = 'collapsed' | 'summary' | 'detailed'
+
+function deltaClass(change: number | null): string {
+  if (change == null || change === 0) return ''
+  return change > 0 ? ' balance-position-delta--up' : ' balance-position-delta--down'
 }
 
 /**
- * Compact mobile Cash Prophet Balance strip.
- * Collapsed: number + week/month on one row. Expanded: replaces with balances table.
+ * Mobile Cash Prophet Balance strip.
+ * collapsed → summary (Bank + CPB by scope) → detailed (full breakdown).
+ * Collapsed header stays visible so CPB isn’t duplicated as a “Balances” banner.
  */
 export function MobileOverview({
   metrics,
@@ -37,13 +39,9 @@ export function MobileOverview({
   onBalanceSave,
 }: MobileOverviewProps) {
   const editReadOnly = useEditReadOnly()
-  const [balancesOpen, setBalancesOpen] = useState(false)
+  const [level, setLevel] = useState<MobileOverviewLevel>('collapsed')
   const canExpand = Boolean(state && breakdownColumns.length > 0)
-
-  const balanceColumns = useMemo(
-    () => mobileBalanceColumns(breakdownColumns),
-    [breakdownColumns],
-  )
+  const open = level !== 'collapsed'
 
   const freshness = useMemo(() => {
     if (!state || !viewScope) return null
@@ -66,68 +64,94 @@ export function MobileOverview({
       ? 'Month: —'
       : `${formatPositionChange(deltas.monthChange)} month`
 
+  const cyclePrimary = () => {
+    if (!canExpand) return
+    setLevel((prev) => (prev === 'collapsed' ? 'summary' : 'collapsed'))
+  }
+
   return (
     <section
-      className={`mobile-overview${balancesOpen ? ' mobile-overview--expanded' : ''}`}
+      className={`mobile-overview${open ? ' mobile-overview--expanded' : ''}${
+        level === 'detailed' ? ' mobile-overview--detailed' : ''
+      }`}
       aria-label="Cash Prophet Balance"
     >
       <button
         type="button"
         className="mobile-overview-summary"
-        aria-expanded={balancesOpen}
-        onClick={() => canExpand && setBalancesOpen((open) => !open)}
+        aria-expanded={open}
+        onClick={cyclePrimary}
       >
-        {balancesOpen ? (
-          <span className="mobile-overview-summary-text">
-            <span className="mobile-overview-summary-label">Balances</span>
-            <span className="mobile-overview-summary-hint-copy">Tap a figure to update</span>
+        <span className="mobile-overview-summary-text">
+          <span className="mobile-overview-summary-label-row">
+            <span className="mobile-overview-summary-label">Cash Prophet Balance</span>
+            {freshness ? (
+              <span
+                className={`overview-freshness-dot overview-freshness-dot--${freshness.level} mobile-overview-freshness-dot`}
+                title={`Current account: ${freshness.label}`}
+                aria-label={`Current account ${freshness.label}`}
+              />
+            ) : null}
           </span>
-        ) : (
-          <>
-            <span className="mobile-overview-summary-text">
-              <span className="mobile-overview-summary-label-row">
-                <span className="mobile-overview-summary-label">Cash Prophet Balance</span>
-                {freshness ? (
-                  <span
-                    className={`overview-freshness-dot overview-freshness-dot--${freshness.level} mobile-overview-freshness-dot`}
-                    title={`Current account: ${freshness.label}`}
-                    aria-label={`Current account ${freshness.label}`}
-                  />
-                ) : null}
-              </span>
-              {showFreshness ? (
-                <span
-                  className={`mobile-overview-freshness mobile-overview-freshness--${freshness.level}`}
-                >
-                  {freshness.label}
-                </span>
-              ) : null}
-              <span className="mobile-overview-summary-value">
-                {formatCurrency(metrics.trueBalance)}
-              </span>
+          {showFreshness ? (
+            <span
+              className={`mobile-overview-freshness mobile-overview-freshness--${freshness.level}`}
+            >
+              {freshness.label}
             </span>
-            <span className="mobile-overview-deltas mobile-overview-deltas--aside" aria-label="Change this week and month">
-              <span>{weekLabel}</span>
-              <span>{monthLabel}</span>
-            </span>
-          </>
-        )}
+          ) : null}
+          <span className="mobile-overview-summary-value">
+            {formatCurrency(metrics.trueBalance)}
+          </span>
+        </span>
+        <span
+          className="mobile-overview-deltas mobile-overview-deltas--aside"
+          aria-label="Change this week and month"
+        >
+          <span className={`balance-position-delta${deltaClass(deltas.weekChange)}`}>
+            {weekLabel}
+          </span>
+          <span className={`balance-position-delta${deltaClass(deltas.monthChange)}`}>
+            {monthLabel}
+          </span>
+        </span>
         {canExpand ? (
           <span className="mobile-overview-summary-hint" aria-hidden>
-            {balancesOpen ? '▴' : '▾'}
+            {open ? '▴' : '▾'}
           </span>
         ) : null}
       </button>
 
-      {balancesOpen && state && balanceColumns.length > 0 ? (
+      {open && state && breakdownColumns.length > 0 ? (
         <div className="mobile-overview-breakdown">
           <BreakdownTable
             state={state}
-            columns={balanceColumns}
+            columns={breakdownColumns}
             compact
-            balancesOnly
+            density={level === 'detailed' ? 'detailed' : 'summary'}
             onBalanceSave={editReadOnly ? undefined : onBalanceSave}
           />
+          <div className="mobile-overview-more-row">
+            {level === 'summary' ? (
+              <button
+                type="button"
+                className="btn-ghost btn-tiny mobile-overview-more-btn"
+                onClick={() => setLevel('detailed')}
+              >
+                More detail
+                <span aria-hidden> ▾</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="btn-ghost btn-tiny mobile-overview-more-btn"
+                onClick={() => setLevel('summary')}
+              >
+                Less detail
+                <span aria-hidden> ▴</span>
+              </button>
+            )}
+          </div>
         </div>
       ) : null}
     </section>
