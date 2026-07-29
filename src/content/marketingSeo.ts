@@ -2,7 +2,7 @@
 
 export const SITE_OG_IMAGE = '/og-image.webp' as const
 export const SITE_OG_IMAGE_ALT =
-  'Cash Prophet — Bank balance versus money already spoken for, resolved to your Cash Prophet Balance.' as const
+  'Cash Prophet dashboard on a monitor — Cash Prophet Balance, accruing bills, due, receipts and reserve outlook.' as const
 export const SITE_OG_IMAGE_WIDTH = 1200
 export const SITE_OG_IMAGE_HEIGHT = 630
 
