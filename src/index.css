@@ -12643,32 +12643,6 @@ tr.sheet-row--received td {
     overflow: hidden;
   }
 
-  .mobile-overview--split .mobile-overview-hero {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.15rem;
-    padding: 12px var(--space-3) 10px;
-    background: linear-gradient(180deg, rgba(14, 122, 82, 0.12) 0%, rgba(14, 122, 82, 0.04) 100%);
-    border-bottom: 1px solid var(--border);
-  }
-
-  .mobile-overview-deltas--stacked {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.1rem;
-    margin-top: 0.2rem;
-  }
-
-  .mobile-overview--split .mobile-overview-breakdown {
-    padding: 0.35rem 0.5rem 0.5rem;
-  }
-
-  .mobile-overview--split .balance-position-expand-btn {
-    margin-top: 0.55rem;
-  }
-
   .mobile-overview-hero-row {
     display: flex;
     align-items: flex-start;
@@ -12678,11 +12652,6 @@ tr.sheet-row--received td {
   .mobile-overview-hero-row .mobile-overview-summary {
     flex: 1;
     min-width: 0;
-  }
-
-  .mobile-overview-update-btn {
-    flex-shrink: 0;
-    margin: 10px 10px 0 0;
   }
 
   .mobile-overview-summary-label {

@@ -4,12 +4,12 @@ import type { BalanceSaveChange, BalanceSaveResult } from '../../hooks/useAppSta
 import { useEditReadOnly } from '../../hooks/useEditReadOnly'
 import type { AppState, DashboardMetrics, ViewScope } from '../../types'
 import type { BreakdownColumn } from '../../utils/breakdownTable'
+import { formatCurrency } from '../../utils/format'
 import {
   formatPositionChange,
   getBalancePositionDeltas,
 } from '../../utils/balancePositionDeltas'
 import { getScopeCurrentAccountFreshness } from '../../utils/accountFreshness'
-import { formatCurrency } from '../../utils/format'
 import { BreakdownTable } from '../BreakdownTable'
 
 interface MobileOverviewProps {
@@ -32,7 +32,11 @@ function childBreakdownLabel(viewScope?: ViewScope): string {
   return 'View full breakdown'
 }
 
-/** Mobile: CPB hero always visible; compact Current Acc + CPB table underneath. */
+/**
+ * Compact mobile Cash Prophet Balance strip.
+ * Collapsed by default so sticky chrome stays short; expands to show balances.
+ * Desktop uses OverviewStrip / BalancePositionHero instead.
+ */
 export function MobileOverview({
   metrics,
   state,
@@ -41,9 +45,9 @@ export function MobileOverview({
   onBalanceSave,
 }: MobileOverviewProps) {
   const editReadOnly = useEditReadOnly()
-  const [tableExpanded, setTableExpanded] = useState(false)
+  const [balancesOpen, setBalancesOpen] = useState(false)
   const [childModalOpen, setChildModalOpen] = useState(false)
-  const canShowTable = Boolean(state && breakdownColumns.length > 0)
+  const canExpand = Boolean(state && breakdownColumns.length > 0)
 
   const summaryColumns = useMemo(
     () => primaryBreakdownColumns(breakdownColumns),
@@ -64,58 +68,64 @@ export function MobileOverview({
   const showFreshness = freshness && freshness.level !== 'green'
 
   return (
-    <section className="mobile-overview mobile-overview--split" aria-label="Position and balances">
-      <div className="mobile-overview-hero">
-        <span className="mobile-overview-summary-label-row">
-          <span className="mobile-overview-summary-label">Cash Prophet Balance</span>
-          {freshness ? (
-            <span
-              className={`overview-freshness-dot overview-freshness-dot--${freshness.level} mobile-overview-freshness-dot`}
-              title={`Current account: ${freshness.label}`}
-              aria-label={`Current account ${freshness.label}`}
-            />
+    <section className="mobile-overview" aria-label="Cash Prophet Balance">
+      <div className="mobile-overview-hero-row">
+        <button
+          type="button"
+          className="mobile-overview-summary"
+          aria-expanded={balancesOpen}
+          onClick={() => canExpand && setBalancesOpen((open) => !open)}
+        >
+          <span className="mobile-overview-summary-text">
+            <span className="mobile-overview-summary-label-row">
+              <span className="mobile-overview-summary-label">Cash Prophet Balance</span>
+              {freshness ? (
+                <span
+                  className={`overview-freshness-dot overview-freshness-dot--${freshness.level} mobile-overview-freshness-dot`}
+                  title={`Current account: ${freshness.label}`}
+                  aria-label={`Current account ${freshness.label}`}
+                />
+              ) : null}
+            </span>
+            {showFreshness ? (
+              <span
+                className={`mobile-overview-freshness mobile-overview-freshness--${freshness.level}`}
+              >
+                {freshness.label}
+              </span>
+            ) : null}
+            <span className="mobile-overview-summary-value">{formatCurrency(metrics.trueBalance)}</span>
+            {!balancesOpen ? (
+              <span className="mobile-overview-deltas">
+                <span>
+                  {deltas.weekChange == null
+                    ? 'This week: —'
+                    : `${formatPositionChange(deltas.weekChange)} this week`}
+                </span>
+                <span aria-hidden> · </span>
+                <span>
+                  {deltas.monthChange == null
+                    ? 'This month: —'
+                    : `${formatPositionChange(deltas.monthChange)} this month`}
+                </span>
+              </span>
+            ) : null}
+          </span>
+          {canExpand ? (
+            <span className="mobile-overview-summary-hint" aria-hidden>
+              {balancesOpen ? '▴' : '▾'}
+            </span>
           ) : null}
-        </span>
-        {showFreshness ? (
-          <span
-            className={`mobile-overview-freshness mobile-overview-freshness--${freshness.level}`}
-          >
-            {freshness.label}
-          </span>
-        ) : null}
-        <span className="mobile-overview-summary-value">{formatCurrency(metrics.trueBalance)}</span>
-        <div className="mobile-overview-deltas mobile-overview-deltas--stacked">
-          <span>
-            {deltas.weekChange == null
-              ? 'This week: —'
-              : `${formatPositionChange(deltas.weekChange)} this week`}
-          </span>
-          <span>
-            {deltas.monthChange == null
-              ? 'This month: —'
-              : `${formatPositionChange(deltas.monthChange)} this month`}
-          </span>
-        </div>
-        {canShowTable ? (
-          <button
-            type="button"
-            className="balance-position-expand-btn"
-            aria-expanded={tableExpanded}
-            onClick={() => setTableExpanded((open) => !open)}
-          >
-            {tableExpanded ? 'Show less' : 'Show more detail'}
-            <span aria-hidden>{tableExpanded ? '▴' : '▾'}</span>
-          </button>
-        ) : null}
+        </button>
       </div>
 
-      {canShowTable && state && summaryColumns.length > 0 ? (
+      {balancesOpen && state && summaryColumns.length > 0 ? (
         <div className="mobile-overview-breakdown">
           <BreakdownTable
             state={state}
             columns={summaryColumns}
             compact
-            density={tableExpanded ? 'detailed' : 'summary'}
+            density="summary"
             onBalanceSave={editReadOnly ? undefined : onBalanceSave}
           />
           {hasChildBreakdown ? (
@@ -157,7 +167,7 @@ export function MobileOverview({
                   state={state}
                   columns={breakdownColumns}
                   compact
-                  density={tableExpanded ? 'detailed' : 'summary'}
+                  density="detailed"
                   onBalanceSave={editReadOnly ? undefined : onBalanceSave}
                 />
               </div>
