@@ -2,7 +2,7 @@
 
 export const SITE_OG_IMAGE = '/og-image.webp' as const
 export const SITE_OG_IMAGE_ALT =
-  'Cash Prophet dashboard on a monitor — Cash Prophet Balance, accruing bills, due, receipts and reserve outlook.' as const
+  'Cash Prophet on a monitor — single-business dashboard with Cash Prophet Balance, accruing bills, trends and reserve planner.' as const
 export const SITE_OG_IMAGE_WIDTH = 1200
 export const SITE_OG_IMAGE_HEIGHT = 630
 
