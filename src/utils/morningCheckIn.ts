@@ -29,7 +29,7 @@ function dueDateKey(year: number, monthIndex: number, dueDay: number): string {
   return `${year}-${String(monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
 }
 
-/** Monthly costs whose due date is today (just moved into Due). */
+/** Monthly costs whose calendar due date is today (just moved into Due). */
 export function getNewlyDueItemsToday(
   state: AppState,
   viewScope: ViewScope,
@@ -43,9 +43,11 @@ export function getNewlyDueItemsToday(
 
   const items: NewlyDueItem[] = []
   for (const commitment of commitments) {
+    const dueDay = commitment.dueDayOfMonth ?? 28
     const occurrences = getCommitmentDueOccurrences(commitment, referenceDate)
     for (const occurrence of occurrences) {
-      const key = dueDateKey(year, occurrence.monthIndex, commitment.dueDayOfMonth ?? 28)
+      // Only the calendar due date itself — not overdue leftovers from earlier days.
+      const key = dueDateKey(year, occurrence.monthIndex, dueDay)
       if (key !== today) continue
       const scope = { type: commitment.scopeLevel, id: commitment.scopeId } as const
       items.push({

@@ -501,7 +501,7 @@ export function BreakdownTable({
           </tr>
         </thead>
         <tbody>
-          {balanceRow('current', 'Current Acc')}
+          {balanceRow('current', balancesOnly || summaryMode ? 'Balance' : 'Current Acc')}
           {showSavingsRow && balanceRow('savings', 'Savings Acc')}
           {showDetailRows ? (
             <>
@@ -533,10 +533,6 @@ export function BreakdownTable({
                 <td colSpan={columns.length + 1} />
               </tr>
             </>
-          ) : showTrueBalance ? (
-            <tr className="sheet-row-gap">
-              <td colSpan={columns.length + 1} />
-            </tr>
           ) : null}
           {showTrueBalance ? (
             <tr className="sheet-row-final">

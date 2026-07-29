@@ -45,7 +45,6 @@ import {
 import type { GraphRange, HistoryGranularity, ViewScope, AttentionItem } from './types'
 import type { WorkspaceSubscription } from './types/subscription'
 import { calculateDashboard } from './utils/calculations'
-import { countDueRowsNeedingAttention } from './utils/commitmentCalculations'
 import { buildBreakdownColumns } from './utils/breakdownTable'
 import { getPlannerDisplayName, summarizeReservePlanner, getReservePlannerIdForScope } from './utils/reserveCalculations'
 import { getScopeLabel, hasMultipleViewScopes } from './utils/scope'
@@ -503,11 +502,6 @@ function AppShellInner({
       attentionItems: [],
     }
   }, [app.state, app.viewScope, referenceDateKey, isDemoSession])
-
-  const dueAttentionCount = useMemo(
-    () => countDueRowsNeedingAttention(metrics.commitmentViews).length,
-    [metrics.commitmentViews],
-  )
 
   const newDueNoticeCount = useMemo(
     () => countPendingNewlyDueNotices(app.state, app.viewScope),
@@ -1014,7 +1008,6 @@ function AppShellInner({
                   <MobileHomeSectionTabs
                     active={homeSection}
                     onChange={setHomeSection}
-                    dueBadgeCount={dueAttentionCount}
                     showNewDueNotice={newDueNoticeCount > 0}
                   />
                 ) : null}
@@ -1031,7 +1024,7 @@ function AppShellInner({
               <MobileBottomNav
                 activePage={activePage}
                 onNavigate={(pageId) => goToRoute(pageId)}
-                dueBadgeCount={dueAttentionCount}
+                dueBadgeCount={newDueNoticeCount}
               />
             </>
           ) : (

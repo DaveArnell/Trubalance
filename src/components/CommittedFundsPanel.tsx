@@ -247,74 +247,72 @@ export function CommittedFundsPanel({
           }}
         />
       )}
-      <div className="mobile-accruing-sticky">
-        <div className="card-head card-head-compact card-head--accruing card-head--widget-bar">
-          <div className="card-head-toolbar card-head-toolbar--accruing">
-            <div className="card-head-toolbar-left">
-              {!editReadOnly && viewMode === 'list' ? (
-                <button type="button" className="btn-primary btn-widget-add" onClick={addMonthlyRow}>
-                  + Add
-                </button>
-              ) : null}
-              <div className="view-mode-toggle" role="group" aria-label="Monthly accruing view">
-                <button
-                  type="button"
-                  className={`view-mode-toggle-btn${viewMode === 'list' ? ' view-mode-toggle-btn--active' : ''}`}
-                  onClick={() => setViewMode('list')}
-                >
-                  Costs
-                </button>
-                <button
-                  type="button"
-                  className={`view-mode-toggle-btn${viewMode === 'period' ? ' view-mode-toggle-btn--active' : ''}`}
-                  disabled={!hasRows}
-                  onClick={() => setViewMode('period')}
-                >
-                  Month view
-                </button>
-              </div>
-            </div>
-            <h2>Monthly accruing bills</h2>
-            <div className="card-head-toolbar-right" data-tour="committed-views">
-              {viewMode === 'list' ? (
-                <div className="view-mode-toggle" role="group" aria-label="Monthly cost order">
-                  <button
-                    type="button"
-                    className={`view-mode-toggle-btn${accruingOrderMode === 'grouped' ? ' view-mode-toggle-btn--active' : ''}`}
-                    onClick={() => setAccruingOrderMode('grouped')}
-                    title="Your arranged order, with matching names grouped"
-                  >
-                    Grouped
-                  </button>
-                  <button
-                    type="button"
-                    className={`view-mode-toggle-btn${accruingOrderMode === 'timeline' ? ' view-mode-toggle-btn--active' : ''}`}
-                    onClick={() => setAccruingOrderMode('timeline')}
-                    title="Next due date first — same as the mobile app"
-                  >
-                    Timeline
-                  </button>
-                </div>
-              ) : null}
-              <HelpButton
-                id="commitments"
-                openHelp={openHelp}
-                setOpenHelp={setOpenHelp}
-                text={WIDGET_HELP.committedFunds}
-              />
+      <div className="card-head card-head-compact card-head--accruing card-head--widget-bar">
+        <div className="card-head-toolbar card-head-toolbar--accruing">
+          <div className="card-head-toolbar-left">
+            {!editReadOnly && viewMode === 'list' ? (
+              <button type="button" className="btn-primary btn-widget-add" onClick={addMonthlyRow}>
+                + Add
+              </button>
+            ) : null}
+            <div className="view-mode-toggle" role="group" aria-label="Monthly accruing view">
+              <button
+                type="button"
+                className={`view-mode-toggle-btn${viewMode === 'list' ? ' view-mode-toggle-btn--active' : ''}`}
+                onClick={() => setViewMode('list')}
+              >
+                Costs
+              </button>
+              <button
+                type="button"
+                className={`view-mode-toggle-btn${viewMode === 'period' ? ' view-mode-toggle-btn--active' : ''}`}
+                disabled={!hasRows}
+                onClick={() => setViewMode('period')}
+              >
+                Month view
+              </button>
             </div>
           </div>
+          <h2>Monthly accruing bills</h2>
+          <div className="card-head-toolbar-right" data-tour="committed-views">
+            {viewMode === 'list' ? (
+              <div className="view-mode-toggle" role="group" aria-label="Monthly cost order">
+                <button
+                  type="button"
+                  className={`view-mode-toggle-btn${accruingOrderMode === 'grouped' ? ' view-mode-toggle-btn--active' : ''}`}
+                  onClick={() => setAccruingOrderMode('grouped')}
+                  title="Your arranged order, with matching names grouped"
+                >
+                  Grouped
+                </button>
+                <button
+                  type="button"
+                  className={`view-mode-toggle-btn${accruingOrderMode === 'timeline' ? ' view-mode-toggle-btn--active' : ''}`}
+                  onClick={() => setAccruingOrderMode('timeline')}
+                  title="Next due date first — same as the mobile app"
+                >
+                  Timeline
+                </button>
+              </div>
+            ) : null}
+            <HelpButton
+              id="commitments"
+              openHelp={openHelp}
+              setOpenHelp={setOpenHelp}
+              text={WIDGET_HELP.committedFunds}
+            />
+          </div>
         </div>
+      </div>
 
-        <div className="card-kpi-bar">
-          <CompactKpiStrip
-            items={[
-              { label: 'Monthly total', value: formatCurrency(monthlyTotal) },
-              { label: 'Accrued now', value: formatCurrency(accruingNow), emphasis: true },
-              { label: 'Per day', value: formatCurrency(dailyTotal) },
-            ]}
-          />
-        </div>
+      <div className="mobile-accruing-sticky card-kpi-bar">
+        <CompactKpiStrip
+          items={[
+            { label: 'Monthly total', value: formatCurrency(monthlyTotal) },
+            { label: 'Accrued now', value: formatCurrency(accruingNow), emphasis: true },
+            { label: 'Per day', value: formatCurrency(dailyTotal) },
+          ]}
+        />
       </div>
 
       <div className="card-scroll-body">
