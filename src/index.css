@@ -12904,9 +12904,9 @@ tr.sheet-row--received td {
 
   .mobile-overview-breakdown .overview-breakdown-table .sheet-label-col,
   .mobile-overview-breakdown .overview-breakdown-table .sheet-row-label {
-    width: 3.6rem !important;
-    min-width: 3.6rem !important;
-    max-width: 3.6rem !important;
+    width: 3.85rem !important;
+    min-width: 3.85rem !important;
+    max-width: 3.85rem !important;
     font-size: 0.62rem !important;
     font-weight: 800 !important;
     letter-spacing: -0.01em;
@@ -12925,8 +12925,11 @@ tr.sheet-row--received td {
   }
 
   .mobile-overview-breakdown .overview-breakdown-table tr.sheet-row-final td:not(.sheet-row-label),
-  .mobile-overview-breakdown .overview-breakdown-table tr.sheet-row-balance td:not(.sheet-row-label) {
+  .mobile-overview-breakdown .overview-breakdown-table tr.sheet-row-balance td:not(.sheet-row-label),
+  .mobile-overview-breakdown .overview-breakdown-table tr.sheet-row-costs td:not(.sheet-row-label),
+  .mobile-overview-breakdown .overview-breakdown-table tr.sheet-row-receipts td:not(.sheet-row-label) {
     font-size: 0.72rem !important;
+    font-weight: 650 !important;
   }
 
   .mobile-overview-more-row {

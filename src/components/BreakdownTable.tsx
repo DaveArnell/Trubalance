@@ -9,7 +9,7 @@ import { accountFreshnessLabel } from '../utils/accountFreshness'
 import { useTablePreferences } from '../contexts/TablePreferencesContext'
 import { tablePreferenceClasses } from '../utils/tablePreferences'
 import { toAmount, roundCurrency } from '../utils/amounts'
-import { formatCurrencyExact } from '../utils/format'
+import { formatCurrency, formatCurrencyExact } from '../utils/format'
 import { daysBetween, getAccountsFreshness, getFreshness, getFreshnessLabel } from '../utils/snapshots'
 import {
   breakdownBalanceCellIds,
@@ -40,11 +40,13 @@ interface BreakdownTableProps {
   omitSavings?: boolean
   /** Shorter row labels for narrow mobile tables. */
   shortLabels?: boolean
+  /** Whole pounds only (no pence) — better for dense mobile. */
+  roundAmounts?: boolean
   onBalanceSave?: (changes: BalanceSaveChange[]) => void
 }
 
-function cellValue(value: number) {
-  return formatCurrencyExact(value)
+function cellValue(value: number, roundAmounts = false) {
+  return roundAmounts ? formatCurrency(value) : formatCurrencyExact(value)
 }
 
 function numericCellClass(value: number, extra?: string) {
@@ -64,12 +66,14 @@ function CostsCell({
   isOpen,
   onOpen,
   onClose,
+  roundAmounts = false,
 }: {
   state: AppState
   column: BreakdownColumn
   isOpen: boolean
   onOpen: () => void
   onClose: () => void
+  roundAmounts?: boolean
 }) {
   const columnClass = breakdownColumnClass(column)
   const cellRef = useRef<HTMLTableCellElement>(null)
@@ -105,7 +109,7 @@ function CostsCell({
           }
         }}
       >
-        {cellValue(column.committedFunds)}
+        {cellValue(column.committedFunds, roundAmounts)}
       </td>
       {isOpen && anchorRect ? (
         <CostsBreakdownPopover
@@ -125,12 +129,14 @@ function Cell({
   highlight,
   danger,
   columnClass,
+  roundAmounts = false,
 }: {
   value: number
   masked?: boolean
   highlight?: boolean
   danger?: boolean
   columnClass?: string
+  roundAmounts?: boolean
 }) {
   if (masked) return <td className={['sheet-cell-masked', columnClass].filter(Boolean).join(' ')} />
   const className = highlight
@@ -138,7 +144,7 @@ function Cell({
     : danger
       ? ['sheet-cell-danger', 'sheet-num', columnClass].filter(Boolean).join(' ')
       : numericCellClass(value, columnClass)
-  return <td className={className}>{cellValue(value)}</td>
+  return <td className={className}>{cellValue(value, roundAmounts)}</td>
 }
 
 function EditableBalanceCell({
@@ -154,6 +160,7 @@ function EditableBalanceCell({
   onSave,
   onTab,
   columnClass,
+  roundAmounts = false,
 }: {
   cellId: string
   value: number
@@ -167,6 +174,7 @@ function EditableBalanceCell({
   onSave?: (changes: BalanceSaveChange[]) => void
   onTab?: SheetTabHandler
   columnClass?: string
+  roundAmounts?: boolean
 }) {
   const cellRef = useRef<HTMLTableCellElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
@@ -251,7 +259,7 @@ function EditableBalanceCell({
   }, [isActive, accounts])
 
   if (!editable) {
-    return <td className={numericCellClass(value, columnClass)}>{cellValue(value)}</td>
+    return <td className={numericCellClass(value, columnClass)}>{cellValue(value, roundAmounts)}</td>
   }
 
   const saveSingle = (raw: string, account: Account) => {
@@ -366,7 +374,7 @@ function EditableBalanceCell({
       title={!isActive ? idleTitle : undefined}
       data-cell-id={cellId}
     >
-      <span className="sheet-cell-value">{cellValue(value)}</span>
+      <span className="sheet-cell-value">{cellValue(value, roundAmounts)}</span>
 
       {isActive && accounts.length === 1 && singleAccount && (
         <input
@@ -407,6 +415,7 @@ export function BreakdownTable({
   density = 'detailed',
   omitSavings = false,
   shortLabels = false,
+  roundAmounts = false,
   onBalanceSave,
 }: BreakdownTableProps) {
   const balanceCellIds = useMemo(() => breakdownBalanceCellIds(columns), [columns])
@@ -424,7 +433,7 @@ export function BreakdownTable({
   const hasReceipts = showDetailRows && showReceipts && columns.some((col) => col.expectedReceipts !== 0)
   const showTrueBalance = !balancesOnly
   const bankLabel = shortLabels ? 'Bank' : 'Bank balance'
-  const cpbLabel = shortLabels ? 'CP Balance' : 'Cash Prophet Balance'
+  const cpbLabel = shortLabels ? 'Prophet' : 'Cash Prophet Balance'
   const costsLabel = shortLabels ? 'Costs' : 'Total costs'
   const receiptsLabel = shortLabels ? 'Receipts' : 'Expected receipts'
 
@@ -453,7 +462,7 @@ export function BreakdownTable({
         if (col.isRollup) {
           return (
             <td key={col.key} className={numericCellClass(value, columnClass)}>
-              {cellValue(value)}
+              {cellValue(value, roundAmounts)}
             </td>
           )
         }
@@ -472,6 +481,7 @@ export function BreakdownTable({
             onDeactivate={deactivate}
             onTab={makeTabHandler(cellId)}
             columnClass={columnClass}
+            roundAmounts={roundAmounts}
             onSave={
               canEditBalances
                 ? (changes) => {
@@ -530,6 +540,7 @@ export function BreakdownTable({
                     isOpen={openCostsKey === col.key}
                     onOpen={() => setOpenCostsKey(col.key)}
                     onClose={() => setOpenCostsKey(null)}
+                    roundAmounts={roundAmounts}
                   />
                 ))}
               </tr>
@@ -537,7 +548,12 @@ export function BreakdownTable({
                 <tr className="sheet-row-receipts">
                   <td className="sheet-row-label">{receiptsLabel}</td>
                   {columns.map((col) => (
-                    <Cell key={col.key} value={col.expectedReceipts} columnClass={breakdownColumnClass(col)} />
+                    <Cell
+                      key={col.key}
+                      value={col.expectedReceipts}
+                      columnClass={breakdownColumnClass(col)}
+                      roundAmounts={roundAmounts}
+                    />
                   ))}
                 </tr>
               )}
@@ -553,6 +569,7 @@ export function BreakdownTable({
                   highlight={col.isRollup && col.trueBalance > 0}
                   danger={col.isRollup && col.trueBalance < 0}
                   columnClass={breakdownColumnClass(col)}
+                  roundAmounts={roundAmounts}
                 />
               ))}
             </tr>

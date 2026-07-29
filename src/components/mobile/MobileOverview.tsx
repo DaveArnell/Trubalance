@@ -131,6 +131,7 @@ export function MobileOverview({
             density={level === 'detailed' ? 'detailed' : 'summary'}
             omitSavings
             shortLabels
+            roundAmounts
             onBalanceSave={editReadOnly ? undefined : onBalanceSave}
           />
           <div className="mobile-overview-more-row">
