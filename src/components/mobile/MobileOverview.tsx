@@ -129,6 +129,8 @@ export function MobileOverview({
             columns={breakdownColumns}
             compact
             density={level === 'detailed' ? 'detailed' : 'summary'}
+            omitSavings
+            shortLabels
             onBalanceSave={editReadOnly ? undefined : onBalanceSave}
           />
           <div className="mobile-overview-more-row">

@@ -21,6 +21,7 @@ import {
 import { getReserveBillScopeOptionsForView } from '../utils/scope'
 import type { AppActions } from '../hooks/useAppState'
 import { useEditReadOnly } from '../hooks/useEditReadOnly'
+import { useMobileNav } from '../hooks/useMobileNav'
 import { useSheetRowReorder } from '../hooks/useSheetRowReorder'
 import { formatCurrency, getCurrencySymbol } from '../utils/format'
 import { ReservePlanChart } from './ReservePlanChart'
@@ -35,6 +36,7 @@ import {
 } from './SheetResizableTable'
 import { useResizableSheetColumns } from '../hooks/useResizableSheetColumns'
 import { InlineTextCell } from './SheetInlineCells'
+import { MobileReservePlan } from './mobile/MobileReservePlan'
 
 interface ReservePlannerPanelProps {
   state: AppState
@@ -694,6 +696,7 @@ export function ReservePlannerPanel({
   onPlannerCreated,
 }: ReservePlannerPanelProps) {
   const editReadOnly = useEditReadOnly()
+  const { isMobile } = useMobileNav()
   const [activeCell, setActiveCell] = useState<string | null>(null)
   const sheetWrapRef = useRef<HTMLDivElement>(null)
   const sheetColumns = useMemo(() => reserveSheetColumnsForMode(editReadOnly), [editReadOnly])
@@ -897,6 +900,22 @@ export function ReservePlannerPanel({
               </div>
             </div>
 
+            {isMobile ? (
+              <MobileReservePlan
+                state={state}
+                viewScope={viewScope}
+                plannerId={planner.id}
+                businessId={planner.businessId}
+                bufferAmount={planner.bufferAmount}
+                grid={grid}
+                bills={planner.bills}
+                monthEndBalances={monthEndBalances}
+                currentMonthIdx={currentMonthIdx}
+                currentActualBalance={suggestedReserveBalance}
+                editReadOnly={editReadOnly}
+                actions={actions}
+              />
+            ) : (
             <div className="sheet-wrap reserve-sheet-wrap" ref={sheetWrapRef}>
               <table
                 className="sheet-table reserve-sheet-table"
@@ -1070,6 +1089,7 @@ export function ReservePlannerPanel({
                 </tfoot>
               </table>
             </div>
+            )}
           </div>
       </div>
     </section>

@@ -32,10 +32,14 @@ interface BreakdownTableProps {
   /** Current/savings rows only — for morning check-in. */
   balancesOnly?: boolean
   /**
-   * `summary` = Current Acc + Cash Prophet Balance.
+   * `summary` = Bank balance + Cash Prophet Balance.
    * `detailed` = full breakdown (default when not balancesOnly).
    */
   density?: 'summary' | 'detailed'
+  /** Hide Savings Acc row (mobile detail — avoids empty grey columns). */
+  omitSavings?: boolean
+  /** Shorter row labels for narrow mobile tables. */
+  shortLabels?: boolean
   onBalanceSave?: (changes: BalanceSaveChange[]) => void
 }
 
@@ -401,6 +405,8 @@ export function BreakdownTable({
   compact = false,
   balancesOnly = false,
   density = 'detailed',
+  omitSavings = false,
+  shortLabels = false,
   onBalanceSave,
 }: BreakdownTableProps) {
   const balanceCellIds = useMemo(() => breakdownBalanceCellIds(columns), [columns])
@@ -414,10 +420,13 @@ export function BreakdownTable({
 
   const summaryMode = !balancesOnly && density === 'summary'
   const showDetailRows = !balancesOnly && !summaryMode
-  // Always reserve the Savings row when expanded so switching scopes doesn’t jump.
-  const showSavingsRow = showDetailRows
+  const showSavingsRow = showDetailRows && !omitSavings
   const hasReceipts = showDetailRows && showReceipts && columns.some((col) => col.expectedReceipts !== 0)
   const showTrueBalance = !balancesOnly
+  const bankLabel = shortLabels ? 'Bank' : 'Bank balance'
+  const cpbLabel = shortLabels ? 'CP Balance' : 'Cash Prophet Balance'
+  const costsLabel = shortLabels ? 'Costs' : 'Total costs'
+  const receiptsLabel = shortLabels ? 'Receipts' : 'Expected receipts'
 
   const balanceRow = (rowType: 'current' | 'savings', label: string) => (
     <tr className={`sheet-row-balance${rowType === 'savings' ? ' sheet-row-savings' : ''}`}>
@@ -478,11 +487,17 @@ export function BreakdownTable({
   )
 
   return (
-    <div className={compact ? `overview-breakdown-wrap table-pref-surface ${tablePrefClasses}` : 'sheet-wrap'}>
+    <div
+      className={
+        compact
+          ? `overview-breakdown-wrap table-pref-surface ${tablePrefClasses}${shortLabels ? ' overview-breakdown-wrap--dense' : ''}`
+          : 'sheet-wrap'
+      }
+    >
       <table
         className={
           compact
-                    ? `sheet-table overview-breakdown-table table-pref-table ${tablePrefClasses}`
+                    ? `sheet-table overview-breakdown-table table-pref-table ${tablePrefClasses}${shortLabels ? ' overview-breakdown-table--dense' : ''}`
             : 'sheet-table'
         }
       >
@@ -501,15 +516,12 @@ export function BreakdownTable({
           </tr>
         </thead>
         <tbody>
-          {balanceRow('current', 'Bank balance')}
+          {balanceRow('current', bankLabel)}
           {showSavingsRow && balanceRow('savings', 'Savings Acc')}
           {showDetailRows ? (
             <>
-              <tr className="sheet-row-gap">
-                <td colSpan={columns.length + 1} />
-              </tr>
               <tr className="sheet-row-costs">
-                <td className="sheet-row-label">Total costs</td>
+                <td className="sheet-row-label">{costsLabel}</td>
                 {columns.map((col) => (
                   <CostsCell
                     key={col.key}
@@ -523,20 +535,17 @@ export function BreakdownTable({
               </tr>
               {hasReceipts && (
                 <tr className="sheet-row-receipts">
-                  <td className="sheet-row-label">Expected receipts</td>
+                  <td className="sheet-row-label">{receiptsLabel}</td>
                   {columns.map((col) => (
                     <Cell key={col.key} value={col.expectedReceipts} columnClass={breakdownColumnClass(col)} />
                   ))}
                 </tr>
               )}
-              <tr className="sheet-row-gap">
-                <td colSpan={columns.length + 1} />
-              </tr>
             </>
           ) : null}
           {showTrueBalance ? (
             <tr className="sheet-row-final">
-              <td className="sheet-row-label">Cash Prophet Balance</td>
+              <td className="sheet-row-label">{cpbLabel}</td>
               {columns.map((col) => (
                 <Cell
                   key={col.key}

@@ -46,6 +46,17 @@ export function BalancePositionHero({
 
   return (
     <div className="balance-position-hero">
+      {onToggleExpanded ? (
+        <button
+          type="button"
+          className="balance-position-expand-btn"
+          aria-expanded={expanded}
+          onClick={onToggleExpanded}
+        >
+          {expanded ? 'Less' : 'More'}
+          <span aria-hidden>{expanded ? '▴' : '▾'}</span>
+        </button>
+      ) : null}
       <div className="balance-position-hero-copy">
         <div className="balance-position-hero-label-row">
           <span className="balance-position-hero-label">Cash Prophet Balance</span>
@@ -93,17 +104,6 @@ export function BalancePositionHero({
             {monthLabel}
           </span>
         </div>
-        {onToggleExpanded ? (
-          <button
-            type="button"
-            className="balance-position-expand-btn"
-            aria-expanded={expanded}
-            onClick={onToggleExpanded}
-          >
-            {expanded ? 'Show less' : 'Show more detail'}
-            <span aria-hidden>{expanded ? '▴' : '▾'}</span>
-          </button>
-        ) : null}
       </div>
     </div>
   )
