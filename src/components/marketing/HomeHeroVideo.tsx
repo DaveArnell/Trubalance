@@ -17,7 +17,7 @@ export function HomeHeroVideo() {
       aria-labelledby="home-video-heading"
     >
       <div className="marketing-section-inner marketing-section-inner--home home-band-stack">
-        <div className="home-band-head home-band-head--center">
+        <div className="home-band-head home-band-head--center home-video-head">
           <h2 id="home-video-heading">{HOME_VIDEO.heading}</h2>
           <p className="home-video-lead">{HOME_VIDEO.lead}</p>
         </div>
