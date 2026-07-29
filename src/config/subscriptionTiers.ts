@@ -68,11 +68,10 @@ export const VAT_PRICE_FOOTNOTE =
 
 export const ANNUAL_SAVINGS_COPY = 'Pay annually and get 2 months free.'
 
-export const PRICING_HEADLINE =
-  'Plans that grow with how your business is structured.'
+export const PRICING_HEADLINE = 'Simple plans.'
 
 export const PRICING_SUBHEADLINE =
-  'Start with one business. Add venues when you expand. Move to Multi-business / Group when you operate more than one company. Every plan supports clearer day-to-day financial decisions.'
+  'Solo, multi-site, or more than one business. Start free — we’ll recommend a plan after your trial.'
 
 export const PRICING_FOOTNOTE =
   'Not sure which plan you need? Start free and set up however you like. After your trial, we recommend the plan that matches what you have built. Prices exclude VAT.'
