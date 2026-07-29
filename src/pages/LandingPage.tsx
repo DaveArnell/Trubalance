@@ -8,6 +8,7 @@ import {
 } from '../components/marketing/MarketingLayout'
 import { CashProphetLogo } from '../components/marketing/CashProphetLogo'
 import { HeroBalanceGraphs } from '../components/marketing/HeroBalanceGraphs'
+import { HomeHeroVideo } from '../components/marketing/HomeHeroVideo'
 import {
   HomeAvailablePanel,
   HomeCompareStrip,
@@ -91,6 +92,8 @@ export function LandingPage() {
             </div>
           </div>
         </section>
+
+        <HomeHeroVideo />
 
         {/* Text left, visual right */}
         <section

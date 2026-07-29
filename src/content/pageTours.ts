@@ -8,7 +8,7 @@ export interface TourStep {
   placement?: 'top' | 'bottom' | 'left' | 'right'
   /** Navigate to this page before spotlighting the target */
   page?: PageId
-  /** Optional walkthrough clip; omit = show placeholder */
+  /** Optional walkthrough clip; omit to resolve from src/content/videos.ts tour map */
   videoUrl?: string
   videoLabel?: string
 }

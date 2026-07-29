@@ -81,6 +81,14 @@ export const HOME_FOUNDER = {
   ],
 } as const
 
+/** Homepage video band — sits below the hero; does not replace animated graphs. */
+export const HOME_VIDEO = {
+  heading: 'See Cash Prophet in 90 seconds',
+  lead: 'A short look at how Cash Prophet turns an unreliable bank balance into a Cash Prophet Balance you can trust.',
+  placeholderHint:
+    'The homepage walkthrough will appear here. Until then, try a live demo or start free.',
+} as const
+
 export const HOME_CTA = {
   heading: 'Know where your business really stands',
   body: 'Start free, or see how it works first.',

@@ -1,7 +1,9 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
+import { getTourStepVideo } from '../content/videos'
 import { MOBILE_LAYOUT_MQ } from '../hooks/useMobileNav'
 import { useTour } from '../contexts/TourContext'
+import { toVideoEmbedUrl } from '../utils/videoEmbed'
 
 interface SpotlightRect {
   top: number
@@ -15,26 +17,6 @@ const TARGET_CLASS = 'guided-tour-target'
 const CARD_WIDTH = 460
 const CARD_HEIGHT = 420
 const CARD_MAX_WIDTH = 'min(30rem, calc(100vw - 2rem))'
-
-function toEmbedUrl(url: string): string {
-  try {
-    const parsed = new URL(url)
-    if (parsed.hostname.includes('youtube.com') && parsed.searchParams.get('v')) {
-      return `https://www.youtube.com/embed/${parsed.searchParams.get('v')}?rel=0`
-    }
-    if (parsed.hostname === 'youtu.be') {
-      const id = parsed.pathname.replace(/^\//, '')
-      if (id) return `https://www.youtube.com/embed/${id}?rel=0`
-    }
-    if (parsed.hostname.includes('vimeo.com')) {
-      const id = parsed.pathname.split('/').filter(Boolean).pop()
-      if (id) return `https://player.vimeo.com/video/${id}`
-    }
-  } catch {
-    /* use as-is */
-  }
-  return url
-}
 
 function TourOverlay({ rect }: { rect: SpotlightRect | null }) {
   const vw = typeof window !== 'undefined' ? window.innerWidth : 0
@@ -91,7 +73,7 @@ function TourMedia({ videoUrl, videoLabel }: { videoUrl?: string; videoLabel?: s
         {videoUrl ? (
           <iframe
             className="guided-tour-media-embed"
-            src={toEmbedUrl(videoUrl)}
+            src={toVideoEmbedUrl(videoUrl)}
             title={label}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
@@ -287,6 +269,10 @@ export function GuidedTour() {
     .map((part) => part.trim())
     .filter(Boolean)
 
+  const libraryVideo = getTourStepVideo(step.id)
+  const videoUrl = step.videoUrl ?? libraryVideo?.url
+  const videoLabel = step.videoLabel ?? libraryVideo?.label
+
   return createPortal(
     <div className="guided-tour-root" role="presentation">
       <TourOverlay rect={rect} />
@@ -311,7 +297,7 @@ export function GuidedTour() {
             Back.
           </p>
         )}
-        <TourMedia videoUrl={step.videoUrl} videoLabel={step.videoLabel} />
+        <TourMedia videoUrl={videoUrl} videoLabel={videoLabel} />
         <div className="guided-tour-actions">
           <button type="button" className="btn-ghost btn-tiny" onClick={skipTour}>
             Skip tour

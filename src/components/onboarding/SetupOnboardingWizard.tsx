@@ -7,6 +7,7 @@ import {
   dismissSetupOnboardingLocally,
   getSetupOnboardingSteps,
 } from '../../content/setupOnboarding'
+import { getSetupStepVideo } from '../../content/videos'
 import { WHY_CASH_PROPHET_CONTENT } from '../../content/guidedSetup'
 import { getOnboardingCashAccounts } from '../../utils/calculations'
 import type { PageId } from '../../navigation'
@@ -202,6 +203,7 @@ export function SetupOnboardingWizard({
   const explainParagraphs = step.explain.split('\n\n')
   const leadParagraph = explainParagraphs[0] ?? ''
   const detailParagraphs = explainParagraphs.slice(1)
+  const stepVideo = getSetupStepVideo(step.id)
 
   const footer = (
     <>
@@ -255,7 +257,12 @@ export function SetupOnboardingWizard({
           <p className="setup-flow-page-lead">{leadParagraph}</p>
         </header>
 
-        {!step.hideVideo && <SetupVideoSlot label={step.videoLabel ?? step.title} />}
+        {!step.hideVideo && (
+          <SetupVideoSlot
+            label={stepVideo?.label ?? step.videoLabel ?? step.title}
+            videoUrl={stepVideo?.url}
+          />
+        )}
 
         {detailParagraphs.map((para, i) => (
           <p key={i} className="setup-onboarding-explain">

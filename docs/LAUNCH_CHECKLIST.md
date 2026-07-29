@@ -61,6 +61,8 @@ When someone pastes a Cash Prophet link in WhatsApp, Slack, LinkedIn, or Faceboo
 
 **Not real yet (placeholders until Stripe is live):** MRR/ARR charts, revenue trend, churn. Ignore fake £ figures on Payments until billing is connected.
 
+**Videos:** Scripts and wiring live under `docs/videos/` and `src/content/videos.ts`. Paste Vimeo URLs into `VIDEO_LIBRARY` as clips publish; homepage / onboarding / tours pick them up automatically.
+
 ---
 
 *Last updated: July 2026*
