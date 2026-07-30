@@ -38,15 +38,8 @@ export function PrivacyPage() {
           businesses, accounts, balances, commitments, expected receipts, reserve plans, and snapshots.
         </li>
         <li>
-          <strong>Usage</strong> — basic technical logs needed to run and secure the service (for
-          example errors and sign-in events).
-        </li>
-        <li>
-          <strong>Campaign tags</strong> — if you open Cash Prophet from a tagged ad or campaign link,
-          we store short labels from that link (for example which platform and campaign) on your device
-          and, if you create an account, on your profile. This helps us understand which campaigns lead
-          to signups. We do not use this to build advertising profiles about you, and we do not load
-          Meta, Google, or other advertising pixels on Cash Prophet.
+          <strong>Usage</strong> — basic technical information needed to run and secure the service,
+          and to understand how people find and use the site.
         </li>
       </ul>
       <p>{REGULATORY_POSITION.privacyDataNote}</p>
@@ -76,7 +69,7 @@ export function PrivacyPage() {
       <ul>
         <li>Provide, maintain, and improve {COMPANY_INFO.productName}</li>
         <li>Authenticate you and sync your workspace across sessions</li>
-        <li>Understand which of our own campaigns lead to signups (first-party campaign tags only)</li>
+        <li>Understand how the service is found and used</li>
         <li>Respond to support requests</li>
         <li>Meet legal and security obligations</li>
       </ul>
@@ -111,32 +104,12 @@ export function PrivacyPage() {
 
       <h2 id="cookies">Cookies and local storage</h2>
       <p>
-        Cash Prophet does not use advertising pixels or third-party analytics trackers (such as Google
-        Analytics or Meta Pixel). We use browser storage for:
+        We use cookies and similar browser storage to operate Cash Prophet. This includes keeping you
+        signed in, remembering preferences, understanding how the site is used, and completing payment
+        where Stripe handles checkout. We do not sell this information.
       </p>
-      <ul>
-        <li>
-          <strong>Authentication</strong> — session tokens from our auth provider so you stay signed in
-          securely.
-        </li>
-        <li>
-          <strong>Local storage</strong> — to remember your workspace, layout preferences, and similar
-          settings on your device.
-        </li>
-        <li>
-          <strong>Campaign tags</strong> — when you arrive via a tagged marketing link, short first-party
-          labels (source, campaign, and related fields) are stored on this device for up to 90 days and
-          attached to your account if you sign up. This is first-party only — it is not a third-party ad
-          cookie.
-        </li>
-        <li>
-          <strong>Payment</strong> — if you subscribe, Stripe may set cookies when you complete checkout
-          on their secure pages.
-        </li>
-      </ul>
       <p>
-        We do not sell data from cookies or local storage, and we do not use them to build advertising
-        profiles.
+        For more on what we collect and your rights, see the rest of this privacy policy.
       </p>
 
       <h2>Changes</h2>
