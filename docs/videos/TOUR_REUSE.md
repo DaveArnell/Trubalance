@@ -8,11 +8,12 @@ Mapping is coded in [`src/content/videos.ts`](../src/content/videos.ts) as `TOUR
 |--------------|--------------------|
 | setup-balances, cf-hero, st-structure | onboarding-structure |
 | setup-committed, cf-commitments | onboarding-monthly-costs |
-| cf-views | onboarding-month-view |
 | setup-due, cf-due | onboarding-due |
 | setup-receipts, cf-receipts | onboarding-receipts |
 | setup-true-balance | onboarding-welcome |
 | tr-chart, tr-log | onboarding-trends |
 | rp-*, rpi-* | onboarding-reserve |
+
+Month-view onboarding footage (`onboarding-month-view`) is for the setup onboarding step only — the Committed Funds page tour no longer has a separate views step.
 
 When a library `url` is empty, GuidedTour keeps showing “Video coming soon”. When you publish a clip, set the URL once on the library entry — every mapped tour step updates automatically.

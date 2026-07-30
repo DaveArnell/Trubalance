@@ -142,7 +142,6 @@ export const TOUR_STEP_VIDEO_KEY: Record<string, VideoKey> = {
   // Committed Funds page tour
   'cf-hero': 'onboarding-structure',
   'cf-commitments': 'onboarding-monthly-costs',
-  'cf-views': 'onboarding-month-view',
   'cf-due': 'onboarding-due',
   'cf-receipts': 'onboarding-receipts',
 
