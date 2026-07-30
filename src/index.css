@@ -238,16 +238,11 @@ body {
 }
 
 .brand-mark {
-  display: grid;
-  place-items: center;
+  display: block;
   width: 36px;
   height: 36px;
   border-radius: var(--radius-md);
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  color: #fff;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: -0.03em;
+  object-fit: cover;
   flex-shrink: 0;
   box-shadow: 0 4px 14px var(--accent-glow);
 }
@@ -562,7 +557,6 @@ body {
 .sidebar--collapsed .brand-mark {
   width: 40px;
   height: 40px;
-  font-size: 0.78rem;
 }
 
 .sidebar-scope-current--compact {

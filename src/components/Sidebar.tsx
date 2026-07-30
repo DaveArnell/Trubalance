@@ -245,9 +245,14 @@ export function Sidebar({
       aria-hidden={isMobile && !mobileOpen ? true : undefined}
     >
       <div className="sidebar-brand">
-        <span className="brand-mark" aria-hidden="true">
-          CP
-        </span>
+        <img
+          className="brand-mark"
+          src="/logo-mark.webp"
+          width={36}
+          height={36}
+          alt=""
+          decoding="async"
+        />
         {!showCollapsed && (
           <div>
             <h1>Cash Prophet</h1>
