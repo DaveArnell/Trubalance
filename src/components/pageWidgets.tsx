@@ -106,6 +106,7 @@ export function buildPageWidgets(pageId: PageId, ctx: PageWidgetContext): Record
               openHelp={openHelp}
               setOpenHelp={setOpenHelp}
               correctSnapshotMetric={actions.correctSnapshotMetric}
+              onAddManualBalanceLog={actions.addManualBalanceLogEntry}
               onDeleteSnapshots={actions.deleteSnapshots}
               onSetDayNote={actions.setDayNote}
             />

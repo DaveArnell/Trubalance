@@ -1616,9 +1616,13 @@ export function useAppState(options?: UseAppStateOptions) {
     date: string,
     scope: ViewScope,
     overrides?: Partial<
-      Pick<BalanceSnapshot, 'cash' | 'committedFunds' | 'expectedReceipts' | 'trueBalance' | 'note'>
+      Pick<
+        BalanceSnapshot,
+        'cash' | 'committedFunds' | 'expectedReceipts' | 'trueBalance' | 'note' | 'manualEntry'
+      >
     >,
-  ) =>
+  ) => {
+    requestImmediatePersist()
     update((s) => {
       const metrics = calculateDashboard(s, scope)
       const viewName = getScopeLabel(s, scope)
@@ -1626,27 +1630,54 @@ export function useAppState(options?: UseAppStateOptions) {
         (snap) => snap.date === date && snap.scopeType === scope.type && snap.scopeId === scope.id,
       )
       const existing = existingIdx >= 0 ? s.snapshots[existingIdx] : undefined
+      const trueBalance = overrides?.trueBalance ?? metrics.trueBalance
+      const committedFunds = overrides?.committedFunds ?? metrics.committedFunds
+      const expectedReceipts = overrides?.expectedReceipts ?? metrics.expectedReceipts
+      const cash =
+        overrides?.cash ??
+        (overrides?.trueBalance != null
+          ? roundCurrency(trueBalance + committedFunds - expectedReceipts)
+          : metrics.cash)
       const snapshot: BalanceSnapshot = {
         id: existing?.id ?? newId(),
         date,
         scopeType: scope.type,
         scopeId: scope.id,
         viewName,
-        cash: overrides?.cash ?? metrics.cash,
-        committedFunds: overrides?.committedFunds ?? metrics.committedFunds,
-        expectedReceipts: overrides?.expectedReceipts ?? metrics.expectedReceipts,
-        trueBalance: overrides?.trueBalance ?? metrics.trueBalance,
+        cash,
+        committedFunds,
+        expectedReceipts,
+        trueBalance,
         note: overrides?.note ?? existing?.note,
         noteSource: overrides?.note ? 'admin' : existing?.noteSource,
         freshness: getFreshness(0),
         changedAccounts: existing?.changedAccounts ?? [],
         updatedAt: new Date().toISOString(),
+        manualEntry: overrides?.manualEntry ?? existing?.manualEntry,
+        recordedValues: existing?.recordedValues,
+        correctedAt: existing?.correctedAt,
       }
       if (existingIdx >= 0) {
-        return { ...s, snapshots: s.snapshots.map((item, index) => (index === existingIdx ? snapshot : item)) }
+        return {
+          ...s,
+          snapshots: s.snapshots.map((item, index) => (index === existingIdx ? snapshot : item)),
+          workspaceOrigin: s.workspaceOrigin ?? 'user',
+        }
       }
-      return { ...s, snapshots: [...s.snapshots, snapshot] }
+      return {
+        ...s,
+        snapshots: [...s.snapshots, snapshot],
+        workspaceOrigin: s.workspaceOrigin ?? 'user',
+      }
     })
+  }
+
+  const addManualBalanceLogEntry = (scope: ViewScope, date: string, trueBalance: number) => {
+    upsertSnapshotForDate(date, scope, {
+      trueBalance: roundCurrency(trueBalance),
+      manualEntry: true,
+    })
+  }
 
   const correctSnapshotMetric = (snapshotId: string, metric: HistoryMetricKey, newValue: number) => {
     persistImmediateRef.current = true
@@ -2022,6 +2053,7 @@ export function useAppState(options?: UseAppStateOptions) {
     randomiseFinancialFigures,
     replaceEntireState,
     upsertSnapshotForDate,
+    addManualBalanceLogEntry,
     correctSnapshotMetric,
     deleteSnapshot,
     deleteSnapshots,

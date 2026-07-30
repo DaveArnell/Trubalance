@@ -252,6 +252,8 @@ export interface BalanceSnapshot {
   recordedValues?: Partial<Pick<BalanceSnapshot, 'cash' | 'committedFunds' | 'expectedReceipts' | 'trueBalance'>>
   /** ISO timestamp of the most recent manual correction. */
   correctedAt?: string
+  /** True when this point was added by hand (not from saving bank balances). */
+  manualEntry?: boolean
 }
 
 export interface ViewScope {

@@ -31,6 +31,8 @@ export interface HistoryCellData {
   snapshotId: string | null
   /** Value as originally recorded, when manually corrected. */
   recordedValue: number | null
+  /** True when the point was typed in by hand. */
+  manualEntry?: boolean
 }
 
 function metricValue(
@@ -216,6 +218,7 @@ function cellFromSnapshot(
     snapshotId:
       granularity === 'daily' && isPersistedSnapshot(snap) ? snap.id : null,
     recordedValue: corrected ? getSnapshotRecordedMetric(snap, metric) : null,
+    manualEntry: Boolean(snap.manualEntry),
   }
 }
 

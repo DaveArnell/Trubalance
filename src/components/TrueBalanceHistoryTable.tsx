@@ -23,6 +23,7 @@ import {
   SnapshotCorrectionModal,
   type SnapshotCorrectionDraft,
 } from './SnapshotCorrectionModal'
+import { ManualBalanceLogModal } from './ManualBalanceLogModal'
 
 const granularities: { key: HistoryGranularity; label: string }[] = [
   { key: 'daily', label: 'Daily' },
@@ -51,6 +52,7 @@ interface TrueBalanceHistoryTableProps {
   setOpenHelp: (id: string | null) => void
   embedded?: boolean
   correctSnapshotMetric?: AppActions['correctSnapshotMetric']
+  onAddManualBalanceLog?: AppActions['addManualBalanceLogEntry']
   onDeleteSnapshots?: AppActions['deleteSnapshots']
   onSetDayNote?: (date: string, text: string | null, scope: ViewScope) => void
 }
@@ -75,11 +77,13 @@ export function TrueBalanceHistoryTable({
   setOpenHelp,
   embedded = false,
   correctSnapshotMetric,
+  onAddManualBalanceLog,
   onDeleteSnapshots,
   onSetDayNote,
 }: TrueBalanceHistoryTableProps) {
   const demoMode = useDemoMode()
   const [correction, setCorrection] = useState<SnapshotCorrectionDraft | null>(null)
+  const [addingManual, setAddingManual] = useState(false)
   const [noteEditorDate, setNoteEditorDate] = useState<string | null>(null)
   const granularity = historyGranularity
   const [canScrollMore, setCanScrollMore] = useState(false)
@@ -211,13 +215,34 @@ export function TrueBalanceHistoryTable({
     </div>
   )
 
+  const addManualButton =
+    onAddManualBalanceLog && !demoMode && granularity === 'daily' ? (
+      <button
+        type="button"
+        className="btn-secondary btn-tiny"
+        onClick={() => setAddingManual(true)}
+        title="Add a manual Cash Prophet Balance point for a past date"
+      >
+        + Add
+      </button>
+    ) : null
+
+  const latestTrueBalance = (() => {
+    for (let i = rows.length - 1; i >= 0; i -= 1) {
+      const totalCol = columns.find((col) => col.isTotal)
+      const value = totalCol ? rows[i]?.values[totalCol.key]?.value : null
+      if (value != null) return value
+    }
+    return 0
+  })()
+
   const tableBody = (
     <>
       {revealFromBar}
       {rows.length === 0 ? (
         <p className="muted">
-          No chart data yet. Each time you save bank balances in the overview, a point is added to the chart and
-          listed here.
+          No chart data yet. Save bank balances in the overview, or use + Add to enter a past Cash
+          Prophet Balance by hand.
         </p>
       ) : (
         <div
@@ -286,8 +311,11 @@ export function TrueBalanceHistoryTable({
                       granularity === 'daily' &&
                       Boolean(correctSnapshotMetric && cell.snapshotId && cell.value != null)
                     const corrected = cell.recordedValue != null
+                    const manual = Boolean(cell.manualEntry)
                     const title = corrected
                       ? `Originally recorded: ${formatCurrency(cell.recordedValue!)}. Click to edit.`
+                      : manual
+                        ? 'Manual entry. Click to edit.'
                       : editable
                         ? 'Click to correct this value'
                         : undefined
@@ -304,6 +332,7 @@ export function TrueBalanceHistoryTable({
                               : 'history-value-col',
                           editable ? 'history-cell-editable' : '',
                           corrected ? 'history-cell-corrected' : '',
+                          manual ? 'history-cell-manual' : '',
                         ]
                           .filter(Boolean)
                           .join(' ')}
@@ -321,7 +350,18 @@ export function TrueBalanceHistoryTable({
                             : undefined
                         }
                       >
-                        {cell.value == null ? '—' : formatCurrency(cell.value)}
+                        {cell.value == null ? (
+                          '—'
+                        ) : (
+                          <>
+                            {formatCurrency(cell.value)}
+                            {manual ? (
+                              <span className="history-manual-marker" aria-label="Manual entry">
+                                *
+                              </span>
+                            ) : null}
+                          </>
+                        )}
                       </td>
                     )
                   })}
@@ -363,8 +403,9 @@ export function TrueBalanceHistoryTable({
         {fromDate ? ` · from ${formatHistoryDate(fromDate)}` : ''}
         {granularity !== 'daily' ? ` · ${granularities.find((g) => g.key === granularity)?.label}` : ''}
         {correctSnapshotMetric && granularity === 'daily' ? ' · Click a value to correct it' : ''}
+        {onAddManualBalanceLog && granularity === 'daily' ? ' · + Add for a manual point (*)' : ''}
         {granularity !== 'daily' ? ' · Switch to Daily to edit values' : ''}
-        {onSetDayNote && granularity === 'daily' ? ' · Click a date to add a note' : ''}
+        {onSetDayNote && granularity === 'daily' ? ' · Click a note cell to add a note' : ''}
         {onDeleteSnapshots && granularity === 'daily' ? ' · Delete removes saved points for that day' : ''}
       </p>
       {correction && correctSnapshotMetric ? (
@@ -375,6 +416,19 @@ export function TrueBalanceHistoryTable({
             setCorrection(null)
           }}
           onCancel={() => setCorrection(null)}
+        />
+      ) : null}
+      {addingManual && onAddManualBalanceLog ? (
+        <ManualBalanceLogModal
+          scopeLabel={scopeLabel}
+          defaultDate={localTodayKey()}
+          maxDate={localTodayKey()}
+          suggestedTrueBalance={latestTrueBalance}
+          onConfirm={({ date, trueBalance }) => {
+            onAddManualBalanceLog(viewScope, date, trueBalance)
+            setAddingManual(false)
+          }}
+          onCancel={() => setAddingManual(false)}
         />
       ) : null}
       {noteEditorDate && onSetDayNote && (
@@ -401,11 +455,12 @@ export function TrueBalanceHistoryTable({
           </div>
           <div className="trends-history-head-actions">
             {granularityControls}
+            {addManualButton}
             <HelpButton
               id="history"
               openHelp={openHelp}
               setOpenHelp={setOpenHelp}
-              text="This table lists the same balance totals plotted on the Trends chart. A row appears each time you save account balances in the overview. Use Daily, Weekly, or Monthly to group rows. Click a daily Available cell to correct it — the original recorded amount is kept, and the correction carries forward to later dates."
+              text="This table lists the same balance totals plotted on the Trends chart. A row appears each time you save account balances in the overview, or when you add a manual point. Use Daily, Weekly, or Monthly to group rows. Click a daily Available cell to correct it — the original recorded amount is kept. Manual entries are marked with *."
             />
           </div>
         </div>
@@ -422,11 +477,12 @@ export function TrueBalanceHistoryTable({
         </div>
         <div className="card-actions">
           {granularityControls}
+          {addManualButton}
           <HelpButton
             id="history"
             openHelp={openHelp}
             setOpenHelp={setOpenHelp}
-            text="Each row is a date when balances were recorded. Use Daily, Weekly, or Monthly to change how rows are grouped. Click any daily value to correct it — you will be asked to confirm, and the originally recorded amount is always kept for reference. Corrections apply to that date and every later date in the log."
+            text="Each row is a date when balances were recorded. Use Daily, Weekly, or Monthly to change how rows are grouped. Click any daily value to correct it — you will be asked to confirm, and the originally recorded amount is always kept for reference. Use + Add for a manual past point (marked *)."
           />
         </div>
       </div>

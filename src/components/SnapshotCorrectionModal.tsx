@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { toAmount, roundCurrency } from '../utils/amounts'
 import { formatCurrency } from '../utils/format'
@@ -23,6 +23,7 @@ interface SnapshotCorrectionModalProps {
 export function SnapshotCorrectionModal({ draft, onConfirm, onCancel }: SnapshotCorrectionModalProps) {
   const [value, setValue] = useState(() => String(roundCurrency(draft.currentValue)))
   const [error, setError] = useState('')
+  const backdropPointerDown = useRef(false)
 
   useEffect(() => {
     setValue(String(roundCurrency(draft.currentValue)))
@@ -55,13 +56,25 @@ export function SnapshotCorrectionModal({ draft, onConfirm, onCancel }: Snapshot
   const currentDisplay = roundCurrency(draft.currentValue)
 
   return createPortal(
-    <div className="snapshot-correction-backdrop" onClick={onCancel}>
+    <div
+      className="snapshot-correction-backdrop"
+      onPointerDown={(e) => {
+        backdropPointerDown.current = e.target === e.currentTarget
+      }}
+      onClick={(e) => {
+        // Only close when the press started on the backdrop — not when text selection
+        // ends outside the dialog after starting inside an input.
+        if (backdropPointerDown.current && e.target === e.currentTarget) onCancel()
+        backdropPointerDown.current = false
+      }}
+    >
       <div
         className="snapshot-correction-modal"
         role="dialog"
         aria-modal="true"
         aria-labelledby="snapshot-correction-title"
         onClick={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
       >
         <h3 id="snapshot-correction-title">Confirm history correction</h3>
         <p className="snapshot-correction-subtitle">

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { formatSnapshotDateLong } from '../utils/snapshots'
 
 interface DayNoteEditorProps {
@@ -11,18 +11,29 @@ interface DayNoteEditorProps {
 
 export function DayNoteEditor({ date, scopeLabel, initialText, onSave, onClose }: DayNoteEditorProps) {
   const [text, setText] = useState(initialText)
+  const backdropPointerDown = useRef(false)
 
   useEffect(() => {
     setText(initialText)
   }, [date, initialText])
 
   return (
-    <div className="day-note-backdrop" onClick={onClose}>
+    <div
+      className="day-note-backdrop"
+      onPointerDown={(e) => {
+        backdropPointerDown.current = e.target === e.currentTarget
+      }}
+      onClick={(e) => {
+        if (backdropPointerDown.current && e.target === e.currentTarget) onClose()
+        backdropPointerDown.current = false
+      }}
+    >
       <div
         className="day-note-dialog"
         role="dialog"
         aria-labelledby="day-note-title"
         onClick={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
       >
         <header className="day-note-dialog-head">
           <h3 id="day-note-title">
@@ -40,28 +51,28 @@ export function DayNoteEditor({ date, scopeLabel, initialText, onSave, onClose }
         </p>
         <textarea
           className="day-note-textarea"
-          rows={4}
           value={text}
           onChange={(e) => setText(e.target.value)}
+          rows={5}
           placeholder="e.g. Large supplier payment cancelled — Available jumped back up."
           autoFocus
         />
         <div className="day-note-dialog-actions">
           <button
             type="button"
-            className="btn-ghost btn-tiny"
+            className="btn-ghost"
             onClick={() => {
               onSave(null)
               onClose()
             }}
           >
-            Remove note
+            Clear note
           </button>
           <button
             type="button"
-            className="btn-primary btn-tiny"
+            className="btn-primary"
             onClick={() => {
-              onSave(text.trim() || null)
+              onSave(text.trim() ? text.trim() : null)
               onClose()
             }}
           >
