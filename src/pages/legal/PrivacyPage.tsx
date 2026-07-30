@@ -8,7 +8,7 @@ export function PrivacyPage() {
     <LegalPageLayout
       title="Privacy policy"
       seoTitle={PRIVACY_SEO.title}
-      updated="28 July 2026"
+      updated="30 July 2026"
       description={PRIVACY_SEO.description}
       path={PRIVACY_SEO.path}
       imageAlt={PRIVACY_SEO.imageAlt}
@@ -41,6 +41,13 @@ export function PrivacyPage() {
           <strong>Usage</strong> — basic technical logs needed to run and secure the service (for
           example errors and sign-in events).
         </li>
+        <li>
+          <strong>Campaign tags</strong> — if you open Cash Prophet from a tagged ad or campaign link,
+          we store short labels from that link (for example which platform and campaign) on your device
+          and, if you create an account, on your profile. This helps us understand which campaigns lead
+          to signups. We do not use this to build advertising profiles about you, and we do not load
+          Meta, Google, or other advertising pixels on Cash Prophet.
+        </li>
       </ul>
       <p>{REGULATORY_POSITION.privacyDataNote}</p>
       <p>
@@ -69,6 +76,7 @@ export function PrivacyPage() {
       <ul>
         <li>Provide, maintain, and improve {COMPANY_INFO.productName}</li>
         <li>Authenticate you and sync your workspace across sessions</li>
+        <li>Understand which of our own campaigns lead to signups (first-party campaign tags only)</li>
         <li>Respond to support requests</li>
         <li>Meet legal and security obligations</li>
       </ul>
@@ -103,8 +111,8 @@ export function PrivacyPage() {
 
       <h2 id="cookies">Cookies and local storage</h2>
       <p>
-        Cash Prophet does not use advertising cookies or third-party analytics trackers (such as Google
-        Analytics). We use only what is needed to run the service:
+        Cash Prophet does not use advertising pixels or third-party analytics trackers (such as Google
+        Analytics or Meta Pixel). We use browser storage for:
       </p>
       <ul>
         <li>
@@ -116,13 +124,19 @@ export function PrivacyPage() {
           settings on your device.
         </li>
         <li>
+          <strong>Campaign tags</strong> — when you arrive via a tagged marketing link, short first-party
+          labels (source, campaign, and related fields) are stored on this device for up to 90 days and
+          attached to your account if you sign up. This is first-party only — it is not a third-party ad
+          cookie.
+        </li>
+        <li>
           <strong>Payment</strong> — if you subscribe, Stripe may set cookies when you complete checkout
           on their secure pages.
         </li>
       </ul>
       <p>
-        These are strictly necessary for the app to function. We do not sell data from cookies or use
-        them for advertising profiles.
+        We do not sell data from cookies or local storage, and we do not use them to build advertising
+        profiles.
       </p>
 
       <h2>Changes</h2>

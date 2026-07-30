@@ -64,6 +64,11 @@ export function getEffectiveSnapshotsForScope(
       const derived = buildDerivedSnapshot(state, scope, date)
       if (!stored) return derived
 
+      // Never replace a hand-entered or corrected point with a derived recompute.
+      if (stored.manualEntry || stored.recordedValues?.trueBalance !== undefined) {
+        return withEffectiveSnapshotMetrics(state, stored)
+      }
+
       const display = withEffectiveSnapshotMetrics(state, stored)
       if (display.trueBalance === 0 && derived.trueBalance !== 0) {
         return derived

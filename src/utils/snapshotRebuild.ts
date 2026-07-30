@@ -6,6 +6,7 @@ import type { HistoryMetricKey } from './historyTable'
 import { getParentScopesForSnapshot } from './historyTable'
 import { getReferenceDate, dateToKey } from './referenceDate'
 import { isSnapshotMetricCorrected } from './snapshotCorrections'
+import { getEffectiveSnapshotMetric } from './snapshotMetrics'
 
 function scopeKey(scope: ViewScope): string {
   return `${scope.type}:${scope.id}`
@@ -71,6 +72,11 @@ export function refreshSnapshotMetricsAt(
   state: AppState,
   now: string,
 ): BalanceSnapshot {
+  // Hand-entered points keep the typed values — never overwrite with live recompute.
+  if (snapshot.manualEntry) {
+    return { ...snapshot, updatedAt: now }
+  }
+
   const scope: ViewScope = { type: snapshot.scopeType, id: snapshot.scopeId }
   const computed = computeScopeMetricsAtDate(state, scope, snapshot.date)
   const next: BalanceSnapshot = { ...snapshot, updatedAt: now }
@@ -120,8 +126,10 @@ export function rebuildSnapshotsFromDate(
 }
 
 function pairedMetric(metric: HistoryMetricKey): HistoryMetricKey | null {
-  if (metric === 'trueBalance') return 'committedFunds'
-  if (metric === 'committedFunds') return 'trueBalance'
+  // Keep Cash Prophet Balance = Cash − Committed + Expected.
+  // Correcting Available moves Cash with it — do not invent a change to committed funds.
+  if (metric === 'trueBalance') return 'cash'
+  if (metric === 'cash') return 'trueBalance'
   return null
 }
 
@@ -150,14 +158,33 @@ export function propagateSnapshotMetricDelta(
       return snapshot
     }
 
+    const oldMetric = getEffectiveSnapshotMetric(state, snapshot, metric)
+    const nextMetric = roundCurrency(oldMetric + delta)
+    const recordedValues = {
+      ...snapshot.recordedValues,
+      [metric]: snapshot.recordedValues?.[metric] ?? oldMetric,
+    }
+
     const next: BalanceSnapshot = {
       ...snapshot,
-      [metric]: roundCurrency(snapshot[metric] + delta),
+      [metric]: nextMetric,
+      recordedValues,
       updatedAt: now,
     }
 
     if (paired) {
-      next[paired] = roundCurrency(snapshot[paired] - delta)
+      const oldPaired = getEffectiveSnapshotMetric(state, snapshot, paired)
+      // trueBalance and cash move together; other pairs (legacy) used inverse.
+      const nextPaired =
+        (metric === 'trueBalance' && paired === 'cash') ||
+        (metric === 'cash' && paired === 'trueBalance')
+          ? roundCurrency(oldPaired + delta)
+          : roundCurrency(oldPaired - delta)
+      next[paired] = nextPaired
+      next.recordedValues = {
+        ...next.recordedValues,
+        [paired]: snapshot.recordedValues?.[paired] ?? oldPaired,
+      }
     }
 
     return next

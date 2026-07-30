@@ -24,8 +24,8 @@ import {
 } from '../utils/snapshotRebuild'
 import { getReceiptRebuildFromDateKey, getReceiptDeleteFromDateKey, getReceiptActiveFromDateKey } from '../utils/receiptCalculations'
 import { captureHistoryRecord, upsertDailyHistoryRecord } from '../utils/historyCapture'
-import { getStoredHistoryRecordIdsForDay, getSnapshotIdsForDayInViewScope, repairEmptySnapshotChangedAccounts, scopeInViewTree } from '../utils/historyRebuild'
-import { calculateDashboard, getCommitmentsForScope } from '../utils/calculations'
+import { getStoredHistoryRecordIdsForDay, getSnapshotIdsForDayInViewScope, repairEmptySnapshotChangedAccounts, scopeInViewTree, computeScopeMetricsAtDate } from '../utils/historyRebuild'
+import { getCommitmentsForScope } from '../utils/calculations'
 import {
   buildAmountChangePatch,
   buildMarkPaidPatch,
@@ -1618,26 +1618,33 @@ export function useAppState(options?: UseAppStateOptions) {
     overrides?: Partial<
       Pick<
         BalanceSnapshot,
-        'cash' | 'committedFunds' | 'expectedReceipts' | 'trueBalance' | 'note' | 'manualEntry'
+        | 'cash'
+        | 'committedFunds'
+        | 'expectedReceipts'
+        | 'trueBalance'
+        | 'note'
+        | 'manualEntry'
+        | 'recordedValues'
+        | 'correctedAt'
       >
     >,
   ) => {
     requestImmediatePersist()
     update((s) => {
-      const metrics = calculateDashboard(s, scope)
+      const asOfMetrics = computeScopeMetricsAtDate(s, scope, date)
       const viewName = getScopeLabel(s, scope)
       const existingIdx = s.snapshots.findIndex(
         (snap) => snap.date === date && snap.scopeType === scope.type && snap.scopeId === scope.id,
       )
       const existing = existingIdx >= 0 ? s.snapshots[existingIdx] : undefined
-      const trueBalance = overrides?.trueBalance ?? metrics.trueBalance
-      const committedFunds = overrides?.committedFunds ?? metrics.committedFunds
-      const expectedReceipts = overrides?.expectedReceipts ?? metrics.expectedReceipts
+      const trueBalance = overrides?.trueBalance ?? asOfMetrics.trueBalance
+      const committedFunds = overrides?.committedFunds ?? asOfMetrics.committedFunds
+      const expectedReceipts = overrides?.expectedReceipts ?? asOfMetrics.expectedReceipts
       const cash =
         overrides?.cash ??
         (overrides?.trueBalance != null
           ? roundCurrency(trueBalance + committedFunds - expectedReceipts)
-          : metrics.cash)
+          : asOfMetrics.cash)
       const snapshot: BalanceSnapshot = {
         id: existing?.id ?? newId(),
         date,
@@ -1654,8 +1661,8 @@ export function useAppState(options?: UseAppStateOptions) {
         changedAccounts: existing?.changedAccounts ?? [],
         updatedAt: new Date().toISOString(),
         manualEntry: overrides?.manualEntry ?? existing?.manualEntry,
-        recordedValues: existing?.recordedValues,
-        correctedAt: existing?.correctedAt,
+        recordedValues: overrides?.recordedValues ?? existing?.recordedValues,
+        correctedAt: overrides?.correctedAt ?? existing?.correctedAt,
       }
       if (existingIdx >= 0) {
         return {
@@ -1673,9 +1680,13 @@ export function useAppState(options?: UseAppStateOptions) {
   }
 
   const addManualBalanceLogEntry = (scope: ViewScope, date: string, trueBalance: number) => {
+    const rounded = roundCurrency(trueBalance)
+    // Pin the typed Available figure so Trends/history never overwrite it with live recompute.
     upsertSnapshotForDate(date, scope, {
-      trueBalance: roundCurrency(trueBalance),
+      trueBalance: rounded,
       manualEntry: true,
+      recordedValues: { trueBalance: rounded },
+      correctedAt: new Date().toISOString(),
     })
   }
 
@@ -1691,11 +1702,7 @@ export function useAppState(options?: UseAppStateOptions) {
 
       const delta = rounded - oldValue
       const pairedMetric =
-        metric === 'trueBalance'
-          ? 'committedFunds'
-          : metric === 'committedFunds'
-            ? 'trueBalance'
-            : null
+        metric === 'trueBalance' ? 'cash' : metric === 'cash' ? 'trueBalance' : null
       const now = new Date().toISOString()
 
       let snapshots = s.snapshots.map((snap) => {
@@ -1712,7 +1719,8 @@ export function useAppState(options?: UseAppStateOptions) {
         }
 
         const oldPairedValue = getEffectiveSnapshotMetric(s, target, pairedMetric)
-        const newPairedValue = roundCurrency(oldPairedValue - delta)
+        // Available and cash move together so committed funds are not silently rewritten.
+        const newPairedValue = roundCurrency(oldPairedValue + delta)
         return {
           ...corrected,
           [pairedMetric]: newPairedValue,

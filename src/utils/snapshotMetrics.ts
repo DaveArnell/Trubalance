@@ -11,13 +11,13 @@ function useStoredDemoSnapshotMetrics(state: AppState, snapshot: BalanceSnapshot
   return state.workspaceOrigin === 'builtin-demo' && isPersistedSnapshot(snapshot)
 }
 
-/** Metric value for display — recomputed from current data unless manually corrected. */
+/** Metric value for display — recomputed from current data unless manually set. */
 export function getEffectiveSnapshotMetric(
   state: AppState,
   snapshot: BalanceSnapshot,
   metric: HistoryMetricKey,
 ): number {
-  if (isSnapshotMetricCorrected(snapshot, metric)) {
+  if (isSnapshotMetricCorrected(snapshot, metric) || snapshot.manualEntry) {
     return snapshot[metric]
   }
   // Demo Trends are authored for a calm Available story — never recompute from accruals.
@@ -40,6 +40,8 @@ export function withEffectiveSnapshotMetrics(
   state: AppState,
   snapshot: BalanceSnapshot,
 ): BalanceSnapshot {
+  if (snapshot.manualEntry) return { ...snapshot }
+
   const next = { ...snapshot }
   for (const metric of METRIC_KEYS) {
     if (!isSnapshotMetricCorrected(snapshot, metric)) {

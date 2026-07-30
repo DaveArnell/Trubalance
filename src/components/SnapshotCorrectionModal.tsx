@@ -110,7 +110,8 @@ export function SnapshotCorrectionModal({ draft, onConfirm, onCancel }: Snapshot
 
         <p className="snapshot-correction-note muted">
           The originally recorded amount is kept for reference. Trends and history will use your
-          corrected value.
+          corrected Cash Prophet Balance. Cash is adjusted with it so committed funds stay as you set
+          them.
         </p>
 
         <div className="snapshot-correction-actions">
