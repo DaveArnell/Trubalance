@@ -228,6 +228,36 @@ export interface SetupFunnelSnapshot {
   dismissByStep: Array<{ stepId: string; label: string; count: number }>
 }
 
+/** One row in Ads & campaigns — people who signed up from the same tagged ad link. */
+export interface CampaignPerformanceRow {
+  id: string
+  /** Friendly platform name */
+  sourceLabel: string
+  source: string
+  medium: string
+  campaign: string
+  content: string
+  signedUp: number
+  finishedOnboarding: number
+  activeInTrial: number
+  paid: number
+  onboardingRate: number
+  paidRate: number
+}
+
+export interface CampaignPerformanceSnapshot {
+  rows: CampaignPerformanceRow[]
+  totals: {
+    signedUp: number
+    finishedOnboarding: number
+    activeInTrial: number
+    paid: number
+    taggedSignups: number
+    untaggedSignups: number
+  }
+  generatedAt: string
+}
+
 export interface AdminUserDetail extends AdminUserListItem {
   phone: string | null
   emailVerified: boolean

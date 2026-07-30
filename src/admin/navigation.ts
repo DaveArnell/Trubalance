@@ -5,6 +5,7 @@ export type AdminNavId =
   | 'subscriptions'
   | 'payments'
   | 'product-analytics'
+  | 'campaigns'
   | 'support'
   | 'email-templates'
   | 'notifications'
@@ -29,6 +30,7 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { id: 'subscriptions', label: 'Subscriptions', path: '/platform-admin/subscriptions', icon: '▣', section: 'main' },
   { id: 'payments', label: 'Payments', path: '/platform-admin/payments', icon: '£', section: 'main' },
   { id: 'product-analytics', label: 'Product Analytics', path: '/platform-admin/product-analytics', icon: '↗', section: 'main' },
+  { id: 'campaigns', label: 'Ads & campaigns', path: '/platform-admin/campaigns', icon: '◆', section: 'main' },
   { id: 'support', label: 'Support', path: '/platform-admin/support', icon: '?', section: 'main' },
   { id: 'email-templates', label: 'Email Templates', path: '/platform-admin/email-templates', icon: '✉', section: 'main' },
   { id: 'notifications', label: 'Notifications', path: '/platform-admin/notifications', icon: '◈', section: 'main' },

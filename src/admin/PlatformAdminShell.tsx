@@ -3,6 +3,7 @@ import { AdminAuthProvider, useAdminAuth } from '../contexts/AdminAuthContext'
 import { isLocalDevMode } from '../lib/devMode'
 import { AdminLayout } from './components/AdminLayout'
 import { AdminAuditLogPage } from './pages/AdminAuditLogPage'
+import { AdminCampaignsPage } from './pages/AdminCampaignsPage'
 import { AdminDeveloperToolsPage } from './pages/AdminDeveloperToolsPage'
 import { AdminEmailTemplatesPage } from './pages/AdminEmailTemplatesPage'
 import { AdminNotificationsPage } from './pages/AdminNotificationsPage'
@@ -46,6 +47,7 @@ function AdminRoutes() {
         <Route path="payments" element={<AdminPaymentsPage />} />
         <Route path="product-analytics" element={<AdminProductAnalyticsPage />} />
         <Route path="analytics" element={<AdminProductAnalyticsPage />} />
+        <Route path="campaigns" element={<AdminCampaignsPage />} />
         <Route path="support" element={<AdminSupportPage />} />
         <Route path="email-templates" element={<AdminEmailTemplatesPage />} />
         <Route path="notifications" element={<AdminNotificationsPage />} />

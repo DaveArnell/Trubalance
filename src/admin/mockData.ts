@@ -15,6 +15,7 @@ import type {
   NotificationTemplateRow,
   PlatformOverviewStats,
   PlatformSettings,
+  CampaignPerformanceSnapshot,
   ProductAnalyticsSnapshot,
   SetupFunnelSnapshot,
   QrCodeRow,
@@ -224,6 +225,109 @@ export function getEmptyProductAnalytics(): ProductAnalyticsSnapshot {
     dailySignups: [],
     featureUsage: [],
     setupFunnel: getMockSetupFunnel(0),
+  }
+}
+
+export function getEmptyCampaignPerformance(): CampaignPerformanceSnapshot {
+  return {
+    rows: [],
+    totals: {
+      signedUp: 0,
+      finishedOnboarding: 0,
+      activeInTrial: 0,
+      paid: 0,
+      taggedSignups: 0,
+      untaggedSignups: 0,
+    },
+    generatedAt: new Date().toISOString(),
+  }
+}
+
+export function getMockCampaignPerformance(): CampaignPerformanceSnapshot {
+  const rows = [
+    {
+      id: 'meta::spring_offer::video_a',
+      sourceLabel: 'Meta (Facebook / Instagram)',
+      source: 'meta',
+      medium: 'paid',
+      campaign: 'spring_offer',
+      content: 'video_a',
+      signedUp: 42,
+      finishedOnboarding: 28,
+      activeInTrial: 18,
+      paid: 9,
+      onboardingRate: 66.7,
+      paidRate: 21.4,
+    },
+    {
+      id: 'meta::spring_offer::image_b',
+      sourceLabel: 'Meta (Facebook / Instagram)',
+      source: 'meta',
+      medium: 'paid',
+      campaign: 'spring_offer',
+      content: 'image_b',
+      signedUp: 31,
+      finishedOnboarding: 14,
+      activeInTrial: 9,
+      paid: 3,
+      onboardingRate: 45.2,
+      paidRate: 9.7,
+    },
+    {
+      id: 'google::brand_search',
+      sourceLabel: 'Google Ads',
+      source: 'google',
+      medium: 'paid',
+      campaign: 'brand_search',
+      content: '',
+      signedUp: 19,
+      finishedOnboarding: 15,
+      activeInTrial: 11,
+      paid: 7,
+      onboardingRate: 78.9,
+      paidRate: 36.8,
+    },
+    {
+      id: 'newsletter::march_update',
+      sourceLabel: 'Email / newsletter',
+      source: 'newsletter',
+      medium: 'email',
+      campaign: 'march_update',
+      content: '',
+      signedUp: 12,
+      finishedOnboarding: 10,
+      activeInTrial: 6,
+      paid: 4,
+      onboardingRate: 83.3,
+      paidRate: 33.3,
+    },
+    {
+      id: 'direct::(no campaign name)',
+      sourceLabel: 'Direct / unknown',
+      source: 'direct',
+      medium: 'none',
+      campaign: '(no campaign name)',
+      content: '',
+      signedUp: 55,
+      finishedOnboarding: 22,
+      activeInTrial: 14,
+      paid: 5,
+      onboardingRate: 40,
+      paidRate: 9.1,
+    },
+  ]
+
+  return {
+    rows,
+    totals: {
+      signedUp: rows.reduce((n, r) => n + r.signedUp, 0),
+      finishedOnboarding: rows.reduce((n, r) => n + r.finishedOnboarding, 0),
+      activeInTrial: rows.reduce((n, r) => n + r.activeInTrial, 0),
+      paid: rows.reduce((n, r) => n + r.paid, 0),
+      taggedSignups: 104,
+      untaggedSignups: 55,
+    },
+    generatedAt: new Date().toISOString(),
   }
 }
 

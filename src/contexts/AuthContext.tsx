@@ -12,6 +12,10 @@ import { getSupabase, isSupabaseConfigured, tryGetSupabase } from '../lib/supaba
 import { clearLocalUserData } from '../utils/localStateStorage'
 import { fetchProfile, logAdminAction, type UserProfile } from '../services/adminRepository'
 import { trackEvent, updateLastSignIn, recordSessionActivity } from '../services/eventTracking'
+import {
+  attachMarketingAttributionToProfile,
+  getAttributionAuthMetadata,
+} from '../services/marketingAttribution'
 
 const IMPERSONATE_KEY = 'trubalance-impersonate'
 
@@ -111,6 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!user?.id || impersonation) return
     void recordSessionActivity(user.id)
+    void attachMarketingAttributionToProfile(user.id)
   }, [user?.id, impersonation])
 
   const signIn = useCallback(async (email: string, password: string) => {
@@ -123,6 +128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (data.user) {
       await updateLastSignIn(data.user.id)
       await trackEvent('login', data.user.id)
+      await attachMarketingAttributionToProfile(data.user.id)
     }
     return { error: null }
   }, [])
@@ -130,6 +136,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithGoogle = useCallback(async () => {
     if (!isSupabaseConfigured) return { error: 'Supabase is not configured' }
     const supabase = getSupabase()
+    // Campaign tags stay in localStorage and are attached after redirect.
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -143,13 +150,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signUp = useCallback(async (email: string, password: string, fullName: string) => {
     if (!isSupabaseConfigured) return { error: 'Supabase is not configured' }
     const supabase = getSupabase()
+    const attributionMeta = getAttributionAuthMetadata()
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: fullName } },
+      options: {
+        data: {
+          full_name: fullName,
+          ...attributionMeta,
+        },
+      },
     })
     if (error) return { error: error.message }
-    if (data.user) await trackEvent('signup', data.user.id)
+    if (data.user) {
+      await trackEvent('signup', data.user.id, undefined, {
+        ...attributionMeta,
+      })
+      await attachMarketingAttributionToProfile(data.user.id)
+    }
     return { error: null }
   }, [])
 

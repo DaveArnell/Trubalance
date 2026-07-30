@@ -24,6 +24,8 @@ import {
   getEmptyProductAnalytics,
   getMockPayments,
   getMockPlatformSettings,
+  getMockCampaignPerformance,
+  getEmptyCampaignPerformance,
   getMockProductAnalytics,
   getMockQrCodes,
   getMockRecentActivity,
@@ -61,6 +63,7 @@ import type {
   ListParams,
   NotificationTemplateRow,
   PaginatedResult,
+  CampaignPerformanceSnapshot,
   PlatformOverviewStats,
   PlatformSettings,
   ProductAnalyticsSnapshot,
@@ -73,6 +76,10 @@ import type {
 } from './types'
 import { buildSetupFunnelSnapshot, emptySetupFunnelSnapshot } from './utils/setupFunnelStats'
 import { loadAllAdminNotes as loadMockAdminNotes } from './services/adminLocalStorage'
+import {
+  emptyCampaignPerformanceSnapshot,
+  fetchCampaignPerformanceSnapshot,
+} from '../services/campaignPerformance'
 
 const DEFAULT_PAGE_SIZE = 25
 
@@ -803,6 +810,16 @@ export async function adminDeleteUser(
     email: detail?.email,
   })
   return { error: null }
+}
+
+export async function adminFetchCampaignPerformance(): Promise<CampaignPerformanceSnapshot> {
+  if (await useMockData()) return getMockCampaignPerformance()
+  if (!isSupabaseConfigured) return getEmptyCampaignPerformance()
+  try {
+    return await fetchCampaignPerformanceSnapshot()
+  } catch {
+    return emptyCampaignPerformanceSnapshot()
+  }
 }
 
 export async function adminFetchProductAnalytics(): Promise<ProductAnalyticsSnapshot> {

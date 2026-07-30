@@ -36,8 +36,20 @@ When someone pastes a Cash Prophet link in WhatsApp, Slack, LinkedIn, or Faceboo
 ## Supabase
 
 - [x] Support messages migration **025** run
+- [ ] **Marketing attribution migration 026** — run `supabase/migrations/026_marketing_attribution.sql` in Supabase SQL Editor (adds campaign tags on profiles + signup hook). Needed for Ads & campaigns admin.
 - [ ] Edge functions deployed when billing/admin changes land
 - [ ] Platform admin account granted for your vocatio.io user
+
+---
+
+## Ads & campaigns (attribution)
+
+**Goal:** know which ads produce paying customers — not just clicks.
+
+- **Admin:** `/platform-admin/campaigns` — funnel by campaign + plain-English guide for tagging links.
+- **How it works:** put tagged links in ads (e.g. `?utm_source=meta&utm_medium=paid&utm_campaign=spring_offer`). Tags are remembered in the browser, saved on signup, then shown as signup → setup → trial use → paid.
+- **Requires:** migration **026** run in Supabase.
+- Does **not** pull Meta/Google spend yet; use their dashboards for cost, this page for who actually paid.
 
 ---
 

@@ -1142,3 +1142,58 @@
   font-size: 0.72rem;
   line-height: 1.4;
 }
+
+/* Ads & campaigns guide */
+
+.admin-guide {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.admin-guide-block h3 {
+  margin: 0 0 var(--space-2);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.admin-guide-block p {
+  margin: 0 0 var(--space-2);
+  color: #d4d4d8;
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.admin-guide-block p:last-child {
+  margin-bottom: 0;
+}
+
+.admin-guide-list {
+  margin: 0 0 var(--space-2);
+  padding-left: 1.2rem;
+  color: #d4d4d8;
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.admin-guide-list li + li {
+  margin-top: 0.45rem;
+}
+
+.admin-guide-list code,
+.admin-guide-code {
+  font-family: ui-monospace, monospace;
+  font-size: 0.78rem;
+}
+
+.admin-guide-code {
+  display: block;
+  overflow-x: auto;
+  margin: 0 0 var(--space-3);
+  padding: 0.75rem 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.35);
+  color: #a7f3d0;
+  white-space: pre-wrap;
+  word-break: break-all;
+}

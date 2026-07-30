@@ -1,4 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { MarketingAttributionCapture } from './components/MarketingAttributionCapture'
 import { AuthProvider } from './contexts/AuthContext'
 import { CookieNotice } from './components/CookieNotice'
 import { WorkspaceProvider } from './contexts/WorkspaceContext'
@@ -23,6 +24,7 @@ export function AppRouter() {
   return (
     <BrowserRouter>
       <TrailingSlashGuard />
+      <MarketingAttributionCapture />
       <AuthProvider>
         <WorkspaceProvider>
           <Routes>
