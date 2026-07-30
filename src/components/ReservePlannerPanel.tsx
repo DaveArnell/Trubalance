@@ -120,59 +120,66 @@ function ReserveMonthFlowBar({
   const operatingAccount = getPlannerOperatingAccount(state, planner)
   const reserveName = reserveAccount?.name ?? 'reserve'
   const operatingName = operatingAccount?.name ?? 'current account'
-  const netTransfer = computeReserveOperatingTransfer(
-    suggestedReserveBalance,
-    transferTarget,
+
+  const [editing, setEditing] = useState(!confirmation)
+  const [reserveBeforeDraft, setReserveBeforeDraft] = useState(() =>
+    String(suggestedReserveBalance),
   )
+  const [reserveAfterDraft, setReserveAfterDraft] = useState(() =>
+    confirmation ? String(confirmation.balance) : String(transferTarget),
+  )
+  const [transferDone, setTransferDone] = useState(() => {
+    if (confirmation?.transferDone != null) return confirmation.transferDone
+    const initialNet = computeReserveOperatingTransfer(suggestedReserveBalance, transferTarget)
+    return initialNet.direction === 'none'
+  })
+  const userEditedBeforeRef = useRef(false)
+  const userEditedAfterRef = useRef(false)
+
+  const parsedBefore = Number(reserveBeforeDraft)
+  const reserveBefore = Number.isNaN(parsedBefore) ? suggestedReserveBalance : parsedBefore
+  const netTransfer = computeReserveOperatingTransfer(reserveBefore, transferTarget)
   const transferLine = formatMonthlyNetTransfer(netTransfer, reserveName, operatingName)
   const needsTransfer = netTransfer.direction !== 'none'
 
-  const [editing, setEditing] = useState(!confirmation)
-  const [operatingDraft, setOperatingDraft] = useState(() =>
-    confirmation?.operatingBalanceBefore != null
-      ? String(confirmation.operatingBalanceBefore)
-      : String(suggestedOperatingBalance),
-  )
-  const [reserveDraft, setReserveDraft] = useState(() =>
-    confirmation ? String(confirmation.balance) : String(suggestedReserveBalance),
-  )
-  const [transferDone, setTransferDone] = useState(() => confirmation?.transferDone ?? !needsTransfer)
-  const userEditedRef = useRef(false)
-
   useEffect(() => {
     if (confirmation) {
-      userEditedRef.current = false
+      userEditedBeforeRef.current = false
+      userEditedAfterRef.current = false
       return
     }
-    if (userEditedRef.current) return
-    setOperatingDraft(String(suggestedOperatingBalance))
-    setReserveDraft(String(suggestedReserveBalance))
-    setTransferDone(!needsTransfer)
-  }, [confirmation, suggestedOperatingBalance, suggestedReserveBalance, needsTransfer])
+    if (!userEditedBeforeRef.current) {
+      setReserveBeforeDraft(String(suggestedReserveBalance))
+    }
+    if (!userEditedAfterRef.current) {
+      setReserveAfterDraft(String(transferTarget))
+    }
+  }, [confirmation, suggestedReserveBalance, transferTarget])
+
+  useEffect(() => {
+    if (confirmation) return
+    if (!needsTransfer) setTransferDone(true)
+  }, [confirmation, needsTransfer])
 
   const isConfirmed = !!confirmation && !editing
-  const parsedReserve = Number(reserveDraft)
+  const parsedAfter = Number(reserveAfterDraft)
   const canConfirm =
-    !Number.isNaN(parsedReserve) && (!needsTransfer || transferDone)
+    !Number.isNaN(parsedAfter) && (!needsTransfer || transferDone)
 
   const openEdit = () => {
-    userEditedRef.current = true
-    setOperatingDraft(
-      confirmation?.operatingBalanceBefore != null
-        ? String(confirmation.operatingBalanceBefore)
-        : String(suggestedOperatingBalance || ''),
-    )
-    setReserveDraft(confirmation ? String(confirmation.balance) : String(suggestedReserveBalance || ''))
+    userEditedBeforeRef.current = true
+    userEditedAfterRef.current = true
+    setReserveBeforeDraft(String(suggestedReserveBalance || ''))
+    setReserveAfterDraft(confirmation ? String(confirmation.balance) : String(transferTarget || ''))
     setTransferDone(confirmation?.transferDone ?? !needsTransfer)
     setEditing(true)
   }
 
   const submit = () => {
     if (!canConfirm) return
-    const operatingParsed = Number(operatingDraft)
     onConfirm({
-      balance: parsedReserve,
-      operatingBalanceBefore: Number.isNaN(operatingParsed) ? undefined : operatingParsed,
+      balance: parsedAfter,
+      operatingBalanceBefore: suggestedOperatingBalance,
       transferDone: needsTransfer ? transferDone : true,
     })
     setEditing(false)
@@ -191,10 +198,7 @@ function ReserveMonthFlowBar({
             <span className="reserve-month-flow-done-mark">✓</span>
             <span className="reserve-month-flow-summary-text">
               {transferLine}
-              {confirmation.operatingBalanceBefore != null && (
-                <> · Current {formatCellAmount(confirmation.operatingBalanceBefore)}</>
-              )}
-              {' · Reserve '}
+              {' · New reserve funds '}
               {formatCellAmount(confirmation.balance)}
               {monthEnd.variance !== null && Math.abs(monthEnd.variance) >= 0.5 && (
                 <span className="reserve-month-flow-variance">
@@ -221,19 +225,26 @@ function ReserveMonthFlowBar({
       ) : (
         <>
           <label className="reserve-month-flow-field">
-            <span>Current</span>
+            <span>Reserve now</span>
             <input
               className="sheet-input reserve-month-flow-input"
               type="number"
               step="0.01"
               placeholder={getCurrencySymbol()}
-              value={operatingDraft}
+              value={reserveBeforeDraft}
               onChange={(e) => {
-                userEditedRef.current = true
-                setOperatingDraft(e.target.value)
+                userEditedBeforeRef.current = true
+                setReserveBeforeDraft(e.target.value)
               }}
+              title="What is in the reserve account now"
             />
           </label>
+          <div className="reserve-month-flow-target" title="Planned reserve balance after this month’s transfer">
+            <span>Should be</span>
+            <p className="reserve-month-flow-target-value">
+              <strong>{formatCellAmount(transferTarget)}</strong>
+            </p>
+          </div>
           <p className={`reserve-month-flow-transfer reserve-month-flow-transfer--${netTransfer.direction}`}>
             {transferLine}
           </p>
@@ -248,16 +259,16 @@ function ReserveMonthFlowBar({
             </label>
           )}
           <label className="reserve-month-flow-field">
-            <span>Reserve</span>
+            <span>New reserve funds</span>
             <input
               className="sheet-input reserve-month-flow-input"
               type="number"
               step="0.01"
               placeholder={getCurrencySymbol()}
-              value={reserveDraft}
+              value={reserveAfterDraft}
               onChange={(e) => {
-                userEditedRef.current = true
-                setReserveDraft(e.target.value)
+                userEditedAfterRef.current = true
+                setReserveAfterDraft(e.target.value)
               }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
@@ -265,6 +276,7 @@ function ReserveMonthFlowBar({
                   submit()
                 }
               }}
+              title="Reserve balance after the transfer"
             />
           </label>
           <button
@@ -835,7 +847,17 @@ export function ReservePlannerPanel({
       <div className="reserve-planner-block reserve-planner-block--solo">
             <div className="reserve-planner-top">
               <div className="reserve-planner-top-metrics" data-tour="reserve-planner-buffer">
-                <label className="reserve-buffer-field">
+                <div
+                  className="reserve-transfer-field"
+                  data-tour="reserve-planner-transfer"
+                  title="Average of your annual reserve bills ÷ 12 — not this month’s transfer"
+                >
+                  <span>Average monthly transfer</span>
+                  <p className="reserve-monthly-transfer">
+                    <strong>{formatCurrency(grid.totalMonthly)}</strong>
+                  </p>
+                </div>
+                <label className="reserve-buffer-field reserve-buffer-field--narrow">
                   <span>Buffer</span>
                   <input
                     className="sheet-input sheet-input--compact"
@@ -849,16 +871,6 @@ export function ReservePlannerPanel({
                     readOnly={editReadOnly}
                   />
                 </label>
-                <div
-                  className="reserve-transfer-field"
-                  data-tour="reserve-planner-transfer"
-                  title="Fixed amount to move into reserve each month (annual bills ÷ 12)"
-                >
-                  <span>Monthly transfer</span>
-                  <p className="reserve-monthly-transfer">
-                    <strong>{formatCurrency(grid.totalMonthly)}</strong>
-                  </p>
-                </div>
               </div>
 
               <div className="reserve-planner-top-confirm" data-tour="reserve-planner-month">

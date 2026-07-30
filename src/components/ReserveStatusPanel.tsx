@@ -32,7 +32,7 @@ export function ReserveStatusPanel({
           id="reserve-status"
           openHelp={openHelp}
           setOpenHelp={setOpenHelp}
-          text="Reserve balances come from your linked reserve savings accounts in Settings. Monthly transfer is what each plan needs you to set aside (annual bills ÷ 12)."
+          text="Reserve balances come from your linked reserve savings accounts in Settings. Average monthly transfer is annual bills ÷ 12 — a planning guide, not this month’s bank move."
         />
       </div>
 
@@ -43,7 +43,7 @@ export function ReserveStatusPanel({
         <thead>
           <tr>
             <th className="col-balance">Planner</th>
-            <th className="col-amount">Monthly transfer</th>
+            <th className="col-amount">Avg monthly</th>
             <th className="col-amount">In account</th>
             <th className="col-meta">Status</th>
           </tr>

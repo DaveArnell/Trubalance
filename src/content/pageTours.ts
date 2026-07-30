@@ -140,15 +140,15 @@ export const PAGE_TOURS: Partial<Record<PageId, PageTour>> = {
       {
         id: 'rp-buffer',
         target: '[data-tour="reserve-planner-buffer"]',
-        title: 'Minimum buffer',
-        body: 'The lowest balance you want sitting in reserve across the year.\n\nThe outlook chart treats this as a floor, so you can see months that would dip below your comfort level.',
+        title: 'Average transfer and buffer',
+        body: 'Average monthly transfer is your annual reserve bills divided by 12 — a planning guide, not this month’s action.\n\nBuffer is the lowest balance you want sitting in reserve across the year. The outlook chart treats it as a floor.',
         placement: 'bottom',
       },
       {
         id: 'rp-month',
         target: '[data-tour="reserve-planner-month"]',
-        title: 'This month',
-        body: 'Confirm operating and reserve balances each month. The plan then tells you how much to transfer between accounts.\n\nTreat that transfer as the monthly habit that keeps big bills funded before they land.',
+        title: 'This month’s transfer',
+        body: 'Each month: check reserve now, see what it should be after, then move the amount shown between accounts.\n\nTick Transfer done, enter the new reserve funds, and Confirm. That habit keeps big bills funded before they land.',
         placement: 'bottom',
       },
       {
