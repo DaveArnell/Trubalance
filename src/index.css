@@ -8633,6 +8633,15 @@ textarea:focus {
   text-underline-offset: 3px;
 }
 
+.history-cell-manual .history-manual-marker {
+  margin-left: 2px;
+  font-weight: 700;
+  color: var(--accent-text, var(--accent));
+  vertical-align: super;
+  font-size: 0.75em;
+  line-height: 0;
+}
+
 /* ─── Snapshot correction modal ─────────────────────────────── */
 .snapshot-correction-backdrop {
   position: fixed;
