@@ -1,4 +1,4 @@
-import { useId, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { ReserveMonthEndBalance } from '../utils/reserveCalculations'
 import { computeNiceTicks, computeTrendYDomain, formatAxisCurrency, isChartZeroTick } from '../utils/chartFormat'
 import { formatCurrency } from '../utils/format'
@@ -26,9 +26,8 @@ interface PlotLayout {
 const CHART_HEIGHT = 148
 const PAD_TOP = 14
 const PAD_BOTTOM = 28
-/** Leave room for £-axis labels so grid / zero / buffer lines do not run through them. */
-const AXIS_GUTTER = 36
-const PAD_RIGHT = 6
+/** Small inset so axis labels sit inside the plot without eating January’s column. */
+const LABEL_INSET = 4
 
 function actualBalanceForMonth(
   month: ReserveMonthEndBalance,
@@ -123,7 +122,6 @@ export function ReservePlanChart({
   const [windowStart, setWindowStart] = useState(0)
   const [dragging, setDragging] = useState(false)
   const dragRef = useRef<{ startX: number; startWindow: number } | null>(null)
-  const clipId = useId().replace(/:/g, '')
 
   const visibleMonths = useMemo(
     () => (canRotate ? rotateMonths(months, windowStart) : months),
@@ -201,8 +199,10 @@ export function ReservePlanChart({
   const zeroY = chart.yMin <= 0 && chart.yMax >= 0 ? yForValue(0) : null
   const monthSlotWidth = (index: number) =>
     layout?.monthWidths[index] ?? plotWidth / monthCount
-  const plotInnerLeft = AXIS_GUTTER
-  const plotInnerRight = Math.max(plotInnerLeft + 1, plotWidth - PAD_RIGHT)
+  // Horizontal guides follow the month centres so Jan bills stay visible and
+  // the £0 line does not stick out past Dec.
+  const guideLeft = balancePoints[0]?.x ?? 0
+  const guideRight = balancePoints[balancePoints.length - 1]?.x ?? plotWidth
 
   const beginDrag = (clientX: number) => {
     if (!canRotate) return
@@ -279,21 +279,10 @@ export function ReservePlanChart({
               : { width: '100%', maxWidth: '100%' }
           }
         >
-          <defs>
-            <clipPath id={clipId}>
-              <rect
-                x={plotInnerLeft}
-                y={PAD_TOP}
-                width={Math.max(0, plotInnerRight - plotInnerLeft)}
-                height={plotHeight}
-              />
-            </clipPath>
-          </defs>
-
           <rect
-            x={plotInnerLeft}
+            x={0}
             y={PAD_TOP}
-            width={Math.max(0, plotInnerRight - plotInnerLeft)}
+            width={plotWidth}
             height={plotHeight}
             className="reserve-plan-chart-plot-bg"
             rx="6"
@@ -305,16 +294,16 @@ export function ReservePlanChart({
             return (
               <g key={tick}>
                 <line
-                  x1={plotInnerLeft}
+                  x1={guideLeft}
                   y1={y}
-                  x2={plotInnerRight}
+                  x2={guideRight}
                   y2={y}
                   className="reserve-plan-chart-grid"
                 />
                 <text
-                  x={plotInnerLeft - 4}
+                  x={LABEL_INSET}
                   y={y + 3}
-                  textAnchor="end"
+                  textAnchor="start"
                   className="reserve-plan-chart-axis"
                 >
                   {formatAxisCurrency(tick)}
@@ -326,16 +315,16 @@ export function ReservePlanChart({
           {zeroY !== null && (
             <g className="chart-zero-line-group" aria-hidden>
               <line
-                x1={plotInnerLeft}
+                x1={guideLeft}
                 y1={zeroY}
-                x2={plotInnerRight}
+                x2={guideRight}
                 y2={zeroY}
                 className="chart-zero-line"
               />
               <text
-                x={plotInnerLeft - 4}
+                x={LABEL_INSET}
                 y={zeroY + 3}
-                textAnchor="end"
+                textAnchor="start"
                 className="reserve-plan-chart-axis chart-axis-tick-zero"
               >
                 {formatAxisCurrency(0)}
@@ -343,84 +332,82 @@ export function ReservePlanChart({
             </g>
           )}
 
-          <g clipPath={`url(#${clipId})`}>
-            {visibleMonths.map((month, index) => {
-              if (month.monthIndex !== currentMonthIdx) return null
-              const x = xForIndex(index)
-              const half = monthSlotWidth(index) / 2
-              return (
-                <rect
-                  key={`current-${month.month}`}
-                  x={x - half}
-                  y={PAD_TOP}
-                  width={half * 2}
-                  height={plotHeight}
-                  className="reserve-plan-chart-current-month"
-                />
-              )
-            })}
-
-            {bufferAmount > 0 ? (
-              <line
-                x1={plotInnerLeft}
-                y1={bufferY}
-                x2={plotInnerRight}
-                y2={bufferY}
-                className="reserve-plan-chart-buffer"
+          {visibleMonths.map((month, index) => {
+            if (month.monthIndex !== currentMonthIdx) return null
+            const x = xForIndex(index)
+            const half = monthSlotWidth(index) / 2
+            return (
+              <rect
+                key={`current-${month.month}`}
+                x={x - half}
+                y={PAD_TOP}
+                width={half * 2}
+                height={plotHeight}
+                className="reserve-plan-chart-current-month"
               />
-            ) : null}
+            )
+          })}
 
-            <polygon
-              className="reserve-plan-chart-area"
-              points={[
-                ...steppedPoints.map((p) => `${p.x},${p.y}`),
-                `${steppedPoints[steppedPoints.length - 1]!.x},${PAD_TOP + plotHeight}`,
-                `${steppedPoints[0]!.x},${PAD_TOP + plotHeight}`,
-              ].join(' ')}
+          {bufferAmount > 0 ? (
+            <line
+              x1={guideLeft}
+              y1={bufferY}
+              x2={guideRight}
+              y2={bufferY}
+              className="reserve-plan-chart-buffer"
             />
+          ) : null}
 
-            {horizontalSegments.map((segment) => (
+          <polygon
+            className="reserve-plan-chart-area"
+            points={[
+              ...steppedPoints.map((p) => `${p.x},${p.y}`),
+              `${steppedPoints[steppedPoints.length - 1]!.x},${PAD_TOP + plotHeight}`,
+              `${steppedPoints[0]!.x},${PAD_TOP + plotHeight}`,
+            ].join(' ')}
+          />
+
+          {horizontalSegments.map((segment) => (
+            <line
+              key={segment.key}
+              x1={segment.x1}
+              y1={segment.y1}
+              x2={segment.x2}
+              y2={segment.y2}
+              className="reserve-plan-chart-balance-line"
+            />
+          ))}
+
+          {balancePoints.map((point) => {
+            if (point.due <= 0) return null
+            return (
               <line
-                key={segment.key}
-                x1={segment.x1}
-                y1={segment.y1}
-                x2={segment.x2}
-                y2={segment.y2}
-                className="reserve-plan-chart-balance-line"
+                key={`due-${point.month.month}`}
+                x1={point.x}
+                y1={point.beforeBillsY}
+                x2={point.x}
+                y2={point.y}
+                className="reserve-plan-chart-outgoing"
               />
-            ))}
+            )
+          })}
 
-            {balancePoints.map((point) => {
-              if (point.due <= 0) return null
-              return (
-                <line
-                  key={`due-${point.month.month}`}
-                  x1={point.x}
-                  y1={point.beforeBillsY}
-                  x2={point.x}
-                  y2={point.y}
-                  className="reserve-plan-chart-outgoing"
-                />
-              )
-            })}
-
-            {balancePoints.map((point) => (
-              <g key={point.month.month}>
-                <circle
-                  cx={point.x}
-                  cy={point.y}
-                  r={point.month.monthIndex === currentMonthIdx ? 4.5 : 3}
-                  className={`reserve-plan-chart-dot${point.month.isLowestMonth ? ' reserve-plan-chart-dot--low' : ''}`}
-                />
-                {point.due > 0 && (
-                  <title>
-                    {point.month.month}: {formatCurrency(point.due)} due — planned{' '}
-                    {formatCurrency(point.month.balanceAfterBills)}
-                  </title>
-                )}
-              </g>
-            ))}
-          </g>
+          {balancePoints.map((point) => (
+            <g key={point.month.month}>
+              <circle
+                cx={point.x}
+                cy={point.y}
+                r={point.month.monthIndex === currentMonthIdx ? 4.5 : 3}
+                className={`reserve-plan-chart-dot${point.month.isLowestMonth ? ' reserve-plan-chart-dot--low' : ''}`}
+              />
+              {point.due > 0 && (
+                <title>
+                  {point.month.month}: {formatCurrency(point.due)} due — planned{' '}
+                  {formatCurrency(point.month.balanceAfterBills)}
+                </title>
+              )}
+            </g>
+          ))}
 
           {visibleMonths.map((month, index) => {
             const x = xForIndex(index)
