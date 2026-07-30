@@ -16,6 +16,7 @@ import { getSnapshotIdsForDateInScope } from '../utils/snapshots'
 import { useDemoMode } from '../contexts/DemoModeContext'
 
 import type { AppActions } from '../hooks/useAppState'
+import { useMobileNav } from '../hooks/useMobileNav'
 
 import { useTablePreferences } from '../contexts/TablePreferencesContext'
 
@@ -82,6 +83,7 @@ export function TrueBalanceHistoryTable({
   onSetDayNote,
 }: TrueBalanceHistoryTableProps) {
   const demoMode = useDemoMode()
+  const { isMobile } = useMobileNav()
   const [correction, setCorrection] = useState<SnapshotCorrectionDraft | null>(null)
   const [addingManual, setAddingManual] = useState(false)
   const [noteEditorDate, setNoteEditorDate] = useState<string | null>(null)
@@ -236,10 +238,163 @@ export function TrueBalanceHistoryTable({
     return 0
   })()
 
+  const reversedRows = useMemo(() => [...rows].reverse(), [rows])
+  const totalColumn = columns.find((col) => col.isTotal)
+  const detailColumns = columns.filter((col) => !col.isTotal)
+
+  const mobileCardsBody =
+    rows.length === 0 ? (
+      <p className="muted">
+        No chart data yet. Save bank balances in the overview, or use + Add to enter a past Cash
+        Prophet Balance by hand.
+      </p>
+    ) : (
+      <ul className="history-mobile-cards">
+        {reversedRows.map((row) => {
+          const dayNote = granularity === 'daily' ? getDayNoteText(state, row.date, viewScope) : null
+          const totalCell = totalColumn ? row.values[totalColumn.key] : null
+          const totalEditable =
+            granularity === 'daily' &&
+            Boolean(correctSnapshotMetric && totalCell?.snapshotId && totalCell.value != null)
+          const totalCorrected = totalCell?.recordedValue != null
+          const totalManual = Boolean(totalCell?.manualEntry)
+
+          return (
+            <li key={row.date} className="history-mobile-card">
+              <div className="history-mobile-card-top">
+                <div className="history-mobile-card-date">
+                  <span className="history-date-label">
+                    {formatHistoryPeriod(row.date, granularity)}
+                  </span>
+                  {totalManual ? (
+                    <span className="history-manual-marker" aria-label="Manual entry">
+                      *
+                    </span>
+                  ) : null}
+                </div>
+                <div className="history-mobile-card-total-wrap">
+                  <button
+                    type="button"
+                    className={[
+                      'history-mobile-card-total',
+                      totalEditable ? 'history-cell-editable' : '',
+                      totalCorrected ? 'history-cell-corrected' : '',
+                      totalManual ? 'history-cell-manual' : '',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
+                    disabled={!totalEditable}
+                    title={
+                      totalCorrected
+                        ? `Originally recorded: ${formatCurrency(totalCell!.recordedValue!)}. Tap to edit.`
+                        : totalEditable
+                          ? 'Tap to correct this value'
+                          : undefined
+                    }
+                    onClick={() => {
+                      if (!totalEditable || !totalCell?.snapshotId || totalCell.value == null) return
+                      openCorrection(
+                        totalCell.snapshotId,
+                        row.date,
+                        totalColumn?.label ?? 'Total',
+                        totalCell.value,
+                        totalCell.recordedValue,
+                      )
+                    }}
+                  >
+                    {totalCell?.value == null ? '—' : formatCurrency(totalCell.value)}
+                  </button>
+                  {onDeleteSnapshots && granularity === 'daily' ? (
+                    <button
+                      type="button"
+                      className="history-row-delete"
+                      onClick={() => deleteRow(row)}
+                      aria-label={`Delete entry for ${formatHistoryPeriod(row.date, granularity)}`}
+                      title="Delete this entry"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+                        <path
+                          d="M3 4h8M5.5 4V3h3v1M5.5 6.5v3M8.5 6.5v3M4.5 4l.4 7h4.2l.4-7"
+                          stroke="currentColor"
+                          strokeWidth="1.2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </button>
+                  ) : null}
+                </div>
+              </div>
+
+              {detailColumns.length > 0 ? (
+                <ul className="history-mobile-card-details">
+                  {detailColumns.map((col) => {
+                    const cell = row.values[col.key]
+                    const editable =
+                      granularity === 'daily' &&
+                      Boolean(correctSnapshotMetric && cell.snapshotId && cell.value != null)
+                    return (
+                      <li key={col.key}>
+                        <span className="history-mobile-card-detail-label">
+                          <span className="history-col-swatch" style={{ background: col.color }} />
+                          {col.label}
+                        </span>
+                        <button
+                          type="button"
+                          className={[
+                            'history-mobile-card-detail-value',
+                            editable ? 'history-cell-editable' : '',
+                            cell.recordedValue != null ? 'history-cell-corrected' : '',
+                            cell.manualEntry ? 'history-cell-manual' : '',
+                          ]
+                            .filter(Boolean)
+                            .join(' ')}
+                          disabled={!editable}
+                          onClick={() => {
+                            if (!editable || !cell.snapshotId || cell.value == null) return
+                            openCorrection(
+                              cell.snapshotId,
+                              row.date,
+                              col.label,
+                              cell.value,
+                              cell.recordedValue,
+                            )
+                          }}
+                        >
+                          {cell.value == null ? '—' : formatCurrency(cell.value)}
+                          {cell.manualEntry ? (
+                            <span className="history-manual-marker" aria-label="Manual entry">
+                              *
+                            </span>
+                          ) : null}
+                        </button>
+                      </li>
+                    )
+                  })}
+                </ul>
+              ) : null}
+
+              {granularity === 'daily' && onSetDayNote ? (
+                <button
+                  type="button"
+                  className={`history-mobile-card-note${dayNote ? ' history-mobile-card-note--filled' : ''}`}
+                  onClick={() => setNoteEditorDate(row.date)}
+                >
+                  {dayNote ?? 'Add note…'}
+                </button>
+              ) : null}
+            </li>
+          )
+        })}
+      </ul>
+    )
+
   const tableBody = (
     <>
       {revealFromBar}
-      {rows.length === 0 ? (
+      {isMobile ? (
+        mobileCardsBody
+      ) : rows.length === 0 ? (
         <p className="muted">
           No chart data yet. Save bank balances in the overview, or use + Add to enter a past Cash
           Prophet Balance by hand.
@@ -285,7 +440,7 @@ export function TrueBalanceHistoryTable({
               </tr>
             </thead>
             <tbody>
-              {[...rows].reverse().map((row) => {
+              {reversedRows.map((row) => {
                 const dayNote = granularity === 'daily' ? getDayNoteText(state, row.date, viewScope) : null
                 return (
                 <tr key={row.date}>

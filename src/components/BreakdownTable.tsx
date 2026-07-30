@@ -433,13 +433,15 @@ export function BreakdownTable({
   const hasReceipts = showDetailRows && showReceipts && columns.some((col) => col.expectedReceipts !== 0)
   const showTrueBalance = !balancesOnly
   const bankLabel = shortLabels ? 'Bank' : 'Bank balance'
-  const cpbLabel = shortLabels ? 'Prophet' : 'Cash Prophet Balance'
+  const cpbLabel = shortLabels ? 'CPB' : 'Cash Prophet Balance'
   const costsLabel = shortLabels ? 'Costs' : 'Total costs'
-  const receiptsLabel = shortLabels ? 'Receipts' : 'Expected receipts'
+  const receiptsLabel = shortLabels ? 'In' : 'Expected receipts'
 
-  const balanceRow = (rowType: 'current' | 'savings', label: string) => (
+  const balanceRow = (rowType: 'current' | 'savings', label: string, fullLabel?: string) => (
     <tr className={`sheet-row-balance${rowType === 'savings' ? ' sheet-row-savings' : ''}`}>
-      <td className="sheet-row-label">{label}</td>
+      <td className="sheet-row-label" title={fullLabel ?? label}>
+        {label}
+      </td>
       {columns.map((col) => {
         const accounts = rowType === 'current' ? col.currentAccounts : col.savingsAccounts
         const value = rowType === 'current' ? col.current : col.savings
@@ -526,12 +528,14 @@ export function BreakdownTable({
           </tr>
         </thead>
         <tbody>
-          {balanceRow('current', bankLabel)}
+          {balanceRow('current', bankLabel, 'Bank balance')}
           {showSavingsRow && balanceRow('savings', 'Savings Acc')}
           {showDetailRows ? (
             <>
               <tr className="sheet-row-costs">
-                <td className="sheet-row-label">{costsLabel}</td>
+                <td className="sheet-row-label" title="Total costs">
+                  {costsLabel}
+                </td>
                 {columns.map((col) => (
                   <CostsCell
                     key={col.key}
@@ -546,7 +550,9 @@ export function BreakdownTable({
               </tr>
               {hasReceipts && (
                 <tr className="sheet-row-receipts">
-                  <td className="sheet-row-label">{receiptsLabel}</td>
+                  <td className="sheet-row-label" title="Expected receipts">
+                    {receiptsLabel}
+                  </td>
                   {columns.map((col) => (
                     <Cell
                       key={col.key}
@@ -561,7 +567,9 @@ export function BreakdownTable({
           ) : null}
           {showTrueBalance ? (
             <tr className="sheet-row-final">
-              <td className="sheet-row-label">{cpbLabel}</td>
+              <td className="sheet-row-label" title="Cash Prophet Balance">
+                {cpbLabel}
+              </td>
               {columns.map((col) => (
                 <Cell
                   key={col.key}
