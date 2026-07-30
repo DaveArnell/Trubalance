@@ -720,7 +720,7 @@ function AppShellInner({
     if (item.id === 'balances-stale') {
       goToRoute('committed-funds')
       window.setTimeout(() => {
-        document.querySelector('[data-tour="overview-balances"]')?.scrollIntoView({
+        document.querySelector('[data-tour="overview-hero"]')?.scrollIntoView({
           behavior: 'smooth',
           block: 'nearest',
         })

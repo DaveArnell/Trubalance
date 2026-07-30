@@ -1,9 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
-import { getTourStepVideo } from '../content/videos'
 import { MOBILE_LAYOUT_MQ } from '../hooks/useMobileNav'
 import { useTour } from '../contexts/TourContext'
-import { toVideoEmbedUrl } from '../utils/videoEmbed'
 
 interface SpotlightRect {
   top: number
@@ -14,9 +12,9 @@ interface SpotlightRect {
 
 const PAD = 10
 const TARGET_CLASS = 'guided-tour-target'
-const CARD_WIDTH = 460
-const CARD_HEIGHT = 420
-const CARD_MAX_WIDTH = 'min(30rem, calc(100vw - 2rem))'
+const CARD_WIDTH = 380
+const CARD_HEIGHT = 280
+const CARD_MAX_WIDTH = 'min(24rem, calc(100vw - 2rem))'
 
 function TourOverlay({ rect }: { rect: SpotlightRect | null }) {
   const vw = typeof window !== 'undefined' ? window.innerWidth : 0
@@ -61,36 +59,6 @@ function TourOverlay({ rect }: { rect: SpotlightRect | null }) {
         aria-hidden
       />
     </>
-  )
-}
-
-function TourMedia({ videoUrl, videoLabel }: { videoUrl?: string; videoLabel?: string }) {
-  const label = videoLabel || 'Walkthrough'
-
-  return (
-    <div className="guided-tour-media guided-tour-media--always-open">
-      <div className="guided-tour-media-frame">
-        {videoUrl ? (
-          <iframe
-            className="guided-tour-media-embed"
-            src={toVideoEmbedUrl(videoUrl)}
-            title={label}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
-        ) : (
-          <div className="guided-tour-media-placeholder" role="status">
-            <span className="guided-tour-media-play" aria-hidden>
-              ▶
-            </span>
-            <p>Video coming soon</p>
-            <p className="guided-tour-media-placeholder-hint">
-              A short walkthrough for this step will appear here.
-            </p>
-          </div>
-        )}
-      </div>
-    </div>
   )
 }
 
@@ -196,10 +164,9 @@ export function GuidedTour() {
 
   if (!activeTour || !step || isMobile) return null
 
-  const cardHeight = CARD_HEIGHT + 180
-
   const tooltipStyle = (): CSSProperties => {
     const cardWidth = CARD_WIDTH
+    const cardHeight = CARD_HEIGHT
     const margin = 12
     const gap = 14
 
@@ -227,12 +194,12 @@ export function GuidedTour() {
 
     const order: Array<'bottom' | 'top' | 'right' | 'left'> =
       preferred === 'left'
-        ? ['left', 'right', 'top', 'bottom']
+        ? ['left', 'right', 'bottom', 'top']
         : preferred === 'right'
-          ? ['right', 'left', 'top', 'bottom']
+          ? ['right', 'left', 'bottom', 'top']
           : preferred === 'top'
             ? ['top', 'bottom', 'right', 'left']
-            : ['bottom', 'top', 'right', 'left']
+            : ['bottom', 'right', 'left', 'top']
 
     const placement = order.find((side) => fits[side]) ?? 'bottom'
 
@@ -257,9 +224,12 @@ export function GuidedTour() {
         maxWidth: CARD_MAX_WIDTH,
       }
     }
+    // Prefer sitting under the spotlight, nudged toward the right so the card
+    // does not cover Cash Prophet Balance on the left of wide overview strips.
+    const preferRight = Math.max(margin, rect.left + rect.width - cardWidth)
     return {
       top: rect.top + rect.height + gap,
-      left: Math.min(Math.max(margin, rect.left), vw - cardWidth - margin),
+      left: Math.min(Math.max(margin, preferRight), vw - cardWidth - margin),
       maxWidth: CARD_MAX_WIDTH,
     }
   }
@@ -269,22 +239,15 @@ export function GuidedTour() {
     .map((part) => part.trim())
     .filter(Boolean)
 
-  const libraryVideo = getTourStepVideo(step.id)
-  const videoUrl = step.videoUrl ?? libraryVideo?.url
-  const videoLabel = step.videoLabel ?? libraryVideo?.label
-
   return createPortal(
     <div className="guided-tour-root" role="presentation">
       <TourOverlay rect={rect} />
       <div
-        className="guided-tour-card guided-tour-card--media-open"
+        className="guided-tour-card"
         style={tooltipStyle()}
         role="dialog"
         aria-labelledby="guided-tour-title"
       >
-        <p className="guided-tour-kicker">
-          {activeTour.tour.title} · Step {stepNumber} of {stepCount}
-        </p>
         <h3 id="guided-tour-title">{step.title}</h3>
         <div className="guided-tour-body">
           {bodyParagraphs.map((paragraph, index) => (
@@ -297,12 +260,14 @@ export function GuidedTour() {
             Back.
           </p>
         )}
-        <TourMedia videoUrl={videoUrl} videoLabel={videoLabel} />
         <div className="guided-tour-actions">
           <button type="button" className="btn-ghost btn-tiny" onClick={skipTour}>
             Skip tour
           </button>
           <div className="guided-tour-nav">
+            <span className="guided-tour-step-count muted" aria-live="polite">
+              {stepNumber} / {stepCount}
+            </span>
             <button
               type="button"
               className="btn-secondary btn-tiny"

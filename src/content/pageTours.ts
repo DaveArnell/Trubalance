@@ -8,7 +8,7 @@ export interface TourStep {
   placement?: 'top' | 'bottom' | 'left' | 'right'
   /** Navigate to this page before spotlighting the target */
   page?: PageId
-  /** Optional walkthrough clip; omit to resolve from src/content/videos.ts tour map */
+  /** Optional — reserved for when tour clips return; not shown in UI for now */
   videoUrl?: string
   videoLabel?: string
 }
@@ -27,10 +27,10 @@ export const SETUP_TOUR: PageTour = {
   steps: [
     {
       id: 'setup-balances',
-      target: '[data-tour="overview-balances"]',
+      target: '[data-tour="overview-hero"]',
       title: 'Add your current accounts',
       body: 'Your Cash Prophet Balance sits top left. Enter what’s in each current account in the table beside it — that gives the number its starting point.\n\nUse More for more overview detail. Save when you’re done.',
-      placement: 'left',
+      placement: 'bottom',
       page: 'committed-funds',
     },
     {
@@ -59,7 +59,7 @@ export const SETUP_TOUR: PageTour = {
     },
     {
       id: 'setup-true-balance',
-      target: '[data-tour="overview-balances"]',
+      target: '[data-tour="overview-hero"]',
       title: 'Your Cash Prophet Balance',
       body: 'As you add balances and costs, your Cash Prophet Balance updates. That’s the figure to trust day to day.\n\nWhen you’re ready for VAT and other irregular bills, open Reserve Planner in the sidebar.',
       placement: 'bottom',
@@ -76,7 +76,7 @@ export const PAGE_TOURS: Partial<Record<PageId, PageTour>> = {
     steps: [
       {
         id: 'cf-hero',
-        target: '[data-tour="overview-balances"]',
+        target: '[data-tour="overview-hero"]',
         title: 'Your balances',
         body: 'Your Cash Prophet Balance sits top left. Enter current account balances in the table beside it — that is the starting point for this number and for Trends.\n\nUse More to open more detail in this overview. Save whenever you reconcile so the numbers stay honest.',
         placement: 'bottom',

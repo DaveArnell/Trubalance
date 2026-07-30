@@ -7,7 +7,6 @@ import {
   dismissSetupOnboardingLocally,
   getSetupOnboardingSteps,
 } from '../../content/setupOnboarding'
-import { getSetupStepVideo } from '../../content/videos'
 import { WHY_CASH_PROPHET_CONTENT } from '../../content/guidedSetup'
 import { getOnboardingCashAccounts } from '../../utils/calculations'
 import type { PageId } from '../../navigation'
@@ -17,7 +16,6 @@ import { SetupStructureTree } from './SetupStructureTree'
 import { SetupAccruingCycleDemo } from './SetupAccruingCycleDemo'
 import { SetupDueCardsDemo } from './SetupDueCardsDemo'
 import { SetupReceiptCardsDemo } from './SetupReceiptCardsDemo'
-import { SetupVideoSlot } from './SetupVideoSlot'
 import { SetupStatementHelper } from './SetupStatementHelper'
 import { useAuth } from '../../contexts/AuthContext'
 import { trackEvent } from '../../services/eventTracking'
@@ -203,7 +201,6 @@ export function SetupOnboardingWizard({
   const explainParagraphs = step.explain.split('\n\n')
   const leadParagraph = explainParagraphs[0] ?? ''
   const detailParagraphs = explainParagraphs.slice(1)
-  const stepVideo = getSetupStepVideo(step.id)
 
   const footer = (
     <>
@@ -256,13 +253,6 @@ export function SetupOnboardingWizard({
           <h2 id="setup-onboarding-title">{step.title}</h2>
           <p className="setup-flow-page-lead">{leadParagraph}</p>
         </header>
-
-        {!step.hideVideo && (
-          <SetupVideoSlot
-            label={stepVideo?.label ?? step.videoLabel ?? step.title}
-            videoUrl={stepVideo?.url}
-          />
-        )}
 
         {detailParagraphs.map((para, i) => (
           <p key={i} className="setup-onboarding-explain">

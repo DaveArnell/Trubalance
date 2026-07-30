@@ -1,7 +1,11 @@
 /**
- * Central video library for marketing, onboarding, and guided tours.
+ * Central video library.
+ * For now, only the homepage marketing clip is wired in the product UI.
+ * Onboarding / guided-tour clips are deferred until the homepage video is live
+ * and we see where people actually struggle — keep entries here as a backlog.
+ *
  * Paste Vimeo (or YouTube) watch URLs into `url` as clips go live.
- * Empty / omitted url → UI shows the intentional “coming soon” placeholder.
+ * Empty / omitted url → homepage shows the intentional “coming soon” placeholder.
  *
  * Scripts and shot lists: docs/videos/
  */

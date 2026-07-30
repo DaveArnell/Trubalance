@@ -18739,7 +18739,15 @@ tr.sheet-row--received td {
 
 .guided-tour-nav {
   display: flex;
+  align-items: center;
   gap: 6px;
+}
+
+.guided-tour-step-count {
+  margin-right: 4px;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .help-tour-link {
