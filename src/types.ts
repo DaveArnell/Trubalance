@@ -366,7 +366,13 @@ export interface HistoryRecord {
   expectedReceipts: Array<{
     id: string
     name: string
+    /** Amount counting toward Cash Prophet Balance on this history day (accrued / effective). */
     amount: number
+    /** Full target amount when known (newer captures). */
+    targetAmount?: number
+    receiptTiming?: 'lump' | 'accrual'
+    expectedDate?: string
+    accrualStartDate?: string
     received: boolean
     scopeLevel: ScopeLevel
     scopeId: string

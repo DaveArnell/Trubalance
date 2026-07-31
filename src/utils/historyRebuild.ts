@@ -12,7 +12,7 @@ import {
   getAccruedAmount,
   getDerivedDueRowStatus,
 } from './commitmentCalculations'
-import { getEffectiveReceiptAmount } from './receiptCalculations'
+import { getEffectiveReceiptAmount, getReceiptTiming } from './receiptCalculations'
 import { buildReserveAccruingRows, buildReserveDueRows } from './reserveCalculations'
 import { getBusinessIdsForScope, getGroupIdForScope, getVenueIdsForScope, businessHasVenues, getVenuesInBusiness } from './scope'
 import { computeCommittedFundsAt, computeExpectedReceiptsAt } from './metricsAtDate'
@@ -466,6 +466,10 @@ function receiptsForHistoryRecord(
       id: receipt.id,
       name: receipt.name,
       amount: roundCurrency(getEffectiveReceiptAmount(receipt, referenceDate)),
+      targetAmount: toAmount(receipt.amount),
+      receiptTiming: getReceiptTiming(receipt),
+      expectedDate: receipt.expectedDate,
+      accrualStartDate: receipt.accrualStartDate,
       received: receipt.received,
       scopeLevel: receipt.scopeLevel,
       scopeId: receipt.scopeId,
