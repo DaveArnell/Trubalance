@@ -645,10 +645,6 @@ export function getAccruingRowDailyRate(
   row: CommitmentAccruingRow,
   referenceDate: Date = getReferenceDate(),
 ): number {
-  if (row.source === 'reserve') {
-    const daysInMonth = new Date(referenceDate.getFullYear(), referenceDate.getMonth() + 1, 0).getDate()
-    return daysInMonth > 0 ? toAmount(row.commitment.amount) / daysInMonth : 0
-  }
   return getDailyAccrualRate(row.commitment, referenceDate)
 }
 
@@ -1164,6 +1160,16 @@ export function summarizeCommittedFundsBreakdown(
   }, 0)
   const accruedReserve = views.buildingUp
     .filter((row) => row.source === 'reserve')
+    .filter((row) => {
+      // When the monthly reserve provision is on Due, count it there — not again as accrual.
+      if (!row.reservePlannerId) return true
+      return !views.due.some(
+        (due) =>
+          due.reservePlannerId === row.reservePlannerId &&
+          !due.reserveBillId &&
+          isReserveTransferDueRow(due),
+      )
+    })
     .reduce((sum, row) => sum + row.accruedAmount, 0)
 
   return {
@@ -1186,6 +1192,13 @@ export function sumCommittedFunds(
     total += getEffectiveCommittedAmount(commitment, referenceDate)
   }
   for (const row of reserveRows) {
+    const hasPlanDue = reserveDueRows.some(
+      (due) =>
+        due.reservePlannerId === row.reservePlannerId &&
+        !due.reserveBillId &&
+        isReserveTransferDueRow(due),
+    )
+    if (hasPlanDue) continue
     total += row.accruedAmount
   }
   for (const row of reserveDueRows) {

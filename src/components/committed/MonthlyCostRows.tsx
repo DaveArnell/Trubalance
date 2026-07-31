@@ -143,7 +143,7 @@ function MonthlyCostReserveLeafRow({
       <td className="committed-scope-col sheet-row-label sheet-cell--reserve">
         {getScopeItemLabel(state, item.scopeLevel, item.scopeId)}
       </td>
-      <ReadOnlyCell className="sheet-num sheet-cell--reserve" title="Accrues through the calendar month">
+      <ReadOnlyCell className="sheet-num sheet-cell--reserve" title="Accrues toward the 1st, then moves to Due">
         {ordinalDay(item.dueDayOfMonth ?? 28)}
       </ReadOnlyCell>
       <ReadOnlyCell className="sheet-num sheet-cell--reserve">{formatCurrency(item.amount)}</ReadOnlyCell>

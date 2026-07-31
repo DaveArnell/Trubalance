@@ -230,7 +230,7 @@ export function DailyAccrualCell({ row }: { row: CommitmentAccruingRow }) {
   const rate = getAccruingRowDailyRate(row)
   const title =
     row.source === 'reserve'
-      ? 'Monthly reserve deposit spread evenly across the calendar month'
+      ? 'Monthly reserve deposit building toward the 1st — then Due until confirmed in Reserve Planner'
       : 'Monthly budget for this cycle divided by days in the cycle'
 
   return <span title={title}>{formatCurrency(rate)}</span>

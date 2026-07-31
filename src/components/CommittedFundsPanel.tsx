@@ -434,7 +434,7 @@ export function CommittedFundsPanel({
                             </td>
                             <ReadOnlyCell
                               className="sheet-num sheet-cell--reserve"
-                              title="Accrues through the calendar month"
+                              title="Accrues toward the 1st, then moves to Due"
                             >
                               {ordinalDay(item.dueDayOfMonth ?? 28)}
                             </ReadOnlyCell>

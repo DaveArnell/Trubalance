@@ -14,7 +14,14 @@ import type {
 } from '../types'
 import { toAmount } from './amounts'
 import { getAccountBusinessId } from './accounts'
-import { currentPeriod, clampDueDay } from './commitmentCalculations'
+import {
+  currentPeriod,
+  clampDueDay,
+  getAccrualCycle,
+  getAccruedAmount,
+  getCommitmentDueOccurrences,
+  getCommitmentDueRowAmount,
+} from './commitmentCalculations'
 import { MONTHS, currentMonthIndex, formatCurrency } from './format'
 import { getBusinessIdsForScope, getVenueIdsForScope } from './scope'
 import { dateToKey, getReferenceDate } from './referenceDate'
@@ -359,31 +366,83 @@ export function isReserveTransferPending(
   netTransfer: MonthlyNetTransfer,
 ): boolean {
   if (netTransfer.direction === 'none') return false
-  const confirmation = planner.monthConfirmations?.[monthKey]
-  if (!confirmation) return true
-  return confirmation.transferDone !== true
+  return !isReservePlanMonthTransferDone(planner, monthKey)
 }
 
-function syntheticCommitmentFromReserveTransfer(
+/** Month check-in marked complete in Reserve Planner (clears the plan Due row). */
+export function isReservePlanMonthTransferDone(planner: ReservePlanner, monthKey: string): boolean {
+  return planner.monthConfirmations?.[monthKey]?.transferDone === true
+}
+
+/**
+ * Paid-period fields for the virtual monthly reserve deposit — driven by planner transferDone.
+ * Only explicit months are marked paid (no lastPaidPeriod cascade).
+ * Past months with no check-in are treated as already cleared so Due does not
+ * suddenly roll up a full year for existing plans.
+ */
+export function buildReservePlanPaidFields(
   planner: ReservePlanner,
-  displayName: string,
-  transferDescription: string,
-  amount: number,
-): Commitment {
+  year: number,
+  referenceDate: Date = getReferenceDate(),
+): Pick<Commitment, 'paidPeriodAmounts' | 'paidPeriodDates'> {
+  const paidPeriodAmounts: Record<string, number> = {}
+  const paidPeriodDates: Record<string, string> = {}
+
+  for (const month of MONTHS) {
+    const monthIndex = MONTHS.indexOf(month)
+    if (monthIndex < 0) continue
+    const period = `${year}-${String(monthIndex + 1).padStart(2, '0')}`
+    const confirmation = planner.monthConfirmations?.[month]
+
+    if (confirmation?.transferDone === true) {
+      paidPeriodAmounts[period] = 0
+      const paidDate = confirmation.confirmedAt?.slice(0, 10)
+      if (paidDate && /^\d{4}-\d{2}-\d{2}$/.test(paidDate)) {
+        paidPeriodDates[period] = paidDate
+      }
+      continue
+    }
+
+    // Explicitly unfinished check-in stays unpaid.
+    if (confirmation && confirmation.transferDone === false) continue
+
+    // No check-in yet for a past month — don't flood Due with historic provisions.
+    if (monthIndex < referenceDate.getMonth()) {
+      paidPeriodAmounts[period] = 0
+    }
+  }
+
   return {
-    id: `reserve-transfer-${planner.id}`,
-    name: displayName,
-    schedule: 'monthly',
-    amount,
-    dueDayOfMonth: 28,
-    scopeLevel: 'business',
-    scopeId: planner.businessId,
-    status: 'warning',
-    notes: transferDescription,
+    paidPeriodAmounts: Object.keys(paidPeriodAmounts).length > 0 ? paidPeriodAmounts : undefined,
+    paidPeriodDates: Object.keys(paidPeriodDates).length > 0 ? paidPeriodDates : undefined,
   }
 }
 
-/** Due row for a pending monthly operating ↔ reserve transfer (confirmed in Reserve Planner). */
+/** Virtual monthly commitment for the reserve plan deposit (due on the 1st, like other bills). */
+export function syntheticCommitmentFromReservePlan(
+  planner: ReservePlanner,
+  displayName: string,
+  monthlyAmount: number,
+  referenceDate: Date = getReferenceDate(),
+  notes?: string,
+): Commitment {
+  const paid = buildReservePlanPaidFields(planner, referenceDate.getFullYear(), referenceDate)
+  return {
+    id: `reserve-${planner.id}`,
+    name: displayName,
+    schedule: 'monthly',
+    amount: monthlyAmount,
+    dueDayOfMonth: DEFAULT_RESERVE_BILL_DUE_DAY,
+    scopeLevel: 'business',
+    scopeId: planner.businessId,
+    status: 'warning',
+    notes,
+    paidPeriodAmounts: paid.paidPeriodAmounts,
+    paidPeriodDates: paid.paidPeriodDates,
+  }
+}
+
+/** Due row for the monthly reserve provision once its due day (1st) has arrived — cleared in Reserve Planner. */
 export function buildReserveTransferDueRows(
   state: AppState,
   scope: ViewScope,
@@ -397,39 +456,61 @@ export function buildReserveTransferDueRows(
   const rows: CommitmentDueRow[] = []
 
   for (const planner of plannersInScope(state, scope)) {
-    const monthEnds = computeReserveMonthEndBalances(planner)
-    const monthEnd = monthEnds[monthIndex]
-    if (!monthEnd) continue
+    const monthlyAmount = plannerMonthlyDepositForScope(state, scope, planner)
+    if (monthlyAmount <= 0) continue
 
+    const business = state.businesses.find((b) => b.id === planner.businessId)
+    const displayName =
+      getPlannerDisplayName(state, planner) || business?.name || planner.name || 'Reserve plan'
+
+    const monthEnds = computeReserveMonthEndBalances(planner)
     const actualBalance = getReserveBalanceForTransfer(state, planner, monthIndex, referenceDate)
     const transferTarget = getReserveTransferTargetForMonth(monthEnds, monthIndex)
     const netTransfer = computeReserveOperatingTransfer(actualBalance, transferTarget)
-    if (!isReserveTransferPending(planner, monthKey, netTransfer)) continue
 
     const reserveAccount = getPlannerReserveAccount(state, planner)
     const operatingAccount = getPlannerOperatingAccount(state, planner)
     const reserveName = reserveAccount?.name ?? 'reserve'
     const operatingName = operatingAccount?.name ?? 'current account'
-    const transferDescription = formatMonthlyNetTransfer(netTransfer, reserveName, operatingName)
-    const business = state.businesses.find((b) => b.id === planner.businessId)
-    const displayName = business?.name ?? planner.name
+    const transferDescription =
+      netTransfer.direction === 'none'
+        ? `Confirm ${monthKey} in Reserve Planner to clear this provision.`
+        : formatMonthlyNetTransfer(netTransfer, reserveName, operatingName)
+
+    const commitment = syntheticCommitmentFromReservePlan(
+      planner,
+      displayName,
+      monthlyAmount,
+      referenceDate,
+      transferDescription,
+    )
+    const occurrences = getCommitmentDueOccurrences(commitment, referenceDate)
+    if (occurrences.length === 0) continue
+
+    const primary = occurrences[0]!
+    const totalAmount = getCommitmentDueRowAmount(commitment, occurrences)
+    const dueAmount =
+      netTransfer.direction === 'from_reserve' ? netTransfer.amount : totalAmount
 
     rows.push({
       id: `reserve-transfer-${planner.id}-${period}`,
-      commitment: syntheticCommitmentFromReserveTransfer(
-        planner,
-        displayName,
-        transferDescription,
-        netTransfer.amount,
-      ),
-      amount: netTransfer.amount,
+      commitment: {
+        ...commitment,
+        amount: dueAmount,
+        notes: transferDescription,
+      },
+      amount: dueAmount,
       period,
       source: 'reserve',
       reservePlannerId: planner.id,
       reserveTransferDirection:
-        netTransfer.direction === 'none' ? undefined : netTransfer.direction,
+        netTransfer.direction === 'none'
+          ? 'to_reserve'
+          : netTransfer.direction,
       sortOrder: -1,
-      dueReferencePeriod: period,
+      dueReferencePeriod: primary.period,
+      rolledPeriodCount: occurrences.length,
+      rolledMonths: occurrences.map((entry) => entry.month),
     })
   }
 
@@ -508,10 +589,15 @@ export function getMonthAccruingReserve(monthlyTarget: number): number {
 }
 
 export function getReserveAccrualTooltip(referenceDate: Date = getReferenceDate()): string {
-  const day = referenceDate.getDate()
-  const daysInMonth = getDaysInMonthForDate(referenceDate)
-  const pct = Math.round((day / daysInMonth) * 100)
-  return `Accruing through this month (day ${day} of ${daysInMonth}, ${pct}%)`
+  const dueDay = DEFAULT_RESERVE_BILL_DUE_DAY
+  const cycle = getAccrualCycle(referenceDate, dueDay)
+  const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+  const totalDays =
+    Math.round((cycle.cycleEnd.getTime() - cycle.cycleStart.getTime()) / 86_400_000) + 1
+  const elapsed =
+    Math.round((cycle.today.getTime() - cycle.cycleStart.getTime()) / 86_400_000) + 1
+  const pct = totalDays > 0 ? Math.round((Math.min(totalDays, Math.max(0, elapsed)) / totalDays) * 100) : 0
+  return `Accruing ${fmt(cycle.cycleStart)} – ${fmt(cycle.cycleEnd)} (${pct}%) · due ${dueDay}${dueDay === 1 ? 'st' : 'th'}`
 }
 
 function plannerMonthlyDepositForScope(state: AppState, scope: ViewScope, planner: ReservePlanner): number {
@@ -526,8 +612,6 @@ export function buildReserveAccruingRows(
   scope: ViewScope,
   referenceDate: Date = getReferenceDate(),
 ): CommitmentAccruingRow[] {
-  const progress = getMonthAccrualProgress(referenceDate)
-  const daysInMonth = getDaysInMonthForDate(referenceDate)
   const rows: CommitmentAccruingRow[] = []
 
   for (const planner of plannersInScope(state, scope)) {
@@ -535,21 +619,24 @@ export function buildReserveAccruingRows(
     if (monthlyAmount <= 0) continue
 
     const business = state.businesses.find((b) => b.id === planner.businessId)
+    const displayName =
+      getPlannerDisplayName(state, planner) ||
+      planner.name ||
+      `${business?.name ?? 'Business'} reserve`
+    const commitment = syntheticCommitmentFromReservePlan(
+      planner,
+      displayName,
+      monthlyAmount,
+      referenceDate,
+    )
+    const dueNow = getCommitmentDueOccurrences(commitment, referenceDate).length > 0
 
     rows.push({
       source: 'reserve',
       reservePlannerId: planner.id,
-      accruedAmount: monthlyAmount * progress,
-      commitment: {
-        id: `reserve-${planner.id}`,
-        name: planner.name || `${business?.name ?? 'Business'} reserve`,
-        schedule: 'monthly',
-        amount: monthlyAmount,
-        dueDayOfMonth: daysInMonth,
-        scopeLevel: 'business',
-        scopeId: planner.businessId,
-        status: 'healthy',
-      },
+      // When due, the provision sits in Due — don't keep a full build-up here too.
+      accruedAmount: dueNow ? 0 : getAccruedAmount(commitment, referenceDate),
+      commitment,
     })
   }
 
@@ -564,8 +651,6 @@ export function buildReserveAccruingRowsForSharedColumn(
 ): CommitmentAccruingRow[] {
   if (parentScope.type !== 'business') return []
 
-  const progress = getMonthAccrualProgress(referenceDate)
-  const daysInMonth = getDaysInMonthForDate(referenceDate)
   const rows: CommitmentAccruingRow[] = []
 
   for (const planner of plannersInScope(state, parentScope)) {
@@ -573,21 +658,25 @@ export function buildReserveAccruingRowsForSharedColumn(
     if (monthlyAmount <= 0) continue
 
     const business = state.businesses.find((b) => b.id === planner.businessId)
+    const displayName =
+      getPlannerDisplayName(state, planner) ||
+      planner.name ||
+      `${business?.name ?? 'Business'} reserve`
+    const commitment = syntheticCommitmentFromReservePlan(
+      planner,
+      displayName,
+      monthlyAmount,
+      referenceDate,
+    )
+    // Shared-column synthetic id must stay distinct for sheet keys.
+    commitment.id = `reserve-shared-${planner.id}`
+    const dueNow = getCommitmentDueOccurrences(commitment, referenceDate).length > 0
 
     rows.push({
       source: 'reserve',
       reservePlannerId: planner.id,
-      accruedAmount: monthlyAmount * progress,
-      commitment: {
-        id: `reserve-shared-${planner.id}`,
-        name: planner.name || `${business?.name ?? 'Business'} reserve`,
-        schedule: 'monthly',
-        amount: monthlyAmount,
-        dueDayOfMonth: daysInMonth,
-        scopeLevel: 'business',
-        scopeId: planner.businessId,
-        status: 'healthy',
-      },
+      accruedAmount: dueNow ? 0 : getAccruedAmount(commitment, referenceDate),
+      commitment,
     })
   }
 
