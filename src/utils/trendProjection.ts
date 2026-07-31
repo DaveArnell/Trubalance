@@ -85,12 +85,14 @@ export interface HoltFit {
 }
 
 function holtSmoothingAlphas(sampleCount: number): { alpha: number; beta: number } {
-  if (sampleCount <= 4) return { alpha: 0.5, beta: 0.3 }
-  if (sampleCount <= 8) return { alpha: 0.4, beta: 0.2 }
-  return { alpha: 0.3, beta: 0.12 }
+  // Responsive enough to follow real balance moves without chasing every blip.
+  if (sampleCount <= 4) return { alpha: 0.7, beta: 0.35 }
+  if (sampleCount <= 8) return { alpha: 0.55, beta: 0.28 }
+  if (sampleCount <= 16) return { alpha: 0.45, beta: 0.2 }
+  return { alpha: 0.35, beta: 0.15 }
 }
 
-/** Exponential smoothing — used for residual / band sizing, not the drawn curve. */
+/** Holt exponential smoothing — level + trend that tracks recent actuals. */
 export function fitHoltTrend(
   snapshots: BalanceSnapshot[],
   metric: SnapshotMetric = 'trueBalance',
@@ -140,154 +142,14 @@ export function fitHoltTrend(
   }
 }
 
-export interface WeightedCurveFit {
-  originDate: string
-  lastDate: string
-  /** Days from origin → last actual (for normalizing). */
-  spanDays: number
-  a: number
-  b: number
-  c: number
-  sampleCount: number
-  residualStdError: number
-  /** Instantaneous slope at the last actual day (£/day). */
-  endSlopePerDay: number
-  /** Instantaneous curvature at the last actual day (£/day²). */
-  endAccelPerDay2: number
-}
-
-/**
- * Recency-weighted quadratic: one gentle curve start→end (not wavy through each bump).
- * Forecast uses a capped end-slope continuation — unconstrained acceleration blows up on short data.
- */
-export function fitWeightedCurve(
-  snapshots: BalanceSnapshot[],
-  metric: SnapshotMetric = 'trueBalance',
-): WeightedCurveFit | null {
-  const sorted = [...snapshots].sort((a, b) => a.date.localeCompare(b.date))
-  if (sorted.length < 2) return null
-
-  const originDate = sorted[0]!.date
-  const lastDate = sorted[sorted.length - 1]!.date
-  const originMs = dateMs(originDate)
-  const spanDays = Math.max(1, (dateMs(lastDate) - originMs) / 86_400_000)
-
-  const ys = sorted.map((snap) => snap[metric] as number)
-  const yMin = Math.min(...ys)
-  const yMax = Math.max(...ys)
-  const dataRange = Math.max(1, yMax - yMin)
-
-  const points = sorted.map((snap, index) => {
-    const x = dayIndex(snap.date, originMs) / spanDays
-    const y = snap[metric] as number
-    const recency = (index + 1) / sorted.length
-    const w = 0.35 + 0.65 * recency * recency
-    return { x, y, w }
-  })
-
-  let sw = 0
-  let sx = 0
-  let sx2 = 0
-  let sx3 = 0
-  let sx4 = 0
-  let sy = 0
-  let sxy = 0
-  let sx2y = 0
-
-  for (const p of points) {
-    const x2 = p.x * p.x
-    sw += p.w
-    sx += p.w * p.x
-    sx2 += p.w * x2
-    sx3 += p.w * x2 * p.x
-    sx4 += p.w * x2 * x2
-    sy += p.w * p.y
-    sxy += p.w * p.x * p.y
-    sx2y += p.w * x2 * p.y
-  }
-
-  const m = [
-    [sw, sx, sx2],
-    [sx, sx2, sx3],
-    [sx2, sx3, sx4],
-  ]
-  const rhs = [sy, sxy, sx2y]
-
-  const det3 = (a: number[][]) =>
-    a[0]![0]! * (a[1]![1]! * a[2]![2]! - a[1]![2]! * a[2]![1]!) -
-    a[0]![1]! * (a[1]![0]! * a[2]![2]! - a[1]![2]! * a[2]![0]!) +
-    a[0]![2]! * (a[1]![0]! * a[2]![1]! - a[1]![1]! * a[2]![0]!)
-
-  const replaceCol = (col: number, values: number[]) => {
-    const copy = m.map((row) => [...row])
-    for (let r = 0; r < 3; r++) copy[r]![col] = values[r]!
-    return copy
-  }
-
-  const D = det3(m)
-  let a: number
-  let b: number
-  let c: number
-
-  if (Math.abs(D) < 1e-12 || sorted.length < 4 || spanDays < 14) {
-    // Too little history for a stable curve — weighted linear only.
-    const denom = sw * sx2 - sx * sx
-    if (Math.abs(denom) < 1e-12) return null
-    b = (sw * sxy - sx * sy) / denom
-    a = (sy - b * sx) / sw
-    c = 0
-  } else {
-    a = det3(replaceCol(0, rhs)) / D
-    b = det3(replaceCol(1, rhs)) / D
-    c = det3(replaceCol(2, rhs)) / D
-    // Cap curvature: mid-span bend must stay within half the observed data range.
-    const midBend = c * 0.25
-    const maxBend = dataRange * 0.5
-    if (Math.abs(midBend) > maxBend) {
-      c *= maxBend / Math.abs(midBend)
-    }
-  }
-
-  const valueAtNorm = (x: number) => a + b * x + c * x * x
-
-  let ssRes = 0
-  for (const p of points) {
-    const err = p.y - valueAtNorm(p.x)
-    ssRes += p.w * err * err
-  }
-  const dof = Math.max(1, points.length - (Math.abs(c) < 1e-12 ? 2 : 3))
-  const residualStdError = Math.sqrt(ssRes / dof)
-
-  const endSlopePerDay = (b + 2 * c * 1) / spanDays
-  const endAccelPerDay2 = (2 * c) / (spanDays * spanDays)
-
-  return {
-    originDate,
-    lastDate,
-    spanDays,
-    a,
-    b,
-    c,
-    sampleCount: sorted.length,
-    residualStdError,
-    endSlopePerDay,
-    endAccelPerDay2,
-  }
-}
-
-function weightedCurveValueAt(fit: WeightedCurveFit, dateKey: string): number {
-  const x = dayIndex(dateKey, dateMs(fit.originDate)) / fit.spanDays
-  return fit.a + fit.b * x + fit.c * x * x
-}
-
 function seriesDataRange(snapshots: BalanceSnapshot[], metric: SnapshotMetric): number {
   const ys = snapshots.map((s) => s[metric] as number)
   return Math.max(1, Math.max(...ys) - Math.min(...ys))
 }
 
 /**
- * Continue from the smooth-line tip: mostly the end slope.
- * Any curvature fades quickly and is hard-capped so short noisy history cannot shoot to millions.
+ * Continue from the latest actual balance using a capped slope.
+ * Acceleration fades quickly and is hard-capped so short noisy history cannot shoot to millions.
  */
 function forecastFromJoin(
   joinValue: number,
@@ -347,6 +209,46 @@ function cappedBandHalfWidth(
   return Math.min(maxHalf, half)
 }
 
+/** Slope from the most recent window so a late drop actually affects the forecast. */
+function recentSlopePerDay(
+  snapshots: BalanceSnapshot[],
+  metric: SnapshotMetric,
+  lookbackDays = 21,
+): number | null {
+  const sorted = [...snapshots].sort((a, b) => a.date.localeCompare(b.date))
+  if (sorted.length < 2) return null
+  const lastDate = sorted[sorted.length - 1]!.date
+  const cutoff = addDays(lastDate, -lookbackDays)
+  let window = sorted.filter((snap) => snap.date >= cutoff)
+  if (window.length < 2) {
+    window = sorted.slice(-Math.min(5, sorted.length))
+  }
+  return fitLinearTrend(window, metric)?.slopePerDay ?? null
+}
+
+/** Linear-interpolate a fitted path onto evenly spaced chart dates. */
+function sampleFittedPath(
+  fitted: ChartProjectionPoint[],
+  firstDate: string,
+  lastDate: string,
+  stepDays: number,
+): ChartProjectionPoint[] {
+  if (fitted.length === 0) return []
+  const dates = sampleDates(firstDate, lastDate, stepDays)
+  return dates.map((date) => {
+    if (date <= fitted[0]!.date) return { date, value: fitted[0]!.value }
+    const last = fitted[fitted.length - 1]!
+    if (date >= last.date) return { date, value: last.value }
+    let i = 1
+    while (i < fitted.length && fitted[i]!.date < date) i++
+    const right = fitted[i]!
+    const left = fitted[i - 1]!
+    const span = dateMs(right.date) - dateMs(left.date)
+    const t = span <= 0 ? 1 : (dateMs(date) - dateMs(left.date)) / span
+    return { date, value: left.value + (right.value - left.value) * t }
+  })
+}
+
 function buildWeightedTrendSeries({
   snapshots,
   metric = 'trueBalance',
@@ -359,33 +261,24 @@ function buildWeightedTrendSeries({
   const sorted = [...snapshots].sort((a, b) => a.date.localeCompare(b.date))
   if (sorted.length < 2 || horizonDays <= 0) return null
 
-  const curve = fitWeightedCurve(sorted, metric)
-  if (!curve) return null
+  const holt = fitHoltTrend(sorted, metric)
+  if (!holt) return null
 
-  const linear = fitLinearTrend(sorted, metric)
   const dataRange = seriesDataRange(sorted, metric)
   const firstDate = sorted[0]!.date
-  const lastActualDate = curve.lastDate
+  const lastActualDate = sorted[sorted.length - 1]!.date
+  // Forecast always starts from where the business actually stands today.
+  const joinValue = sorted[sorted.length - 1]![metric] as number
   const forecastEnd = addDays(lastActualDate, horizonDays)
   const stepDays = horizonDays <= 45 ? 3 : horizonDays <= 120 ? 5 : 7
   const lastActualMs = dateMs(lastActualDate)
-  const joinValue = weightedCurveValueAt(curve, lastActualDate)
 
-  // Prefer stable linear slope when history is short; otherwise blend tip slope with linear.
-  const tipSlope = curve.endSlopePerDay
-  const linearSlope = linear?.slopePerDay ?? tipSlope
-  const slope =
-    sorted.length < 8 || curve.spanDays < 21
-      ? linearSlope
-      : 0.65 * tipSlope + 0.35 * linearSlope
-  const accel =
-    sorted.length < 8 || curve.spanDays < 21 ? 0 : curve.endAccelPerDay2 * 0.35
+  const recentSlope = recentSlopePerDay(sorted, metric) ?? holt.trendPerDay
+  // Blend Holt momentum with the recent window so neither a single blip nor old history dominates.
+  const slope = 0.55 * recentSlope + 0.45 * holt.trendPerDay
 
-  const histStep = Math.min(stepDays, Math.max(1, Math.round(curve.spanDays / 24)))
-  const historical = sampleDates(firstDate, lastActualDate, histStep).map((date) => ({
-    date,
-    value: weightedCurveValueAt(curve, date),
-  }))
+  const histStep = Math.min(stepDays, Math.max(1, Math.round((dateMs(lastActualDate) - dateMs(firstDate)) / 86_400_000 / 24)))
+  const historical = sampleFittedPath(holt.fittedAtSnapshots, firstDate, lastActualDate, histStep)
   if (historical.length > 0) {
     historical[historical.length - 1] = { date: lastActualDate, value: joinValue }
   }
@@ -397,16 +290,9 @@ function buildWeightedTrendSeries({
 
   for (const date of forecastDates) {
     const daysAhead = Math.max(0, (dateMs(date) - lastActualMs) / 86_400_000)
-    const center = forecastFromJoin(
-      joinValue,
-      slope,
-      accel,
-      daysAhead,
-      dataRange,
-      horizonDays,
-    )
+    const center = forecastFromJoin(joinValue, slope, 0, daysAhead, dataRange, horizonDays)
     const halfWidth = cappedBandHalfWidth(
-      curve.residualStdError,
+      holt.residualStdError,
       joinValue,
       dataRange,
       daysAhead,
@@ -429,7 +315,7 @@ function buildWeightedTrendSeries({
     effectiveMethod: 'weighted',
     horizonDays,
     lastActualDate,
-    residualStdError: curve.residualStdError,
+    residualStdError: holt.residualStdError,
   }
 }
 
@@ -549,9 +435,9 @@ function projectValueAt(
 }
 
 export interface SmoothedTrendSeries {
-  /** Fitted trend across the recorded period — not tied to individual entry values. */
+  /** Smoothed path across the recorded period; ends on the latest actual balance. */
   historical: ChartProjectionPoint[]
-  /** Continuation of the same fitted trend into the forecast window. */
+  /** Forward path from the latest actual balance. */
   forecast: ChartProjectionPoint[]
   /** Upper estimate — widens further into the forecast. */
   forecastHigh: ChartProjectionPoint[]
@@ -697,7 +583,11 @@ export function buildSmoothedTrendSeries({
     effectiveMethod === 'seasonal' ? seasonalOffsets : null,
   )
   const dataRange = seriesDataRange(sorted, metric)
+  // Forecast starts from the last saved balance — not from where the fit line happens to sit.
   const joinValue = sorted[sorted.length - 1]![metric] as number
+  if (historical.length > 0) {
+    historical[historical.length - 1] = { date: lastActualDate, value: joinValue }
+  }
 
   const forecastDates = sampleDates(lastActualDate, forecastEnd, stepDays)
   const forecast: ChartProjectionPoint[] = []
@@ -705,13 +595,9 @@ export function buildSmoothedTrendSeries({
   const forecastLow: ChartProjectionPoint[] = []
 
   for (const date of forecastDates) {
-    const center = fittedTrendValue(
-      date,
-      fit,
-      effectiveMethod === 'seasonal' ? seasonalOffsets : null,
-    )
-    const x = dayIndex(date, originMs)
     const daysAhead = Math.max(0, (dateMs(date) - lastActualMs) / 86_400_000)
+    const center = joinValue + fit.slopePerDay * daysAhead
+    const x = dayIndex(date, originMs)
     const halfWidth = forecastUncertaintyHalfWidth(
       fit,
       residualStdError,

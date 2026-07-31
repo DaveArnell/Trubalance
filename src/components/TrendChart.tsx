@@ -106,7 +106,7 @@ type ProjectionMode = 'off' | ProjectionMethod
 const projectionModeOptions: { key: ProjectionMode; label: string; title: string }[] = [
   { key: 'off', label: 'Off', title: 'Logged balances only' },
   { key: 'linear', label: 'Straight', title: 'Straight trend through all entries' },
-  { key: 'weighted', label: 'Smoothed', title: 'Recent-weighted trend that can bend as momentum changes' },
+  { key: 'weighted', label: 'Smoothed', title: 'Follows recent balance moves; forecast starts from your latest entry' },
 ]
 
 function readStoredProjectionMode(): ProjectionMode {
@@ -520,7 +520,7 @@ export function TrendChart({
         : null
 
   const trendHelpText =
-    'Solid lines connect your saved balance entries. Use Trend to overlay a straight or smoothed line and forward forecast. Smoothed weights recent entries more heavily. Set a From date in History to ignore earlier entries after a big change.'
+    'Solid lines connect your saved balance entries. Use Trend to overlay a straight or smoothed line and forward forecast. Forecast always starts from your latest saved balance. Set a From date in History to ignore earlier entries after a big change.'
 
   const showLegend = series.length > 1 || activeMetricKeys.length > 1 || showProjection
 
@@ -891,8 +891,8 @@ export function TrendChart({
               high and low bounds widen based on how much your history has varied — not a guarantee of
               future performance.
               {primaryProjection.effectiveMethod === 'weighted'
-                ? ' Smoothed trend weights recent entries more heavily.'
-                : ' Straight trend fits one line through all entries.'}
+                ? ' Smoothed follows recent moves and starts the forecast from your latest entry.'
+                : ' Straight fits one line through all entries; forecast still starts from your latest entry.'}
             </p>
           )}
 
