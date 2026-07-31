@@ -215,9 +215,10 @@ export function buildMarkPaidPatch(
         ? getPlannedCommittedAmount(commitment, referenceDate)
         : getAccruedAmount(commitment, referenceDate)
     const actual = options.paidAmount != null ? toAmount(options.paidAmount) : expected
-    const dueKey = getPeriodDueDateKey(commitment, period)
     paidPeriodAmounts[period] = roundCurrency(actual)
-    paidPeriodDates[period] = dueKey && dueKey <= paidOn ? dueKey : paidOn
+    // Count paid from the day it was marked — backdating to the due day makes Trends
+    // clear committed funds on that historical day while cash still included the bill.
+    paidPeriodDates[period] = paidOn
     return {
       lastPaidPeriod: period,
       paidPeriodAmounts,
@@ -242,9 +243,8 @@ export function buildMarkPaidPatch(
     } else {
       share = roundCurrency(actualTotal / occurrences.length)
     }
-    const dueKey = getPeriodDueDateKey(commitment, occurrence.period)
     paidPeriodAmounts[occurrence.period] = roundCurrency(share)
-    paidPeriodDates[occurrence.period] = dueKey && dueKey <= paidOn ? dueKey : paidOn
+    paidPeriodDates[occurrence.period] = paidOn
     remaining = roundCurrency(remaining - share)
   })
 

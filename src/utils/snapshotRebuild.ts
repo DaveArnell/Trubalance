@@ -4,6 +4,7 @@ import { computeScopeMetricsAtDate } from './historyRebuild'
 import type { HistoryMetricKey } from './historyTable'
 import { getReferenceDate, dateToKey } from './referenceDate'
 import { isSnapshotMetricCorrected } from './snapshotCorrections'
+import { todayDateKey } from './snapshots'
 
 function scopeKey(scope: ViewScope): string {
   return `${scope.type}:${scope.id}`
@@ -72,6 +73,12 @@ export function refreshSnapshotMetricsAt(
   // Hand-entered points keep the typed values — never overwrite with live recompute.
   if (snapshot.manualEntry) {
     return { ...snapshot, updatedAt: now }
+  }
+
+  // Past Trends history stays as saved that day — bill payments and today's bank updates
+  // must not rewrite earlier points.
+  if (snapshot.date < todayDateKey()) {
+    return snapshot
   }
 
   const scope: ViewScope = { type: snapshot.scopeType, id: snapshot.scopeId }

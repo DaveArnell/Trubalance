@@ -3,6 +3,7 @@ import { computeScopeMetricsAtDate, getExactHistorySummaryForScopeDate } from '.
 import { isSnapshotMetricCorrected } from './snapshotCorrections'
 import { isPersistedSnapshot } from './scopeSnapshotSeries'
 import type { HistoryMetricKey } from './historyTable'
+import { todayDateKey } from './snapshots'
 
 const METRIC_KEYS: HistoryMetricKey[] = ['cash', 'committedFunds', 'expectedReceipts', 'trueBalance']
 
@@ -11,7 +12,7 @@ function useStoredDemoSnapshotMetrics(state: AppState, snapshot: BalanceSnapshot
   return state.workspaceOrigin === 'builtin-demo' && isPersistedSnapshot(snapshot)
 }
 
-/** Metric value for display — recomputed from current data unless manually set. */
+/** Metric value for display — recomputed from current data unless manually set or a past saved point. */
 export function getEffectiveSnapshotMetric(
   state: AppState,
   snapshot: BalanceSnapshot,
@@ -22,6 +23,11 @@ export function getEffectiveSnapshotMetric(
   }
   // Demo Trends are authored for a calm Available story — never recompute from accruals.
   if (useStoredDemoSnapshotMetrics(state, snapshot)) {
+    return snapshot[metric]
+  }
+  // Past saved Trends points stay as recorded that day. Paying a bill or updating today's
+  // bank must not rewrite yesterday's chart (live recompute still applies to today).
+  if (isPersistedSnapshot(snapshot) && snapshot.date < todayDateKey()) {
     return snapshot[metric]
   }
   const scope = { type: snapshot.scopeType, id: snapshot.scopeId } as const

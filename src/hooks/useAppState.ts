@@ -877,11 +877,10 @@ export function useAppState(options?: UseAppStateOptions) {
         }
       }
 
-      const paidFromDates = Object.values(merged.paidPeriodDates ?? {}).sort()
       const fromDate = amountCorrected
         ? getCommitmentRebuildFromPeriodOverridePatch(commitment, merged) ??
           getCommitmentHistoricCorrectionFromDateKey(merged)
-        : paidFromDates[0] ?? todayDateKey()
+        : todayDateKey()
 
       const nextState: AppState = {
         ...s,
