@@ -21,7 +21,7 @@ import {
   buildSafeTableEmptyDeletes,
 } from '../services/workspaceRepository'
 import { isSupabaseConfigured } from '../lib/supabase'
-import { emptyAppState, isBuiltinDemoWorkspace, isUserOwnedWorkspace, backupBrowserStateToSession, mergeMissingExpectedReceipts } from '../utils/localStateStorage'
+import { emptyAppState, isBuiltinDemoWorkspace, isUserOwnedWorkspace, backupBrowserStateToSession, mergeMissingLocalWorkspaceData } from '../utils/localStateStorage'
 import { readBrowserAppState } from '../hooks/useAppState'
 import { normalizeWorkspaceStateForDisplay } from '../utils/workspaceNormalize'
 
@@ -42,10 +42,15 @@ function workspaceSyncFingerprint(state: AppState): string {
     .map((r) => `${r.id}:${r.amount}:${r.received ? 1 : 0}:${r.receivedDate ?? ''}`)
     .sort()
     .join('|')
+  const planners = state.reservePlanners
+    .map((p) => `${p.id}:${p.bills.length}:${p.actualBalance}:${p.bufferAmount}`)
+    .sort()
+    .join('|')
   return [
     accounts,
     commitments,
     receipts,
+    planners,
     state.snapshots.length,
     state.historyRecords.length,
     state.dayNotes?.length ?? 0,
@@ -180,7 +185,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       backupBrowserStateToSession()
 
       const dbEmpty = await isWorkspaceEmptyInDatabase(wsId)
-      const { state: loadedState } = await loadWorkspaceState(wsId)
+      const { state: loadedState, loadHadErrors } = await loadWorkspaceState(wsId)
       let state = loadedState
       const localState = !isImpersonating && user?.id === effectiveUserId ? readBrowserAppState() : null
 
@@ -210,7 +215,14 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         localState &&
         isUserOwnedWorkspace(localState)
       ) {
-        state = mergeMissingExpectedReceipts(state, localState)
+        // Always merge critical local entities. Also merge when a table failed to load,
+        // so a partial cloud response cannot wipe planners/receipts on the next save.
+        state = mergeMissingLocalWorkspaceData(state, localState)
+        if (loadHadErrors) {
+          console.warn(
+            '[Workspace] Cloud load had table errors — merged missing local planners/receipts/commitments',
+          )
+        }
       }
 
       if (!state.workspaceOrigin) {
@@ -308,6 +320,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
             previous: lastPersistedStateRef.current,
             allowAll: allowEmptyDeletesRef.current,
           }),
+          previousState: lastPersistedStateRef.current ?? loadedStateRef.current,
         })
         if (pendingStateRef.current == null) {
           lastPersistedStateRef.current = state
@@ -385,6 +398,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
             previous: lastPersistedStateRef.current,
             allowAll: allowEmptyDeletesRef.current,
           }),
+          previousState: lastPersistedStateRef.current ?? loadedStateRef.current,
         })
       }
     }

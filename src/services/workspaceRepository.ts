@@ -375,8 +375,14 @@ export function buildSafeTableEmptyDeletes(
     }
     const prevCount = previous[table] ?? 0
     const loadedCount = loaded?.[table] ?? 0
-    // Never wipe expected receipts on a stale/empty autosave after the workspace loaded with data.
-    if (table === 'expected_receipts' && loadedCount > 0) {
+    // Never wipe expected receipts or reserve planners on a stale/empty autosave after the workspace loaded with data.
+    if (
+      (table === 'expected_receipts' ||
+        table === 'reserve_planners' ||
+        table === 'reserve_bills' ||
+        table === 'commitments') &&
+      loadedCount > 0
+    ) {
       out[table] = false
       continue
     }
@@ -393,6 +399,8 @@ export async function saveWorkspaceState(
     allowEmptyDeletes?: boolean
     /** Per-table override when row list is empty — avoids wiping data on a partial/stale save. */
     tableEmptyDeletes?: Partial<Record<WorkspaceTableName, boolean>>
+    /** Previous persisted state — used for targeted deletes instead of orphan wipes. */
+    previousState?: AppState | null
   },
 ): Promise<void> {
   const supabase = tryGetSupabase()
@@ -570,6 +578,43 @@ export async function saveWorkspaceState(
     'acknowledged_due_periods',
   ]
 
+  /** Tables where a partial hydrate + orphan-delete previously wiped live data. */
+  const TARGETED_DELETE_TABLES = new Set<string>([
+    'reserve_planners',
+    'reserve_bills',
+    'expected_receipts',
+    'commitments',
+    'accounts',
+    'businesses',
+    'venues',
+    'groups',
+  ])
+
+  const previousIdsByTable = (tableName: string): string[] => {
+    const previous = options?.previousState
+    if (!previous) return []
+    switch (tableName) {
+      case 'groups':
+        return previous.groups.map((row) => row.id)
+      case 'businesses':
+        return previous.businesses.map((row) => row.id)
+      case 'venues':
+        return previous.venues.map((row) => row.id)
+      case 'accounts':
+        return previous.accounts.map((row) => row.id)
+      case 'commitments':
+        return previous.commitments.map((row) => row.id)
+      case 'expected_receipts':
+        return previous.expectedReceipts.map((row) => row.id)
+      case 'reserve_planners':
+        return previous.reservePlanners.map((row) => row.id)
+      case 'reserve_bills':
+        return previous.reservePlanners.flatMap((planner) => planner.bills.map((bill) => bill.id))
+      default:
+        return []
+    }
+  }
+
   for (const table of tables) {
     if (table.rows.length === 0) {
       const mayDeleteEmpty =
@@ -595,13 +640,24 @@ export async function saveWorkspaceState(
     }
 
     const ids = table.rows.map((r) => (r as Record<string, unknown>).id).filter(Boolean) as string[]
-    if (ids.length > 0) {
-      await supabase
-        .from(table.name)
-        .delete()
-        .eq('workspace_id', workspaceId)
-        .not('id', 'in', `(${ids.join(',')})`)
+    if (ids.length === 0) continue
+
+    if (TARGETED_DELETE_TABLES.has(table.name) && !allowEmptyDeletes) {
+      // Only delete IDs that disappeared since the last successful persist — never
+      // "everything not in this save", which wiped Swindon/Blackpool after a partial load.
+      const keep = new Set(ids)
+      const removed = previousIdsByTable(table.name).filter((id) => !keep.has(id))
+      if (removed.length > 0) {
+        await supabase.from(table.name).delete().eq('workspace_id', workspaceId).in('id', removed)
+      }
+      continue
     }
+
+    await supabase
+      .from(table.name)
+      .delete()
+      .eq('workspace_id', workspaceId)
+      .not('id', 'in', `(${ids.join(',')})`)
   }
 
   // Business Hub removed — clear any legacy rows still in the database.

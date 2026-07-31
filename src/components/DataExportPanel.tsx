@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useWorkspace } from '../contexts/WorkspaceContext'
 import { isSupabaseConfigured } from '../lib/supabase'
 import { deleteUserAccount, finishSelfAccountDeletion } from '../services/accountDeletion'
-import { backupBrowserStateToSession, readSessionBackup, summarizeAppState } from '../utils/localStateStorage'
+import { backupBrowserStateToSession, readSessionBackup, sessionBackupLooksRicher, summarizeAppState } from '../utils/localStateStorage'
 import { parseImportedAppState } from '../utils/importAppState'
 
 interface DataExportPanelProps {
@@ -180,6 +180,7 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
           <li>{summary.businesses} businesses</li>
           <li>{summary.commitments} monthly / planned costs</li>
           <li>{summary.receipts} expected receipts</li>
+          <li>{summary.planners} reserve plans</li>
           <li>{summary.accounts} accounts</li>
         </ul>
       </div>
@@ -201,7 +202,7 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
         >
           Restore from file
         </button>
-        {sessionBackupSummary && sessionBackupSummary.receipts > summary.receipts ? (
+        {sessionBackupSummary && sessionBackupLooksRicher(sessionBackupSummary, summary) ? (
           <button
             type="button"
             className="btn-secondary btn-tiny"
@@ -209,6 +210,10 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
             onClick={handleRestoreSessionBackup}
           >
             Restore browser backup
+            {sessionBackupSummary.planners > summary.planners ||
+            sessionBackupSummary.receipts > summary.receipts
+              ? ` (${sessionBackupSummary.planners} plans, ${sessionBackupSummary.receipts} receipts)`
+              : ''}
           </button>
         ) : null}
         <input

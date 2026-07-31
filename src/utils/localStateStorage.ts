@@ -110,6 +110,54 @@ export function mergeMissingExpectedReceipts(cloud: AppState, local: AppState | 
   }
 }
 
+/** Recover reserve planners (and their bills) present locally but missing from a cloud load. */
+export function mergeMissingReservePlanners(cloud: AppState, local: AppState | null): AppState {
+  if (!local?.reservePlanners.length) return cloud
+  const cloudIds = new Set(cloud.reservePlanners.map((planner) => planner.id))
+  const missing = local.reservePlanners.filter((planner) => !cloudIds.has(planner.id))
+  if (missing.length === 0) return cloud
+  return {
+    ...cloud,
+    workspaceOrigin: cloud.workspaceOrigin ?? 'user',
+    reservePlanners: [...cloud.reservePlanners, ...missing],
+  }
+}
+
+/** Recover commitments present locally but missing from a cloud load. */
+export function mergeMissingCommitments(cloud: AppState, local: AppState | null): AppState {
+  if (!local?.commitments.length) return cloud
+  const cloudIds = new Set(cloud.commitments.map((commitment) => commitment.id))
+  const missing = local.commitments.filter((commitment) => !cloudIds.has(commitment.id))
+  if (missing.length === 0) return cloud
+  return {
+    ...cloud,
+    workspaceOrigin: cloud.workspaceOrigin ?? 'user',
+    commitments: [...cloud.commitments, ...missing],
+  }
+}
+
+/** Merge critical local entities that a partial/failed cloud load may have dropped. */
+export function mergeMissingLocalWorkspaceData(cloud: AppState, local: AppState | null): AppState {
+  let next = mergeMissingExpectedReceipts(cloud, local)
+  next = mergeMissingReservePlanners(next, local)
+  next = mergeMissingCommitments(next, local)
+  return next
+}
+
+/** True when a session backup has more of any critical entity than the live workspace. */
+export function sessionBackupLooksRicher(
+  backup: ReturnType<typeof summarizeAppState>,
+  current: ReturnType<typeof summarizeAppState>,
+): boolean {
+  return (
+    backup.receipts > current.receipts ||
+    backup.planners > current.planners ||
+    backup.commitments > current.commitments ||
+    backup.accounts > current.accounts ||
+    backup.businesses > current.businesses
+  )
+}
+
 export function isInitialDemoState(state: AppState): boolean {
   return isBuiltinDemoWorkspace(state)
 }
