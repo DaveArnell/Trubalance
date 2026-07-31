@@ -80,17 +80,24 @@ export function recoverExpectedReceiptsFromHistory(state: AppState): {
 
   if (byId.size === 0) return { state, restoredCount: 0 }
 
-  const restored: ExpectedReceipt[] = [...byId.values()].map((receipt, index) => ({
-    id: receipt.id,
-    name: receipt.name,
-    amount: receipt.amount,
-    expectedDate: receipt.historyDate,
-    scopeLevel: receipt.scopeLevel,
-    scopeId: receipt.scopeId,
-    received: false,
-    notes: 'Restored from balance history — check date and amount',
-    sortOrder: state.expectedReceipts.length + index,
-  }))
+  const restored: ExpectedReceipt[] = [...byId.values()].map((receipt, index) => {
+    const expectedDate = receipt.historyDate
+    const accrualStartDate = `${expectedDate.slice(0, 7)}-01`
+    return {
+      id: receipt.id,
+      name: receipt.name,
+      amount: receipt.amount,
+      expectedDate,
+      accrualStartDate,
+      createdAt: expectedDate,
+      receiptTiming: 'accrual' as const,
+      scopeLevel: receipt.scopeLevel,
+      scopeId: receipt.scopeId,
+      received: false,
+      notes: 'Restored from balance history — check date and amount',
+      sortOrder: state.expectedReceipts.length + index,
+    }
+  })
 
   return {
     state: {
@@ -140,16 +147,11 @@ export function repairHistoryRecoveredReceipts(state: AppState): {
 
   for (const receipt of state.expectedReceipts) {
     const hist = historyById.get(receipt.id)
-    const looksRestoredToday =
-      receipt.expectedDate === today ||
-      (receipt.notes ?? '').toLowerCase().includes('restored from balance history')
+    const markedRestored = (receipt.notes ?? '').toLowerCase().includes('restored from balance history')
 
     if (!hist) {
       // Transfer-like names that only appeared after recovery and have no history — drop.
-      if (
-        looksRestoredToday &&
-        /transfer|move .* from|less money/i.test(receipt.name)
-      ) {
+      if (markedRestored && /transfer|move .* from|less money/i.test(receipt.name)) {
         removedCount += 1
         continue
       }
@@ -157,17 +159,35 @@ export function repairHistoryRecoveredReceipts(state: AppState): {
       continue
     }
 
+    // Only rewrite rows we restored (or that still look like the recovery bug).
+    const likelyRecovered =
+      markedRestored ||
+      receipt.expectedDate === today ||
+      (!receipt.receiptTiming && !receipt.accrualStartDate)
+
+    if (!likelyRecovered) {
+      nextReceipts.push(receipt)
+      continue
+    }
+
     if (
-      looksRestoredToday ||
-      receipt.expectedDate !== hist.date ||
-      Math.abs(receipt.amount - hist.amount) > 0.005
+      markedRestored ||
+      receipt.expectedDate === today ||
+      receipt.receiptTiming !== 'accrual' ||
+      !receipt.accrualStartDate
     ) {
       repairedCount += 1
+      const expectedDate = hist.date
       nextReceipts.push({
         ...receipt,
-        expectedDate: hist.date,
+        expectedDate,
         amount: hist.amount,
-        notes: 'Restored from balance history — check date and amount',
+        createdAt: receipt.createdAt ?? expectedDate,
+        accrualStartDate: receipt.accrualStartDate ?? `${expectedDate.slice(0, 7)}-01`,
+        receiptTiming: 'accrual',
+        notes: markedRestored
+          ? receipt.notes
+          : 'Restored from balance history — check date and amount',
       })
       continue
     }

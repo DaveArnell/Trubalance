@@ -5,11 +5,13 @@ import { repairEmptySnapshotChangedAccounts } from './historyRebuild'
 import { getReferenceDate } from './referenceDate'
 import { backfillScopeSnapshots } from './snapshotRollup'
 import { refreshAllSnapshotMetrics } from './snapshotRebuild'
+import { repairHistoryRecoveredReceipts } from './workspaceRecovery'
 
 /** Backfill missing scope snapshots and align stored metrics after load or import. */
 export function normalizeWorkspaceStateForDisplay(state: AppState, now = new Date().toISOString()): AppState {
   const grouped = ensureGroupStructure(state)
-  const repaired = repairEmptySnapshotChangedAccounts(grouped)
+  const repairedReceipts = repairHistoryRecoveredReceipts(grouped).state
+  const repaired = repairEmptySnapshotChangedAccounts(repairedReceipts)
   const refreshed = refreshAllSnapshotMetrics(repaired, now)
   if (refreshed.workspaceOrigin === 'builtin-demo') {
     return applyDemoOperatingSnapshot(refreshed, getReferenceDate())
@@ -20,7 +22,8 @@ export function normalizeWorkspaceStateForDisplay(state: AppState, now = new Dat
 /** Backfill missing scope snapshots and align stored metrics after load or import. */
 export function normalizeWorkspaceState(state: AppState, now = new Date().toISOString()): AppState {
   const grouped = ensureGroupStructure(state)
-  const repaired = repairEmptySnapshotChangedAccounts(grouped)
+  const repairedReceipts = repairHistoryRecoveredReceipts(grouped).state
+  const repaired = repairEmptySnapshotChangedAccounts(repairedReceipts)
   const withBackfill = backfillScopeSnapshots(repaired, now)
   const refreshed = refreshAllSnapshotMetrics(withBackfill, now)
   if (refreshed.workspaceOrigin === 'builtin-demo') {

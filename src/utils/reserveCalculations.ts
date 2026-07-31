@@ -638,12 +638,23 @@ export function buildReserveAccruingRows(
       monthlyAmount,
       referenceDate,
     )
+    const dueNow = getCommitmentDueOccurrences(commitment, referenceDate).length > 0
+    let accruedAmount = getAccruedAmount(commitment, referenceDate)
+    if (dueNow) {
+      const monthIndex = referenceDate.getMonth()
+      const monthEnds = computeReserveMonthEndBalances(planner)
+      const actualBalance = getReserveBalanceForTransfer(state, planner, monthIndex, referenceDate)
+      const transferTarget = getReserveTransferTargetForMonth(monthEnds, monthIndex)
+      const netTransfer = computeReserveOperatingTransfer(actualBalance, transferTarget)
+      // to_reserve / none: provision sits in Due — don't also show accrual.
+      // from_reserve: money coming back; keep accruing the ongoing provision.
+      if (netTransfer.direction !== 'from_reserve') accruedAmount = 0
+    }
 
     rows.push({
       source: 'reserve',
       reservePlannerId: planner.id,
-      // Same as monthly costs: keep accruing the active cycle even while an unpaid due sits in Due.
-      accruedAmount: getAccruedAmount(commitment, referenceDate),
+      accruedAmount,
       commitment,
     })
   }
@@ -676,13 +687,22 @@ export function buildReserveAccruingRowsForSharedColumn(
       monthlyAmount,
       referenceDate,
     )
-    // Shared-column synthetic id must stay distinct for sheet keys.
     commitment.id = `reserve-shared-${planner.id}`
+    const dueNow = getCommitmentDueOccurrences(commitment, referenceDate).length > 0
+    let accruedAmount = getAccruedAmount(commitment, referenceDate)
+    if (dueNow) {
+      const monthIndex = referenceDate.getMonth()
+      const monthEnds = computeReserveMonthEndBalances(planner)
+      const actualBalance = getReserveBalanceForTransfer(state, planner, monthIndex, referenceDate)
+      const transferTarget = getReserveTransferTargetForMonth(monthEnds, monthIndex)
+      const netTransfer = computeReserveOperatingTransfer(actualBalance, transferTarget)
+      if (netTransfer.direction !== 'from_reserve') accruedAmount = 0
+    }
 
     rows.push({
       source: 'reserve',
       reservePlannerId: planner.id,
-      accruedAmount: getAccruedAmount(commitment, referenceDate),
+      accruedAmount,
       commitment,
     })
   }

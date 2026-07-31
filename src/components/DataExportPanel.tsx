@@ -10,7 +10,6 @@ import { parseImportedAppState } from '../utils/importAppState'
 import {
   diagnoseReservePlanners,
   recoverWorkspaceFromHistory,
-  repairHistoryRecoveredReceipts,
   reservePlannersMissingDeposit,
 } from '../utils/workspaceRecovery'
 
@@ -45,38 +44,6 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
   const canRecoverFromHistory =
     (state.historyRecords?.length ?? 0) > 0 &&
     (summary.receipts < historyReceiptCount || emptyReservePlans.length > 0)
-  const canRepairRecoveredReceipts =
-    (state.historyRecords?.length ?? 0) > 0 && summary.receipts > 0
-
-  const handleRepairRecoveredReceipts = async () => {
-    if (readOnly) return
-    setRecoveringHistory(true)
-    setStatus(null)
-    try {
-      const result = repairHistoryRecoveredReceipts(state)
-      if (result.repairedCount === 0 && result.removedCount === 0) {
-        setStatus('No recovered receipt dates needed fixing.')
-        return
-      }
-      cancelPendingPersist()
-      onReplaceState(result.state)
-      if (cloudBacked) {
-        await restoreWorkspaceState(result.state)
-      }
-      const parts: string[] = []
-      if (result.repairedCount > 0) parts.push(`corrected ${result.repairedCount} receipt date(s)`)
-      if (result.removedCount > 0) parts.push(`removed ${result.removedCount} transfer-like row(s)`)
-      setStatus(
-        `Fixed expected receipts (${parts.join(', ')}). Today's Trends should settle — hard-refresh if the chart still looks high.` +
-          (cloudBacked ? ' Saved to your account.' : ''),
-      )
-    } catch (err) {
-      console.error('[Receipt repair] Failed:', err)
-      setStatus(`Repair failed: ${err instanceof Error ? err.message : 'Unknown error'}.`)
-    } finally {
-      setRecoveringHistory(false)
-    }
-  }
 
   const handleDownload = () => {
     const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' })
@@ -311,16 +278,6 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
             onClick={handleRecoverFromHistory}
           >
             {recoveringHistory ? 'Recovering…' : 'Recover from balance history'}
-          </button>
-        ) : null}
-        {canRepairRecoveredReceipts ? (
-          <button
-            type="button"
-            className="btn-secondary btn-tiny"
-            disabled={readOnly || recoveringHistory}
-            onClick={handleRepairRecoveredReceipts}
-          >
-            Fix receipt dates (Trends spike)
           </button>
         ) : null}
         {emptyReservePlans.length > 0 ? (

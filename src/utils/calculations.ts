@@ -133,6 +133,13 @@ export function groupAccountsForDisplay(
 }
 
 export function getCommitmentsForScope(state: AppState, scope: ViewScope): Commitment[] {
+  // Venue dashboards/lists only include that venue's costs — not parent business/group items —
+  // so Cash Prophet Balance matches Accruing and Due on screen.
+  if (scope.type === 'venue') {
+    return state.commitments.filter((c) =>
+      itemMatchesColumnScope(state, scope, c.scopeLevel, c.scopeId),
+    )
+  }
   return state.commitments.filter((c) => itemMatchesScope(state, scope, c.scopeLevel, c.scopeId))
 }
 
@@ -143,19 +150,25 @@ export function getCommitmentsForColumnScope(state: AppState, scope: ViewScope):
 }
 
 export function getReceiptsForScope(state: AppState, scope: ViewScope) {
-  const receipts = state.expectedReceipts.filter(
-    (r) => !r.received && itemMatchesScope(state, scope, r.scopeLevel, r.scopeId),
-  )
+  const receipts = state.expectedReceipts.filter((r) => {
+    if (r.received) return false
+    if (scope.type === 'venue') {
+      return itemMatchesColumnScope(state, scope, r.scopeLevel, r.scopeId)
+    }
+    return itemMatchesScope(state, scope, r.scopeLevel, r.scopeId)
+  })
   return sortByOrder(receipts, (r) => r.sortOrder)
 }
 
 /** Receipts that still count toward True Balance on a calendar day (includes received items before receivedDate). */
 export function getReceiptsContributingOnDate(state: AppState, scope: ViewScope, dateKey: string) {
-  const receipts = state.expectedReceipts.filter(
-    (r) =>
-      itemMatchesScope(state, scope, r.scopeLevel, r.scopeId) &&
-      receiptContributesOnDate(r, dateKey),
-  )
+  const receipts = state.expectedReceipts.filter((r) => {
+    const inScope =
+      scope.type === 'venue'
+        ? itemMatchesColumnScope(state, scope, r.scopeLevel, r.scopeId)
+        : itemMatchesScope(state, scope, r.scopeLevel, r.scopeId)
+    return inScope && receiptContributesOnDate(r, dateKey)
+  })
   return sortByOrder(receipts, (r) => r.sortOrder)
 }
 
