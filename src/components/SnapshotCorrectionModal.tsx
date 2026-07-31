@@ -109,9 +109,8 @@ export function SnapshotCorrectionModal({ draft, onConfirm, onCancel }: Snapshot
         {error ? <p className="snapshot-correction-error">{error}</p> : null}
 
         <p className="snapshot-correction-note muted">
-          The originally recorded amount is kept for reference. Trends and history will use your
-          corrected Cash Prophet Balance. Cash is adjusted with it so committed funds stay as you set
-          them.
+          This only changes what Trends shows for this date. Other days and your live Cash Prophet
+          Balance are left alone. The originally recorded amount is kept for reference.
         </p>
 
         <div className="snapshot-correction-actions">

@@ -19,7 +19,6 @@ import {
   getCommitmentHistoricCorrectionFromDateKey,
   getCommitmentRebuildFromDateKey,
   getCommitmentRebuildFromPeriodOverridePatch,
-  propagateSnapshotMetricDelta,
   refreshAllSnapshotMetrics,
 } from '../utils/snapshotRebuild'
 import { getReceiptRebuildFromDateKey, getReceiptDeleteFromDateKey, getReceiptActiveFromDateKey } from '../utils/receiptCalculations'
@@ -1700,42 +1699,23 @@ export function useAppState(options?: UseAppStateOptions) {
       const rounded = roundCurrency(newValue)
       if (rounded === oldValue) return s
 
-      const delta = rounded - oldValue
-      const pairedMetric =
-        metric === 'trueBalance' ? 'cash' : metric === 'cash' ? 'trueBalance' : null
       const now = new Date().toISOString()
 
-      let snapshots = s.snapshots.map((snap) => {
+      // Pin this day only for Trends/history display. Do not rewrite cash, commitments,
+      // or any later days — live dashboard maths stay unchanged.
+      const snapshots = s.snapshots.map((snap) => {
         if (snap.id !== snapshotId) return snap
 
         const corrected = applySnapshotMetricCorrection(snap, metric, rounded)
-        const recordedValues = {
-          ...corrected.recordedValues,
-          [metric]: snap.recordedValues?.[metric] ?? oldValue,
-        }
-
-        if (!pairedMetric) {
-          return { ...corrected, recordedValues, updatedAt: now }
-        }
-
-        const oldPairedValue = getEffectiveSnapshotMetric(s, target, pairedMetric)
-        // Available and cash move together so committed funds are not silently rewritten.
-        const newPairedValue = roundCurrency(oldPairedValue + delta)
         return {
           ...corrected,
-          [pairedMetric]: newPairedValue,
           recordedValues: {
-            ...recordedValues,
-            [pairedMetric]: snap.recordedValues?.[pairedMetric] ?? oldPairedValue,
+            ...corrected.recordedValues,
+            [metric]: snap.recordedValues?.[metric] ?? oldValue,
           },
           updatedAt: now,
         }
       })
-
-      const correctedTarget = snapshots.find((snap) => snap.id === snapshotId)
-      if (correctedTarget) {
-        snapshots = propagateSnapshotMetricDelta(snapshots, correctedTarget, metric, delta, s, now)
-      }
 
       return { ...s, snapshots, workspaceOrigin: s.workspaceOrigin ?? 'user' }
     })

@@ -615,7 +615,7 @@ export function TrueBalanceHistoryTable({
               id="history"
               openHelp={openHelp}
               setOpenHelp={setOpenHelp}
-              text="This table lists the same balance totals plotted on the Trends chart. A row appears each time you save account balances in the overview, or when you add a manual point. Use Daily, Weekly, or Monthly to group rows. Click a daily Available cell to correct it — the original recorded amount is kept. Manual entries are marked with *."
+              text="This table lists the same balance totals plotted on the Trends chart. A row appears each time you save account balances in the overview, or when you add a manual point. Use Daily, Weekly, or Monthly to group rows. Click a daily value to correct that day only on Trends — other days and live calculations stay as they are. Manual entries are marked with *."
             />
           </div>
         </div>
@@ -637,7 +637,7 @@ export function TrueBalanceHistoryTable({
             id="history"
             openHelp={openHelp}
             setOpenHelp={setOpenHelp}
-            text="Each row is a date when balances were recorded. Use Daily, Weekly, or Monthly to change how rows are grouped. Click any daily value to correct it — you will be asked to confirm, and the originally recorded amount is always kept for reference. Use + Add for a manual past point (marked *)."
+            text="Each row is a date when balances were recorded. Use Daily, Weekly, or Monthly to change how rows are grouped. Click a daily value to correct that day on Trends only — it does not change later days or your live Cash Prophet Balance. The originally recorded amount is kept for reference. Use + Add for a manual past point (marked *)."
           />
         </div>
       </div>
