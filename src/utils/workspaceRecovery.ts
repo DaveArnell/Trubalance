@@ -43,20 +43,38 @@ export function diagnoseReservePlanners(state: AppState): Array<{
 
 /**
  * Rebuild missing expected receipts from daily history snapshots.
- * History stores id/name/amount/scope — enough to restore the list (dates default to today).
+ * History stores the *effective* amount on that day (not always the full receipt),
+ * so we keep the history date as expectedDate — never force "today" (that spikes Trends).
  */
 export function recoverExpectedReceiptsFromHistory(state: AppState): {
   state: AppState
   restoredCount: number
 } {
   const existingIds = new Set(state.expectedReceipts.map((receipt) => receipt.id))
-  const byId = new Map<string, HistoryRecord['expectedReceipts'][number]>()
+  const byId = new Map<
+    string,
+    HistoryRecord['expectedReceipts'][number] & { historyDate: string }
+  >()
 
-  for (const record of latestHistoryRecords(state)) {
+  const sortedHistory = [...(state.historyRecords ?? [])].sort((a, b) =>
+    a.date.localeCompare(b.date),
+  )
+
+  for (const record of sortedHistory) {
     for (const receipt of record.expectedReceipts ?? []) {
-      if (existingIds.has(receipt.id) || byId.has(receipt.id)) continue
+      if (existingIds.has(receipt.id)) continue
       if (receipt.received) continue
-      byId.set(receipt.id, receipt)
+      const prev = byId.get(receipt.id)
+      if (!prev) {
+        byId.set(receipt.id, { ...receipt, historyDate: record.date })
+        continue
+      }
+      // Keep the earliest date and the largest amount seen for that id.
+      byId.set(receipt.id, {
+        ...prev,
+        amount: Math.max(prev.amount, receipt.amount),
+        historyDate: prev.historyDate <= record.date ? prev.historyDate : record.date,
+      })
     }
   }
 
@@ -66,10 +84,11 @@ export function recoverExpectedReceiptsFromHistory(state: AppState): {
     id: receipt.id,
     name: receipt.name,
     amount: receipt.amount,
-    expectedDate: todayDateKey(),
+    expectedDate: receipt.historyDate,
     scopeLevel: receipt.scopeLevel,
     scopeId: receipt.scopeId,
     received: false,
+    notes: 'Restored from balance history — check date and amount',
     sortOrder: state.expectedReceipts.length + index,
   }))
 
@@ -80,6 +99,90 @@ export function recoverExpectedReceiptsFromHistory(state: AppState): {
       expectedReceipts: [...state.expectedReceipts, ...restored],
     },
     restoredCount: restored.length,
+  }
+}
+
+/**
+ * Fix receipts restored earlier with expectedDate=today (which inflated today's Trends).
+ * Aligns dates/amounts back to history and drops empty transfer-like noise rows.
+ */
+export function repairHistoryRecoveredReceipts(state: AppState): {
+  state: AppState
+  repairedCount: number
+  removedCount: number
+} {
+  const today = todayDateKey()
+  const historyById = new Map<string, { date: string; amount: number; name: string }>()
+
+  for (const record of state.historyRecords ?? []) {
+    for (const receipt of record.expectedReceipts ?? []) {
+      if (receipt.received) continue
+      const prev = historyById.get(receipt.id)
+      if (!prev) {
+        historyById.set(receipt.id, {
+          date: record.date,
+          amount: receipt.amount,
+          name: receipt.name,
+        })
+        continue
+      }
+      historyById.set(receipt.id, {
+        date: prev.date <= record.date ? prev.date : record.date,
+        amount: Math.max(prev.amount, receipt.amount),
+        name: prev.name || receipt.name,
+      })
+    }
+  }
+
+  let repairedCount = 0
+  let removedCount = 0
+  const nextReceipts: ExpectedReceipt[] = []
+
+  for (const receipt of state.expectedReceipts) {
+    const hist = historyById.get(receipt.id)
+    const looksRestoredToday =
+      receipt.expectedDate === today ||
+      (receipt.notes ?? '').toLowerCase().includes('restored from balance history')
+
+    if (!hist) {
+      // Transfer-like names that only appeared after recovery and have no history — drop.
+      if (
+        looksRestoredToday &&
+        /transfer|move .* from|less money/i.test(receipt.name)
+      ) {
+        removedCount += 1
+        continue
+      }
+      nextReceipts.push(receipt)
+      continue
+    }
+
+    if (
+      looksRestoredToday ||
+      receipt.expectedDate !== hist.date ||
+      Math.abs(receipt.amount - hist.amount) > 0.005
+    ) {
+      repairedCount += 1
+      nextReceipts.push({
+        ...receipt,
+        expectedDate: hist.date,
+        amount: hist.amount,
+        notes: 'Restored from balance history — check date and amount',
+      })
+      continue
+    }
+
+    nextReceipts.push(receipt)
+  }
+
+  if (repairedCount === 0 && removedCount === 0) {
+    return { state, repairedCount: 0, removedCount: 0 }
+  }
+
+  return {
+    state: { ...state, workspaceOrigin: 'user', expectedReceipts: nextReceipts },
+    repairedCount,
+    removedCount,
   }
 }
 
@@ -106,7 +209,8 @@ export function recoverReserveBillsFromHistory(state: AppState): {
     for (const item of record.buildingUpItems ?? []) {
       if (item.source !== 'reserve' || item.budgetAmount <= 0) continue
       const key = `${item.scopeId}::${item.name}`
-      if (!reserveBudgets.has(key)) {
+      const prev = reserveBudgets.get(key)
+      if (!prev || item.budgetAmount > prev.budgetAmount) {
         reserveBudgets.set(key, {
           name: item.name,
           budgetAmount: item.budgetAmount,
@@ -114,18 +218,7 @@ export function recoverReserveBillsFromHistory(state: AppState): {
         })
       }
     }
-    for (const item of record.dueItems ?? []) {
-      if (item.source !== 'reserve' || item.amount <= 0) continue
-      // Skip transfer-style rows without a matching planner budget already found.
-      const key = `${item.scopeId}::${item.name}`
-      if (!reserveBudgets.has(key)) {
-        reserveBudgets.set(key, {
-          name: item.name,
-          budgetAmount: item.amount,
-          scopeId: item.scopeId,
-        })
-      }
-    }
+    // Do not use Due transfer amounts — those are net cash moves, not the monthly provision.
   }
 
   const reservePlanners: ReservePlanner[] = state.reservePlanners.map((planner) => {
@@ -177,11 +270,12 @@ export function recoverWorkspaceFromHistory(state: AppState): {
   plannersRepaired: string[]
   diagnosis: ReturnType<typeof diagnoseReservePlanners>
 } {
-  const receipts = recoverExpectedReceiptsFromHistory(state)
+  const repaired = repairHistoryRecoveredReceipts(state)
+  const receipts = recoverExpectedReceiptsFromHistory(repaired.state)
   const bills = recoverReserveBillsFromHistory(receipts.state)
   return {
     state: bills.state,
-    receiptsRestored: receipts.restoredCount,
+    receiptsRestored: receipts.restoredCount + repaired.repairedCount,
     plannersRepaired: bills.restoredPlannerIds,
     diagnosis: diagnoseReservePlanners(bills.state),
   }

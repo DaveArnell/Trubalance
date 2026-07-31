@@ -49,6 +49,15 @@ export function getPlannerDisplayName(state: AppState, planner: ReservePlanner):
   return planName
 }
 
+/** Accruing / Due list label — always reads as a reserve plan, not just the site name. */
+export function getReservePlanListLabel(state: AppState, planner: ReservePlanner): string {
+  const base = getPlannerDisplayName(state, planner).trim()
+  if (!base) return 'Reserve plan'
+  if (/reserve\s*plan/i.test(base) || /^reserve$/i.test(base)) return base
+  if (/reserve/i.test(base)) return base
+  return `${base} reserve plan`
+}
+
 function roundMoney(value: number): number {
   return Math.round(value * 100) / 100
 }
@@ -461,7 +470,7 @@ export function buildReserveTransferDueRows(
 
     const business = state.businesses.find((b) => b.id === planner.businessId)
     const displayName =
-      getPlannerDisplayName(state, planner) || business?.name || planner.name || 'Reserve plan'
+      getReservePlanListLabel(state, planner) || business?.name || planner.name || 'Reserve plan'
 
     const monthEnds = computeReserveMonthEndBalances(planner)
     const actualBalance = getReserveBalanceForTransfer(state, planner, monthIndex, referenceDate)
@@ -620,9 +629,9 @@ export function buildReserveAccruingRows(
 
     const business = state.businesses.find((b) => b.id === planner.businessId)
     const displayName =
-      getPlannerDisplayName(state, planner) ||
+      getReservePlanListLabel(state, planner) ||
       planner.name ||
-      `${business?.name ?? 'Business'} reserve`
+      `${business?.name ?? 'Business'} reserve plan`
     const commitment = syntheticCommitmentFromReservePlan(
       planner,
       displayName,
@@ -658,9 +667,9 @@ export function buildReserveAccruingRowsForSharedColumn(
 
     const business = state.businesses.find((b) => b.id === planner.businessId)
     const displayName =
-      getPlannerDisplayName(state, planner) ||
+      getReservePlanListLabel(state, planner) ||
       planner.name ||
-      `${business?.name ?? 'Business'} reserve`
+      `${business?.name ?? 'Business'} reserve plan`
     const commitment = syntheticCommitmentFromReservePlan(
       planner,
       displayName,

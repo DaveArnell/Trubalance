@@ -1161,14 +1161,15 @@ export function summarizeCommittedFundsBreakdown(
   const accruedReserve = views.buildingUp
     .filter((row) => row.source === 'reserve')
     .filter((row) => {
-      // When the monthly reserve provision is on Due, count it there — not again as accrual.
       if (!row.reservePlannerId) return true
-      return !views.due.some(
+      const planDue = views.due.find(
         (due) =>
           due.reservePlannerId === row.reservePlannerId &&
           !due.reserveBillId &&
           isReserveTransferDueRow(due),
       )
+      if (planDue && planDue.reserveTransferDirection !== 'from_reserve') return false
+      return true
     })
     .reduce((sum, row) => sum + row.accruedAmount, 0)
 
@@ -1192,13 +1193,15 @@ export function sumCommittedFunds(
     total += getEffectiveCommittedAmount(commitment, referenceDate)
   }
   for (const row of reserveRows) {
-    const hasPlanDue = reserveDueRows.some(
+    const planDue = reserveDueRows.find(
       (due) =>
         due.reservePlannerId === row.reservePlannerId &&
         !due.reserveBillId &&
         isReserveTransferDueRow(due),
     )
-    if (hasPlanDue) continue
+    // to_reserve Due replaces accrual (same as a monthly bill on its due day).
+    // from_reserve is money coming back — keep accruing the provision, Due amount stays 0 in committed.
+    if (planDue && planDue.reserveTransferDirection !== 'from_reserve') continue
     total += row.accruedAmount
   }
   for (const row of reserveDueRows) {

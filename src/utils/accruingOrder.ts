@@ -26,7 +26,7 @@ export function accruingNextDueDateKey(
   return dateToKey(cycle.cycleEnd)
 }
 
-/** Soonest upcoming due date first — same order as the mobile accruing list. */
+/** Soonest upcoming due date first; reserve plans stay grouped together within the same due day. */
 export function sortAccruingRowsByNextDue(
   rows: CommitmentAccruingRow[],
   referenceDate: Date = getReferenceDate(),
@@ -36,6 +36,8 @@ export function sortAccruingRowsByNextDue(
       accruingNextDueDateKey(b, referenceDate),
     )
     if (dueCmp !== 0) return dueCmp
+    const reserveCmp = Number(a.source !== 'reserve') - Number(b.source !== 'reserve')
+    if (reserveCmp !== 0) return reserveCmp
     return a.commitment.name.localeCompare(b.commitment.name)
   })
 }
