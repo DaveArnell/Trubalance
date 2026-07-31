@@ -629,13 +629,12 @@ export function buildReserveAccruingRows(
       monthlyAmount,
       referenceDate,
     )
-    const dueNow = getCommitmentDueOccurrences(commitment, referenceDate).length > 0
 
     rows.push({
       source: 'reserve',
       reservePlannerId: planner.id,
-      // When due, the provision sits in Due — don't keep a full build-up here too.
-      accruedAmount: dueNow ? 0 : getAccruedAmount(commitment, referenceDate),
+      // Same as monthly costs: keep accruing the active cycle even while an unpaid due sits in Due.
+      accruedAmount: getAccruedAmount(commitment, referenceDate),
       commitment,
     })
   }
@@ -670,12 +669,11 @@ export function buildReserveAccruingRowsForSharedColumn(
     )
     // Shared-column synthetic id must stay distinct for sheet keys.
     commitment.id = `reserve-shared-${planner.id}`
-    const dueNow = getCommitmentDueOccurrences(commitment, referenceDate).length > 0
 
     rows.push({
       source: 'reserve',
       reservePlannerId: planner.id,
-      accruedAmount: dueNow ? 0 : getAccruedAmount(commitment, referenceDate),
+      accruedAmount: getAccruedAmount(commitment, referenceDate),
       commitment,
     })
   }

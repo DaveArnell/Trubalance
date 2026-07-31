@@ -7,6 +7,11 @@ import { isSupabaseConfigured } from '../lib/supabase'
 import { deleteUserAccount, finishSelfAccountDeletion } from '../services/accountDeletion'
 import { backupBrowserStateToSession, readSessionBackup, sessionBackupLooksRicher, summarizeAppState } from '../utils/localStateStorage'
 import { parseImportedAppState } from '../utils/importAppState'
+import {
+  diagnoseReservePlanners,
+  recoverWorkspaceFromHistory,
+  reservePlannersMissingDeposit,
+} from '../utils/workspaceRecovery'
 
 interface DataExportPanelProps {
   state: AppState
@@ -21,6 +26,7 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
   const [pendingImport, setPendingImport] = useState<AppState | null>(null)
   const [importing, setImporting] = useState(false)
   const [restoringBackup, setRestoringBackup] = useState(false)
+  const [recoveringHistory, setRecoveringHistory] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState('')
   const [deletingAccount, setDeletingAccount] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -30,6 +36,14 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
   const summary = summarizeAppState(state)
   const signedIn = Boolean(user)
   const cloudBacked = remoteEnabled && isSupabaseConfigured
+  const emptyReservePlans = reservePlannersMissingDeposit(state)
+  const historyReceiptCount = (state.historyRecords ?? []).reduce(
+    (max, record) => Math.max(max, record.expectedReceipts?.length ?? 0),
+    0,
+  )
+  const canRecoverFromHistory =
+    (state.historyRecords?.length ?? 0) > 0 &&
+    (summary.receipts < historyReceiptCount || emptyReservePlans.length > 0)
 
   const handleDownload = () => {
     const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' })
@@ -120,6 +134,46 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
       setStatus(`Restore failed: ${err instanceof Error ? err.message : 'Unknown error'}.`)
     } finally {
       setRestoringBackup(false)
+    }
+  }
+
+  const handleRecoverFromHistory = async () => {
+    if (readOnly) return
+    setRecoveringHistory(true)
+    setStatus(null)
+    try {
+      const result = recoverWorkspaceFromHistory(state)
+      if (result.receiptsRestored === 0 && result.plannersRepaired.length === 0) {
+        const empty = diagnoseReservePlanners(state)
+          .filter((row) => row.monthlyDeposit <= 0)
+          .map((row) => row.name)
+        setStatus(
+          empty.length > 0
+            ? `No history snapshot had enough detail to rebuild ${empty.join(', ')}. Open each Reserve Planner and re-add the bills, or restore an older JSON export if you have one.`
+            : 'History did not contain missing receipts to restore.',
+        )
+        return
+      }
+      cancelPendingPersist()
+      onReplaceState(result.state)
+      if (cloudBacked) {
+        await restoreWorkspaceState(result.state)
+      }
+      const parts: string[] = []
+      if (result.receiptsRestored > 0) parts.push(`${result.receiptsRestored} expected receipts`)
+      if (result.plannersRepaired.length > 0) {
+        parts.push(`reserve bills for ${result.plannersRepaired.length} plan(s)`)
+      }
+      setStatus(
+        `Recovered from your balance history: ${parts.join(' and ')}.` +
+          (cloudBacked ? ' Saved to your account.' : '') +
+          ' Check expected dates on restored receipts, and open each repaired Reserve Planner to confirm the monthly amounts.',
+      )
+    } catch (err) {
+      console.error('[History recover] Failed:', err)
+      setStatus(`Recovery failed: ${err instanceof Error ? err.message : 'Unknown error'}.`)
+    } finally {
+      setRecoveringHistory(false)
     }
   }
 
@@ -215,6 +269,22 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
               ? ` (${sessionBackupSummary.planners} plans, ${sessionBackupSummary.receipts} receipts)`
               : ''}
           </button>
+        ) : null}
+        {canRecoverFromHistory ? (
+          <button
+            type="button"
+            className="btn-secondary btn-tiny"
+            disabled={readOnly || recoveringHistory}
+            onClick={handleRecoverFromHistory}
+          >
+            {recoveringHistory ? 'Recovering…' : 'Recover from balance history'}
+          </button>
+        ) : null}
+        {emptyReservePlans.length > 0 ? (
+          <p className="muted data-export-warning">
+            These reserve plans have no monthly bills right now, so they will not show in Accruing:{' '}
+            {emptyReservePlans.join(', ')}. Use recovery above, or re-add bills in each Reserve Planner.
+          </p>
         ) : null}
         <input
           ref={fileInputRef}
