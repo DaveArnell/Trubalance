@@ -25,9 +25,9 @@ export function getEffectiveSnapshotMetric(
   if (useStoredDemoSnapshotMetrics(state, snapshot)) {
     return snapshot[metric]
   }
-  // Past saved Trends points stay as recorded that day. Paying a bill or updating today's
-  // bank must not rewrite yesterday's chart (live recompute still applies to today).
-  if (isPersistedSnapshot(snapshot) && snapshot.date < todayDateKey()) {
+  // Past points (persisted or history-summary stand-ins) stay as recorded that day.
+  // Live recompute still applies to today only.
+  if (snapshot.date < todayDateKey()) {
     return snapshot[metric]
   }
   const scope = { type: snapshot.scopeType, id: snapshot.scopeId } as const

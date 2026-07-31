@@ -16,7 +16,7 @@ import { getEffectiveReceiptAmount } from './receiptCalculations'
 import { buildReserveAccruingRows, buildReserveDueRows } from './reserveCalculations'
 import { getBusinessIdsForScope, getGroupIdForScope, getVenueIdsForScope, businessHasVenues, getVenuesInBusiness } from './scope'
 import { computeCommittedFundsAt, computeExpectedReceiptsAt } from './metricsAtDate'
-import { getAncestorScopes, getSnapshotIdsForDateInScope, getSnapshotsForDateInScopeTree, snapshotScopeSpecificity } from './snapshots'
+import { getAncestorScopes, getSnapshotIdsForDateInScope, getSnapshotsForDateInScopeTree, snapshotScopeSpecificity, todayDateKey } from './snapshots'
 import { getEffectiveSnapshotMetric } from './snapshotMetrics'
 import { isPersistedSnapshot } from './scopeSnapshotSeries'
 
@@ -566,14 +566,27 @@ export function buildHistoryRecordForViewScope(
       isPersistedSnapshot(snap),
   )
 
-  const summary = matchingSnap
-    ? {
-        cash: getEffectiveSnapshotMetric(state, matchingSnap, 'cash'),
-        committedFunds: getEffectiveSnapshotMetric(state, matchingSnap, 'committedFunds'),
-        expectedReceipts: getEffectiveSnapshotMetric(state, matchingSnap, 'expectedReceipts'),
-        trueBalance: getEffectiveSnapshotMetric(state, matchingSnap, 'trueBalance'),
-      }
-    : computeScopeMetricsAtDate(state, viewScope, date)
+  // Past days: never live-recompute summary (rule changes must not rewrite history).
+  const summary =
+    date < todayDateKey()
+      ? exact?.summary ??
+        (matchingSnap
+          ? {
+              cash: matchingSnap.cash,
+              committedFunds: matchingSnap.committedFunds,
+              expectedReceipts: matchingSnap.expectedReceipts,
+              trueBalance: matchingSnap.trueBalance,
+            }
+          : source?.summary) ??
+        computeScopeMetricsAtDate(state, viewScope, date)
+      : matchingSnap
+        ? {
+            cash: getEffectiveSnapshotMetric(state, matchingSnap, 'cash'),
+            committedFunds: getEffectiveSnapshotMetric(state, matchingSnap, 'committedFunds'),
+            expectedReceipts: getEffectiveSnapshotMetric(state, matchingSnap, 'expectedReceipts'),
+            trueBalance: getEffectiveSnapshotMetric(state, matchingSnap, 'trueBalance'),
+          }
+        : computeScopeMetricsAtDate(state, viewScope, date)
 
   const lineItems = buildHistoryLineItems(state, viewScope, date, referenceDate)
 
@@ -642,6 +655,11 @@ export function getSnapshotIdsForHistoryRecord(state: AppState, record: HistoryR
 
 /** Recompute summary and line items for one saved day using current data as-of that date. */
 export function refreshHistoryRecord(record: HistoryRecord, state: AppState): HistoryRecord {
+  // Past History days stay as captured — live due/receipt rule changes must not rewrite them.
+  if (record.date < todayDateKey()) {
+    return record
+  }
+
   const referenceDate = parseRecordDate(record.date)
   const scope = record.viewScope
   const lineItems = buildHistoryLineItems(state, scope, record.date, referenceDate)
