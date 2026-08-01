@@ -2,7 +2,7 @@ import type { BlogPost } from './blogTypes'
 import { METHOD_BLOG_CATEGORY } from './trueBalanceMethod'
 
 const METHOD_CTA =
-  'Cash Prophet continuously accounts for meaningful commitments to give you one trusted Cash Prophet Balance — confidence in where your business really stands, alongside your accounting software.'
+  'Cash Prophet continuously accounts for meaningful commitments to give you one trusted Cash Prophet Balance: confidence in where your business really stands, alongside your accounting software.'
 
 /** Educational articles for the Cash Prophet category. */
 export const METHOD_BLOG_POSTS: BlogPost[] = [

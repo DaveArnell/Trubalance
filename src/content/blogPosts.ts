@@ -360,7 +360,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
     category: 'Comparisons',
     readMinutes: 3,
     excerpt:
-      'No single app fits every business. This comparison maps tools to how you actually earn and spend — and links to a fuller UK financial management software guide.',
+      'No single app fits every business. This comparison maps tools to how you actually earn and spend, and links to a fuller UK financial management software guide.',
     relatedSlugs: [
       'best-financial-management-software-uk',
       'cash-flow-spreadsheet-alternative-uk',
