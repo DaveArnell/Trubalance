@@ -74,74 +74,6 @@ export function formatProjectionDateLabel(dateKey: string | null): string {
   return formatProjectionDate(dateKey)
 }
 
-export interface HoltFit {
-  originDate: string
-  fittedAtSnapshots: ChartProjectionPoint[]
-  level: number
-  trendPerDay: number
-  lastDate: string
-  sampleCount: number
-  residualStdError: number
-}
-
-function holtSmoothingAlphas(sampleCount: number): { alpha: number; beta: number } {
-  // Responsive enough to follow real balance moves without chasing every blip.
-  if (sampleCount <= 4) return { alpha: 0.7, beta: 0.35 }
-  if (sampleCount <= 8) return { alpha: 0.55, beta: 0.28 }
-  if (sampleCount <= 16) return { alpha: 0.45, beta: 0.2 }
-  return { alpha: 0.35, beta: 0.15 }
-}
-
-/** Holt exponential smoothing — level + trend that tracks recent actuals. */
-export function fitHoltTrend(
-  snapshots: BalanceSnapshot[],
-  metric: SnapshotMetric = 'trueBalance',
-): HoltFit | null {
-  const sorted = [...snapshots].sort((a, b) => a.date.localeCompare(b.date))
-  if (sorted.length < 2) return null
-
-  const { alpha, beta } = holtSmoothingAlphas(sorted.length)
-  const originDate = sorted[0]!.date
-  const originMs = new Date(`${originDate}T12:00:00`).getTime()
-
-  let level = sorted[0]![metric] as number
-  let trendPerDay = 0
-  const fittedAtSnapshots: ChartProjectionPoint[] = [{ date: sorted[0]!.date, value: level }]
-
-  let ssRes = 0
-  let resCount = 0
-
-  for (let i = 1; i < sorted.length; i++) {
-    const snap = sorted[i]!
-    const y = snap[metric] as number
-    const dt = dayIndex(snap.date, originMs) - dayIndex(sorted[i - 1]!.date, originMs)
-    if (dt <= 0) continue
-
-    const forecast = level + trendPerDay * dt
-    ssRes += (y - forecast) ** 2
-    resCount++
-
-    const newLevel = alpha * y + (1 - alpha) * forecast
-    const newTrend = (beta * (newLevel - level)) / dt + (1 - beta) * trendPerDay
-    level = newLevel
-    trendPerDay = newTrend
-    fittedAtSnapshots.push({ date: snap.date, value: level })
-  }
-
-  const dof = Math.max(1, resCount - 1)
-  const residualStdError = resCount > 0 ? Math.sqrt(ssRes / dof) : 0
-
-  return {
-    originDate,
-    fittedAtSnapshots,
-    level,
-    trendPerDay,
-    lastDate: sorted[sorted.length - 1]!.date,
-    sampleCount: sorted.length,
-    residualStdError,
-  }
-}
-
 function seriesDataRange(snapshots: BalanceSnapshot[], metric: SnapshotMetric): number {
   const ys = snapshots.map((s) => s[metric] as number)
   return Math.max(1, Math.max(...ys) - Math.min(...ys))
@@ -226,29 +158,6 @@ function recentSlopePerDay(
   return fitLinearTrend(window, metric)?.slopePerDay ?? null
 }
 
-/** Linear-interpolate a fitted path onto evenly spaced chart dates. */
-function sampleFittedPath(
-  fitted: ChartProjectionPoint[],
-  firstDate: string,
-  lastDate: string,
-  stepDays: number,
-): ChartProjectionPoint[] {
-  if (fitted.length === 0) return []
-  const dates = sampleDates(firstDate, lastDate, stepDays)
-  return dates.map((date) => {
-    if (date <= fitted[0]!.date) return { date, value: fitted[0]!.value }
-    const last = fitted[fitted.length - 1]!
-    if (date >= last.date) return { date, value: last.value }
-    let i = 1
-    while (i < fitted.length && fitted[i]!.date < date) i++
-    const right = fitted[i]!
-    const left = fitted[i - 1]!
-    const span = dateMs(right.date) - dateMs(left.date)
-    const t = span <= 0 ? 1 : (dateMs(date) - dateMs(left.date)) / span
-    return { date, value: left.value + (right.value - left.value) * t }
-  })
-}
-
 function buildWeightedTrendSeries({
   snapshots,
   metric = 'trueBalance',
@@ -261,27 +170,34 @@ function buildWeightedTrendSeries({
   const sorted = [...snapshots].sort((a, b) => a.date.localeCompare(b.date))
   if (sorted.length < 2 || horizonDays <= 0) return null
 
-  const holt = fitHoltTrend(sorted, metric)
-  if (!holt) return null
-
-  const dataRange = seriesDataRange(sorted, metric)
   const firstDate = sorted[0]!.date
   const lastActualDate = sorted[sorted.length - 1]!.date
-  // Forecast always starts from where the business actually stands today.
-  const joinValue = sorted[sorted.length - 1]![metric] as number
+  const spanDays = Math.max(1, (dateMs(lastActualDate) - dateMs(firstDate)) / 86_400_000)
+  // Wide kernel so the curve reads as a gentle trend, not a shadow of every blip.
+  const bandwidthDays = Math.max(7, spanDays * 0.35)
+  const histStep = Math.max(1, Math.min(3, Math.round(spanDays / 40)))
+  const sampleKeys = sampleDates(firstDate, lastActualDate, histStep)
+  const historical = gaussianSmoothAtDates(sorted, metric, bandwidthDays, sampleKeys)
+  if (historical.length < 2) return null
+
+  const dataRange = seriesDataRange(sorted, metric)
+  const joinValue = historical[historical.length - 1]!.value
+  const slope = smoothRecentSlope(historical) ?? recentSlopePerDay(sorted, metric) ?? 0
   const forecastEnd = addDays(lastActualDate, horizonDays)
   const stepDays = horizonDays <= 45 ? 3 : horizonDays <= 120 ? 5 : 7
   const lastActualMs = dateMs(lastActualDate)
 
-  const recentSlope = recentSlopePerDay(sorted, metric) ?? holt.trendPerDay
-  // Blend Holt momentum with the recent window so neither a single blip nor old history dominates.
-  const slope = 0.55 * recentSlope + 0.45 * holt.trendPerDay
-
-  const histStep = Math.min(stepDays, Math.max(1, Math.round((dateMs(lastActualDate) - dateMs(firstDate)) / 86_400_000 / 24)))
-  const historical = sampleFittedPath(holt.fittedAtSnapshots, firstDate, lastActualDate, histStep)
-  if (historical.length > 0) {
-    historical[historical.length - 1] = { date: lastActualDate, value: joinValue }
+  // Residual vs the smooth curve — keeps the high/low band honest without inventing noise.
+  let ssRes = 0
+  for (const snap of sorted) {
+    const fitted =
+      historical.find((p) => p.date === snap.date)?.value ??
+      gaussianSmoothAtDates(sorted, metric, bandwidthDays, [snap.date])[0]?.value ??
+      (snap[metric] as number)
+    const err = (snap[metric] as number) - fitted
+    ssRes += err * err
   }
+  const residualStdError = Math.sqrt(ssRes / Math.max(1, sorted.length - 1))
 
   const forecastDates = sampleDates(lastActualDate, forecastEnd, stepDays)
   const forecast: ChartProjectionPoint[] = []
@@ -292,14 +208,13 @@ function buildWeightedTrendSeries({
     const daysAhead = Math.max(0, (dateMs(date) - lastActualMs) / 86_400_000)
     const center = forecastFromJoin(joinValue, slope, 0, daysAhead, dataRange, horizonDays)
     const halfWidth = cappedBandHalfWidth(
-      holt.residualStdError,
+      residualStdError,
       joinValue,
       dataRange,
       daysAhead,
       horizonDays,
       sorted.length,
     )
-
     forecast.push({ date, value: center })
     forecastHigh.push({ date, value: center + halfWidth })
     forecastLow.push({ date, value: center - halfWidth })
@@ -315,8 +230,54 @@ function buildWeightedTrendSeries({
     effectiveMethod: 'weighted',
     horizonDays,
     lastActualDate,
-    residualStdError: holt.residualStdError,
+    residualStdError,
   }
+}
+
+/** Gaussian-weighted smooth at each sample date — a calm curve from period start to end. */
+function gaussianSmoothAtDates(
+  snapshots: BalanceSnapshot[],
+  metric: SnapshotMetric,
+  bandwidthDays: number,
+  dates: string[],
+): ChartProjectionPoint[] {
+  const sorted = [...snapshots].sort((a, b) => a.date.localeCompare(b.date))
+  if (sorted.length === 0 || dates.length === 0) return []
+  const originMs = dateMs(sorted[0]!.date)
+  const points = sorted.map((snap) => ({
+    x: dayIndex(snap.date, originMs),
+    y: snap[metric] as number,
+  }))
+  const bw = Math.max(1, bandwidthDays)
+
+  return dates.map((date) => {
+    const x = dayIndex(date, originMs)
+    let wSum = 0
+    let ySum = 0
+    for (const point of points) {
+      const d = (point.x - x) / bw
+      const w = Math.exp(-0.5 * d * d)
+      wSum += w
+      ySum += w * point.y
+    }
+    return { date, value: wSum > 0 ? ySum / wSum : points[points.length - 1]!.y }
+  })
+}
+
+function smoothRecentSlope(historical: ChartProjectionPoint[]): number | null {
+  if (historical.length < 2) return null
+  const last = historical[historical.length - 1]!
+  const lookbackDate = addDays(last.date, -21)
+  let start = historical[0]!
+  for (const point of historical) {
+    if (point.date <= lookbackDate) start = point
+  }
+  if (start.date === last.date && historical.length >= 2) {
+    start = historical[Math.max(0, historical.length - 3)]!
+  }
+  const days = (dateMs(last.date) - dateMs(start.date)) / 86_400_000
+  if (days <= 0) return null
+  return (last.value - start.value) / days
 }
 
 export interface LinearFit {
@@ -563,31 +524,37 @@ export function buildSmoothedTrendSeries({
   const firstDate = sorted[0]!.date
   const lastActualDate = sorted[sorted.length - 1]!.date
   const forecastEnd = addDays(lastActualDate, horizonDays)
-  const stepDays = horizonDays <= 45 ? 7 : horizonDays <= 120 ? 14 : 30
+  const seasonal = effectiveMethod === 'seasonal' ? seasonalOffsets : null
+  // Straight = endpoints only (one segment). Seasonal keeps a few mid samples.
+  const histStep =
+    seasonal != null
+      ? Math.max(1, Math.round(((dateMs(lastActualDate) - dateMs(firstDate)) / 86_400_000) / 6))
+      : Math.max(1, Math.round(((dateMs(lastActualDate) - dateMs(firstDate)) / 86_400_000)))
 
-  const historical = sampleDates(firstDate, lastActualDate, stepDays).map((date) => ({
+  const historical = sampleDates(firstDate, lastActualDate, histStep).map((date) => ({
     date,
-    value: fittedTrendValue(
-      date,
-      fit,
-      effectiveMethod === 'seasonal' ? seasonalOffsets : null,
-    ),
+    value: fittedTrendValue(date, fit, seasonal),
   }))
+  if (historical.length === 0) {
+    historical.push(
+      { date: firstDate, value: fittedTrendValue(firstDate, fit, seasonal) },
+      { date: lastActualDate, value: fittedTrendValue(lastActualDate, fit, seasonal) },
+    )
+  } else {
+    historical[0] = { date: firstDate, value: fittedTrendValue(firstDate, fit, seasonal) }
+    historical[historical.length - 1] = {
+      date: lastActualDate,
+      value: fittedTrendValue(lastActualDate, fit, seasonal),
+    }
+  }
 
   const originMs = new Date(`${fit.originDate}T12:00:00`).getTime()
   const lastActualMs = new Date(`${lastActualDate}T12:00:00`).getTime()
-  const residualStdError = computeResidualStdError(
-    sorted,
-    metric,
-    fit,
-    effectiveMethod === 'seasonal' ? seasonalOffsets : null,
-  )
+  const residualStdError = computeResidualStdError(sorted, metric, fit, seasonal)
   const dataRange = seriesDataRange(sorted, metric)
-  // Forecast starts from the last saved balance — not from where the fit line happens to sit.
-  const joinValue = sorted[sorted.length - 1]![metric] as number
-  if (historical.length > 0) {
-    historical[historical.length - 1] = { date: lastActualDate, value: joinValue }
-  }
+  // Continue the same fitted line into the forecast — no snap/kink at "today".
+  const joinValue = fittedTrendValue(lastActualDate, fit, seasonal)
+  const stepDays = horizonDays <= 45 ? 7 : horizonDays <= 120 ? 14 : 30
 
   const forecastDates = sampleDates(lastActualDate, forecastEnd, stepDays)
   const forecast: ChartProjectionPoint[] = []

@@ -105,8 +105,8 @@ type ProjectionMode = 'off' | ProjectionMethod
 
 const projectionModeOptions: { key: ProjectionMode; label: string; title: string }[] = [
   { key: 'off', label: 'Off', title: 'Logged balances only' },
-  { key: 'linear', label: 'Straight', title: 'Straight trend through all entries' },
-  { key: 'weighted', label: 'Smoothed', title: 'Follows recent balance moves; forecast starts from your latest entry' },
+  { key: 'linear', label: 'Straight', title: 'One straight line through the selected period' },
+  { key: 'weighted', label: 'Smoothed', title: 'A gentle curve through the selected period' },
 ]
 
 function readStoredProjectionMode(): ProjectionMode {
@@ -891,8 +891,8 @@ export function TrendChart({
               high and low bounds widen based on how much your history has varied — not a guarantee of
               future performance.
               {primaryProjection.effectiveMethod === 'weighted'
-                ? ' Smoothed follows recent moves and starts the forecast from your latest entry.'
-                : ' Straight fits one line through all entries; forecast still starts from your latest entry.'}
+                ? ' Smoothed draws a gentle curve through the selected period.'
+                : ' Straight draws one line through the selected period.'}
             </p>
           )}
 
