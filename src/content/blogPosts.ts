@@ -353,16 +353,24 @@ const CORE_BLOG_POSTS: BlogPost[] = [
     slug: 'cash-flow-tools-uk-small-business-compared',
     title: 'Best Cash Flow Tools for UK Small Businesses (2026 Comparison)',
     metaDescription:
-      'Compare UK cash flow tools and approaches, from bank connected forecasters to reserve based platforms like Cash Prophet.',
+      'Compare UK cash flow tools and approaches, from bank connected forecasters to reserve based platforms like Cash Prophet. See also our full financial management software guide.',
     keywords: ['best cash flow software UK', 'cash flow tools comparison', 'SME finance apps 2026'],
     publishedAt: '2026-06-18',
-    updatedAt: '2026-07-26',
+    updatedAt: '2026-08-01',
     category: 'Comparisons',
-    readMinutes: 2,
+    readMinutes: 3,
     excerpt:
-      'No single app fits every business. This comparison maps tools to how you actually earn and spend.',
-    relatedSlugs: ['cash-flow-spreadsheet-alternative-uk', 'bank-balance-vs-safe-to-spend-uk'],
+      'No single app fits every business. This comparison maps tools to how you actually earn and spend — and links to a fuller UK financial management software guide.',
+    relatedSlugs: [
+      'best-financial-management-software-uk',
+      'cash-flow-spreadsheet-alternative-uk',
+      'bank-balance-vs-safe-to-spend-uk',
+    ],
     sections: [
+      {
+        type: 'p',
+        text: 'Looking for a broader shortlist of accounting, forecasting and daily-position tools? Read our guide to the best financial management software for UK businesses (2026).',
+      },
       {
         type: 'h2',
         text: 'Quick comparison',
