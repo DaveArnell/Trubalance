@@ -258,7 +258,7 @@ export function seeHowPageJsonLd(): JsonLd[] {
     organizationJsonLd(),
     {
       '@context': 'https://schema.org',
-      '@type': ['SoftwareApplication', 'Product'],
+      '@type': 'SoftwareApplication',
       name: 'Cash Prophet interactive demos',
       applicationCategory: 'FinanceApplication',
       operatingSystem: 'Web',
