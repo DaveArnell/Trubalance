@@ -1,16 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" role="img" aria-label="Cash Prophet">
-  <defs>
-    <linearGradient id="cp-fill" x1="8%" y1="12%" x2="92%" y2="88%">
-      <stop offset="0%" stop-color="#38bdf8" />
-      <stop offset="55%" stop-color="#2563eb" />
-      <stop offset="100%" stop-color="#1d4ed8" />
-    </linearGradient>
-  </defs>
-  <rect width="40" height="40" rx="11" fill="url(#cp-fill)" />
-  <rect x="8" y="10" width="24" height="5.5" rx="2.75" fill="#ffffff" opacity="0.22" />
-  <rect x="8" y="17.25" width="24" height="5.5" rx="2.75" fill="#ffffff" opacity="0.22" />
-  <rect x="8" y="24.5" width="24" height="5.5" rx="2.75" fill="#ffffff" opacity="0.22" />
-  <rect x="8" y="10" width="20" height="5.5" rx="2.75" fill="#ffffff" />
-  <rect x="8" y="17.25" width="14" height="5.5" rx="2.75" fill="#ffffff" opacity="0.92" />
-  <rect x="8" y="24.5" width="8" height="5.5" rx="2.75" fill="#ffffff" opacity="0.85" />
+  <rect width="40" height="40" rx="10" fill="#0A0F14"/>
+  <g fill="none" stroke="#16C065" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Left c loop -->
+    <path d="M18.5 20c0-4.6-3.2-7.6-7.2-7.6S4.2 15.4 4.2 20s3.1 7.6 7.1 7.6c2.2 0 4-.8 5.3-2.2"/>
+    <!-- Right p loop + stem -->
+    <path d="M18.5 20c0-4.6 3.2-7.6 7.4-7.6s7.5 3 7.5 7.6-3.2 7.6-7.5 7.6c-1.4 0-2.7-.3-3.8-.9"/>
+    <path d="M25.9 12.4V31.2"/>
+  </g>
 </svg>

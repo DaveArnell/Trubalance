@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-label="Cash Prophet">
+  <g stroke="#16C065" stroke-width="5.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M30 32c0-7.4-5.1-12.2-11.5-12.2S7 24.6 7 32s5.1 12.2 11.5 12.2c3.5 0 6.4-1.3 8.5-3.5"/>
+    <path d="M30 32c0-7.4 5.2-12.2 11.8-12.2S53.8 24.6 53.8 32 48.6 44.2 42 44.2c-2.2 0-4.2-.5-6-1.4"/>
+    <path d="M41.8 19.8V50"/>
+  </g>
+</svg>

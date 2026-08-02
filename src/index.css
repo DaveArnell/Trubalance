@@ -29928,43 +29928,44 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 /* Home: match new palette */
 .marketing-main--home-vivid {
-  --home-ink: #0f1b2d;
-  --home-muted: rgba(15, 27, 45, 0.78);
-  --home-line: rgba(15, 27, 45, 0.08);
-  --home-green: #2563eb;
-  --home-paper: #f4f7fb;
-  --home-wash: #e7eef8;
-  --home-teal: #2563eb;
-  --home-teal-mid: #3b82f6;
+  --home-ink: #f4f7fb;
+  --home-muted: rgba(244, 247, 251, 0.72);
+  --home-line: rgba(244, 247, 251, 0.1);
+  --home-green: #16c065;
+  --home-paper: #0a0f14;
+  --home-wash: #111821;
+  --home-teal: #16c065;
+  --home-teal-mid: #16c065;
 }
 
 .marketing-main--home-vivid .marketing-hero--rank {
   background:
-    radial-gradient(ellipse 55% 70% at 85% 15%, rgba(37, 99, 235, 0.4), transparent 55%),
-    radial-gradient(ellipse 40% 50% at 10% 90%, rgba(14, 165, 233, 0.12), transparent 50%),
-    #0b1220 !important;
+    radial-gradient(ellipse 55% 70% at 85% 15%, rgba(22, 192, 101, 0.28), transparent 55%),
+    radial-gradient(ellipse 40% 50% at 10% 90%, rgba(22, 192, 101, 0.1), transparent 50%),
+    #0a0f14 !important;
   color: #f4f7fb;
 }
 
 .marketing-main--home-vivid .marketing-hero-rank-eyebrow {
-  color: #7dd3fc;
+  color: #16c065;
 }
 
 .marketing-main--home-vivid .marketing-hero-highlight {
-  background: linear-gradient(120deg, #93c5fd, #2563eb);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  background: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
+  color: #16c065;
 }
 
 .marketing-main--home-vivid .marketing-cta-primary--rank {
-  background: #2563eb;
-  border-color: #2563eb;
-  box-shadow: 0 12px 28px rgba(37, 99, 235, 0.35);
+  background: #16c065;
+  border-color: #16c065;
+  color: #04110a;
+  box-shadow: 0 12px 28px rgba(22, 192, 101, 0.28);
 }
 
 .marketing-main--home-vivid .home-band--paper {
-  background: #fff;
+  background: #111821;
 }
 
 .marketing-main--home-vivid .home-band--wash {
@@ -30863,9 +30864,9 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .marketing-main--home-vivid .marketing-hero--rank {
   background:
-    radial-gradient(ellipse 55% 70% at 85% 15%, rgba(37, 99, 235, 0.4), transparent 55%),
-    radial-gradient(ellipse 40% 50% at 10% 90%, rgba(14, 165, 233, 0.12), transparent 50%),
-    #0b1220 !important;
+    radial-gradient(ellipse 55% 70% at 85% 15%, rgba(22, 192, 101, 0.28), transparent 55%),
+    radial-gradient(ellipse 40% 50% at 10% 90%, rgba(22, 192, 101, 0.1), transparent 50%),
+    #0a0f14 !important;
   color: #f4f7fb;
 }
 
@@ -30882,7 +30883,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .marketing-main--home-vivid .marketing-hero-sizzle {
-  color: #7dd3fc;
+  color: #16c065;
 }
 
 .marketing-main--home-vivid .marketing-hero--rank h1 {
@@ -31213,6 +31214,254 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   .marketing-main--home-vivid {
     --home-gutter: 18px;
   }
+}
+
+/* ─── Brand refresh: dark navy + emerald (Canva kit) ───────── */
+.marketing-shell {
+  --cp-emerald: #16c065;
+  --cp-emerald-dark: #12a354;
+  --cp-navy: #0a0f14;
+  --cp-navy-raised: #111821;
+  --cp-ink: #f4f7fb;
+  --cp-muted: #94a3b8;
+  --marketing-paper: #0a0f14;
+  --marketing-ink: #f4f7fb;
+  --marketing-green: #16c065;
+  --marketing-green-dark: #12a354;
+  --marketing-highlight: rgba(22, 192, 101, 0.14);
+  --marketing-wash: #111821;
+  --marketing-line: rgba(244, 247, 251, 0.1);
+  --home-teal: #16c065;
+  --home-teal-mid: #16c065;
+  --home-ink: #f4f7fb;
+  --home-paper: #0a0f14;
+  --home-panel: #111821;
+  background:
+    radial-gradient(ellipse 70% 45% at 100% 0%, rgba(22, 192, 101, 0.12), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 0% 18%, rgba(22, 192, 101, 0.06), transparent 50%),
+    var(--cp-navy) !important;
+  color: var(--cp-ink) !important;
+}
+
+.marketing-shell .marketing-header,
+.marketing-shell .marketing-header.marketing-header {
+  background: rgba(10, 15, 20, 0.92) !important;
+  border-bottom: 1px solid var(--marketing-line) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+.marketing-shell .marketing-nav {
+  background: rgba(244, 247, 251, 0.06) !important;
+  border-color: var(--marketing-line) !important;
+}
+
+.marketing-shell .marketing-nav a {
+  color: var(--cp-muted) !important;
+}
+
+.marketing-shell .marketing-nav a:hover {
+  color: #ffffff !important;
+  background: rgba(22, 192, 101, 0.12) !important;
+}
+
+.marketing-shell .btn-primary,
+.marketing-shell .btn-primary:hover {
+  background: var(--cp-emerald) !important;
+  border-color: var(--cp-emerald) !important;
+  color: #04110a !important;
+  box-shadow: none !important;
+}
+
+.marketing-shell .btn-primary:hover {
+  background: var(--cp-emerald-dark) !important;
+  border-color: var(--cp-emerald-dark) !important;
+}
+
+.marketing-shell .btn-secondary {
+  background: transparent !important;
+  border-color: rgba(244, 247, 251, 0.22) !important;
+  color: var(--cp-ink) !important;
+}
+
+.marketing-shell .btn-secondary:hover {
+  background: rgba(244, 247, 251, 0.06) !important;
+}
+
+.marketing-shell .btn-ghost {
+  color: var(--cp-muted) !important;
+}
+
+.marketing-shell h1,
+.marketing-shell h2,
+.marketing-shell h3,
+.marketing-shell .marketing-lead,
+.marketing-shell .method-edu-hero-lead,
+.marketing-shell p {
+  color: inherit;
+}
+
+.marketing-shell .marketing-how-eyebrow,
+.marketing-shell .marketing-eyebrow {
+  color: var(--cp-emerald) !important;
+}
+
+.marketing-shell .marketing-hero-highlight,
+.marketing-shell .marketing-hero-belief,
+.marketing-main--home-vivid .marketing-hero-highlight {
+  color: var(--cp-emerald) !important;
+}
+
+.marketing-shell .marketing-surface--hero,
+.marketing-shell .marketing-surface--paper,
+.marketing-shell .marketing-surface--panel,
+.marketing-shell .marketing-surface--mist,
+.marketing-shell .marketing-surface--ink-soft,
+.marketing-shell .home-band--mist,
+.marketing-shell .home-band--paper,
+.marketing-main--home-vivid .home-band--mist {
+  background:
+    radial-gradient(ellipse 70% 55% at 85% 10%, rgba(22, 192, 101, 0.1), transparent 55%),
+    linear-gradient(180deg, rgba(17, 24, 33, 0.65), rgba(10, 15, 20, 0.2)) !important;
+  border-top-color: var(--marketing-line) !important;
+  color: var(--cp-ink) !important;
+}
+
+.marketing-shell .marketing-footer {
+  background: #070b10 !important;
+  border-top: 1px solid var(--marketing-line) !important;
+  color: var(--cp-muted) !important;
+}
+
+.marketing-shell .cp-logo-mark {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  object-fit: contain !important;
+}
+
+.marketing-shell .cp-logo-word {
+  color: #ffffff !important;
+  gap: 0.32em;
+}
+
+.marketing-shell .cp-logo-cash {
+  color: var(--cp-muted) !important;
+  opacity: 1 !important;
+  font-weight: 650;
+}
+
+.marketing-shell .cp-logo-prophet {
+  color: #ffffff !important;
+  font-weight: 800;
+}
+
+.marketing-shell .cp-logo--on-dark .cp-logo-word,
+.marketing-shell .cp-logo--on-dark .cp-logo-prophet {
+  color: #ffffff !important;
+}
+
+.marketing-shell .cp-logo--on-dark .cp-logo-cash {
+  color: var(--cp-muted) !important;
+  opacity: 1 !important;
+}
+
+/* Cards / panels on marketing that were white */
+.marketing-shell .demo-scenario-card,
+.marketing-shell .home-viz-card,
+.marketing-shell .home-snap,
+.marketing-shell .home-dash,
+.marketing-shell .blog-card,
+.marketing-shell .method-edu-card,
+.marketing-shell .pricing-card,
+.marketing-shell .faq-item {
+  background: var(--cp-navy-raised) !important;
+  border-color: var(--marketing-line) !important;
+  color: var(--cp-ink) !important;
+}
+
+.marketing-shell .home-video-snapshot img {
+  border-color: rgba(244, 247, 251, 0.12);
+}
+
+.marketing-shell a:not(.btn-primary):not(.btn-secondary):not(.btn-ghost):not(.marketing-nav a):not(.marketing-logo) {
+  color: var(--cp-emerald);
+}
+
+/* Dashboard sidebar brand only — mark + split wordmark colours */
+.sidebar-brand .brand-mark {
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  object-fit: contain;
+}
+
+.sidebar-brand-cash {
+  color: #94a3b8;
+  font-weight: 650;
+}
+
+.sidebar-brand-prophet {
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.sidebar-brand h1 {
+  letter-spacing: -0.03em;
+}
+
+/* Extra dark-theme coverage for leftover light panels */
+.marketing-shell .method-edu-principle-card,
+.marketing-shell .method-edu-habit-card,
+.marketing-shell .method-edu-software-card,
+.marketing-shell .method-edu-chip-list li,
+.marketing-main--home-vivid .home-band--paper,
+.marketing-main--home-vivid .home-band--wash,
+.marketing-main--home-vivid .home-viz-card,
+.marketing-main--home-vivid .home-snap,
+.marketing-main--home-vivid .home-dash,
+.marketing-main--home-vivid .home-compare-col,
+.marketing-main--home-vivid .home-outcome-beat {
+  background: #111821 !important;
+  border-color: rgba(244, 247, 251, 0.1) !important;
+  color: #f4f7fb !important;
+}
+
+.marketing-shell .method-edu-chip-list li {
+  background: rgba(22, 192, 101, 0.1) !important;
+  border-color: rgba(22, 192, 101, 0.22) !important;
+  color: #86efac !important;
+}
+
+.marketing-main--home-vivid .home-band-head h2,
+.marketing-main--home-vivid .home-founder h2,
+.marketing-main--home-vivid .home-split-copy h2,
+.marketing-main--home-vivid .home-does-copy h2,
+.marketing-main--home-vivid .home-viz-amount,
+.marketing-main--home-vivid .home-split-prose,
+.marketing-main--home-vivid .home-founder-prose p,
+.marketing-main--home-vivid .home-split-lead {
+  color: #f4f7fb !important;
+}
+
+.marketing-main--home-vivid .marketing-hero-highlight {
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+  color: #16c065 !important;
+}
+
+.marketing-main--home-vivid .marketing-cta-primary--rank,
+.marketing-main--home-vivid .btn-primary {
+  background: #16c065 !important;
+  border-color: #16c065 !important;
+  color: #04110a !important;
+  box-shadow: 0 12px 28px rgba(22, 192, 101, 0.28) !important;
+}
+
+.marketing-shell .method-edu-cta {
+  background:
+    radial-gradient(ellipse 60% 70% at 70% 0%, rgba(22, 192, 101, 0.28), transparent 55%),
+    #0a0f14 !important;
 }
 
 

@@ -254,8 +254,11 @@ export function Sidebar({
           decoding="async"
         />
         {!showCollapsed && (
-          <div>
-            <h1>Cash Prophet</h1>
+          <div className="sidebar-brand-word">
+            <h1>
+              <span className="sidebar-brand-cash">Cash</span>{' '}
+              <span className="sidebar-brand-prophet">Prophet</span>
+            </h1>
           </div>
         )}
         {isMobile ? (

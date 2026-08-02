@@ -27,7 +27,7 @@ export function CashProphetLogo({
         <source srcSet="/logo-mark.webp" type="image/webp" />
         <img
           className="cp-logo-mark"
-          src="/icon-192.png"
+          src="/logo-mark.png"
           width={40}
           height={40}
           alt={LOGO_MARK_ALT}
