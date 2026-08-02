@@ -31949,5 +31949,32 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   }
 }
 
+/* Header nav — larger to match scaled page type */
+.marketing-shell .marketing-nav {
+  gap: 6px !important;
+  max-width: none;
+}
+
+.marketing-shell .marketing-nav a {
+  font-size: 1.05rem !important;
+  font-weight: 650 !important;
+  padding: 0.55rem 0.95rem !important;
+  letter-spacing: -0.01em;
+}
+
+.marketing-shell .marketing-header .marketing-nav-btn,
+.marketing-shell .marketing-header .btn-primary.marketing-nav-btn {
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+  padding: 0.65rem 1.25rem !important;
+}
+
+@media (max-width: 900px) {
+  .marketing-shell .marketing-nav a {
+    font-size: 0.98rem !important;
+    padding: 0.45rem 0.7rem !important;
+  }
+}
+
 
 

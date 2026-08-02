@@ -84,7 +84,7 @@ export const HOME_FOUNDER = {
 /** Homepage product snapshot band: monitor image until the walkthrough video is ready. */
 export const HOME_VIDEO = {
   heading: 'One simple dashboard that keeps you on track',
-  lead: 'Everything you need to know about where your business stands — without the mental maths.',
+  lead: 'Everything you need to know about where your business stands, without the mental maths.',
   placeholderHint:
     'Try a live demo or start free while the short walkthrough video is in production.',
 } as const
