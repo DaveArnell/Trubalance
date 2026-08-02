@@ -81,12 +81,12 @@ export const HOME_FOUNDER = {
   ],
 } as const
 
-/** Homepage video band — sits below the hero; does not replace animated graphs. */
+/** Homepage product snapshot band: monitor image until the walkthrough video is ready. */
 export const HOME_VIDEO = {
-  heading: 'See Cash Prophet in 90 seconds',
-  lead: 'A short look at how Cash Prophet accounts for what’s already spoken for — so you can see where your business really stands.',
+  heading: 'See Cash Prophet',
+  lead: 'A snapshot of the dashboard: one Cash Prophet Balance, with commitments and reserves in view.',
   placeholderHint:
-    'The homepage walkthrough will appear here. Until then, try a live demo or start free.',
+    'Try a live demo or start free while the short walkthrough video is in production.',
 } as const
 
 export const HOME_CTA = {
