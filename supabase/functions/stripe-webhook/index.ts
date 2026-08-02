@@ -96,6 +96,51 @@ Deno.serve(async (req) => {
         }
         break
       }
+      case 'invoice.paid':
+      case 'invoice.payment_succeeded': {
+        const invoice = event.data.object as Stripe.Invoice
+        if (!invoice.amount_paid || invoice.amount_paid <= 0) break
+
+        let workspaceId = invoice.subscription_details?.metadata?.workspace_id
+          ?? invoice.metadata?.workspace_id
+          ?? null
+
+        if (!workspaceId && invoice.subscription) {
+          const subscription = await stripe.subscriptions.retrieve(String(invoice.subscription))
+          workspaceId = subscription.metadata?.workspace_id ?? null
+          if (workspaceId) await syncSubscription(supabaseAdmin, workspaceId, subscription)
+        }
+
+        if (!workspaceId) break
+
+        const stripeInvoiceId = invoice.id
+        const { data: existing } = await supabaseAdmin
+          .from('payments')
+          .select('id')
+          .eq('stripe_invoice_id', stripeInvoiceId)
+          .maybeSingle()
+
+        if (existing) break
+
+        const paymentIntent =
+          typeof invoice.payment_intent === 'string'
+            ? invoice.payment_intent
+            : invoice.payment_intent?.id ?? null
+
+        await supabaseAdmin.from('payments').insert({
+          workspace_id: workspaceId,
+          stripe_invoice_id: stripeInvoiceId,
+          stripe_payment_intent_id: paymentIntent,
+          amount_cents: invoice.amount_paid,
+          currency: invoice.currency ?? 'gbp',
+          status: 'succeeded',
+          description: invoice.lines?.data?.[0]?.description ?? 'Subscription payment',
+          paid_at: new Date(
+            (invoice.status_transitions?.paid_at ?? invoice.created) * 1000,
+          ).toISOString(),
+        })
+        break
+      }
       default:
         break
     }

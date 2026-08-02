@@ -316,6 +316,23 @@ export interface AdminPaymentRow {
   createdAt: string
 }
 
+export interface AdminBillingMetrics {
+  mrrGbp: number
+  arrGbp: number
+  monthlyPlanMrrGbp: number
+  annualPlanMrrGbp: number
+  payingCustomers: number
+  monthlyCustomers: number
+  annualCustomers: number
+  trialPipelineMrrGbp: number
+  trialCustomers: number
+  acvGbp: number | null
+  byTier: Array<{ tier: SubscriptionTierId; count: number; mrrGbp: number }>
+  cashCollectedGbp: number
+  revenueTrend: Array<{ date: string; amountGbp: number }>
+  paymentCount: number
+}
+
 export interface AdminAnalyticsSnapshot {
   dailySignups: Array<{ date: string; count: number }>
   dailyLogins: Array<{ date: string; count: number }>

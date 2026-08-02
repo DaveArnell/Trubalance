@@ -49,6 +49,7 @@ import { computeUserHealth, isUserRecentlyActive, onboardingPctFromUser } from '
 import type {
   AdminActivityRow,
   AdminAnalyticsSnapshot,
+  AdminBillingMetrics,
   AdminNote,
   AdminPaymentRow,
   AdminSubscriptionRow,
@@ -74,6 +75,7 @@ import type {
   WorkspaceAccessOverride,
   WorkspaceInspectorData,
 } from './types'
+import { buildDailyRevenueSeries, computeBillingMetrics } from './billingMetrics'
 import { buildSetupFunnelSnapshot, emptySetupFunnelSnapshot } from './utils/setupFunnelStats'
 import { loadAllAdminNotes as loadMockAdminNotes } from './services/adminLocalStorage'
 import {
@@ -164,6 +166,7 @@ export async function adminFetchOverview(): Promise<{
   const legacy = await fetchAdminStats()
   const events = await fetchRecentEvents(20)
   const trialUsers = Math.max(0, legacy.totalUsers - legacy.activeSubscriptions)
+  const billing = await adminFetchBillingMetrics()
   return {
     stats: {
       totalUsers: legacy.totalUsers,
@@ -181,8 +184,8 @@ export async function adminFetchOverview(): Promise<{
       totalBalanceUpdates: 0,
       totalReservePlanners: 0,
       onboardingCompletionPct: 0,
-      mrrCents: 0,
-      arrCents: 0,
+      mrrCents: Math.round(billing.mrrGbp * 100),
+      arrCents: Math.round(billing.arrGbp * 100),
       trialConversionRate: 0,
       dau: legacy.loginsToday,
       wau: 0,
@@ -930,6 +933,110 @@ export async function adminFetchSubscriptions(
     )
   }
   return paginate(items, page, pageSize)
+}
+
+export async function adminFetchBillingMetrics(): Promise<AdminBillingMetrics> {
+  const emptyTrend = buildDailyRevenueSeries([])
+  const empty: AdminBillingMetrics = {
+    mrrGbp: 0,
+    arrGbp: 0,
+    monthlyPlanMrrGbp: 0,
+    annualPlanMrrGbp: 0,
+    payingCustomers: 0,
+    monthlyCustomers: 0,
+    annualCustomers: 0,
+    trialPipelineMrrGbp: 0,
+    trialCustomers: 0,
+    acvGbp: null,
+    byTier: [
+      { tier: 'solo', count: 0, mrrGbp: 0 },
+      { tier: 'multi', count: 0, mrrGbp: 0 },
+      { tier: 'group', count: 0, mrrGbp: 0 },
+    ],
+    cashCollectedGbp: 0,
+    revenueTrend: emptyTrend,
+    paymentCount: 0,
+  }
+
+  if (await useMockData()) {
+    const mockSubs = getMockSubscriptions()
+    const metrics = computeBillingMetrics(
+      mockSubs.map((s) => ({
+        tier: s.plan,
+        billingInterval: 'monthly',
+        status: s.status,
+        lifetimeAccess: s.lifetimeAccess,
+      })),
+    )
+    const payments = getMockPayments()
+    const cashCollectedGbp =
+      payments.filter((p) => p.status === 'succeeded').reduce((sum, p) => sum + p.amountCents, 0) / 100
+    return {
+      ...metrics,
+      cashCollectedGbp,
+      revenueTrend: buildDailyRevenueSeries(
+        payments.map((p) => ({
+          paidAt: p.paidAt,
+          createdAt: p.createdAt,
+          amountCents: p.amountCents,
+          status: p.status,
+        })),
+      ),
+      paymentCount: payments.length,
+    }
+  }
+
+  const supabase = tryGetSupabase()
+  if (!supabase || !isSupabaseConfigured) return empty
+
+  const [{ data: subs }, { data: payments }] = await Promise.all([
+    supabase
+      .from('subscriptions')
+      .select('tier, billing_interval, status, workspace_id, workspaces(lifetime_access, beta_tester)'),
+    supabase
+      .from('payments')
+      .select('amount_cents, status, paid_at, created_at')
+      .order('created_at', { ascending: false })
+      .limit(500),
+  ])
+
+  const metrics = computeBillingMetrics(
+    (subs ?? []).map((row) => {
+      const raw = row as Record<string, unknown>
+      const workspace = raw.workspaces as
+        | { lifetime_access?: boolean; beta_tester?: boolean }
+        | { lifetime_access?: boolean; beta_tester?: boolean }[]
+        | null
+      const ws = Array.isArray(workspace) ? workspace[0] : workspace
+      return {
+        tier: String(raw.tier ?? 'solo'),
+        billingInterval: raw.billing_interval ? String(raw.billing_interval) : null,
+        status: String(raw.status ?? 'trialing'),
+        lifetimeAccess: Boolean(ws?.lifetime_access),
+        betaTester: Boolean(ws?.beta_tester),
+      }
+    }),
+  )
+
+  const paymentRows = (payments ?? []).map((row) => {
+    const raw = row as Record<string, unknown>
+    return {
+      amountCents: Number(raw.amount_cents ?? 0),
+      status: String(raw.status ?? 'pending'),
+      paidAt: raw.paid_at ? String(raw.paid_at) : null,
+      createdAt: String(raw.created_at ?? new Date().toISOString()),
+    }
+  })
+
+  const cashCollectedGbp =
+    paymentRows.filter((p) => p.status === 'succeeded').reduce((sum, p) => sum + p.amountCents, 0) / 100
+
+  return {
+    ...metrics,
+    cashCollectedGbp,
+    revenueTrend: buildDailyRevenueSeries(paymentRows),
+    paymentCount: paymentRows.length,
+  }
 }
 
 export async function adminFetchPayments(params: ListParams): Promise<PaginatedResult<AdminPaymentRow>> {

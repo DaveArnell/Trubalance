@@ -119,6 +119,79 @@ export function AdminPlaceholderChart({ label, values }: { label: string; values
   )
 }
 
+export function AdminRevenueTrendChart({
+  series,
+  label = 'Cash collected (last 14 days)',
+}: {
+  series: Array<{ date: string; amountGbp: number }>
+  label?: string
+}) {
+  const max = Math.max(...series.map((row) => row.amountGbp), 1)
+  const total = series.reduce((sum, row) => sum + row.amountGbp, 0)
+
+  return (
+    <div className="admin-mini-chart" aria-label={label}>
+      <p className="admin-mini-chart-label">{label}</p>
+      {total === 0 ? (
+        <p className="admin-mini-chart-empty muted">
+          No Stripe payments recorded yet. Charts fill when invoices succeed.
+        </p>
+      ) : (
+        <div className="admin-mini-chart-bars admin-mini-chart-bars--labeled">
+          {series.map((row) => (
+            <div key={row.date} className="admin-mini-chart-column">
+              <div
+                className="admin-mini-chart-bar"
+                style={{ height: `${Math.max(8, (row.amountGbp / max) * 100)}%` }}
+                title={`${row.date}: £${row.amountGbp.toFixed(2)}`}
+              />
+              <span className="admin-mini-chart-day">{row.date.slice(8)}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export function AdminMrrMixChart({
+  monthlyMrrGbp,
+  annualMrrGbp,
+}: {
+  monthlyMrrGbp: number
+  annualMrrGbp: number
+}) {
+  const total = monthlyMrrGbp + annualMrrGbp
+  const monthlyPct = total > 0 ? (monthlyMrrGbp / total) * 100 : 0
+  const annualPct = total > 0 ? (annualMrrGbp / total) * 100 : 0
+
+  return (
+    <div className="admin-mini-chart" aria-label="MRR by billing interval">
+      <p className="admin-mini-chart-label">MRR mix by billing interval</p>
+      {total === 0 ? (
+        <p className="admin-mini-chart-empty muted">No paying subscriptions yet.</p>
+      ) : (
+        <div className="admin-mrr-mix">
+          <div className="admin-mrr-mix-track" aria-hidden>
+            <span className="admin-mrr-mix-monthly" style={{ width: `${monthlyPct}%` }} />
+            <span className="admin-mrr-mix-annual" style={{ width: `${annualPct}%` }} />
+          </div>
+          <ul className="admin-mrr-mix-legend">
+            <li>
+              <span className="admin-mrr-mix-swatch admin-mrr-mix-swatch--monthly" />
+              Monthly plans · £{monthlyMrrGbp.toFixed(2)} MRR ({monthlyPct.toFixed(0)}%)
+            </li>
+            <li>
+              <span className="admin-mrr-mix-swatch admin-mrr-mix-swatch--annual" />
+              Annual plans (÷12) · £{annualMrrGbp.toFixed(2)} MRR ({annualPct.toFixed(0)}%)
+            </li>
+          </ul>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export function AdminSignupTrendChart({
   series,
 }: {

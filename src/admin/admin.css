@@ -561,6 +561,82 @@
   color: #71717a;
 }
 
+.admin-billing-charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.admin-mrr-mix {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-mrr-mix-track {
+  display: flex;
+  height: 14px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #e4e4e7;
+}
+
+.admin-mrr-mix-monthly {
+  background: #24da76;
+}
+
+.admin-mrr-mix-annual {
+  background: #0c0022;
+}
+
+.admin-mrr-mix-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.85rem;
+}
+
+.admin-mrr-mix-legend li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-mrr-mix-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.admin-mrr-mix-swatch--monthly {
+  background: #24da76;
+}
+
+.admin-mrr-mix-swatch--annual {
+  background: #0c0022;
+}
+
+.admin-tier-mrr-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.85rem;
+}
+
+.admin-tier-mrr-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .admin-detail-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
