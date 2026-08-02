@@ -1,10 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" role="img" aria-label="Cash Prophet">
-  <rect width="40" height="40" rx="10" fill="#0A0F14"/>
-  <g fill="none" stroke="#16C065" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
-    <!-- Left c loop -->
-    <path d="M18.5 20c0-4.6-3.2-7.6-7.2-7.6S4.2 15.4 4.2 20s3.1 7.6 7.1 7.6c2.2 0 4-.8 5.3-2.2"/>
-    <!-- Right p loop + stem -->
-    <path d="M18.5 20c0-4.6 3.2-7.6 7.4-7.6s7.5 3 7.5 7.6-3.2 7.6-7.5 7.6c-1.4 0-2.7-.3-3.8-.9"/>
-    <path d="M25.9 12.4V31.2"/>
+  <rect width="40" height="40" rx="10" fill="#0C0022"/>
+  <g fill="none" stroke="#16C065" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18.8 20c0-4.8-3.3-7.8-7.4-7.8S4 15.2 4 20s3.3 7.8 7.4 7.8c2.3 0 4.2-.9 5.5-2.4"/>
+    <path d="M18.8 20c0-4.8 3.4-7.8 7.7-7.8S34.4 15.2 34.4 20s-3.4 7.8-7.9 7.8c-1.5 0-2.8-.4-3.9-1"/>
+    <path d="M26.5 12.2V31.5"/>
   </g>
 </svg>
