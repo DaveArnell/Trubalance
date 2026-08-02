@@ -31673,13 +31673,13 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   color: #3a465c !important;
 }
 
-/* Dark backgrounds: nearer-white body copy */
+/* Dark backgrounds: nearer-white body copy (not light cards inside the hero) */
 .marketing-main--home-vivid .marketing-hero--rank .marketing-lead,
 .marketing-main--home-vivid .marketing-hero--rank .marketing-lead p,
 .marketing-main--home-vivid .marketing-hero-belief,
 .marketing-main--home-vivid .marketing-hero-tagline,
-.marketing-shell .marketing-surface--hero .marketing-lead,
-.marketing-shell .marketing-surface--hero p,
+.marketing-shell .marketing-surface--hero > .marketing-hero-rank-inner > .marketing-hero-rank-copy .marketing-lead,
+.marketing-shell .marketing-surface--hero > .marketing-hero-rank-inner > .marketing-hero-rank-copy .marketing-lead p,
 .home-cta-band p,
 .marketing-shell .marketing-footer,
 .marketing-shell .marketing-footer p {
@@ -31689,6 +31689,73 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .marketing-shell .marketing-footer .company-legal-notice,
 .marketing-shell .marketing-footer .company-legal-notice p {
   color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Hero comparison cards — restore cream cards + readable ink */
+.marketing-main--home-vivid .hero-graph-card,
+.marketing-shell .hero-graph-card {
+  background: rgba(243, 239, 230, 0.96) !important;
+  color: #0f1b2d !important;
+  border: none !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35) !important;
+}
+
+.marketing-main--home-vivid .hero-graph-title,
+.marketing-shell .hero-graph-title,
+.marketing-main--home-vivid .hero-graph-card .hero-graph-title,
+.marketing-shell .hero-graph-card p.hero-graph-title {
+  color: #0f1b2d !important;
+}
+
+.marketing-main--home-vivid .hero-graph-tag--bank,
+.marketing-shell .hero-graph-tag--bank {
+  color: #9f1239 !important;
+}
+
+.marketing-main--home-vivid .hero-graph-tag--true,
+.marketing-shell .hero-graph-tag--true {
+  color: #0a7a45 !important;
+}
+
+.marketing-main--home-vivid .hero-graph-mode-label--without,
+.marketing-shell .hero-graph-mode-label--without {
+  color: #9f1239 !important;
+}
+
+.marketing-main--home-vivid .hero-graph-mode-label--with,
+.marketing-shell .hero-graph-mode-label--with {
+  color: #0a7a45 !important;
+}
+
+.marketing-main--home-vivid .hero-graph-mode--shared.hero-graph-mode--bank,
+.marketing-shell .hero-graph-mode--shared.hero-graph-mode--bank {
+  background: rgba(254, 226, 226, 0.95) !important;
+  border-color: rgba(159, 18, 57, 0.28) !important;
+}
+
+.marketing-main--home-vivid .hero-graph-mode--shared.hero-graph-mode--true,
+.marketing-shell .hero-graph-mode--shared.hero-graph-mode--true {
+  background: rgba(220, 252, 231, 0.95) !important;
+  border-color: rgba(13, 143, 91, 0.32) !important;
+}
+
+/* Dashboard band heading — match other section sizes, darker lead */
+.marketing-main--home-vivid .home-video-head h2,
+.marketing-main--home-vivid .home-band-head.home-video-head h2 {
+  font-size: clamp(1.55rem, 2.6vw, 2rem) !important;
+  line-height: 1.2 !important;
+  max-width: 22rem;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  text-align: center !important;
+  color: #0f1b2d !important;
+}
+
+.marketing-main--home-vivid .home-video-lead,
+.marketing-shell .home-video-lead {
+  font-size: 1.05rem !important;
+  max-width: 34rem;
+  color: #243044 !important;
 }
 
 
