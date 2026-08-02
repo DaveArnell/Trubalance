@@ -72,7 +72,6 @@ export const HOME_WHY_IT_WORKS = {
 } as const
 
 export const HOME_FOUNDER = {
-  eyebrow: 'Why I built this',
   heading: "I built Cash Prophet because I wasn't short of financial information",
   body: [
     'I was short of a number I could trust.',

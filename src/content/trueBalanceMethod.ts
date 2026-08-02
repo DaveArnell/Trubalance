@@ -52,6 +52,7 @@ export const METHOD_WHO_FOR = [
   'look at the bank and still cannot tell what is safe to spend',
   'get caught out by VAT, tax or annual bills even when the account looks fine',
   'carry wages, rent and other costs in your head before every decision',
+  'are not great at keeping tabs on growing bills, and want that done automatically',
   'want one trusted number for day-to-day decisions without replacing your accountant',
   'have income that is fairly steady week to week or month to month',
   'have regular bills and larger costs you need to prepare for',
@@ -63,6 +64,10 @@ export const METHOD_WHO_NOT_FOR = [
   'Your business has very few financial commitments.',
   'You only need bookkeeping or accounting software, and nothing more.',
 ] as const
+
+/** Bridge from the who-its-for intro into the recognition questions. */
+export const METHOD_WHO_QUESTIONS_INTRO =
+  'If you recognise yourself in questions like these, Cash Prophet is built for you.' as const
 
 /** Primary marketing spine — two simple habits. */
 export const METHOD_TWO_HABITS = [

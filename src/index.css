@@ -32027,5 +32027,46 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   max-width: 40rem !important;
 }
 
+/* Founder band — centred, no eyebrow */
+.marketing-main--home-vivid .home-band--founder .home-founder {
+  text-align: center !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  max-width: 44rem !important;
+}
+
+.marketing-main--home-vivid .home-band--founder .home-founder h2 {
+  text-align: center !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  max-width: 28rem !important;
+}
+
+.marketing-main--home-vivid .home-band--founder .home-founder-prose {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  max-width: 40rem !important;
+  text-align: center !important;
+}
+
+.marketing-main--home-vivid .home-band--founder .home-founder-prose p {
+  text-align: center !important;
+}
+
+/* Who it's for — bridge into recognition questions */
+.who-for-questions-intro {
+  margin: 0 auto 1.25rem;
+  max-width: 36rem;
+  text-align: center;
+  font-size: clamp(1.15rem, 1.8vw, 1.3rem);
+  font-weight: 600;
+  line-height: 1.45;
+  color: #0f1b2d;
+}
+
+.who-for-page .marketing-clarity-questions {
+  margin-top: 0.5rem;
+}
+
 
 

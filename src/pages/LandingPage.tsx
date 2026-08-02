@@ -164,7 +164,6 @@ export function LandingPage() {
         <section className="home-band home-band--founder" aria-label="Why Cash Prophet exists">
           <div className="marketing-section-inner marketing-section-inner--home">
             <div className="home-founder">
-              <p className="marketing-how-eyebrow">{HOME_FOUNDER.eyebrow}</p>
               <h2>{HOME_FOUNDER.heading}</h2>
               <div className="home-founder-prose">
                 {HOME_FOUNDER.body.map((paragraph) => (

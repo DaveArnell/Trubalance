@@ -10,6 +10,7 @@ import {
   METHOD_CLARITY_QUESTIONS,
   METHOD_WHO_FOR,
   METHOD_WHO_NOT_FOR,
+  METHOD_WHO_QUESTIONS_INTRO,
 } from '../content/trueBalanceMethod'
 import { WHO_FOR_FAQS } from '../content/marketingFaqs'
 import { WHO_FOR_SEO } from '../content/marketingSeo'
@@ -27,13 +28,14 @@ export function WhoItsForPage() {
             <h1>Who Cash Prophet is for</h1>
             <p className="method-edu-hero-lead">
               If you check the bank and still do the maths in your head before you spend, this is for
-              you. Cash Prophet is for owners who need a clear daily answer to what the business can
-              actually afford.
+              you. Cash Prophet keeps growing bills in view automatically, so you get a clear daily
+              answer to what the business can actually afford.
             </p>
           </div>
         </header>
         <section className="demo-scenarios-section demo-scenarios-section--landing marketing-surface--mist">
           <div className="marketing-section-inner">
+            <p className="who-for-questions-intro">{METHOD_WHO_QUESTIONS_INTRO}</p>
             <ul className="marketing-clarity-questions" aria-label="Familiar questions">
               {METHOD_CLARITY_QUESTIONS.map((question) => (
                 <li key={question}>{question}</li>
