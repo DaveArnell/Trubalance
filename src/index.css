@@ -31976,5 +31976,56 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   }
 }
 
+/* Homepage: flip first split (image left), centre stacked sections */
+.marketing-main--home-vivid .home-split--flip .home-viz,
+.marketing-main--home-vivid .home-split--flip .home-snap {
+  order: 1 !important;
+}
+
+.marketing-main--home-vivid .home-split--flip .home-split-copy {
+  order: 2 !important;
+}
+
+.marketing-main--home-vivid #what-changes .home-band-head--center,
+.marketing-main--home-vivid #why-it-works .home-band-head--center {
+  text-align: center !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.marketing-main--home-vivid #what-changes .home-band-head--center h2,
+.marketing-main--home-vivid #why-it-works .home-band-head--center h2 {
+  text-align: center !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.marketing-main--home-vivid #what-changes .home-outcome,
+.marketing-main--home-vivid #what-changes .home-outcome-beats {
+  max-width: 42rem;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.marketing-main--home-vivid #what-changes .home-outcome-close {
+  text-align: center !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  max-width: 40rem !important;
+}
+
+.marketing-main--home-vivid #why-it-works .home-compare {
+  max-width: 52rem;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.marketing-main--home-vivid #why-it-works .home-why-close {
+  text-align: center !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  max-width: 40rem !important;
+}
+
 
 

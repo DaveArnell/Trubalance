@@ -95,13 +95,13 @@ export function LandingPage() {
 
         <HomeHeroVideo />
 
-        {/* Text left, visual right */}
+        {/* Visual left, text right */}
         <section
           className="home-band home-band--paper"
           id="why-bank-balance"
           aria-labelledby="need-heading"
         >
-          <div className="marketing-section-inner marketing-section-inner--home home-split">
+          <div className="marketing-section-inner marketing-section-inner--home home-split home-split--flip">
             <div className="home-split-copy">
               <h2 id="need-heading">{HOME_NEED.heading}</h2>
               <p className="home-split-lead">{HOME_NEED.lead}</p>
@@ -115,7 +115,7 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* Text left, visual right — same reading line as the section above */}
+        {/* Text left, visual right — alternates with the section above */}
         <section
           className="home-band home-band--wash"
           id="what-it-does"
