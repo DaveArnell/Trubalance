@@ -29939,10 +29939,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .marketing-main--home-vivid .marketing-hero--rank {
-  background:
-    radial-gradient(ellipse 55% 70% at 85% 15%, rgba(36, 218, 118, 0.28), transparent 55%),
-    radial-gradient(ellipse 40% 50% at 10% 90%, rgba(36, 218, 118, 0.1), transparent 50%),
-    #0c0022 !important;
+  background: #0c0022 !important;
   color: #ffffff;
 }
 
@@ -30863,10 +30860,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .marketing-main--home-vivid .marketing-hero--rank {
-  background:
-    radial-gradient(ellipse 55% 70% at 85% 15%, rgba(36, 218, 118, 0.28), transparent 55%),
-    radial-gradient(ellipse 40% 50% at 10% 90%, rgba(36, 218, 118, 0.1), transparent 50%),
-    #0c0022 !important;
+  background: #0c0022 !important;
   color: #ffffff;
 }
 
@@ -31238,18 +31232,16 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   --home-line: rgba(15, 27, 45, 0.1);
   --home-green: #24da76;
   --home-wash: #e8f8ef;
-  background:
-    radial-gradient(ellipse 70% 45% at 100% 0%, rgba(36, 218, 118, 0.08), transparent 55%),
-    var(--marketing-paper) !important;
+  background: var(--marketing-paper) !important;
   color: var(--marketing-ink) !important;
 }
 
-/* Dark chrome: header + hero only */
+/* Dark chrome: header + hero only — solid navy, no colour washes */
 .marketing-shell .marketing-header,
 .marketing-shell .marketing-header.marketing-header {
-  background: rgba(12, 0, 34, 0.96) !important;
+  background: #0c0022 !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-  backdrop-filter: blur(12px) !important;
+  backdrop-filter: none !important;
 }
 
 .marketing-shell .marketing-nav {
@@ -31318,13 +31310,18 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   color: #24da76 !important;
 }
 
-/* Hero stays dark navy */
+.marketing-shell .marketing-surface--hero::after,
+.marketing-main--home-vivid .marketing-hero--rank::before,
+.marketing-main--home-vivid .marketing-hero--rank::after {
+  display: none !important;
+  content: none !important;
+  background: none !important;
+  animation: none !important;
+}
+
 .marketing-shell .marketing-surface--hero,
 .marketing-main--home-vivid .marketing-hero--rank {
-  background:
-    radial-gradient(ellipse 55% 70% at 85% 15%, rgba(36, 218, 118, 0.28), transparent 55%),
-    radial-gradient(ellipse 40% 50% at 10% 90%, rgba(36, 218, 118, 0.1), transparent 50%),
-    #0c0022 !important;
+  background: #0c0022 !important;
   color: #ffffff !important;
   border-top-color: transparent !important;
 }
@@ -31361,9 +31358,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .marketing-shell .marketing-surface--mist,
 .marketing-main--home-vivid .home-band--mist,
 .marketing-main--home-vivid .home-band--wash {
-  background:
-    radial-gradient(ellipse 80% 60% at 20% 100%, rgba(36, 218, 118, 0.08), transparent 55%),
-    #f4f7fb !important;
+  background: #f4f7fb !important;
 }
 
 .marketing-shell .marketing-footer {
@@ -31494,9 +31489,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .marketing-shell .method-edu-cta {
-  background:
-    radial-gradient(ellipse 60% 70% at 70% 0%, rgba(36, 218, 118, 0.28), transparent 55%),
-    #0c0022 !important;
+  background: #0c0022 !important;
   color: #ffffff !important;
 }
 
