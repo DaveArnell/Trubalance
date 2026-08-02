@@ -6,12 +6,12 @@ export const SITE_OG_IMAGE_ALT =
 export const SITE_OG_IMAGE_WIDTH = 1200
 export const SITE_OG_IMAGE_HEIGHT = 630
 
-/** Monitor-only product shot for homepage / See it (no share-card branding panel). */
+/** Monitor product shot for the homepage snapshot band (no share-card branding panel). */
 export const PRODUCT_MONITOR_IMAGE = '/product-monitor.webp' as const
 export const PRODUCT_MONITOR_IMAGE_ALT =
-  'Cash Prophet dashboard on a computer monitor: Cash Prophet Balance, accruing bills, due bills, receipts, balance trend and Reserve Planner' as const
-export const PRODUCT_MONITOR_IMAGE_WIDTH = 1600
-export const PRODUCT_MONITOR_IMAGE_HEIGHT = 1067
+  'Cash Prophet dashboard on a computer monitor: Cash Prophet Balance, accruing bills with progress fills, due bills, receipts, balance trend and Reserve Planner' as const
+export const PRODUCT_MONITOR_IMAGE_WIDTH = 1536
+export const PRODUCT_MONITOR_IMAGE_HEIGHT = 1024
 
 export type RouteSeo = {
   title: string

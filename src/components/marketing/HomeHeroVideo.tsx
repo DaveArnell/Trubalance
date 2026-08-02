@@ -1,4 +1,5 @@
 import { CanonicalLink } from '../CanonicalLink'
+import { HOME_VIDEO } from '../../content/homePage'
 import {
   PRODUCT_MONITOR_IMAGE,
   PRODUCT_MONITOR_IMAGE_ALT,
@@ -9,8 +10,8 @@ import { getVideoLabel, getVideoUrl } from '../../content/videos'
 import { toVideoEmbedUrl } from '../../utils/videoEmbed'
 
 /**
- * Homepage product snapshot: monitor image + CTAs (no descriptive copy).
- * Swaps to the walkthrough video when a homepage video URL is published.
+ * Homepage product snapshot band. Shows the monitor product shot until a
+ * homepage walkthrough video URL is published.
  */
 export function HomeHeroVideo() {
   const url = getVideoUrl('homepage')
@@ -20,9 +21,13 @@ export function HomeHeroVideo() {
     <section
       className="home-band home-band--video home-band--mist"
       id="see-cash-prophet"
-      aria-label="Cash Prophet dashboard"
+      aria-labelledby="home-video-heading"
     >
       <div className="marketing-section-inner marketing-section-inner--home home-band-stack">
+        <div className="home-band-head home-band-head--center home-video-head">
+          <h2 id="home-video-heading">{HOME_VIDEO.heading}</h2>
+          <p className="home-video-lead">{HOME_VIDEO.lead}</p>
+        </div>
         <div className={`home-video-frame${url ? '' : ' home-video-frame--snapshot'}`}>
           {url ? (
             <iframe

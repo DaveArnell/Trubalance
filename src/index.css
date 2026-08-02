@@ -15625,61 +15625,6 @@ tr.sheet-row--received td {
   color: var(--text-secondary);
 }
 
-.method-edu-hero--see {
-  padding-bottom: 40px;
-}
-
-.method-edu-hero-split {
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  gap: clamp(1.5rem, 4vw, 3rem);
-  align-items: center;
-}
-
-.method-edu-hero-split-copy h1 {
-  max-width: 16ch;
-}
-
-.method-edu-hero-split-copy .method-edu-hero-lead {
-  max-width: 36rem;
-}
-
-.method-edu-hero-split-visual {
-  margin: 0;
-  justify-self: end;
-  max-width: 38rem;
-  width: 100%;
-  background: transparent;
-}
-
-.method-edu-hero-split-visual img {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 0;
-  background: transparent;
-}
-
-.method-edu-hero-split-caption {
-  display: none;
-}
-
-@media (max-width: 860px) {
-  .method-edu-hero-split {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-
-  .method-edu-hero-split-visual {
-    justify-self: center;
-    max-width: 28rem;
-  }
-
-  .method-edu-hero-split-copy h1 {
-    max-width: none;
-  }
-}
-
 .method-edu-mantra {
   margin: 28px 0 0;
   max-width: 36rem;
@@ -27893,7 +27838,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .home-video-frame--snapshot {
-  width: min(100%, 52rem);
+  width: min(100%, 44rem);
   aspect-ratio: auto;
   background: transparent;
   border: none;
@@ -27909,8 +27854,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   display: block;
   width: 100%;
   height: auto;
-  border-radius: 0;
-  background: transparent;
+  border-radius: 12px;
 }
 
 .home-video-snapshot-actions {

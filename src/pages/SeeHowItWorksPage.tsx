@@ -5,7 +5,7 @@ import {
   MarketingShell,
 } from '../components/marketing/MarketingLayout'
 import { DEMO_SCENARIOS, DEMO_FROZEN_DATE_KEY } from '../data/demoScenarios'
-import { SEE_HOW_SEO, PRODUCT_MONITOR_IMAGE, PRODUCT_MONITOR_IMAGE_ALT, PRODUCT_MONITOR_IMAGE_WIDTH, PRODUCT_MONITOR_IMAGE_HEIGHT } from '../content/marketingSeo'
+import { SEE_HOW_SEO } from '../content/marketingSeo'
 import { usePageMeta } from '../hooks/usePageMeta'
 import { formatSnapshotDateLong } from '../utils/snapshots'
 import { MarketingJsonLd, seeHowPageJsonLd } from '../components/marketing/MarketingJsonLd'
@@ -18,32 +18,19 @@ export function SeeHowItWorksPage() {
       <MarketingHeader />
 
       <main className="marketing-main">
-        <header className="method-edu-hero method-edu-hero--see marketing-surface--hero">
-          <div className="method-edu-inner method-edu-hero-split">
-            <div className="method-edu-hero-split-copy">
-              <p className="marketing-how-eyebrow">Try a demo</p>
-              <h1>See it with a live business</h1>
-              <p className="method-edu-hero-lead">
-                Pick an example workspace and explore Cash Prophet. No signup needed. Leisure and
-                hospitality demos show the Cash Prophet Balance with consistent income. Each demo is a
-                frozen snapshot as of {formatSnapshotDateLong(DEMO_FROZEN_DATE_KEY)}, so figures stay
-                stable while you look around.
-              </p>
-              <p className="method-edu-hero-lead method-edu-hero-lead--secondary">
-                Prefer to understand the system first?{' '}
-                <CanonicalLink to="/how-it-works">See how it works</CanonicalLink>.
-              </p>
-            </div>
-            <figure className="method-edu-hero-split-visual">
-              <img
-                src={PRODUCT_MONITOR_IMAGE}
-                alt={PRODUCT_MONITOR_IMAGE_ALT}
-                width={PRODUCT_MONITOR_IMAGE_WIDTH}
-                height={PRODUCT_MONITOR_IMAGE_HEIGHT}
-                loading="eager"
-                decoding="async"
-              />
-            </figure>
+        <header className="method-edu-hero marketing-surface--hero">
+          <div className="method-edu-inner">
+            <p className="marketing-how-eyebrow">Try a demo</p>
+            <h1>See it with a live business</h1>
+            <p className="method-edu-hero-lead">
+              Pick an example workspace and explore Cash Prophet - no signup needed. Leisure and
+              hospitality demos show the Cash Prophet Balance with consistent income. Each demo is a
+              frozen snapshot as of {formatSnapshotDateLong(DEMO_FROZEN_DATE_KEY)}, so figures stay
+              stable while you look around.
+            </p>
+            <p className="method-edu-hero-lead method-edu-hero-lead--secondary">
+              Prefer to understand the system first? <CanonicalLink to="/how-it-works">See how it works</CanonicalLink>.
+            </p>
           </div>
         </header>
         <section className="demo-scenarios-section demo-scenarios-section--landing marketing-surface--mist">
@@ -71,7 +58,7 @@ export function SeeHowItWorksPage() {
 
             <div className="demo-scenarios-footer">
               <CanonicalLink to="/" className="btn-ghost">
-                ← Back to home
+                &larr; Back to home
               </CanonicalLink>
               <CanonicalLink to="/signup" className="btn-secondary btn-large">
                 Follow the Method in your business
