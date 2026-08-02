@@ -26694,7 +26694,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .marketing-main--home .marketing-section-inner--home {
-  max-width: 74rem;
+  max-width: 88rem;
   margin: 0 auto;
   padding-left: 28px;
   padding-right: 28px;
@@ -27399,9 +27399,9 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   margin-right: auto;
 }
 
-/* Homepage body matches hero width (74rem) */
+/* Homepage body matches hero width (88rem) */
 .marketing-shell .marketing-main--home .marketing-section-inner--home {
-  max-width: 74rem;
+  max-width: 88rem;
 }
 
 .marketing-shell .marketing-section-head {
@@ -27838,7 +27838,8 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .home-video-frame--snapshot {
-  width: min(100%, 44rem);
+  width: 100%;
+  max-width: none;
   aspect-ratio: auto;
   background: transparent;
   border: none;
@@ -31116,8 +31117,13 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 /* Homepage: one content rail for every section (hero → CTA) */
 .marketing-main--home-vivid {
-  --home-rail: 74rem;
+  --home-rail: 88rem;
   --home-gutter: 28px;
+}
+
+/* Product monitor band can use more of a wide desktop */
+.marketing-main--home-vivid .home-band--video .marketing-section-inner--home {
+  max-width: min(96vw, 100rem) !important;
 }
 
 .marketing-main--home-vivid .marketing-hero--rank {
