@@ -63,7 +63,6 @@ export const TRIAL_DAYS = 30
 export const UK_VAT_RATE = 0.2
 export const PRICES_ARE_NET_OF_VAT = true
 export const VAT_PRICE_NOTE = '+ VAT'
-export const VAT_PRICE_FOOTNOTE = ''
 
 export const ANNUAL_SAVINGS_COPY = 'Pay annually and get 2 months free.'
 
