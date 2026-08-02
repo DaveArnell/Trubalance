@@ -1,12 +1,12 @@
 import sharp from 'sharp'
-import { writeFileSync } from 'fs'
 
 const src =
-  'C:/Users/dave/.cursor/projects/d-Projects-Trubalance/assets/c__Users_dave_AppData_Roaming_Cursor_User_workspaceStorage_empty-window_images_CP_Logo-004d9fc3-b98a-421e-bbb0-0558ff291c18.png'
+  'C:/Users/dave/.cursor/projects/d-Projects-Trubalance/assets/c__Users_dave_AppData_Roaming_Cursor_User_workspaceStorage_empty-window_images_Copy_of_CP_Logo-10557906-fa69-4601-b118-d16028748357.png'
 
-const { data, info } = await sharp(src).raw().ensureAlpha().toBuffer({ resolveWithObject: true })
+const { data, info } = await sharp(src).ensureAlpha().raw().toBuffer({ resolveWithObject: true })
 const c = info.channels
 const raw = Buffer.from(data)
+
 let best = null
 for (let y = 0; y < info.height; y += 2) {
   for (let x = 0; x < info.width; x += 2) {
@@ -14,24 +14,28 @@ for (let y = 0; y < info.height; y += 2) {
     const r = raw[i]
     const g = raw[i + 1]
     const b = raw[i + 2]
-    if (g > 150 && g > r + 40 && g > b + 40) {
+    if (g > 140 && g > r + 30 && g > b + 30) {
       if (!best || g > best[1]) best = [r, g, b]
     }
   }
 }
-console.log('green sample', best)
+console.log('green', best)
 
+// Knock out black / near-black background to alpha
 for (let i = 0; i < raw.length; i += c) {
   const r = raw[i]
   const g = raw[i + 1]
   const b = raw[i + 2]
-  if (r < 45 && g < 45 && b < 55) raw[i + 3] = 0
+  const max = Math.max(r, g, b)
+  const isDark = max < 28
+  const isNearBlackGreenish = r < 20 && g < 35 && b < 25 && g < 40
+  if (isDark || isNearBlackGreenish) raw[i + 3] = 0
 }
 
 const transparent = await sharp(raw, {
   raw: { width: info.width, height: info.height, channels: 4 },
 })
-  .trim()
+  .trim({ threshold: 5 })
   .resize(256, 256, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
   .png()
   .toBuffer()
@@ -46,7 +50,9 @@ const iconBg = await sharp({
     channels: 4,
     background: { r: 12, g: 0, b: 34, alpha: 1 },
   },
-}).png().toBuffer()
+})
+  .png()
+  .toBuffer()
 
 const markOnIcon = await sharp(transparent)
   .resize(340, 340, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
@@ -71,16 +77,4 @@ await sharp(iconRound).resize(512).webp({ quality: 95 }).toFile('D:/Projects/Tru
 await sharp(iconRound).resize(180).toFile('D:/Projects/Trubalance/public/apple-touch-icon.png')
 await sharp(iconRound).resize(180).webp({ quality: 95 }).toFile('D:/Projects/Trubalance/public/apple-touch-icon.webp')
 
-writeFileSync(
-  'D:/Projects/Trubalance/public/favicon.svg',
-  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" role="img" aria-label="Cash Prophet">
-  <rect width="40" height="40" rx="10" fill="#0C0022"/>
-  <g fill="none" stroke="#16C065" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M18.8 20c0-4.8-3.3-7.8-7.4-7.8S4 15.2 4 20s3.3 7.8 7.4 7.8c2.3 0 4.2-.9 5.5-2.4"/>
-    <path d="M18.8 20c0-4.8 3.4-7.8 7.7-7.8S34.4 15.2 34.4 20s-3.4 7.8-7.9 7.8c-1.5 0-2.8-.4-3.9-1"/>
-    <path d="M26.5 12.2V31.5"/>
-  </g>
-</svg>`,
-)
-
-console.log('logo assets written')
+console.log('transparent logo exported')

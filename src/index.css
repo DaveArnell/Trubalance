@@ -29928,12 +29928,12 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 /* Home: match new palette */
 .marketing-main--home-vivid {
-  --home-ink: #ffffff;
-  --home-muted: rgba(255, 255, 255, 0.78);
-  --home-line: rgba(255, 255, 255, 0.12);
+  --home-ink: #0f1b2d;
+  --home-muted: rgba(15, 27, 45, 0.72);
+  --home-line: rgba(15, 27, 45, 0.1);
   --home-green: #24da76;
-  --home-paper: #0c0022;
-  --home-wash: #160833;
+  --home-paper: #f4f7fb;
+  --home-wash: #e8f8ef;
   --home-teal: #24da76;
   --home-teal-mid: #24da76;
 }
@@ -29965,7 +29965,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .marketing-main--home-vivid .home-band--paper {
-  background: #0c0022;
+  background: #f4f7fb;
 }
 
 .marketing-main--home-vivid .home-band--wash {
@@ -31216,45 +31216,42 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   }
 }
 
-/* ─── Brand refresh: #0C0022 navy + emerald, readable contrast ─ */
+/* ─── Brand refresh: dark hero (#0C0022) + light content sections ─ */
 .marketing-shell {
   --cp-emerald: #24da76;
   --cp-emerald-dark: #1bb863;
   --cp-navy: #0c0022;
   --cp-navy-raised: #160833;
-  --cp-ink: #ffffff;
-  --cp-muted: #c4c9d4;
-  --marketing-paper: #0c0022;
-  --marketing-ink: #ffffff;
+  --marketing-paper: #f4f7fb;
+  --marketing-ink: #0f1b2d;
   --marketing-green: #24da76;
   --marketing-green-dark: #1bb863;
-  --marketing-highlight: rgba(36, 218, 118, 0.16);
-  --marketing-wash: #160833;
-  --marketing-line: rgba(255, 255, 255, 0.12);
+  --marketing-highlight: rgba(36, 218, 118, 0.14);
+  --marketing-wash: #e8f8ef;
+  --marketing-line: rgba(15, 27, 45, 0.1);
   --home-teal: #24da76;
   --home-teal-mid: #24da76;
-  --home-ink: #ffffff;
-  --home-paper: #0c0022;
-  --home-panel: #160833;
-  --home-muted: rgba(255, 255, 255, 0.78);
-  --home-line: rgba(255, 255, 255, 0.12);
+  --home-ink: #0f1b2d;
+  --home-paper: #f4f7fb;
+  --home-panel: #ffffff;
+  --home-muted: rgba(15, 27, 45, 0.72);
+  --home-line: rgba(15, 27, 45, 0.1);
   --home-green: #24da76;
-  --home-wash: #160833;
+  --home-wash: #e8f8ef;
   background:
-    radial-gradient(ellipse 70% 45% at 100% 0%, rgba(36, 218, 118, 0.14), transparent 55%),
-    radial-gradient(ellipse 50% 40% at 0% 18%, rgba(36, 218, 118, 0.07), transparent 50%),
-    #0c0022 !important;
-  color: #ffffff !important;
+    radial-gradient(ellipse 70% 45% at 100% 0%, rgba(36, 218, 118, 0.08), transparent 55%),
+    var(--marketing-paper) !important;
+  color: var(--marketing-ink) !important;
 }
 
+/* Dark chrome: header + hero only */
 .marketing-shell .marketing-header,
 .marketing-shell .marketing-header.marketing-header {
-  background: rgba(12, 0, 34, 0.94) !important;
+  background: rgba(12, 0, 34, 0.96) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
   backdrop-filter: blur(12px) !important;
 }
 
-/* Simple top nav — no grey pill tray */
 .marketing-shell .marketing-nav {
   background: transparent !important;
   border: none !important;
@@ -31275,8 +31272,8 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   background: transparent !important;
 }
 
+.marketing-shell .marketing-header .btn-primary,
 .marketing-shell .btn-primary,
-.marketing-shell .btn-primary:hover,
 .marketing-main--home-vivid .marketing-cta-primary--rank,
 .marketing-main--home-vivid .btn-primary {
   background: #24da76 !important;
@@ -31290,19 +31287,18 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   border-color: #1bb863 !important;
 }
 
-.marketing-shell .btn-secondary,
-.marketing-main--home-vivid .marketing-cta-secondary--rank {
-  background: transparent !important;
-  border-color: rgba(255, 255, 255, 0.35) !important;
-  color: #ffffff !important;
+.marketing-shell .btn-secondary {
+  background: #ffffff !important;
+  border-color: rgba(15, 27, 45, 0.18) !important;
+  color: #0f1b2d !important;
 }
 
 .marketing-shell .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.08) !important;
+  background: #f8fafc !important;
 }
 
 .marketing-shell .btn-ghost {
-  color: #ffffff !important;
+  color: #0f1b2d !important;
 }
 
 .marketing-shell .marketing-how-eyebrow,
@@ -31322,8 +31318,31 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   color: #24da76 !important;
 }
 
-/* Keep every marketing surface on the navy family — no light bands */
+/* Hero stays dark navy */
 .marketing-shell .marketing-surface--hero,
+.marketing-main--home-vivid .marketing-hero--rank {
+  background:
+    radial-gradient(ellipse 55% 70% at 85% 15%, rgba(36, 218, 118, 0.28), transparent 55%),
+    radial-gradient(ellipse 40% 50% at 10% 90%, rgba(36, 218, 118, 0.1), transparent 50%),
+    #0c0022 !important;
+  color: #ffffff !important;
+  border-top-color: transparent !important;
+}
+
+.marketing-main--home-vivid .marketing-hero--rank h1,
+.marketing-main--home-vivid .marketing-hero--rank .marketing-lead,
+.marketing-main--home-vivid .marketing-hero-tagline,
+.marketing-main--home-vivid .marketing-hero-belief {
+  color: #ffffff !important;
+}
+
+.marketing-main--home-vivid .marketing-cta-secondary--rank {
+  background: transparent !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  color: #ffffff !important;
+}
+
+/* Light content bands restored */
 .marketing-shell .marketing-surface--paper,
 .marketing-shell .marketing-surface--panel,
 .marketing-shell .marketing-surface--mist,
@@ -31333,19 +31352,28 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .marketing-shell .home-band--wash,
 .marketing-main--home-vivid .home-band--mist,
 .marketing-main--home-vivid .home-band--paper,
-.marketing-main--home-vivid .home-band--wash,
-.marketing-main--home-vivid .marketing-hero--rank {
+.marketing-main--home-vivid .home-band--wash {
+  background: #f4f7fb !important;
+  border-top-color: rgba(15, 27, 45, 0.08) !important;
+  color: #0f1b2d !important;
+}
+
+.marketing-shell .marketing-surface--mist,
+.marketing-main--home-vivid .home-band--mist,
+.marketing-main--home-vivid .home-band--wash {
   background:
-    radial-gradient(ellipse 70% 55% at 85% 10%, rgba(36, 218, 118, 0.1), transparent 55%),
-    #0c0022 !important;
-  border-top-color: rgba(255, 255, 255, 0.1) !important;
-  color: #ffffff !important;
+    radial-gradient(ellipse 80% 60% at 20% 100%, rgba(36, 218, 118, 0.08), transparent 55%),
+    #f4f7fb !important;
 }
 
 .marketing-shell .marketing-footer {
-  background: #090018 !important;
+  background: #0c0022 !important;
   border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: #c4c9d4 !important;
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+
+.marketing-shell .marketing-footer a {
+  color: #24da76;
 }
 
 .marketing-shell .cp-logo-mark {
@@ -31355,12 +31383,16 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   object-fit: contain !important;
 }
 
-.marketing-shell .cp-logo-word,
-.marketing-shell .cp-logo-cash,
-.marketing-shell .cp-logo-prophet,
+/* Header / dark surfaces: white wordmark */
+.marketing-shell .marketing-header .cp-logo-word,
+.marketing-shell .marketing-header .cp-logo-cash,
+.marketing-shell .marketing-header .cp-logo-prophet,
 .marketing-shell .cp-logo--on-dark .cp-logo-word,
 .marketing-shell .cp-logo--on-dark .cp-logo-cash,
-.marketing-shell .cp-logo--on-dark .cp-logo-prophet {
+.marketing-shell .cp-logo--on-dark .cp-logo-prophet,
+.marketing-shell .marketing-footer .cp-logo-word,
+.marketing-shell .marketing-footer .cp-logo-cash,
+.marketing-shell .marketing-footer .cp-logo-prophet {
   color: #ffffff !important;
   opacity: 1 !important;
 }
@@ -31375,7 +31407,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   font-weight: 800;
 }
 
-/* Raised cards on navy */
+/* White cards on light sections */
 .marketing-shell .demo-scenario-card,
 .marketing-shell .home-viz-card,
 .marketing-shell .home-snap,
@@ -31392,21 +31424,18 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .marketing-main--home-vivid .home-dash,
 .marketing-main--home-vivid .home-compare-col,
 .marketing-main--home-vivid .home-outcome-beat {
-  background: #160833 !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  color: #ffffff !important;
-  box-shadow: none !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(15, 27, 45, 0.1) !important;
+  color: #0f1b2d !important;
+  box-shadow: 0 8px 24px rgba(15, 27, 45, 0.05) !important;
 }
 
-/* Force readable text on dark (kill leftover dark-grey-on-navy) */
-.marketing-shell h1,
-.marketing-shell h2,
-.marketing-shell h3,
-.marketing-shell h4,
-.marketing-shell p,
-.marketing-shell li,
-.marketing-shell .marketing-lead,
-.marketing-shell .method-edu-hero-lead,
+/* Dark readable text on light sections */
+.marketing-shell .home-band h1,
+.marketing-shell .home-band h2,
+.marketing-shell .home-band h3,
+.marketing-shell .home-band p,
+.marketing-shell .home-band li,
 .marketing-shell .home-split-prose,
 .marketing-shell .home-split-lead,
 .marketing-shell .home-founder-prose,
@@ -31414,13 +31443,9 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .marketing-shell .home-compare-tag,
 .marketing-shell .home-compare-body,
 .marketing-shell .home-compare-detail,
-.marketing-shell .home-compare-highlight,
 .marketing-shell .home-viz-label,
 .marketing-shell .home-viz-note,
 .marketing-shell .home-viz-amount,
-.marketing-shell .home-band-head h2,
-.marketing-shell .home-does-copy h2,
-.marketing-shell .home-split-copy h2,
 .marketing-main--home-vivid .home-band-head h2,
 .marketing-main--home-vivid .home-founder h2,
 .marketing-main--home-vivid .home-split-copy h2,
@@ -31432,7 +31457,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .marketing-main--home-vivid .home-compare-body,
 .marketing-main--home-vivid .home-compare-detail,
 .marketing-main--home-vivid .home-compare-tag {
-  color: #ffffff !important;
+  color: #0f1b2d !important;
 }
 
 .marketing-main--home-vivid .home-compare-col--accent .home-compare-tag,
@@ -31442,44 +31467,44 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   color: #24da76 !important;
 }
 
-/* Spoken-for card: bright warn on dark */
 .marketing-main--home-vivid .home-viz-label--warn,
 .marketing-shell .home-viz-label--warn {
-  color: #fb7185 !important;
+  color: #e11d48 !important;
 }
 
 .marketing-main--home-vivid .home-viz-q,
 .marketing-shell .home-viz-q {
-  color: #fb7185 !important;
+  color: #e11d48 !important;
   opacity: 1 !important;
 }
 
 .marketing-shell .home-viz-card--spoken {
-  background: #2a0a1a !important;
-  border-color: rgba(251, 113, 133, 0.35) !important;
+  background: #fff5f5 !important;
+  border-color: rgba(225, 29, 72, 0.25) !important;
 }
 
 .marketing-shell .method-edu-chip-list li {
-  background: rgba(36, 218, 118, 0.12) !important;
-  border-color: rgba(36, 218, 118, 0.28) !important;
-  color: #86efac !important;
+  background: rgba(36, 218, 118, 0.1) !important;
+  border-color: rgba(36, 218, 118, 0.22) !important;
+  color: #0a7a45 !important;
 }
 
-.marketing-shell a:not(.btn-primary):not(.btn-secondary):not(.btn-ghost):not(.marketing-nav a):not(.marketing-logo) {
-  color: #24da76;
+.marketing-shell a:not(.btn-primary):not(.btn-secondary):not(.btn-ghost):not(.marketing-nav a):not(.marketing-logo):not(.marketing-footer a) {
+  color: #1bb863;
 }
 
 .marketing-shell .method-edu-cta {
   background:
     radial-gradient(ellipse 60% 70% at 70% 0%, rgba(36, 218, 118, 0.28), transparent 55%),
     #0c0022 !important;
+  color: #ffffff !important;
 }
 
 .marketing-shell .home-video-snapshot img {
-  border-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(15, 27, 45, 0.1);
 }
 
-/* Dashboard sidebar brand — white Cash + Prophet, new mark */
+/* Dashboard sidebar brand */
 .sidebar-brand .brand-mark {
   border-radius: 0;
   box-shadow: none;
