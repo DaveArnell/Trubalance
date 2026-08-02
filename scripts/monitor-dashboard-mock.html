@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Cash Prophet monitor mock</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", system-ui, sans-serif;
+    background: #e8eef3;
+    color: #111827;
+    padding: 18px;
+    width: 1280px;
+  }
+  .dash {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    grid-template-rows: auto auto auto;
+    gap: 12px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    padding: 12px 14px;
+  }
+  .hero {
+    background: linear-gradient(180deg, #dff5ec 0%, #fff 70%);
+    grid-column: 1;
+  }
+  .hero-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: #0f766e;
+    text-transform: uppercase;
+  }
+  .hero-amount {
+    font-size: 48px;
+    font-weight: 800;
+    color: #0f766e;
+    line-height: 1.05;
+    margin-top: 4px;
+  }
+  .hero-delta {
+    margin-top: 6px;
+    color: #15803d;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .building { grid-column: 1; }
+  .building h3 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+    margin-bottom: 8px;
+  }
+  .cols {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr 0.9fr;
+    gap: 8px;
+    font-size: 10px;
+    color: #9ca3af;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 30px;
+    margin-bottom: 6px;
+    font-size: 13px;
+    padding: 0 10px;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .row-fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    background: #c4b5fd;
+    opacity: 0.9;
+    z-index: 0;
+  }
+  .row > span { position: relative; z-index: 1; }
+  .row .amt { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .row .amt strong { font-weight: 700; }
+  .side { grid-column: 2; grid-row: 1 / span 2; display: flex; flex-direction: column; gap: 12px; }
+  .side h3 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+    margin-bottom: 8px;
+  }
+  .kv { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 4px; }
+  .kv .v { font-weight: 700; }
+  .kv .v.teal { color: #0f766e; }
+  .due .v { color: #dc2626; font-weight: 700; }
+  .rec .v { color: #15803d; font-weight: 700; }
+  .charts {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .chart-card h3 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .legend {
+    display: flex;
+    gap: 12px;
+    font-size: 11px;
+    color: #6b7280;
+    margin-bottom: 4px;
+  }
+  .legend i {
+    display: inline-block;
+    width: 14px;
+    height: 3px;
+    margin-right: 4px;
+    vertical-align: middle;
+    border-radius: 2px;
+  }
+  .legend .bal { background: #16a34a; }
+  .legend .bill { background: #dc2626; height: 10px; width: 2px; }
+  .legend .buf { background: transparent; border-top: 2px dashed #f59e0b; height: 0; width: 14px; }
+  svg { width: 100%; height: 220px; display: block; }
+</style>
+</head>
+<body>
+  <div class="dash">
+    <div class="card hero">
+      <div class="hero-label">Cash Prophet Balance</div>
+      <div class="hero-amount">£22,000</div>
+      <div class="hero-delta">↑ Up £410 this week · Up £1,860 this month</div>
+    </div>
+
+    <div class="side">
+      <div class="card">
+        <h3>Business</h3>
+        <div class="kv"><span>Bank balance</span><span class="v">£33,350</span></div>
+        <div class="kv"><span>Cash Prophet Balance</span><span class="v teal">£22,000</span></div>
+      </div>
+      <div class="card due">
+        <h3>Due bills</h3>
+        <div class="kv"><span>VAT</span><span class="v">£5,400</span></div>
+        <div class="kv"><span>Corporation tax</span><span class="v">£3,600</span></div>
+        <div class="kv"><span>Public liability</span><span class="v">£1,200</span></div>
+      </div>
+      <div class="card rec">
+        <h3>Expected receipts</h3>
+        <div class="kv"><span>Client payment</span><span class="v">£4,800</span></div>
+      </div>
+    </div>
+
+    <div class="card building">
+      <h3>Building up</h3>
+      <div class="row"><div class="row-fill" style="width:92.5%"></div><span>Business Rates</span><span class="amt"><strong>£1,850</strong> / £2,000</span></div>
+      <div class="row"><div class="row-fill" style="width:84.6%"></div><span>Loan</span><span class="amt"><strong>£1,100</strong> / £1,300</span></div>
+      <div class="row"><div class="row-fill" style="width:75%"></div><span>Insurance</span><span class="amt"><strong>£300</strong> / £400</span></div>
+      <div class="row"><div class="row-fill" style="width:37.9%"></div><span>Rent</span><span class="amt"><strong>£2,200</strong> / £5,800</span></div>
+      <div class="row"><div class="row-fill" style="width:20.8%"></div><span>Business Reserve Plan</span><span class="amt"><strong>£500</strong> / £2,400</span></div>
+    </div>
+
+    <div class="charts">
+      <div class="card chart-card">
+        <h3>Cash Prophet Balance trend</h3>
+        <svg viewBox="0 0 560 220" id="trend"></svg>
+      </div>
+      <div class="card chart-card">
+        <h3>Reserve planner</h3>
+        <div class="legend">
+          <span><i class="bal"></i>Planned balance</span>
+          <span><i class="bill"></i>Bills due</span>
+          <span><i class="buf"></i>Minimum buffer</span>
+        </div>
+        <svg viewBox="0 0 560 220" id="reserve"></svg>
+      </div>
+    </div>
+  </div>
+<script>
+const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function axis(svg, w, h, pad, yMax, yTicks, yFmt) {
+  const pw = w - pad.l - pad.r, ph = h - pad.t - pad.b;
+  let g = '';
+  yTicks.forEach(v => {
+    const y = pad.t + (1 - v / yMax) * ph;
+    g += `<line x1="${pad.l}" y1="${y}" x2="${pad.l+pw}" y2="${y}" stroke="#e5e7eb"/>`;
+    g += `<text x="${pad.l-6}" y="${y+3}" text-anchor="end" font-size="11" fill="#6b7280">${yFmt(v)}</text>`;
+  });
+  months.forEach((m,i) => {
+    const x = pad.l + (i/11)*pw;
+    g += `<text x="${x}" y="${h-8}" text-anchor="middle" font-size="11" fill="#6b7280">${m}</text>`;
+  });
+  return { g, pw, ph };
+}
+
+// Wavy upward trend (k)
+// Clear month-to-month waves (not a straight climb)
+  const trendVals = [7.5, 10.2, 9.0, 12.4, 11.1, 14.8, 13.2, 17.0, 15.6, 19.2, 18.4, 22.0];
+(() => {
+  const svg = document.getElementById('trend');
+  const w=560, h=220, pad={l:44,r:12,t:14,b:28}, yMax=30;
+  const { g, pw, ph } = axis(svg, w, h, pad, yMax, [0,10,20,30], v => v===0?'£0':`£${v/10*10}k`.replace('£30k','£30k').replace('£10k','£10k').replace('£20k','£20k').replace('£00k','£0'));
+  const pts = trendVals.map((v,i) => {
+    const x = pad.l + (i/11)*pw;
+    const y = pad.t + (1 - v/yMax)*ph;
+    return [x,y];
+  });
+  let d = `M ${pts[0][0]} ${pts[0][1]}`;
+  for (let i=0;i<pts.length-1;i++){
+    const [x0,y0]=pts[i], [x1,y1]=pts[i+1];
+    const dx=(x1-x0)/2;
+    d += ` C ${x0+dx} ${y0}, ${x1-dx} ${y1}, ${x1} ${y1}`;
+  }
+  const area = `${d} L ${pts[11][0]} ${pad.t+ph} L ${pts[0][0]} ${pad.t+ph} Z`;
+  const dots = pts.map(([x,y]) => `<circle cx="${x}" cy="${y}" r="4" fill="#0d8f5b"/>`).join('');
+  svg.innerHTML = g +
+    `<path d="${area}" fill="#0d8f5b" opacity="0.14"/>` +
+    `<path d="${d}" fill="none" stroke="#0d8f5b" stroke-width="2.6" stroke-linecap="round"/>` +
+    dots;
+})();
+
+// Irregular reserve sawtooth — explicit waypoints
+(() => {
+  const svg = document.getElementById('reserve');
+  const w=560, h=220, pad={l:44,r:12,t:22,b:28}, yMax=12;
+  const { g, pw, ph } = axis(svg, w, h, pad, yMax, [0,4,8,12], v => v===0?'£0':`£${v}k`);
+  const xAt = m => pad.l + (m/11)*pw;
+  const yAt = v => pad.t + (1 - v/yMax)*ph;
+  // Uneven climbs and drops (like a real reserve year)
+  // Uneven climbs (fast/slow) and very different peak heights
+  const wp = [
+    [0.0, 2.2],
+    [0.7, 3.0],
+    [1.5, 10.4],  // tall VAT
+    [1.55, 2.6],
+    [2.8, 3.4],   // slow rebuild
+    [3.6, 4.2],
+    [4.6, 11.4],  // tallest corp tax
+    [4.65, 1.8],
+    [5.5, 3.8],   // faster early rebuild
+    [6.2, 5.6],
+    [7.0, 6.4],   // short VAT peak
+    [7.05, 2.0],
+    [8.0, 2.8],
+    [8.8, 4.6],
+    [9.5, 9.8],   // large VAT
+    [9.55, 2.4],
+    [10.4, 3.6],
+    [11.0, 5.8], // smaller insurance
+    [11.05, 3.0],
+  ];
+
+  let d = `M ${xAt(wp[0][0])} ${yAt(wp[0][1])}`;
+  for (let i=1;i<wp.length;i++){
+    const [m0,v0]=wp[i-1], [m1,v1]=wp[i];
+    const sharp = Math.abs(v1-v0) > 3 && (m1-m0) < 0.2;
+    if (sharp) {
+      d += ` L ${xAt(m1)} ${yAt(v1)}`;
+    } else {
+      const mx = (m0+m1)/2;
+      // slight organic wobble on climbs
+      const midV = (v0+v1)/2 + ((i%2===0)?0.25:-0.15);
+      d += ` Q ${xAt(mx)} ${yAt(midV)} ${xAt(m1)} ${yAt(v1)}`;
+    }
+  }
+  const events = [
+    { m: 1.5, peak: 10.4, drop: 2.6, label: 'VAT' },
+    { m: 4.6, peak: 11.4, drop: 1.8, label: 'Corp tax' },
+    { m: 7.0, peak: 6.4, drop: 2.0, label: 'VAT' },
+    { m: 9.5, peak: 9.8, drop: 2.4, label: 'VAT' },
+    { m: 11.0, peak: 5.8, drop: 3.0, label: 'Insurance' },
+  ];
+  const labels = events.map(e => `
+    <line x1="${xAt(e.m)}" y1="${yAt(e.peak)}" x2="${xAt(e.m)}" y2="${yAt(e.drop)}" stroke="#dc2626" stroke-width="1.6"/>
+    <circle cx="${xAt(e.m)}" cy="${yAt(e.peak)}" r="3.5" fill="#dc2626"/>
+    <text x="${xAt(e.m)}" y="${yAt(e.peak)-8}" text-anchor="middle" font-size="11" font-weight="700" fill="#dc2626">${e.label}</text>
+  `).join('');
+  const buf = 1.2;
+  svg.innerHTML = g +
+    `<line x1="${pad.l}" y1="${yAt(buf)}" x2="${pad.l+pw}" y2="${yAt(buf)}" stroke="#f59e0b" stroke-width="1.8" stroke-dasharray="5 4"/>` +
+    `<path d="${d}" fill="none" stroke="#16a34a" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>` +
+    labels;
+})();
+</script>
+</body>
+</html>
