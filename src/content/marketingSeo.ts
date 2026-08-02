@@ -11,7 +11,7 @@ export const PRODUCT_MONITOR_IMAGE = '/product-monitor.webp' as const
 export const PRODUCT_MONITOR_IMAGE_ALT =
   'Cash Prophet dashboard on a computer monitor: Cash Prophet Balance, accruing bills, due bills, receipts, balance trend and Reserve Planner' as const
 export const PRODUCT_MONITOR_IMAGE_WIDTH = 1600
-export const PRODUCT_MONITOR_IMAGE_HEIGHT = 900
+export const PRODUCT_MONITOR_IMAGE_HEIGHT = 1067
 
 export type RouteSeo = {
   title: string
