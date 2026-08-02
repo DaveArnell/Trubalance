@@ -15647,15 +15647,17 @@ tr.sheet-row--received td {
 .method-edu-hero-split-visual {
   margin: 0;
   justify-self: end;
-  max-width: 34rem;
+  max-width: 38rem;
   width: 100%;
+  background: transparent;
 }
 
 .method-edu-hero-split-visual img {
   display: block;
   width: 100%;
   height: auto;
-  border-radius: 12px;
+  border-radius: 0;
+  background: transparent;
 }
 
 .method-edu-hero-split-caption {
@@ -27891,7 +27893,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .home-video-frame--snapshot {
-  width: min(100%, 44rem);
+  width: min(100%, 52rem);
   aspect-ratio: auto;
   background: transparent;
   border: none;
@@ -27907,7 +27909,8 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   display: block;
   width: 100%;
   height: auto;
-  border-radius: 12px;
+  border-radius: 0;
+  background: transparent;
 }
 
 .home-video-snapshot-actions {
