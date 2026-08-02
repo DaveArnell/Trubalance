@@ -1,11 +1,16 @@
 import { CanonicalLink } from '../CanonicalLink'
 import { HOME_VIDEO } from '../../content/homePage'
-import { SITE_OG_IMAGE } from '../../content/marketingSeo'
+import {
+  PRODUCT_MONITOR_IMAGE,
+  PRODUCT_MONITOR_IMAGE_ALT,
+  PRODUCT_MONITOR_IMAGE_HEIGHT,
+  PRODUCT_MONITOR_IMAGE_WIDTH,
+} from '../../content/marketingSeo'
 import { getVideoLabel, getVideoUrl } from '../../content/videos'
 import { toVideoEmbedUrl } from '../../utils/videoEmbed'
 
 /**
- * Homepage product snapshot band. Shows the monitor share image until a
+ * Homepage product snapshot band. Shows the monitor product shot until a
  * homepage walkthrough video URL is published.
  */
 export function HomeHeroVideo() {
@@ -35,10 +40,10 @@ export function HomeHeroVideo() {
           ) : (
             <figure className="home-video-snapshot">
               <img
-                src={SITE_OG_IMAGE}
-                alt="Cash Prophet on a monitor: Cash Prophet Balance, accruing bills, due bills, receipts, balance trend and Reserve Planner"
-                width={1200}
-                height={630}
+                src={PRODUCT_MONITOR_IMAGE}
+                alt={PRODUCT_MONITOR_IMAGE_ALT}
+                width={PRODUCT_MONITOR_IMAGE_WIDTH}
+                height={PRODUCT_MONITOR_IMAGE_HEIGHT}
                 loading="lazy"
                 decoding="async"
               />

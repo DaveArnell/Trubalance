@@ -5,7 +5,7 @@ import {
   MarketingShell,
 } from '../components/marketing/MarketingLayout'
 import { DEMO_SCENARIOS, DEMO_FROZEN_DATE_KEY } from '../data/demoScenarios'
-import { SEE_HOW_SEO, SITE_OG_IMAGE } from '../content/marketingSeo'
+import { SEE_HOW_SEO, PRODUCT_MONITOR_IMAGE, PRODUCT_MONITOR_IMAGE_ALT, PRODUCT_MONITOR_IMAGE_WIDTH, PRODUCT_MONITOR_IMAGE_HEIGHT } from '../content/marketingSeo'
 import { usePageMeta } from '../hooks/usePageMeta'
 import { formatSnapshotDateLong } from '../utils/snapshots'
 import { MarketingJsonLd, seeHowPageJsonLd } from '../components/marketing/MarketingJsonLd'
@@ -36,16 +36,13 @@ export function SeeHowItWorksPage() {
             </div>
             <figure className="method-edu-hero-split-visual">
               <img
-                src={SITE_OG_IMAGE}
-                alt="Cash Prophet on a monitor: Cash Prophet Balance, accruing bills, due bills, receipts, balance trend and Reserve Planner"
-                width={1200}
-                height={630}
+                src={PRODUCT_MONITOR_IMAGE}
+                alt={PRODUCT_MONITOR_IMAGE_ALT}
+                width={PRODUCT_MONITOR_IMAGE_WIDTH}
+                height={PRODUCT_MONITOR_IMAGE_HEIGHT}
                 loading="eager"
                 decoding="async"
               />
-              <figcaption className="method-edu-hero-split-caption">
-                A sneak peek of the dashboard you will explore in the demos
-              </figcaption>
             </figure>
           </div>
         </header>
