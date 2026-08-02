@@ -30,7 +30,7 @@ export const HOW_IT_WORKS_FAQS: FaqItem[] = [
 export const PRICING_FAQS: FaqItem[] = [
   {
     q: 'How much does Cash Prophet cost?',
-    a: 'Plans start at £10/month + VAT for Solo Business, £15/month + VAT for Multi-site Business, and £20/month + VAT for Multi-business / Group. Annual billing gives two months free. Prices exclude VAT; UK VAT is added at checkout.',
+    a: 'Plans start at £10/month + VAT for Solo Business, £15/month + VAT for Multi-site Business, and £20/month + VAT for Multi-business / Group. Annual billing gives two months free.',
   },
   {
     q: 'Is there a free trial?',

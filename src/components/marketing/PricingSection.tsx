@@ -6,7 +6,6 @@ import {
   PRICING_SUBHEADLINE,
   SUBSCRIPTION_TIERS,
   TIER_ORDER,
-  VAT_PRICE_FOOTNOTE,
   VAT_PRICE_NOTE,
   formatPriceGbp,
 } from '../../config/subscriptionTiers'
@@ -57,7 +56,6 @@ export function PricingSection({ hideIntro = false }: { hideIntro?: boolean }) {
           })}
         </div>
 
-        <p className="marketing-pricing-footnote">{VAT_PRICE_FOOTNOTE}</p>
         <p className="marketing-pricing-footnote">{PRICING_FOOTNOTE}</p>
       </div>
     </section>

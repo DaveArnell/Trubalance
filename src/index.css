@@ -31523,4 +31523,62 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   color: #ffffff;
 }
 
+/* Bottom homepage CTA — solid navy, readable buttons */
+.marketing-main--home-vivid .home-cta-band,
+.marketing-main--home-vivid .home-cta-band.marketing-cta-band--pop,
+.home-cta-band.marketing-cta-band--pop,
+.home-cta-band {
+  background: #0c0022 !important;
+  color: #ffffff !important;
+}
+
+.marketing-main--home-vivid .home-cta-band h2,
+.home-cta-band h2 {
+  color: #ffffff !important;
+}
+
+.marketing-main--home-vivid .home-cta-band p,
+.home-cta-band p {
+  color: rgba(255, 255, 255, 0.82) !important;
+}
+
+.marketing-main--home-vivid .home-cta-band .marketing-cta-btn-on-dark,
+.home-cta-band .marketing-cta-btn-on-dark,
+.marketing-main--home-vivid .home-cta-band .btn-primary {
+  background: #24da76 !important;
+  border-color: #24da76 !important;
+  color: #0c0022 !important;
+  box-shadow: none !important;
+}
+
+.marketing-main--home-vivid .home-cta-band .btn-ghost,
+.marketing-main--home-vivid .home-cta-band .marketing-cta-ghost,
+.home-cta-band .btn-ghost,
+.home-cta-band .marketing-cta-ghost {
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  color: #ffffff !important;
+}
+
+.marketing-main--home-vivid .home-cta-band .btn-ghost:hover,
+.home-cta-band .btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+}
+
+/* Pricing cards — readable green CTAs */
+.marketing-shell .marketing-price-card .btn-primary {
+  background: #24da76 !important;
+  border-color: #24da76 !important;
+  color: #0c0022 !important;
+}
+
+.marketing-shell .marketing-footer-heading {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+.marketing-shell .marketing-footer a {
+  color: #24da76 !important;
+}
+
 
