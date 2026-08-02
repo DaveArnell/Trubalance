@@ -29929,7 +29929,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 /* Home: match new palette */
 .marketing-main--home-vivid {
   --home-ink: #0f1b2d;
-  --home-muted: rgba(15, 27, 45, 0.72);
+  --home-muted: rgba(15, 27, 45, 0.88);
   --home-line: rgba(15, 27, 45, 0.1);
   --home-green: #24da76;
   --home-paper: #f4f7fb;
@@ -31228,7 +31228,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   --home-ink: #0f1b2d;
   --home-paper: #f4f7fb;
   --home-panel: #ffffff;
-  --home-muted: rgba(15, 27, 45, 0.72);
+  --home-muted: rgba(15, 27, 45, 0.88);
   --home-line: rgba(15, 27, 45, 0.1);
   --home-green: #24da76;
   --home-wash: #e8f8ef;
@@ -31574,11 +31574,121 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .marketing-shell .marketing-footer-heading {
-  color: rgba(255, 255, 255, 0.55) !important;
+  color: rgba(255, 255, 255, 0.7) !important;
 }
 
 .marketing-shell .marketing-footer a {
   color: #24da76 !important;
+}
+
+/* FAQ — centred stack */
+.marketing-faq-section .marketing-section-head {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.marketing-faq-section .marketing-how-eyebrow {
+  justify-content: center;
+}
+
+.marketing-faq-list {
+  max-width: 40rem;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
+.marketing-faq-item summary {
+  font-size: 1.05rem;
+  color: #0f1b2d;
+}
+
+.marketing-faq-item p {
+  color: #243044 !important;
+  font-size: 1rem;
+}
+
+/* Hero CTAs — larger tap targets + type */
+.marketing-main--home-vivid .marketing-hero--rank .btn-large,
+.marketing-shell .marketing-hero--rank .btn-large {
+  padding: 1rem 1.9rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.home-video-snapshot-actions .btn-large {
+  padding: 0.9rem 1.65rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+/* How it works hero — bigger type, clearer on navy */
+.marketing-method-page .method-edu-hero h1,
+.method-edu-hero h1 {
+  font-size: clamp(2.55rem, 5.2vw, 3.65rem) !important;
+  max-width: 14ch !important;
+  line-height: 1.05 !important;
+}
+
+.marketing-method-page .method-edu-hero-lead,
+.method-edu-hero-lead {
+  font-size: clamp(1.2rem, 2.4vw, 1.4rem) !important;
+  line-height: 1.55 !important;
+  font-weight: 500 !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+  max-width: 38rem !important;
+}
+
+.marketing-method-page .method-edu-hero .marketing-how-eyebrow,
+.method-edu-hero .marketing-how-eyebrow {
+  color: #24da76 !important;
+  font-size: 0.95rem !important;
+}
+
+/* Light backgrounds: darker body copy (less mid-grey) */
+.marketing-shell .marketing-section-lead,
+.marketing-shell .marketing-section-lead--home,
+.marketing-shell .method-edu-section-lead,
+.marketing-shell .home-video-lead,
+.marketing-shell .home-split-lead,
+.marketing-shell .home-split-prose,
+.marketing-shell .home-founder-prose,
+.marketing-shell .home-founder-prose p,
+.marketing-shell .home-compare-body,
+.marketing-shell .home-compare-detail,
+.marketing-shell .marketing-price-desc,
+.marketing-shell .marketing-pricing-footnote,
+.marketing-shell .marketing-annual-note,
+.marketing-shell .method-edu-prose,
+.marketing-shell .method-edu-principle-lead,
+.marketing-shell .method-edu-section .method-edu-prose {
+  color: #243044 !important;
+}
+
+.marketing-shell .muted,
+.marketing-shell .marketing-price-contract,
+.marketing-shell .marketing-price-annual .muted {
+  color: #3a465c !important;
+}
+
+/* Dark backgrounds: nearer-white body copy */
+.marketing-main--home-vivid .marketing-hero--rank .marketing-lead,
+.marketing-main--home-vivid .marketing-hero--rank .marketing-lead p,
+.marketing-main--home-vivid .marketing-hero-belief,
+.marketing-main--home-vivid .marketing-hero-tagline,
+.marketing-shell .marketing-surface--hero .marketing-lead,
+.marketing-shell .marketing-surface--hero p,
+.home-cta-band p,
+.marketing-shell .marketing-footer,
+.marketing-shell .marketing-footer p {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+.marketing-shell .marketing-footer .company-legal-notice,
+.marketing-shell .marketing-footer .company-legal-notice p {
+  color: rgba(255, 255, 255, 0.7) !important;
 }
 
 
