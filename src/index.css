@@ -31758,4 +31758,196 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   color: #243044 !important;
 }
 
+/* ─── Marketing density: larger type, tighter space, smaller monitor ─ */
+.marketing-shell {
+  font-size: 17px;
+}
+
+.marketing-shell .marketing-main,
+.marketing-shell .blog-page {
+  font-size: 1.0625rem;
+}
+
+/* Section rhythm — less empty vertical space */
+.marketing-main--home-vivid .home-band,
+.marketing-shell .home-band {
+  padding: 56px 0 !important;
+}
+
+.marketing-main--home-vivid .home-band--video,
+.marketing-shell .home-band--video {
+  padding-top: 40px !important;
+  padding-bottom: 48px !important;
+}
+
+.marketing-shell .method-edu-hero {
+  padding: 56px 24px 44px !important;
+}
+
+.marketing-shell .method-edu-section {
+  padding: 48px 0 !important;
+}
+
+.marketing-shell .marketing-section-inner {
+  padding-top: 48px !important;
+  padding-bottom: 48px !important;
+}
+
+.marketing-shell .marketing-faq-section {
+  padding: 2.25rem 0 !important;
+}
+
+.marketing-shell .marketing-section-head {
+  margin-bottom: 1.5rem !important;
+}
+
+.marketing-main--home-vivid .home-cta-band,
+.home-cta-band {
+  padding-top: 64px !important;
+  padding-bottom: 64px !important;
+}
+
+/* Headings — bigger and bolder */
+.marketing-shell h1,
+.marketing-shell .method-edu-hero h1 {
+  font-size: clamp(2.35rem, 5vw, 3.4rem) !important;
+  font-weight: 750 !important;
+  line-height: 1.08 !important;
+}
+
+.marketing-main--home-vivid .marketing-hero--rank h1 {
+  font-size: clamp(2.55rem, 5.8vw, 3.9rem) !important;
+  font-weight: 700 !important;
+}
+
+.marketing-shell h2,
+.marketing-shell .marketing-section-head h2,
+.marketing-shell .method-edu-section-head h2,
+.marketing-main--home-vivid .home-band-head h2,
+.marketing-main--home-vivid .home-band-head--center h2,
+.marketing-main--home-vivid .home-split-copy h2,
+.marketing-main--home-vivid .home-does-copy h2,
+.marketing-main--home-vivid .home-founder h2,
+.marketing-main--home-vivid .home-video-head h2 {
+  font-size: clamp(1.85rem, 3.2vw, 2.45rem) !important;
+  font-weight: 700 !important;
+  line-height: 1.15 !important;
+  letter-spacing: -0.03em !important;
+}
+
+.marketing-shell h3,
+.marketing-shell .method-edu-principle-card h3,
+.marketing-shell .marketing-price-card h2,
+.marketing-shell .marketing-price-card h3 {
+  font-size: clamp(1.2rem, 2vw, 1.45rem) !important;
+  font-weight: 700 !important;
+}
+
+/* Body / lead copy — larger, heavier, easier to read */
+.marketing-shell .method-edu-hero-lead,
+.marketing-shell .marketing-section-lead,
+.marketing-shell .marketing-section-lead--home,
+.marketing-shell .method-edu-section-lead,
+.marketing-shell .home-video-lead,
+.marketing-main--home-vivid .marketing-hero--rank .marketing-lead,
+.marketing-main--home-vivid .marketing-hero--rank .marketing-lead p,
+.marketing-main--home-vivid .home-split-prose,
+.marketing-main--home-vivid .home-split-lead,
+.marketing-main--home-vivid .home-founder-prose,
+.marketing-main--home-vivid .home-founder-prose p,
+.marketing-main--home-vivid .home-compare-body,
+.marketing-main--home-vivid .home-compare-detail,
+.marketing-main--home-vivid .home-why-close,
+.marketing-main--home-vivid .home-outcome-close,
+.marketing-shell .method-edu-prose,
+.marketing-shell .method-edu-principle-lead,
+.marketing-shell .marketing-faq-item summary,
+.marketing-shell .marketing-faq-item p,
+.marketing-shell .marketing-price-desc,
+.marketing-shell .marketing-pricing-footnote {
+  font-size: clamp(1.125rem, 1.7vw, 1.3rem) !important;
+  font-weight: 500 !important;
+  line-height: 1.55 !important;
+}
+
+.marketing-shell .marketing-faq-item summary {
+  font-weight: 700 !important;
+}
+
+.marketing-main--home-vivid .marketing-hero-belief {
+  font-size: clamp(1.15rem, 2vw, 1.35rem) !important;
+  font-weight: 600 !important;
+}
+
+.marketing-main--home-vivid .marketing-hero-sizzle {
+  font-size: clamp(1.2rem, 2.2vw, 1.45rem) !important;
+  font-weight: 700 !important;
+}
+
+.marketing-shell .hero-graph-title {
+  font-size: clamp(1.35rem, 2.8vw, 1.7rem) !important;
+  font-weight: 750 !important;
+}
+
+.marketing-shell .hero-graph-tag {
+  font-size: 0.95rem !important;
+}
+
+.marketing-shell .hero-graph-mode--shared .hero-graph-mode-label {
+  font-size: clamp(1.15rem, 2.4vw, 1.45rem) !important;
+}
+
+/* Dashboard monitor — bring back to a manageable width */
+.marketing-main--home-vivid .home-band--video .marketing-section-inner--home {
+  max-width: var(--home-rail) !important;
+}
+
+.marketing-main--home-vivid .home-video-frame--snapshot,
+.marketing-shell .home-video-frame--snapshot {
+  width: min(100%, 46rem) !important;
+  max-width: 46rem !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.marketing-main--home-vivid .home-video-snapshot img,
+.marketing-shell .home-video-snapshot img {
+  width: 100%;
+  max-width: 46rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.marketing-main--home-vivid .home-video-head h2,
+.marketing-main--home-vivid .home-band-head.home-video-head h2 {
+  max-width: 28rem !important;
+}
+
+@media (max-width: 700px) {
+  .marketing-shell {
+    font-size: 16.5px;
+  }
+
+  .marketing-main--home-vivid .home-band,
+  .marketing-shell .home-band {
+    padding: 44px 0 !important;
+  }
+
+  .marketing-shell .method-edu-hero {
+    padding: 44px 18px 36px !important;
+  }
+
+  .marketing-shell .marketing-section-inner {
+    padding-top: 40px !important;
+    padding-bottom: 40px !important;
+  }
+
+  .marketing-main--home-vivid .home-video-frame--snapshot,
+  .marketing-shell .home-video-frame--snapshot {
+    width: min(100%, 100%) !important;
+    max-width: 100% !important;
+  }
+}
+
+
 
