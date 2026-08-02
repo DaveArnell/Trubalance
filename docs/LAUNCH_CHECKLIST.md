@@ -46,10 +46,29 @@ When someone pastes a Cash Prophet link in WhatsApp, Slack, LinkedIn, or Faceboo
 
 **Goal:** know which ads produce paying customers — not just clicks.
 
-- **Admin:** `/platform-admin/campaigns` — funnel by campaign + plain-English guide for tagging links.
-- **How it works:** put tagged links in ads (e.g. `?utm_source=meta&utm_medium=paid&utm_campaign=spring_offer`). Tags are remembered in the browser, saved on signup, then shown as signup → setup → trial use → paid.
+- **Admin:** `/platform-admin/campaigns` — funnel by campaign + copy-paste Facebook boost link.
+- **Test boost URL:** `https://www.cashprophet.co.uk/?utm_source=meta&utm_medium=paid&utm_campaign=fb_boost_test_aug26&utm_content=boosted_post`
+- **How it works:** tagged links remembered in the browser, saved on signup, shown as signup → setup → trial → paid.
 - **Requires:** migration **026** run in Supabase.
-- Does **not** pull Meta/Google spend yet; use their dashboards for cost, this page for who actually paid.
+- Early rows may be your own test accounts — judge the named campaign after the boost runs.
+- Does **not** pull Meta/Google spend yet.
+
+---
+
+## Stripe / billing
+
+See **`docs/STRIPE_GO_LIVE.md`** for prices, env secrets, webhook, trial emails, and end-to-end test.
+
+- [ ] Stripe products + prices created
+- [ ] Vercel `VITE_STRIPE_PRICE_*` set and redeployed
+- [ ] Supabase secrets set (`STRIPE_*`, `RESEND_API_KEY`, `TRIAL_EMAIL_CRON_SECRET`, …)
+- [ ] Edge functions deployed (`create-checkout-session`, `create-billing-portal`, `stripe-webhook`, `send-trial-emails`)
+- [ ] Stripe webhook events connected
+- [ ] Migration **027** (`trial_email_log`) run
+- [ ] Daily cron hitting `send-trial-emails`
+- [ ] Test checkout with deferred trial charge
+
+**Do not spend hard on Facebook until the Stripe checklist is green.**
 
 ---
 
@@ -69,12 +88,10 @@ When someone pastes a Cash Prophet link in WhatsApp, Slack, LinkedIn, or Faceboo
 
 ## Admin stats (honest status)
 
-**Good enough for early ops / beta:** users, trials, setup funnel, user health, feature adoption counts.
-
-**Not real yet (placeholders until Stripe is live):** MRR/ARR charts, revenue trend, churn. Ignore fake £ figures on Payments until billing is connected.
+**Good enough for early ops / beta:** users, trials, setup funnel, user health, feature adoption counts, campaign attribution, subscription-based MRR/ARR when Stripe is live.
 
 **Videos:** Scripts and wiring live under `docs/videos/` and `src/content/videos.ts`. Paste Vimeo URLs into `VIDEO_LIBRARY` as clips publish; homepage / onboarding / tours pick them up automatically.
 
 ---
 
-*Last updated: July 2026*
+*Last updated: August 2026*

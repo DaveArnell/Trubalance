@@ -16,15 +16,20 @@ function trialWarningCopy(level: TrialWarningLevel, daysLeft: number | null): {
   body: string
 } | null {
   switch (level) {
+    case 'mid':
+      return {
+        title: 'Ready to keep Cash Prophet after your trial?',
+        body: `You are about a week into your free trial (${daysLeft ?? TRIAL_DAYS - 7} days left). Choose a plan and add a card when you are ready — nothing is charged until the trial ends.`,
+      }
     case '7days':
       return {
         title: 'Your free trial ends in about a week',
-        body: `You still have full access for ${daysLeft ?? 7} more days. When the trial ends, your workspace stays — you will need a plan to keep editing.`,
+        body: `You still have full access for ${daysLeft ?? 7} more days. Add a card now so your plan starts the day after the trial — no scramble on the last day.`,
       }
     case '3days':
       return {
         title: 'Three days left on your trial',
-        body: 'Nothing is charged automatically. Pick a plan before your trial ends if you want to keep updating balances, commitments, and reserves.',
+        body: 'Nothing is charged until the trial ends. Pick a plan and add a card before then if you want to keep updating balances, commitments, and reserves.',
       }
     case '1day':
       return {
@@ -60,7 +65,7 @@ function dismissTrialWarning(level: TrialWarningLevel): void {
 }
 
 export function TrialWarningModal() {
-  const { trialWarningLevel, trialDaysLeft, usage } = useSubscription()
+  const { trialWarningLevel, trialDaysLeft, usage, trialActive } = useSubscription()
   const copy = trialWarningCopy(trialWarningLevel, trialDaysLeft)
   const [dismissed, setDismissed] = useState(() => wasTrialWarningDismissed(trialWarningLevel))
 
@@ -83,8 +88,12 @@ export function TrialWarningModal() {
       >
         <h2 id="trial-warning-title">{copy.title}</h2>
         <p>{copy.body}</p>
-        <div className="upgrade-prompt-actions">
-          <UpgradeButton tierId={recommendedTier} label="View plans" />
+        <div className="upgrade-prompt-actions upgrade-prompt-actions--stack">
+          <PlanCheckoutButtons
+            tierId={recommendedTier}
+            deferUntilTrialEnd={trialActive}
+            primaryLabel="Choose plan — monthly"
+          />
           <button type="button" className="btn-ghost" onClick={handleDismiss}>
             Remind me later
           </button>
@@ -125,43 +134,56 @@ export function ReadOnlyLockBanner() {
   )
 }
 
-function UpgradeButton({
+export function PlanCheckoutButtons({
   tierId,
-  label = 'Upgrade',
-  billingInterval = 'monthly',
   deferUntilTrialEnd = true,
+  primaryLabel = 'Subscribe monthly',
+  showAnnual = true,
 }: {
   tierId: SubscriptionTierId
-  label?: string
-  billingInterval?: 'monthly' | 'annual'
   deferUntilTrialEnd?: boolean
+  primaryLabel?: string
+  showAnnual?: boolean
 }) {
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState<'monthly' | 'annual' | null>(null)
   const billingReady = isBillingConfigured()
 
-  const handleClick = async () => {
+  const start = async (billingInterval: 'monthly' | 'annual') => {
     if (!billingReady) return
-    setLoading(true)
+    setLoading(billingInterval)
     try {
       await startCheckout({ tierId, billingInterval, deferUntilTrialEnd })
     } catch (err) {
       console.error(err)
       window.alert('Could not start checkout. Please try again or contact support.')
     } finally {
-      setLoading(false)
+      setLoading(null)
     }
   }
 
   return (
-    <button
-      type="button"
-      className="btn-primary"
-      disabled={!billingReady || loading}
-      title={billingReady ? undefined : 'Online billing is being set up'}
-      onClick={() => void handleClick()}
-    >
-      {loading ? 'Opening checkout…' : label}
-    </button>
+    <div className="plan-checkout-buttons">
+      <button
+        type="button"
+        className="btn-primary"
+        disabled={!billingReady || loading != null}
+        title={billingReady ? undefined : 'Online billing is being set up'}
+        onClick={() => void start('monthly')}
+      >
+        {loading === 'monthly' ? 'Opening checkout…' : primaryLabel}
+      </button>
+      {showAnnual && (
+        <button
+          type="button"
+          className="btn-secondary"
+          disabled={!billingReady || loading != null}
+          title={billingReady ? undefined : 'Online billing is being set up'}
+          onClick={() => void start('annual')}
+        >
+          {loading === 'annual' ? 'Opening checkout…' : 'Subscribe annually'}
+        </button>
+      )}
+    </div>
   )
 }
 
@@ -192,8 +214,11 @@ export function UpgradePrompt() {
             until then.
           </p>
         )}
-        <div className="upgrade-prompt-actions">
-          <UpgradeButton tierId={upgradePrompt.requiredTier} deferUntilTrialEnd={trialActive} />
+        <div className="upgrade-prompt-actions upgrade-prompt-actions--stack">
+          <PlanCheckoutButtons
+            tierId={upgradePrompt.requiredTier}
+            deferUntilTrialEnd={trialActive}
+          />
           <button type="button" className="btn-ghost" onClick={dismissUpgradePrompt}>
             Maybe later
           </button>
@@ -204,19 +229,47 @@ export function UpgradePrompt() {
 }
 
 export function TrialBanner() {
-  const { trialActive, trialDaysLeft, subscription } = useSubscription()
+  const { trialActive, trialDaysLeft, subscription, usage, openUpgrade } = useSubscription()
 
   // Founder access is a compact chip in the top bar — not a full-width banner.
   if (subscription.lifetimeAccess) return null
   if (!trialActive || trialDaysLeft == null) return null
 
+  const recommendedTier = recommendTierForWorkspace(usage)
+  const hasCardOnFile = Boolean(subscription.stripeCustomerId || subscription.stripeSubscriptionId)
+  const urgent = trialDaysLeft <= 7
+
   return (
-    <div className="trial-banner" role="status">
-      <strong>{TRIAL_DAYS} day free trial</strong>
-      <span>
-        Full access to every feature · No payment details required · {trialDaysLeft} day
-        {trialDaysLeft === 1 ? '' : 's'} left · No charge until day {TRIAL_DAYS + 1}
-      </span>
+    <div className={`trial-banner${urgent ? ' trial-banner--urgent' : ''}`} role="status">
+      <div className="trial-banner-copy">
+        <strong>
+          {urgent
+            ? `${trialDaysLeft} day${trialDaysLeft === 1 ? '' : 's'} left on your trial`
+            : `${TRIAL_DAYS} day free trial`}
+        </strong>
+        <span>
+          {hasCardOnFile
+            ? `Plan ready · full access · ${trialDaysLeft} day${trialDaysLeft === 1 ? '' : 's'} left`
+            : `Full access · No charge until day ${TRIAL_DAYS + 1} · ${trialDaysLeft} day${trialDaysLeft === 1 ? '' : 's'} left`}
+        </span>
+      </div>
+      {!hasCardOnFile && isBillingConfigured() && (
+        <button
+          type="button"
+          className="btn-primary btn-tiny"
+          onClick={() =>
+            openUpgrade(
+              recommendedTier,
+              urgent ? 'Choose a plan before your trial ends' : 'Choose a plan when you are ready',
+              urgent
+                ? 'Add a card now. Your subscription starts the day after the trial — nothing is charged early.'
+                : 'Add a card when you like. Your subscription starts the day after the trial ends.',
+            )
+          }
+        >
+          {urgent ? 'Choose a plan' : 'Add card for later'}
+        </button>
+      )}
     </div>
   )
 }

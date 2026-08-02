@@ -76,7 +76,7 @@ export function hasFullTrialAccess(subscription: WorkspaceSubscription, now = ne
   return isBillingExempt(subscription) || isTrialActive(subscription, now)
 }
 
-export type TrialWarningLevel = 'none' | '7days' | '3days' | '1day' | 'expired'
+export type TrialWarningLevel = 'none' | 'mid' | '7days' | '3days' | '1day' | 'expired'
 
 export function getTrialWarningLevel(
   subscription: WorkspaceSubscription,
@@ -96,6 +96,8 @@ export function getTrialWarningLevel(
   if (days <= 1) return '1day'
   if (days <= 3) return '3days'
   if (days <= 7) return '7days'
+  // Narrow window ~7 days into a 30-day trial (matches trial email cron)
+  if (days >= 22 && days <= 24) return 'mid'
   return 'none'
 }
 

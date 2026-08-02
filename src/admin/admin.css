@@ -637,6 +637,14 @@
   gap: 12px;
 }
 
+.admin-campaign-actions {
+  margin: 12px 0;
+}
+
+.admin-row--highlight td {
+  background: rgba(36, 218, 118, 0.08);
+}
+
 .admin-detail-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));

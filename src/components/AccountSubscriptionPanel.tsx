@@ -8,7 +8,7 @@ import {
   VAT_PRICE_NOTE,
   type SubscriptionTierId,
 } from '../config/subscriptionTiers'
-import { ManageBillingButton } from './UpgradePrompt'
+import { ManageBillingButton, PlanCheckoutButtons } from './UpgradePrompt'
 import { isBillingConfigured } from '../services/billingApi'
 import { useAuth } from '../contexts/AuthContext'
 import { useSubscription } from '../contexts/SubscriptionContext'
@@ -186,6 +186,16 @@ export function AccountSubscriptionPanel({ state, embedded = false }: AccountSub
                   <li key={item}>{item}</li>
                 ))}
               </ul>
+              {isBillingConfigured() &&
+                (trialActive || subscription.status !== 'active' || !subscription.stripeSubscriptionId) && (
+                  <div className="account-plan-tier-actions">
+                    <PlanCheckoutButtons
+                      tierId={tierId}
+                      deferUntilTrialEnd={trialActive}
+                      primaryLabel={`Start ${formatPriceGbp(tier.priceMonthlyGbp)}/mo`}
+                    />
+                  </div>
+                )}
             </article>
           )
         })}
@@ -196,17 +206,20 @@ export function AccountSubscriptionPanel({ state, embedded = false }: AccountSub
         {isBillingConfigured() ? (
           <>
             <p className="muted">
-              Manage your subscription, update payment details, and download invoices from the billing
-              portal.
+              {trialActive
+                ? 'Choose a plan above to add a card. You will not be charged until your free trial ends. After that, manage billing and invoices here.'
+                : 'Manage your subscription, update payment details, and download invoices from the billing portal.'}
             </p>
             <div className="account-plan-actions">
-              <ManageBillingButton />
+              {(subscription.stripeCustomerId || subscription.status === 'active') && (
+                <ManageBillingButton />
+              )}
             </div>
           </>
         ) : (
           <p className="muted">
-            Online payments are being connected. When billing is live, you will manage your subscription
-            here and download invoices. Plan details are shown above.
+            Online payments are being connected. When billing is live, you will choose a plan here,
+            add a card, and download invoices.
           </p>
         )}
         {user?.email && (

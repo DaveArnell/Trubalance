@@ -25,15 +25,15 @@ export function PricingPage() {
         <section id="billing" className="marketing-billing-section marketing-surface--mist">
           <div className="marketing-section-inner">
             <div className="marketing-section-head">
-              <h2>How billing will work</h2>
+              <h2>How billing works</h2>
               <p className="marketing-section-lead marketing-section-lead--home">
-                Payments are not switched on yet. When they are, you will choose monthly (rolling
-                contract, cancel anytime) or annual (one payment upfront for the year).
+                Start free with no card. When you are ready, choose monthly (rolling, cancel anytime)
+                or annual (paid upfront) from Settings → Your plan. The first charge is the day after
+                your trial ends.
               </p>
             </div>
             <p className="muted marketing-billing-note">
-              Signed-in customers will manage their subscription from Settings → Your plan. Invoices
-              will be available there once billing goes live.
+              Signed-in customers manage their subscription and invoices from Settings → Your plan.
             </p>
             <p className="marketing-billing-cta">
               <CanonicalLink to="/signup" className="btn-primary">

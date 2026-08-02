@@ -8,11 +8,15 @@ import {
 } from '../components/AdminUi'
 import type { CampaignPerformanceSnapshot } from '../types'
 
-const EXAMPLE_LINK =
-  'https://www.cashprophet.co.uk/?utm_source=meta&utm_medium=paid&utm_campaign=spring_offer&utm_content=video_a'
+/** Stable URL for the first Meta boosted-post test — paste into Facebook as the destination. */
+export const FACEBOOK_BOOST_TEST_LINK =
+  'https://www.cashprophet.co.uk/?utm_source=meta&utm_medium=paid&utm_campaign=fb_boost_test_aug26&utm_content=boosted_post'
+
+const EXAMPLE_LINK = FACEBOOK_BOOST_TEST_LINK
 
 export function AdminCampaignsPage() {
   const [data, setData] = useState<CampaignPerformanceSnapshot | null>(null)
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     adminFetchCampaignPerformance().then(setData)
@@ -24,12 +28,56 @@ export function AdminCampaignsPage() {
   const taggedRate =
     totals.signedUp > 0 ? Math.round((totals.taggedSignups / totals.signedUp) * 100) : 0
 
+  const copyBoostLink = async () => {
+    try {
+      await navigator.clipboard.writeText(FACEBOOK_BOOST_TEST_LINK)
+      setCopied(true)
+      window.setTimeout(() => setCopied(false), 2000)
+    } catch {
+      window.prompt('Copy this link:', FACEBOOK_BOOST_TEST_LINK)
+    }
+  }
+
   return (
     <div className="admin-page">
       <AdminPageHeader
         title="Ads & campaigns"
-        description="Which ads and campaigns turn into signups, finished setup, trial use, and paying customers — so you know where to put your money."
+        description="Which ads turn into signups, finished setup, trial use, and paying customers — so you know where to put your money."
       />
+
+      <AdminSection title="Facebook boost — use this link">
+        <p className="muted admin-section-lead">
+          Paste this exact URL as the destination on your boosted post. After people click and sign
+          up, look for the campaign name <code className="admin-mono">fb_boost_test_aug26</code> in
+          the table below. Ignore older test rows (you, friends, Direct / unknown) until this boost
+          has real traffic.
+        </p>
+        <pre className="admin-guide-code">{FACEBOOK_BOOST_TEST_LINK}</pre>
+        <p className="admin-campaign-actions">
+          <button type="button" className="btn-primary btn-tiny" onClick={() => void copyBoostLink()}>
+            {copied ? 'Copied' : 'Copy link'}
+          </button>
+        </p>
+        <ul className="admin-guide-list">
+          <li>
+            <strong>utm_source=meta</strong> — Facebook / Instagram
+          </li>
+          <li>
+            <strong>utm_medium=paid</strong> — paid boost
+          </li>
+          <li>
+            <strong>utm_campaign=fb_boost_test_aug26</strong> — this test (keep the spelling stable)
+          </li>
+          <li>
+            <strong>utm_content=boosted_post</strong> — creative label
+          </li>
+        </ul>
+        <p className="muted">
+          You do not need a Meta pixel for this first test. Site-side tags are enough to see funnel
+          stages here. Finish Stripe go-live before spending hard on ads — see{' '}
+          <code className="admin-mono">docs/STRIPE_GO_LIVE.md</code>.
+        </p>
+      </AdminSection>
 
       <AdminStatGrid>
         <AdminStatCard label="Signups tracked" value={totals.signedUp} />
@@ -40,9 +88,10 @@ export function AdminCampaignsPage() {
 
       <AdminSection title="Results by campaign">
         <p className="muted admin-section-lead">
-          Each row is one ad link you tagged. Sort by paid customers and paid rate to see what is
-          worth spending more on. {taggedRate}% of signups arrived with a tagged link
-          ({totals.untaggedSignups} came in untagged — Direct / unknown).
+          Early rows often include your own test accounts or a friend who clicked a tagged link days
+          ago (first visit sticks for 90 days). That is normal — not ad spend. Once the boost runs,
+          judge only the <code className="admin-mono">fb_boost_test_aug26</code> row. {taggedRate}% of
+          all signups currently have a tagged link ({totals.untaggedSignups} are Direct / unknown).
         </p>
         <div className="admin-table-wrap admin-table-wrap--wide">
           <table className="admin-data-table">
@@ -63,13 +112,18 @@ export function AdminCampaignsPage() {
               {rows.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="muted">
-                    No campaign data yet. Once you run ads with tagged links (see the guide below)
-                    and people sign up, rows appear here.
+                    No campaign data yet. Use the Facebook boost link above, then refresh after
+                    signups arrive.
                   </td>
                 </tr>
               ) : (
                 rows.map((row) => (
-                  <tr key={row.id}>
+                  <tr
+                    key={row.id}
+                    className={
+                      row.campaign === 'fb_boost_test_aug26' ? 'admin-row--highlight' : undefined
+                    }
+                  >
                     <td>
                       <div>{row.sourceLabel}</div>
                       <div className="muted admin-cell-sub">
@@ -111,74 +165,27 @@ export function AdminCampaignsPage() {
           </article>
 
           <article className="admin-guide-block">
-            <h3>How to tag an ad link</h3>
+            <h3>How to tag any other ad link</h3>
             <p>
               Before you put a Cash Prophet URL into Meta, Google, LinkedIn, email, or a QR code,
-              add a few labels to the end of the link. Those labels travel with the visitor. When
-              they sign up, we save them on their account (first visit wins for 90 days).
+              add labels to the end of the link. First visit wins for 90 days.
             </p>
-            <p>Example link:</p>
+            <p>Example (same shape as the boost link above):</p>
             <pre className="admin-guide-code">{EXAMPLE_LINK}</pre>
             <ul className="admin-guide-list">
               <li>
-                <strong>utm_source</strong> — where the person came from. Use short names like{' '}
-                <code>meta</code>, <code>google</code>, <code>newsletter</code>,{' '}
-                <code>linkedin</code>.
+                <strong>utm_source</strong> — <code>meta</code>, <code>google</code>,{' '}
+                <code>newsletter</code>, <code>linkedin</code>
               </li>
               <li>
-                <strong>utm_medium</strong> — the type of channel. Common values:{' '}
-                <code>paid</code> (paid ads), <code>email</code>, <code>social</code>,{' '}
-                <code>organic</code>.
+                <strong>utm_medium</strong> — <code>paid</code>, <code>email</code>,{' '}
+                <code>social</code>, <code>organic</code>
               </li>
               <li>
-                <strong>utm_campaign</strong> — the name of this promotion or ad set. Pick something
-                you will recognise later, e.g. <code>spring_offer</code> or{' '}
-                <code>brand_search</code>. This is the main grouping for spend decisions.
+                <strong>utm_campaign</strong> — stable name for this promotion (main grouping)
               </li>
               <li>
-                <strong>utm_content</strong> — optional. Use when you test two creatives in the same
-                campaign, e.g. <code>video_a</code> vs <code>image_b</code>.
-              </li>
-              <li>
-                <strong>utm_term</strong> — optional. Search keyword when you use Google Ads.
-              </li>
-            </ul>
-            <p>
-              You do not need to memorise the word “UTM”. Think of them as sticky labels on the
-              link so Cash Prophet can tell campaigns apart.
-            </p>
-          </article>
-
-          <article className="admin-guide-block">
-            <h3>What each column means</h3>
-            <ul className="admin-guide-list">
-              <li>
-                <strong>Where from</strong> — platform or channel (Meta, Google Ads, email, etc.).
-              </li>
-              <li>
-                <strong>Campaign</strong> — the campaign name you put in the link.
-              </li>
-              <li>
-                <strong>Ad variant</strong> — which creative / version, if you used{' '}
-                <code>utm_content</code>.
-              </li>
-              <li>
-                <strong>Signed up</strong> — people who created an account after arriving on a
-                tagged link (or Direct / unknown if no tags).
-              </li>
-              <li>
-                <strong>Finished setup</strong> — completed onboarding in the app.
-              </li>
-              <li>
-                <strong>Active in trial</strong> — still on trial and have used the product (signed
-                in or updated balances).
-              </li>
-              <li>
-                <strong>Paid</strong> — paying customers (active subscription or lifetime access).
-              </li>
-              <li>
-                <strong>Setup rate / Paid rate</strong> — % of that campaign’s signups who finished
-                setup / who pay. Higher paid rate usually means a better place to spend.
+                <strong>utm_content</strong> — optional creative A/B label
               </li>
             </ul>
           </article>
@@ -186,51 +193,17 @@ export function AdminCampaignsPage() {
           <article className="admin-guide-block">
             <h3>What “Direct / unknown” means</h3>
             <p>
-              Someone signed up without a tagged link — they typed the website address, used an
-              untagged bookmark, clicked an old link, or the tags were stripped. You cannot assign
-              that signup to a specific ad. Aim to tag every paid link so this bucket stays small.
+              Someone signed up without a tagged link — typed the address, used an untagged bookmark,
+              or tags were stripped. You cannot assign that signup to a specific ad.
             </p>
           </article>
 
           <article className="admin-guide-block">
-            <h3>How to use this to decide spend</h3>
-            <ol className="admin-guide-list">
-              <li>Create one tagged link per ad (or per creative you want to compare).</li>
-              <li>Paste that full link into the ad destination URL.</li>
-              <li>Let traffic run for a while — look at paid customers and paid rate, not just
-                signups.</li>
-              <li>
-                Put more budget on campaigns with strong paid rates; pause or rewrite ones that
-                only get signups who never finish setup or never pay.
-              </li>
-            </ol>
-          </article>
-
-          <article className="admin-guide-block">
-            <h3>What this does <em>not</em> do (yet)</h3>
+            <h3>What this does not do (yet)</h3>
             <p>
-              Meta and Google still show their own click and cost numbers inside their dashboards.
-              We do not pull ad spend into this page yet, and we do not install tracking pixels on
-              Cash Prophet. This report is first-party: it only sees people who land on your site
-              with a tagged link and then sign up. That is intentional for privacy, and it is the
-              number that matters for “which ads produce paying customers.”
+              We do not pull Meta/Google spend or install pixels. Cost stays in their dashboards;
+              this page is first-party funnel results only.
             </p>
-            <p>
-              Optional click IDs (like Google’s or Meta’s click codes) are saved when present so we
-              can match spend later if you want that.
-            </p>
-          </article>
-
-          <article className="admin-guide-block">
-            <h3>Checklist before you spend</h3>
-            <ul className="admin-guide-list">
-              <li>Every paid ad destination URL includes at least source + campaign tags.</li>
-              <li>Campaign names are consistent (same spelling every time).</li>
-              <li>Different creatives use different <code>utm_content</code> values.</li>
-              <li>
-                After signup traffic arrives, refresh this page and compare paid rate across rows.
-              </li>
-            </ul>
           </article>
         </div>
       </AdminSection>

@@ -1,0 +1,8 @@
+# Configure Supabase Edge Functions for this project.
+# Deploy with: npx supabase functions deploy <name>
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.send-trial-emails]
+verify_jwt = false

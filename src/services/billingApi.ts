@@ -4,7 +4,16 @@ import { getSupabase, isSupabaseConfigured } from '../lib/supabase'
 
 export function isBillingConfigured(): boolean {
   if (!isSupabaseConfigured) return false
+  // Solo monthly is the minimum gate used across the app; prefer configuring all six prices.
   return Boolean(getStripePriceId('solo', 'monthly'))
+}
+
+/** True when monthly and annual prices exist for every public tier. */
+export function isBillingFullyConfigured(): boolean {
+  if (!isSupabaseConfigured) return false
+  const tiers: SubscriptionTierId[] = ['solo', 'multi', 'group']
+  const intervals: Array<'monthly' | 'annual'> = ['monthly', 'annual']
+  return tiers.every((tier) => intervals.every((interval) => Boolean(getStripePriceId(tier, interval))))
 }
 
 interface CheckoutOptions {

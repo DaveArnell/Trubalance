@@ -25194,13 +25194,50 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .trial-banner {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  justify-content: space-between;
+  gap: 12px 20px;
+  flex-wrap: wrap;
   margin-bottom: var(--space-2);
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-md);
   border: 1px solid rgba(15, 118, 110, 0.25);
   background: rgba(15, 118, 110, 0.08);
   font-size: 0.78rem;
+}
+
+.trial-banner-copy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 12px;
+}
+
+.trial-banner--urgent {
+  border-color: rgba(180, 83, 9, 0.35);
+  background: #fffbeb;
+}
+
+.plan-checkout-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.upgrade-prompt-actions--stack {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.account-plan-tier-actions {
+  margin-top: 12px;
+}
+
+.admin-campaign-actions {
+  margin: 12px 0;
+}
+
+.admin-row--highlight {
+  background: rgba(36, 218, 118, 0.08);
 }
 
 .trial-banner--founder {

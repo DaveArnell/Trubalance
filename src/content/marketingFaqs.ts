@@ -46,7 +46,7 @@ export const PRICING_FAQS: FaqItem[] = [
   },
   {
     q: 'Are payments live yet?',
-    a: 'Billing is not switched on yet. When it is, you will choose monthly or annual from Settings → Your plan, and invoices will be available there.',
+    a: 'Yes. Start with a free trial — no card required. When you are ready, choose monthly or annual from Settings → Your plan. Your card is charged when the trial ends, not before.',
   },
 ]
 
