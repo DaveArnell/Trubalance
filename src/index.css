@@ -28353,7 +28353,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   --marketing-green: #2563eb;
   --marketing-green-dark: #1d4ed8;
   --marketing-highlight: rgba(37, 99, 235, 0.12);
-  --marketing-display: 'Space Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --marketing-display: 'Inter', 'Plus Jakarta Sans', system-ui, sans-serif;
   --marketing-sans: 'Manrope', 'Plus Jakarta Sans', system-ui, sans-serif;
   font-family: var(--marketing-sans);
   background:
@@ -29702,7 +29702,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   }
 }
 
-/* ─── Marketing theme v3 — cool slate + blue, Space Grotesk / Manrope ─── */
+/* ─── Marketing theme v3 — cool slate + blue, Inter / Manrope ─── */
 
 .marketing-shell {
   --marketing-paper: #f4f7fb;
@@ -29710,7 +29710,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   --marketing-green: #2563eb;
   --marketing-green-dark: #1d4ed8;
   --marketing-highlight: rgba(37, 99, 235, 0.12);
-  --marketing-display: 'Space Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --marketing-display: 'Inter', 'Plus Jakarta Sans', system-ui, sans-serif;
   --marketing-sans: 'Manrope', 'Plus Jakarta Sans', system-ui, sans-serif;
   --marketing-wash: #e7eef8;
   --marketing-line: rgba(15, 27, 45, 0.08);
@@ -30231,7 +30231,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .method-reserve-viz-title {
   margin: 0;
-  font-family: var(--marketing-display, 'Space Grotesk', sans-serif);
+  font-family: var(--marketing-display, 'Inter', sans-serif);
   font-size: 1.05rem;
   font-weight: 650;
   color: var(--marketing-ink, #0f1b2d);
