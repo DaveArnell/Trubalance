@@ -16,7 +16,6 @@ export function MarketingFaqSection({
     <section id={id} className="marketing-faq-section marketing-surface--paper" aria-labelledby={`${id}-heading`}>
       <div className="marketing-section-inner">
         <div className="marketing-section-head">
-          <p className="marketing-how-eyebrow">FAQ</p>
           <h2 id={`${id}-heading`}>{heading}</h2>
           {lead ? <p className="marketing-section-lead marketing-section-lead--home">{lead}</p> : null}
         </div>

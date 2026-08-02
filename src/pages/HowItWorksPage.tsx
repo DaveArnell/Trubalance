@@ -44,7 +44,6 @@ export function HowItWorksPage() {
       <main className="marketing-main marketing-method-page">
         <header className="method-edu-hero marketing-surface--hero">
           <div className="method-edu-inner">
-            <p className="marketing-how-eyebrow">How it works</p>
             <h1>From commitments to one number you can trust</h1>
             <p className="method-edu-hero-lead">
               Cash Prophet isn&apos;t complicated. It follows a simple rhythm that keeps your

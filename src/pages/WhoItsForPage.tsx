@@ -24,12 +24,11 @@ export function WhoItsForPage() {
       <main className="marketing-main who-for-page">
         <header className="method-edu-hero marketing-surface--hero">
           <div className="method-edu-inner">
-            <p className="marketing-how-eyebrow">Fit</p>
             <h1>Who Cash Prophet is for</h1>
             <p className="method-edu-hero-lead">
-              Designed primarily for businesses with relatively consistent income — leisure,
-              hospitality, gyms, childcare, subscriptions and similar — who want one trusted
-              financial number without replacing their accountant.
+              If you check the bank and still do the maths in your head before you spend, this is for
+              you. Cash Prophet is for owners who need a clear daily answer to what the business can
+              actually afford.
             </p>
           </div>
         </header>
@@ -77,7 +76,7 @@ export function WhoItsForPage() {
           </div>
         </section>
         <MarketingFaqSection
-          heading="Fit questions"
+          heading="Common questions"
           lead="Quick answers if you are not sure Cash Prophet is for you."
           items={WHO_FOR_FAQS}
         />

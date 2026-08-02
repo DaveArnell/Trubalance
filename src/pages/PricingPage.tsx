@@ -17,7 +17,6 @@ export function PricingPage() {
       <main className="marketing-main marketing-main--pricing">
         <header className="method-edu-hero method-edu-hero--compact marketing-surface--hero">
           <div className="method-edu-inner">
-            <p className="marketing-how-eyebrow">Pricing</p>
             <h1>{PRICING_HEADLINE}</h1>
             <p className="method-edu-hero-lead">{PRICING_SUBHEADLINE}</p>
           </div>
@@ -26,7 +25,6 @@ export function PricingPage() {
         <section id="billing" className="marketing-billing-section marketing-surface--mist">
           <div className="marketing-section-inner">
             <div className="marketing-section-head">
-              <p className="marketing-how-eyebrow">Billing</p>
               <h2>How billing will work</h2>
               <p className="marketing-section-lead marketing-section-lead--home">
                 Payments are not switched on yet. When they are, you will choose monthly (rolling

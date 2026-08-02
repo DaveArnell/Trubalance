@@ -58,11 +58,11 @@ export const HABITS_SEO = {
 } as const satisfies RouteSeo
 
 export const WHO_FOR_SEO = {
-  title: 'Who Cash Prophet Is For | Consistent-Income UK Businesses',
+  title: 'Who Cash Prophet Is For | Cash Prophet',
   description:
-    'Cash Prophet is for leisure, hospitality, gyms, childcare, subscriptions and other businesses with relatively consistent income — so you can trust one financial number every day.',
+    'Cash Prophet is for business owners who check the bank and still cannot tell what is safe to spend. One trusted daily number, without replacing your accountant.',
   path: '/who-its-for',
-  imageAlt: 'Who Cash Prophet is for — UK businesses with consistent income',
+  imageAlt: 'Who Cash Prophet is for',
 } as const satisfies RouteSeo
 
 export const SEE_HOW_SEO = {

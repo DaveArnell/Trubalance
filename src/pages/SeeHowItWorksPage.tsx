@@ -20,7 +20,6 @@ export function SeeHowItWorksPage() {
       <main className="marketing-main">
         <header className="method-edu-hero marketing-surface--hero">
           <div className="method-edu-inner">
-            <p className="marketing-how-eyebrow">Try a demo</p>
             <h1>See it with a live business</h1>
             <p className="method-edu-hero-lead">
               Pick an example workspace and explore Cash Prophet - no signup needed. Leisure and

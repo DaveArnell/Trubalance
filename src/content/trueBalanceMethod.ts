@@ -49,19 +49,19 @@ export const METHOD_WHY_COMPARE = {
 } as const
 
 export const METHOD_WHO_FOR = [
-  'run an owner-managed business with relatively consistent income through the month',
-  'work in leisure, hospitality, gyms, childcare, subscriptions or similar recurring-revenue models',
-  'look at the bank balance and wonder how much is already spoken for',
-  'get caught out by VAT, tax or annual bills',
-  'want one trusted financial number without replacing your accountant or detailed forecasts',
-  'have regular commitments and larger irregular costs to prepare for',
+  'look at the bank and still cannot tell what is safe to spend',
+  'get caught out by VAT, tax or annual bills even when the account looks fine',
+  'carry wages, rent and other costs in your head before every decision',
+  'want one trusted number for day-to-day decisions without replacing your accountant',
+  'have income that is fairly steady week to week or month to month',
+  'have regular bills and larger costs you need to prepare for',
 ] as const
 
 export const METHOD_WHO_NOT_FOR = [
-  'Your income is highly irregular, project-based or occasional large contracts (for example construction or property development) — those businesses often need detailed cash flow forecasting first.',
+  'Your income is highly irregular, project-based or occasional large contracts (for example construction or property development). Those businesses often need detailed cash flow forecasting first.',
   'You already have a finance department producing daily management information.',
   'Your business has very few financial commitments.',
-  'You only need bookkeeping or accounting software — and nothing more.',
+  'You only need bookkeeping or accounting software, and nothing more.',
 ] as const
 
 /** Primary marketing spine — two simple habits. */

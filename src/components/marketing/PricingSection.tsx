@@ -16,7 +16,6 @@ export function PricingSection({ hideIntro = false }: { hideIntro?: boolean }) {
       <div className="marketing-section-inner">
         {!hideIntro && (
           <div className="marketing-section-head">
-            <p className="marketing-how-eyebrow">Pricing</p>
             <h2>{PRICING_HEADLINE}</h2>
             <p className="marketing-section-lead marketing-section-lead--home">{PRICING_SUBHEADLINE}</p>
           </div>
