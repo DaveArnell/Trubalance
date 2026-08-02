@@ -15625,6 +15625,65 @@ tr.sheet-row--received td {
   color: var(--text-secondary);
 }
 
+.method-edu-hero--see {
+  padding-bottom: 40px;
+}
+
+.method-edu-hero-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: center;
+}
+
+.method-edu-hero-split-copy h1 {
+  max-width: 16ch;
+}
+
+.method-edu-hero-split-copy .method-edu-hero-lead {
+  max-width: 36rem;
+}
+
+.method-edu-hero-split-visual {
+  margin: 0;
+  justify-self: end;
+  max-width: 26rem;
+  width: 100%;
+}
+
+.method-edu-hero-split-visual img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 14px;
+  box-shadow:
+    0 18px 40px rgba(16, 20, 24, 0.12),
+    0 2px 8px rgba(16, 20, 24, 0.06);
+}
+
+.method-edu-hero-split-caption {
+  margin: 0.65rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 860px) {
+  .method-edu-hero-split {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .method-edu-hero-split-visual {
+    justify-self: center;
+    max-width: 22rem;
+  }
+
+  .method-edu-hero-split-copy h1 {
+    max-width: none;
+  }
+}
+
 .method-edu-mantra {
   margin: 28px 0 0;
   max-width: 36rem;

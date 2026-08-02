@@ -5,7 +5,7 @@ import {
   MarketingShell,
 } from '../components/marketing/MarketingLayout'
 import { DEMO_SCENARIOS, DEMO_FROZEN_DATE_KEY } from '../data/demoScenarios'
-import { SEE_HOW_SEO } from '../content/marketingSeo'
+import { SEE_HOW_SEO, SITE_OG_IMAGE } from '../content/marketingSeo'
 import { usePageMeta } from '../hooks/usePageMeta'
 import { formatSnapshotDateLong } from '../utils/snapshots'
 import { MarketingJsonLd, seeHowPageJsonLd } from '../components/marketing/MarketingJsonLd'
@@ -18,19 +18,35 @@ export function SeeHowItWorksPage() {
       <MarketingHeader />
 
       <main className="marketing-main">
-        <header className="method-edu-hero marketing-surface--hero">
-          <div className="method-edu-inner">
-            <p className="marketing-how-eyebrow">Try a demo</p>
-            <h1>See it with a live business</h1>
-            <p className="method-edu-hero-lead">
-              Pick an example workspace and explore Cash Prophet — no signup needed. Leisure and
-              hospitality demos show the Cash Prophet Balance with consistent income. Each demo is a
-              frozen snapshot as of {formatSnapshotDateLong(DEMO_FROZEN_DATE_KEY)}, so figures stay
-              stable while you look around.
-            </p>
-            <p className="method-edu-hero-lead method-edu-hero-lead--secondary">
-              Prefer to understand the system first? <CanonicalLink to="/how-it-works">See how it works</CanonicalLink>.
-            </p>
+        <header className="method-edu-hero method-edu-hero--see marketing-surface--hero">
+          <div className="method-edu-inner method-edu-hero-split">
+            <div className="method-edu-hero-split-copy">
+              <p className="marketing-how-eyebrow">Try a demo</p>
+              <h1>See it with a live business</h1>
+              <p className="method-edu-hero-lead">
+                Pick an example workspace and explore Cash Prophet. No signup needed. Leisure and
+                hospitality demos show the Cash Prophet Balance with consistent income. Each demo is a
+                frozen snapshot as of {formatSnapshotDateLong(DEMO_FROZEN_DATE_KEY)}, so figures stay
+                stable while you look around.
+              </p>
+              <p className="method-edu-hero-lead method-edu-hero-lead--secondary">
+                Prefer to understand the system first?{' '}
+                <CanonicalLink to="/how-it-works">See how it works</CanonicalLink>.
+              </p>
+            </div>
+            <figure className="method-edu-hero-split-visual">
+              <img
+                src={SITE_OG_IMAGE}
+                alt="Cash Prophet on a monitor: Cash Prophet Balance, accruing bills, due bills, receipts, balance trend and Reserve Planner"
+                width={1200}
+                height={630}
+                loading="eager"
+                decoding="async"
+              />
+              <figcaption className="method-edu-hero-split-caption">
+                A sneak peek of the dashboard you will explore in the demos
+              </figcaption>
+            </figure>
           </div>
         </header>
         <section className="demo-scenarios-section demo-scenarios-section--landing marketing-surface--mist">
