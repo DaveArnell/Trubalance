@@ -31330,6 +31330,19 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   color: #0f1b2d !important;
 }
 
+/* Header sits on navy — ghost "Log in" must stay light */
+.marketing-shell .marketing-header .btn-ghost {
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.55) !important;
+  background: transparent !important;
+}
+
+.marketing-shell .marketing-header .btn-ghost:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.85) !important;
+}
+
 .marketing-shell .marketing-how-eyebrow,
 .marketing-shell .marketing-eyebrow {
   color: #24da76 !important;
