@@ -360,8 +360,6 @@ export function buildSafeTableEmptyDeletes(
   state: AppState,
   options: { loaded: AppState | null; previous: AppState | null; allowAll?: boolean },
 ): Partial<Record<WorkspaceTableName, boolean>> | undefined {
-  if (options.allowAll) return undefined
-
   const counts = tableCounts(state)
   const loaded = options.loaded ? tableCounts(options.loaded) : null
   const previous = options.previous ? tableCounts(options.previous) : null
@@ -369,13 +367,10 @@ export function buildSafeTableEmptyDeletes(
 
   for (const table of WORKSPACE_TABLE_NAMES) {
     if (counts[table] > 0) continue
-    if (previous == null) {
-      out[table] = false
-      continue
-    }
-    const prevCount = previous[table] ?? 0
+
+    // Even during explicit allowAll (legacy), refuse to empty-wipe critical tables
+    // that were present when the workspace loaded — use targeted ID deletes instead.
     const loadedCount = loaded?.[table] ?? 0
-    // Never wipe expected receipts or reserve planners on a stale/empty autosave after the workspace loaded with data.
     if (
       (table === 'expected_receipts' ||
         table === 'reserve_planners' ||
@@ -386,6 +381,17 @@ export function buildSafeTableEmptyDeletes(
       out[table] = false
       continue
     }
+
+    if (options.allowAll) {
+      out[table] = true
+      continue
+    }
+
+    if (previous == null) {
+      out[table] = false
+      continue
+    }
+    const prevCount = previous[table] ?? 0
     out[table] = prevCount > 0 || loadedCount === 0
   }
 
@@ -615,10 +621,26 @@ export async function saveWorkspaceState(
     }
   }
 
+  const hasPreviousState = Boolean(options?.previousState)
+
   for (const table of tables) {
     if (table.rows.length === 0) {
+      // Empty wipe is only for explicit import/restore (allowEmptyDeletes, no previousState).
+      // Autosave always passes previousState — never wipe a whole critical table to empty.
       const mayDeleteEmpty =
-        options?.tableEmptyDeletes?.[table.name as WorkspaceTableName] ?? allowEmptyDeletes
+        options?.tableEmptyDeletes?.[table.name as WorkspaceTableName] ??
+        (allowEmptyDeletes && !hasPreviousState)
+      if (
+        TARGETED_DELETE_TABLES.has(table.name) &&
+        hasPreviousState &&
+        !(options?.tableEmptyDeletes?.[table.name as WorkspaceTableName] === true)
+      ) {
+        const removed = previousIdsByTable(table.name)
+        if (removed.length > 0) {
+          await supabase.from(table.name).delete().eq('workspace_id', workspaceId).in('id', removed)
+        }
+        continue
+      }
       if (!mayDeleteEmpty) continue
       await supabase.from(table.name).delete().eq('workspace_id', workspaceId)
       continue
@@ -642,9 +664,11 @@ export async function saveWorkspaceState(
     const ids = table.rows.map((r) => (r as Record<string, unknown>).id).filter(Boolean) as string[]
     if (ids.length === 0) continue
 
-    if (TARGETED_DELETE_TABLES.has(table.name) && !allowEmptyDeletes) {
-      // Only delete IDs that disappeared since the last successful persist — never
-      // "everything not in this save", which wiped Swindon/Blackpool after a partial load.
+    // Critical tables: always targeted deletes when we know the previous snapshot.
+    // Orphan wipe ("delete everything not in this save") only for explicit full replace
+    // with no previousState (import / file restore). Partial loads + orphan wipe wiped
+    // expected receipts (e.g. Swindon/Blackpool).
+    if (TARGETED_DELETE_TABLES.has(table.name) && (!allowEmptyDeletes || hasPreviousState)) {
       const keep = new Set(ids)
       const removed = previousIdsByTable(table.name).filter((id) => !keep.has(id))
       if (removed.length > 0) {

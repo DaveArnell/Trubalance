@@ -198,9 +198,12 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         localLooksLikeUserData &&
         (dbEmpty || cloudLooksLikeDemo)
       ) {
+        // One-shot replace into an empty/demo cloud workspace only.
+        // Never leave allowEmptyDeletes on for later autosaves — that re-enabled
+        // orphan wipes and has deleted expected receipts across devices.
         await saveWorkspaceState(wsId, localState, { allowEmptyDeletes: true })
         state = localState
-        allowEmptyDeletesRef.current = true
+        allowEmptyDeletesRef.current = false
         setImportedFromLocal(true)
       } else if (dbEmpty && !localLooksLikeUserData) {
         state = emptyAppState()

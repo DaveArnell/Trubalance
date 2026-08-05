@@ -48,7 +48,7 @@ import type { HistoryMetricKey } from '../utils/historyTable'
 import { todayDateKey, getFreshness } from '../utils/snapshots'
 import { MONTHS, currentMonthIndex } from '../utils/format'
 import { syncGuidedStructureInState, type GuidedBusinessPayload } from '../utils/structureDraftSync'
-import { backupBrowserStateToSession, isUserOwnedWorkspace, readRawBrowserStateJson, statesMatchRoughly } from '../utils/localStateStorage'
+import { backupBrowserStateToSession, isUserOwnedWorkspace, mergeMissingLocalWorkspaceData, readRawBrowserStateJson, statesMatchRoughly } from '../utils/localStateStorage'
 import { normalizeWorkspaceState } from '../utils/workspaceNormalize'
 import { getReferenceDate, getReferenceDateKey } from '../utils/referenceDate'
 import { migrateDayNotes } from '../utils/dayNotes'
@@ -357,7 +357,11 @@ export function useAppState(options?: UseAppStateOptions) {
 
     // Prefer the cloud workspace whenever it loads or is refreshed (phone ↔ web).
     // Initial paint may use a local cache; this replaces it once remote state arrives.
-    const next = normalizeWorkspaceState(cloneState(external))
+    // Merge in-memory critical entities so an add during hydrate is not discarded.
+    const next = mergeMissingLocalWorkspaceData(
+      normalizeWorkspaceState(cloneState(external)),
+      stateRef.current,
+    )
     setState(next)
     undoStackRef.current = []
     setCanUndo(false)
@@ -410,8 +414,14 @@ export function useAppState(options?: UseAppStateOptions) {
       skipPersistRef.current = false
       return
     }
+    // Always mirror to localStorage — even before cloud hydrate — so focus/reload
+    // merge can recover receipts added while remote state was still loading.
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+    } catch {
+      /* ignore quota */
+    }
     if (options?.remotePersist && !remoteHydratedRef.current) return
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
     if (options?.remotePersist) {
       const immediate = persistImmediateRef.current
       persistImmediateRef.current = false
@@ -1006,6 +1016,7 @@ export function useAppState(options?: UseAppStateOptions) {
   const addReceipt = (item: Omit<ExpectedReceipt, 'id' | 'received'>): string | null => {
     const id = newId()
     let created = false
+    requestImmediatePersist()
     update((s) => {
       if (!isValidScopeReference(s, item.scopeLevel, item.scopeId)) return s
       created = true
