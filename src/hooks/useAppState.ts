@@ -21,7 +21,7 @@ import {
   getCommitmentRebuildFromPeriodOverridePatch,
   refreshAllSnapshotMetrics,
 } from '../utils/snapshotRebuild'
-import { getReceiptRebuildFromDateKey, getReceiptDeleteFromDateKey, getReceiptActiveFromDateKey } from '../utils/receiptCalculations'
+import { getReceiptRebuildFromDateKey, getReceiptDeleteFromDateKey, getReceiptHistoricCorrectionFromDateKey } from '../utils/receiptCalculations'
 import { captureHistoryRecord, upsertDailyHistoryRecord } from '../utils/historyCapture'
 import { getStoredHistoryRecordIdsForDay, getSnapshotIdsForDayInViewScope, repairEmptySnapshotChangedAccounts, scopeInViewTree, computeScopeMetricsAtDate } from '../utils/historyRebuild'
 import { getCommitmentsForScope } from '../utils/calculations'
@@ -1082,21 +1082,19 @@ export function useAppState(options?: UseAppStateOptions) {
       const resolved =
         receivedAmount != null ? roundCurrency(toAmount(receivedAmount)) : expected
       const amountCorrected = resolved !== expected
-      const period = receivedDate.slice(0, 7)
 
+      // Mirror costs: keep the corrected target on the receipt so history from install
+      // uses the real amount; receivedDate stops it counting from today onward.
       const merged: ExpectedReceipt = {
         ...existing,
         received: true,
         receivedDate,
-        ...(amountCorrected
-          ? {
-              periodAmountOverrides: {
-                ...(existing.periodAmountOverrides ?? {}),
-                [period]: resolved,
-              },
-            }
-          : {}),
+        ...(amountCorrected ? { amount: resolved } : {}),
       }
+
+      const fromDate = amountCorrected
+        ? getReceiptHistoricCorrectionFromDateKey(existing)
+        : todayDateKey()
 
       const nextState: AppState = {
         ...s,
@@ -1105,11 +1103,7 @@ export function useAppState(options?: UseAppStateOptions) {
       return refreshSnapshotsForScopes(
         nextState,
         getScopesForReceipt(nextState, merged),
-        amountCorrected
-          ? getReceiptRebuildFromDateKey(existing, {
-              periodAmountOverrides: merged.periodAmountOverrides,
-            })
-          : getReceiptActiveFromDateKey(existing),
+        fromDate,
         new Date().toISOString(),
       )
     })

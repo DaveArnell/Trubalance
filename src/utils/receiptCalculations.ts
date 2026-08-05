@@ -204,7 +204,8 @@ export function getReceiptAccruedAmountAt(
     if (!startKey) return 0
     const activeFrom = parseDateKey(startKey)
     if (activeFrom && today.getTime() < activeFrom.getTime()) return 0
-    return toAmount(receipt.amount)
+    const period = periodFromDate(today)
+    return getReceiptPeriodAmount(receipt, period)
   }
 
   const window = resolveReceiptAccrualWindow(receipt, referenceDate)
@@ -239,6 +240,14 @@ export function getEffectiveReceiptAmount(
 }
 
 export function getReceiptDeleteFromDateKey(receipt: ExpectedReceipt): string {
+  return getReceiptActiveFromDateKey(receipt)
+}
+
+/** Rebuild history when a received amount differs from what was expected (from when the receipt was added). */
+export function getReceiptHistoricCorrectionFromDateKey(receipt: ExpectedReceipt): string {
+  if (receipt.createdAt) return receipt.createdAt.slice(0, 10)
+  const start = getReceiptStartDateKey(receipt)
+  if (start) return start
   return getReceiptActiveFromDateKey(receipt)
 }
 

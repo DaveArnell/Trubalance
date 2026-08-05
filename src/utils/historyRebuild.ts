@@ -658,9 +658,14 @@ export function getSnapshotIdsForHistoryRecord(state: AppState, record: HistoryR
 }
 
 /** Recompute summary and line items for one saved day using current data as-of that date. */
-export function refreshHistoryRecord(record: HistoryRecord, state: AppState): HistoryRecord {
-  // Past History days stay as captured — live due/receipt rule changes must not rewrite them.
-  if (record.date < todayDateKey()) {
+export function refreshHistoryRecord(
+  record: HistoryRecord,
+  state: AppState,
+  options?: { allowPastRewrite?: boolean },
+): HistoryRecord {
+  // Past History days stay as captured unless this is an intentional historic correction
+  // (received/paid amount changed from when the item was first added).
+  if (record.date < todayDateKey() && !options?.allowPastRewrite) {
     return record
   }
 
@@ -693,10 +698,11 @@ export function rebuildHistoryRecordsFromDate(
   if (scopes.length === 0) return state
 
   const scopeKeys = new Set(scopes.map(scopeKey))
+  const allowPastRewrite = fromDateKey < todayDateKey()
   const records = (state.historyRecords ?? []).map((record) => {
     if (record.date < fromDateKey) return record
     if (!scopeKeys.has(scopeKey(record.viewScope))) return record
-    return refreshHistoryRecord(record, state)
+    return refreshHistoryRecord(record, state, { allowPastRewrite })
   })
 
   return { ...state, historyRecords: records }

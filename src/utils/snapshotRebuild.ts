@@ -69,15 +69,16 @@ export function refreshSnapshotMetricsAt(
   snapshot: BalanceSnapshot,
   state: AppState,
   now: string,
+  options?: { allowPastRewrite?: boolean },
 ): BalanceSnapshot {
   // Hand-entered points keep the typed values — never overwrite with live recompute.
   if (snapshot.manualEntry) {
     return { ...snapshot, updatedAt: now }
   }
 
-  // Past Trends history stays as saved that day — bill payments and today's bank updates
-  // must not rewrite earlier points.
-  if (snapshot.date < todayDateKey()) {
+  // Past Trends stay as saved unless this is an intentional historic correction
+  // (e.g. received/paid amount changed from when the item was first added).
+  if (snapshot.date < todayDateKey() && !options?.allowPastRewrite) {
     return snapshot
   }
 
@@ -117,13 +118,16 @@ export function rebuildSnapshotsFromDate(
   if (scopes.length === 0) return state
 
   const scopeKeys = new Set(scopes.map(scopeKey))
+  // Intentional corrections pass a fromDate in the past (install/created day).
+  // Mark-paid/received with no amount change uses today — past points stay frozen.
+  const allowPastRewrite = fromDateKey < todayDateKey()
 
   const snapshots = state.snapshots.map((snapshot) => {
     if (snapshot.date < fromDateKey) return snapshot
     if (!scopeKeys.has(scopeKey({ type: snapshot.scopeType, id: snapshot.scopeId }))) {
       return snapshot
     }
-    return refreshSnapshotMetricsAt(snapshot, state, now)
+    return refreshSnapshotMetricsAt(snapshot, state, now, { allowPastRewrite })
   })
 
   return { ...state, snapshots }
