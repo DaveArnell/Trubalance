@@ -69,6 +69,40 @@ export const METHOD_WHO_NOT_FOR = [
 export const METHOD_WHO_QUESTIONS_INTRO =
   'If you recognise yourself in questions like these, Cash Prophet is built for you.' as const
 
+/** Bottom-of-page guides — internal links for owners finding Cash Prophet by trade. */
+export const WHO_FOR_RELATED_GUIDES = [
+  {
+    to: '/blog/bar-pub-cash-flow-uk',
+    label: 'Bar & pub cash flow',
+    blurb: 'Quiet midweeks, wages and stock without guessing from the bank.',
+  },
+  {
+    to: '/blog/cafe-restaurant-cash-flow-management',
+    label: 'Cafe & restaurant cash flow',
+    blurb: 'Daily takings versus rent, payroll and reserves.',
+  },
+  {
+    to: '/blog/hospitality-cash-management-uk',
+    label: 'Hospitality cash management',
+    blurb: 'The shared pattern across cafes, restaurants, bars and pubs.',
+  },
+  {
+    to: '/blog/multi-site-business-cash-dashboard',
+    label: 'Multi-site cash dashboard',
+    blurb: 'One trusted view across venues without three spreadsheets.',
+  },
+  {
+    to: '/blog/bank-balance-vs-safe-to-spend-uk',
+    label: 'Bank balance vs safe to spend',
+    blurb: 'Why the account balance answers the wrong question.',
+  },
+  {
+    to: '/blog/how-much-set-aside-vat-uk',
+    label: 'How much to set aside for VAT',
+    blurb: 'Turning the VAT bill into a steady habit, not a scare.',
+  },
+] as const
+
 /** Primary marketing spine — two simple habits. */
 export const METHOD_TWO_HABITS = [
   {

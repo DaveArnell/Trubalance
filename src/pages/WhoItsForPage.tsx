@@ -11,6 +11,7 @@ import {
   METHOD_WHO_FOR,
   METHOD_WHO_NOT_FOR,
   METHOD_WHO_QUESTIONS_INTRO,
+  WHO_FOR_RELATED_GUIDES,
 } from '../content/trueBalanceMethod'
 import { WHO_FOR_FAQS } from '../content/marketingFaqs'
 import { WHO_FOR_SEO } from '../content/marketingSeo'
@@ -77,6 +78,30 @@ export function WhoItsForPage() {
             </div>
           </div>
         </section>
+
+        <section className="who-for-guides marketing-surface--mist" aria-labelledby="who-for-guides-heading">
+          <div className="marketing-section-inner who-for-guides-inner">
+            <h2 id="who-for-guides-heading">Guides for your kind of business</h2>
+            <p className="who-for-guides-lead">
+              Practical reading if you want to see the problem in your world before you try the
+              product.
+            </p>
+            <ul className="who-for-guides-list">
+              {WHO_FOR_RELATED_GUIDES.map((guide) => (
+                <li key={guide.to}>
+                  <CanonicalLink to={guide.to}>
+                    <span className="who-for-guides-label">{guide.label}</span>
+                    <span className="who-for-guides-blurb">{guide.blurb}</span>
+                  </CanonicalLink>
+                </li>
+              ))}
+            </ul>
+            <p className="who-for-guides-more">
+              <CanonicalLink to="/blog">Browse all guides</CanonicalLink>
+            </p>
+          </div>
+        </section>
+
         <MarketingFaqSection
           heading="Common questions"
           lead="Quick answers if you are not sure Cash Prophet is for you."
