@@ -1,5 +1,6 @@
 import type { AppState, ViewScope } from '../types'
 import { getReferenceDate, getReferenceDateKey } from './referenceDate'
+import { alignSnapshotsWithBalanceLogRollup } from './historyTable'
 import { getEffectiveSnapshotsForScope } from './scopeSnapshotSeries'
 import { getEffectiveSnapshotMetric } from './snapshotMetrics'
 
@@ -17,7 +18,7 @@ function startOfMonthKey(from: Date = getReferenceDate()): string {
   return `${y}-${m}-01`
 }
 
-/** Snapshot on or before target date (latest). */
+/** Snapshot on or before target date (latest). Series must be date-sorted ascending. */
 function snapshotOnOrBefore(
   snapshots: { date: string; trueBalance: number }[],
   targetDate: string,
@@ -35,17 +36,32 @@ export interface BalancePositionDeltas {
 }
 
 /**
- * Cash Prophet Balance change vs ~7 days ago and vs start of this month,
- * using the scoped snapshot series (stored + derived).
+ * Cash Prophet Balance change vs ~7 days ago and vs start of this month.
+ * Uses the same child rollup as the Trends balance log Total, so a group
+ * cannot show “down this week” while every business underneath is up.
  */
 export function getBalancePositionDeltas(
   state: AppState,
   viewScope: ViewScope,
   currentTrueBalance: number,
 ): BalancePositionDeltas {
-  const series = getEffectiveSnapshotsForScope(state, viewScope, viewScope).map((snap) => ({
-    date: snap.date,
+  const raw = getEffectiveSnapshotsForScope(state, viewScope, viewScope)
+  const withEffective = raw.map((snap) => ({
+    ...snap,
     trueBalance: getEffectiveSnapshotMetric(state, snap, 'trueBalance'),
+  }))
+  const aligned = alignSnapshotsWithBalanceLogRollup(
+    state,
+    viewScope,
+    'all',
+    viewScope,
+    withEffective,
+    'trueBalance',
+    'daily',
+  )
+  const series = aligned.map((snap) => ({
+    date: snap.date,
+    trueBalance: snap.trueBalance,
   }))
 
   if (series.length === 0) {
