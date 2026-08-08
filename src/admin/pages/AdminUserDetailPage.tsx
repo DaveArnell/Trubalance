@@ -39,6 +39,7 @@ export function AdminUserDetailPage() {
   const [access, setAccess] = useState<WorkspaceAccessOverride | null>(null)
   const [loading, setLoading] = useState(true)
   const [savingNote, setSavingNote] = useState(false)
+  const [noteError, setNoteError] = useState<string | null>(null)
   const [savingAccess, setSavingAccess] = useState(false)
   const [accessSaveMessage, setAccessSaveMessage] = useState<string | null>(null)
   const [accessSaveError, setAccessSaveError] = useState<string | null>(null)
@@ -70,15 +71,25 @@ export function AdminUserDetailPage() {
   const handleAddNote = async () => {
     if (!userId || !noteDraft.trim()) return
     setSavingNote(true)
-    await adminCreateAdminNote(userId, noteDraft)
-    setNoteDraft('')
-    const [noteList, events] = await Promise.all([
-      adminFetchAdminNotes(userId),
-      adminFetchUserTimeline(userId),
-    ])
-    setNotes(noteList)
-    setTimeline(events)
-    setSavingNote(false)
+    setNoteError(null)
+    try {
+      await adminCreateAdminNote(userId, noteDraft)
+      setNoteDraft('')
+      const [noteList, events] = await Promise.all([
+        adminFetchAdminNotes(userId),
+        adminFetchUserTimeline(userId),
+      ])
+      setNotes(noteList)
+      setTimeline(events)
+    } catch (error) {
+      setNoteError(
+        error instanceof Error
+          ? error.message
+          : 'Could not save note. Check you are a platform admin in Supabase (platform_admins).',
+      )
+    } finally {
+      setSavingNote(false)
+    }
   }
 
   const handleSaveAccess = async () => {
@@ -412,11 +423,12 @@ export function AdminUserDetailPage() {
           <button
             type="button"
             className="btn-secondary btn-tiny"
-            onClick={handleAddNote}
+            onClick={() => void handleAddNote()}
             disabled={savingNote || !noteDraft.trim()}
           >
             {savingNote ? 'Saving…' : 'Add note'}
           </button>
+          {noteError ? <p className="admin-delete-error muted">{noteError}</p> : null}
         </AdminSection>
 
         <AdminSection title="Subscription">

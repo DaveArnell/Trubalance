@@ -25,6 +25,7 @@ import { DayNoteEditor } from './DayNoteEditor'
 import { getDayNoteText } from '../utils/dayNotes'
 import { getScopeItemLabel } from '../utils/scope'
 import { getEffectiveSnapshotMetric, withEffectiveSnapshotMetrics } from '../utils/snapshotMetrics'
+import { useEditReadOnly } from '../hooks/useEditReadOnly'
 
 type MetricKey = 'trueBalance' | 'cash' | 'committedFunds' | 'expectedReceipts'
 
@@ -159,8 +160,10 @@ export function TrendChart({
   openHelp,
   setOpenHelp,
   embedded = false,
-  onSetDayNote,
+  onSetDayNote: onSetDayNoteProp,
 }: TrendChartProps) {
+  const editReadOnly = useEditReadOnly()
+  const onSetDayNote = !editReadOnly ? onSetDayNoteProp : undefined
   const scopeOptions = useMemo(() => getChartScopeOptions(state, viewScope), [state, viewScope])
   const currentScopeKey = scopeKey(viewScope)
 

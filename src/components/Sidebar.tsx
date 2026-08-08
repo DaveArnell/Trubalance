@@ -13,6 +13,7 @@ import {
 import { useNavLayout } from '../hooks/useNavLayout'
 import { getOrderedPages } from '../utils/navLayout'
 import { getPlannerDisplayName, getReservePlannerIdForScope } from '../utils/reserveCalculations'
+import { businessesWithoutReservePlan } from './ReservePlannerEmptyState'
 import { SidebarScopeTree } from './SidebarScopeTree'
 import { MobileTourLinks } from './TourMenu'
 import { useSubscription } from '../contexts/SubscriptionContext'
@@ -163,6 +164,7 @@ export function Sidebar({
   const scopePlannerId = getReservePlannerIdForScope(state, viewScope)
   const reserveNeedsSetup =
     !demoMode && state.businesses.length > 0 && state.reservePlanners.length === 0
+  const canAddReservePlan = !editReadOnly && businessesWithoutReservePlan(state).length > 0
 
   const finishDrag = () => {
     setDraggingKey(null)
@@ -193,20 +195,22 @@ export function Sidebar({
             {getPlannerDisplayName(state, planner)}
           </a>
         ))}
-        <a
-          href={buildHash('reserve-planner', RESERVE_PLANNER_CREATE_ROUTE)}
-          className={`sidebar-flyout-link sidebar-flyout-link--action${
-            activeRoute.reservePlannerId === RESERVE_PLANNER_CREATE_ROUTE ? ' active' : ''
-          }`}
-          role="menuitem"
-          onClick={(e) => {
-            e.preventDefault()
-            handleNavigate('reserve-planner', RESERVE_PLANNER_CREATE_ROUTE)
-            setReserveMenuOpen(false)
-          }}
-        >
-          + New plan
-        </a>
+        {canAddReservePlan ? (
+          <a
+            href={buildHash('reserve-planner', RESERVE_PLANNER_CREATE_ROUTE)}
+            className={`sidebar-flyout-link sidebar-flyout-link--action${
+              activeRoute.reservePlannerId === RESERVE_PLANNER_CREATE_ROUTE ? ' active' : ''
+            }`}
+            role="menuitem"
+            onClick={(e) => {
+              e.preventDefault()
+              handleNavigate('reserve-planner', RESERVE_PLANNER_CREATE_ROUTE)
+              setReserveMenuOpen(false)
+            }}
+          >
+            + New plan
+          </a>
+        ) : null}
       </div>
     ) : null
 
@@ -403,20 +407,22 @@ export function Sidebar({
                             </a>
                           </NavDragShell>
                         ))}
-                        <a
-                          href={buildHash('reserve-planner', RESERVE_PLANNER_CREATE_ROUTE)}
-                          className={`sidebar-sublink sidebar-sublink--action${
-                            activeRoute.reservePlannerId === RESERVE_PLANNER_CREATE_ROUTE
-                              ? ' active'
-                              : ''
-                          }`}
-                          onClick={(e) => {
-                            e.preventDefault()
-                            handleNavigate('reserve-planner', RESERVE_PLANNER_CREATE_ROUTE)
-                          }}
-                        >
-                          + New plan
-                        </a>
+                        {canAddReservePlan ? (
+                          <a
+                            href={buildHash('reserve-planner', RESERVE_PLANNER_CREATE_ROUTE)}
+                            className={`sidebar-sublink sidebar-sublink--action${
+                              activeRoute.reservePlannerId === RESERVE_PLANNER_CREATE_ROUTE
+                                ? ' active'
+                                : ''
+                            }`}
+                            onClick={(e) => {
+                              e.preventDefault()
+                              handleNavigate('reserve-planner', RESERVE_PLANNER_CREATE_ROUTE)
+                            }}
+                          >
+                            + New plan
+                          </a>
+                        ) : null}
                       </div>
                     )}
                   </div>

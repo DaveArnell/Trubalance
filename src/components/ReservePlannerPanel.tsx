@@ -27,7 +27,11 @@ import { formatCurrency, getCurrencySymbol } from '../utils/format'
 import { ReservePlanChart } from './ReservePlanChart'
 import { HelpButton } from './HelpButton'
 import { WIDGET_HELP } from '../content/livingDashboard'
-import { ReservePlannerEmptyState, ReservePlannerPicker } from './ReservePlannerEmptyState'
+import {
+  businessesWithoutReservePlan,
+  ReservePlannerEmptyState,
+  ReservePlannerPicker,
+} from './ReservePlannerEmptyState'
 import { DuplicateRowButton, SheetDragCell, SheetDragHeader } from './committed/shared'
 import {
   SheetColGroup,
@@ -732,7 +736,11 @@ export function ReservePlannerPanel({
   })
 
   if (!summary || !planner) {
-    if (state.reservePlanners.length === 0 || showCreateForm || reserveRouteId === 'new') {
+    const wantsCreate =
+      state.reservePlanners.length === 0 ||
+      ((showCreateForm || reserveRouteId === 'new') &&
+        businessesWithoutReservePlan(state).length > 0)
+    if (wantsCreate) {
       return (
         <ReservePlannerEmptyState
           state={state}

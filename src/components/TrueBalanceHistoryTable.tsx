@@ -14,6 +14,7 @@ import { DayNoteEditor } from './DayNoteEditor'
 import { getDayNoteText } from '../utils/dayNotes'
 import { getSnapshotIdsForDateInScope } from '../utils/snapshots'
 import { useDemoMode } from '../contexts/DemoModeContext'
+import { useEditReadOnly } from '../hooks/useEditReadOnly'
 
 import type { AppActions } from '../hooks/useAppState'
 import { useMobileNav } from '../hooks/useMobileNav'
@@ -77,11 +78,17 @@ export function TrueBalanceHistoryTable({
   openHelp,
   setOpenHelp,
   embedded = false,
-  correctSnapshotMetric,
-  onAddManualBalanceLog,
-  onDeleteSnapshots,
-  onSetDayNote,
+  correctSnapshotMetric: correctSnapshotMetricProp,
+  onAddManualBalanceLog: onAddManualBalanceLogProp,
+  onDeleteSnapshots: onDeleteSnapshotsProp,
+  onSetDayNote: onSetDayNoteProp,
 }: TrueBalanceHistoryTableProps) {
+  const editReadOnly = useEditReadOnly()
+  // Read-only (impersonation / unpaid) — no corrections, manual log points, or day notes.
+  const correctSnapshotMetric = !editReadOnly ? correctSnapshotMetricProp : undefined
+  const onAddManualBalanceLog = !editReadOnly ? onAddManualBalanceLogProp : undefined
+  const onDeleteSnapshots = !editReadOnly ? onDeleteSnapshotsProp : undefined
+  const onSetDayNote = !editReadOnly ? onSetDayNoteProp : undefined
   const demoMode = useDemoMode()
   const { isMobile } = useMobileNav()
   const [correction, setCorrection] = useState<SnapshotCorrectionDraft | null>(null)

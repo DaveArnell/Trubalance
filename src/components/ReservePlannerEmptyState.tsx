@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { AppState } from '../types'
 import type { AppActions } from '../hooks/useAppState'
 import { useTour } from '../contexts/TourContext'
@@ -13,6 +13,12 @@ function reserveAccountsForBusiness(state: AppState, businessId: string) {
       a.type === 'reserve' &&
       (a.businessId === businessId || (a.venueId != null && venueIds.has(a.venueId))),
   )
+}
+
+/** Businesses that do not yet have a reserve plan (one plan per business). */
+export function businessesWithoutReservePlan(state: AppState) {
+  const covered = new Set(state.reservePlanners.map((planner) => planner.businessId))
+  return state.businesses.filter((business) => !covered.has(business.id))
 }
 
 interface ReservePlannerEmptyStateProps {
@@ -31,10 +37,16 @@ export function ReservePlannerEmptyState({
   onPlannerCreated,
 }: ReservePlannerEmptyStateProps) {
   const { startTour, isTourActive } = useTour()
-  const businesses = state.businesses
+  const businesses = useMemo(() => businessesWithoutReservePlan(state), [state])
   const [businessId, setBusinessId] = useState(businesses[0]?.id ?? '')
   const [reserveAccountId, setReserveAccountId] = useState('')
   const [planName, setPlanName] = useState('')
+
+  useEffect(() => {
+    if (!businesses.some((b) => b.id === businessId)) {
+      setBusinessId(businesses[0]?.id ?? '')
+    }
+  }, [businesses, businessId])
 
   const reserveAccounts = useMemo(
     () => (businessId ? reserveAccountsForBusiness(state, businessId) : []),
@@ -43,7 +55,7 @@ export function ReservePlannerEmptyState({
 
   const selectedBusiness = businesses.find((b) => b.id === businessId)
   const effectiveReserveId = reserveAccountId || reserveAccounts[0]?.id || ''
-  const canCreate = Boolean(businessId)
+  const canCreate = Boolean(businessId && selectedBusiness)
 
   const handleCreate = () => {
     if (!canCreate || !selectedBusiness) return
@@ -109,7 +121,9 @@ export function ReservePlannerEmptyState({
           <h3>Create your first reserve plan</h3>
           {businesses.length === 0 ? (
             <p className="muted">
-              Set up your business first (via the setup wizard or Settings), then come back here to create a plan.
+              {state.businesses.length === 0
+                ? 'Set up your business first (via the setup wizard or Settings), then come back here to create a plan.'
+                : 'Every business already has a reserve plan. Open an existing plan from the list, or add a new business first.'}
             </p>
           ) : (
             <>
@@ -184,11 +198,16 @@ interface ReservePlannerPickerProps {
 }
 
 export function ReservePlannerPicker({ state, onSelect, onAddNew }: ReservePlannerPickerProps) {
+  const canAddAnother = businessesWithoutReservePlan(state).length > 0
   return (
     <section id="reserve-planner" className="card reserve-box reserve-empty">
       <div className="card-head card-head-compact">
         <h2>Reserve Planner</h2>
-        <p className="muted reserve-empty-lead">Choose a plan to open, or create another.</p>
+        <p className="muted reserve-empty-lead">
+          {canAddAnother
+            ? 'Choose a plan to open, or create another for a business that does not have one yet.'
+            : 'Choose a plan to open. Every business already has a reserve plan.'}
+        </p>
       </div>
       <ul className="reserve-planner-picker">
         {state.reservePlanners.map((planner) => {
@@ -204,9 +223,11 @@ export function ReservePlannerPicker({ state, onSelect, onAddNew }: ReservePlann
           )
         })}
       </ul>
-      <button type="button" className="btn-secondary" onClick={onAddNew}>
-        + Add another plan
-      </button>
+      {canAddAnother ? (
+        <button type="button" className="btn-secondary" onClick={onAddNew}>
+          + Add another plan
+        </button>
+      ) : null}
     </section>
   )
 }
