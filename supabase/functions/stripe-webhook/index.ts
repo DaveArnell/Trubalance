@@ -1,6 +1,10 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1'
-import Stripe from 'https://esm.sh/stripe@14.21.0?target=deno'
+// Use npm:stripe so Deno Web Crypto signature verification matches Stripe's Edge docs.
+import Stripe from 'npm:stripe@14.25.0'
 import { getServiceRoleKey } from '../_shared/supabaseEnv.ts'
+
+/** Bump when forcing a Supabase functions redeploy. */
+const WEBHOOK_BUILD = '2026-08-08-async-sig-v2'
 
 function tierFromMetadata(meta: Stripe.Metadata | null | undefined): string {
   const tier = meta?.tier_id
@@ -88,8 +92,9 @@ Deno.serve(async (req) => {
       cryptoProvider,
     )
   } catch (err) {
-    console.error('Webhook signature failed', err)
-    return new Response('Invalid signature', { status: 400 })
+    const message = err instanceof Error ? err.message : String(err)
+    console.error('Webhook signature failed', WEBHOOK_BUILD, message)
+    return new Response(`Invalid signature (${WEBHOOK_BUILD}): ${message}`, { status: 400 })
   }
 
   try {
