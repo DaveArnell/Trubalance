@@ -192,7 +192,7 @@ export function AccountSubscriptionPanel({ state, embedded = false }: AccountSub
                     <PlanCheckoutButtons
                       tierId={tierId}
                       deferUntilTrialEnd={trialActive}
-                      primaryLabel={`Start ${formatPriceGbp(tier.priceMonthlyGbp)}/mo`}
+                      primaryLabel="Subscribe monthly"
                     />
                   </div>
                 )}
