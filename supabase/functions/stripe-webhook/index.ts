@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1'
 import Stripe from 'https://esm.sh/stripe@14.21.0?target=deno'
+import { getServiceRoleKey } from '../_shared/supabaseEnv.ts'
 
 function tierFromMetadata(meta: Stripe.Metadata | null | undefined): string {
   const tier = meta?.tier_id
@@ -46,7 +47,7 @@ Deno.serve(async (req) => {
   const stripeKey = Deno.env.get('STRIPE_SECRET_KEY')
   const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')
   const supabaseUrl = Deno.env.get('SUPABASE_URL')
-  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+  const serviceRoleKey = getServiceRoleKey()
 
   if (!stripeKey || !webhookSecret || !supabaseUrl || !serviceRoleKey) {
     return new Response('Billing not configured', { status: 503 })

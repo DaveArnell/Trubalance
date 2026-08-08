@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1'
 import Stripe from 'https://esm.sh/stripe@14.21.0?target=deno'
+import { getAnonKey, getServiceRoleKey } from '../_shared/supabaseEnv.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -55,17 +56,18 @@ Deno.serve(async (req) => {
   try {
     const stripeKey = Deno.env.get('STRIPE_SECRET_KEY')
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
-    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    const serviceRoleKey = getServiceRoleKey()
+    const anonKey = getAnonKey()
     const siteUrl = (Deno.env.get('SITE_URL') ?? 'https://www.cashprophet.co.uk').replace(/\/+$/, '')
 
-    if (!stripeKey || !supabaseUrl || !serviceRoleKey) {
+    if (!stripeKey || !supabaseUrl || !serviceRoleKey || !anonKey) {
       return jsonResponse({ error: 'Billing is not configured' }, 503)
     }
 
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) return jsonResponse({ error: 'Unauthorized' }, 401)
 
-    const supabaseUser = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY') ?? '', {
+    const supabaseUser = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
     })
     const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey)
