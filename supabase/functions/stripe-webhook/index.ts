@@ -53,26 +53,40 @@ async function syncSubscription(
   )
 }
 
+// Deno/Edge only has async Web Crypto — sync constructEvent often reports
+// "Invalid signature" even when the signing secret is correct.
+const cryptoProvider = Stripe.createSubtleCryptoProvider()
+
 Deno.serve(async (req) => {
-  const stripeKey = Deno.env.get('STRIPE_SECRET_KEY')
-  const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')
-  const supabaseUrl = Deno.env.get('SUPABASE_URL')
+  const stripeKey = Deno.env.get('STRIPE_SECRET_KEY')?.trim()
+  const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')?.trim()
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')?.trim()
   const serviceRoleKey = getServiceRoleKey()
 
   if (!stripeKey || !webhookSecret || !supabaseUrl || !serviceRoleKey) {
     return new Response('Billing not configured', { status: 503 })
   }
 
-  const stripe = new Stripe(stripeKey, { apiVersion: '2023-10-16' })
+  const stripe = new Stripe(stripeKey, {
+    apiVersion: '2023-10-16',
+    httpClient: Stripe.createFetchHttpClient(),
+  })
   const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey)
 
   const signature = req.headers.get('stripe-signature')
   if (!signature) return new Response('Missing signature', { status: 400 })
 
+  // Must be the raw body string — signature check is byte-exact.
   const body = await req.text()
   let event: Stripe.Event
   try {
-    event = stripe.webhooks.constructEvent(body, signature, webhookSecret)
+    event = await stripe.webhooks.constructEventAsync(
+      body,
+      signature,
+      webhookSecret,
+      undefined,
+      cryptoProvider,
+    )
   } catch (err) {
     console.error('Webhook signature failed', err)
     return new Response('Invalid signature', { status: 400 })
