@@ -469,7 +469,7 @@ export function Sidebar({
           })}
           </nav>
 
-          {!isMobile && (
+          {!isMobile && !editReadOnly && (
             <div className={`sidebar-view-style${showCollapsed ? ' sidebar-view-style--compact' : ''}`}>
               {!showCollapsed && <p className="sidebar-view-style-label">Layout</p>}
               <DashboardViewStyleToggle compact />

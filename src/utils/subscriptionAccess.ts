@@ -47,9 +47,14 @@ export function isTrialActive(subscription: WorkspaceSubscription, now = new Dat
   return new Date(subscription.trialEndsAt) > now
 }
 
-/** Paid term still in force — uses Stripe current_period_end when present. */
+/** Paid / Stripe-backed term still in force — uses Stripe current_period_end when present. */
 export function isPaidPeriodActive(subscription: WorkspaceSubscription, now = new Date()): boolean {
-  if (subscription.status !== 'active') return false
+  // Stripe "active" is paid. "trialing" with a Stripe subscription id means checkout succeeded
+  // (card on file / deferred charge) even if trial_ends_at has not synced yet.
+  const paidLike =
+    subscription.status === 'active' ||
+    (subscription.status === 'trialing' && Boolean(subscription.stripeSubscriptionId))
+  if (!paidLike) return false
   if (subscription.currentPeriodEnd && new Date(subscription.currentPeriodEnd) <= now) return false
   return true
 }

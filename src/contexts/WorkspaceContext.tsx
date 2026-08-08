@@ -69,6 +69,7 @@ interface WorkspaceContextValue {
   cancelPendingPersist: () => void
   initialRemoteState: AppState | null
   workspaceSubscription: WorkspaceSubscription | null
+  refreshSubscription: () => Promise<WorkspaceSubscription | null>
   restoreFromBrowser: () => Promise<AppState | null>
   restoreWorkspaceState: (state: AppState) => Promise<AppState>
 }
@@ -301,6 +302,49 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     }
   }, [remoteEnabled, readOnly, loadWorkspace])
 
+  const refreshSubscription = useCallback(async () => {
+    if (!workspaceId || !isSupabaseConfigured) return null
+    const remoteSubscription = await loadWorkspaceSubscription(workspaceId)
+    setWorkspaceSubscription(remoteSubscription)
+    return remoteSubscription
+  }, [workspaceId])
+
+  // After Stripe Checkout returns (?billing=success), poll until webhook unlocks editing.
+  useEffect(() => {
+    if (!remoteEnabled || !workspaceId) return
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('billing') !== 'success') return
+
+    let cancelled = false
+    let attempts = 0
+    const maxAttempts = 8
+
+    const tick = async () => {
+      if (cancelled) return
+      attempts += 1
+      const sub = await refreshSubscription()
+      const unlocked =
+        sub?.lifetimeAccess ||
+        sub?.status === 'active' ||
+        (sub?.status === 'trialing' && Boolean(sub.stripeSubscriptionId)) ||
+        (sub?.trialEndsAt != null && new Date(sub.trialEndsAt) > new Date())
+      if (unlocked || attempts >= maxAttempts) {
+        params.delete('billing')
+        const next = `${window.location.pathname}${params.toString() ? `?${params}` : ''}${window.location.hash}`
+        window.history.replaceState({}, '', next)
+        return
+      }
+      window.setTimeout(() => {
+        void tick()
+      }, 1500)
+    }
+
+    void tick()
+    return () => {
+      cancelled = true
+    }
+  }, [remoteEnabled, workspaceId, refreshSubscription])
+
   const cancelPendingPersist = useCallback(() => {
     if (saveTimerRef.current) {
       clearTimeout(saveTimerRef.current)
@@ -420,6 +464,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       cancelPendingPersist,
       initialRemoteState,
       workspaceSubscription,
+      refreshSubscription,
       restoreFromBrowser,
       restoreWorkspaceState,
     }),
@@ -435,6 +480,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       cancelPendingPersist,
       initialRemoteState,
       workspaceSubscription,
+      refreshSubscription,
       restoreFromBrowser,
       restoreWorkspaceState,
     ],

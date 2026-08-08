@@ -18,11 +18,20 @@ async function syncSubscription(
   const billingInterval =
     subscription.metadata.billing_interval === 'annual' ? 'annual' : 'monthly'
   const status = subscription.status
+  const trialEndsAt = subscription.trial_end
+    ? new Date(subscription.trial_end * 1000).toISOString()
+    : null
+  const customerId =
+    typeof subscription.customer === 'string'
+      ? subscription.customer
+      : subscription.customer?.id ?? null
 
   await supabaseAdmin.from('workspaces').update({
     subscription_tier: tierId,
     billing_interval: billingInterval,
     grace_period_ends_at: null,
+    trial_ends_at: trialEndsAt,
+    ...(customerId ? { stripe_customer_id: customerId } : {}),
   }).eq('id', workspaceId)
 
   await supabaseAdmin.from('subscriptions').upsert(
@@ -32,6 +41,7 @@ async function syncSubscription(
       stripe_price_id: subscription.items.data[0]?.price?.id ?? null,
       status,
       tier: tierId,
+      trial_ends_at: trialEndsAt,
       current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
       current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
       cancel_at_period_end: subscription.cancel_at_period_end,
@@ -75,7 +85,18 @@ Deno.serve(async (req) => {
         const workspaceId = session.metadata?.workspace_id
         if (workspaceId && session.subscription) {
           const subscription = await stripe.subscriptions.retrieve(String(session.subscription))
-          await syncSubscription(supabaseAdmin, workspaceId, subscription)
+          // Ensure subscription carries workspace metadata even if Stripe omitted it.
+          if (!subscription.metadata?.workspace_id) {
+            await stripe.subscriptions.update(subscription.id, {
+              metadata: {
+                ...subscription.metadata,
+                workspace_id: workspaceId,
+                tier_id: session.metadata?.tier_id ?? subscription.metadata?.tier_id ?? 'solo',
+              },
+            })
+          }
+          const fresh = await stripe.subscriptions.retrieve(subscription.id)
+          await syncSubscription(supabaseAdmin, workspaceId, fresh)
         }
         break
       }

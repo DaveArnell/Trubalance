@@ -131,11 +131,16 @@ ADMIN_FROM_EMAIL=Cash Prophet Admin <hello@cashprophet.co.uk>
 TRIAL_EMAIL_CRON_SECRET=<make up a long random string>
 ```
 
-Also confirm these already exist (Supabase usually provides them to functions automatically; if deploy docs ask for them as secrets, set them):
+Also set this secret (required for checkout + webhook to update the database). Supabase blocks custom secrets named `SUPABASE_*`, so use this name:
+
+```
+SERVICE_ROLE_KEY=<Project Settings → API → service_role key>
+```
+
+Confirm these already exist for Edge Functions (often auto-injected; if a function says “Billing not configured”, set them manually too):
 
 - `SUPABASE_URL`
-- `SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY`
+- `SUPABASE_ANON_KEY` (or `ANON_KEY`)
 
 Leave `STRIPE_WEBHOOK_SECRET` empty until Step 8.
 
