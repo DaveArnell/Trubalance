@@ -1297,3 +1297,121 @@
   white-space: pre-wrap;
   word-break: break-all;
 }
+
+/* Acquisition Funnel */
+
+.admin-funnel-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.admin-funnel-custom-range {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-4);
+}
+
+.admin-funnel-custom-range label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: #a1a1aa;
+}
+
+.admin-funnel-custom-range input[type='date'] {
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.25);
+  color: #fafafa;
+  font: inherit;
+}
+
+.admin-funnel-callout {
+  margin: 0 0 var(--space-4);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  background: rgba(251, 191, 36, 0.08);
+  color: #fde68a;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.admin-funnel-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.admin-funnel-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.admin-funnel-row-meta {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.admin-funnel-step {
+  flex: 0 0 auto;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(20, 184, 166, 0.18);
+  color: #5eead4;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.admin-funnel-label {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 650;
+  color: #fafafa;
+}
+
+.admin-funnel-sub {
+  margin: 0.15rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.admin-funnel-bar-track {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.admin-funnel-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0f766e, #2dd4bf);
+  min-width: 4px;
+  transition: width 0.25s ease;
+}
+
+.admin-funnel-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0 0 var(--space-3);
+  font-size: 0.8rem;
+  color: #a1a1aa;
+  cursor: pointer;
+}
+
+.admin-table-wrap--wide {
+  overflow-x: auto;
+}
+

@@ -20,6 +20,7 @@ import {
   maybeTrackMetaGoogleRegistration,
   trackMetaCompleteRegistration,
 } from '../services/metaConversions'
+import { linkAcquisitionVisitorToUser } from '../services/acquisitionTracking'
 
 const IMPERSONATE_KEY = 'trubalance-impersonate'
 
@@ -120,6 +121,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!user?.id || impersonation) return
     void recordSessionActivity(user.id)
     void attachMarketingAttributionToProfile(user.id)
+    void linkAcquisitionVisitorToUser(user.id)
     // Google first sign-in only — uses created_at ≈ last_sign_in_at (see helper).
     void maybeTrackMetaGoogleRegistration({
       id: user.id,
@@ -193,6 +195,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email: data.user.email ?? email,
         method: 'email',
       })
+      void linkAcquisitionVisitorToUser(data.user.id)
     }
     return { error: null }
   }, [])

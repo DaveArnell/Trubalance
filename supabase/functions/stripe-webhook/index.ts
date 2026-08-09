@@ -298,6 +298,29 @@ Deno.serve(async (req) => {
             metaErr instanceof Error ? metaErr.message : 'unknown',
           )
         }
+
+        // First-party acquisition funnel paid stage (not consent-gated).
+        try {
+          const { data: owner } = await supabaseAdmin
+            .from('workspace_members')
+            .select('user_id')
+            .eq('workspace_id', workspaceId)
+            .eq('role', 'owner')
+            .limit(1)
+            .maybeSingle()
+          if (owner?.user_id) {
+            await supabaseAdmin.from('acquisition_events').insert({
+              user_id: owner.user_id,
+              event_type: 'paid',
+              metadata: {
+                invoice_id: stripeInvoiceId,
+                currency: invoice.currency ?? 'gbp',
+              },
+            })
+          }
+        } catch {
+          /* unique / non-blocking */
+        }
         break
       }
       default:

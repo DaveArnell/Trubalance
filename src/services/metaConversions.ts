@@ -1,16 +1,17 @@
 import { tryGetSupabase } from '../lib/supabase'
 import { hasAdvertisingConsent } from '../utils/cookieConsent'
 import { newMetaEventId } from '../utils/metaMatching'
-import {
-  buildMetaUserMatching,
-  trackMetaPixelCustomEvent,
-  trackMetaPixelEvent,
-} from './metaPixel'
+import { trackMetaPixelCustomEvent, trackMetaPixelEvent, buildMetaUserMatching } from './metaPixel'
+import { trackAcquisitionEvent } from './acquisitionTracking'
 
 const SIGNUP_STARTED_KEY = 'cashprophet-meta-signup-started'
+const ACQ_SIGNUP_STARTED_KEY = 'cashprophet-acq-signup-started'
 const REG_TRACKED_PREFIX = 'cashprophet-meta-reg-tracked:'
+const ACQ_REG_PREFIX = 'cashprophet-acq-reg-tracked:'
 const ONBOARDING_STARTED_PREFIX = 'cashprophet-meta-onboarding-started:'
+const ACQ_ONBOARDING_STARTED_PREFIX = 'cashprophet-acq-onboarding-started:'
 const ONBOARDING_COMPLETED_PREFIX = 'cashprophet-meta-onboarding-completed:'
+const ACQ_ONBOARDING_COMPLETED_PREFIX = 'cashprophet-acq-onboarding-completed:'
 export const OAUTH_SIGNUP_INTENT_KEY = 'cashprophet-meta-oauth-signup-intent'
 
 /** Mark that the next Google OAuth return may be a new registration from /signup. */
@@ -46,6 +47,12 @@ function markTracked(key: string): void {
   } catch {
     /* ignore */
   }
+}
+
+function trackAcquisitionOnce(storageKey: string, run: () => void): void {
+  if (alreadyTracked(storageKey)) return
+  markTracked(storageKey)
+  run()
 }
 
 /**
@@ -103,6 +110,11 @@ async function sendMetaCapi(payload: {
 /** Meaningful start of signup (once per browser). Pixel only. */
 export function trackMetaSignupStarted(): void {
   try {
+    // First-party funnel — not gated on Meta advertising consent.
+    trackAcquisitionOnce(ACQ_SIGNUP_STARTED_KEY, () => {
+      void trackAcquisitionEvent('signup_started')
+    })
+
     if (!hasAdvertisingConsent()) return
     if (alreadyTracked(SIGNUP_STARTED_KEY)) return
     markTracked(SIGNUP_STARTED_KEY)
@@ -122,6 +134,11 @@ export async function trackMetaCompleteRegistration(input: {
   method: 'email' | 'google'
 }): Promise<void> {
   try {
+    // First-party funnel — not gated on Meta advertising consent.
+    trackAcquisitionOnce(`${ACQ_REG_PREFIX}${input.userId}`, () => {
+      void trackAcquisitionEvent('account_created', { userId: input.userId })
+    })
+
     if (!hasAdvertisingConsent()) return
     const key = `${REG_TRACKED_PREFIX}${input.userId}`
     if (alreadyTracked(key)) return
@@ -167,9 +184,9 @@ export async function maybeTrackMetaGoogleRegistration(user: {
   identities?: Array<{ provider?: string }>
 }): Promise<void> {
   try {
-    if (!hasAdvertisingConsent()) return
     const key = `${REG_TRACKED_PREFIX}${user.id}`
-    if (alreadyTracked(key)) return
+    const acqKey = `${ACQ_REG_PREFIX}${user.id}`
+    if (alreadyTracked(key) && alreadyTracked(acqKey)) return
 
     const providers = new Set<string>()
     if (user.app_metadata?.provider) providers.add(user.app_metadata.provider)
@@ -211,6 +228,10 @@ export async function maybeTrackMetaGoogleRegistration(user: {
 
 export async function trackMetaOnboardingStarted(userId: string, email?: string | null): Promise<void> {
   try {
+    trackAcquisitionOnce(`${ACQ_ONBOARDING_STARTED_PREFIX}${userId}`, () => {
+      void trackAcquisitionEvent('onboarding_started', { userId })
+    })
+
     if (!hasAdvertisingConsent()) return
     const key = `${ONBOARDING_STARTED_PREFIX}${userId}`
     if (alreadyTracked(key)) return
@@ -235,6 +256,10 @@ export async function trackMetaOnboardingCompleted(
   email?: string | null,
 ): Promise<void> {
   try {
+    trackAcquisitionOnce(`${ACQ_ONBOARDING_COMPLETED_PREFIX}${userId}`, () => {
+      void trackAcquisitionEvent('onboarding_completed', { userId })
+    })
+
     if (!hasAdvertisingConsent()) return
     const key = `${ONBOARDING_COMPLETED_PREFIX}${userId}`
     if (alreadyTracked(key)) return
@@ -263,6 +288,15 @@ export async function trackMetaInitiateCheckout(input: {
   billingInterval?: string
 }): Promise<void> {
   try {
+    // First-party funnel — always record checkout start.
+    void trackAcquisitionEvent('checkout_started', {
+      userId: input.userId,
+      metadata: {
+        tier: input.tierId ?? 'solo',
+        interval: input.billingInterval ?? 'monthly',
+      },
+    })
+
     if (!hasAdvertisingConsent()) return
     const eventId = `checkout_${input.sessionId}`
     trackMetaPixelEvent(
