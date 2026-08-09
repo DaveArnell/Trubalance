@@ -1,25 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
-import { adminFetchEmailTemplates } from '../adminApi'
+import { adminFetchEmailTemplates, adminSendTestEmail } from '../adminApi'
 import { AdminBadge, AdminPageHeader, AdminSection } from '../components/AdminUi'
 import type { EmailTemplateRow } from '../types'
-
-function renderPreview(template: EmailTemplateRow) {
-  return template.bodyPreview
-    .replace(/\{\{user_name\}\}/g, 'Alex Smith')
-    .replace(/\{\{workspace_name\}\}/g, 'Oak & Co workspace')
-    .replace(/\{\{trial_end_date\}\}/g, '15 July 2026')
-    .replace(/\{\{trial_days_left\}\}/g, '42')
-    .replace(/\{\{true_balance\}\}/g, '£67,240')
-    .replace(/\{\{committed_total\}\}/g, '£18,200')
-    .replace(/\{\{verify_link\}\}/g, 'https://trubalance.app/verify/demo')
-    .replace(/\{\{reset_link\}\}/g, 'https://trubalance.app/reset/demo')
-    .replace(/\{\{support_message\}\}/g, 'Here is how to set up your reserve planner…')
-}
 
 export function AdminEmailTemplatesPage() {
   const [templates, setTemplates] = useState<EmailTemplateRow[]>([])
   const [selected, setSelected] = useState<EmailTemplateRow | null>(null)
   const [previewOpen, setPreviewOpen] = useState(false)
+  const [testTo, setTestTo] = useState('')
+  const [sending, setSending] = useState(false)
+  const [sendMessage, setSendMessage] = useState<string | null>(null)
 
   useEffect(() => {
     adminFetchEmailTemplates().then((rows) => {
@@ -28,16 +18,22 @@ export function AdminEmailTemplatesPage() {
     })
   }, [])
 
-  const previewBody = useMemo(
-    () => (selected ? renderPreview(selected) : ''),
-    [selected],
-  )
+  const previewHtml = useMemo(() => selected?.htmlPreview ?? '', [selected])
+
+  const sendTest = async () => {
+    if (!selected) return
+    setSending(true)
+    setSendMessage(null)
+    const result = await adminSendTestEmail(selected.key, testTo)
+    setSending(false)
+    setSendMessage(result.ok ? `Sent test to ${testTo.trim()}` : result.error ?? 'Send failed')
+  }
 
   return (
     <div className="admin-page">
       <AdminPageHeader
         title="Email Template Centre"
-        description="Preview Cash Prophet platform emails. Sending and editing will connect to Resend later."
+        description="MVP product emails via Resend. Preview the branded HTML and send a test to any address you choose."
       />
 
       <div className="admin-split-editor">
@@ -55,7 +51,10 @@ export function AdminEmailTemplatesPage() {
                 <tr
                   key={t.id}
                   className={selected?.id === t.id ? 'admin-row--selected' : ''}
-                  onClick={() => setSelected(t)}
+                  onClick={() => {
+                    setSelected(t)
+                    setSendMessage(null)
+                  }}
                 >
                   <td>{t.name}</td>
                   <td>
@@ -77,30 +76,37 @@ export function AdminEmailTemplatesPage() {
             <AdminSection title="Subject">
               <p className="admin-preview-subject">{selected.subject}</p>
             </AdminSection>
-            <AdminSection title="Variables">
-              <div className="admin-chip-row">
-                {selected.variables.map((v) => (
-                  <code key={v} className="admin-code-chip">
-                    {v}
-                  </code>
-                ))}
+            <AdminSection title="Send test">
+              <label className="admin-field-label" htmlFor="email-test-to">
+                Send to
+              </label>
+              <input
+                id="email-test-to"
+                type="email"
+                className="admin-input"
+                placeholder="you@example.com"
+                value={testTo}
+                onChange={(e) => setTestTo(e.target.value)}
+              />
+              <div className="admin-action-bar" style={{ marginTop: 12 }}>
+                <button
+                  type="button"
+                  className="btn-primary btn-tiny"
+                  onClick={() => setPreviewOpen(true)}
+                >
+                  Preview
+                </button>
+                <button
+                  type="button"
+                  className="btn-secondary btn-tiny"
+                  disabled={sending || !testTo.trim()}
+                  onClick={() => void sendTest()}
+                >
+                  {sending ? 'Sending…' : 'Send test email'}
+                </button>
               </div>
+              {sendMessage && <p className="muted admin-detail-hint">{sendMessage}</p>}
             </AdminSection>
-            <div className="admin-action-bar">
-              <button
-                type="button"
-                className="btn-primary btn-tiny"
-                onClick={() => setPreviewOpen(true)}
-              >
-                Preview
-              </button>
-              <button type="button" className="btn-ghost btn-tiny" disabled title="Resend integration coming soon">
-                Send test email
-              </button>
-              <button type="button" className="btn-ghost btn-tiny" disabled title="Editing coming soon">
-                Edit template
-              </button>
-            </div>
           </aside>
         )}
       </div>
@@ -122,10 +128,12 @@ export function AdminEmailTemplatesPage() {
             <p className="admin-preview-subject">
               <strong>Subject:</strong> {selected.subject}
             </p>
-            <pre className="admin-email-preview-body">{previewBody}</pre>
-            <p className="muted admin-detail-hint">
-              Sample data is substituted for placeholders. Real sending via Resend is not connected yet.
-            </p>
+            <iframe
+              title={`Preview ${selected.name}`}
+              className="admin-email-preview-frame"
+              srcDoc={previewHtml}
+              sandbox=""
+            />
           </div>
         </div>
       )}

@@ -1007,6 +1007,22 @@
   line-height: 1.55;
 }
 
+.admin-email-preview-frame {
+  display: block;
+  width: 100%;
+  min-height: 420px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-sm);
+  background: #fff;
+}
+
+.admin-field-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.78rem;
+  color: var(--admin-muted, #9aa3b2);
+}
+
 .admin-preview-subject {
   margin: 0;
   font-size: 0.88rem;

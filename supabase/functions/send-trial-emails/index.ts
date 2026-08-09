@@ -5,12 +5,10 @@
  * Deploy with verify_jwt = false.
  */
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1'
+import { getServiceRoleKey } from '../_shared/supabaseEnv.ts'
+import { buildProductEmailHtml, getProductEmail, type ProductEmailKey } from '../_shared/productEmail.ts'
 
-type EmailType = 'mid_trial' | 'trial_ending' | 'trial_ended'
-
-const SITE_URL = (Deno.env.get('SITE_URL') ?? 'https://www.cashprophet.co.uk').replace(/\/+$/, '')
-const APP_SETTINGS_URL = `${SITE_URL}/app/settings`
-const LOGIN_URL = `${SITE_URL}/login`
+type EmailType = Extract<ProductEmailKey, 'mid_trial' | 'trial_ending' | 'trial_ended'>
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -23,26 +21,9 @@ function daysBetween(from: Date, to: Date): number {
   return Math.ceil((to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24))
 }
 
-function emailHtml(title: string, paragraphs: string[], ctaLabel: string, ctaUrl: string): string {
-  const body = paragraphs.map((p) => `<p style="margin:0 0 16px;line-height:1.55;color:#243044">${p}</p>`).join('')
-  return `
-    <div style="font-family:Inter,Segoe UI,sans-serif;max-width:560px;margin:0 auto;padding:24px">
-      <p style="margin:0 0 8px;font-size:13px;font-weight:700;letter-spacing:0.04em;color:#24da76">CASH PROPHET</p>
-      <h1 style="margin:0 0 20px;font-size:22px;line-height:1.25;color:#0c0022">${title}</h1>
-      ${body}
-      <p style="margin:28px 0 0">
-        <a href="${ctaUrl}" style="display:inline-block;background:#24da76;color:#0c0022;text-decoration:none;font-weight:700;padding:12px 18px;border-radius:8px">${ctaLabel}</a>
-      </p>
-      <p style="margin:24px 0 0;font-size:13px;color:#3a465c">
-        Or open <a href="${LOGIN_URL}" style="color:#1bb863">${LOGIN_URL}</a> and go to Settings → Your plan.
-      </p>
-    </div>
-  `
-}
-
 async function sendResendEmail(to: string, subject: string, html: string): Promise<{ error?: string }> {
   const resendKey = Deno.env.get('RESEND_API_KEY')
-  const from = Deno.env.get('PRODUCT_FROM_EMAIL') ?? Deno.env.get('ADMIN_FROM_EMAIL') ?? 'Cash Prophet <onboarding@resend.dev>'
+  const from = Deno.env.get('PRODUCT_FROM_EMAIL') ?? Deno.env.get('ADMIN_FROM_EMAIL') ?? 'Cash Prophet <hello@cashprophet.co.uk>'
   if (!resendKey) return { error: 'RESEND_API_KEY is not configured' }
 
   const response = await fetch('https://api.resend.com/emails', {
@@ -61,40 +42,6 @@ async function sendResendEmail(to: string, subject: string, html: string): Promi
   return {}
 }
 
-function contentFor(type: EmailType): { subject: string; title: string; paragraphs: string[]; cta: string } {
-  switch (type) {
-    case 'mid_trial':
-      return {
-        subject: 'Ready to keep Cash Prophet after your trial?',
-        title: 'Your trial is underway',
-        paragraphs: [
-          'You have been using Cash Prophet for about a week. When you are ready, choose a plan and add a card in Settings — nothing is charged until your free trial ends.',
-          'That way editing stays open without a scramble on the last day.',
-        ],
-        cta: 'Choose a plan',
-      }
-    case 'trial_ending':
-      return {
-        subject: 'Your Cash Prophet trial ends in 3 days',
-        title: 'Three days left on your trial',
-        paragraphs: [
-          'Your free trial ends soon. Pick a plan and add a card now so your subscription starts the day after the trial — your workspace and data stay put either way.',
-          'Without a plan, the workspace becomes view-only when the trial ends. You can subscribe later whenever you like.',
-        ],
-        cta: 'Choose a plan',
-      }
-    case 'trial_ended':
-      return {
-        subject: 'Your Cash Prophet trial has ended',
-        title: 'Your trial has ended',
-        paragraphs: [
-          'You can still view your dashboard. To keep editing balances, commitments and reserves, choose a plan from Settings → Your plan.',
-        ],
-        cta: 'Subscribe to keep editing',
-      }
-  }
-}
-
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: { 'Access-Control-Allow-Origin': '*' } })
@@ -108,7 +55,7 @@ Deno.serve(async (req) => {
   }
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL')
-  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+  const serviceRoleKey = getServiceRoleKey()
   if (!supabaseUrl || !serviceRoleKey) {
     return jsonResponse({ error: 'Supabase is not configured' }, 503)
   }
@@ -142,7 +89,6 @@ Deno.serve(async (req) => {
     } else if (daysLeft >= 2 && daysLeft <= 3) {
       emailType = 'trial_ending'
     } else if (daysLeft >= 22 && daysLeft <= 24) {
-      // ~7 days into a 30-day trial
       emailType = 'mid_trial'
     }
 
@@ -151,7 +97,6 @@ Deno.serve(async (req) => {
       continue
     }
 
-    // Skip mid-trial mail if they already have a Stripe customer (card likely on file).
     if (emailType === 'mid_trial' && workspace.stripe_customer_id) {
       results.skipped += 1
       continue
@@ -187,23 +132,27 @@ Deno.serve(async (req) => {
       .select('id, email')
       .in('id', userIds)
 
-    const recipients = (profiles ?? [])
+    const emails = (profiles ?? [])
       .map((p) => String(p.email ?? '').trim())
-      .filter((email) => email.includes('@'))
+      .filter(Boolean)
 
-    if (recipients.length === 0) {
+    if (emails.length === 0) {
       results.skipped += 1
       continue
     }
 
-    const copy = contentFor(emailType)
-    const html = emailHtml(copy.title, copy.paragraphs, copy.cta, APP_SETTINGS_URL)
+    const copy = getProductEmail(emailType)
+    if (!copy) {
+      results.errors.push(`Missing template ${emailType}`)
+      continue
+    }
 
+    const html = buildProductEmailHtml(copy)
     let sentOk = false
-    for (const to of recipients) {
+    for (const to of emails) {
       const sent = await sendResendEmail(to, copy.subject, html)
       if (sent.error) {
-        results.errors.push(`${workspace.id}/${emailType}: ${sent.error}`)
+        results.errors.push(`${workspace.id}/${to}: ${sent.error}`)
       } else {
         sentOk = true
       }
@@ -214,11 +163,10 @@ Deno.serve(async (req) => {
     const { error: logError } = await supabase.from('trial_email_log').insert({
       workspace_id: workspace.id,
       email_type: emailType,
-      recipient_email: recipients[0],
+      recipient_email: emails[0],
     })
-
     if (logError) {
-      results.errors.push(`log ${workspace.id}/${emailType}: ${logError.message}`)
+      results.errors.push(`log ${workspace.id}: ${logError.message}`)
       continue
     }
 

@@ -6,3 +6,6 @@ verify_jwt = false
 
 [functions.send-trial-emails]
 verify_jwt = false
+
+[functions.send-test-email]
+verify_jwt = true

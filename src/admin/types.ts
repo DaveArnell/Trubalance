@@ -373,6 +373,7 @@ export interface EmailTemplateRow {
   name: string
   subject: string
   bodyPreview: string
+  htmlPreview: string
   enabled: boolean
   updatedAt: string
   variables: string[]

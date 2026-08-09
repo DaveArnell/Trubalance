@@ -1,5 +1,6 @@
 import type { SubscriptionTierId } from '../config/subscriptionTiers'
 import { SETUP_ONBOARDING_STEP_LABELS, SETUP_ONBOARDING_STEPS } from '../content/setupOnboarding'
+import { PRODUCT_EMAILS, buildProductEmailHtml } from '../content/productEmails'
 import { computeUserHealth, onboardingPctFromUser } from './utils/userHealth'
 import type {
   AdminActivityRow,
@@ -747,39 +748,17 @@ export function getMockSupportTickets(): SupportTicketRow[] {
   }))
 }
 
-const EMAIL_BODIES: Record<string, string> = {
-  welcome: `Hi {{user_name}},\n\nWelcome to Cash Prophet. You now have a clear view of what money is genuinely yours — not just what is sitting in the bank.\n\nStart by adding your businesses and saving your account balances.\n\n— Cash Prophet`,
-  verify_email: `Hi {{user_name}},\n\nPlease verify your email to secure your workspace.\n\n{{verify_link}}\n\n— Cash Prophet`,
-  password_reset: `Hi {{user_name}},\n\nWe received a request to reset your password.\n\n{{reset_link}}\n\n— Cash Prophet`,
-  trial_reminder: `Hi {{user_name}},\n\nYou are {{trial_days_left}} days into your Cash Prophet trial. Your committed funds and reserve planners are ready whenever you are.\n\n— Cash Prophet`,
-  trial_ending: `Hi {{user_name}},\n\nYour trial ends on {{trial_end_date}}. Keep your Cash Prophet workspace so you never lose sight of committed cash.\n\n— Cash Prophet`,
-  stale_balance: `Hi {{user_name}},\n\nYour balances in {{workspace_name}} have not been updated recently. A quick refresh keeps Available accurate.\n\n— Cash Prophet`,
-  monthly_summary: `Hi {{user_name}},\n\nHere is your monthly Available summary for {{workspace_name}}.\n\nAvailable: {{true_balance}}\nCommitted: {{committed_total}}\n\n— Cash Prophet`,
-  support_reply: `Hi {{user_name}},\n\nThanks for contacting support. {{support_message}}\n\n— Cash Prophet team`,
-  beta_welcome: `Hi {{user_name}},\n\nThanks for joining the Cash Prophet private beta. You have full access while we refine the product — your feedback shapes what we build next.\n\n— Dave & the Cash Prophet team`,
-}
-
 export function getMockEmailTemplates(): EmailTemplateRow[] {
-  const templates = [
-    ['welcome', 'Welcome email', 'Welcome to Cash Prophet'],
-    ['verify_email', 'Email verification', 'Verify your email address'],
-    ['password_reset', 'Password reset', 'Reset your password'],
-    ['trial_reminder', 'Trial reminder', 'Your Cash Prophet trial'],
-    ['trial_ending', 'Trial ending soon', 'Your trial ends soon'],
-    ['stale_balance', 'Stale balance reminder', 'Time to update your balances'],
-    ['monthly_summary', 'Monthly Available summary', 'Your monthly Available summary'],
-    ['support_reply', 'Support reply', 'Re: your support request'],
-    ['beta_welcome', 'Beta tester welcome', 'Welcome to the Cash Prophet beta'],
-  ]
-  return templates.map(([key, name, subject], i) => ({
-    id: `email-${key}`,
-    key,
-    name,
-    subject,
-    bodyPreview: EMAIL_BODIES[key] ?? `Hi {{user_name}},\n\n${name}.\n\n— Cash Prophet`,
+  return PRODUCT_EMAILS.map((copy, i) => ({
+    id: `email-${copy.key}`,
+    key: copy.key,
+    name: copy.name,
+    subject: copy.subject,
+    bodyPreview: copy.paragraphs.join('\n\n'),
+    htmlPreview: buildProductEmailHtml(copy),
     enabled: true,
-    updatedAt: daysAgo(i * 3),
-    variables: ['{{user_name}}', '{{workspace_name}}', '{{trial_end_date}}', '{{true_balance}}'],
+    updatedAt: daysAgo(i),
+    variables: copy.key === 'admin_code' ? ['code'] : [],
   }))
 }
 

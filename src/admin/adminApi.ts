@@ -1119,6 +1119,36 @@ export async function adminFetchEmailTemplates(): Promise<EmailTemplateRow[]> {
   return getMockEmailTemplates()
 }
 
+export async function adminSendTestEmail(
+  templateKey: string,
+  to: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const supabase = tryGetSupabase()
+  if (!supabase) return { ok: false, error: 'Supabase is not configured' }
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+  if (!session?.access_token) return { ok: false, error: 'Not signed in' }
+
+  const url = import.meta.env.VITE_SUPABASE_URL as string
+  const response = await fetch(`${url}/functions/v1/send-test-email`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+      'Content-Type': 'application/json',
+      apikey: import.meta.env.VITE_SUPABASE_ANON_KEY as string,
+    },
+    body: JSON.stringify({ templateKey, to }),
+  })
+
+  const payload = (await response.json().catch(() => ({}))) as { error?: string }
+  if (!response.ok) {
+    return { ok: false, error: payload.error ?? 'Could not send test email' }
+  }
+  return { ok: true }
+}
+
 export async function adminFetchNotifications(): Promise<NotificationTemplateRow[]> {
   return getMockNotifications()
 }

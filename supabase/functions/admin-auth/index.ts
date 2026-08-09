@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1'
+import { buildProductEmailHtml, getProductEmail } from '../_shared/productEmail.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -108,12 +109,7 @@ async function sendAdminCodeEmail(to: string, code: string): Promise<{ error?: s
       from,
       to: [to],
       subject: 'Your Cash Prophet admin code',
-      html: `
-        <p>Your admin verification code is:</p>
-        <p style="font-size:28px;font-weight:bold;letter-spacing:4px;margin:16px 0">${code}</p>
-        <p>This code expires in ${CODE_MINUTES} minutes.</p>
-        <p>If you did not request this, you can ignore this email.</p>
-      `,
+      html: buildProductEmailHtml(getProductEmail('admin_code')!, { code }),
     }),
   })
 
