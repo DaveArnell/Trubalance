@@ -76,6 +76,9 @@ export function AdminEmailTemplatesPage() {
             <AdminSection title="Subject">
               <p className="admin-preview-subject">{selected.subject}</p>
             </AdminSection>
+            <AdminSection title="Body">
+              <pre className="admin-email-preview-body">{selected.bodyPreview}</pre>
+            </AdminSection>
             <AdminSection title="Send test">
               <label className="admin-field-label" htmlFor="email-test-to">
                 Send to
