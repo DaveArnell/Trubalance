@@ -149,6 +149,15 @@ Deno.serve(async (req) => {
       cancel_url: `${siteUrl}/app/settings?billing=cancel`,
       subscription_data: subscriptionData,
       metadata: { workspace_id: workspaceId, tier_id: tierId },
+      // Net prices + Stripe Tax: VAT is calculated at checkout (not baked into the price).
+      automatic_tax: { enabled: true },
+      // Needed so Stripe Tax can locate the customer (UK VAT etc.).
+      billing_address_collection: 'required',
+      customer_update: {
+        address: 'auto',
+        name: 'auto',
+      },
+      tax_id_collection: { enabled: true },
     })
 
     return jsonResponse({ url: session.url })
