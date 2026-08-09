@@ -30914,13 +30914,14 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .marketing-main--home-vivid .marketing-hero-category {
-  margin: 0 0 10px;
-  max-width: 42ch;
+  margin: 0 0 22px;
+  max-width: 36ch;
   color: #24da76;
-  font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: clamp(1.02rem, 1.6vw, 1.15rem);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+  text-transform: none;
 }
 
 .marketing-main--home-vivid .marketing-hero-sizzle {
@@ -30929,6 +30930,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .marketing-main--home-vivid .marketing-hero--rank h1 {
   color: #fff !important;
+  margin-bottom: 12px !important;
 }
 
 .marketing-main--home-vivid .marketing-cta-secondary--rank {
@@ -31876,7 +31878,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .marketing-main--home-vivid .marketing-hero--rank h1 {
-  font-size: clamp(2.55rem, 5.8vw, 3.9rem) !important;
+  font-size: clamp(2.15rem, 4.6vw, 3.15rem) !important;
   font-weight: 700 !important;
 }
 
@@ -31940,7 +31942,8 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .marketing-main--home-vivid .marketing-hero-sizzle {
-  font-size: clamp(1.2rem, 2.2vw, 1.45rem) !important;
+  margin-top: 8px;
+  font-size: clamp(1.15rem, 2vw, 1.35rem) !important;
   font-weight: 700 !important;
 }
 
