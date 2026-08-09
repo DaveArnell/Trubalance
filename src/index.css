@@ -25284,10 +25284,13 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 10000;
+  /* Above marketing chrome and app overlays; portaled to document.body. */
+  z-index: 2147483000;
   padding: var(--space-4);
+  padding-bottom: max(var(--space-4), env(safe-area-inset-bottom, 0px));
   pointer-events: none;
 }
+
 
 .cookie-notice-inner {
   pointer-events: auto;

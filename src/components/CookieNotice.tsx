@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { CanonicalLink } from './CanonicalLink'
 import {
   acceptAdvertisingCookies,
@@ -9,16 +10,20 @@ import {
 } from '../utils/cookieConsent'
 import { resetMetaRouteTracking, stopMetaPixelTracking } from '../services/metaPixel'
 
+function readInitialConsentState(): CookieConsentState {
+  if (typeof window === 'undefined') return 'unknown'
+  return getCookieConsentState()
+}
+
 export function CookieNotice() {
-  const [consentState, setConsentState] = useState<CookieConsentState>('unknown')
-  const [bannerOpen, setBannerOpen] = useState(false)
-  const [ready, setReady] = useState(false)
+  const [consentState, setConsentState] = useState<CookieConsentState>(() => readInitialConsentState())
+  const [bannerOpen, setBannerOpen] = useState(() => readInitialConsentState() === 'unknown')
 
   useEffect(() => {
+    // Re-sync after mount (covers private-mode storage quirks / late availability).
     const state = getCookieConsentState()
     setConsentState(state)
-    setBannerOpen(state === 'unknown')
-    setReady(true)
+    if (state === 'unknown') setBannerOpen(true)
 
     const onOpen = () => setBannerOpen(true)
     window.addEventListener(COOKIE_CONSENT_OPEN_EVENT, onOpen)
@@ -39,11 +44,11 @@ export function CookieNotice() {
     setBannerOpen(false)
   }
 
-  if (!ready || !bannerOpen) return null
+  if (!bannerOpen || typeof document === 'undefined') return null
 
   const isChanging = consentState !== 'unknown'
 
-  return (
+  return createPortal(
     <div
       className="cookie-notice"
       role="dialog"
@@ -77,6 +82,7 @@ export function CookieNotice() {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
