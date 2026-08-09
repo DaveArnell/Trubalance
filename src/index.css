@@ -30913,6 +30913,16 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   max-width: 36ch;
 }
 
+.marketing-main--home-vivid .marketing-hero-category {
+  margin: 0 0 10px;
+  max-width: 42ch;
+  color: #24da76;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
 .marketing-main--home-vivid .marketing-hero-sizzle {
   color: #24da76;
 }
