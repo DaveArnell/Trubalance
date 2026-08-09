@@ -95,7 +95,7 @@ function escapeAttr(value) {
 }
 
 function brandTitle(title) {
-  if (title.includes('Cash Prophet') || title.includes('True Balance')) return title
+  if (title.includes('Cash Prophet')) return title
   return `${title} | Cash Prophet`
 }
 

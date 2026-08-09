@@ -147,7 +147,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
     relatedSlugs: [
       'bank-balance-vs-available-cash',
       'cash-flow-vs-profit-uk-small-business',
-      'the-true-balance-method-explained',
+      'cash-prophet-explained',
     ],
     sections: [
       {
@@ -206,7 +206,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
     relatedSlugs: [
       'your-bank-balance-is-lying-to-you',
       'committed-funds-explained',
-      'true-balance-vs-accounting-software',
+      'cash-prophet-vs-accounting-software',
     ],
     sections: [
       {
@@ -360,7 +360,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
     ],
   },
   {
-    slug: 'the-true-balance-method-explained',
+    slug: 'cash-prophet-explained',
     title: 'Cash Prophet Explained',
     metaDescription:
       'Cash Prophet explained: one trusted Cash Prophet Balance that shows where your UK business really stands, using committed funds and reserves.',
@@ -371,13 +371,13 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
       'business cash management',
     ],
     publishedAt: '2026-07-14',
-    updatedAt: '2026-07-26',
+    updatedAt: '2026-08-09',
     category: 'Cornerstone',
     readMinutes: 2,
     excerpt:
       'A simple owner framework: start from cash, subtract what is spoken for, add only realistic receipts, decide from a trusted position.',
     relatedSlugs: [
-      'what-is-the-true-balance-method',
+      'what-is-cash-prophet',
       'bank-balance-isnt-your-money',
       'why-accounting-software-doesnt-tell-you-what-you-can-spend',
     ],
@@ -432,7 +432,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
     excerpt:
       'Accounting software records history for compliance. Confidence in where you stand is a different job, and that is where Cash Prophet fits.',
     relatedSlugs: [
-      'true-balance-vs-accounting-software',
+      'cash-prophet-vs-accounting-software',
       'what-accounting-software-tells-you-and-what-it-does-not',
       'your-bank-balance-is-lying-to-you',
     ],
@@ -552,7 +552,7 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
     relatedSlugs: [
       'how-much-money-does-my-business-actually-have',
       'multi-site-business-cash-dashboard',
-      'the-true-balance-method-explained',
+      'cash-prophet-explained',
     ],
     sections: [
       {
@@ -605,9 +605,9 @@ export const CORNERSTONE_BLOG_POSTS: BlogPost[] = [
       'Accounting keeps HMRC happy. Forecasting plans the next ninety days. A trusted daily position answers a different question: where does the business really stand today?',
     relatedSlugs: [
       'cash-flow-tools-uk-small-business-compared',
-      'true-balance-vs-accounting-software',
-      'what-is-true-balance',
-      'the-true-balance-method-explained',
+      'cash-prophet-vs-accounting-software',
+      'what-is-cash-prophet-balance',
+      'cash-prophet-explained',
       'bank-balance-vs-available-cash',
     ],
     sections: [

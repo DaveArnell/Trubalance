@@ -19,6 +19,26 @@
       "source": "/true-balance-method",
       "destination": "/",
       "permanent": true
+    },
+    {
+      "source": "/blog/what-is-true-balance",
+      "destination": "/blog/what-is-cash-prophet-balance",
+      "permanent": true
+    },
+    {
+      "source": "/blog/true-balance-vs-accounting-software",
+      "destination": "/blog/cash-prophet-vs-accounting-software",
+      "permanent": true
+    },
+    {
+      "source": "/blog/the-true-balance-method-explained",
+      "destination": "/blog/cash-prophet-explained",
+      "permanent": true
+    },
+    {
+      "source": "/blog/what-is-the-true-balance-method",
+      "destination": "/blog/what-is-cash-prophet",
+      "permanent": true
     }
   ],
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],

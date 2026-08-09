@@ -26,4 +26,18 @@ export const LEGACY_REDIRECTS: readonly { from: string; to: string }[] = [
   { from: '/habits', to: '/how-it-works#habits' },
   { from: '/cash-prophet', to: '/' },
   { from: '/true-balance-method', to: '/' },
+  // Old "True Balance" blog URLs — keep 301s so Google consolidates onto Cash Prophet slugs.
+  { from: '/blog/what-is-true-balance', to: '/blog/what-is-cash-prophet-balance' },
+  {
+    from: '/blog/true-balance-vs-accounting-software',
+    to: '/blog/cash-prophet-vs-accounting-software',
+  },
+  {
+    from: '/blog/the-true-balance-method-explained',
+    to: '/blog/cash-prophet-explained',
+  },
+  {
+    from: '/blog/what-is-the-true-balance-method',
+    to: '/blog/what-is-cash-prophet',
+  },
 ] as const

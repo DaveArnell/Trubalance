@@ -7,13 +7,13 @@ const METHOD_CTA =
 /** Educational articles for the Cash Prophet category. */
 export const METHOD_BLOG_POSTS: BlogPost[] = [
   {
-    slug: 'what-is-the-true-balance-method',
+    slug: 'what-is-cash-prophet',
     title: 'What Is Cash Prophet?',
     metaDescription:
       'Cash Prophet helps UK business owners see where the business really stands with one trusted Cash Prophet Balance, not the bank balance alone.',
     keywords: ['cash prophet', 'cash prophet balance', 'UK small business', 'financial management'],
     publishedAt: '2026-07-08',
-    updatedAt: '2026-07-26',
+    updatedAt: '2026-08-09',
     category: METHOD_BLOG_CATEGORY,
     readMinutes: 2,
     excerpt:
@@ -67,7 +67,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
     readMinutes: 2,
     excerpt:
       'Cash in the account is not the same as a trusted financial position. Here is what is often already spoken for.',
-    relatedSlugs: ['what-is-the-true-balance-method', 'monthly-accruals-explained-small-business'],
+    relatedSlugs: ['what-is-cash-prophet', 'monthly-accruals-explained-small-business'],
     sections: [
       {
         type: 'p',
@@ -190,7 +190,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
     readMinutes: 2,
     excerpt:
       'A reserve target tells you what should be set aside. A savings account is where you may choose to put it.',
-    relatedSlugs: ['how-to-put-money-aside-vat-tax-irregular-bills', 'what-is-the-true-balance-method'],
+    relatedSlugs: ['how-to-put-money-aside-vat-tax-irregular-bills', 'what-is-cash-prophet'],
     sections: [
       {
         type: 'p',
@@ -227,7 +227,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
     readMinutes: 2,
     excerpt:
       'Little and often beats a monthly panic. A calm routine for keeping your Cash Prophet Balance honest.',
-    relatedSlugs: ['what-is-the-true-balance-method', 'virtual-reserves-vs-separate-savings-accounts'],
+    relatedSlugs: ['what-is-cash-prophet', 'virtual-reserves-vs-separate-savings-accounts'],
     sections: [
       {
         type: 'p',
@@ -264,7 +264,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
     readMinutes: 2,
     excerpt:
       'Accounting software is essential, but it is not designed to answer where your business really stands today.',
-    relatedSlugs: ['what-is-the-true-balance-method', 'true-balance-vs-accounting-software'],
+    relatedSlugs: ['what-is-cash-prophet', 'cash-prophet-vs-accounting-software'],
     sections: [
       {
         type: 'p',

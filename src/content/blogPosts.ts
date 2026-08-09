@@ -6,18 +6,18 @@ export type { BlogPost, BlogSection } from './blogTypes'
 
 const CORE_BLOG_POSTS: BlogPost[] = [
   {
-    slug: 'what-is-true-balance',
+    slug: 'what-is-cash-prophet-balance',
     title: 'What Is Cash Prophet? Cash Clarity for UK Business Owners',
     metaDescription:
       'Cash Prophet calculates one trusted Cash Prophet Balance that shows where your UK business really stands, after meaningful commitments, not just your bank balance.',
     keywords: ['cash prophet balance', 'cash clarity', 'UK small business', 'trusted financial position', 'committed funds'],
     publishedAt: '2026-06-01',
-    updatedAt: '2026-07-26',
+    updatedAt: '2026-08-09',
     category: 'Guides',
     readMinutes: 2,
     excerpt:
       'Your bank balance is not a reliable picture of where the business stands. Cash Prophet shows one trusted number after commitments are accounted for.',
-    relatedSlugs: ['bank-balance-vs-safe-to-spend-uk', 'true-balance-vs-accounting-software'],
+    relatedSlugs: ['bank-balance-vs-safe-to-spend-uk', 'cash-prophet-vs-accounting-software'],
     sections: [
       {
         type: 'p',
@@ -79,7 +79,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
     readMinutes: 2,
     excerpt:
       'Freelancer apps popularised safe to spend for invoices. UK SMEs with payroll and VAT need a trusted financial position, not a tax percentage alone.',
-    relatedSlugs: ['what-is-true-balance', 'how-much-set-aside-vat-uk'],
+    relatedSlugs: ['what-is-cash-prophet-balance', 'how-much-set-aside-vat-uk'],
     sections: [
       {
         type: 'p',
@@ -290,7 +290,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
     ],
   },
   {
-    slug: 'true-balance-vs-accounting-software',
+    slug: 'cash-prophet-vs-accounting-software',
     title: 'Cash Prophet vs Accounting Software',
     metaDescription:
       'Cash Prophet vs accounting software: why Xero, FreeAgent and QuickBooks do not show a trusted day to day position, and how they work together.',
@@ -302,14 +302,14 @@ const CORE_BLOG_POSTS: BlogPost[] = [
       'trusted financial position',
     ],
     publishedAt: '2026-06-15',
-    updatedAt: '2026-07-26',
+    updatedAt: '2026-08-09',
     category: 'Comparisons',
     readMinutes: 2,
     excerpt:
       'You still need accounting software for filings. You need something else for day to day confidence in where the business stands.',
     relatedSlugs: [
       'why-accounting-software-doesnt-tell-you-what-you-can-spend',
-      'what-is-true-balance',
+      'what-is-cash-prophet-balance',
       'bank-balance-isnt-your-money',
     ],
     sections: [
@@ -412,7 +412,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
     readMinutes: 2,
     excerpt:
       'The account looks healthy. That does not mean you can afford a dividend. Check commitments first.',
-    relatedSlugs: ['corporation-tax-reserve-small-business', 'what-is-true-balance'],
+    relatedSlugs: ['corporation-tax-reserve-small-business', 'what-is-cash-prophet-balance'],
     sections: [
       {
         type: 'p',
@@ -455,7 +455,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
     readMinutes: 2,
     excerpt:
       'Large deposits and quiet months are normal. Project timing is a real risk, so detailed forecasting still matters for trades.',
-    relatedSlugs: ['uk-small-business-cash-flow-forecast', 'what-is-true-balance'],
+    relatedSlugs: ['uk-small-business-cash-flow-forecast', 'what-is-cash-prophet-balance'],
     sections: [
       {
         type: 'p',
@@ -529,7 +529,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
     readMinutes: 2,
     excerpt:
       'Two cafes and a head office should not mean three spreadsheets. One scope tree, one Cash Prophet Balance.',
-    relatedSlugs: ['cafe-restaurant-cash-flow-management', 'what-is-true-balance'],
+    relatedSlugs: ['cafe-restaurant-cash-flow-management', 'what-is-cash-prophet-balance'],
     sections: [
       {
         type: 'p',
@@ -562,7 +562,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
     readMinutes: 2,
     excerpt:
       'Profit is accounting. Cash is timing. Most surprises are timing problems.',
-    relatedSlugs: ['true-balance-vs-accounting-software', 'uk-small-business-cash-flow-forecast'],
+    relatedSlugs: ['cash-prophet-vs-accounting-software', 'uk-small-business-cash-flow-forecast'],
     sections: [
       {
         type: 'p',
@@ -599,7 +599,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
     readMinutes: 2,
     excerpt:
       'Money already spoken for is the part owners forget. Committed funds makes it visible.',
-    relatedSlugs: ['what-is-true-balance', 'how-much-set-aside-vat-uk'],
+    relatedSlugs: ['what-is-cash-prophet-balance', 'how-much-set-aside-vat-uk'],
     sections: [
       {
         type: 'p',
@@ -821,7 +821,7 @@ const CORE_BLOG_POSTS: BlogPost[] = [
     readMinutes: 2,
     excerpt:
       'Cash flow management does not need a finance team. It needs the right few numbers, checked regularly.',
-    relatedSlugs: ['what-is-true-balance', 'uk-small-business-cash-flow-forecast', 'committed-funds-explained'],
+    relatedSlugs: ['what-is-cash-prophet-balance', 'uk-small-business-cash-flow-forecast', 'committed-funds-explained'],
     sections: [
       {
         type: 'p',
