@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { MarketingAttributionCapture } from './components/MarketingAttributionCapture'
 import { AuthProvider } from './contexts/AuthContext'
 import { CookieNotice } from './components/CookieNotice'
+import { MetaPixelTracker } from './components/MetaPixelTracker'
 import { WorkspaceProvider } from './contexts/WorkspaceContext'
 import { TrailingSlashGuard } from './components/TrailingSlashGuard'
 import { LandingPage } from './pages/LandingPage'
@@ -25,6 +26,7 @@ export function AppRouter() {
     <BrowserRouter>
       <TrailingSlashGuard />
       <MarketingAttributionCapture />
+      <MetaPixelTracker />
       <AuthProvider>
         <WorkspaceProvider>
           <Routes>

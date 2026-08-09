@@ -10,6 +10,7 @@ import { CompanyLegalNotice } from './CompanyLegalNotice'
 import { CashProphetLogo } from './CashProphetLogo'
 import { useMarketingReveal } from '../../hooks/useMarketingReveal'
 import { PRIMARY_NAV } from '../../content/marketingNav'
+import { openCookiePreferences } from '../../utils/cookieConsent'
 
 export function scrollToMarketingSection(id: string) {
   const shell = document.querySelector('.marketing-shell')
@@ -110,6 +111,9 @@ export function MarketingFooter() {
             <p className="marketing-footer-heading">Legal</p>
             <CanonicalLink to="/privacy">Privacy policy</CanonicalLink>
             <CanonicalLink to="/terms">Terms of service</CanonicalLink>
+            <button type="button" className="marketing-footer-btn" onClick={() => openCookiePreferences()}>
+              Cookie preferences
+            </button>
           </div>
         </div>
       </div>
@@ -120,6 +124,10 @@ export function MarketingFooter() {
           <CanonicalLink to="/privacy">Privacy</CanonicalLink>
           {' · '}
           <CanonicalLink to="/terms">Terms</CanonicalLink>
+          {' · '}
+          <button type="button" className="marketing-footer-inline-btn" onClick={() => openCookiePreferences()}>
+            Cookies
+          </button>
         </p>
         <p className="marketing-footer-trial muted">
           {FOUNDER_PROGRAM_HEADLINE}. {FOUNDER_PROGRAM_FOOTNOTE}

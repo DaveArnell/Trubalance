@@ -2,13 +2,14 @@ import { LegalPageLayout } from './LegalPageLayout'
 import { COMPANY_INFO } from '../../content/companyInfo'
 import { REGULATORY_POSITION } from '../../content/regulatoryNotice'
 import { PRIVACY_SEO } from '../../content/marketingSeo'
+import { openCookiePreferences } from '../../utils/cookieConsent'
 
 export function PrivacyPage() {
   return (
     <LegalPageLayout
       title="Privacy policy"
       seoTitle={PRIVACY_SEO.title}
-      updated="30 July 2026"
+      updated="9 August 2026"
       description={PRIVACY_SEO.description}
       path={PRIVACY_SEO.path}
       imageAlt={PRIVACY_SEO.imageAlt}
@@ -39,7 +40,8 @@ export function PrivacyPage() {
         </li>
         <li>
           <strong>Usage</strong> — basic technical information needed to run and secure the service,
-          and to understand how people find and use the site.
+          and (if you accept advertising cookies) page-view information sent to Meta to measure our
+          ads. We do not send your workspace financial figures to Meta.
         </li>
       </ul>
       <p>{REGULATORY_POSITION.privacyDataNote}</p>
@@ -70,6 +72,10 @@ export function PrivacyPage() {
         <li>Provide, maintain, and improve {COMPANY_INFO.productName}</li>
         <li>Authenticate you and sync your workspace across sessions</li>
         <li>Understand how the service is found and used</li>
+        <li>
+          Measure and improve advertising (only if you accept advertising cookies — see Cookies
+          below)
+        </li>
         <li>Respond to support requests</li>
         <li>Meet legal and security obligations</li>
       </ul>
@@ -104,12 +110,43 @@ export function PrivacyPage() {
 
       <h2 id="cookies">Cookies and local storage</h2>
       <p>
-        We use cookies and similar browser storage to operate Cash Prophet. This includes keeping you
-        signed in, remembering preferences, understanding how the site is used, and completing payment
-        where Stripe handles checkout. We do not sell this information.
+        We use cookies and similar browser storage for different purposes. Some are necessary to run
+        Cash Prophet. Others are optional advertising cookies that only run if you choose to accept
+        them.
+      </p>
+      <h3>Necessary</h3>
+      <p>
+        These keep the service working: signing you in, remembering preferences (including your cookie
+        choice), first-party marketing tags that tell us which campaign link you used, and completing
+        payment where Stripe handles checkout. The site cannot function properly without these.
+      </p>
+      <h3>Advertising (optional)</h3>
+      <p>
+        If you accept advertising cookies, we load the Meta Pixel (Facebook / Instagram), operated by
+        Meta Platforms Ireland Ltd. / Meta Platforms, Inc. This helps us measure the effectiveness of
+        our ads, understand which pages people visit after clicking an ad, and build audiences for
+        future advertising (for example people who visited the site, or who should be excluded because
+        they already signed up or subscribed — once those events are configured).
       </p>
       <p>
-        For more on what we collect and your rights, see the rest of this privacy policy.
+        Meta may set cookies such as <code>_fbp</code> and receive technical information about your
+        browser and pages viewed on cashprophet.co.uk. We do <strong>not</strong> send your bank
+        balances, Cash Prophet Balance, commitments, reserve plans, passwords, or other workspace
+        financial figures to Meta.
+      </p>
+      <p>
+        You can accept or reject advertising cookies when you first visit, and you can change your mind
+        at any time via{' '}
+        <button type="button" className="legal-inline-btn" onClick={() => openCookiePreferences()}>
+          Cookie preferences
+        </button>
+        {' '}
+        or the link in the site footer. If you reject advertising cookies, Cash Prophet still works
+        normally; the Meta Pixel will not load.
+      </p>
+      <p>
+        For Meta&apos;s own information about how they process data, see Meta&apos;s privacy policy on
+        their website. We do not sell your personal information.
       </p>
 
       <h2>Changes</h2>

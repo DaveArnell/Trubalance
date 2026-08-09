@@ -25305,8 +25305,66 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   font-size: 0.82rem;
 }
 
+.cookie-notice-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.cookie-notice-heading {
+  margin: 0 0 0.35rem;
+  font-weight: 650;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
 .cookie-notice-inner p {
   margin: 0;
+  color: var(--text-secondary, inherit);
+  line-height: 1.45;
+}
+
+.cookie-notice-actions {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.cookie-notice-text-btn,
+.legal-inline-btn,
+.marketing-footer-btn,
+.marketing-footer-inline-btn {
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+  text-align: left;
+}
+
+.marketing-footer-btn {
+  display: block;
+  color: inherit;
+}
+
+@media (max-width: 640px) {
+  .cookie-notice-inner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cookie-notice-actions {
+    justify-content: stretch;
+  }
+
+  .cookie-notice-actions .btn-tiny {
+    flex: 1;
+  }
 }
 
 .trial-warning-modal h2 {
