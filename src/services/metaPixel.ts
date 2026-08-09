@@ -1,4 +1,5 @@
 import { hasAdvertisingConsent } from '../utils/cookieConsent'
+import { hashEmailForMeta, readMetaFbc, readMetaFbp } from '../utils/metaMatching'
 
 /** Meta Pixel / Dataset ID from Events Manager. */
 export const META_PIXEL_ID = '4528453927433140'
@@ -66,6 +67,8 @@ export function loadMetaPixel(): void {
       first?.parentNode?.insertBefore(script, first)
     }
     scriptInjected = true
+    // Prevent Meta inventing SubscribedButtonClick / microdata events from button text.
+    window.fbq?.('set', 'autoConfig', false, META_PIXEL_ID)
     window.fbq?.('init', META_PIXEL_ID)
   }
 }
@@ -125,4 +128,78 @@ export function trackMetaRoute(pathname: string, search = ''): void {
 /** Allow the next navigation (or same path after re-consent) to fire again. */
 export function resetMetaRouteTracking(): void {
   lastRouteKey = null
+}
+
+type MetaPixelParams = Record<string, string | number | boolean | undefined>
+
+/** Standard event with optional eventID for CAPI deduplication. Best-effort; never throws. */
+export function trackMetaPixelEvent(
+  eventName: string,
+  params?: MetaPixelParams,
+  eventId?: string,
+): void {
+  try {
+    if (!hasAdvertisingConsent()) return
+    loadMetaPixel()
+    if (!canTrack()) return
+    const cleaned: Record<string, string | number | boolean> = {}
+    if (params) {
+      for (const [key, value] of Object.entries(params)) {
+        if (value !== undefined) cleaned[key] = value
+      }
+    }
+    if (eventId) {
+      window.fbq?.('track', eventName, cleaned, { eventID: eventId })
+    } else {
+      window.fbq?.('track', eventName, cleaned)
+    }
+  } catch {
+    /* Meta must never break the product */
+  }
+}
+
+/** Custom event (SignupStarted, Onboarding*, …). Best-effort; never throws. */
+export function trackMetaPixelCustomEvent(
+  eventName: string,
+  params?: MetaPixelParams,
+  eventId?: string,
+): void {
+  try {
+    if (!hasAdvertisingConsent()) return
+    loadMetaPixel()
+    if (!canTrack()) return
+    const cleaned: Record<string, string | number | boolean> = {}
+    if (params) {
+      for (const [key, value] of Object.entries(params)) {
+        if (value !== undefined) cleaned[key] = value
+      }
+    }
+    if (eventId) {
+      window.fbq?.('trackCustom', eventName, cleaned, { eventID: eventId })
+    } else {
+      window.fbq?.('trackCustom', eventName, cleaned)
+    }
+  } catch {
+    /* Meta must never break the product */
+  }
+}
+
+export async function buildMetaUserMatching(input?: {
+  email?: string | null
+  userId?: string | null
+}): Promise<{
+  em?: string
+  external_id?: string
+  fbp?: string
+  fbc?: string
+  client_user_agent?: string
+}> {
+  const em = input?.email ? await hashEmailForMeta(input.email) : undefined
+  return {
+    em,
+    external_id: input?.userId || undefined,
+    fbp: readMetaFbp(),
+    fbc: readMetaFbc(),
+    client_user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
+  }
 }

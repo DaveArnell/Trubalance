@@ -2,15 +2,122 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1'
 // Use npm:stripe so Deno Web Crypto signature verification matches Stripe's Edge docs.
 import Stripe from 'npm:stripe@14.25.0'
 import { getServiceRoleKey } from '../_shared/supabaseEnv.ts'
+import {
+  normalizeMetaEmailHash,
+  sendMetaCapiEvents,
+} from '../_shared/metaCapi.ts'
 
 /** Bump when forcing a Supabase functions redeploy. */
-const WEBHOOK_BUILD = '2026-08-08-async-sig-v2'
+const WEBHOOK_BUILD = '2026-08-09-meta-purchase-v1'
 
 function tierFromMetadata(meta: Stripe.Metadata | null | undefined): string {
   const tier = meta?.tier_id
   if (tier === 'multi' || tier === 'group') return tier
   if (tier === 'business') return 'multi'
   return 'solo'
+}
+
+/**
+ * CAPI Purchase only when advertising consent was true at checkout and amount_paid > 0.
+ * Never throws to the webhook caller (caller wraps in try/catch too).
+ */
+async function sendMetaPurchaseFromInvoice(
+  supabaseAdmin: ReturnType<typeof createClient>,
+  stripe: Stripe,
+  invoice: Stripe.Invoice,
+  workspaceId: string,
+): Promise<void> {
+  if (!invoice.amount_paid || invoice.amount_paid <= 0) return
+  if (!invoice.id) return
+
+  let advertisingConsent = false
+  let fbp: string | undefined
+  let fbc: string | undefined
+  let metaUserId: string | undefined
+  let tierId = 'solo'
+
+  if (invoice.subscription) {
+    const subscription = await stripe.subscriptions.retrieve(String(invoice.subscription))
+    advertisingConsent = subscription.metadata?.advertising_consent === 'true'
+    metaUserId = subscription.metadata?.meta_user_id || undefined
+    fbp = subscription.metadata?.meta_fbp || undefined
+    fbc = subscription.metadata?.meta_fbc || undefined
+    tierId = tierFromMetadata(subscription.metadata)
+  }
+
+  // Prefer checkout session metadata when present (has fbp/fbc from browser).
+  if (invoice.id) {
+    try {
+      const sessions = await stripe.checkout.sessions.list({
+        limit: 5,
+        // Filter by subscription when available
+        ...(invoice.subscription
+          ? { subscription: String(invoice.subscription) }
+          : {}),
+      })
+      const matched = sessions.data.find(
+        (s) => s.metadata?.workspace_id === workspaceId || s.metadata?.advertising_consent,
+      ) ?? sessions.data[0]
+      if (matched?.metadata) {
+        if (matched.metadata.advertising_consent === 'true') advertisingConsent = true
+        if (matched.metadata.advertising_consent === 'false') advertisingConsent = false
+        if (matched.metadata.meta_fbp) fbp = matched.metadata.meta_fbp
+        if (matched.metadata.meta_fbc) fbc = matched.metadata.meta_fbc
+        if (matched.metadata.meta_user_id) metaUserId = matched.metadata.meta_user_id
+        if (matched.metadata.tier_id) tierId = tierFromMetadata(matched.metadata)
+      }
+    } catch {
+      /* optional enrichment */
+    }
+  }
+
+  if (!advertisingConsent) return
+
+  let email: string | undefined
+  if (!metaUserId) {
+    const { data: member } = await supabaseAdmin
+      .from('workspace_members')
+      .select('user_id')
+      .eq('workspace_id', workspaceId)
+      .eq('role', 'owner')
+      .limit(1)
+      .maybeSingle()
+    metaUserId = member?.user_id ? String(member.user_id) : undefined
+  }
+
+  if (metaUserId) {
+    const { data: profile } = await supabaseAdmin
+      .from('profiles')
+      .select('email')
+      .eq('id', metaUserId)
+      .maybeSingle()
+    email = profile?.email ? String(profile.email) : undefined
+  }
+
+  const em = await normalizeMetaEmailHash(email)
+  const value = invoice.amount_paid / 100
+  const currency = (invoice.currency ?? 'gbp').toUpperCase()
+
+  await sendMetaCapiEvents([
+    {
+      event_name: 'Purchase',
+      event_time: invoice.status_transitions?.paid_at ?? invoice.created ?? Math.floor(Date.now() / 1000),
+      event_id: `purchase_${invoice.id}`,
+      action_source: 'website',
+      user_data: {
+        ...(em ? { em } : {}),
+        ...(metaUserId ? { external_id: metaUserId } : {}),
+        ...(fbp ? { fbp } : {}),
+        ...(fbc ? { fbc } : {}),
+      },
+      custom_data: {
+        currency,
+        value,
+        content_name: tierId,
+        content_category: 'subscription',
+      },
+    },
+  ])
 }
 
 async function syncSubscription(
@@ -161,25 +268,36 @@ Deno.serve(async (req) => {
           .eq('stripe_invoice_id', stripeInvoiceId)
           .maybeSingle()
 
-        if (existing) break
+        if (!existing) {
+          const paymentIntent =
+            typeof invoice.payment_intent === 'string'
+              ? invoice.payment_intent
+              : invoice.payment_intent?.id ?? null
 
-        const paymentIntent =
-          typeof invoice.payment_intent === 'string'
-            ? invoice.payment_intent
-            : invoice.payment_intent?.id ?? null
+          await supabaseAdmin.from('payments').insert({
+            workspace_id: workspaceId,
+            stripe_invoice_id: stripeInvoiceId,
+            stripe_payment_intent_id: paymentIntent,
+            amount_cents: invoice.amount_paid,
+            currency: invoice.currency ?? 'gbp',
+            status: 'succeeded',
+            description: invoice.lines?.data?.[0]?.description ?? 'Subscription payment',
+            paid_at: new Date(
+              (invoice.status_transitions?.paid_at ?? invoice.created) * 1000,
+            ).toISOString(),
+          })
+        }
 
-        await supabaseAdmin.from('payments').insert({
-          workspace_id: workspaceId,
-          stripe_invoice_id: stripeInvoiceId,
-          stripe_payment_intent_id: paymentIntent,
-          amount_cents: invoice.amount_paid,
-          currency: invoice.currency ?? 'gbp',
-          status: 'succeeded',
-          description: invoice.lines?.data?.[0]?.description ?? 'Subscription payment',
-          paid_at: new Date(
-            (invoice.status_transitions?.paid_at ?? invoice.created) * 1000,
-          ).toISOString(),
-        })
+        // Meta Purchase — best-effort; safe to retry (event_id = purchase_<invoice.id>).
+        // Runs even when the payments row already exists so a prior Meta outage can recover.
+        try {
+          await sendMetaPurchaseFromInvoice(supabaseAdmin, stripe, invoice, workspaceId)
+        } catch (metaErr) {
+          console.warn(
+            'Meta Purchase tracking failed (non-blocking)',
+            metaErr instanceof Error ? metaErr.message : 'unknown',
+          )
+        }
         break
       }
       default:

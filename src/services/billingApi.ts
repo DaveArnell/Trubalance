@@ -1,6 +1,9 @@
 import type { SubscriptionTierId } from '../config/subscriptionTiers'
 import { getStripePriceId } from '../config/stripePrices'
 import { getSupabase, isSupabaseConfigured } from '../lib/supabase'
+import { hasAdvertisingConsent } from '../utils/cookieConsent'
+import { readMetaFbc, readMetaFbp } from '../utils/metaMatching'
+import { trackMetaInitiateCheckout } from './metaConversions'
 
 export function isBillingConfigured(): boolean {
   if (!isSupabaseConfigured) return false
@@ -21,6 +24,8 @@ interface CheckoutOptions {
   billingInterval: 'monthly' | 'annual'
   /** When true and still trialing, subscription billing starts after trial ends. */
   deferUntilTrialEnd?: boolean
+  userId?: string | null
+  email?: string | null
 }
 
 export async function startCheckout(options: CheckoutOptions): Promise<void> {
@@ -29,18 +34,42 @@ export async function startCheckout(options: CheckoutOptions): Promise<void> {
     throw new Error('Stripe price is not configured for this plan')
   }
 
+  const advertisingConsent = hasAdvertisingConsent()
+  const fbp = advertisingConsent ? readMetaFbp() : undefined
+  const fbc = advertisingConsent ? readMetaFbc() : undefined
+
   const supabase = getSupabase()
   const { data, error } = await supabase.functions.invoke('create-checkout-session', {
     body: {
       tierId: options.tierId,
       billingInterval: options.billingInterval,
       deferUntilTrialEnd: options.deferUntilTrialEnd ?? true,
+      advertisingConsent,
+      ...(fbp ? { fbp } : {}),
+      ...(fbc ? { fbc } : {}),
     },
   })
 
   if (error) throw error
-  const url = (data as { url?: string } | null)?.url
+  const payload = data as { url?: string; sessionId?: string } | null
+  const url = payload?.url
   if (!url) throw new Error('Checkout session did not return a URL')
+
+  // Meta tracking is best-effort — never block redirect to Stripe.
+  if (payload.sessionId) {
+    try {
+      await trackMetaInitiateCheckout({
+        sessionId: payload.sessionId,
+        userId: options.userId,
+        email: options.email,
+        tierId: options.tierId,
+        billingInterval: options.billingInterval,
+      })
+    } catch {
+      /* ignore */
+    }
+  }
+
   window.location.assign(url)
 }
 

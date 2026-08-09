@@ -16,6 +16,10 @@ import {
   attachMarketingAttributionToProfile,
   getAttributionAuthMetadata,
 } from '../services/marketingAttribution'
+import {
+  maybeTrackMetaGoogleRegistration,
+  trackMetaCompleteRegistration,
+} from '../services/metaConversions'
 
 const IMPERSONATE_KEY = 'trubalance-impersonate'
 
@@ -116,7 +120,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!user?.id || impersonation) return
     void recordSessionActivity(user.id)
     void attachMarketingAttributionToProfile(user.id)
-  }, [user?.id, impersonation])
+    // Google first sign-in only — uses created_at ≈ last_sign_in_at (see helper).
+    void maybeTrackMetaGoogleRegistration({
+      id: user.id,
+      email: user.email,
+      created_at: user.created_at,
+      last_sign_in_at: user.last_sign_in_at,
+      app_metadata: user.app_metadata,
+      identities: user.identities,
+    })
+  }, [
+    user?.id,
+    user?.email,
+    user?.created_at,
+    user?.last_sign_in_at,
+    user?.app_metadata,
+    user?.identities,
+    impersonation,
+  ])
 
   const signIn = useCallback(async (email: string, password: string) => {
     if (!isSupabaseConfigured) return { error: 'Supabase is not configured' }
@@ -167,6 +188,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         ...attributionMeta,
       })
       await attachMarketingAttributionToProfile(data.user.id)
+      void trackMetaCompleteRegistration({
+        userId: data.user.id,
+        email: data.user.email ?? email,
+        method: 'email',
+      })
     }
     return { error: null }
   }, [])

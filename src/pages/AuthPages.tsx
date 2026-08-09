@@ -12,6 +12,10 @@ import {
   SIGNUP_SEO,
 } from '../content/marketingSeo'
 import { usePageMeta } from '../hooks/usePageMeta'
+import {
+  markMetaOAuthSignupIntent,
+  trackMetaSignupStarted,
+} from '../services/metaConversions'
 
 interface AuthFormProps {
   mode: 'login' | 'signup'
@@ -84,6 +88,7 @@ export function AuthForm({ mode }: AuthFormProps) {
         }
         navigate(redirect)
       } else {
+        trackMetaSignupStarted()
         const result = await signUp(email, password, fullName)
         if (result.error) {
           setError(result.error)
@@ -144,6 +149,10 @@ export function AuthForm({ mode }: AuthFormProps) {
             setError(null)
             setLoading(true)
             try {
+              if (mode === 'signup') {
+                trackMetaSignupStarted()
+                markMetaOAuthSignupIntent()
+              }
               const result = await signInWithGoogle()
               if (result.error) setError(result.error)
             } finally {
@@ -163,6 +172,7 @@ export function AuthForm({ mode }: AuthFormProps) {
               type="text"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
+              onFocus={() => trackMetaSignupStarted()}
               required
               autoComplete="name"
               placeholder="Jane Smith"
@@ -175,6 +185,9 @@ export function AuthForm({ mode }: AuthFormProps) {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            onFocus={() => {
+              if (mode === 'signup') trackMetaSignupStarted()
+            }}
             required
             autoComplete="email"
             placeholder="you@company.com"
@@ -186,6 +199,9 @@ export function AuthForm({ mode }: AuthFormProps) {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onFocus={() => {
+              if (mode === 'signup') trackMetaSignupStarted()
+            }}
             required
             minLength={6}
             autoComplete={mode === 'login' ? 'current-password' : 'new-password'}

@@ -58,6 +58,7 @@ import { SubscriptionProvider, useSubscription } from './contexts/SubscriptionCo
 import { PostTrialNotice, ReadOnlyLockBanner, TrialBanner, TrialWarningModal, UpgradePrompt } from './components/UpgradePrompt'
 import { MonthlyReserveCheckIn } from './components/MonthlyReserveCheckIn'
 import { trackEvent } from './services/eventTracking'
+import { trackMetaOnboardingCompleted, trackMetaOnboardingStarted } from './services/metaConversions'
 import { showsDemoDataBanner } from './utils/localStateStorage'
 import { useDemoMode } from './contexts/DemoModeContext'
 import { useEditReadOnly } from './hooks/useEditReadOnly'
@@ -473,7 +474,8 @@ function AppShellInner({
   useEffect(() => {
     if (!setupWizardOpen || !user?.id) return
     void trackEvent('setup_started', user.id)
-  }, [setupWizardOpen, user?.id])
+    void trackMetaOnboardingStarted(user.id, user.email)
+  }, [setupWizardOpen, user?.id, user?.email])
 
   const [pendingSetupTour, setPendingSetupTour] = useState(false)
 
@@ -485,6 +487,7 @@ function AppShellInner({
       await markOnboardingComplete(user.id)
       await refreshProfile()
       await trackEvent('onboarding_complete', user.id)
+      void trackMetaOnboardingCompleted(user.id, user.email)
     }
   }
 

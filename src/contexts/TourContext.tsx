@@ -10,6 +10,7 @@ import type { PageId } from '../navigation'
 import { SETUP_TOUR, getTourForPage, type PageTour } from '../content/pageTours'
 import { markOnboardingComplete } from '../services/adminRepository'
 import { trackEvent } from '../services/eventTracking'
+import { trackMetaOnboardingCompleted } from '../services/metaConversions'
 
 interface ActiveTour {
   tour: PageTour
@@ -51,10 +52,12 @@ export function TourProvider({
   const finishTour = useCallback(
     async (completed: boolean) => {
       if (activeTour?.tour.id === 'setup' && userId && !onboardingCompleted) {
+        // Product still marks profile complete on skip; Meta only on genuine complete.
         await markOnboardingComplete(userId)
         onOnboardingComplete()
         if (completed) {
           await trackEvent('onboarding_complete', userId)
+          void trackMetaOnboardingCompleted(userId)
         }
       }
       if (completed && activeTour) {

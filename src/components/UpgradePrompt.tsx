@@ -7,6 +7,7 @@ import {
   recommendTierForWorkspace,
   type SubscriptionTierId,
 } from '../config/subscriptionTiers'
+import { useAuth } from '../contexts/AuthContext'
 import { useSubscription } from '../contexts/SubscriptionContext'
 import { startCheckout, startBillingPortal, isBillingConfigured } from '../services/billingApi'
 import type { TrialWarningLevel } from '../utils/subscriptionAccess'
@@ -147,12 +148,19 @@ export function PlanCheckoutButtons({
 }) {
   const [loading, setLoading] = useState<'monthly' | 'annual' | null>(null)
   const billingReady = isBillingConfigured()
+  const { user } = useAuth()
 
   const start = async (billingInterval: 'monthly' | 'annual') => {
     if (!billingReady) return
     setLoading(billingInterval)
     try {
-      await startCheckout({ tierId, billingInterval, deferUntilTrialEnd })
+      await startCheckout({
+        tierId,
+        billingInterval,
+        deferUntilTrialEnd,
+        userId: user?.id,
+        email: user?.email,
+      })
     } catch (err) {
       console.error(err)
       window.alert('Could not start checkout. Please try again or contact support.')

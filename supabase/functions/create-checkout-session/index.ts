@@ -83,6 +83,9 @@ Deno.serve(async (req) => {
     const billingInterval: BillingInterval =
       body.billingInterval === 'annual' ? 'annual' : 'monthly'
     const deferUntilTrialEnd = body.deferUntilTrialEnd !== false
+    const advertisingConsent = body.advertisingConsent === true
+    const fbp = typeof body.fbp === 'string' ? body.fbp.slice(0, 512) : ''
+    const fbc = typeof body.fbc === 'string' ? body.fbc.slice(0, 512) : ''
 
     const priceId = resolvePriceId(tierId, billingInterval)
     if (!priceId) {
@@ -130,7 +133,15 @@ Deno.serve(async (req) => {
     }
 
     const subscriptionData: Stripe.Checkout.SessionCreateParams.SubscriptionData = {
-      metadata: { workspace_id: workspaceId, tier_id: tierId, billing_interval: billingInterval },
+      metadata: {
+        workspace_id: workspaceId,
+        tier_id: tierId,
+        billing_interval: billingInterval,
+        advertising_consent: advertisingConsent ? 'true' : 'false',
+        ...(user.id ? { meta_user_id: user.id } : {}),
+        ...(fbp ? { meta_fbp: fbp } : {}),
+        ...(fbc ? { meta_fbc: fbc } : {}),
+      },
     }
 
     if (deferUntilTrialEnd && workspace.trial_ends_at) {
@@ -148,7 +159,14 @@ Deno.serve(async (req) => {
       success_url: `${siteUrl}/app/settings?billing=success`,
       cancel_url: `${siteUrl}/app/settings?billing=cancel`,
       subscription_data: subscriptionData,
-      metadata: { workspace_id: workspaceId, tier_id: tierId },
+      metadata: {
+        workspace_id: workspaceId,
+        tier_id: tierId,
+        advertising_consent: advertisingConsent ? 'true' : 'false',
+        ...(fbp ? { meta_fbp: fbp } : {}),
+        ...(fbc ? { meta_fbc: fbc } : {}),
+        ...(user.id ? { meta_user_id: user.id } : {}),
+      },
       // Net prices + Stripe Tax: VAT is calculated at checkout (not baked into the price).
       automatic_tax: { enabled: true },
       // Needed so Stripe Tax can locate the customer (UK VAT etc.).
@@ -160,7 +178,7 @@ Deno.serve(async (req) => {
       tax_id_collection: { enabled: true },
     })
 
-    return jsonResponse({ url: session.url })
+    return jsonResponse({ url: session.url, sessionId: session.id })
   } catch (err) {
     console.error(err)
     return jsonResponse({ error: 'Checkout failed' }, 500)
