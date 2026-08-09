@@ -144,8 +144,8 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTierId, SubscriptionTierDefi
   solo: {
     id: 'solo',
     name: 'Solo Business',
-    priceMonthlyGbp: 10,
-    priceAnnualGbp: 100,
+    priceMonthlyGbp: 24,
+    priceAnnualGbp: 240,
     perfectFor: 'One business without separate venues or sites.',
     marketingFeatures: [
       '1 business',
@@ -169,8 +169,8 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTierId, SubscriptionTierDefi
   multi: {
     id: 'multi',
     name: 'Multi-site Business',
-    priceMonthlyGbp: 15,
-    priceAnnualGbp: 150,
+    priceMonthlyGbp: 34,
+    priceAnnualGbp: 340,
     perfectFor: 'One business with multiple venues or sites — a clear view across those locations.',
     marketingFeatures: [
       'Everything in Solo Business',
@@ -193,8 +193,8 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTierId, SubscriptionTierDefi
   group: {
     id: 'group',
     name: 'Multi-business / Group',
-    priceMonthlyGbp: 20,
-    priceAnnualGbp: 200,
+    priceMonthlyGbp: 44,
+    priceAnnualGbp: 440,
     perfectFor: 'Owners who run more than one company and want them together in one workspace.',
     marketingFeatures: [
       'Everything in Multi-site Business',

@@ -10,9 +10,9 @@ Prices in the app (net of VAT):
 
 | Plan | Monthly | Annual |
 |------|---------|--------|
-| Solo Business | £10 | £100 |
-| Multi-site Business | £15 | £150 |
-| Multi-business / Group | £20 | £200 |
+| Solo Business | £24 | £240 |
+| Multi-site Business | £34 | £340 |
+| Multi-business / Group | £44 | £440 |
 
 ---
 
@@ -28,14 +28,14 @@ Prices in the app (net of VAT):
 - Description (optional): `One business without separate venues`
 - Pricing model: **Recurring**
 - Add **two** prices on this product:
-  - Amount `10.00` GBP, Billing period **Monthly** → Save → copy Price ID (`price_…`) → label it `SOLO_MONTHLY`
-  - Amount `100.00` GBP, Billing period **Yearly** → Save → copy Price ID → label it `SOLO_ANNUAL`
+  - Amount `24.00` GBP, Billing period **Monthly** → Save → copy Price ID (`price_…`) → label it `SOLO_MONTHLY`
+  - Amount `240.00` GBP, Billing period **Yearly** → Save → copy Price ID → label it `SOLO_ANNUAL`
 
 ### Product B — Multi-site Business
-- Same pattern: `15.00` monthly → `MULTI_MONTHLY`, `150.00` yearly → `MULTI_ANNUAL`
+- Same pattern: `34.00` monthly → `MULTI_MONTHLY`, `340.00` yearly → `MULTI_ANNUAL`
 
 ### Product C — Multi-business / Group
-- Same pattern: `20.00` monthly → `GROUP_MONTHLY`, `200.00` yearly → `GROUP_ANNUAL`
+- Same pattern: `44.00` monthly → `GROUP_MONTHLY`, `440.00` yearly → `GROUP_ANNUAL`
 
 5. Paste your six IDs somewhere safe like this:
 
