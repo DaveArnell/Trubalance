@@ -25285,24 +25285,24 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   right: 0;
   bottom: 0;
   z-index: 10000;
-  padding: var(--space-3);
+  padding: var(--space-4);
   pointer-events: none;
 }
 
 .cookie-notice-inner {
   pointer-events: auto;
-  max-width: 52rem;
+  max-width: 60rem;
   margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-4);
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-subtle);
+  gap: var(--space-5);
+  padding: var(--space-5) var(--space-5);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border, var(--border-subtle));
   background: var(--surface-elevated, #fff);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  font-size: 0.82rem;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+  font-size: 0.95rem;
 }
 
 .cookie-notice-copy {
@@ -25311,24 +25311,32 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .cookie-notice-heading {
-  margin: 0 0 0.35rem;
-  font-weight: 650;
-  font-size: 0.9rem;
+  margin: 0 0 0.5rem;
+  font-weight: 700;
+  font-size: 1.15rem;
   color: var(--text-primary);
 }
 
 .cookie-notice-inner p {
   margin: 0;
   color: var(--text-secondary, inherit);
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
 .cookie-notice-actions {
   display: flex;
   flex-shrink: 0;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  gap: var(--space-3);
   align-items: center;
+}
+
+.cookie-notice-btn {
+  min-width: 7.5rem;
+  padding: 0.7rem 1.35rem;
+  font-size: 1rem;
+  font-weight: 650;
+  line-height: 1.2;
 }
 
 .cookie-notice-text-btn,
@@ -25353,16 +25361,22 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 @media (max-width: 640px) {
+  .cookie-notice {
+    padding: var(--space-3);
+  }
+
   .cookie-notice-inner {
     flex-direction: column;
     align-items: stretch;
+    padding: var(--space-4);
+    gap: var(--space-4);
   }
 
   .cookie-notice-actions {
     justify-content: stretch;
   }
 
-  .cookie-notice-actions .btn-tiny {
+  .cookie-notice-actions .cookie-notice-btn {
     flex: 1;
   }
 }

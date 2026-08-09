@@ -69,11 +69,11 @@ export function CookieNotice() {
           </p>
         </div>
         <div className="cookie-notice-actions">
-          <button type="button" className="btn-ghost btn-tiny" onClick={handleReject}>
-            Reject advertising
+          <button type="button" className="btn-ghost cookie-notice-btn" onClick={handleReject}>
+            Reject
           </button>
-          <button type="button" className="btn-primary btn-tiny" onClick={handleAccept}>
-            Accept advertising
+          <button type="button" className="btn-primary cookie-notice-btn" onClick={handleAccept}>
+            Accept
           </button>
         </div>
       </div>
