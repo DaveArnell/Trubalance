@@ -8,7 +8,6 @@ import { filterSnapshotsByRange } from './snapshots'
 import { getEffectiveSnapshotsForScope } from './scopeSnapshotSeries'
 import { isSnapshotMetricCorrected, getSnapshotRecordedMetric } from './snapshotCorrections'
 import { getEffectiveSnapshotMetric } from './snapshotMetrics'
-import { isPersistedSnapshot } from './scopeSnapshotSeries'
 
 export type HistoryMetricKey = 'trueBalance' | 'cash' | 'committedFunds' | 'expectedReceipts'
 
@@ -215,8 +214,8 @@ function cellFromSnapshot(
   const corrected = isSnapshotMetricCorrected(snap, metric)
   return {
     value: metricValue(state, snap, metric),
-    snapshotId:
-      granularity === 'daily' && isPersistedSnapshot(snap) ? snap.id : null,
+    // Include history:/derived: ids so the log can open a correction and materialise a saved point.
+    snapshotId: granularity === 'daily' ? snap.id : null,
     recordedValue: corrected ? getSnapshotRecordedMetric(snap, metric) : null,
     manualEntry: Boolean(snap.manualEntry),
   }

@@ -23,7 +23,7 @@ import {
 } from '../utils/snapshotRebuild'
 import { getReceiptRebuildFromDateKey, getReceiptDeleteFromDateKey, getReceiptHistoricCorrectionFromDateKey } from '../utils/receiptCalculations'
 import { captureHistoryRecord, upsertDailyHistoryRecord } from '../utils/historyCapture'
-import { getStoredHistoryRecordIdsForDay, getSnapshotIdsForDayInViewScope, repairEmptySnapshotChangedAccounts, scopeInViewTree, computeScopeMetricsAtDate } from '../utils/historyRebuild'
+import { getStoredHistoryRecordIdsForDay, getSnapshotIdsForDayInViewScope, repairEmptySnapshotChangedAccounts, scopeInViewTree, computeScopeMetricsAtDate, getExactHistorySummaryForScopeDate } from '../utils/historyRebuild'
 import { getCommitmentsForScope } from '../utils/calculations'
 import {
   buildAmountChangePatch,
@@ -46,6 +46,7 @@ import { applySnapshotMetricCorrection } from '../utils/snapshotCorrections'
 import { getEffectiveSnapshotMetric } from '../utils/snapshotMetrics'
 import type { HistoryMetricKey } from '../utils/historyTable'
 import { todayDateKey, getFreshness } from '../utils/snapshots'
+import { parseVirtualSnapshotId } from '../utils/scopeSnapshotSeries'
 import { MONTHS, currentMonthIndex } from '../utils/format'
 import { syncGuidedStructureInState, type GuidedBusinessPayload } from '../utils/structureDraftSync'
 import { backupBrowserStateToSession, isUserOwnedWorkspace, mergeMissingLocalWorkspaceData, readRawBrowserStateJson, statesMatchRoughly } from '../utils/localStateStorage'
@@ -1696,19 +1697,61 @@ export function useAppState(options?: UseAppStateOptions) {
   const correctSnapshotMetric = (snapshotId: string, metric: HistoryMetricKey, newValue: number) => {
     persistImmediateRef.current = true
     update((s) => {
-      const target = s.snapshots.find((snap) => snap.id === snapshotId)
+      const rounded = roundCurrency(newValue)
+      const now = new Date().toISOString()
+      let snapshots = [...s.snapshots]
+      let target = snapshots.find((snap) => snap.id === snapshotId)
+      let workingId = snapshotId
+
+      // Balance log may pass history:/derived: ids — materialise a real saved point first.
+      if (!target) {
+        const virtual = parseVirtualSnapshotId(snapshotId)
+        if (!virtual) return s
+        const existingIdx = snapshots.findIndex(
+          (snap) =>
+            snap.date === virtual.date &&
+            snap.scopeType === virtual.scope.type &&
+            snap.scopeId === virtual.scope.id &&
+            !snap.id.startsWith('derived:') &&
+            !snap.id.startsWith('history:'),
+        )
+        if (existingIdx >= 0) {
+          target = snapshots[existingIdx]
+          workingId = target!.id
+        } else {
+          const hist = getExactHistorySummaryForScopeDate(s, virtual.scope, virtual.date)
+          const metrics = hist ?? computeScopeMetricsAtDate(s, virtual.scope, virtual.date)
+          const created: BalanceSnapshot = {
+            id: newId(),
+            date: virtual.date,
+            scopeType: virtual.scope.type,
+            scopeId: virtual.scope.id,
+            viewName: getScopeLabel(s, virtual.scope),
+            cash: metrics.cash,
+            committedFunds: metrics.committedFunds,
+            expectedReceipts: metrics.expectedReceipts,
+            trueBalance: metrics.trueBalance,
+            freshness: getFreshness(0),
+            changedAccounts: [],
+            updatedAt: now,
+          }
+          snapshots = [...snapshots, created]
+          target = created
+          workingId = created.id
+        }
+      }
+
       if (!target) return s
 
       const oldValue = getEffectiveSnapshotMetric(s, target, metric)
-      const rounded = roundCurrency(newValue)
-      if (rounded === oldValue) return s
+      if (rounded === oldValue) {
+        // Still persist a materialised point when correcting a virtual day to the same figure.
+        if (workingId === snapshotId) return s
+        return { ...s, snapshots, workspaceOrigin: s.workspaceOrigin ?? 'user' }
+      }
 
-      const now = new Date().toISOString()
-
-      // Pin this day only for Trends/history display. Do not rewrite cash, commitments,
-      // or any later days — live dashboard maths stay unchanged.
-      const snapshots = s.snapshots.map((snap) => {
-        if (snap.id !== snapshotId) return snap
+      snapshots = snapshots.map((snap) => {
+        if (snap.id !== workingId) return snap
 
         const corrected = applySnapshotMetricCorrection(snap, metric, rounded)
         return {

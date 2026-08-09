@@ -13,6 +13,28 @@ export function isPersistedSnapshot(snapshot: BalanceSnapshot): boolean {
   return !isDerivedSnapshotId(snapshot.id)
 }
 
+/** Parse `derived:type:id:YYYY-MM-DD` or `history:type:id:YYYY-MM-DD` virtual snapshot ids. */
+export function parseVirtualSnapshotId(
+  id: string,
+): { scope: ViewScope; date: string } | null {
+  if (!isDerivedSnapshotId(id)) return null
+  const prefix = id.startsWith('derived:') ? 'derived:' : 'history:'
+  const rest = id.slice(prefix.length)
+  if (rest.length < 12) return null
+  const date = rest.slice(-10)
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return null
+  const scopeKeyStr = rest.slice(0, -11)
+  const colon = scopeKeyStr.indexOf(':')
+  if (colon < 0) return null
+  return {
+    scope: {
+      type: scopeKeyStr.slice(0, colon) as ViewScope['type'],
+      id: scopeKeyStr.slice(colon + 1),
+    },
+    date,
+  }
+}
+
 function buildDerivedSnapshot(
   state: AppState,
   scope: ViewScope,
@@ -87,14 +109,14 @@ export function getEffectiveSnapshotsForScope(
         return stored && isPersistedSnapshot(stored) ? stored : null
       }
 
-      // Historic days: freeze to what was saved that day — never invent with today's rules.
-      // Prefer History-page summary when present (snapshots may have been live-refreshed earlier).
+      // Historic days: prefer a saved snapshot (incl. corrections). Otherwise use the
+      // History-page summary for that day. Never invent past days with today's rules.
       if (date < today) {
+        if (stored && isPersistedSnapshot(stored)) {
+          return withEffectiveSnapshotMetrics(state, stored)
+        }
         const hist = getExactHistorySummaryForScopeDate(state, scope, date)
         if (hist) return buildSnapshotFromHistorySummary(state, scope, date, hist)
-        if (stored && isPersistedSnapshot(stored)) {
-          return { ...stored }
-        }
         return null
       }
 

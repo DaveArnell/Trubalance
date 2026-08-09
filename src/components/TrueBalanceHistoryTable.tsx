@@ -13,6 +13,7 @@ import { HelpButton } from './HelpButton'
 import { DayNoteEditor } from './DayNoteEditor'
 import { getDayNoteText } from '../utils/dayNotes'
 import { getSnapshotIdsForDateInScope } from '../utils/snapshots'
+import { getStoredHistoryRecordIdsForDay } from '../utils/historyRebuild'
 import { useDemoMode } from '../contexts/DemoModeContext'
 import { useEditReadOnly } from '../hooks/useEditReadOnly'
 
@@ -56,6 +57,7 @@ interface TrueBalanceHistoryTableProps {
   correctSnapshotMetric?: AppActions['correctSnapshotMetric']
   onAddManualBalanceLog?: AppActions['addManualBalanceLogEntry']
   onDeleteSnapshots?: AppActions['deleteSnapshots']
+  onDeleteHistoryRecords?: AppActions['deleteHistoryRecords']
   onSetDayNote?: (date: string, text: string | null, scope: ViewScope) => void
 }
 
@@ -81,6 +83,7 @@ export function TrueBalanceHistoryTable({
   correctSnapshotMetric: correctSnapshotMetricProp,
   onAddManualBalanceLog: onAddManualBalanceLogProp,
   onDeleteSnapshots: onDeleteSnapshotsProp,
+  onDeleteHistoryRecords: onDeleteHistoryRecordsProp,
   onSetDayNote: onSetDayNoteProp,
 }: TrueBalanceHistoryTableProps) {
   const editReadOnly = useEditReadOnly()
@@ -88,6 +91,7 @@ export function TrueBalanceHistoryTable({
   const correctSnapshotMetric = !editReadOnly ? correctSnapshotMetricProp : undefined
   const onAddManualBalanceLog = !editReadOnly ? onAddManualBalanceLogProp : undefined
   const onDeleteSnapshots = !editReadOnly ? onDeleteSnapshotsProp : undefined
+  const onDeleteHistoryRecords = !editReadOnly ? onDeleteHistoryRecordsProp : undefined
   const onSetDayNote = !editReadOnly ? onSetDayNoteProp : undefined
   const demoMode = useDemoMode()
   const { isMobile } = useMobileNav()
@@ -192,20 +196,39 @@ export function TrueBalanceHistoryTable({
   }
 
   const deleteRow = (row: (typeof rows)[number]) => {
-    if (!onDeleteSnapshots || granularity !== 'daily') return
+    if (granularity !== 'daily') return
+    if (!onDeleteSnapshots && !onDeleteHistoryRecords) return
     const snapshotIds = getSnapshotIdsForDateInScope(state, row.date, viewScope)
-    if (snapshotIds.length === 0) return
+    const historyIds = getStoredHistoryRecordIdsForDay(state, row.date, viewScope)
+    if (snapshotIds.length === 0 && historyIds.length === 0) {
+      window.alert(
+        'This day is calculated live and has no saved balance log entry to delete. Correct the value instead, or remove it after saving balances for that day.',
+      )
+      return
+    }
     const label = formatHistoryPeriod(row.date, granularity)
+    const parts: string[] = []
+    if (snapshotIds.length === 1) parts.push('the saved balance point')
+    else if (snapshotIds.length > 1) parts.push(`${snapshotIds.length} saved balance points`)
+    if (historyIds.length > 0) parts.push('the history capture for that day')
     if (
       !window.confirm(
-        snapshotIds.length === 1
-          ? `Remove the balance log entry for ${label}? This removes the group, business, and site entries for that day.`
-          : `Remove ${snapshotIds.length} balance log entries for ${label}? This removes the group, business, and site entries for that day.`,
+        `Remove ${parts.join(' and ')} for ${label}? Group, business, and site entries for that day are included when present.`,
       )
     ) {
       return
     }
-    onDeleteSnapshots(snapshotIds)
+    if (snapshotIds.length > 0) onDeleteSnapshots?.(snapshotIds)
+    if (historyIds.length > 0) onDeleteHistoryRecords?.(historyIds)
+  }
+
+  const canDeleteRow = (row: (typeof rows)[number]) => {
+    if (granularity !== 'daily') return false
+    if (!onDeleteSnapshots && !onDeleteHistoryRecords) return false
+    return (
+      getSnapshotIdsForDateInScope(state, row.date, viewScope).length > 0 ||
+      getStoredHistoryRecordIdsForDay(state, row.date, viewScope).length > 0
+    )
   }
 
   const granularityControls = (
@@ -311,7 +334,7 @@ export function TrueBalanceHistoryTable({
                   >
                     {totalCell?.value == null ? '—' : formatCurrency(totalCell.value)}
                   </button>
-                  {onDeleteSnapshots && granularity === 'daily' ? (
+                  {canDeleteRow(row) ? (
                     <button
                       type="button"
                       className="history-row-delete"
@@ -441,7 +464,7 @@ export function TrueBalanceHistoryTable({
                     </span>
                   </th>
                 ))}
-                {onDeleteSnapshots && granularity === 'daily' ? (
+                {(onDeleteSnapshots || onDeleteHistoryRecords) && granularity === 'daily' ? (
                   <th className="history-actions-col" aria-label="Actions" />
                 ) : null}
               </tr>
@@ -527,7 +550,7 @@ export function TrueBalanceHistoryTable({
                       </td>
                     )
                   })}
-                  {onDeleteSnapshots && granularity === 'daily' ? (
+                  {canDeleteRow(row) ? (
                     <td className="history-actions-col">
                       <button
                         type="button"
@@ -547,6 +570,8 @@ export function TrueBalanceHistoryTable({
                         </svg>
                       </button>
                     </td>
+                  ) : (onDeleteSnapshots || onDeleteHistoryRecords) && granularity === 'daily' ? (
+                    <td className="history-actions-col" />
                   ) : null}
                 </tr>
               )})}
@@ -568,7 +593,9 @@ export function TrueBalanceHistoryTable({
         {onAddManualBalanceLog && granularity === 'daily' ? ' · + Add for a manual point (*)' : ''}
         {granularity !== 'daily' ? ' · Switch to Daily to edit values' : ''}
         {onSetDayNote && granularity === 'daily' ? ' · Click a note cell to add a note' : ''}
-        {onDeleteSnapshots && granularity === 'daily' ? ' · Delete removes saved points for that day' : ''}
+        {(onDeleteSnapshots || onDeleteHistoryRecords) && granularity === 'daily'
+          ? ' · Delete removes saved points for that day'
+          : ''}
       </p>
       {correction && correctSnapshotMetric ? (
         <SnapshotCorrectionModal

@@ -108,6 +108,7 @@ export function buildPageWidgets(pageId: PageId, ctx: PageWidgetContext): Record
               correctSnapshotMetric={actions.correctSnapshotMetric}
               onAddManualBalanceLog={actions.addManualBalanceLogEntry}
               onDeleteSnapshots={actions.deleteSnapshots}
+              onDeleteHistoryRecords={actions.deleteHistoryRecords}
               onSetDayNote={actions.setDayNote}
             />
           </div>
