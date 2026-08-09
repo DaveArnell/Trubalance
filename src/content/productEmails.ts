@@ -28,7 +28,7 @@ export const PRODUCT_EMAILS: ProductEmailCopy[] = [
     subject: 'Welcome to Cash Prophet',
     title: 'Welcome to Cash Prophet',
     paragraphs: [
-      'You now have a clearer view of where your business really stands — not just what is sitting in the bank.',
+      'You now have a clearer view of where your business really stands, not just what is sitting in the bank.',
       'Start by adding your businesses and saving your account balances. Your Cash Prophet Balance updates as you go.',
     ],
     ctaLabel: 'Open your dashboard',
@@ -40,7 +40,7 @@ export const PRODUCT_EMAILS: ProductEmailCopy[] = [
     subject: 'Ready to keep Cash Prophet after your trial?',
     title: 'Your trial is underway',
     paragraphs: [
-      'You have been using Cash Prophet for about a week. When you are ready, choose a plan and add a card in Settings — nothing is charged until your free trial ends.',
+      'You have been using Cash Prophet for about a week. When you are ready, choose a plan and add a card in Settings. Nothing is charged until your free trial ends.',
       'That way editing stays open without a scramble on the last day.',
     ],
     ctaLabel: 'Choose a plan',
@@ -52,7 +52,7 @@ export const PRODUCT_EMAILS: ProductEmailCopy[] = [
     subject: 'Your Cash Prophet trial ends in 3 days',
     title: 'Three days left on your trial',
     paragraphs: [
-      'Your free trial ends soon. Pick a plan and add a card now so your subscription starts the day after the trial — your workspace and data stay put either way.',
+      'Your free trial ends soon. Pick a plan and add a card now so your subscription starts the day after the trial. Your workspace and data stay put either way.',
       'Without a plan, the workspace becomes view-only when the trial ends. You can subscribe later whenever you like.',
     ],
     ctaLabel: 'Choose a plan',
