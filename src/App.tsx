@@ -15,6 +15,7 @@ import {
   acknowledgeNewlyDueKey as persistAcknowledgeNewlyDueKey,
   countPendingNewlyDueNotices,
   getActiveNewlyDueNotifyKeys,
+  markMorningCheckInDone,
 } from './utils/morningCheckIn'
 import { MobileBottomNav } from './components/mobile/MobileBottomNav'
 import {
@@ -481,6 +482,8 @@ function AppShellInner({
 
   const handleSetupComplete = async () => {
     setSetupWizardOpen(false)
+    // Don't interrupt the post-setup tour with Today's check-in on the same day.
+    markMorningCheckInDone()
     goToRoute('committed-funds')
     setPendingSetupTour(true)
     if (user?.id && !onboardingCompleted) {
@@ -1109,7 +1112,7 @@ function AppShellInner({
             goToRoute('reserve-planner', first?.id)
           }}
           onCheckInClosed={() => setDueNotifyRefresh((n) => n + 1)}
-          enabled={!isDemoSession}
+          enabled={!isDemoSession && onboardingCompleted && !setupWizardOpen}
         />
       </DashboardViewPreferencesProvider>
       </TablePreferencesProvider>

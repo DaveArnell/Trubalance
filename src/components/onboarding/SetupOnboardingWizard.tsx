@@ -73,6 +73,7 @@ export function SetupOnboardingWizard({
   const [venueName, setVenueName] = useState('')
   const [accountName, setAccountName] = useState('Current account')
   const [pendingBusinessAdvance, setPendingBusinessAdvance] = useState(false)
+  const [pendingExtraBusiness, setPendingExtraBusiness] = useState(false)
   const [structureError, setStructureError] = useState<string | null>(null)
 
   const step = steps[stepIndex]!
@@ -122,6 +123,13 @@ export function SetupOnboardingWizard({
   }, [pendingBusinessAdvance, primaryBusiness, actions])
 
   useEffect(() => {
+    if (!pendingExtraBusiness || state.businesses.length === 0) return
+    setPendingExtraBusiness(false)
+    const nextName = `Business ${state.businesses.length + 1}`
+    actions.addBusiness(undefined, nextName, true)
+  }, [pendingExtraBusiness, state.businesses.length, actions])
+
+  useEffect(() => {
     document.querySelectorAll('[data-onboarding-focus]').forEach((el) => {
       el.removeAttribute('data-onboarding-focus')
     })
@@ -150,6 +158,24 @@ export function SetupOnboardingWizard({
     }
     dismissSetupOnboardingLocally()
     onDismiss()
+  }
+
+  const handleAddAnotherBusiness = () => {
+    setStructureError(null)
+    if (state.businesses.length > 0) {
+      actions.addBusiness(undefined, `Business ${state.businesses.length + 1}`, true)
+      return
+    }
+    if (!businessName.trim()) {
+      setStructureError('Enter a name for your first business, then you can add another.')
+      return
+    }
+    actions.setupMinimalWorkspace({
+      businessName: businessName.trim(),
+      venueName: venueName.trim() || undefined,
+      currentAccountName: accountName.trim() || 'Current account',
+    })
+    setPendingExtraBusiness(true)
   }
 
   const handleBusinessNext = () => {
@@ -283,6 +309,7 @@ export function SetupOnboardingWizard({
                 if (patch.accountName !== undefined) setAccountName(patch.accountName)
                 if (structureError) setStructureError(null)
               }}
+              onAddAnotherBusiness={handleAddAnotherBusiness}
             />
             {structureError && (
               <p className="setup-onboarding-form-error" role="alert">

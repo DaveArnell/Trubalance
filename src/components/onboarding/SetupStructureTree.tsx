@@ -27,6 +27,8 @@ interface SetupStructureTreeProps {
   actions: StructureActions
   draft: SetupStructureTreeDraft
   onDraftChange: (patch: Partial<SetupStructureTreeDraft>) => void
+  /** Persist the draft first business (if needed) then add another business. */
+  onAddAnotherBusiness: () => void
 }
 
 function accountTypeLabel(type: Account['type']) {
@@ -232,9 +234,11 @@ function BusinessNode({
 function DraftBusinessTree({
   draft,
   onDraftChange,
+  onAddAnotherBusiness,
 }: {
   draft: SetupStructureTreeDraft
   onDraftChange: (patch: Partial<SetupStructureTreeDraft>) => void
+  onAddAnotherBusiness: () => void
 }) {
   return (
     <div className="structure-tree structure-tree--editable">
@@ -296,17 +300,36 @@ function DraftBusinessTree({
           </button>
         )}
       </div>
-      <p className="muted" style={{ marginTop: '12px', fontSize: '0.78rem' }}>
-        Start with one business and account. You can add more businesses, sites, and accounts once you
-        continue.
+      <button
+        type="button"
+        className="structure-tree-add-btn structure-tree-add-business-btn"
+        onClick={onAddAnotherBusiness}
+      >
+        + Add another business
+      </button>
+      <p className="muted" style={{ marginTop: '8px', fontSize: '0.78rem' }}>
+        Name your first business above, then add another business or a venue/site here if you need
+        them. You can keep editing structure after setup too.
       </p>
     </div>
   )
 }
 
-export function SetupStructureTree({ state, actions, draft, onDraftChange }: SetupStructureTreeProps) {
+export function SetupStructureTree({
+  state,
+  actions,
+  draft,
+  onDraftChange,
+  onAddAnotherBusiness,
+}: SetupStructureTreeProps) {
   if (state.businesses.length === 0) {
-    return <DraftBusinessTree draft={draft} onDraftChange={onDraftChange} />
+    return (
+      <DraftBusinessTree
+        draft={draft}
+        onDraftChange={onDraftChange}
+        onAddAnotherBusiness={onAddAnotherBusiness}
+      />
+    )
   }
 
   const venueAccounts = Object.fromEntries(
@@ -338,10 +361,7 @@ export function SetupStructureTree({ state, actions, draft, onDraftChange }: Set
       <button
         type="button"
         className="structure-tree-add-btn structure-tree-add-business-btn"
-        onClick={() => {
-          const name = `Business ${state.businesses.length + 1}`
-          actions.addBusiness(undefined, name, true)
-        }}
+        onClick={onAddAnotherBusiness}
       >
         + Add another business
       </button>
