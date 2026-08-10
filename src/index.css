@@ -1028,7 +1028,7 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-radius: 0;
+  border-radius: var(--radius-md);
   background: var(--bg-surface-raised);
   border: 1px solid var(--border-strong);
   box-shadow: none;
@@ -4859,10 +4859,12 @@ body.widget-canvas-resizing * {
 .overview-strip--position-split {
   height: auto;
   min-height: 0;
+  overflow: hidden;
 }
 
 .overview-strip--position-split .overview-strip-body {
-  overflow: visible;
+  overflow: hidden;
+  border-radius: inherit;
 }
 
 .overview-strip--position-split .overview-strip-split,
@@ -4904,8 +4906,9 @@ body.widget-canvas-resizing * {
 
 .overview-strip--position-split .overview-strip-table {
   padding: 0.35rem 0.75rem 0.45rem;
-  overflow: auto;
+  overflow: hidden;
   min-width: 0;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
 }
 
 .overview-table-top {
@@ -5169,6 +5172,8 @@ body.widget-canvas-resizing * {
 .overview-strip--position-split .balance-position-hero {
   height: 100%;
   align-self: stretch;
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+  overflow: hidden;
 }
 
 .overview-strip--position-split .overview-strip-table {
@@ -6885,10 +6890,17 @@ body.overview-split-dragging {
   margin: 0;
   width: 100%;
   border-radius: var(--radius-md);
-  overflow: visible;
+  overflow: hidden;
   background: var(--bg-surface);
   border: 1px solid var(--border);
   box-shadow: none;
+}
+
+.overview-strip--position-split .overview-breakdown-wrap {
+  border: none;
+  background: transparent;
+  border-radius: 0;
+  overflow: hidden;
 }
 
 .overview-breakdown-table {
@@ -6899,6 +6911,15 @@ body.overview-split-dragging {
   border-spacing: 0;
   font-size: 1rem;
   background: transparent;
+}
+
+/* Keep TOTAL column cells inside the rounded overview card. */
+.overview-strip--position-split .overview-breakdown-table thead th:last-child {
+  border-top-right-radius: calc(var(--radius-md) - 1px);
+}
+
+.overview-strip--position-split .overview-breakdown-table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: calc(var(--radius-md) - 1px);
 }
 
 /* Beat Display density prefs — overview balances must stay readable. */
