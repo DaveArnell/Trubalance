@@ -24,6 +24,7 @@ import { useEditReadOnly } from '../hooks/useEditReadOnly'
 import { useMobileNav } from '../hooks/useMobileNav'
 import { useSheetRowReorder } from '../hooks/useSheetRowReorder'
 import { formatCurrency, getCurrencySymbol } from '../utils/format'
+import { roundCurrency } from '../utils/amounts'
 import { ReservePlanChart } from './ReservePlanChart'
 import { HelpButton } from './HelpButton'
 import { WIDGET_HELP } from '../content/livingDashboard'
@@ -92,7 +93,7 @@ function currentMonthClass(isCurrentMonth: boolean, isConfirmed: boolean) {
 
 function ReserveMonthFlowBar({
   monthLabel,
-  monthEnd,
+  monthEnd: _monthEnd,
   transferTarget,
   state,
   plannerId,
@@ -119,6 +120,7 @@ function ReserveMonthFlowBar({
   compact?: boolean
   readOnly?: boolean
 }) {
+  void _monthEnd
   const planner = state.reservePlanners.find((p) => p.id === plannerId)!
   const reserveAccount = getPlannerReserveAccount(state, planner)
   const operatingAccount = getPlannerOperatingAccount(state, planner)
@@ -198,20 +200,37 @@ function ReserveMonthFlowBar({
       {!compact && <span className="reserve-month-flow-bar-month">{monthLabel}</span>}
       {isConfirmed ? (
         <>
-          <div className="reserve-month-flow-summary">
-            <span className="reserve-month-flow-done-mark">✓</span>
-            <span className="reserve-month-flow-summary-text">
-              {transferLine}
-              {' · New reserve funds '}
-              {formatCellAmount(confirmation.balance)}
-              {monthEnd.variance !== null && Math.abs(monthEnd.variance) >= 0.5 && (
-                <span className="reserve-month-flow-variance">
-                  {' '}
-                  ({monthEnd.variance > 0 ? '+' : ''}
-                  {formatCellAmount(monthEnd.variance)} vs plan)
-                </span>
-              )}
+          <div className="reserve-month-flow-summary reserve-month-flow-summary--confirmed">
+            <span className="reserve-month-flow-done-mark" aria-hidden>
+              ✓
             </span>
+            <div className="reserve-month-flow-confirmed-metrics">
+              <div className="reserve-month-flow-confirmed-metric">
+                <span>In reserve</span>
+                <strong>{formatCellAmount(confirmation.balance)}</strong>
+              </div>
+              <div className="reserve-month-flow-confirmed-metric">
+                <span>Should be</span>
+                <strong>{formatCellAmount(transferTarget)}</strong>
+              </div>
+              <div
+                className={`reserve-month-flow-confirmed-metric reserve-month-flow-confirmed-metric--diff${
+                  Math.abs(roundCurrency(confirmation.balance - transferTarget)) < 0.5
+                    ? ' reserve-month-flow-confirmed-metric--ok'
+                    : confirmation.balance - transferTarget < 0
+                      ? ' reserve-month-flow-confirmed-metric--short'
+                      : ' reserve-month-flow-confirmed-metric--over'
+                }`}
+              >
+                <span>Difference</span>
+                <strong>
+                  {(() => {
+                    const diff = roundCurrency(confirmation.balance - transferTarget)
+                    return `${diff > 0 ? '+' : ''}${formatCellAmount(diff)}`
+                  })()}
+                </strong>
+              </div>
+            </div>
           </div>
           <button
             type="button"
@@ -821,12 +840,6 @@ export function ReservePlannerPanel({
             <h2 className="reserve-planner-business-heading">
               {businessName ? `${businessName} Reserve Plan` : planner.name || 'Reserve Plan'}
             </h2>
-            {isMobile ? (
-              <p className="reserve-planner-heading-plan">
-                Should be <strong>{formatCurrency(currentMonthTransferTarget)}</strong>
-                <span className="muted"> · {formatCurrency(grid.totalMonthly)}/mo average</span>
-              </p>
-            ) : null}
           </div>
           <div className="card-head-toolbar-right">
             {!editReadOnly && (

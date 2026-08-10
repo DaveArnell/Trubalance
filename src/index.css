@@ -9233,18 +9233,6 @@ textarea:focus {
   margin-top: 2px;
 }
 
-.reserve-planner-heading-plan {
-  margin: 2px 0 0;
-  font-size: 0.78rem;
-  line-height: 1.35;
-  color: var(--text-primary);
-  text-align: center;
-}
-
-.reserve-planner-heading-plan strong {
-  font-weight: 700;
-}
-
 .reserve-buffer-field {
   display: grid;
   gap: 2px;
@@ -9560,6 +9548,67 @@ textarea:focus {
   margin: 0;
   padding: 0;
   min-width: 0;
+}
+
+.reserve-month-flow-summary--confirmed {
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.reserve-month-flow-confirmed-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  min-width: 0;
+  flex: 1;
+}
+
+.reserve-month-flow-confirmed-metric {
+  display: grid;
+  gap: 2px;
+  min-width: 4.5rem;
+}
+
+.reserve-month-flow-confirmed-metric span {
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.reserve-month-flow-confirmed-metric strong {
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.reserve-month-flow-confirmed-metric--ok strong {
+  color: var(--status-green-text);
+}
+
+.reserve-month-flow-confirmed-metric--short strong {
+  color: var(--status-orange-text);
+}
+
+.reserve-month-flow-confirmed-metric--over strong {
+  color: var(--status-green-text);
+}
+
+@media (max-width: 900px) {
+  .app-shell--mobile .reserve-month-flow-confirmed-metrics {
+    gap: 10px 12px;
+  }
+
+  .app-shell--mobile .reserve-month-flow-confirmed-metric {
+    flex: 1 1 calc(33.33% - 12px);
+    min-width: 5rem;
+  }
+
+  .app-shell--mobile .reserve-month-flow-confirmed-metric strong {
+    font-size: 0.95rem;
+  }
 }
 
 .reserve-month-flow-adjust {
