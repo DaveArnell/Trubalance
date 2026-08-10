@@ -53,7 +53,6 @@ import { usePageMeta } from './hooks/usePageMeta'
 import { ViewingScopeBar } from './components/ViewingScopeBar'
 import { ViewingScopePicker } from './components/ViewingScopePicker'
 import { scopeThemeBusinessId, scopeThemeStyle } from './utils/businessTheme'
-import { defaultViewScope as initialDefaultViewScope } from './data/initialState'
 import { formatSnapshotDateLong } from './utils/snapshots'
 import { SubscriptionProvider, useSubscription } from './contexts/SubscriptionContext'
 import { PostTrialNotice, ReadOnlyLockBanner, TrialBanner, TrialWarningModal, UpgradePrompt } from './components/UpgradePrompt'
@@ -297,6 +296,8 @@ function AppShellInner({
   const [reserveMenuOpen, setReserveMenuOpen] = useState(false)
   const { isMobile, mobileNavOpen, closeMobileNav, toggleMobileNav } = useMobileNav()
   const mobileChromeRef = useRef<HTMLDivElement>(null)
+  /** Viewing scope before opening Reserve — restored when leaving so CPB/receipts don't stay stuck on the planner business. */
+  const scopeBeforeReserveRef = useRef<ViewScope | null>(null)
   const [homeSection, setHomeSection] = useState<MobileHomeSection>('committed-funds')
 
   useLayoutEffect(() => {
@@ -639,14 +640,12 @@ function AppShellInner({
       pageId = 'committed-funds'
     }
 
-    if (pageId === 'settings') {
-      const firstGroup = app.state.groups[0]
-      if (firstGroup) {
-        app.setViewScope({ type: 'group', id: firstGroup.id })
-      } else {
-        app.setViewScope(initialDefaultViewScope)
-      }
+    // Leaving Reserve: put Viewing scope back so Home / CPB / receipts match what you had before.
+    if (pageId !== 'reserve-planner' && scopeBeforeReserveRef.current) {
+      app.setViewScope(scopeBeforeReserveRef.current)
+      scopeBeforeReserveRef.current = null
     }
+
     let resolvedReserveId = reservePlannerId
     if (
       pageId === 'reserve-planner' &&
@@ -662,6 +661,9 @@ function AppShellInner({
     ) {
       const planner = app.state.reservePlanners.find((p) => p.id === resolvedReserveId)
       if (planner) {
+        if (!scopeBeforeReserveRef.current) {
+          scopeBeforeReserveRef.current = app.viewScope
+        }
         app.setViewScope({ type: 'business', id: planner.businessId })
       }
     }

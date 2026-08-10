@@ -435,7 +435,7 @@ export function BreakdownTable({
   const bankLabel = shortLabels ? 'Bank' : 'Bank balance'
   const cpbLabel = shortLabels ? 'CPB' : 'Cash Prophet Balance'
   const costsLabel = shortLabels ? 'Costs' : 'Total costs'
-  const receiptsLabel = shortLabels ? 'In' : 'Expected receipts'
+  const receiptsLabel = shortLabels ? 'Receipts' : 'Expected receipts'
 
   const balanceRow = (rowType: 'current' | 'savings', label: string, fullLabel?: string) => (
     <tr className={`sheet-row-balance${rowType === 'savings' ? ' sheet-row-savings' : ''}`}>
