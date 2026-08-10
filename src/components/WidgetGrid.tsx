@@ -92,6 +92,27 @@ function collectCoupledWidgetIds(primaryId: string, coupling: ResizeCoupling): s
   ]
 }
 
+/** Only shared boundaries between widgets — never the outer canvas edges. */
+function allowedResizeEdges(
+  layout: Pick<WidgetLayoutItem, 'id' | 'visible' | 'col' | 'colSpan' | 'row' | 'rowSpan'>[],
+  widgetId: string,
+): ResizeEdge[] {
+  const hasEast = findEastNeighbors(layout, widgetId).length > 0
+  const hasWest = findWestNeighbors(layout, widgetId).length > 0
+  const hasSouth = buildSouthNeighborChain(layout, widgetId).length > 0
+  const hasNorth = buildNorthNeighborChain(layout, widgetId).length > 0
+  const edges: ResizeEdge[] = []
+  if (hasEast) edges.push('e')
+  if (hasWest) edges.push('w')
+  if (hasSouth) edges.push('s')
+  if (hasNorth) edges.push('n')
+  if (hasNorth && hasWest) edges.push('nw')
+  if (hasNorth && hasEast) edges.push('ne')
+  if (hasSouth && hasWest) edges.push('sw')
+  if (hasSouth && hasEast) edges.push('se')
+  return edges
+}
+
 function eastCouplingFromNeighbors(
   neighbors: { id: string }[],
 ): Pick<ResizeCoupling, 'eastNeighborId' | 'eastNeighborIds'> {
@@ -625,7 +646,7 @@ function WidgetSlot({
 
   onResizeStart,
 
-  resizable,
+  resizeEdges,
 
   settling,
 
@@ -651,14 +672,15 @@ function WidgetSlot({
 
   onResizeStart: (edge: ResizeEdge, event: ReactMouseEvent) => void
 
-  /** When true, edge/corner handles let you resize on desktop. */
-  resizable: boolean
+  /** Which edges/corners may resize — outer canvas edges stay fixed. */
+  resizeEdges: ResizeEdge[]
 
   children: ReactNode
 
 }) {
 
   const slotRef = useRef<HTMLDivElement>(null)
+  const canResize = (edge: ResizeEdge) => resizeEdges.includes(edge)
 
 
 
@@ -728,16 +750,32 @@ function WidgetSlot({
 
       <div className="widget-slot-body">{children}</div>
 
-      {resizable ? (
+      {resizeEdges.length > 0 ? (
         <>
-          <button type="button" className="widget-resize-handle widget-resize-handle--w" title="Resize from left edge" aria-label={`Resize ${getWidgetLabel(item.id)} from left`} onMouseDown={(event) => onResizeStart('w', event)} />
-          <button type="button" className="widget-resize-handle widget-resize-handle--e" title="Resize from right edge" aria-label={`Resize ${getWidgetLabel(item.id)} from right`} onMouseDown={(event) => onResizeStart('e', event)} />
-          <button type="button" className="widget-resize-handle widget-resize-handle--n" title="Resize from top edge" aria-label={`Resize ${getWidgetLabel(item.id)} from top`} onMouseDown={(event) => onResizeStart('n', event)} />
-          <button type="button" className="widget-resize-handle widget-resize-handle--s" title="Resize from bottom edge" aria-label={`Resize ${getWidgetLabel(item.id)} from bottom`} onMouseDown={(event) => onResizeStart('s', event)} />
-          <button type="button" className="widget-resize-handle widget-resize-handle--nw" title="Resize corner" aria-label={`Resize ${getWidgetLabel(item.id)} top-left`} onMouseDown={(event) => onResizeStart('nw', event)} />
-          <button type="button" className="widget-resize-handle widget-resize-handle--ne" title="Resize corner" aria-label={`Resize ${getWidgetLabel(item.id)} top-right`} onMouseDown={(event) => onResizeStart('ne', event)} />
-          <button type="button" className="widget-resize-handle widget-resize-handle--sw" title="Resize corner" aria-label={`Resize ${getWidgetLabel(item.id)} bottom-left`} onMouseDown={(event) => onResizeStart('sw', event)} />
-          <button type="button" className="widget-resize-handle widget-resize-handle--se" title="Resize corner" aria-label={`Resize ${getWidgetLabel(item.id)} bottom-right`} onMouseDown={(event) => onResizeStart('se', event)} />
+          {canResize('w') ? (
+            <button type="button" className="widget-resize-handle widget-resize-handle--w" title="Resize split" aria-label={`Resize ${getWidgetLabel(item.id)} from left`} onMouseDown={(event) => onResizeStart('w', event)} />
+          ) : null}
+          {canResize('e') ? (
+            <button type="button" className="widget-resize-handle widget-resize-handle--e" title="Resize split" aria-label={`Resize ${getWidgetLabel(item.id)} from right`} onMouseDown={(event) => onResizeStart('e', event)} />
+          ) : null}
+          {canResize('n') ? (
+            <button type="button" className="widget-resize-handle widget-resize-handle--n" title="Resize split" aria-label={`Resize ${getWidgetLabel(item.id)} from top`} onMouseDown={(event) => onResizeStart('n', event)} />
+          ) : null}
+          {canResize('s') ? (
+            <button type="button" className="widget-resize-handle widget-resize-handle--s" title="Resize split" aria-label={`Resize ${getWidgetLabel(item.id)} from bottom`} onMouseDown={(event) => onResizeStart('s', event)} />
+          ) : null}
+          {canResize('nw') ? (
+            <button type="button" className="widget-resize-handle widget-resize-handle--nw" title="Resize split" aria-label={`Resize ${getWidgetLabel(item.id)} top-left`} onMouseDown={(event) => onResizeStart('nw', event)} />
+          ) : null}
+          {canResize('ne') ? (
+            <button type="button" className="widget-resize-handle widget-resize-handle--ne" title="Resize split" aria-label={`Resize ${getWidgetLabel(item.id)} top-right`} onMouseDown={(event) => onResizeStart('ne', event)} />
+          ) : null}
+          {canResize('sw') ? (
+            <button type="button" className="widget-resize-handle widget-resize-handle--sw" title="Resize split" aria-label={`Resize ${getWidgetLabel(item.id)} bottom-left`} onMouseDown={(event) => onResizeStart('sw', event)} />
+          ) : null}
+          {canResize('se') ? (
+            <button type="button" className="widget-resize-handle widget-resize-handle--se" title="Resize split" aria-label={`Resize ${getWidgetLabel(item.id)} bottom-right`} onMouseDown={(event) => onResizeStart('se', event)} />
+          ) : null}
         </>
       ) : null}
 
@@ -770,8 +808,7 @@ export function WidgetGrid({ pageId, widgets, homeSection }: WidgetGridProps) {
 
   const [settling, setSettling] = useState(false)
 
-  // Keep size adjustments; no swap/move or per-widget ⋯ menu (Spreadsheet/Cards stay in Settings).
-  const resizable = true
+  // Keep size adjustments on shared splits only; no swap/move or per-widget ⋯ menu.
   const reorderable = false
 
   const visible = layout.filter((item) => item.visible)
@@ -1313,7 +1350,7 @@ export function WidgetGrid({ pageId, widgets, homeSection }: WidgetGridProps) {
 
           if (!content) return null
 
-
+          const layoutSnapshot = visible.map((entry) => ({ ...entry, ...getItemRect(entry) }))
 
           return (
 
@@ -1340,8 +1377,6 @@ export function WidgetGrid({ pageId, widgets, homeSection }: WidgetGridProps) {
               onMoveStart={(event) => startWidgetMove(item.id, event)}
 
               onResizeStart={(edge, event) => {
-
-                const layoutSnapshot = visible.map((entry) => ({ ...entry, ...getItemRect(entry) }))
 
                 const eastNeighbors = findEastNeighbors(layoutSnapshot, item.id)
 
@@ -1428,13 +1463,11 @@ export function WidgetGrid({ pageId, widgets, homeSection }: WidgetGridProps) {
 
                 }
 
-
-
-                startResize(item.id, edge, event)
+                // Outer canvas edges are fixed — ignore solo edge drags.
 
               }}
 
-              resizable={resizable}
+              resizeEdges={allowedResizeEdges(layoutSnapshot, item.id)}
 
             >
 
