@@ -49,7 +49,7 @@ import { todayDateKey, getFreshness } from '../utils/snapshots'
 import { parseVirtualSnapshotId } from '../utils/scopeSnapshotSeries'
 import { MONTHS, currentMonthIndex } from '../utils/format'
 import { syncGuidedStructureInState, type GuidedBusinessPayload } from '../utils/structureDraftSync'
-import { backupBrowserStateToSession, isUserOwnedWorkspace, mergeMissingLocalWorkspaceData, countCriticalEntitiesAdded, readRawBrowserStateJson, statesMatchRoughly } from '../utils/localStateStorage'
+import { backupBrowserStateToSession, isUserOwnedWorkspace, mergeMissingLocalWorkspaceData, countCriticalEntitiesAdded, unionExpectedReceipts, expectedReceiptsSyncKey, readRawBrowserStateJson, statesMatchRoughly } from '../utils/localStateStorage'
 import { normalizeWorkspaceState } from '../utils/workspaceNormalize'
 import { getReferenceDate, getReferenceDateKey } from '../utils/referenceDate'
 import { migrateDayNotes } from '../utils/dayNotes'
@@ -358,10 +358,14 @@ export function useAppState(options?: UseAppStateOptions) {
 
     // Prefer the cloud workspace whenever it loads or is refreshed (phone ↔ web).
     // Initial paint may use a local cache; this replaces it once remote state arrives.
-    // Merge in-memory critical entities so an add during hydrate is not discarded.
+    // Union receipts so open phone edits win over stale “received” cloud rows for the same id.
     const cloudNormalized = normalizeWorkspaceState(cloneState(external))
-    const next = mergeMissingLocalWorkspaceData(cloudNormalized, stateRef.current)
+    let next = mergeMissingLocalWorkspaceData(cloudNormalized, stateRef.current)
+    next = unionExpectedReceipts(next, stateRef.current)
     const mergeAdded = countCriticalEntitiesAdded(cloudNormalized, next).total > 0
+    const receiptsChanged =
+      expectedReceiptsSyncKey(cloudNormalized) !== expectedReceiptsSyncKey(next)
+    const shouldPushMerge = mergeAdded || receiptsChanged
     setState(next)
     undoStackRef.current = []
     setCanUndo(false)
@@ -379,9 +383,9 @@ export function useAppState(options?: UseAppStateOptions) {
         /* ignore quota */
       }
     }
-    // If this device still had receipts/costs the cloud lacked, persist so desktop catches up.
-    skipPersistRef.current = !mergeAdded
-    if (mergeAdded) {
+    // If this device still had receipts/costs the cloud lacked, persist so other devices catch up.
+    skipPersistRef.current = !shouldPushMerge
+    if (shouldPushMerge) {
       persistImmediateRef.current = true
     }
     remoteHydratedRef.current = true
@@ -1041,7 +1045,8 @@ export function useAppState(options?: UseAppStateOptions) {
     return created ? id : null
   }
 
-  const updateReceipt = (id: string, patch: Partial<ExpectedReceipt>) =>
+  const updateReceipt = (id: string, patch: Partial<ExpectedReceipt>) => {
+    requestImmediatePersist()
     update((s) => {
       const existing = s.expectedReceipts.find((r) => r.id === id)
       if (!existing) return s
@@ -1075,6 +1080,7 @@ export function useAppState(options?: UseAppStateOptions) {
         new Date().toISOString(),
       )
     })
+  }
 
   const markReceiptReceived = (id: string, receivedAmount?: number) => {
     requestImmediatePersist()
@@ -1113,7 +1119,8 @@ export function useAppState(options?: UseAppStateOptions) {
     })
   }
 
-  const deleteReceipt = (id: string) =>
+  const deleteReceipt = (id: string) => {
+    requestImmediatePersist()
     update((s) => {
       const existing = s.expectedReceipts.find((r) => r.id === id)
       if (!existing) return s
@@ -1128,6 +1135,7 @@ export function useAppState(options?: UseAppStateOptions) {
         new Date().toISOString(),
       )
     })
+  }
 
   const duplicateReceipt = (id: string) =>
     update((s) => {

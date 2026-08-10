@@ -582,7 +582,21 @@ export async function saveWorkspaceState(
     'last_paid_on_date',
     'due_period_amount_overrides',
     'acknowledged_due_periods',
+    'received_date',
   ]
+
+  /** Fail the whole save if these cannot upsert — silent continue left devices out of sync. */
+  const CRITICAL_UPSERT_TABLES = new Set([
+    'groups',
+    'businesses',
+    'venues',
+    'accounts',
+    'commitments',
+    'expected_receipts',
+    'reserve_planners',
+    'reserve_bills',
+  ])
+  const failedCritical: string[] = []
 
   /** Tables where a partial hydrate + orphan-delete previously wiped live data. */
   const TARGETED_DELETE_TABLES = new Set<string>([
@@ -657,6 +671,9 @@ export async function saveWorkspaceState(
       const { error: retryErr } = await supabase.from(table.name).upsert(coreRows)
       if (retryErr) {
         console.warn(`[workspaceRepository] upsert ${table.name} (retry):`, retryErr.message)
+        if (CRITICAL_UPSERT_TABLES.has(table.name)) {
+          failedCritical.push(`${table.name}: ${retryErr.message}`)
+        }
         continue
       }
     }
@@ -687,6 +704,10 @@ export async function saveWorkspaceState(
   // Business Hub removed — clear any legacy rows still in the database.
   await supabase.from('business_reference_profiles').delete().eq('workspace_id', workspaceId)
   await supabase.from('diary_reminders').delete().eq('workspace_id', workspaceId)
+
+  if (failedCritical.length > 0) {
+    throw new Error(`Cloud save failed for: ${failedCritical.join('; ')}`)
+  }
 }
 
 export async function getUserWorkspaceId(userId: string): Promise<string | null> {

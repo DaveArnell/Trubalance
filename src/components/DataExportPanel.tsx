@@ -250,9 +250,10 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
           <h3>Where it is saved</h3>
           {cloudBacked ? (
             <p className="muted">
-              Your workspace syncs to your account when you are signed in. If phone and desktop disagree
-              (for example expected receipts on one device only), open Settings on the device that looks
-              correct and tap <strong>Sync this device to account</strong>, then refresh the other device.
+              Your workspace syncs to your account automatically while you are signed in — including
+              when you switch apps or come back online. Phone and desktop pull the latest copy within
+              a few seconds. Use <strong>Sync this device to account</strong> only if something still
+              looks wrong on one device after a refresh.
             </p>
           ) : signedIn ? (
             <p className="muted">

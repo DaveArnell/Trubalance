@@ -20,7 +20,7 @@ import {
   saveWorkspaceState,
   buildSafeTableEmptyDeletes,
 } from '../services/workspaceRepository'
-import { isSupabaseConfigured } from '../lib/supabase'
+import { isSupabaseConfigured, tryGetSupabase } from '../lib/supabase'
 import { emptyAppState, isBuiltinDemoWorkspace, isUserOwnedWorkspace, backupBrowserStateToSession, mergeMissingLocalWorkspaceData, countCriticalEntitiesAdded, unionExpectedReceipts, expectedReceiptsSyncKey } from '../utils/localStateStorage'
 import { readBrowserAppState } from '../hooks/useAppState'
 import { normalizeWorkspaceStateForDisplay } from '../utils/workspaceNormalize'
@@ -34,12 +34,16 @@ function workspaceSyncFingerprint(state: AppState): string {
   const commitments = state.commitments
     .map(
       (c) =>
-        `${c.id}:${c.lastPaidPeriod ?? ''}:${JSON.stringify(c.paidPeriodAmounts ?? {})}:${c.amount}:${c.dueDayOfMonth ?? ''}`,
+        `${c.id}:${c.name}:${c.lastPaidPeriod ?? ''}:${JSON.stringify(c.paidPeriodAmounts ?? {})}:${c.amount}:${c.dueDayOfMonth ?? ''}:${c.scopeId}`,
     )
     .sort()
     .join('|')
+  // Include name/scope/dates — narrower fingerprints used to skip remounting after phone edits.
   const receipts = state.expectedReceipts
-    .map((r) => `${r.id}:${r.amount}:${r.received ? 1 : 0}:${r.receivedDate ?? ''}`)
+    .map(
+      (r) =>
+        `${r.id}:${r.name}:${r.scopeId}:${r.amount}:${r.received ? 1 : 0}:${r.receivedDate ?? ''}:${r.expectedDate ?? ''}:${r.receiptTiming ?? ''}:${r.accrualStartDate ?? ''}`,
+    )
     .sort()
     .join('|')
   const planners = state.reservePlanners
@@ -85,6 +89,16 @@ const WorkspaceContext = createContext<WorkspaceContextValue | null>(null)
 
 const SAVE_DEBOUNCE_MS = 400
 const LOAD_WORKSPACE_TIMEOUT_MS = 45_000
+const SYNC_PULL_THROTTLE_MS = 2_500
+const SYNC_INTERVAL_MS = 20_000
+const SAVE_RETRY_MS = 2_500
+const REALTIME_PULL_TABLES = [
+  'expected_receipts',
+  'commitments',
+  'accounts',
+  'reserve_planners',
+  'reserve_bills',
+] as const
 
 function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
   return new Promise<T>((resolve, reject) => {
@@ -137,6 +151,8 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const loadedStateRef = useRef<AppState | null>(null)
   const lastPersistedStateRef = useRef<AppState | null>(null)
   const lastSyncFingerprintRef = useRef<string | null>(null)
+  const syncInFlightRef = useRef(false)
+  const saveRetryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const loadedForUserRef = useRef<string | null>(null)
   const hasLoadedStateRef = useRef(
     (() => {
@@ -305,30 +321,6 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     loadWorkspace()
   }, [loadWorkspace])
 
-  // Pull latest cloud state when returning to the tab (phone ↔ web).
-  useEffect(() => {
-    if (!remoteEnabled) return
-
-    let lastRefresh = 0
-    const refreshIfStale = () => {
-      if (document.visibilityState !== 'visible') return
-      if (!persistEnabledRef.current || readOnly) return
-      if (pendingStateRef.current || saveTimerRef.current) return
-      const now = Date.now()
-      if (now - lastRefresh < 2500) return
-      lastRefresh = now
-      void loadWorkspace()
-    }
-
-    const onFocus = () => refreshIfStale()
-    document.addEventListener('visibilitychange', refreshIfStale)
-    window.addEventListener('focus', onFocus)
-    return () => {
-      document.removeEventListener('visibilitychange', refreshIfStale)
-      window.removeEventListener('focus', onFocus)
-    }
-  }, [remoteEnabled, readOnly, loadWorkspace])
-
   const refreshSubscription = useCallback(async () => {
     if (!workspaceId || !isSupabaseConfigured) return null
     const remoteSubscription = await loadWorkspaceSubscription(workspaceId)
@@ -401,9 +393,19 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
           lastSyncFingerprintRef.current = workspaceSyncFingerprint(state)
           setInitialRemoteState(state)
         }
+        if (saveRetryTimerRef.current) {
+          clearTimeout(saveRetryTimerRef.current)
+          saveRetryTimerRef.current = null
+        }
       } catch (error) {
-        console.warn('[WorkspaceContext] save failed:', error)
+        console.warn('[WorkspaceContext] save failed — will retry:', error)
         if (pendingStateRef.current == null) pendingStateRef.current = state
+        if (!saveRetryTimerRef.current) {
+          saveRetryTimerRef.current = setTimeout(() => {
+            saveRetryTimerRef.current = null
+            void flushSave()
+          }, SAVE_RETRY_MS)
+        }
         break
       }
     }
@@ -432,6 +434,110 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     },
     [remoteEnabled, readOnly, workspaceId, flushSave],
   )
+
+  // Keep devices aligned: flush local edits, then pull cloud (focus / online / interval).
+  useEffect(() => {
+    if (!remoteEnabled) return
+
+    let lastPullAt = 0
+    let cancelled = false
+
+    const flushPendingSoon = () => {
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current)
+        saveTimerRef.current = null
+      }
+      return flushSave()
+    }
+
+    const flushThenPull = async (reason: string) => {
+      if (cancelled || readOnly) return
+      if (syncInFlightRef.current) return
+      const now = Date.now()
+      if (now - lastPullAt < SYNC_PULL_THROTTLE_MS && reason !== 'online') return
+      syncInFlightRef.current = true
+      lastPullAt = now
+      try {
+        await flushPendingSoon()
+        if (cancelled) return
+        await loadWorkspace()
+      } catch (error) {
+        console.warn(`[Workspace] sync (${reason}) failed`, error)
+      } finally {
+        syncInFlightRef.current = false
+      }
+    }
+
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') {
+        void flushPendingSoon()
+        return
+      }
+      void flushThenPull('visibility')
+    }
+    const onFocus = () => {
+      if (document.visibilityState === 'visible') void flushThenPull('focus')
+    }
+    const onOnline = () => void flushThenPull('online')
+    const onPageHide = () => {
+      void flushPendingSoon()
+    }
+
+    document.addEventListener('visibilitychange', onVisibility)
+    window.addEventListener('focus', onFocus)
+    window.addEventListener('online', onOnline)
+    window.addEventListener('pagehide', onPageHide)
+
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState !== 'visible') return
+      void flushThenPull('interval')
+    }, SYNC_INTERVAL_MS)
+
+    return () => {
+      cancelled = true
+      document.removeEventListener('visibilitychange', onVisibility)
+      window.removeEventListener('focus', onFocus)
+      window.removeEventListener('online', onOnline)
+      window.removeEventListener('pagehide', onPageHide)
+      window.clearInterval(intervalId)
+    }
+  }, [remoteEnabled, readOnly, loadWorkspace, flushSave])
+
+  // Live updates when another device writes to the account (requires Realtime publication).
+  useEffect(() => {
+    if (!remoteEnabled || readOnly || !workspaceId) return
+    const supabase = tryGetSupabase()
+    if (!supabase) return
+
+    let pullTimer: ReturnType<typeof setTimeout> | null = null
+    const schedulePull = () => {
+      if (pullTimer) clearTimeout(pullTimer)
+      pullTimer = setTimeout(() => {
+        if (document.visibilityState !== 'visible') return
+        if (pendingStateRef.current || saveTimerRef.current || syncInFlightRef.current) return
+        void loadWorkspace()
+      }, 800)
+    }
+
+    const channel = supabase.channel(`workspace-sync:${workspaceId}`)
+    for (const table of REALTIME_PULL_TABLES) {
+      channel.on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table, filter: `workspace_id=eq.${workspaceId}` },
+        schedulePull,
+      )
+    }
+    channel.subscribe((status) => {
+      if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+        console.info('[Workspace] Realtime sync unavailable — using focus/interval sync')
+      }
+    })
+
+    return () => {
+      if (pullTimer) clearTimeout(pullTimer)
+      void supabase.removeChannel(channel)
+    }
+  }, [remoteEnabled, readOnly, workspaceId, loadWorkspace])
 
   const restoreFromBrowser = useCallback(async (): Promise<AppState | null> => {
     const local = readBrowserAppState()

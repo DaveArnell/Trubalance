@@ -148,7 +148,7 @@ export function expectedReceiptsSyncKey(state: AppState): string {
   return state.expectedReceipts
     .map(
       (receipt) =>
-        `${receipt.id}:${receipt.amount}:${receipt.received ? 1 : 0}:${receipt.receivedDate ?? ''}:${receipt.expectedDate ?? ''}`,
+        `${receipt.id}:${receipt.name}:${receipt.scopeId}:${receipt.amount}:${receipt.received ? 1 : 0}:${receipt.receivedDate ?? ''}:${receipt.expectedDate ?? ''}:${receipt.receiptTiming ?? ''}`,
     )
     .sort()
     .join('|')
