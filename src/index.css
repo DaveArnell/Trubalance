@@ -994,7 +994,8 @@ body {
   grid-template-columns: repeat(96, minmax(0, 1fr));
   gap: 0;
   overflow: hidden;
-  background: var(--bg-app);
+  /* Let main-content / scope wash show through widget gaps */
+  background: transparent;
 }
 
 .widget-slot {
@@ -3818,7 +3819,7 @@ body.widget-canvas-resizing * {
     z-index: 40;
     margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) 0;
     padding: 0 var(--space-2) var(--space-2);
-    background: var(--bg-app);
+    background: transparent;
     border-bottom: 1px solid var(--border);
   }
 
@@ -3832,7 +3833,7 @@ body.widget-canvas-resizing * {
   }
 
   .app-shell--mobile[data-scope-level] .main-content--mobile {
-    background: var(--bg-app);
+    background: color-mix(in srgb, var(--scope-accent-wash, transparent) 100%, var(--bg-app));
   }
 
   .mobile-page-scroll {
@@ -26770,10 +26771,10 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   font-weight: 600;
 }
 
-/* Widgets stay neutral — scope colour on shell chrome only. */
+/* Widgets stay neutral — rounded body carries the surface; gaps show scope wash. */
 .app-shell[data-scope-level] .widget-slot {
-  background: var(--bg-surface-raised);
-  border: 1.5px solid var(--border-strong);
+  background: transparent;
+  border: none;
   box-shadow: none;
 }
 
