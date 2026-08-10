@@ -21,7 +21,7 @@ import {
   buildSafeTableEmptyDeletes,
 } from '../services/workspaceRepository'
 import { isSupabaseConfigured } from '../lib/supabase'
-import { emptyAppState, isBuiltinDemoWorkspace, isUserOwnedWorkspace, backupBrowserStateToSession, mergeMissingLocalWorkspaceData, countCriticalEntitiesAdded } from '../utils/localStateStorage'
+import { emptyAppState, isBuiltinDemoWorkspace, isUserOwnedWorkspace, backupBrowserStateToSession, mergeMissingLocalWorkspaceData, countCriticalEntitiesAdded, unionExpectedReceipts, expectedReceiptsSyncKey } from '../utils/localStateStorage'
 import { readBrowserAppState } from '../hooks/useAppState'
 import { normalizeWorkspaceStateForDisplay } from '../utils/workspaceNormalize'
 
@@ -230,7 +230,10 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         // so a partial cloud response cannot wipe planners/receipts on the next save.
         const beforeMerge = state
         state = mergeMissingLocalWorkspaceData(state, localState)
+        state = unionExpectedReceipts(state, localState)
         const added = countCriticalEntitiesAdded(beforeMerge, state)
+        const receiptsChanged =
+          expectedReceiptsSyncKey(beforeMerge) !== expectedReceiptsSyncKey(state)
         if (loadHadErrors) {
           console.warn(
             '[Workspace] Cloud load had table errors — merged missing local planners/receipts/commitments',
@@ -238,7 +241,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         }
         // Push unioned receipts/costs so other devices (desktop) see what this phone kept locally.
         // previousState = cloud-before-merge → upserts new ids only; does not delete cloud rows.
-        if (added.total > 0 && !readOnly) {
+        if ((added.total > 0 || receiptsChanged) && !isImpersonating) {
           try {
             await saveWorkspaceState(wsId, state, {
               allowEmptyDeletes: false,
@@ -463,27 +466,53 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     const local = readBrowserAppState()
     const { state: cloudState } = await loadWorkspaceState(workspaceId)
     const beforeMerge = cloudState
-    let merged = cloudState
+
+    // Always take receipts from this device seriously — not only brand-new ids.
+    let merged = unionExpectedReceipts(cloudState, local, liveState)
     if (local && isUserOwnedWorkspace(local)) {
       merged = mergeMissingLocalWorkspaceData(merged, local)
     }
-    if (liveState && isUserOwnedWorkspace(liveState)) {
-      merged = mergeMissingLocalWorkspaceData(merged, liveState)
+    if (liveState) {
+      // Even if origin flag is missing, still merge costs/planners from what is on screen.
+      merged = mergeMissingLocalWorkspaceData(merged, { ...liveState, workspaceOrigin: 'user' })
+      merged = unionExpectedReceipts(merged, liveState)
     }
-    merged = normalizeWorkspaceStateForDisplay(merged)
+    merged = normalizeWorkspaceStateForDisplay({
+      ...merged,
+      workspaceOrigin: merged.workspaceOrigin ?? 'user',
+    })
+
     const added = countCriticalEntitiesAdded(beforeMerge, merged)
-    if (added.total > 0) {
+    const receiptsChanged =
+      expectedReceiptsSyncKey(beforeMerge) !== expectedReceiptsSyncKey(merged)
+    const shouldSave = added.total > 0 || receiptsChanged
+
+    if (shouldSave) {
       await saveWorkspaceState(workspaceId, merged, {
         allowEmptyDeletes: false,
         previousState: beforeMerge,
       })
     }
+
     loadedStateRef.current = merged
     lastPersistedStateRef.current = merged
     lastSyncFingerprintRef.current = workspaceSyncFingerprint(merged)
     setInitialRemoteState(merged)
     setRemoteStateVersion((v) => v + 1)
-    return added
+
+    const receiptDelta = Math.max(
+      0,
+      merged.expectedReceipts.filter((receipt) => !receipt.received).length -
+        beforeMerge.expectedReceipts.filter((receipt) => !receipt.received).length,
+    )
+    return {
+      receipts: Math.max(added.receipts, receiptDelta, receiptsChanged ? merged.expectedReceipts.length : 0),
+      commitments: added.commitments,
+      planners: added.planners,
+      total:
+        added.total +
+        (receiptsChanged && added.receipts === 0 ? 1 : 0),
+    }
   }, [workspaceId, readOnly, cancelPendingPersist])
 
   useEffect(() => {

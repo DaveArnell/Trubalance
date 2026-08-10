@@ -58,16 +58,23 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
     setSyncingDevice(true)
     setStatus(null)
     try {
+      const openReceipts = state.expectedReceipts.filter((receipt) => !receipt.received).length
       const added = await syncMissingLocalToCloud(state)
       if (!added) {
         setStatus('Could not sync — check you are signed in.')
         return
       }
-      if (added.total === 0) {
-        setStatus('This device had nothing extra to upload. Refreshing from your account…')
+      if (added.total === 0 && openReceipts === 0) {
+        setStatus(
+          'This device has no open expected receipts to upload. If the phone still shows some, stay on Receipts there, then sync again.',
+        )
+      } else if (added.total === 0) {
+        setStatus(
+          `Account already had these receipts (${openReceipts} open on this device). Hard-refresh the PC (Ctrl+Shift+R). If it is still empty, check Viewing scope matches the phone.`,
+        )
       } else {
         setStatus(
-          `Uploaded ${added.receipts} receipt${added.receipts === 1 ? '' : 's'}, ${added.commitments} cost${added.commitments === 1 ? '' : 's'}, ${added.planners} plan${added.planners === 1 ? '' : 's'} to your account. Refresh the other device.`,
+          `Uploaded to your account (${openReceipts} open receipt${openReceipts === 1 ? '' : 's'} on this device). Now hard-refresh the PC (Ctrl+Shift+R).`,
         )
       }
       await reload()

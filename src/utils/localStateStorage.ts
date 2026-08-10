@@ -110,6 +110,50 @@ export function mergeMissingExpectedReceipts(cloud: AppState, local: AppState | 
   }
 }
 
+/**
+ * Union receipts from cloud + device. Prefer unreceived over received for the same id,
+ * and prefer the device copy’s fields when both are still open — so phone edits reach the account.
+ */
+export function unionExpectedReceipts(
+  cloud: AppState,
+  ...sources: Array<AppState | null | undefined>
+): AppState {
+  const byId = new Map(cloud.expectedReceipts.map((receipt) => [receipt.id, receipt]))
+
+  for (const source of sources) {
+    if (!source?.expectedReceipts.length) continue
+    for (const receipt of source.expectedReceipts) {
+      const existing = byId.get(receipt.id)
+      if (!existing) {
+        byId.set(receipt.id, receipt)
+        continue
+      }
+      if (existing.received && !receipt.received) {
+        byId.set(receipt.id, receipt)
+        continue
+      }
+      if (!existing.received && receipt.received) continue
+      byId.set(receipt.id, { ...existing, ...receipt })
+    }
+  }
+
+  return {
+    ...cloud,
+    workspaceOrigin: cloud.workspaceOrigin ?? 'user',
+    expectedReceipts: [...byId.values()],
+  }
+}
+
+export function expectedReceiptsSyncKey(state: AppState): string {
+  return state.expectedReceipts
+    .map(
+      (receipt) =>
+        `${receipt.id}:${receipt.amount}:${receipt.received ? 1 : 0}:${receipt.receivedDate ?? ''}:${receipt.expectedDate ?? ''}`,
+    )
+    .sort()
+    .join('|')
+}
+
 /** Recover reserve planners (and their bills) present locally but missing from a cloud load. */
 export function mergeMissingReservePlanners(cloud: AppState, local: AppState | null): AppState {
   if (!local?.reservePlanners.length) return cloud
