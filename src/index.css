@@ -920,7 +920,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .main-pinned--compact {
@@ -1004,7 +1004,8 @@ body {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  padding: 0;
+  /* Soft separation between abutting widgets; canvas stays transparent for scope wash */
+  padding: 6px;
   box-sizing: border-box;
   border: none;
   border-radius: 0;
