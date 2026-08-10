@@ -305,6 +305,8 @@ export interface UseAppStateOptions {
   readOnly?: boolean
   /** Dynamic read-only flag updated each render (e.g. subscription lock). */
   readOnlyRef?: MutableRefObject<boolean>
+  /** Fired after React applies a pulled remote workspace snapshot. */
+  onRemoteHydrated?: () => void
 }
 
 export function useAppState(options?: UseAppStateOptions) {
@@ -389,7 +391,8 @@ export function useAppState(options?: UseAppStateOptions) {
       persistImmediateRef.current = true
     }
     remoteHydratedRef.current = true
-  }, [options?.externalStateVersion, options?.workspaceId, options?.externalLoading, options?.defaultViewScope, options?.skipLocalPersist])
+    options?.onRemoteHydrated?.()
+  }, [options?.externalStateVersion, options?.workspaceId, options?.externalLoading, options?.defaultViewScope, options?.skipLocalPersist, options?.onRemoteHydrated])
 
   useEffect(() => {
     let next = viewScope

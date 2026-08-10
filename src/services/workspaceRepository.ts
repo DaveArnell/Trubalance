@@ -490,7 +490,11 @@ export async function saveWorkspaceState(
     received: r.received,
     received_date: serializeReceiptDateField(r.receivedDate),
     sort_order: r.sortOrder ?? i,
-    created_at: r.createdAt ?? null,
+    created_at: r.createdAt
+      ? r.createdAt.includes('T')
+        ? r.createdAt
+        : `${r.createdAt}T12:00:00.000Z`
+      : new Date().toISOString(),
     ...ws,
   }))
   const plannerRows = state.reservePlanners.map((p, i) => ({

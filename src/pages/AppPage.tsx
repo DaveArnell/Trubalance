@@ -13,6 +13,7 @@ export function AppPage() {
     remoteStateVersion,
     remoteEnabled,
     persistState,
+    markRemoteHydrated,
     readOnly,
     workspaceSubscription,
   } = useWorkspace()
@@ -45,6 +46,7 @@ export function AppPage() {
         externalStateVersion={remoteEnabled ? remoteStateVersion : undefined}
         remotePersist={remoteEnabled}
         onStateChange={persistState}
+        onRemoteHydrated={markRemoteHydrated}
         readOnly={readOnly}
         remoteSubscription={remoteEnabled ? workspaceSubscription : null}
       />

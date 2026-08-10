@@ -83,6 +83,8 @@ interface WorkspaceContextValue {
     planners: number
     total: number
   } | null>
+  /** Call after React applies a pulled remote snapshot — unlocks cloud saves. */
+  markRemoteHydrated: () => void
 }
 
 const WorkspaceContext = createContext<WorkspaceContextValue | null>(null)
@@ -153,6 +155,9 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const lastSyncFingerprintRef = useRef<string | null>(null)
   const syncInFlightRef = useRef(false)
   const saveRetryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const flushSaveRef = useRef<() => Promise<void>>(async () => {})
+  const pullGenerationRef = useRef(0)
+  const hydratedGenerationRef = useRef(0)
   const loadedForUserRef = useRef<string | null>(null)
   const hasLoadedStateRef = useRef(
     (() => {
@@ -170,10 +175,16 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const readOnly = isImpersonating
 
   const loadWorkspace = useCallback(async () => {
+    // Hold cloud writes during pull, but keep any in-flight local edits queued.
     persistEnabledRef.current = false
     allowEmptyDeletesRef.current = false
-    loadedStateRef.current = null
-    lastPersistedStateRef.current = null
+    const pendingBeforeLoad = pendingStateRef.current
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current)
+      saveTimerRef.current = null
+    }
+    pendingStateRef.current = null
+
     if (!configured || !effectiveUserId) {
       setWorkspaceId(null)
       setInitialRemoteState(null)
@@ -181,6 +192,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       setLoading(false)
       loadedForUserRef.current = null
       hasLoadedStateRef.current = false
+      persistEnabledRef.current = false
       return
     }
 
@@ -236,17 +248,17 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         allowEmptyDeletesRef.current = false
       }
 
-      if (
-        !isImpersonating &&
-        user?.id === effectiveUserId &&
-        localState &&
-        isUserOwnedWorkspace(localState)
-      ) {
-        // Always merge critical local entities. Also merge when a table failed to load,
-        // so a partial cloud response cannot wipe planners/receipts on the next save.
+      // Fold in anything this device still has locally (and any edit queued mid-pull).
+      const localSources = [localState, pendingBeforeLoad].filter(Boolean) as AppState[]
+      if (!isImpersonating && user?.id === effectiveUserId && localSources.length > 0) {
         const beforeMerge = state
-        state = mergeMissingLocalWorkspaceData(state, localState)
-        state = unionExpectedReceipts(state, localState)
+        for (const source of localSources) {
+          state = mergeMissingLocalWorkspaceData(state, {
+            ...source,
+            workspaceOrigin: source.workspaceOrigin ?? 'user',
+          })
+          state = unionExpectedReceipts(state, source)
+        }
         const added = countCriticalEntitiesAdded(beforeMerge, state)
         const receiptsChanged =
           expectedReceiptsSyncKey(beforeMerge) !== expectedReceiptsSyncKey(state)
@@ -255,8 +267,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
             '[Workspace] Cloud load had table errors — merged missing local planners/receipts/commitments',
           )
         }
-        // Push unioned receipts/costs so other devices (desktop) see what this phone kept locally.
-        // previousState = cloud-before-merge → upserts new ids only; does not delete cloud rows.
+        // Push unioned receipts/costs so other devices see what this device kept locally.
         if ((added.total > 0 || receiptsChanged) && !isImpersonating) {
           try {
             await saveWorkspaceState(wsId, state, {
@@ -283,13 +294,20 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       state = normalizeWorkspaceStateForDisplay(state)
 
       loadedStateRef.current = state
-      lastPersistedStateRef.current = null
+      // Treat the pulled cloud snapshot as already persisted so a stale UI save
+      // cannot targeted-delete rows that only exist on another device — but only
+      // after React hydrates (see markRemoteHydrated / pullGeneration).
+      lastPersistedStateRef.current = state
+      pullGenerationRef.current += 1
 
       setInitialRemoteState(state)
       const fingerprint = workspaceSyncFingerprint(state)
       if (lastSyncFingerprintRef.current !== fingerprint) {
         lastSyncFingerprintRef.current = fingerprint
         setRemoteStateVersion((v) => v + 1)
+      } else {
+        // No UI remount needed — unlock saves for this pull immediately.
+        hydratedGenerationRef.current = pullGenerationRef.current
       }
       loadedForUserRef.current = effectiveUserId
       hasLoadedStateRef.current = true
@@ -304,7 +322,10 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       if (localState && isUserOwnedWorkspace(localState)) {
         const fallback = normalizeWorkspaceStateForDisplay(localState)
         loadedStateRef.current = fallback
+        lastPersistedStateRef.current = fallback
+        pullGenerationRef.current += 1
         setInitialRemoteState(fallback)
+        setRemoteStateVersion((v) => v + 1)
         loadedForUserRef.current = effectiveUserId
         hasLoadedStateRef.current = true
       } else if (!hasLoadedStateRef.current) {
@@ -314,6 +335,13 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false)
       persistEnabledRef.current = true
+      // Mid-pull edits stay queued until hydrate unlocks saves (markRemoteHydrated).
+      if (
+        pendingStateRef.current &&
+        hydratedGenerationRef.current === pullGenerationRef.current
+      ) {
+        void flushSaveRef.current()
+      }
     }
   }, [configured, effectiveUserId, isImpersonating, user?.id])
 
@@ -374,10 +402,14 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
   const flushSave = useCallback(async () => {
     if (!workspaceId || readOnly || !isSupabaseConfigured || !persistEnabledRef.current) return
+    // Wait until React has applied the latest pull — otherwise a stale snapshot can
+    // targeted-delete receipts that another device just pushed.
+    if (hydratedGenerationRef.current !== pullGenerationRef.current) return
 
     while (pendingStateRef.current) {
       const state = pendingStateRef.current
       pendingStateRef.current = null
+
       try {
         await saveWorkspaceState(workspaceId, state, {
           allowEmptyDeletes: allowEmptyDeletesRef.current,
@@ -386,10 +418,11 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
             previous: lastPersistedStateRef.current,
             allowAll: allowEmptyDeletesRef.current,
           }),
-          previousState: lastPersistedStateRef.current ?? loadedStateRef.current,
+          previousState: lastPersistedStateRef.current ?? undefined,
         })
         if (pendingStateRef.current == null) {
           lastPersistedStateRef.current = state
+          loadedStateRef.current = state
           lastSyncFingerprintRef.current = workspaceSyncFingerprint(state)
           setInitialRemoteState(state)
         }
@@ -403,7 +436,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         if (!saveRetryTimerRef.current) {
           saveRetryTimerRef.current = setTimeout(() => {
             saveRetryTimerRef.current = null
-            void flushSave()
+            void flushSaveRef.current()
           }, SAVE_RETRY_MS)
         }
         break
@@ -411,12 +444,24 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     }
   }, [workspaceId, readOnly])
 
+  flushSaveRef.current = flushSave
+
+  const markRemoteHydrated = useCallback(() => {
+    hydratedGenerationRef.current = pullGenerationRef.current
+    if (pendingStateRef.current && persistEnabledRef.current) {
+      void flushSaveRef.current()
+    }
+  }, [])
+
   const saveChainRef = useRef(Promise.resolve())
 
   const persistState = useCallback(
     (state: AppState, options?: { immediate?: boolean }) => {
-      if (!remoteEnabled || readOnly || !workspaceId || !persistEnabledRef.current) return
+      if (!remoteEnabled || readOnly || !workspaceId) return
+      // Always queue — even while a pull has persistEnabled=false — so phone edits are not dropped.
       pendingStateRef.current = state
+      if (!persistEnabledRef.current) return
+      if (hydratedGenerationRef.current !== pullGenerationRef.current) return
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
       const run = () => {
         saveChainRef.current = saveChainRef.current
@@ -514,8 +559,22 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       if (pullTimer) clearTimeout(pullTimer)
       pullTimer = setTimeout(() => {
         if (document.visibilityState !== 'visible') return
-        if (pendingStateRef.current || saveTimerRef.current || syncInFlightRef.current) return
-        void loadWorkspace()
+        if (syncInFlightRef.current) return
+        syncInFlightRef.current = true
+        void (async () => {
+          try {
+            if (saveTimerRef.current) {
+              clearTimeout(saveTimerRef.current)
+              saveTimerRef.current = null
+            }
+            await flushSaveRef.current()
+            await loadWorkspace()
+          } catch (error) {
+            console.warn('[Workspace] realtime sync failed', error)
+          } finally {
+            syncInFlightRef.current = false
+          }
+        })()
       }, 800)
     }
 
@@ -656,6 +715,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       restoreFromBrowser,
       restoreWorkspaceState,
       syncMissingLocalToCloud,
+      markRemoteHydrated,
     }),
     [
       workspaceId,
@@ -673,6 +733,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       restoreFromBrowser,
       restoreWorkspaceState,
       syncMissingLocalToCloud,
+      markRemoteHydrated,
     ],
   )
 
