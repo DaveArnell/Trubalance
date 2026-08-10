@@ -27,8 +27,9 @@ export interface WidgetLayoutItem {
 
 export type PageWidgetLayout = WidgetLayoutItem[]
 
-const STORAGE_KEY = 'trubalance-widget-layout-v6'
+const STORAGE_KEY = 'trubalance-widget-layout-v7'
 const LEGACY_STORAGE_KEYS = [
+  'trubalance-widget-layout-v6',
   'trubalance-widget-layout-v5',
   'trubalance-widget-layout-v4',
   'trubalance-widget-layout-v3',
@@ -226,7 +227,7 @@ function repairForecastLayout(layout: PageWidgetLayout): PageWidgetLayout {
   return repairPageCollapsedLayout('forecast', layout)
 }
 
-/** Home should be monthly left + Due/Receipts stacked right — not three side-by-side columns. */
+/** Home should be monthly left + Due/Receipts stacked right, flush to both edges. */
 function repairCommittedFundsLayout(layout: PageWidgetLayout): PageWidgetLayout {
   const monthly = layout.find((item) => item.id === 'committed-funds' && item.visible)
   const due = layout.find((item) => item.id === 'due' && item.visible)
@@ -234,19 +235,54 @@ function repairCommittedFundsLayout(layout: PageWidgetLayout): PageWidgetLayout 
   if (!monthly || !due || !receipts) return layout
 
   const rightStacked = due.col === receipts.col && due.colSpan === receipts.colSpan
-  if (rightStacked) return layout
+  let next = layout
 
-  const defaults = DEFAULT_LAYOUTS['committed-funds']
-  return defaults.map((def) => {
-    const existing = layout.find((item) => item.id === def.id)
-    if (!existing) return { ...def }
-    return {
-      ...existing,
-      col: def.col,
-      row: def.row,
-      colSpan: def.colSpan,
-      rowSpan: def.rowSpan,
+  if (!rightStacked) {
+    const defaults = DEFAULT_LAYOUTS['committed-funds']
+    next = defaults.map((def) => {
+      const existing = layout.find((item) => item.id === def.id)
+      if (!existing) return { ...def }
+      return {
+        ...existing,
+        col: def.col,
+        row: def.row,
+        colSpan: def.colSpan,
+        rowSpan: def.rowSpan,
+      }
+    })
+  }
+
+  return pinCommittedFundsToEdges(next)
+}
+
+/** Left column starts at 0; right column ends at GRID_COLUMNS — only the split width is free. */
+function pinCommittedFundsToEdges(layout: PageWidgetLayout): PageWidgetLayout {
+  const monthly = layout.find((item) => item.id === 'committed-funds' && item.visible)
+  const due = layout.find((item) => item.id === 'due' && item.visible)
+  const receipts = layout.find((item) => item.id === 'expected-receipts' && item.visible)
+  if (!monthly || !due || !receipts) return layout
+  if (due.col !== receipts.col) return layout
+
+  const leftSpan = Math.max(
+    MIN_COL_SPAN,
+    Math.min(GRID_COLUMNS - MIN_COL_SPAN, Math.round(monthly.colSpan)),
+  )
+  const rightSpan = GRID_COLUMNS - leftSpan
+  const alreadyFlush =
+    monthly.col === 0 &&
+    monthly.colSpan === leftSpan &&
+    due.col === leftSpan &&
+    due.colSpan === rightSpan &&
+    receipts.col === leftSpan &&
+    receipts.colSpan === rightSpan
+  if (alreadyFlush) return layout
+
+  return layout.map((item) => {
+    if (item.id === 'committed-funds') return { ...item, col: 0, colSpan: leftSpan }
+    if (item.id === 'due' || item.id === 'expected-receipts') {
+      return { ...item, col: leftSpan, colSpan: rightSpan }
     }
+    return item
   })
 }
 

@@ -10,7 +10,7 @@ import {
   savePageWidgetLayout,
   alignStackedColumnWidgets,
 } from '../utils/widgetLayout'
-import { reflowFillLayout } from '../utils/widgetLayoutReflow'
+import { layoutToStacks, normalizeColumnStacks, reflowFillLayout } from '../utils/widgetLayoutReflow'
 import { useEditReadOnly } from '../hooks/useEditReadOnly'
 
 function normalizeOrder(layout: PageWidgetLayout): PageWidgetLayout {
@@ -58,10 +58,23 @@ export function useWidgetLayout(pageId: PageId) {
   const setWidgetRects = useCallback(
     (updates: Record<string, WidgetRect>) => {
       const aligned = alignStackedColumnWidgets(layout, updates)
+      const next = layout.map((item) => {
+        const patch = aligned[item.id]
+        return patch ? { ...item, ...clampWidgetRect(patch) } : item
+      })
+      // Keep columns flush to the left and right edges; only the split between columns moves.
+      const stacks = layoutToStacks(next)
+      const normalized = normalizeColumnStacks(stacks)
+      const colById = new Map<string, { col: number; colSpan: number }>()
+      for (const stack of normalized) {
+        for (const id of stack.widgetIds) {
+          colById.set(id, { col: stack.col, colSpan: stack.colSpan })
+        }
+      }
       persist(
-        layout.map((item) => {
-          const patch = aligned[item.id]
-          return patch ? { ...item, ...clampWidgetRect(patch) } : item
+        next.map((item) => {
+          const edge = colById.get(item.id)
+          return edge ? { ...item, col: edge.col, colSpan: edge.colSpan } : item
         }),
       )
     },
