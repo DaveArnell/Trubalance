@@ -74,7 +74,7 @@ export function AmountConfirmModal({
       }}
     >
       <div
-        className="snapshot-correction-modal"
+        className="snapshot-correction-modal mobile-item-modal"
         role="dialog"
         aria-modal="true"
         aria-labelledby="amount-confirm-title"

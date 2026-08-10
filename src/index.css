@@ -8906,10 +8906,49 @@ textarea:focus {
 }
 
 @media (max-width: 900px) {
-  .mobile-item-modal .snapshot-correction-input input,
-  .mobile-item-modal .snapshot-correction-input select,
-  .mobile-item-modal .snapshot-correction-input textarea {
-    font-size: 16px;
+  /*
+   * iOS Safari zooms the page when a focused form control’s computed font-size is under 16px.
+   * Apply to every overlay dialog / popover — not only .mobile-item-modal.
+   */
+  .snapshot-correction-modal input,
+  .snapshot-correction-modal select,
+  .snapshot-correction-modal textarea,
+  .mobile-item-modal input,
+  .mobile-item-modal select,
+  .mobile-item-modal textarea,
+  .mobile-accruing-detail-modal input,
+  .mobile-accruing-detail-modal select,
+  .mobile-accruing-detail-modal textarea,
+  .mobile-accruing-edit-fields input,
+  .mobile-accruing-edit-fields select,
+  .mobile-accruing-edit-fields textarea,
+  .day-note-dialog input,
+  .day-note-dialog select,
+  .day-note-dialog textarea,
+  .morning-checkin-modal input,
+  .morning-checkin-modal select,
+  .morning-checkin-modal textarea,
+  .planned-funding-modal input,
+  .planned-funding-modal select,
+  .planned-funding-modal textarea,
+  .commitment-name-modal input,
+  .commitment-name-modal textarea,
+  .reserve-month-popover input,
+  .reserve-month-popover select,
+  .mark-paid-popover input,
+  .mark-paid-popover select,
+  .mark-paid-popover textarea,
+  .sheet-balance-popover input,
+  .sheet-balance-popover select,
+  .overview-slim-edit-popover input,
+  .overview-slim-edit-popover select,
+  .costs-breakdown-popover input,
+  .help-popover input,
+  .help-popover select,
+  .help-popover textarea,
+  .upgrade-prompt input,
+  .trial-warning-modal input {
+    font-size: 16px !important;
   }
 
   .app-shell--mobile .card-lead-compact--below {
@@ -12289,7 +12328,9 @@ tr.sheet-row--received td {
   padding: 4px 6px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  font: inherit;
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.4;
 }
 
 .mark-paid-hint {
@@ -13974,7 +14015,15 @@ tr.sheet-row--received td {
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg-surface);
-  font: inherit;
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.mobile-accruing-edit-fields .snapshot-correction-input input,
+.mobile-accruing-edit-fields .snapshot-correction-input select,
+.mobile-accruing-edit-fields .snapshot-correction-input textarea {
+  font-size: 16px;
 }
 
 .mobile-item-modal-actions {
@@ -26322,7 +26371,9 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   padding: 8px 10px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  font: inherit;
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.4;
 }
 
 .commitment-name-modal-actions {
