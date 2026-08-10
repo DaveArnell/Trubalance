@@ -626,7 +626,7 @@ function WidgetSlot({
 
   onResizeStart,
 
-  customizable,
+  resizable,
 
   settling,
 
@@ -652,8 +652,8 @@ function WidgetSlot({
 
   onResizeStart: (edge: ResizeEdge, event: ReactMouseEvent) => void
 
-  /** When false, layout is locked — no ⋯ menu, drag, or resize. */
-  customizable: boolean
+  /** When true, edge/corner handles let you resize on desktop. */
+  resizable: boolean
 
   children: ReactNode
 
@@ -717,7 +717,7 @@ function WidgetSlot({
 
     >
 
-      {customizable && reorderable && (
+      {reorderable && (
         <button
           type="button"
           className="widget-move-edge"
@@ -729,7 +729,7 @@ function WidgetSlot({
 
       <div className="widget-slot-body">{children}</div>
 
-      {customizable ? (
+      {resizable ? (
         <>
           <button type="button" className="widget-resize-handle widget-resize-handle--w" title="Resize from left edge" aria-label={`Resize ${getWidgetLabel(item.id)} from left`} onMouseDown={(event) => onResizeStart('w', event)} />
           <button type="button" className="widget-resize-handle widget-resize-handle--e" title="Resize from right edge" aria-label={`Resize ${getWidgetLabel(item.id)} from right`} onMouseDown={(event) => onResizeStart('e', event)} />
@@ -771,14 +771,13 @@ export function WidgetGrid({ pageId, widgets, homeSection }: WidgetGridProps) {
 
   const [settling, setSettling] = useState(false)
 
-  // Dashboard layout is fixed — Spreadsheet/Cards and table style live in Settings only.
-  const customizable = false
+  // Keep size adjustments; no swap/move or per-widget ⋯ menu (Spreadsheet/Cards stay in Settings).
+  const resizable = true
+  const reorderable = false
 
   const visible = layout.filter((item) => item.visible)
 
   const hidden = layout.filter((item) => !item.visible).sort((a, b) => a.order - b.order)
-
-  const reorderable = customizable && visible.length > 1
 
   const rowCount = Math.max(getGridRowCount(layout), 10)
 
@@ -1318,7 +1317,7 @@ export function WidgetGrid({ pageId, widgets, homeSection }: WidgetGridProps) {
 
         ref={canvasRef}
 
-        className={`widget-grid${customizable ? ' widget-grid--customizable' : ''} widget-canvas${
+        className={`widget-grid widget-canvas${
           draggingId ? ' widget-canvas--dragging-layout' : ''
         }${settling ? ' widget-canvas--settling' : ''}`}
         data-page-id={pageId}
@@ -1462,7 +1461,7 @@ export function WidgetGrid({ pageId, widgets, homeSection }: WidgetGridProps) {
 
               }}
 
-              customizable={customizable}
+              resizable={resizable}
 
             >
 

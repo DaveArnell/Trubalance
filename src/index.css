@@ -994,6 +994,7 @@ body {
   grid-template-columns: repeat(96, minmax(0, 1fr));
   gap: 0;
   overflow: hidden;
+  background: var(--bg-app);
 }
 
 .widget-slot {
@@ -1019,10 +1020,12 @@ body {
 
 .widget-slot {
   background: var(--bg-surface-raised);
-  border: 1px solid color-mix(in srgb, var(--border-strong) 72%, #64748b);
+  border: 1px solid color-mix(in srgb, var(--border-strong) 55%, #71717a);
+  /* Soft gutter between abutting widgets without breaking resize math (gap stays 0). */
   box-shadow:
-    0 0 0 1px rgba(15, 23, 42, 0.06),
-    0 3px 12px rgba(15, 23, 42, 0.08);
+    0 0 0 5px var(--bg-app),
+    0 1px 2px rgba(15, 23, 42, 0.06),
+    0 4px 14px rgba(15, 23, 42, 0.08);
   overflow: hidden;
 }
 
@@ -1333,13 +1336,13 @@ body.widget-canvas-resizing * {
 }
 
 .widget-resize-handle:hover {
-  background: rgba(99, 102, 241, 0.12);
+  background: rgba(99, 102, 241, 0.18);
 }
 
 .widget-resize-handle--w {
   top: 0;
   left: 0;
-  width: 8px;
+  width: 10px;
   height: 100%;
   cursor: ew-resize;
 }
@@ -1347,7 +1350,7 @@ body.widget-canvas-resizing * {
 .widget-resize-handle--e {
   top: 0;
   right: 0;
-  width: 8px;
+  width: 10px;
   height: 100%;
   cursor: ew-resize;
 }
@@ -1356,7 +1359,7 @@ body.widget-canvas-resizing * {
   top: 0;
   left: 0;
   width: 100%;
-  height: 8px;
+  height: 10px;
   cursor: ns-resize;
 }
 
@@ -1364,7 +1367,7 @@ body.widget-canvas-resizing * {
   left: 0;
   bottom: 0;
   width: 100%;
-  height: 8px;
+  height: 10px;
   cursor: ns-resize;
 }
 
