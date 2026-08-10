@@ -27,8 +27,9 @@ export interface WidgetLayoutItem {
 
 export type PageWidgetLayout = WidgetLayoutItem[]
 
-const STORAGE_KEY = 'trubalance-widget-layout-v5'
+const STORAGE_KEY = 'trubalance-widget-layout-v6'
 const LEGACY_STORAGE_KEYS = [
+  'trubalance-widget-layout-v5',
   'trubalance-widget-layout-v4',
   'trubalance-widget-layout-v3',
   'trubalance-widget-layout-v2',
@@ -225,6 +226,30 @@ function repairForecastLayout(layout: PageWidgetLayout): PageWidgetLayout {
   return repairPageCollapsedLayout('forecast', layout)
 }
 
+/** Home should be monthly left + Due/Receipts stacked right — not three side-by-side columns. */
+function repairCommittedFundsLayout(layout: PageWidgetLayout): PageWidgetLayout {
+  const monthly = layout.find((item) => item.id === 'committed-funds' && item.visible)
+  const due = layout.find((item) => item.id === 'due' && item.visible)
+  const receipts = layout.find((item) => item.id === 'expected-receipts' && item.visible)
+  if (!monthly || !due || !receipts) return layout
+
+  const rightStacked = due.col === receipts.col && due.colSpan === receipts.colSpan
+  if (rightStacked) return layout
+
+  const defaults = DEFAULT_LAYOUTS['committed-funds']
+  return defaults.map((def) => {
+    const existing = layout.find((item) => item.id === def.id)
+    if (!existing) return { ...def }
+    return {
+      ...existing,
+      col: def.col,
+      row: def.row,
+      colSpan: def.colSpan,
+      rowSpan: def.rowSpan,
+    }
+  })
+}
+
 type LayoutGeometry = Pick<WidgetLayoutItem, 'id' | 'visible' | 'col' | 'colSpan' | 'row' | 'rowSpan'>
 
 /** Keep vertically stacked widgets sharing the same column band aligned horizontally. */
@@ -306,6 +331,7 @@ function mergeWithDefaults(pageId: PageId, saved: PageWidgetLayout | undefined):
 
   if (pageId === 'trends') return repairTrendsLayout(sorted)
   if (pageId === 'forecast') return repairForecastLayout(sorted)
+  if (pageId === 'committed-funds') return repairCommittedFundsLayout(sorted)
   return sorted
 }
 
