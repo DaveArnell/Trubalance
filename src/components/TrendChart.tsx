@@ -21,6 +21,7 @@ import {
   type ProjectionMethod,
 } from '../utils/trendProjection'
 import { HelpButton } from './HelpButton'
+import { WIDGET_HELP } from '../content/livingDashboard'
 import { DayNoteEditor } from './DayNoteEditor'
 import { getDayNoteText } from '../utils/dayNotes'
 import { getScopeItemLabel } from '../utils/scope'
@@ -522,8 +523,7 @@ export function TrendChart({
         ? hoverRows[0].label
         : null
 
-  const trendHelpText =
-    'Solid lines connect your saved balance entries. Use Trend to overlay a straight or smoothed line and forward forecast. Forecast always starts from your latest saved balance. Set a From date in History to ignore earlier entries after a big change.'
+  const trendHelpText = WIDGET_HELP.trends
 
   const showLegend = series.length > 1 || activeMetricKeys.length > 1 || showProjection
 
@@ -1065,12 +1065,6 @@ export function TrendChart({
           <span className="trends-chart-rail-tag">Trend</span>
           {projectionToggle}
         </div>
-        <HelpButton
-          id="trend"
-          openHelp={openHelp}
-          setOpenHelp={setOpenHelp}
-          text={trendHelpText}
-        />
       </div>
 
       <aside className="trends-chart-rail trends-chart-rail--scopes" aria-label="Locations to show">
@@ -1136,6 +1130,15 @@ export function TrendChart({
     return (
       <>
         <div id="trends-chart" className="trends-chart-panel trends-chart-panel--embedded">
+          <div className="card-head card-head-compact trends-chart-embedded-head">
+            <h2>Cash Prophet Balance trend</h2>
+            <HelpButton
+              id="trend"
+              openHelp={openHelp}
+              setOpenHelp={setOpenHelp}
+              text={trendHelpText}
+            />
+          </div>
           {chartBody}
         </div>
         {noteEditorDate && onSetDayNote && (

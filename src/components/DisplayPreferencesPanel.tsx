@@ -33,8 +33,8 @@ export function DisplayPreferencesPanel({ embedded = false }: { embedded?: boole
         <div>
           <h2>Display</h2>
           <p className="muted display-preferences-lead">
-            Dashboard layout (Spreadsheet or Cards), plus default table and cell formatting. Individual
-            widgets can override table options from the ⋯ menu.
+            Dashboard layout (Spreadsheet or Cards), plus default table and cell formatting for
+            spreadsheet views.
           </p>
         </div>
       </div>

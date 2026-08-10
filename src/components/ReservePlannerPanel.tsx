@@ -823,7 +823,7 @@ export function ReservePlannerPanel({
   return (
     <section id="reserve-planner" className="card reserve-box card-scroll">
       <div className="card-head card-head-compact card-head--widget-bar">
-        <div className="card-head-toolbar">
+        <div className="card-head-toolbar card-head-toolbar--reserve">
           {!editReadOnly ? (
             <button
               type="button"

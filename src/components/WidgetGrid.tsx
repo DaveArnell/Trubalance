@@ -7,7 +7,6 @@ import { useRef, useState } from 'react'
 
 import type { PageId } from '../navigation'
 
-import { useEditReadOnly } from '../hooks/useEditReadOnly'
 import { useMobileNav } from '../hooks/useMobileNav'
 import { useWidgetLayout } from '../hooks/useWidgetLayout'
 
@@ -30,8 +29,6 @@ import {
   getWidgetLabel,
 
   GRID_COLUMNS,
-
-  isLayoutCustomizable,
 
   maxEastColSpan,
 
@@ -57,8 +54,6 @@ import {
   type WidgetDropHighlightMode,
 } from '../utils/widgetLayoutReflow'
 
-import { WidgetSettingsMenu } from './WidgetSettingsMenu'
-
 import { MobileWidgetStack } from './mobile/MobileWidgetStack'
 
 
@@ -67,16 +62,6 @@ interface WidgetGridProps {
   pageId: PageId
   widgets: Record<string, ReactNode>
   homeSection?: import('./mobile/MobileHomeSectionTabs').MobileHomeSection
-}
-
-
-
-interface SettingsState {
-
-  widgetId: string
-
-  anchorRect: DOMRect
-
 }
 
 
@@ -641,7 +626,7 @@ function WidgetSlot({
 
   onResizeStart,
 
-  onOpenSettings,
+  customizable,
 
   settling,
 
@@ -667,7 +652,8 @@ function WidgetSlot({
 
   onResizeStart: (edge: ResizeEdge, event: ReactMouseEvent) => void
 
-  onOpenSettings: (anchor: HTMLElement) => void
+  /** When false, layout is locked — no ⋯ menu, drag, or resize. */
+  customizable: boolean
 
   children: ReactNode
 
@@ -731,7 +717,7 @@ function WidgetSlot({
 
     >
 
-      {reorderable && (
+      {customizable && reorderable && (
         <button
           type="button"
           className="widget-move-edge"
@@ -740,31 +726,21 @@ function WidgetSlot({
           onPointerDown={onMoveStart}
         />
       )}
-      <div className="widget-slot-toolbar">
-        <button
-          type="button"
-          className="widget-settings-btn"
-          title="Widget options"
-          aria-label={`${getWidgetLabel(item.id)} options`}
-          onClick={(event) => {
-            event.stopPropagation()
-            onOpenSettings(event.currentTarget)
-          }}
-        >
-          ⋯
-        </button>
-      </div>
 
       <div className="widget-slot-body">{children}</div>
 
-      <button type="button" className="widget-resize-handle widget-resize-handle--w" title="Resize from left edge" aria-label={`Resize ${getWidgetLabel(item.id)} from left`} onMouseDown={(event) => onResizeStart('w', event)} />
-      <button type="button" className="widget-resize-handle widget-resize-handle--e" title="Resize from right edge" aria-label={`Resize ${getWidgetLabel(item.id)} from right`} onMouseDown={(event) => onResizeStart('e', event)} />
-      <button type="button" className="widget-resize-handle widget-resize-handle--n" title="Resize from top edge" aria-label={`Resize ${getWidgetLabel(item.id)} from top`} onMouseDown={(event) => onResizeStart('n', event)} />
-      <button type="button" className="widget-resize-handle widget-resize-handle--s" title="Resize from bottom edge" aria-label={`Resize ${getWidgetLabel(item.id)} from bottom`} onMouseDown={(event) => onResizeStart('s', event)} />
-      <button type="button" className="widget-resize-handle widget-resize-handle--nw" title="Resize corner" aria-label={`Resize ${getWidgetLabel(item.id)} top-left`} onMouseDown={(event) => onResizeStart('nw', event)} />
-      <button type="button" className="widget-resize-handle widget-resize-handle--ne" title="Resize corner" aria-label={`Resize ${getWidgetLabel(item.id)} top-right`} onMouseDown={(event) => onResizeStart('ne', event)} />
-      <button type="button" className="widget-resize-handle widget-resize-handle--sw" title="Resize corner" aria-label={`Resize ${getWidgetLabel(item.id)} bottom-left`} onMouseDown={(event) => onResizeStart('sw', event)} />
-      <button type="button" className="widget-resize-handle widget-resize-handle--se" title="Resize corner" aria-label={`Resize ${getWidgetLabel(item.id)} bottom-right`} onMouseDown={(event) => onResizeStart('se', event)} />
+      {customizable ? (
+        <>
+          <button type="button" className="widget-resize-handle widget-resize-handle--w" title="Resize from left edge" aria-label={`Resize ${getWidgetLabel(item.id)} from left`} onMouseDown={(event) => onResizeStart('w', event)} />
+          <button type="button" className="widget-resize-handle widget-resize-handle--e" title="Resize from right edge" aria-label={`Resize ${getWidgetLabel(item.id)} from right`} onMouseDown={(event) => onResizeStart('e', event)} />
+          <button type="button" className="widget-resize-handle widget-resize-handle--n" title="Resize from top edge" aria-label={`Resize ${getWidgetLabel(item.id)} from top`} onMouseDown={(event) => onResizeStart('n', event)} />
+          <button type="button" className="widget-resize-handle widget-resize-handle--s" title="Resize from bottom edge" aria-label={`Resize ${getWidgetLabel(item.id)} from bottom`} onMouseDown={(event) => onResizeStart('s', event)} />
+          <button type="button" className="widget-resize-handle widget-resize-handle--nw" title="Resize corner" aria-label={`Resize ${getWidgetLabel(item.id)} top-left`} onMouseDown={(event) => onResizeStart('nw', event)} />
+          <button type="button" className="widget-resize-handle widget-resize-handle--ne" title="Resize corner" aria-label={`Resize ${getWidgetLabel(item.id)} top-right`} onMouseDown={(event) => onResizeStart('ne', event)} />
+          <button type="button" className="widget-resize-handle widget-resize-handle--sw" title="Resize corner" aria-label={`Resize ${getWidgetLabel(item.id)} bottom-left`} onMouseDown={(event) => onResizeStart('sw', event)} />
+          <button type="button" className="widget-resize-handle widget-resize-handle--se" title="Resize corner" aria-label={`Resize ${getWidgetLabel(item.id)} bottom-right`} onMouseDown={(event) => onResizeStart('se', event)} />
+        </>
+      ) : null}
 
     </div>
 
@@ -776,9 +752,8 @@ function WidgetSlot({
 
 export function WidgetGrid({ pageId, widgets, homeSection }: WidgetGridProps) {
 
-  const editReadOnly = useEditReadOnly()
   const { isMobile } = useMobileNav()
-  const { layout, setVisible, setWidgetRects, resetLayout } = useWidgetLayout(pageId)
+  const { layout, setVisible, setWidgetRects } = useWidgetLayout(pageId)
 
   const canvasRef = useRef<HTMLDivElement>(null)
 
@@ -790,15 +765,14 @@ export function WidgetGrid({ pageId, widgets, homeSection }: WidgetGridProps) {
     label: string
   }>({ targetId: null, mode: null, label: '' })
 
-  const [settings, setSettings] = useState<SettingsState | null>(null)
-
   const [liveFrames, setLiveFrames] = useState<Record<string, WidgetLiveFrame>>({})
 
   const [resizingIds, setResizingIds] = useState<string[]>([])
 
   const [settling, setSettling] = useState(false)
 
-  const customizable = isLayoutCustomizable(pageId) && !editReadOnly
+  // Dashboard layout is fixed — Spreadsheet/Cards and table style live in Settings only.
+  const customizable = false
 
   const visible = layout.filter((item) => item.visible)
 
@@ -1332,14 +1306,6 @@ export function WidgetGrid({ pageId, widgets, homeSection }: WidgetGridProps) {
 
 
 
-  const activeSettingsItem = settings
-
-    ? layout.find((item) => item.id === settings.widgetId)
-
-    : undefined
-
-
-
   if (isMobile) {
     return <MobileWidgetStack pageId={pageId} widgets={widgets} layout={layout} homeSection={homeSection} />
   }
@@ -1352,7 +1318,7 @@ export function WidgetGrid({ pageId, widgets, homeSection }: WidgetGridProps) {
 
         ref={canvasRef}
 
-        className={`widget-grid widget-grid--customizable widget-canvas${
+        className={`widget-grid${customizable ? ' widget-grid--customizable' : ''} widget-canvas${
           draggingId ? ' widget-canvas--dragging-layout' : ''
         }${settling ? ' widget-canvas--settling' : ''}`}
         data-page-id={pageId}
@@ -1496,11 +1462,7 @@ export function WidgetGrid({ pageId, widgets, homeSection }: WidgetGridProps) {
 
               }}
 
-              onOpenSettings={(anchor) =>
-
-                setSettings({ widgetId: item.id, anchorRect: anchor.getBoundingClientRect() })
-
-              }
+              customizable={customizable}
 
             >
 
@@ -1547,48 +1509,6 @@ export function WidgetGrid({ pageId, widgets, homeSection }: WidgetGridProps) {
           </div>
 
         </div>
-
-      )}
-
-
-
-      {settings && activeSettingsItem && (
-
-        <>
-
-          <button
-
-            type="button"
-
-            className="widget-settings-backdrop"
-
-            aria-label="Close widget options"
-
-            onClick={() => setSettings(null)}
-
-          />
-
-          <WidgetSettingsMenu
-
-            widgetId={settings.widgetId}
-
-            anchorRect={settings.anchorRect}
-
-            onHide={() => {
-
-              setVisible(settings.widgetId, false)
-
-              setSettings(null)
-
-            }}
-
-            onResetLayout={resetLayout}
-
-            onClose={() => setSettings(null)}
-
-          />
-
-        </>
 
       )}
 

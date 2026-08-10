@@ -27,20 +27,20 @@ export const MONTHLY_RESERVE_CHECKIN_STEPS = [
 
 export const WIDGET_HELP = {
   trueBalance:
-    'Available shows how much money is genuinely yours once money already spoken for has been accounted for. Update balances regularly — the fresher the data, the more you can trust this number. Most people refresh every day or two, or whenever significant money moves.',
+    'Cash Prophet Balance is what you can work with once money already spoken for has been accounted for.\n\nUpdate balances regularly — the fresher the figures, the more you can trust this number.',
   committedFunds:
-    'For regular, predictable bills that come out every month — rent, payroll, subscriptions, insurance DD, loan repayments. These build up (accrue) daily so you always know how much of your balance is already spoken for. Not for one-off or irregular costs — use Reserve Planner for those.',
-  due: 'As things get paid, mark them here. That frees up Available and clears what needs attention.',
+    'Regular monthly costs — rent, payroll, subscriptions, loan repayments.\n\nEach one builds day by day toward its next due date, so you always know how much of your balance is already spoken for.\n\nFor irregular bills like VAT or annual insurance, use the Reserve Planner instead.',
+  due: 'Everything that needs paying this cycle lands here — monthly costs on their due date, reserve bills, and one-off planned costs.\n\nFor a planned cost you add yourself, choose how it comes off your Cash Prophet Balance: take the full amount straight away, or build a little each day up to the due date.\n\nMark items paid once the money has left the account. That frees up your Cash Prophet Balance and clears what needs attention.',
   expectedReceipts:
-    'Money you expect to receive. Set Expected (when cash should arrive). Lump sum counts the full amount toward Available straight away — or from Start if you set one later on purpose. Build up accrues daily from Start to Expected (Start defaults to the 1st of the Expected month). When the actual amount differs from your estimate, edit the amount and history for that period is corrected automatically.',
+    'Money you expect to receive.\n\nSet the Expected date for when cash should arrive. You can count the full amount toward your position straight away, or build it up day by day to the Expected date.\n\nWhen the real amount differs from your estimate, edit it — history for that period updates automatically.',
   reservePlanner:
-    'Put money aside for irregular bills like VAT, corporation tax and insurance. Add bills with amounts in the months they are due. Follow the balance outlook chart — the solid line is planned balance; the dashed line is what you have confirmed. Each month, confirm balances and complete any transfer. Bills appear in Due when payment is due.',
+    'Save toward irregular bills such as VAT, corporation tax and insurance.\n\nAdd each bill in the month it is actually due. The chart shows the planned reserve balance; each month confirm what is in the reserve and complete any transfer.\n\nWhen a bill’s due month arrives, it appears in Due so you can mark it paid.',
   trends:
-    'Every time you save balances, a point is recorded. The chart shows whether you are drifting up or down over time.',
+    'Every time you save balances, a point is recorded so you can see whether the business is drifting up or down.\n\nUse Trend to overlay a straight or smoothed line and a short forward outlook. Forecast always starts from your latest saved balance.',
   cashOutlook:
-    'Projects your current account forward using dated monthly costs, planned payments, reserve transfers, and expected receipts. Works best for businesses with identifiable incoming payments (e.g. invoiced clients, grants, contract payments). For businesses with steady daily income (e.g. retail, hospitality), outgoings are plotted but income is not — your actual balance will be higher than shown.',
+    'Projects your current account forward using dated monthly costs, planned payments, reserve transfers, and expected receipts.\n\nWorks best when income arrives as identifiable payments. For steady daily trade, Trends is usually a clearer picture of direction.',
   forecast:
-    'Forward-looking view: cash outlook from scheduled movements, plus trend projection from saved balance history. The cash outlook is most accurate for businesses with dated incoming payments. If your income arrives steadily (daily trade), the Trends page gives a better picture of your overall trajectory.',
+    'Forward-looking view: cash outlook from scheduled movements, plus trend projection from saved balance history.\n\nIf your income arrives steadily through the month, the Trends page is often the better guide.',
 } as const
 
 export const QUICK_HABITS = [

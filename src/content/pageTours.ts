@@ -183,7 +183,7 @@ export const PAGE_TOURS: Partial<Record<PageId, PageTour>> = {
         id: 'st-display',
         target: '[data-tour="settings-display"]',
         title: 'Display preferences',
-        body: 'Default table formatting across the app — alignment, wrap, and density.\n\nIndividual widgets can still override from their ⋯ menu when a single sheet needs different settings.',
+        body: 'Default table formatting across spreadsheet views — alignment, wrap, and density.\n\nChange Spreadsheet vs Cards for the dashboard under Display too.',
         placement: 'bottom',
       },
     ],

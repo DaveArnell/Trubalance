@@ -1881,6 +1881,12 @@ body.widget-canvas-resizing * {
   overflow: hidden;
 }
 
+.trends-chart-embedded-head {
+  flex-shrink: 0;
+  padding: 0.55rem 0.75rem 0.45rem;
+  border-bottom: 1px solid var(--border);
+}
+
 .trends-chart-frame {
   display: flex;
   flex-direction: column;
@@ -2007,7 +2013,6 @@ body.widget-canvas-resizing * {
 }
 
 .trends-chart-rail--top .help-btn {
-  margin-left: auto;
   width: 1.35rem;
   height: 1.35rem;
   font-size: 0.65rem;
@@ -7604,6 +7609,10 @@ body.overview-split-dragging {
   cursor: default;
 }
 
+.help-backdrop--dim {
+  background: rgba(9, 9, 11, 0.45);
+}
+
 .help-popover {
   position: fixed;
   z-index: 49;
@@ -7621,6 +7630,31 @@ body.overview-split-dragging {
 
 .help-popover p {
   margin: 0;
+}
+
+.help-popover p + p {
+  margin-top: 0.65rem;
+}
+
+.help-popover--centered {
+  top: 50%;
+  left: 50%;
+  right: auto;
+  transform: translate(-50%, -50%);
+  width: min(22rem, calc(100vw - 32px));
+  max-width: min(22rem, calc(100vw - 32px));
+  max-height: min(70vh, 28rem);
+  overflow-y: auto;
+  padding: 1rem 1.1rem 1.1rem;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  -webkit-overflow-scrolling: touch;
+}
+
+.help-popover-close {
+  display: block;
+  width: 100%;
+  margin-top: 0.9rem;
 }
 
 .help {
@@ -13501,7 +13535,8 @@ tr.sheet-row--received td {
 
 /* Narrow / mobile: title on its own row, toggles below so they don't collide */
 @media (max-width: 720px) {
-  .card-head-toolbar--accruing {
+  .card-head-toolbar--accruing,
+  .card-head-toolbar--reserve {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -13509,21 +13544,42 @@ tr.sheet-row--received td {
     row-gap: 8px;
   }
 
-  .card-head-toolbar--accruing h2 {
+  .card-head-toolbar--accruing h2,
+  .card-head-toolbar--reserve .reserve-planner-heading-block {
     flex: 1 1 100%;
     order: -1;
     text-align: left;
     white-space: normal;
   }
 
+  .card-head-toolbar--reserve .reserve-planner-business-heading {
+    white-space: normal;
+    text-align: left;
+    font-size: 0.95rem;
+    line-height: 1.25;
+  }
+
+  .card-head-toolbar--reserve .reserve-planner-heading-block {
+    align-items: flex-start;
+  }
+
   .card-head-toolbar--accruing .card-head-toolbar-left,
-  .card-head-toolbar--accruing .card-head-toolbar-right {
+  .card-head-toolbar--accruing .card-head-toolbar-right,
+  .card-head-toolbar--reserve .btn-widget-add,
+  .card-head-toolbar--reserve .card-head-toolbar-spacer,
+  .card-head-toolbar--reserve .card-head-toolbar-right {
     flex: 1 1 auto;
     min-width: 0;
   }
 
-  .card-head-toolbar--accruing .card-head-toolbar-right {
+  .card-head-toolbar--accruing .card-head-toolbar-right,
+  .card-head-toolbar--reserve .card-head-toolbar-right {
     justify-content: flex-end;
+    margin-left: auto;
+  }
+
+  .card-head-toolbar--reserve .reserve-delete-btn {
+    flex-shrink: 0;
   }
 }
 
