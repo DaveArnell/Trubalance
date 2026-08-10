@@ -923,6 +923,10 @@ body {
   margin-bottom: 6px;
 }
 
+.main-content:has(.widget-canvas[data-page-id='trends']) .main-pinned {
+  margin-bottom: 0;
+}
+
 .main-pinned--compact {
   gap: 0;
 }
@@ -1861,12 +1865,12 @@ body.widget-canvas-resizing * {
   min-width: 0;
   height: 100%;
   flex: 1;
-  padding: 2.35rem var(--space-2) var(--space-1) var(--space-2);
+  padding: 0.35rem var(--space-2) var(--space-1) var(--space-2);
   overflow: hidden;
 }
 
 .trends-widget-shell--chart {
-  padding: 2rem var(--space-1) var(--space-1) var(--space-1);
+  padding: 0.25rem var(--space-1) var(--space-1) var(--space-1);
 }
 
 .widget-slot-body > .trends-widget-shell {
@@ -1886,7 +1890,7 @@ body.widget-canvas-resizing * {
 
 .trends-chart-embedded-head {
   flex-shrink: 0;
-  padding: 0.55rem 0.75rem 0.45rem;
+  padding: 0.35rem 0.65rem 0.3rem;
   border-bottom: 1px solid var(--border);
 }
 
@@ -1907,8 +1911,8 @@ body.widget-canvas-resizing * {
   flex-direction: row;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px 8px;
-  padding: 6px 8px;
+  gap: 4px 8px;
+  padding: 4px 8px;
   border: none;
   border-bottom: 1px solid var(--border);
   overflow: visible;
@@ -2006,8 +2010,8 @@ body.widget-canvas-resizing * {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 6px 10px;
-  padding: 6px 8px;
+  gap: 4px 8px;
+  padding: 4px 8px;
   flex-shrink: 0;
 }
 

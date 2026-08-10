@@ -228,14 +228,23 @@ export function TrendChart({
 
   const activeScopeKeys = scopeOptions.filter((o) => enabledScopes[o.key]).map((o) => o.key)
   const activeMetricKeys = METRIC_KEYS.filter((key) => enabledMetrics[key])
+  const multiMetric = activeMetricKeys.length > 1
+  const multiScope = activeScopeKeys.length > 1
+  /** Straight/smoothed projections only make sense for a single series. */
+  const projectionsAllowed = !multiMetric && !multiScope
+  const effectiveProjectionMode: ProjectionMode = projectionsAllowed ? projectionMode : 'off'
+
+  useEffect(() => {
+    if (!projectionsAllowed && projectionMode !== 'off') {
+      setProjectionMode('off')
+    }
+  }, [projectionsAllowed, projectionMode])
 
   const { series, sortedDates, xTickMarks, yTicks, yMin, yMax, zeroY, projections, projectionBoundaryX } =
     useMemo(() => {
     const scopeSeries: ChartSeries[] = []
     const dateSet = new Set<string>()
     const allValues: number[] = []
-    const multiMetric = activeMetricKeys.length > 1
-    const multiScope = activeScopeKeys.length > 1
 
     scopeOptions.forEach((opt, scopeIdx) => {
       if (!enabledScopes[opt.key]) return
@@ -304,11 +313,11 @@ export function TrendChart({
         ? (dateMs(lastDate) - dateMs(firstDate)) / 86_400_000
         : 0
     const horizonDays =
-      projectionMode !== 'off' && lastDate
+      effectiveProjectionMode !== 'off' && lastDate
         ? projectionHorizonDays(graphRange, snapshotSpanDays)
         : 0
     const chartMaxDate =
-      projectionMode !== 'off' && lastDate ? addDays(lastDate, horizonDays) : lastDate ?? ''
+      effectiveProjectionMode !== 'off' && lastDate ? addDays(lastDate, horizonDays) : lastDate ?? ''
     const minDateMs = firstDate ? dateMs(firstDate) : 0
     const maxDateMs = chartMaxDate ? dateMs(chartMaxDate) : minDateMs
 
@@ -328,8 +337,8 @@ export function TrendChart({
     }> = []
     let seasonalOk = false
 
-    if (projectionMode !== 'off' && horizonDays > 0) {
-      const trendMethod: ProjectionMethod = projectionMode
+    if (effectiveProjectionMode !== 'off' && horizonDays > 0) {
+      const trendMethod: ProjectionMethod = effectiveProjectionMode
       for (const entry of scopeSeries) {
         if (entry.snapshots.length < 2) continue
         if (canUseSeasonalProjection(entry.snapshots)) seasonalOk = true
@@ -427,10 +436,10 @@ export function TrendChart({
       projectionBoundaryX,
       seasonalAvailable: seasonalOk,
     }
-  }, [activeMetricKeys, enabledScopes, fromDate, graphRange, historyGranularity, plotHeight, plotWidth, projectionMode, scopeOptions, state, viewScope])
+  }, [activeMetricKeys, enabledScopes, fromDate, graphRange, historyGranularity, plotHeight, plotWidth, effectiveProjectionMode, scopeOptions, state, viewScope])
 
   const hasData = series.some((s) => s.points.length > 0)
-  const showProjection = projectionMode !== 'off' && projections.length > 0
+  const showProjection = effectiveProjectionMode !== 'off' && projections.length > 0
   const primaryProjection = projections[0] ?? null
   const trendLegendLabel =
     primaryProjection?.effectiveMethod === 'weighted'
@@ -445,7 +454,7 @@ export function TrendChart({
         <button
           key={option.key}
           type="button"
-          className={projectionMode === option.key ? 'is-active' : ''}
+          className={effectiveProjectionMode === option.key ? 'is-active' : ''}
           title={option.title}
           onClick={() => setProjectionMode(option.key)}
         >
@@ -467,16 +476,31 @@ export function TrendChart({
     setEnabledMetrics((current) => {
       const enabledCount = METRIC_KEYS.filter((metric) => current[metric]).length
       if (current[key] && enabledCount <= 1) return current
+      // Multiple groups: only one metric at a time (Balance + Cash gets messy).
+      if (multiScope) {
+        if (current[key]) return current
+        const next = { ...current }
+        for (const metric of METRIC_KEYS) next[metric] = metric === key
+        return next
+      }
       return { ...current, [key]: !current[key] }
     })
   }
 
   const toggleScope = (key: string) => {
-    setEnabledScopes((current) => {
-      const enabledCount = Object.values(current).filter(Boolean).length
-      if (current[key] && enabledCount <= 1) return current
-      return { ...current, [key]: !current[key] }
-    })
+    const enabledCount = activeScopeKeys.length
+    if (enabledScopes[key] && enabledCount <= 1) return
+    const nextCount = enabledScopes[key] ? enabledCount - 1 : enabledCount + 1
+    setEnabledScopes((current) => ({ ...current, [key]: !current[key] }))
+    // Multiple groups + Balance & Cash together gets messy — keep one metric.
+    if (nextCount > 1 && activeMetricKeys.length > 1) {
+      const keep = activeMetricKeys.includes('trueBalance') ? 'trueBalance' : activeMetricKeys[0]!
+      setEnabledMetrics((metrics) => {
+        const collapsed = { ...metrics }
+        for (const metric of METRIC_KEYS) collapsed[metric] = metric === keep
+        return collapsed
+      })
+    }
   }
 
   const handleSvgMouseMove = (event: React.MouseEvent<SVGSVGElement>) => {
@@ -1023,22 +1047,24 @@ export function TrendChart({
           </div>
         </div>
 
-        <div className="chart-control-block chart-control-inline chart-control-range">
-          <p className="chart-control-label">Trend</p>
-          <div className="range-toggles range-toggles--compact">
-            {projectionModeOptions.map((option) => (
-              <button
-                key={option.key}
-                type="button"
-                className={projectionMode === option.key ? 'active' : ''}
-                title={option.title}
-                onClick={() => setProjectionMode(option.key)}
-              >
-                {option.label}
-              </button>
-            ))}
+        {projectionsAllowed ? (
+          <div className="chart-control-block chart-control-inline chart-control-range">
+            <p className="chart-control-label">Trend</p>
+            <div className="range-toggles range-toggles--compact">
+              {projectionModeOptions.map((option) => (
+                <button
+                  key={option.key}
+                  type="button"
+                  className={effectiveProjectionMode === option.key ? 'active' : ''}
+                  title={option.title}
+                  onClick={() => setProjectionMode(option.key)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        ) : null}
       </div>
     </div>
   )
@@ -1061,10 +1087,12 @@ export function TrendChart({
             ))}
           </div>
         </div>
-        <div className="trends-chart-rail-cluster">
-          <span className="trends-chart-rail-tag">Trend</span>
-          {projectionToggle}
-        </div>
+        {projectionsAllowed ? (
+          <div className="trends-chart-rail-cluster">
+            <span className="trends-chart-rail-tag">Trend</span>
+            {projectionToggle}
+          </div>
+        ) : null}
       </div>
 
       <aside className="trends-chart-rail trends-chart-rail--scopes" aria-label="Locations to show">
