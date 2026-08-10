@@ -6899,9 +6899,9 @@ body.overview-split-dragging {
 }
 
 .overview-strip--position-split .overview-breakdown-wrap {
-  border: none;
-  background: transparent;
-  border-radius: 0;
+  border: 1px solid var(--border);
+  background: var(--bg-surface-raised);
+  border-radius: var(--radius-md);
   overflow: hidden;
 }
 
@@ -6915,9 +6915,19 @@ body.overview-split-dragging {
   background: transparent;
 }
 
-/* Keep TOTAL column cells inside the rounded overview card. */
+/* Keep outer table cells inside the rounded overview card. */
+.overview-strip--position-split .overview-breakdown-table thead th:first-child,
+.overview-strip--position-split .overview-breakdown-table thead th.sheet-label-col {
+  border-top-left-radius: calc(var(--radius-md) - 1px);
+}
+
 .overview-strip--position-split .overview-breakdown-table thead th:last-child {
   border-top-right-radius: calc(var(--radius-md) - 1px);
+}
+
+.overview-strip--position-split .overview-breakdown-table tbody tr:last-child td:first-child,
+.overview-strip--position-split .overview-breakdown-table tbody tr:last-child td.sheet-row-label {
+  border-bottom-left-radius: calc(var(--radius-md) - 1px);
 }
 
 .overview-strip--position-split .overview-breakdown-table tbody tr:last-child td:last-child {
