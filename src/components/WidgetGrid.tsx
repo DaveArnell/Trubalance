@@ -49,7 +49,6 @@ import {
   computeWidgetDropPreview,
   layoutToStacks,
   rectsToLiveFrames,
-  stacksToRectsFromLayout,
   type ColumnStack,
   type WidgetDropHighlightMode,
 } from '../utils/widgetLayoutReflow'
@@ -945,13 +944,17 @@ export function WidgetGrid({ pageId, widgets, homeSection }: WidgetGridProps) {
 
 
 
-    const resizeIds = collectCoupledWidgetIds(primaryId, coupling)
-
     const layoutSnapshot = visible.map((entry) => ({ ...entry, ...getItemRect(entry) }))
     const eastStack = layoutToStacks(layoutSnapshot).find((stack: ColumnStack) =>
       stack.widgetIds.includes(primaryId),
     )
     const columnStackIds = eastStack?.widgetIds ?? [primaryId]
+    const resizeIds = [
+      ...new Set([
+        ...collectCoupledWidgetIds(primaryId, coupling),
+        ...columnStackIds,
+      ]),
+    ]
     const westExcludedIds = [
       coupling.westNeighborId,
       ...(coupling.westNeighborIds ?? []),
@@ -1236,29 +1239,8 @@ export function WidgetGrid({ pageId, widgets, homeSection }: WidgetGridProps) {
         )
       }
 
-      const rawRects = framesToWidgetRects(
-        nextFrames,
-        canvasRect.width,
-        canvasRect.height,
-        rowCount,
-      )
-      const resizedLayoutSnapshot = layoutSnapshot.map((entry) => ({
-        ...entry,
-        ...(rawRects[entry.id] ?? {}),
-      }))
-      const packedRects = stacksToRectsFromLayout(
-        resizedLayoutSnapshot,
-        layoutToStacks(resizedLayoutSnapshot),
-        rowCount,
-      )
-      const alignedRects = alignStackedColumnWidgets(layoutSnapshot, packedRects)
-      latestFrames = rectsToLiveFrames(
-        alignedRects,
-        canvasRect.width,
-        canvasRect.height,
-        rowCount,
-      )
-
+      // Size-only: keep live frames — do not re-pack stacks (that can shift positions).
+      latestFrames = nextFrames
       setLiveFrames(latestFrames)
 
     }
@@ -1277,17 +1259,8 @@ export function WidgetGrid({ pageId, widgets, homeSection }: WidgetGridProps) {
         canvasRect.height,
         rowCount,
       )
-      const layoutSnapshot = visible.map((entry) => ({ ...entry, ...getItemRect(entry) }))
-      const resizedLayoutSnapshot = layoutSnapshot.map((entry) => ({
-        ...entry,
-        ...(rawRects[entry.id] ?? {}),
-      }))
-      const packedRects = stacksToRectsFromLayout(
-        resizedLayoutSnapshot,
-        layoutToStacks(resizedLayoutSnapshot),
-        rowCount,
-      )
-      const nextRects = alignStackedColumnWidgets(layoutSnapshot, packedRects)
+      // Align stacked mates' width only — never reflow column topology on resize.
+      const nextRects = alignStackedColumnWidgets(layoutSnapshot, rawRects)
 
       setWidgetRects(nextRects)
 
