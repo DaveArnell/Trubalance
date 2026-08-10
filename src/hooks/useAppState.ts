@@ -20,6 +20,7 @@ import {
   getCommitmentRebuildFromDateKey,
   getCommitmentRebuildFromPeriodOverridePatch,
   refreshAllSnapshotMetrics,
+  restorePastSnapshotMetricsFromHistory,
 } from '../utils/snapshotRebuild'
 import { getReceiptRebuildFromDateKey, getReceiptDeleteFromDateKey, getReceiptHistoricCorrectionFromDateKey } from '../utils/receiptCalculations'
 import { captureHistoryRecord, upsertDailyHistoryRecord } from '../utils/historyCapture'
@@ -199,7 +200,8 @@ function migrateState(parsed: Record<string, unknown>): AppState {
   }
   const migratedAt = new Date().toISOString()
   const repaired = repairEmptySnapshotChangedAccounts(base)
-  const withBackfill = backfillScopeSnapshots(repaired, migratedAt)
+  const restored = restorePastSnapshotMetricsFromHistory(repaired, migratedAt)
+  const withBackfill = backfillScopeSnapshots(restored, migratedAt)
   const withSnapshots = refreshAllSnapshotMetrics(withBackfill, migratedAt)
   if (base.workspaceOrigin === undefined) {
     if (!statesMatchRoughly(withSnapshots, initialState)) {
@@ -328,6 +330,8 @@ export function useAppState(options?: UseAppStateOptions) {
   const persistImmediateRef = useRef(false)
   const stateRef = useRef(state)
   stateRef.current = state
+  const viewScopeRef = useRef(viewScope)
+  viewScopeRef.current = viewScope
 
   useEffect(() => {
     return () => {
@@ -361,27 +365,40 @@ export function useAppState(options?: UseAppStateOptions) {
     // Prefer the cloud workspace whenever it loads or is refreshed (phone ↔ web).
     // Initial paint may use a local cache; this replaces it once remote state arrives.
     // Union receipts so open phone edits win over stale “received” cloud rows for the same id.
-    const cloudNormalized = normalizeWorkspaceState(cloneState(external))
+    const cloudBeforeNormalize = cloneState(external)
+    const cloudNormalized = normalizeWorkspaceState(cloudBeforeNormalize)
     let next = mergeMissingLocalWorkspaceData(cloudNormalized, stateRef.current)
     next = unionExpectedReceipts(next, stateRef.current)
     next = unionSnapshotsByUpdatedAt(next, stateRef.current)
     next = unionHistoryRecordsBySavedAt(next, stateRef.current)
+    // Union can reintroduce a newer poisoned local past row — restore History again.
+    const afterUnion = next
+    next = normalizeWorkspaceState(next)
     const mergeAdded = countCriticalEntitiesAdded(cloudNormalized, next).total > 0
     const receiptsChanged =
       expectedReceiptsSyncKey(cloudNormalized) !== expectedReceiptsSyncKey(next)
-    const historyChanged =
-      snapshotsSyncKey(cloudNormalized) !== snapshotsSyncKey(next) ||
-      historyRecordsSyncKey(cloudNormalized) !== historyRecordsSyncKey(next)
-    const shouldPushMerge = mergeAdded || receiptsChanged || historyChanged
+    // Only push Trends rows this device still has that the cloud lacked before normalize.
+    // Never push hydrate-only rewrites of past metrics (that poisoned history across devices).
+    const cloudSnapIds = new Set(cloudBeforeNormalize.snapshots.map((snap) => snap.id))
+    const cloudHistoryIds = new Set((cloudBeforeNormalize.historyRecords ?? []).map((r) => r.id))
+    const localHasExtraHistory =
+      stateRef.current.snapshots.some((snap) => !cloudSnapIds.has(snap.id)) ||
+      (stateRef.current.historyRecords ?? []).some((record) => !cloudHistoryIds.has(record.id))
+    const restoredHistory =
+      snapshotsSyncKey(afterUnion) !== snapshotsSyncKey(next) ||
+      historyRecordsSyncKey(afterUnion) !== historyRecordsSyncKey(next) ||
+      snapshotsSyncKey(cloudBeforeNormalize) !== snapshotsSyncKey(cloudNormalized)
+    const shouldPushMerge = mergeAdded || receiptsChanged || localHasExtraHistory || restoredHistory
     setState(next)
     undoStackRef.current = []
     setCanUndo(false)
     redoStackRef.current = []
     setCanRedo(false)
-    if (options?.defaultViewScope) {
-      setViewScope(resolveDefaultViewScope(next, options.defaultViewScope))
-    } else {
-      setViewScope(resolveDefaultViewScope(next))
+    // Keep the user's sidebar selection across sync pulls. Only fall back when the
+    // current scope no longer exists (workspace switch / deleted node).
+    const currentScope = viewScopeRef.current
+    if (!isViewScopeValid(next, currentScope)) {
+      setViewScope(resolveDefaultViewScope(next, options?.defaultViewScope))
     }
     if (!options?.skipLocalPersist) {
       try {

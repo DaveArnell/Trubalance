@@ -1,6 +1,6 @@
 import type { AppState, BalanceSnapshot, Commitment, ViewScope } from '../types'
 import { getActiveAccrualPeriod } from './commitmentCalculations'
-import { computeScopeMetricsAtDate } from './historyRebuild'
+import { computeScopeMetricsAtDate, getExactHistorySummaryForScopeDate } from './historyRebuild'
 import type { HistoryMetricKey } from './historyTable'
 import { getReferenceDate, dateToKey } from './referenceDate'
 import { isSnapshotMetricCorrected } from './snapshotCorrections'
@@ -105,6 +105,40 @@ export function refreshAllSnapshotMetrics(state: AppState, now: string): AppStat
     ...state,
     snapshots: state.snapshots.map((snapshot) => refreshSnapshotMetricsAt(snapshot, state, now)),
   }
+}
+
+/**
+ * Recover past Trends totals that were rewritten by load/backfill using today's cash.
+ * History capture summaries are the authoritative frozen day totals.
+ */
+export function restorePastSnapshotMetricsFromHistory(state: AppState, now: string): AppState {
+  if (state.workspaceOrigin === 'builtin-demo') return state
+  if (state.snapshots.length === 0) return state
+
+  const today = todayDateKey()
+  let changed = false
+  const snapshots = state.snapshots.map((snapshot) => {
+    if (snapshot.date >= today || snapshot.manualEntry) return snapshot
+
+    const scope: ViewScope = { type: snapshot.scopeType, id: snapshot.scopeId }
+    const summary = getExactHistorySummaryForScopeDate(state, scope, snapshot.date)
+    if (!summary) return snapshot
+
+    const next = { ...snapshot }
+    let touched = false
+    for (const metric of SNAPSHOT_METRICS) {
+      if (isSnapshotMetricCorrected(snapshot, metric)) continue
+      if (next[metric] === summary[metric]) continue
+      next[metric] = summary[metric]
+      touched = true
+    }
+    if (!touched) return snapshot
+    changed = true
+    next.updatedAt = now
+    return next
+  })
+
+  return changed ? { ...state, snapshots } : state
 }
 
 /** Rebuild history when commitments change — never rewrite builtin demo sales trends. */

@@ -269,19 +269,34 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
           state = unionSnapshotsByUpdatedAt(state, source)
           state = unionHistoryRecordsBySavedAt(state, source)
         }
+        const afterUnion = state
+        // Restore frozen History captures before deciding to push — never push past
+        // Trends that were rewritten from today's live balances on load.
+        state = normalizeWorkspaceStateForDisplay(state)
         const added = countCriticalEntitiesAdded(beforeMerge, state)
         const receiptsChanged =
           expectedReceiptsSyncKey(beforeMerge) !== expectedReceiptsSyncKey(state)
-        const historyChanged =
-          snapshotsSyncKey(beforeMerge) !== snapshotsSyncKey(state) ||
-          historyRecordsSyncKey(beforeMerge) !== historyRecordsSyncKey(state)
+        const cloudSnapIds = new Set(beforeMerge.snapshots.map((snap) => snap.id))
+        const cloudHistoryIds = new Set((beforeMerge.historyRecords ?? []).map((r) => r.id))
+        const localHasExtraHistory = localSources.some(
+          (source) =>
+            source.snapshots.some((snap) => !cloudSnapIds.has(snap.id)) ||
+            (source.historyRecords ?? []).some((record) => !cloudHistoryIds.has(record.id)),
+        )
+        // Only treat History restore as a push signal — not union preferring a newer bad row.
+        const restoredHistory =
+          snapshotsSyncKey(afterUnion) !== snapshotsSyncKey(state) ||
+          historyRecordsSyncKey(afterUnion) !== historyRecordsSyncKey(state)
         if (loadHadErrors) {
           console.warn(
             '[Workspace] Cloud load had table errors — merged missing local planners/receipts/commitments',
           )
         }
-        // Push unioned living data + rebuilt Trends baselines so other devices converge.
-        if ((added.total > 0 || receiptsChanged || historyChanged) && !isImpersonating) {
+        // Push living data this device still had, plus History-restored Trends baselines.
+        if (
+          (added.total > 0 || receiptsChanged || localHasExtraHistory || restoredHistory) &&
+          !isImpersonating
+        ) {
           try {
             await saveWorkspaceState(wsId, state, {
               allowEmptyDeletes: false,
@@ -289,7 +304,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
             })
             console.info(
               `[Workspace] Pushed ${added.receipts} receipts, ${added.commitments} costs, ${added.planners} planners` +
-                (historyChanged ? ', and updated Trends baselines' : '') +
+                (restoredHistory || localHasExtraHistory ? ', and updated Trends baselines' : '') +
                 ' from this device to your account',
             )
           } catch (error) {
@@ -306,7 +321,10 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      state = normalizeWorkspaceStateForDisplay(state)
+      // Already normalized above when local sources were merged; still normalize when not.
+      if (localSources.length === 0 || isImpersonating || user?.id !== effectiveUserId) {
+        state = normalizeWorkspaceStateForDisplay(state)
+      }
 
       loadedStateRef.current = state
       // Treat the pulled cloud snapshot as already persisted so a stale UI save

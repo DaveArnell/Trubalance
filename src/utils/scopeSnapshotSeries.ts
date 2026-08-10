@@ -3,6 +3,7 @@ import { getScopeLabel } from './scope'
 import { getExactHistorySummaryForScopeDate, getHistoryDatesForViewScope } from './historyRebuild'
 import { computeScopeMetricsAtDate } from './historyRebuild'
 import { getFreshness, todayDateKey } from './snapshots'
+import { isSnapshotMetricCorrected } from './snapshotCorrections'
 import { withEffectiveSnapshotMetrics } from './snapshotMetrics'
 
 function isDerivedSnapshotId(id: string): boolean {
@@ -113,6 +114,17 @@ export function getEffectiveSnapshotsForScope(
       // History-page summary for that day. Never invent past days with today's rules.
       if (date < today) {
         if (stored && isPersistedSnapshot(stored)) {
+          const hist = getExactHistorySummaryForScopeDate(state, scope, date)
+          if (
+            hist &&
+            !stored.manualEntry &&
+            !isSnapshotMetricCorrected(stored, 'trueBalance') &&
+            !isSnapshotMetricCorrected(stored, 'cash') &&
+            (stored.trueBalance !== hist.trueBalance || stored.cash !== hist.cash)
+          ) {
+            // Stored past was rewritten (often with live cash on load) — History capture wins.
+            return buildSnapshotFromHistorySummary(state, scope, date, hist)
+          }
           return withEffectiveSnapshotMetrics(state, stored)
         }
         const hist = getExactHistorySummaryForScopeDate(state, scope, date)

@@ -14,7 +14,7 @@ import { getAccountsForScope } from './calculations'
 import { newId } from './id'
 import { getChartScopeTreeOptions } from './chartScopes'
 import { isSnapshotMetricCorrected } from './snapshotCorrections'
-import { computeScopeMetricsAtDate, buildSnapshotAccountChangesForScopeDate, getHistoryDatesForViewScope, rebuildHistoryRecordsFromDate } from './historyRebuild'
+import { computeScopeMetricsAtDate, buildSnapshotAccountChangesForScopeDate, getExactHistorySummaryForScopeDate, getHistoryDatesForViewScope, rebuildHistoryRecordsFromDate } from './historyRebuild'
 import {
   getBusinessIdsForScope,
   getBusinessesInGroup,
@@ -22,7 +22,7 @@ import {
   getVenueIdsForScope,
   getVenuesInBusiness,
 } from './scope'
-import { getFreshness, getSnapshotsForDateInScopeTree } from './snapshots'
+import { getFreshness, getSnapshotsForDateInScopeTree, todayDateKey } from './snapshots'
 import { rebuildSnapshotsFromDate } from './snapshotRebuild'
 
 export function getScopesForChangedAccounts(state: AppState, accountIds: string[]): ViewScope[] {
@@ -194,6 +194,37 @@ export function ensureDailySnapshotAtDate(
     (s) => s.date === date && s.scopeType === scope.type && s.scopeId === scope.id,
   )
   const existing = existingIdx >= 0 ? snapshots[existingIdx] : undefined
+  const isPast = date < todayDateKey()
+
+  // Load/backfill must never rewrite frozen past Trends. Past rows are only created when
+  // missing, and only from a History capture — never from today's live account balances.
+  if (isPast && changedAccounts.length === 0) {
+    if (existing) return snapshots
+    const hist = getExactHistorySummaryForScopeDate(workingState, scope, date)
+    if (!hist) return snapshots
+    const historical = buildSnapshotAccountChangesForScopeDate(workingState, scope, date)
+    const histCash = roundCurrency(historical.reduce((sum, change) => sum + change.balance, 0))
+    const accountChanges =
+      historical.length > 0 && Math.abs(histCash - hist.cash) <= 0.02 ? historical : []
+    return [
+      ...snapshots,
+      {
+        id: newId(),
+        date,
+        scopeType: scope.type,
+        scopeId: scope.id,
+        viewName: getScopeLabel(workingState, scope),
+        cash: hist.cash,
+        committedFunds: hist.committedFunds,
+        expectedReceipts: hist.expectedReceipts,
+        trueBalance: hist.trueBalance,
+        freshness: getFreshness(0),
+        changedAccounts: accountChanges,
+        updatedAt: now,
+      },
+    ]
+  }
+
   const treeChanges = collectAccountChangesFromTreeSnapshots(workingState, scope, date)
   const isGroupSave = changedAccounts.length > 0
   let mergedChanges =
@@ -255,6 +286,8 @@ export function ensureDailySnapshotAtDate(
   const { note, noteSource } = noteForScope(scope, noteChanges, noteText, existing)
   const keepAuthoredDemoMetrics =
     workingState.workspaceOrigin === 'builtin-demo' && existing != null
+  // Intentional past edits (account changes supplied) still recompute; freeze otherwise.
+  const freezePastMetrics = isPast && existing != null && changedAccounts.length === 0
 
   const snapshot: BalanceSnapshot = {
     id: existing?.id ?? newId(),
@@ -263,21 +296,26 @@ export function ensureDailySnapshotAtDate(
     scopeId: scope.id,
     viewName: getScopeLabel(workingState, scope),
     cash:
-      keepAuthoredDemoMetrics || (existing && isSnapshotMetricCorrected(existing, 'cash'))
+      keepAuthoredDemoMetrics ||
+      freezePastMetrics ||
+      (existing && isSnapshotMetricCorrected(existing, 'cash'))
         ? existing!.cash
         : metrics.cash,
     committedFunds:
       keepAuthoredDemoMetrics ||
+      freezePastMetrics ||
       (existing && isSnapshotMetricCorrected(existing, 'committedFunds'))
         ? existing!.committedFunds
         : metrics.committedFunds,
     expectedReceipts:
       keepAuthoredDemoMetrics ||
+      freezePastMetrics ||
       (existing && isSnapshotMetricCorrected(existing, 'expectedReceipts'))
         ? existing!.expectedReceipts
         : metrics.expectedReceipts,
     trueBalance:
       keepAuthoredDemoMetrics ||
+      freezePastMetrics ||
       (existing && isSnapshotMetricCorrected(existing, 'trueBalance'))
         ? existing!.trueBalance
         : metrics.trueBalance,

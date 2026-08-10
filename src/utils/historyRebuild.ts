@@ -414,6 +414,7 @@ export function buildSnapshotAccountChangesForScopeDate(
 
 /** Fill snapshots that have metrics but no per-account history — fixes multi-business balance logs. */
 export function repairEmptySnapshotChangedAccounts(state: AppState): AppState {
+  const today = todayDateKey()
   const snapshots = state.snapshots.map((snap) => {
     const scope: ViewScope = { type: snap.scopeType, id: snap.scopeId }
     if (getAccountsForScope(state, scope).length === 0) return snap
@@ -430,6 +431,13 @@ export function repairEmptySnapshotChangedAccounts(state: AppState): AppState {
       snap.changedAccounts.length === 0 || (rebuiltCash !== 0 && existingCash === 0)
 
     if (!needsRepair) return snap
+
+    // Past days: never invent account rows from today's live balances. Only accept a
+    // rebuild when it agrees with the frozen snapshot cash total.
+    if (snap.date < today && Math.abs(rebuiltCash - roundCurrency(snap.cash)) > 0.02) {
+      return snap
+    }
+
     return { ...snap, changedAccounts: rebuilt }
   })
   return { ...state, snapshots }
