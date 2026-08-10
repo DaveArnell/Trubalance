@@ -49,7 +49,7 @@ import { todayDateKey, getFreshness } from '../utils/snapshots'
 import { parseVirtualSnapshotId } from '../utils/scopeSnapshotSeries'
 import { MONTHS, currentMonthIndex } from '../utils/format'
 import { syncGuidedStructureInState, type GuidedBusinessPayload } from '../utils/structureDraftSync'
-import { backupBrowserStateToSession, isUserOwnedWorkspace, mergeMissingLocalWorkspaceData, countCriticalEntitiesAdded, unionExpectedReceipts, expectedReceiptsSyncKey, readRawBrowserStateJson, statesMatchRoughly } from '../utils/localStateStorage'
+import { backupBrowserStateToSession, isUserOwnedWorkspace, mergeMissingLocalWorkspaceData, countCriticalEntitiesAdded, unionExpectedReceipts, expectedReceiptsSyncKey, snapshotsSyncKey, historyRecordsSyncKey, unionSnapshotsByUpdatedAt, unionHistoryRecordsBySavedAt, readRawBrowserStateJson, statesMatchRoughly } from '../utils/localStateStorage'
 import { normalizeWorkspaceState } from '../utils/workspaceNormalize'
 import { getReferenceDate, getReferenceDateKey } from '../utils/referenceDate'
 import { migrateDayNotes } from '../utils/dayNotes'
@@ -364,10 +364,15 @@ export function useAppState(options?: UseAppStateOptions) {
     const cloudNormalized = normalizeWorkspaceState(cloneState(external))
     let next = mergeMissingLocalWorkspaceData(cloudNormalized, stateRef.current)
     next = unionExpectedReceipts(next, stateRef.current)
+    next = unionSnapshotsByUpdatedAt(next, stateRef.current)
+    next = unionHistoryRecordsBySavedAt(next, stateRef.current)
     const mergeAdded = countCriticalEntitiesAdded(cloudNormalized, next).total > 0
     const receiptsChanged =
       expectedReceiptsSyncKey(cloudNormalized) !== expectedReceiptsSyncKey(next)
-    const shouldPushMerge = mergeAdded || receiptsChanged
+    const historyChanged =
+      snapshotsSyncKey(cloudNormalized) !== snapshotsSyncKey(next) ||
+      historyRecordsSyncKey(cloudNormalized) !== historyRecordsSyncKey(next)
+    const shouldPushMerge = mergeAdded || receiptsChanged || historyChanged
     setState(next)
     undoStackRef.current = []
     setCanUndo(false)

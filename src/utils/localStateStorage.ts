@@ -154,6 +154,100 @@ export function expectedReceiptsSyncKey(state: AppState): string {
     .join('|')
 }
 
+/** Content fingerprint for stored Trends / week-month delta baselines. */
+export function snapshotsSyncKey(state: AppState): string {
+  return state.snapshots
+    .map(
+      (snapshot) =>
+        `${snapshot.id}:${snapshot.trueBalance}:${snapshot.cash}:${snapshot.committedFunds}:${snapshot.expectedReceipts}:${snapshot.updatedAt ?? ''}`,
+    )
+    .sort()
+    .join('|')
+}
+
+export function historyRecordsSyncKey(state: AppState): string {
+  return (state.historyRecords ?? [])
+    .map(
+      (record) =>
+        `${record.id}:${record.summary?.trueBalance ?? ''}:${record.summary?.expectedReceipts ?? ''}:${record.savedAt ?? record.date}`,
+    )
+    .sort()
+    .join('|')
+}
+
+/** Prefer newer rebuilt snapshot rows so Trends stay aligned after receipt edits. */
+export function unionSnapshotsByUpdatedAt(
+  cloud: AppState,
+  ...sources: Array<AppState | null | undefined>
+): AppState {
+  const byId = new Map(cloud.snapshots.map((snapshot) => [snapshot.id, snapshot]))
+  for (const source of sources) {
+    if (!source?.snapshots.length) continue
+    for (const snapshot of source.snapshots) {
+      const existing = byId.get(snapshot.id)
+      if (!existing) {
+        byId.set(snapshot.id, snapshot)
+        continue
+      }
+      const existingTs = existing.updatedAt ?? ''
+      const nextTs = snapshot.updatedAt ?? ''
+      if (nextTs > existingTs) {
+        byId.set(snapshot.id, snapshot)
+        continue
+      }
+      if (
+        nextTs === existingTs &&
+        (snapshot.trueBalance !== existing.trueBalance ||
+          snapshot.expectedReceipts !== existing.expectedReceipts ||
+          snapshot.committedFunds !== existing.committedFunds ||
+          snapshot.cash !== existing.cash)
+      ) {
+        byId.set(snapshot.id, snapshot)
+      }
+    }
+  }
+  return {
+    ...cloud,
+    workspaceOrigin: cloud.workspaceOrigin ?? 'user',
+    snapshots: [...byId.values()],
+  }
+}
+
+export function unionHistoryRecordsBySavedAt(
+  cloud: AppState,
+  ...sources: Array<AppState | null | undefined>
+): AppState {
+  const byId = new Map((cloud.historyRecords ?? []).map((record) => [record.id, record]))
+  for (const source of sources) {
+    if (!source?.historyRecords?.length) continue
+    for (const record of source.historyRecords) {
+      const existing = byId.get(record.id)
+      if (!existing) {
+        byId.set(record.id, record)
+        continue
+      }
+      const existingTs = existing.savedAt ?? existing.date ?? ''
+      const nextTs = record.savedAt ?? record.date ?? ''
+      if (nextTs > existingTs) {
+        byId.set(record.id, record)
+        continue
+      }
+      if (
+        nextTs === existingTs &&
+        (record.summary?.trueBalance !== existing.summary?.trueBalance ||
+          record.summary?.expectedReceipts !== existing.summary?.expectedReceipts)
+      ) {
+        byId.set(record.id, record)
+      }
+    }
+  }
+  return {
+    ...cloud,
+    workspaceOrigin: cloud.workspaceOrigin ?? 'user',
+    historyRecords: [...byId.values()],
+  }
+}
+
 /** Recover reserve planners (and their bills) present locally but missing from a cloud load. */
 export function mergeMissingReservePlanners(cloud: AppState, local: AppState | null): AppState {
   if (!local?.reservePlanners.length) return cloud

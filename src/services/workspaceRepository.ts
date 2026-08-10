@@ -599,6 +599,8 @@ export async function saveWorkspaceState(
     'expected_receipts',
     'reserve_planners',
     'reserve_bills',
+    'balance_snapshots',
+    'history_records',
   ])
   const failedCritical: string[] = []
 

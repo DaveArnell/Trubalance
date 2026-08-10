@@ -21,7 +21,7 @@ import {
   buildSafeTableEmptyDeletes,
 } from '../services/workspaceRepository'
 import { isSupabaseConfigured, tryGetSupabase } from '../lib/supabase'
-import { emptyAppState, isBuiltinDemoWorkspace, isUserOwnedWorkspace, backupBrowserStateToSession, mergeMissingLocalWorkspaceData, countCriticalEntitiesAdded, unionExpectedReceipts, expectedReceiptsSyncKey } from '../utils/localStateStorage'
+import { emptyAppState, isBuiltinDemoWorkspace, isUserOwnedWorkspace, backupBrowserStateToSession, mergeMissingLocalWorkspaceData, countCriticalEntitiesAdded, unionExpectedReceipts, expectedReceiptsSyncKey, snapshotsSyncKey, historyRecordsSyncKey, unionSnapshotsByUpdatedAt, unionHistoryRecordsBySavedAt } from '../utils/localStateStorage'
 import { readBrowserAppState } from '../hooks/useAppState'
 import { normalizeWorkspaceStateForDisplay } from '../utils/workspaceNormalize'
 
@@ -50,13 +50,16 @@ function workspaceSyncFingerprint(state: AppState): string {
     .map((p) => `${p.id}:${p.bills.length}:${p.actualBalance}:${p.bufferAmount}`)
     .sort()
     .join('|')
+  // Trends / week-month deltas come from stored snapshot values — length alone missed rebuilds.
+  const snapshots = snapshotsSyncKey(state)
+  const history = historyRecordsSyncKey(state)
   return [
     accounts,
     commitments,
     receipts,
     planners,
-    state.snapshots.length,
-    state.historyRecords.length,
+    snapshots,
+    history,
     state.dayNotes?.length ?? 0,
   ].join('#')
 }
@@ -103,6 +106,8 @@ const REALTIME_PULL_TABLES = [
   'accounts',
   'reserve_planners',
   'reserve_bills',
+  'balance_snapshots',
+  'history_records',
 ] as const
 
 function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
@@ -261,24 +266,31 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
             workspaceOrigin: source.workspaceOrigin ?? 'user',
           })
           state = unionExpectedReceipts(state, source)
+          state = unionSnapshotsByUpdatedAt(state, source)
+          state = unionHistoryRecordsBySavedAt(state, source)
         }
         const added = countCriticalEntitiesAdded(beforeMerge, state)
         const receiptsChanged =
           expectedReceiptsSyncKey(beforeMerge) !== expectedReceiptsSyncKey(state)
+        const historyChanged =
+          snapshotsSyncKey(beforeMerge) !== snapshotsSyncKey(state) ||
+          historyRecordsSyncKey(beforeMerge) !== historyRecordsSyncKey(state)
         if (loadHadErrors) {
           console.warn(
             '[Workspace] Cloud load had table errors — merged missing local planners/receipts/commitments',
           )
         }
-        // Push unioned receipts/costs so other devices see what this device kept locally.
-        if ((added.total > 0 || receiptsChanged) && !isImpersonating) {
+        // Push unioned living data + rebuilt Trends baselines so other devices converge.
+        if ((added.total > 0 || receiptsChanged || historyChanged) && !isImpersonating) {
           try {
             await saveWorkspaceState(wsId, state, {
               allowEmptyDeletes: false,
               previousState: beforeMerge,
             })
             console.info(
-              `[Workspace] Pushed ${added.receipts} receipts, ${added.commitments} costs, ${added.planners} planners from this device to your account`,
+              `[Workspace] Pushed ${added.receipts} receipts, ${added.commitments} costs, ${added.planners} planners` +
+                (historyChanged ? ', and updated Trends baselines' : '') +
+                ' from this device to your account',
             )
           } catch (error) {
             console.warn('[Workspace] Failed to push merged local entities to cloud', error)
@@ -647,6 +659,8 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       merged = mergeMissingLocalWorkspaceData(merged, { ...liveState, workspaceOrigin: 'user' })
       merged = unionExpectedReceipts(merged, liveState)
     }
+    merged = unionSnapshotsByUpdatedAt(merged, local, liveState)
+    merged = unionHistoryRecordsBySavedAt(merged, local, liveState)
     merged = normalizeWorkspaceStateForDisplay({
       ...merged,
       workspaceOrigin: merged.workspaceOrigin ?? 'user',
