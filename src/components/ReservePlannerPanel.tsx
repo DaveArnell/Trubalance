@@ -821,6 +821,12 @@ export function ReservePlannerPanel({
             <h2 className="reserve-planner-business-heading">
               {businessName ? `${businessName} Reserve Plan` : planner.name || 'Reserve Plan'}
             </h2>
+            {isMobile ? (
+              <p className="reserve-planner-heading-plan">
+                Should be <strong>{formatCurrency(currentMonthTransferTarget)}</strong>
+                <span className="muted"> · {formatCurrency(grid.totalMonthly)}/mo average</span>
+              </p>
+            ) : null}
           </div>
           <div className="card-head-toolbar-right">
             {!editReadOnly && (
