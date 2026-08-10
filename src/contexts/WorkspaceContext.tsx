@@ -82,6 +82,9 @@ interface WorkspaceContextValue {
     commitments: number
     planners: number
     total: number
+    deviceReceipts: number
+    cloudReceiptsAfter: number
+    openReceipts: number
   } | null>
   /** Call after React applies a pulled remote snapshot — unlocks cloud saves. */
   markRemoteHydrated: () => void
@@ -634,11 +637,13 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
     // Always take receipts from this device seriously — not only brand-new ids.
     let merged = unionExpectedReceipts(cloudState, local, liveState)
-    if (local && isUserOwnedWorkspace(local)) {
-      merged = mergeMissingLocalWorkspaceData(merged, local)
+    if (local) {
+      merged = mergeMissingLocalWorkspaceData(merged, {
+        ...local,
+        workspaceOrigin: local.workspaceOrigin ?? 'user',
+      })
     }
     if (liveState) {
-      // Even if origin flag is missing, still merge costs/planners from what is on screen.
       merged = mergeMissingLocalWorkspaceData(merged, { ...liveState, workspaceOrigin: 'user' })
       merged = unionExpectedReceipts(merged, liveState)
     }
@@ -650,18 +655,43 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     const added = countCriticalEntitiesAdded(beforeMerge, merged)
     const receiptsChanged =
       expectedReceiptsSyncKey(beforeMerge) !== expectedReceiptsSyncKey(merged)
-    const shouldSave = added.total > 0 || receiptsChanged
+    const deviceReceiptCount = Math.max(
+      liveState?.expectedReceipts.length ?? 0,
+      local?.expectedReceipts.length ?? 0,
+      merged.expectedReceipts.length,
+    )
 
-    if (shouldSave) {
+    // Always upsert — even when counts match — so field-level phone edits and
+    // earlier failed saves still land in the account.
+    try {
       await saveWorkspaceState(workspaceId, merged, {
         allowEmptyDeletes: false,
         previousState: beforeMerge,
+      })
+    } catch (error) {
+      console.warn('[Workspace] Force sync save failed', error)
+      throw error
+    }
+
+    // Verify the account actually has the receipts we just pushed.
+    const { state: verified } = await loadWorkspaceState(workspaceId)
+    const verifiedKey = expectedReceiptsSyncKey(verified)
+    const mergedKey = expectedReceiptsSyncKey(merged)
+    if (verifiedKey !== mergedKey) {
+      console.warn('[Workspace] Sync verify mismatch — retrying upsert', {
+        device: merged.expectedReceipts.length,
+        cloud: verified.expectedReceipts.length,
+      })
+      await saveWorkspaceState(workspaceId, merged, {
+        allowEmptyDeletes: false,
+        previousState: verified,
       })
     }
 
     loadedStateRef.current = merged
     lastPersistedStateRef.current = merged
     lastSyncFingerprintRef.current = workspaceSyncFingerprint(merged)
+    pullGenerationRef.current += 1
     setInitialRemoteState(merged)
     setRemoteStateVersion((v) => v + 1)
 
@@ -671,12 +701,23 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         beforeMerge.expectedReceipts.filter((receipt) => !receipt.received).length,
     )
     return {
-      receipts: Math.max(added.receipts, receiptDelta, receiptsChanged ? merged.expectedReceipts.length : 0),
+      receipts: Math.max(
+        added.receipts,
+        receiptDelta,
+        receiptsChanged ? merged.expectedReceipts.length : 0,
+        deviceReceiptCount > beforeMerge.expectedReceipts.length
+          ? deviceReceiptCount - beforeMerge.expectedReceipts.length
+          : 0,
+      ),
       commitments: added.commitments,
       planners: added.planners,
       total:
         added.total +
-        (receiptsChanged && added.receipts === 0 ? 1 : 0),
+        (receiptsChanged && added.receipts === 0 ? 1 : 0) +
+        (deviceReceiptCount > 0 && added.total === 0 && !receiptsChanged ? 0 : 0),
+      deviceReceipts: deviceReceiptCount,
+      cloudReceiptsAfter: merged.expectedReceipts.length,
+      openReceipts: merged.expectedReceipts.filter((receipt) => !receipt.received).length,
     }
   }, [workspaceId, readOnly, cancelPendingPersist])
 

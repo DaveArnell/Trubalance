@@ -58,23 +58,27 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
     setSyncingDevice(true)
     setStatus(null)
     try {
-      const openReceipts = state.expectedReceipts.filter((receipt) => !receipt.received).length
+      const openOnDevice = state.expectedReceipts.filter((receipt) => !receipt.received)
+      const openNames = openOnDevice
+        .slice(0, 5)
+        .map((receipt) => receipt.name.trim() || 'Untitled')
+        .join(', ')
       const added = await syncMissingLocalToCloud(state)
       if (!added) {
         setStatus('Could not sync — check you are signed in.')
         return
       }
-      if (added.total === 0 && openReceipts === 0) {
+      const scopeHint =
+        'On the PC, match Viewing to the same business/venue as the phone, then hard-refresh (Ctrl+Shift+R).'
+      if (added.openReceipts === 0 && openOnDevice.length === 0) {
         setStatus(
-          'This device has no open expected receipts to upload. If the phone still shows some, stay on Receipts there, then sync again.',
-        )
-      } else if (added.total === 0) {
-        setStatus(
-          `Account already had these receipts (${openReceipts} open on this device). Hard-refresh the PC (Ctrl+Shift+R). If it is still empty, check Viewing scope matches the phone.`,
+          'This device has no open expected receipts to upload. If the phone still shows some, open Receipts there and sync again.',
         )
       } else {
         setStatus(
-          `Uploaded to your account (${openReceipts} open receipt${openReceipts === 1 ? '' : 's'} on this device). Now hard-refresh the PC (Ctrl+Shift+R).`,
+          `Uploaded ${added.openReceipts} open receipt${added.openReceipts === 1 ? '' : 's'} to your account` +
+            (openNames ? ` (${openNames}${openOnDevice.length > 5 ? '…' : ''})` : '') +
+            `. ${scopeHint}`,
         )
       }
       await reload()

@@ -457,10 +457,18 @@ export function useAppState(options?: UseAppStateOptions) {
         // Keep stateRef current inside the updater so an immediate unmount (e.g. navigate
         // to homepage) still flushes the latest paid/ unpaid change, not a stale snapshot.
         stateRef.current = next
+        // Mirror to localStorage synchronously so a concurrent cloud pull cannot miss this edit.
+        if (!options?.skipLocalPersist) {
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+          } catch {
+            /* ignore quota */
+          }
+        }
         return next
       })
     },
-    [pushUndo, options?.readOnly, options?.readOnlyRef],
+    [pushUndo, options?.readOnly, options?.readOnlyRef, options?.skipLocalPersist],
   )
 
   const undo = useCallback(() => {
@@ -853,6 +861,13 @@ export function useAppState(options?: UseAppStateOptions) {
 
   const requestImmediatePersist = () => {
     persistImmediateRef.current = true
+    // Queue cloud save from the latest stateRef on the next microtask so adds are not
+    // lost if a sync pull starts before React's persist effect runs.
+    queueMicrotask(() => {
+      if (!options?.remotePersist || !remoteHydratedRef.current || options?.skipLocalPersist) return
+      if (options?.readOnly || options?.readOnlyRef?.current) return
+      options.onStateChange?.(stateRef.current, { immediate: true })
+    })
   }
 
   const markCommitmentPaid = (id: string, paidAmount?: number) => {
