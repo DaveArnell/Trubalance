@@ -27,8 +27,9 @@ export interface WidgetLayoutItem {
 
 export type PageWidgetLayout = WidgetLayoutItem[]
 
-const STORAGE_KEY = 'trubalance-widget-layout-v7'
+const STORAGE_KEY = 'trubalance-widget-layout-v8'
 const LEGACY_STORAGE_KEYS = [
+  'trubalance-widget-layout-v7',
   'trubalance-widget-layout-v6',
   'trubalance-widget-layout-v5',
   'trubalance-widget-layout-v4',
@@ -255,8 +256,8 @@ function repairCommittedFundsLayout(layout: PageWidgetLayout): PageWidgetLayout 
   return pinCommittedFundsToEdges(next)
 }
 
-/** Left column starts at 0; right column ends at GRID_COLUMNS — only the split width is free. */
-function pinCommittedFundsToEdges(layout: PageWidgetLayout): PageWidgetLayout {
+/** Left/right/top/bottom flush to the canvas; only the column split and Due/Receipts split move. */
+export function pinCommittedFundsToEdges(layout: PageWidgetLayout): PageWidgetLayout {
   const monthly = layout.find((item) => item.id === 'committed-funds' && item.visible)
   const due = layout.find((item) => item.id === 'due' && item.visible)
   const receipts = layout.find((item) => item.id === 'expected-receipts' && item.visible)
@@ -268,19 +269,38 @@ function pinCommittedFundsToEdges(layout: PageWidgetLayout): PageWidgetLayout {
     Math.min(GRID_COLUMNS - MIN_COL_SPAN, Math.round(monthly.colSpan)),
   )
   const rightSpan = GRID_COLUMNS - leftSpan
+
+  const dueIsAbove = due.row <= receipts.row
+  const topRight = dueIsAbove ? due : receipts
+  const bottomRight = dueIsAbove ? receipts : due
+  const topSpan = Math.max(MIN_ROW_SPAN, Math.round(topRight.rowSpan))
+  const bottomSpan = Math.max(MIN_ROW_SPAN, Math.round(bottomRight.rowSpan))
+  const totalHeight = topSpan + bottomSpan
+
   const alreadyFlush =
     monthly.col === 0 &&
+    monthly.row === 0 &&
     monthly.colSpan === leftSpan &&
-    due.col === leftSpan &&
-    due.colSpan === rightSpan &&
-    receipts.col === leftSpan &&
-    receipts.colSpan === rightSpan
+    monthly.rowSpan === totalHeight &&
+    topRight.col === leftSpan &&
+    topRight.row === 0 &&
+    topRight.colSpan === rightSpan &&
+    topRight.rowSpan === topSpan &&
+    bottomRight.col === leftSpan &&
+    bottomRight.row === topSpan &&
+    bottomRight.colSpan === rightSpan &&
+    bottomRight.rowSpan === bottomSpan
   if (alreadyFlush) return layout
 
   return layout.map((item) => {
-    if (item.id === 'committed-funds') return { ...item, col: 0, colSpan: leftSpan }
-    if (item.id === 'due' || item.id === 'expected-receipts') {
-      return { ...item, col: leftSpan, colSpan: rightSpan }
+    if (item.id === 'committed-funds') {
+      return { ...item, col: 0, row: 0, colSpan: leftSpan, rowSpan: totalHeight }
+    }
+    if (item.id === topRight.id) {
+      return { ...item, col: leftSpan, row: 0, colSpan: rightSpan, rowSpan: topSpan }
+    }
+    if (item.id === bottomRight.id) {
+      return { ...item, col: leftSpan, row: topSpan, colSpan: rightSpan, rowSpan: bottomSpan }
     }
     return item
   })

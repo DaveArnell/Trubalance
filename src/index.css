@@ -996,6 +996,8 @@ body {
   overflow: hidden;
   /* Let main-content / scope wash show through widget gaps */
   background: transparent;
+  /* Cancel slot padding on the outer edges so only inter-widget gaps remain */
+  margin: -6px;
 }
 
 .widget-slot {

@@ -9,6 +9,7 @@ import {
   resetPageWidgetLayout,
   savePageWidgetLayout,
   alignStackedColumnWidgets,
+  pinCommittedFundsToEdges,
 } from '../utils/widgetLayout'
 import { layoutToStacks, normalizeColumnStacks, reflowFillLayout } from '../utils/widgetLayoutReflow'
 import { useEditReadOnly } from '../hooks/useEditReadOnly'
@@ -31,7 +32,9 @@ export function useWidgetLayout(pageId: PageId) {
 
   const persist = useCallback(
     (next: PageWidgetLayout) => {
-      const normalized = normalizeOrder(next)
+      const pinned =
+        pageId === 'committed-funds' ? pinCommittedFundsToEdges(next) : next
+      const normalized = normalizeOrder(pinned)
       setLayout(normalized)
       if (!editReadOnly) savePageWidgetLayout(pageId, normalized)
     },
