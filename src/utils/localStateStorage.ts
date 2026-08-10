@@ -144,6 +144,19 @@ export function mergeMissingLocalWorkspaceData(cloud: AppState, local: AppState 
   return next
 }
 
+/** How many critical entities local added on top of a cloud (or other) snapshot. */
+export function countCriticalEntitiesAdded(base: AppState, merged: AppState): {
+  receipts: number
+  commitments: number
+  planners: number
+  total: number
+} {
+  const receipts = Math.max(0, merged.expectedReceipts.length - base.expectedReceipts.length)
+  const commitments = Math.max(0, merged.commitments.length - base.commitments.length)
+  const planners = Math.max(0, merged.reservePlanners.length - base.reservePlanners.length)
+  return { receipts, commitments, planners, total: receipts + commitments + planners }
+}
+
 /** True when a session backup has more of any critical entity than the live workspace. */
 export function sessionBackupLooksRicher(
   backup: ReturnType<typeof summarizeAppState>,

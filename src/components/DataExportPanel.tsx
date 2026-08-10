@@ -21,12 +21,20 @@ interface DataExportPanelProps {
 
 export function DataExportPanel({ state, onReplaceState, embedded = false }: DataExportPanelProps) {
   const { user } = useAuth()
-  const { remoteEnabled, readOnly, cancelPendingPersist, restoreWorkspaceState } = useWorkspace()
+  const {
+    remoteEnabled,
+    readOnly,
+    cancelPendingPersist,
+    restoreWorkspaceState,
+    syncMissingLocalToCloud,
+    reload,
+  } = useWorkspace()
   const [status, setStatus] = useState<string | null>(null)
   const [pendingImport, setPendingImport] = useState<AppState | null>(null)
   const [importing, setImporting] = useState(false)
   const [restoringBackup, setRestoringBackup] = useState(false)
   const [recoveringHistory, setRecoveringHistory] = useState(false)
+  const [syncingDevice, setSyncingDevice] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState('')
   const [deletingAccount, setDeletingAccount] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -44,6 +52,32 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
   const canRecoverFromHistory =
     (state.historyRecords?.length ?? 0) > 0 &&
     (summary.receipts < historyReceiptCount || emptyReservePlans.length > 0)
+
+  const handleSyncThisDevice = async () => {
+    if (!cloudBacked || readOnly) return
+    setSyncingDevice(true)
+    setStatus(null)
+    try {
+      const added = await syncMissingLocalToCloud(state)
+      if (!added) {
+        setStatus('Could not sync — check you are signed in.')
+        return
+      }
+      if (added.total === 0) {
+        setStatus('This device had nothing extra to upload. Refreshing from your account…')
+      } else {
+        setStatus(
+          `Uploaded ${added.receipts} receipt${added.receipts === 1 ? '' : 's'}, ${added.commitments} cost${added.commitments === 1 ? '' : 's'}, ${added.planners} plan${added.planners === 1 ? '' : 's'} to your account. Refresh the other device.`,
+        )
+      }
+      await reload()
+    } catch (err) {
+      console.error('[Sync] Failed:', err)
+      setStatus(`Sync failed: ${err instanceof Error ? err.message : 'Unknown error'}. Try again.`)
+    } finally {
+      setSyncingDevice(false)
+    }
+  }
 
   const handleDownload = () => {
     const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' })
@@ -209,8 +243,9 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
           <h3>Where it is saved</h3>
           {cloudBacked ? (
             <p className="muted">
-              Your workspace syncs to your account when you are signed in. This browser keeps a working
-              copy while you use the app.
+              Your workspace syncs to your account when you are signed in. If phone and desktop disagree
+              (for example expected receipts on one device only), open Settings on the device that looks
+              correct and tap <strong>Sync this device to account</strong>, then refresh the other device.
             </p>
           ) : signedIn ? (
             <p className="muted">
@@ -248,6 +283,17 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
         >
           Download your data
         </button>
+        {cloudBacked ? (
+          <button
+            type="button"
+            className="btn-secondary btn-tiny"
+            disabled={readOnly || syncingDevice}
+            onClick={handleSyncThisDevice}
+            title="Uploads receipts, costs and reserve plans that exist on this device but not yet in your account. Safe — does not delete anything."
+          >
+            {syncingDevice ? 'Syncing…' : 'Sync this device to account'}
+          </button>
+        ) : null}
         <button
           type="button"
           className="btn-secondary btn-tiny"

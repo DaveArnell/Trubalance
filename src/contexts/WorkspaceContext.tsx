@@ -21,7 +21,7 @@ import {
   buildSafeTableEmptyDeletes,
 } from '../services/workspaceRepository'
 import { isSupabaseConfigured } from '../lib/supabase'
-import { emptyAppState, isBuiltinDemoWorkspace, isUserOwnedWorkspace, backupBrowserStateToSession, mergeMissingLocalWorkspaceData } from '../utils/localStateStorage'
+import { emptyAppState, isBuiltinDemoWorkspace, isUserOwnedWorkspace, backupBrowserStateToSession, mergeMissingLocalWorkspaceData, countCriticalEntitiesAdded } from '../utils/localStateStorage'
 import { readBrowserAppState } from '../hooks/useAppState'
 import { normalizeWorkspaceStateForDisplay } from '../utils/workspaceNormalize'
 
@@ -72,6 +72,13 @@ interface WorkspaceContextValue {
   refreshSubscription: () => Promise<WorkspaceSubscription | null>
   restoreFromBrowser: () => Promise<AppState | null>
   restoreWorkspaceState: (state: AppState) => Promise<AppState>
+  /** Union local-only receipts/costs/planners into cloud without deleting anything. */
+  syncMissingLocalToCloud: (liveState?: AppState | null) => Promise<{
+    receipts: number
+    commitments: number
+    planners: number
+    total: number
+  } | null>
 }
 
 const WorkspaceContext = createContext<WorkspaceContextValue | null>(null)
@@ -221,11 +228,28 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       ) {
         // Always merge critical local entities. Also merge when a table failed to load,
         // so a partial cloud response cannot wipe planners/receipts on the next save.
+        const beforeMerge = state
         state = mergeMissingLocalWorkspaceData(state, localState)
+        const added = countCriticalEntitiesAdded(beforeMerge, state)
         if (loadHadErrors) {
           console.warn(
             '[Workspace] Cloud load had table errors — merged missing local planners/receipts/commitments',
           )
+        }
+        // Push unioned receipts/costs so other devices (desktop) see what this phone kept locally.
+        // previousState = cloud-before-merge → upserts new ids only; does not delete cloud rows.
+        if (added.total > 0 && !readOnly) {
+          try {
+            await saveWorkspaceState(wsId, state, {
+              allowEmptyDeletes: false,
+              previousState: beforeMerge,
+            })
+            console.info(
+              `[Workspace] Pushed ${added.receipts} receipts, ${added.commitments} costs, ${added.planners} planners from this device to your account`,
+            )
+          } catch (error) {
+            console.warn('[Workspace] Failed to push merged local entities to cloud', error)
+          }
         }
       }
 
@@ -433,6 +457,35 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     [workspaceId, readOnly, cancelPendingPersist],
   )
 
+  const syncMissingLocalToCloud = useCallback(async (liveState?: AppState | null) => {
+    if (!workspaceId || readOnly || !isSupabaseConfigured) return null
+    cancelPendingPersist()
+    const local = readBrowserAppState()
+    const { state: cloudState } = await loadWorkspaceState(workspaceId)
+    const beforeMerge = cloudState
+    let merged = cloudState
+    if (local && isUserOwnedWorkspace(local)) {
+      merged = mergeMissingLocalWorkspaceData(merged, local)
+    }
+    if (liveState && isUserOwnedWorkspace(liveState)) {
+      merged = mergeMissingLocalWorkspaceData(merged, liveState)
+    }
+    merged = normalizeWorkspaceStateForDisplay(merged)
+    const added = countCriticalEntitiesAdded(beforeMerge, merged)
+    if (added.total > 0) {
+      await saveWorkspaceState(workspaceId, merged, {
+        allowEmptyDeletes: false,
+        previousState: beforeMerge,
+      })
+    }
+    loadedStateRef.current = merged
+    lastPersistedStateRef.current = merged
+    lastSyncFingerprintRef.current = workspaceSyncFingerprint(merged)
+    setInitialRemoteState(merged)
+    setRemoteStateVersion((v) => v + 1)
+    return added
+  }, [workspaceId, readOnly, cancelPendingPersist])
+
   useEffect(() => {
     return () => {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
@@ -467,6 +520,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       refreshSubscription,
       restoreFromBrowser,
       restoreWorkspaceState,
+      syncMissingLocalToCloud,
     }),
     [
       workspaceId,
@@ -483,6 +537,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       refreshSubscription,
       restoreFromBrowser,
       restoreWorkspaceState,
+      syncMissingLocalToCloud,
     ],
   )
 

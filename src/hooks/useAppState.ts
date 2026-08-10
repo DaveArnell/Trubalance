@@ -49,7 +49,7 @@ import { todayDateKey, getFreshness } from '../utils/snapshots'
 import { parseVirtualSnapshotId } from '../utils/scopeSnapshotSeries'
 import { MONTHS, currentMonthIndex } from '../utils/format'
 import { syncGuidedStructureInState, type GuidedBusinessPayload } from '../utils/structureDraftSync'
-import { backupBrowserStateToSession, isUserOwnedWorkspace, mergeMissingLocalWorkspaceData, readRawBrowserStateJson, statesMatchRoughly } from '../utils/localStateStorage'
+import { backupBrowserStateToSession, isUserOwnedWorkspace, mergeMissingLocalWorkspaceData, countCriticalEntitiesAdded, readRawBrowserStateJson, statesMatchRoughly } from '../utils/localStateStorage'
 import { normalizeWorkspaceState } from '../utils/workspaceNormalize'
 import { getReferenceDate, getReferenceDateKey } from '../utils/referenceDate'
 import { migrateDayNotes } from '../utils/dayNotes'
@@ -359,10 +359,9 @@ export function useAppState(options?: UseAppStateOptions) {
     // Prefer the cloud workspace whenever it loads or is refreshed (phone ↔ web).
     // Initial paint may use a local cache; this replaces it once remote state arrives.
     // Merge in-memory critical entities so an add during hydrate is not discarded.
-    const next = mergeMissingLocalWorkspaceData(
-      normalizeWorkspaceState(cloneState(external)),
-      stateRef.current,
-    )
+    const cloudNormalized = normalizeWorkspaceState(cloneState(external))
+    const next = mergeMissingLocalWorkspaceData(cloudNormalized, stateRef.current)
+    const mergeAdded = countCriticalEntitiesAdded(cloudNormalized, next).total > 0
     setState(next)
     undoStackRef.current = []
     setCanUndo(false)
@@ -380,7 +379,11 @@ export function useAppState(options?: UseAppStateOptions) {
         /* ignore quota */
       }
     }
-    skipPersistRef.current = true
+    // If this device still had receipts/costs the cloud lacked, persist so desktop catches up.
+    skipPersistRef.current = !mergeAdded
+    if (mergeAdded) {
+      persistImmediateRef.current = true
+    }
     remoteHydratedRef.current = true
   }, [options?.externalStateVersion, options?.workspaceId, options?.externalLoading, options?.defaultViewScope, options?.skipLocalPersist])
 
