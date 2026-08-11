@@ -9,6 +9,11 @@ import {
   type CookieConsentState,
 } from '../utils/cookieConsent'
 import { resetMetaRouteTracking, stopMetaPixelTracking } from '../services/metaPixel'
+import {
+  loadGoogleAnalytics,
+  resetGaRouteTracking,
+  trackGaRoute,
+} from '../services/googleAnalytics'
 
 function readInitialConsentState(): CookieConsentState {
   if (typeof window === 'undefined') return 'unknown'
@@ -33,6 +38,9 @@ export function CookieNotice() {
   const handleAccept = () => {
     acceptAdvertisingCookies()
     resetMetaRouteTracking()
+    resetGaRouteTracking()
+    loadGoogleAnalytics()
+    trackGaRoute(window.location.pathname, window.location.search)
     setConsentState('accepted')
     setBannerOpen(false)
   }
