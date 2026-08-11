@@ -3,6 +3,7 @@ import { MarketingAttributionCapture } from './components/MarketingAttributionCa
 import { AuthProvider } from './contexts/AuthContext'
 import { CookieNotice } from './components/CookieNotice'
 import { MetaPixelTracker } from './components/MetaPixelTracker'
+import { GoogleAnalyticsTracker } from './components/GoogleAnalyticsTracker'
 import { WorkspaceProvider } from './contexts/WorkspaceContext'
 import { TrailingSlashGuard } from './components/TrailingSlashGuard'
 import { LandingPage } from './pages/LandingPage'
@@ -27,6 +28,7 @@ export function AppRouter() {
       <TrailingSlashGuard />
       <MarketingAttributionCapture />
       <MetaPixelTracker />
+      <GoogleAnalyticsTracker />
       <AuthProvider>
         <WorkspaceProvider>
           <Routes>

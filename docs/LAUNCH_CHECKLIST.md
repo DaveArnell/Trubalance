@@ -10,7 +10,7 @@ Manual steps and verification. Code tasks are done in the repo; SQL still needs 
 
 - **Bank PDF/CSV import in-app:** not shipping for now. Users use their own AI (ChatGPT) via the optional transaction-log helper instead — avoids import cost/red tape.
 - **Google Search Console:** sorted (domain + sitemap).
-- **Analytics (Plausible / GA4):** deferred — add later on its own page/setup when ready.
+- **Analytics (GA4):** code wired via `VITE_GA_MEASUREMENT_ID`. Create a GA4 web stream, set the env on Vercel production, redeploy. Loads only after cookie accept.
 - **ICO:** organisation-level for Vocatio Ltd. Registration **CSN6799153** is on Privacy / legal notices.
 - **Support messages SQL (025):** run by Dave — Settings → Support → admin inbox should work.
 

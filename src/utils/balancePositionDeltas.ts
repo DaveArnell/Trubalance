@@ -68,6 +68,12 @@ export function getBalancePositionDeltas(
     return { weekChange: null, monthChange: null }
   }
 
+  // Builtin demos: compare authored points only — never mix a live CPB with snapshot history.
+  const current =
+    state.workspaceOrigin === 'builtin-demo'
+      ? (snapshotOnOrBefore(series, getReferenceDateKey()) ?? currentTrueBalance)
+      : currentTrueBalance
+
   const weekBaseline = snapshotOnOrBefore(series, dateKeyOffset(-7))
   const monthBaseline = snapshotOnOrBefore(series, startOfMonthKey())
 
@@ -77,9 +83,9 @@ export function getBalancePositionDeltas(
 
   return {
     weekChange:
-      hasHistoryBeforeToday && weekBaseline != null ? currentTrueBalance - weekBaseline : null,
+      hasHistoryBeforeToday && weekBaseline != null ? current - weekBaseline : null,
     monthChange:
-      hasHistoryBeforeToday && monthBaseline != null ? currentTrueBalance - monthBaseline : null,
+      hasHistoryBeforeToday && monthBaseline != null ? current - monthBaseline : null,
   }
 }
 

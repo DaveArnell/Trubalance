@@ -1,6 +1,7 @@
 import type { AppState, ViewScope } from '../../types'
 import { buildCafeDemoState, cafeDefaultViewScope } from './cafe'
 import { applyDemoOperatingSnapshot } from './operatingSnapshot'
+import { alignDemoSnapshotsToLivePosition } from './alignDemoSnapshots'
 import { buildLeisureSoloDemoState, leisureDefaultViewScope } from './leisureSolo'
 import { buildSalonDemoState, salonDefaultViewScope } from './salon'
 import { getDemoFrozenDate } from './demoFreeze'
@@ -90,6 +91,7 @@ export function buildDemoScenarioState(id: string | undefined): {
   state: AppState
 } {
   const meta = getDemoScenario(id)
-  const state = applyDemoOperatingSnapshot(meta.buildState(), getDemoFrozenDate())
+  const operated = applyDemoOperatingSnapshot(meta.buildState(), getDemoFrozenDate())
+  const state = alignDemoSnapshotsToLivePosition(operated)
   return { meta, state }
 }

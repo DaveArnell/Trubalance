@@ -27,20 +27,17 @@ export function useOverviewSize() {
   const editReadOnly = useEditReadOnly()
   const [size, setSize] = useState<OverviewSize>(() => (editReadOnly ? 'default' : readStoredSize()))
 
-  const setOverviewSize = useCallback(
-    (next: OverviewSize) => {
-      if (editReadOnly) return
-      setSize(next)
-      try {
-        localStorage.setItem(STORAGE_KEY, next)
-        localStorage.setItem(LEGACY_COMPACT_KEY, '0')
-      } catch {
-        /* ignore */
-      }
-    },
-    [editReadOnly],
-  )
+  const setOverviewSize = useCallback((next: OverviewSize) => {
+    // View toggle — allowed in demos / read-only (not an edit).
+    setSize(next)
+    if (editReadOnly) return
+    try {
+      localStorage.setItem(STORAGE_KEY, next)
+      localStorage.setItem(LEGACY_COMPACT_KEY, '0')
+    } catch {
+      /* ignore */
+    }
+  }, [editReadOnly])
 
   return { size, setOverviewSize, editReadOnly }
 }
-
