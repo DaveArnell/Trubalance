@@ -104,7 +104,9 @@ export function softwareApplicationJsonLd(): JsonLd {
     '@type': ['SoftwareApplication', 'Product'],
     '@id': `${site}/#product`,
     name: COMPANY_INFO.productName,
+    alternateName: 'Cash Prophet Balance',
     applicationCategory: 'FinanceApplication',
+    applicationSubCategory: 'Business cash position and committed funds tracking',
     operatingSystem: 'Web',
     url: site,
     image: ogImage,
@@ -114,6 +116,20 @@ export function softwareApplicationJsonLd(): JsonLd {
       name: COMPANY_INFO.productName,
     },
     provider: { '@id': `${site}/#organization` },
+    audience: {
+      '@type': 'BusinessAudience',
+      audienceType: 'UK small and medium business owners',
+    },
+    areaServed: {
+      '@type': 'Country',
+      name: 'United Kingdom',
+    },
+    featureList: [
+      'Cash Prophet Balance — trusted daily financial position after commitments',
+      'Committed funds and reserve planning for VAT, tax and irregular bills',
+      'Daily cash position / available liquidity view for consistent-income businesses',
+      'Works alongside accounting software; not a replacement for cash flow forecasting',
+    ],
     offers: {
       '@type': 'AggregateOffer',
       priceCurrency: 'GBP',
