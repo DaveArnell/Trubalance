@@ -448,13 +448,21 @@ function AppShellInner({
   }, [graphRange, revealFromOverrides, isDemoSession, ctxWorkspaceId])
 
   const handleUndo = useCallback(() => {
-    if (activeRoute.page === 'trends' && undoTrendsView()) return
-    app.undo()
+    // Data edits (balances, dues, receipts) always win over Trends view-only undo
+    // (range / reveal-from), otherwise Undo on Trends only flips the chart range.
+    if (app.canUndo) {
+      app.undo()
+      return
+    }
+    if (activeRoute.page === 'trends') undoTrendsView()
   }, [activeRoute.page, undoTrendsView, app])
 
   const handleRedo = useCallback(() => {
-    if (activeRoute.page === 'trends' && redoTrendsView()) return
-    app.redo()
+    if (app.canRedo) {
+      app.redo()
+      return
+    }
+    if (activeRoute.page === 'trends') redoTrendsView()
   }, [activeRoute.page, redoTrendsView, app])
 
   const canUndo = (activeRoute.page === 'trends' && trendsUndoRef.current.length > 0) || app.canUndo

@@ -770,6 +770,8 @@ export function useAppState(options?: UseAppStateOptions) {
       if (changedAccounts.length === 0) return s
 
       pushUndo(s)
+      redoStackRef.current = []
+      setCanRedo(false)
 
       let nextState = { ...s, accounts }
       const noteText = plotOnGraph && note?.trim() ? note.trim() : undefined
