@@ -1,4 +1,5 @@
 import { getSupabase, isSupabaseConfigured } from '../lib/supabase'
+import { isAllowedPlatformAdminEmail } from '../config/platformAdmins'
 
 export type AdminAuthState =
   | 'unconfigured'
@@ -13,10 +14,6 @@ export interface AdminAuthStatus {
   email?: string
   expiresAt?: string
   message?: string
-}
-
-function isVocatioEmail(email: string | null | undefined): boolean {
-  return Boolean(email?.toLowerCase().endsWith('@vocatio.io'))
 }
 
 async function callAdminAuth(body: Record<string, unknown>): Promise<AdminAuthStatus & { error?: string }> {
@@ -37,11 +34,11 @@ async function callAdminAuth(body: Record<string, unknown>): Promise<AdminAuthSt
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (user?.email && !isVocatioEmail(user.email)) {
+  if (user?.email && !isAllowedPlatformAdminEmail(user.email)) {
     return {
       state: 'wrong_account',
       email: user.email,
-      error: `You are signed in as ${user.email}. Admin requires an @vocatio.io account.`,
+      error: `You are signed in as ${user.email}. Admin requires an enrolled operator account.`,
     }
   }
 

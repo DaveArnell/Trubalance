@@ -1,12 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getSupabase, isSupabaseConfigured } from '../../lib/supabase'
+import { isAllowedPlatformAdminEmail } from '../../config/platformAdmins'
 import { useAdminAuth } from '../../contexts/AdminAuthContext'
 import { useAuth } from '../../contexts/AuthContext'
-
-function isVocatioEmail(email: string): boolean {
-  return email.toLowerCase().endsWith('@vocatio.io')
-}
 
 export function PlatformAdminGate() {
   const { signIn, signOut } = useAuth()
@@ -81,8 +78,8 @@ export function PlatformAdminGate() {
         <div className="auth-card admin-auth-card">
           <h1>Wrong account</h1>
           <p className="muted">
-            You are signed in as <strong>{email}</strong>. Admin only works with an{' '}
-            <strong>@vocatio.io</strong> account such as <strong>admin@vocatio.io</strong>.
+            You are signed in as <strong>{email}</strong>. Admin only works with an enrolled
+            operator account (for example your Vocatio or Laser Tag Leisure admin email).
           </p>
           {error && <p className="auth-error">{error}</p>}
           <button
@@ -109,8 +106,8 @@ export function PlatformAdminGate() {
     const handleSignIn = async (event: React.FormEvent) => {
       event.preventDefault()
       const trimmedEmail = emailInput.trim()
-      if (!isVocatioEmail(trimmedEmail)) {
-        setFormError('Use your @vocatio.io email for admin access.')
+      if (!isAllowedPlatformAdminEmail(trimmedEmail)) {
+        setFormError('Use an enrolled admin email for admin access.')
         return
       }
 
@@ -132,8 +129,8 @@ export function PlatformAdminGate() {
         <div className="auth-card admin-auth-card">
           <h1>Cash Prophet Admin</h1>
           <p className="muted">
-            Sign in with your enrolled operator account (<strong>@vocatio.io</strong>). Your personal
-            Cash Prophet customer login cannot access this area.
+            Sign in with your enrolled operator account. Your personal Cash Prophet customer login
+            cannot access this area unless it has been enrolled for admin.
           </p>
           <form onSubmit={handleSignIn} className="admin-auth-form">
             <label>
@@ -143,7 +140,7 @@ export function PlatformAdminGate() {
                 autoComplete="username"
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
-                placeholder="admin@vocatio.io"
+                placeholder="your admin email"
                 required
               />
             </label>

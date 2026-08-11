@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1'
 import { buildProductEmailHtml, getProductEmail } from '../_shared/productEmail.ts'
+import { isAllowedPlatformAdminEmail } from '../_shared/platformAdmins.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -10,17 +11,12 @@ const SESSION_DAYS = Number(Deno.env.get('ADMIN_SESSION_DAYS') ?? '30')
 const CODE_MINUTES = 10
 const MAX_FAILED_ATTEMPTS = 5
 const LOCKOUT_MINUTES = 15
-const ADMIN_EMAIL_DOMAIN = '@vocatio.io'
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   })
-}
-
-function isVocatioEmail(email: string): boolean {
-  return email.toLowerCase().endsWith(ADMIN_EMAIL_DOMAIN)
 }
 
 function sessionExpiry(): string {
@@ -72,13 +68,13 @@ async function getAuthedUser(req: Request) {
     return { error: jsonResponse({ error: 'Unauthorized' }, 401) }
   }
 
-  if (!isVocatioEmail(user.email)) {
+  if (!isAllowedPlatformAdminEmail(user.email)) {
     return {
       error: jsonResponse(
         {
           state: 'wrong_account',
           error:
-            'Admin access requires an @vocatio.io account. Sign out and sign in with your Vocatio email.',
+            'Admin access requires an enrolled operator account. Sign out and sign in with your admin email.',
         },
         403,
       ),
@@ -261,7 +257,7 @@ Deno.serve(async (req) => {
     return jsonResponse({
       state: 'needs_2fa',
       email: platformAdmin.email,
-      message: 'We will email a 6-digit code to your @vocatio.io address.',
+      message: 'We will email a 6-digit code to your admin address.',
     })
   }
 
