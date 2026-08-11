@@ -104,6 +104,9 @@ export const formatCurrencyExact = (value: number) =>
 export const columnLabel = (name: string) =>
   name.replace(/\s+Ltd\.?$/i, '').replace(/\s+/g, '').toUpperCase()
 
+import { getReferenceDate } from './referenceDate'
+
 export const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] as const
 
-export const currentMonthIndex = () => new Date().getMonth()
+/** “Current month” for UI — respects demo freeze / simulated date. */
+export const currentMonthIndex = () => getReferenceDate().getMonth()
