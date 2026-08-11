@@ -1,6 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1'
 import { buildProductEmailHtml, getProductEmail } from '../_shared/productEmail.ts'
-import { isAllowedPlatformAdminEmail } from '../_shared/platformAdmins.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -68,19 +67,7 @@ async function getAuthedUser(req: Request) {
     return { error: jsonResponse({ error: 'Unauthorized' }, 401) }
   }
 
-  if (!isAllowedPlatformAdminEmail(user.email)) {
-    return {
-      error: jsonResponse(
-        {
-          state: 'wrong_account',
-          error:
-            'Admin access requires an enrolled operator account. Sign out and sign in with your admin email.',
-        },
-        403,
-      ),
-    }
-  }
-
+  // Enrolment in platform_admins is the source of truth (not email domain).
   return { user, userClient, adminClient }
 }
 
@@ -220,7 +207,9 @@ Deno.serve(async (req) => {
   if (!platformAdmin?.is_active) {
     return jsonResponse({
       state: 'not_enrolled',
-      message: 'This Vocatio account is not enrolled for platform admin access.',
+      email: user.email,
+      message:
+        'This account is not enrolled for platform admin access. Run the platform_admins enrolment SQL for this user, then try again.',
     })
   }
 

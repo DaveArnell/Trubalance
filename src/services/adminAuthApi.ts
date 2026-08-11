@@ -1,5 +1,4 @@
 import { getSupabase, isSupabaseConfigured } from '../lib/supabase'
-import { isAllowedPlatformAdminEmail } from '../config/platformAdmins'
 
 export type AdminAuthState =
   | 'unconfigured'
@@ -33,14 +32,6 @@ async function callAdminAuth(body: Record<string, unknown>): Promise<AdminAuthSt
   const {
     data: { user },
   } = await supabase.auth.getUser()
-
-  if (user?.email && !isAllowedPlatformAdminEmail(user.email)) {
-    return {
-      state: 'wrong_account',
-      email: user.email,
-      error: `You are signed in as ${user.email}. Admin requires an enrolled operator account.`,
-    }
-  }
 
   const url = import.meta.env.VITE_SUPABASE_URL as string
   const response = await fetch(`${url}/functions/v1/admin-auth`, {

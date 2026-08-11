@@ -174,11 +174,17 @@ export function PlatformAdminGate() {
     return (
       <div className="admin-gate">
         <div className="auth-card">
-          <h1>Access denied</h1>
+          <h1>Not enrolled yet</h1>
           <p className="muted">
-            {error ??
-              'This account is not enrolled for Cash Prophet Admin. Ask an existing operator to add you in Supabase.'}
+            You are signed in as <strong>{email}</strong>, but this account is not in{' '}
+            <code>platform_admins</code> yet. Run the enrolment SQL in the Supabase project that
+            powers cashprophet.co.uk, then refresh this page.
           </p>
+          {infoMessage && <p className="muted">{infoMessage}</p>}
+          {error && <p className="auth-error">{error}</p>}
+          <button type="button" className="btn-primary" disabled={busy} onClick={() => void refresh()}>
+            Refresh
+          </button>
           <button
             type="button"
             className="btn-secondary"
