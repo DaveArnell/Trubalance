@@ -50,7 +50,7 @@ export const PRICING_FAQS: FaqItem[] = [
   },
   {
     q: 'Do you offer personal onboarding?',
-    a: 'Yes — free while we are growing. Request a 30–60 minute setup session from the Enquire page. We arrange a time by email (no booking calendar). You can also start the free trial on your own anytime.',
+    a: 'Yes. You can book a free 30 to 60 minute personal onboarding session from the Enquire page. We help you get balances, commitments and reserves in place, and you have a real person to ask when something is unclear. You can also start the free trial on your own anytime.',
   },
 ]
 

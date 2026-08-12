@@ -27,9 +27,9 @@ export function PricingPage() {
             <div className="marketing-section-head">
               <h2>Free personal onboarding</h2>
               <p className="marketing-section-lead marketing-section-lead--home">
-                At this stage every customer can book a free 30–60 minute setup. We arrange a time by
-                email — no availability calendar. Start the trial yourself anytime, or enquire when
-                you want a guided walkthrough.
+                If you would like to book in for a free 30 to 60 minute personal onboarding session,
+                please get in touch. We help you get balances, commitments and reserves in place, and
+                you have a real person to ask when something is unclear.
               </p>
             </div>
             <p className="marketing-billing-cta">

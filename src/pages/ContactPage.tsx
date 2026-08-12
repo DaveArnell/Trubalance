@@ -69,7 +69,9 @@ export function ContactPage() {
         <header className="method-edu-hero method-edu-hero--compact marketing-surface--hero">
           <div className="method-edu-inner">
             <h1>{CONTACT_PAGE.title}</h1>
-            <p className="method-edu-hero-lead">{CONTACT_PAGE.lead}</p>
+            {CONTACT_PAGE.lead ? (
+              <p className="method-edu-hero-lead">{CONTACT_PAGE.lead}</p>
+            ) : null}
           </div>
         </header>
 

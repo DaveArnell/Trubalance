@@ -76,7 +76,7 @@ export const SEE_HOW_SEO = {
 export const CONTACT_SEO = {
   title: 'Enquire or Book Free Onboarding | Cash Prophet',
   description:
-    'Enquire about Cash Prophet or request free personal onboarding. We arrange a 30–60 minute setup by email — no booking calendar. hello@cashprophet.co.uk',
+    'Enquire about Cash Prophet or book a free 30 to 60 minute personal onboarding session. hello@cashprophet.co.uk',
   path: '/contact',
   imageAlt: 'Contact Cash Prophet for enquiries and free personal onboarding',
 } as const satisfies RouteSeo
