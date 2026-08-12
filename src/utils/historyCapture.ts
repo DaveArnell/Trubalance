@@ -155,7 +155,10 @@ export function upsertDailyHistoryRecord(
       r.viewScope.id === record.viewScope.id,
   )
   if (idx >= 0) {
-    return records.map((r, i) => (i === idx ? record : r))
+    // Keep the existing id so cloud upsert hits the same primary key / date row
+    // instead of INSERT + UNIQUE (workspace_id, date) failures in a retry storm.
+    const existingId = records[idx]!.id
+    return records.map((r, i) => (i === idx ? { ...record, id: existingId } : r))
   }
   return [...records, record].sort((a, b) => b.date.localeCompare(a.date))
 }

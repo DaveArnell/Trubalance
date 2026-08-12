@@ -13,6 +13,21 @@ function toNumber(value: unknown): number {
   return 0
 }
 
+/**
+ * DB enforces UNIQUE (workspace_id, date). The client can hold multiple scoped
+ * records for one day — keep the newest so upserts do not 23505-spam Postgres.
+ */
+function dedupeHistoryRecordsForCloud(records: HistoryRecord[]): HistoryRecord[] {
+  const byDate = new Map<string, HistoryRecord>()
+  for (const record of records) {
+    const previous = byDate.get(record.date)
+    if (!previous || String(record.savedAt) >= String(previous.savedAt)) {
+      byDate.set(record.date, record)
+    }
+  }
+  return [...byDate.values()]
+}
+
 function mapGroup(row: Record<string, unknown>): Group {
   const accentColor = row.accent_color ? String(row.accent_color) : undefined
   return {
@@ -546,7 +561,7 @@ export async function saveWorkspaceState(
     updated_at: s.updatedAt ?? new Date().toISOString(),
     ...ws,
   }))
-  const historyRows = (state.historyRecords ?? []).map((r) => ({
+  const historyRows = dedupeHistoryRecordsForCloud(state.historyRecords ?? []).map((r) => ({
     id: r.id,
     date: r.date,
     saved_at: r.savedAt,
@@ -666,7 +681,10 @@ export async function saveWorkspaceState(
       continue
     }
 
-    const { error } = await supabase.from(table.name).upsert(table.rows as Record<string, unknown>[])
+    const { error } = await supabase.from(table.name).upsert(
+      table.rows as Record<string, unknown>[],
+      table.name === 'history_records' ? { onConflict: 'workspace_id,date' } : undefined,
+    )
     if (error) {
       console.warn(`[workspaceRepository] upsert ${table.name}:`, error.message)
       const coreRows = table.rows.map((row) => {
@@ -674,7 +692,10 @@ export async function saveWorkspaceState(
         for (const col of EXTENDED_COLUMNS) delete clean[col]
         return clean
       })
-      const { error: retryErr } = await supabase.from(table.name).upsert(coreRows)
+      const { error: retryErr } = await supabase.from(table.name).upsert(
+        coreRows,
+        table.name === 'history_records' ? { onConflict: 'workspace_id,date' } : undefined,
+      )
       if (retryErr) {
         console.warn(`[workspaceRepository] upsert ${table.name} (retry):`, retryErr.message)
         if (CRITICAL_UPSERT_TABLES.has(table.name)) {
