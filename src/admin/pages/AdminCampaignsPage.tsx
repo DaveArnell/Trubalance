@@ -8,11 +8,18 @@ import {
 } from '../components/AdminUi'
 import type { CampaignPerformanceSnapshot } from '../types'
 
-/** Stable URL for the first Meta boosted-post test — paste into Facebook as the destination. */
-export const FACEBOOK_BOOST_TEST_LINK =
-  'https://www.cashprophet.co.uk/?utm_source=meta&utm_medium=paid&utm_campaign=fb_boost_test_aug26&utm_content=boosted_post'
+/** Stable tags for the Aug 2026 Meta launch ad — paste into Meta URL parameters. */
+export const META_LAUNCH_URL_PARAMS =
+  'utm_source=meta&utm_medium=paid&utm_campaign=cp_launch_uk_aug26&utm_content=big_balance_v1'
 
-const EXAMPLE_LINK = FACEBOOK_BOOST_TEST_LINK
+/** Full homepage URL with the same tags (handy for a private-window test). */
+export const META_LAUNCH_TEST_LINK =
+  `https://www.cashprophet.co.uk/?${META_LAUNCH_URL_PARAMS}`
+
+/** @deprecated Prefer META_LAUNCH_TEST_LINK — kept for any older references. */
+export const FACEBOOK_BOOST_TEST_LINK = META_LAUNCH_TEST_LINK
+
+const EXAMPLE_LINK = META_LAUNCH_TEST_LINK
 
 export function AdminCampaignsPage() {
   const [data, setData] = useState<CampaignPerformanceSnapshot | null>(null)
@@ -30,11 +37,21 @@ export function AdminCampaignsPage() {
 
   const copyBoostLink = async () => {
     try {
-      await navigator.clipboard.writeText(FACEBOOK_BOOST_TEST_LINK)
+      await navigator.clipboard.writeText(META_LAUNCH_TEST_LINK)
       setCopied(true)
       window.setTimeout(() => setCopied(false), 2000)
     } catch {
-      window.prompt('Copy this link:', FACEBOOK_BOOST_TEST_LINK)
+      window.prompt('Copy this link:', META_LAUNCH_TEST_LINK)
+    }
+  }
+
+  const copyParams = async () => {
+    try {
+      await navigator.clipboard.writeText(META_LAUNCH_URL_PARAMS)
+      setCopied(true)
+      window.setTimeout(() => setCopied(false), 2000)
+    } catch {
+      window.prompt('Copy these URL parameters:', META_LAUNCH_URL_PARAMS)
     }
   }
 
@@ -42,20 +59,23 @@ export function AdminCampaignsPage() {
     <div className="admin-page">
       <AdminPageHeader
         title="Ads & campaigns"
-        description="Which ads turn into signups, finished setup, trial use, and paying customers — so you know where to put your money."
+        description="Which ads turn into signups, finished setup, and paying customers — so you know where to put your money."
       />
 
-      <AdminSection title="Facebook boost — use this link">
+      <AdminSection title="Meta launch — URL parameters">
         <p className="muted admin-section-lead">
-          Paste this exact URL as the destination on your boosted post. After people click and sign
-          up, look for the campaign name <code className="admin-mono">fb_boost_test_aug26</code> in
-          the table below. Ignore older test rows (you, friends, Direct / unknown) until this boost
-          has real traffic.
+          Paste this exact string into Meta Ads Manager → Tracking → <strong>URL parameters</strong>.
+          After people click and sign up, look for campaign{' '}
+          <code className="admin-mono">cp_launch_uk_aug26</code> below and in Acquisition Funnel.
+          Meta also appends <code className="admin-mono">fbclid</code> automatically — we store that too.
         </p>
-        <pre className="admin-guide-code">{FACEBOOK_BOOST_TEST_LINK}</pre>
+        <pre className="admin-guide-code">{META_LAUNCH_URL_PARAMS}</pre>
         <p className="admin-campaign-actions">
-          <button type="button" className="btn-primary btn-tiny" onClick={() => void copyBoostLink()}>
-            {copied ? 'Copied' : 'Copy link'}
+          <button type="button" className="btn-primary btn-tiny" onClick={() => void copyParams()}>
+            {copied ? 'Copied' : 'Copy URL parameters'}
+          </button>
+          <button type="button" className="btn-ghost btn-tiny" onClick={() => void copyBoostLink()}>
+            Copy full test link
           </button>
         </p>
         <ul className="admin-guide-list">
@@ -63,19 +83,18 @@ export function AdminCampaignsPage() {
             <strong>utm_source=meta</strong> — Facebook / Instagram
           </li>
           <li>
-            <strong>utm_medium=paid</strong> — paid boost
+            <strong>utm_medium=paid</strong> — paid ads
           </li>
           <li>
-            <strong>utm_campaign=fb_boost_test_aug26</strong> — this test (keep the spelling stable)
+            <strong>utm_campaign=cp_launch_uk_aug26</strong> — this launch (keep spelling stable)
           </li>
           <li>
-            <strong>utm_content=boosted_post</strong> — creative label
+            <strong>utm_content=big_balance_v1</strong> — creative label
           </li>
         </ul>
         <p className="muted">
-          You do not need a Meta pixel for this first test. Site-side tags are enough to see funnel
-          stages here. Finish Stripe go-live before spending hard on ads — see{' '}
-          <code className="admin-mono">docs/STRIPE_GO_LIVE.md</code>.
+          Private-window test link:{' '}
+          <code className="admin-mono">{EXAMPLE_LINK}</code>
         </p>
       </AdminSection>
 
@@ -88,10 +107,10 @@ export function AdminCampaignsPage() {
 
       <AdminSection title="Results by campaign">
         <p className="muted admin-section-lead">
-          Early rows often include your own test accounts or a friend who clicked a tagged link days
-          ago (first visit sticks for 90 days). That is normal — not ad spend. Once the boost runs,
-          judge only the <code className="admin-mono">fb_boost_test_aug26</code> row. {taggedRate}% of
-          all signups currently have a tagged link ({totals.untaggedSignups} are Direct / unknown).
+          Early rows often include your own test accounts (first visit sticks for 90 days). Once the
+          launch runs, judge the <code className="admin-mono">cp_launch_uk_aug26</code> row.{' '}
+          {taggedRate}% of all signups currently have a tagged link ({totals.untaggedSignups} are
+          Direct / unknown).
         </p>
         <div className="admin-table-wrap admin-table-wrap--wide">
           <table className="admin-data-table">
@@ -112,7 +131,7 @@ export function AdminCampaignsPage() {
               {rows.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="muted">
-                    No campaign data yet. Use the Facebook boost link above, then refresh after
+                    No campaign data yet. Use the Meta URL parameters above, then refresh after
                     signups arrive.
                   </td>
                 </tr>
@@ -121,7 +140,7 @@ export function AdminCampaignsPage() {
                   <tr
                     key={row.id}
                     className={
-                      row.campaign === 'fb_boost_test_aug26' ? 'admin-row--highlight' : undefined
+                      row.campaign === 'cp_launch_uk_aug26' ? 'admin-row--highlight' : undefined
                     }
                   >
                     <td>
