@@ -53,6 +53,7 @@ async function ensureVisitorRow(
 /**
  * Best-effort first-party funnel tracking. Never throws to callers.
  * Independent of Meta Pixel consent (same spirit as UTM first-party attribution).
+ * @returns true when the visitor row was ensured (event insert may still dedupe).
  */
 export async function trackAcquisitionEvent(
   eventType: AcquisitionEventType,
@@ -60,13 +61,13 @@ export async function trackAcquisitionEvent(
     userId?: string | null
     metadata?: Record<string, unknown>
   },
-): Promise<void> {
+): Promise<boolean> {
   try {
     const supabase = tryGetSupabase()
-    if (!supabase) return
+    if (!supabase) return false
 
     const visitorId = getOrCreateVisitorId()
-    if (!visitorId) return
+    if (!visitorId) return false
 
     const attribution = loadStoredAttribution()
     await ensureVisitorRow(visitorId, attribution)
@@ -81,11 +82,14 @@ export async function trackAcquisitionEvent(
     const { error } = await supabase.from('acquisition_events').insert(row)
     if (error) {
       // Unique violations (daily visit / account_created / paid) are expected.
-      if (error.code === '23505') return
+      if (error.code === '23505') return true
       console.warn('Acquisition event insert failed (non-blocking)')
+      return true
     }
+    return true
   } catch {
     console.warn('Acquisition tracking failed (non-blocking)')
+    return false
   }
 }
 
@@ -120,15 +124,39 @@ export async function linkAcquisitionVisitorToUser(userId: string): Promise<void
   }
 }
 
+/**
+ * Always upsert the visitor row from stored UTMs (safe, first-touch preserved in SQL).
+ * Use on tagged landings so Meta tests show a visible RPC even if visit was already counted.
+ */
+export async function syncAcquisitionVisitorAttribution(): Promise<void> {
+  try {
+    const visitorId = getOrCreateVisitorId()
+    if (!visitorId) return
+    await ensureVisitorRow(visitorId, loadStoredAttribution())
+  } catch {
+    /* non-blocking */
+  }
+}
+
 /** Once per calendar day per browser tab for visit counting (DB also dedupes per day). */
 export function trackAcquisitionVisitOncePerDay(): void {
+  const today = new Date().toISOString().slice(0, 10)
+  const key = 'cashprophet-acquisition-visit-day'
   try {
-    const today = new Date().toISOString().slice(0, 10)
-    const key = 'cashprophet-acquisition-visit-day'
-    if (sessionStorage.getItem(key) === today) return
-    sessionStorage.setItem(key, today)
+    if (sessionStorage.getItem(key) === today) {
+      // Still refresh last_seen / first-touch upsert if UTMs are present.
+      void syncAcquisitionVisitorAttribution()
+      return
+    }
   } catch {
     /* continue */
   }
-  void trackAcquisitionEvent('visit')
+  void trackAcquisitionEvent('visit').then((ok) => {
+    if (!ok) return
+    try {
+      sessionStorage.setItem(key, today)
+    } catch {
+      /* ignore */
+    }
+  })
 }

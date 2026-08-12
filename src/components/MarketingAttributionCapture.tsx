@@ -1,7 +1,10 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { captureMarketingAttributionOnVisit } from '../services/marketingAttribution'
-import { trackAcquisitionVisitOncePerDay } from '../services/acquisitionTracking'
+import {
+  syncAcquisitionVisitorAttribution,
+  trackAcquisitionVisitOncePerDay,
+} from '../services/acquisitionTracking'
 
 /**
  * First-party UTM capture + acquisition visit tracking (Marketing Funnel).
@@ -13,6 +16,7 @@ export function MarketingAttributionCapture() {
   useEffect(() => {
     captureMarketingAttributionOnVisit()
     trackAcquisitionVisitOncePerDay()
+    void syncAcquisitionVisitorAttribution()
   }, [location.pathname, location.search])
 
   return null
