@@ -9,3 +9,6 @@ verify_jwt = false
 
 [functions.send-test-email]
 verify_jwt = true
+
+[functions.submit-inquiry]
+verify_jwt = true

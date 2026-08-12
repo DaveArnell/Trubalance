@@ -48,6 +48,10 @@ export const PRICING_FAQS: FaqItem[] = [
     q: 'Are payments live yet?',
     a: 'Yes. Start with a free trial — no card required. When you are ready, choose monthly or annual from Settings → Your plan. Your card is charged when the trial ends, not before.',
   },
+  {
+    q: 'Do you offer personal onboarding?',
+    a: 'Yes — free while we are growing. Request a 30–60 minute setup session from the Enquire page. We arrange a time by email (no booking calendar). You can also start the free trial on your own anytime.',
+  },
 ]
 
 export const WHO_FOR_FAQS: FaqItem[] = [

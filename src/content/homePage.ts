@@ -92,5 +92,11 @@ export const HOME_VIDEO = {
 
 export const HOME_CTA = {
   heading: 'Know where your business really stands',
-  body: 'Start free, or see how it works first.',
+  body: 'Start free, see how it works, or book free personal onboarding — we arrange a time by email.',
+} as const
+
+export const HOME_ONBOARDING = {
+  heading: 'Free personal onboarding',
+  body: 'Prefer a guided setup? Book a free 30–60 minute session. We help you get your Cash Prophet Balance right from day one — no self-serve calendar, just a short note and we arrange a time.',
+  cta: 'Enquire / book onboarding',
 } as const

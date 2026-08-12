@@ -73,6 +73,14 @@ export const SEE_HOW_SEO = {
   imageAlt: 'Try Cash Prophet with live demo businesses',
 } as const satisfies RouteSeo
 
+export const CONTACT_SEO = {
+  title: 'Enquire or Book Free Onboarding | Cash Prophet',
+  description:
+    'Enquire about Cash Prophet or request free personal onboarding. We arrange a 30–60 minute setup by email — no booking calendar. hello@cashprophet.co.uk',
+  path: '/contact',
+  imageAlt: 'Contact Cash Prophet for enquiries and free personal onboarding',
+} as const satisfies RouteSeo
+
 export const BLOG_INDEX_SEO = {
   title: 'Business Financial Clarity Blog | Cash Prophet Balance | Cash Prophet',
   description:
@@ -155,6 +163,7 @@ export const PUBLIC_ROUTE_SEO: readonly RouteSeo[] = [
   HOW_IT_WORKS_SEO,
   WHO_FOR_SEO,
   SEE_HOW_SEO,
+  CONTACT_SEO,
   BLOG_INDEX_SEO,
   PRIVACY_SEO,
   TERMS_SEO,

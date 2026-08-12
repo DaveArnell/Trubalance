@@ -89,7 +89,8 @@ export function MarketingFooter() {
         <div className="marketing-footer-columns">
           <div>
             <p className="marketing-footer-heading">Company</p>
-            <a href={`mailto:${COMPANY_INFO.contactEmail}`}>Contact</a>
+            <CanonicalLink to="/contact">Enquire / onboarding</CanonicalLink>
+            <a href={`mailto:${COMPANY_INFO.contactEmail}`}>{COMPANY_INFO.contactEmail}</a>
             <span className="marketing-footer-plain">Vocatio.io</span>
           </div>
           <div>

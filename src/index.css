@@ -32523,5 +32523,182 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   color: #1bb863;
 }
 
+/* ─── Contact / enquiry ─────────────────────────────────────── */
+
+.marketing-hero-onboard-link {
+  margin: 0.85rem 0 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.marketing-hero-onboard-link a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.home-onboarding-band {
+  max-width: 42rem;
+  padding-block: 2.5rem;
+}
+
+.home-onboarding-band h2 {
+  margin: 0 0 0.75rem;
+}
+
+.home-onboarding-band .btn-secondary {
+  margin-top: 1rem;
+}
+
+.marketing-onboarding-offer {
+  padding-block: 2.5rem;
+}
+
+.contact-page-section {
+  padding-block: 2.5rem 3rem;
+}
+
+.contact-page-grid {
+  display: grid;
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .contact-page-grid {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 2.5rem;
+  }
+}
+
+.contact-onboarding-card {
+  padding: 1.35rem 1.4rem;
+  border: 1px solid rgba(15, 27, 45, 0.12);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.contact-onboarding-card h2 {
+  margin: 0 0 0.65rem;
+  font-size: 1.25rem;
+}
+
+.contact-onboarding-card p {
+  margin: 0 0 1rem;
+  line-height: 1.55;
+  color: rgba(15, 27, 45, 0.78);
+}
+
+.contact-direct-email {
+  margin: 1.25rem 0 0.5rem;
+  font-size: 0.98rem;
+}
+
+.contact-direct-email a {
+  font-weight: 650;
+  color: #0f1b2d;
+}
+
+.contact-trial-note {
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+.contact-form-card {
+  padding: 1.5rem 1.4rem;
+  border: 1px solid rgba(15, 27, 45, 0.12);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.contact-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.contact-field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.contact-field span {
+  font-size: 0.9rem;
+  font-weight: 650;
+  color: #0f1b2d;
+}
+
+.contact-field input,
+.contact-field textarea,
+.contact-topic-option {
+  font: inherit;
+}
+
+.contact-field input,
+.contact-field textarea {
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid rgba(15, 27, 45, 0.18);
+  border-radius: 8px;
+  background: #fbfcfd;
+  color: #0f1b2d;
+}
+
+.contact-field textarea {
+  resize: vertical;
+  min-height: 7rem;
+}
+
+.contact-topic {
+  margin: 0;
+  padding: 0;
+  border: none;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.contact-topic legend {
+  font-size: 0.9rem;
+  font-weight: 650;
+  margin-bottom: 0.15rem;
+}
+
+.contact-topic-option {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid rgba(15, 27, 45, 0.14);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.contact-topic-option:has(input:checked) {
+  border-color: rgba(36, 218, 118, 0.65);
+  background: #f5fff9;
+}
+
+.contact-honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.contact-form-error {
+  margin: 0;
+  color: #b42318;
+  font-size: 0.92rem;
+}
+
+.contact-form-success h2 {
+  margin: 0 0 0.65rem;
+}
+
+.contact-form-success p {
+  margin: 0 0 0.75rem;
+  line-height: 1.55;
+}
+
 
 

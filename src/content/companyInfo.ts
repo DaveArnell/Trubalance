@@ -7,7 +7,7 @@ export const COMPANY_INFO = {
   /** UK ICO data controller registration (organisation-level for Vocatio Ltd). */
   icoRegistrationNumber: 'CSN6799153',
   registeredAddressLines: ['15 Springhill Close', 'Swindon', 'SN5 7BG'],
-  contactEmail: 'admin@vocatio.io',
+  contactEmail: 'hello@cashprophet.co.uk',
   /** Canonical production origin (www — matches Vercel production domain). */
   website: 'https://www.cashprophet.co.uk',
   parentWebsite: 'https://vocatio.io',

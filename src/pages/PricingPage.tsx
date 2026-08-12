@@ -22,6 +22,26 @@ export function PricingPage() {
           </div>
         </header>
         <PricingSection hideIntro />
+        <section className="marketing-onboarding-offer marketing-surface--paper">
+          <div className="marketing-section-inner">
+            <div className="marketing-section-head">
+              <h2>Free personal onboarding</h2>
+              <p className="marketing-section-lead marketing-section-lead--home">
+                At this stage every customer can book a free 30–60 minute setup. We arrange a time by
+                email — no availability calendar. Start the trial yourself anytime, or enquire when
+                you want a guided walkthrough.
+              </p>
+            </div>
+            <p className="marketing-billing-cta">
+              <CanonicalLink to="/contact?topic=onboarding" className="btn-secondary">
+                Enquire / book onboarding
+              </CanonicalLink>
+              <CanonicalLink to="/signup" className="btn-ghost">
+                Start free trial
+              </CanonicalLink>
+            </p>
+          </div>
+        </section>
         <section id="billing" className="marketing-billing-section marketing-surface--mist">
           <div className="marketing-section-inner">
             <div className="marketing-section-head">

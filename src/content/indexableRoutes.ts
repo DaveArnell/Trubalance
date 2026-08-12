@@ -15,6 +15,7 @@ export const INDEXABLE_STATIC_ROUTES: readonly IndexableRoute[] = [
   { path: '/how-it-works', priority: '0.9', changefreq: 'monthly' },
   { path: '/who-its-for', priority: '0.8', changefreq: 'monthly' },
   { path: '/see-how-it-works', priority: '0.9', changefreq: 'monthly' },
+  { path: '/contact', priority: '0.9', changefreq: 'monthly' },
   { path: '/signup', priority: '0.9', changefreq: 'monthly' },
   { path: '/blog', priority: '0.9', changefreq: 'weekly' },
   { path: '/privacy', priority: '0.3', changefreq: 'yearly' },

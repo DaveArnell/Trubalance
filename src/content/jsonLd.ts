@@ -10,6 +10,7 @@ import {
   WHO_FOR_SEO,
   SEE_HOW_SEO,
   BLOG_INDEX_SEO,
+  CONTACT_SEO,
 } from './marketingSeo'
 import {
   SUBSCRIPTION_TIERS,
@@ -263,6 +264,24 @@ export function whoItsForPageJsonLd(faqs: FaqItem[]): JsonLd[] {
       name: WHO_FOR_SEO.title,
       description: WHO_FOR_SEO.description,
       isPartOf: { '@id': `${site}/#website` },
+    },
+    faqPageJsonLd(faqs, pageUrl),
+  ]
+}
+
+export function contactPageJsonLd(faqs: FaqItem[]): JsonLd[] {
+  const pageUrl = absolutePath(CONTACT_SEO.path)
+  return [
+    organizationJsonLd(),
+    {
+      '@context': 'https://schema.org',
+      '@type': 'ContactPage',
+      '@id': pageUrl,
+      url: pageUrl,
+      name: CONTACT_SEO.title,
+      description: CONTACT_SEO.description,
+      isPartOf: { '@id': `${site}/#website` },
+      about: { '@id': `${site}/#product` },
     },
     faqPageJsonLd(faqs, pageUrl),
   ]

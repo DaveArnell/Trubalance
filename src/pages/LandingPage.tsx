@@ -22,6 +22,7 @@ import {
   HOME_FOUNDER,
   HOME_HERO,
   HOME_NEED,
+  HOME_ONBOARDING,
   HOME_OUTCOME,
   HOME_WHY_IT_WORKS,
 } from '../content/homePage'
@@ -80,6 +81,11 @@ export function LandingPage() {
                   {HOME_HERO.secondaryCta}
                 </CanonicalLink>
               </div>
+              <p className="marketing-hero-onboard-link">
+                <CanonicalLink to="/contact?topic=onboarding">
+                  Prefer a guided setup? Free personal onboarding →
+                </CanonicalLink>
+              </p>
               {!isSupabaseConfigured && (
                 <p className="marketing-config-hint">
                   Cloud signup needs Supabase in <code>.env.local</code>, or{' '}
@@ -180,6 +186,16 @@ export function LandingPage() {
           </div>
         </section>
 
+        <section className="home-band home-band--paper" aria-labelledby="onboarding-heading">
+          <div className="marketing-section-inner marketing-section-inner--home home-onboarding-band">
+            <h2 id="onboarding-heading">{HOME_ONBOARDING.heading}</h2>
+            <p className="home-split-lead">{HOME_ONBOARDING.body}</p>
+            <CanonicalLink to="/contact?topic=onboarding" className="btn-secondary">
+              {HOME_ONBOARDING.cta}
+            </CanonicalLink>
+          </div>
+        </section>
+
         <section className="marketing-cta-band marketing-cta-band--pop home-cta-band">
           <div className="marketing-cta-band-inner">
             <h2>{HOME_CTA.heading}</h2>
@@ -190,6 +206,12 @@ export function LandingPage() {
               </CanonicalLink>
               <CanonicalLink to="/how-it-works" className="btn-ghost btn-large marketing-cta-ghost">
                 {HOME_HERO.secondaryCta}
+              </CanonicalLink>
+              <CanonicalLink
+                to="/contact?topic=onboarding"
+                className="btn-ghost btn-large marketing-cta-ghost"
+              >
+                Free onboarding
               </CanonicalLink>
             </div>
           </div>

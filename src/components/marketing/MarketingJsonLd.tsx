@@ -29,6 +29,7 @@ export {
   howItWorksPageJsonLd,
   whoItsForPageJsonLd,
   seeHowPageJsonLd,
+  contactPageJsonLd,
   blogIndexJsonLd,
   blogPostJsonLd,
   breadcrumbJsonLd,
