@@ -22,7 +22,7 @@ export const TRY_IT_PAGE = {
     namePlaceholder: 'e.g. Rent',
     amountLabel: 'Monthly',
     dueDayLabel: 'Due day',
-    empty: 'Add at least one monthly bill to see how much has already accrued.',
+    empty: 'Add a monthly bill below to see how much of this is already spoken for.',
     kpiMonthly: 'Monthly total',
     kpiAccrued: 'Accrued now',
   },

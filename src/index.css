@@ -33121,14 +33121,9 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .try-it-result-empty,
 .try-it-result-hint {
-  margin: 0;
+  margin: 0.9rem 0 0;
   line-height: 1.5;
-  color: rgba(244, 247, 251, 0.9);
-}
-
-.try-it-result--guide .try-it-result-hint {
-  margin-top: 0.55rem;
-  color: rgba(15, 27, 45, 0.78);
+  color: rgba(244, 247, 251, 0.92);
   font-size: 0.95rem;
 }
 

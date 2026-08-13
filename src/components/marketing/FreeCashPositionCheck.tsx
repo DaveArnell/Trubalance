@@ -355,22 +355,11 @@ export function FreeCashPositionCheck() {
         </section>
       </div>
 
-      {(hasBank || hasMeaningfulInput) && (
-      <section
-        className={`try-it-result${hasMeaningfulInput ? '' : ' try-it-result--guide'}`}
-        aria-labelledby={`${formId}-result`}
-        aria-live="polite"
-      >
-        <h2 id={`${formId}-result`} className="sr-only">
-          What is actually yours today
-        </h2>
-        {!hasMeaningfulInput ? (
-          <div className="try-it-result-guide">
-            <p className="try-it-result-guide-title">Your bank balance</p>
-            <p className="try-it-figure try-it-figure--guide">{formatCurrency(result.bankBalance)}</p>
-            <p className="try-it-result-hint">{TRY_IT_PAGE.regular.empty}</p>
-          </div>
-        ) : (
+      {hasBank ? (
+        <section className="try-it-result" aria-labelledby={`${formId}-result`} aria-live="polite">
+          <h2 id={`${formId}-result`} className="sr-only">
+            What is actually yours today
+          </h2>
           <div className="try-it-result-stack">
             <div className="try-it-result-row">
               <span>{TRY_IT_PAGE.result.bankLabel}</span>
@@ -397,9 +386,11 @@ export function FreeCashPositionCheck() {
               <strong className="try-it-figure">{formatCurrency(result.availableToday)}</strong>
             </div>
           </div>
-        )}
-      </section>
-      )}
+          {!hasMeaningfulInput ? (
+            <p className="try-it-result-hint">{TRY_IT_PAGE.regular.empty}</p>
+          ) : null}
+        </section>
+      ) : null}
     </div>
   )
 }
