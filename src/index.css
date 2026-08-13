@@ -32671,11 +32671,17 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .home-onboarding-band {
   max-width: 42rem;
+  margin-inline: auto;
   padding-block: 2.5rem;
+  text-align: center;
 }
 
 .home-onboarding-band h2 {
   margin: 0 0 0.75rem;
+}
+
+.home-onboarding-band .home-split-lead {
+  margin-inline: auto;
 }
 
 .home-onboarding-band .btn-secondary {
