@@ -18,9 +18,11 @@ export const HOME_HERO = {
     'Cash Prophet automatically accounts for those commitments as they build and helps you prepare for bigger future costs, so you get a daily financial position you can trust.',
   ],
   sizzle: 'Less guessing. More confidence.',
+  /** Full product trial (account). */
   primaryCta: 'Start Free',
-  /** Free interactive check — quieter companion to signup. */
-  tryItCta: 'Try it free',
+  /** Interactive tool — no account; wording must not echo “Start Free”. */
+  tryItCta: 'Free cash check',
+  tryItHint: 'No account needed',
   secondaryCta: 'See How It Works',
   graphs: {
     bank: {
@@ -94,7 +96,7 @@ export const HOME_VIDEO = {
 
 export const HOME_CTA = {
   heading: 'Know where your business really stands',
-  body: 'Start free, try it free, or book free personal onboarding.',
+  body: 'Start a free trial, run a free cash check with no account, or book free personal onboarding.',
 } as const
 
 export const HOME_ONBOARDING = {

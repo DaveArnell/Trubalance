@@ -32669,6 +32669,24 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   text-underline-offset: 3px;
 }
 
+.marketing-cta-secondary-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+}
+
+.marketing-cta-row--center .marketing-cta-secondary-wrap {
+  align-items: center;
+}
+
+.marketing-cta-hint {
+  font-size: 0.8rem;
+  font-weight: 550;
+  letter-spacing: 0.01em;
+  opacity: 0.72;
+}
+
 .home-onboarding-band {
   max-width: 42rem;
   margin-inline: auto;

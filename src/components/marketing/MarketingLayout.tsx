@@ -132,7 +132,7 @@ export function MarketingHeader() {
                     className="btn-secondary marketing-nav-btn"
                     onClick={() => setMenuOpen(false)}
                   >
-                    Try it free
+                    Free cash check
                   </CanonicalLink>
                 </>
               )}

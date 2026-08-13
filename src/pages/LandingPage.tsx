@@ -74,12 +74,15 @@ export function LandingPage() {
                 >
                   {HOME_HERO.primaryCta}
                 </CanonicalLink>
-                <CanonicalLink
-                  to="/try-it"
-                  className="btn-secondary btn-large marketing-cta-secondary--rank"
-                >
-                  {HOME_HERO.tryItCta}
-                </CanonicalLink>
+                <div className="marketing-cta-secondary-wrap">
+                  <CanonicalLink
+                    to="/try-it"
+                    className="btn-secondary btn-large marketing-cta-secondary--rank"
+                  >
+                    {HOME_HERO.tryItCta}
+                  </CanonicalLink>
+                  <span className="marketing-cta-hint">{HOME_HERO.tryItHint}</span>
+                </div>
               </div>
               <p className="marketing-hero-onboard-link">
                 <CanonicalLink to="/contact?topic=onboarding">
