@@ -31,6 +31,7 @@ export {
   seeHowPageJsonLd,
   contactPageJsonLd,
   tryItPageJsonLd,
+  partnersPageJsonLd,
   blogIndexJsonLd,
   blogPostJsonLd,
   breadcrumbJsonLd,

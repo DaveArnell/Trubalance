@@ -13,9 +13,13 @@ import { CONTACT_FAQS, CONTACT_PAGE, type InquiryTopic } from '../content/contac
 import { CONTACT_SEO } from '../content/marketingSeo'
 import { usePageMeta } from '../hooks/usePageMeta'
 import { submitInquiry } from '../services/inquiryApi'
+import { trackMetaInquirySubmitted } from '../services/metaConversions'
+
+const VALID_TOPICS: InquiryTopic[] = ['general', 'onboarding', 'partnership']
 
 function resolveTopic(raw: string | null): InquiryTopic {
-  return raw === 'onboarding' ? 'onboarding' : 'general'
+  if (raw && VALID_TOPICS.includes(raw as InquiryTopic)) return raw as InquiryTopic
+  return 'general'
 }
 
 export function ContactPage() {
@@ -26,6 +30,7 @@ export function ContactPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [businessName, setBusinessName] = useState('')
+  const [website, setWebsite] = useState('')
   const [phone, setPhone] = useState('')
   const [topic, setTopic] = useState<InquiryTopic>(() =>
     resolveTopic(searchParams.get('topic')),
@@ -40,6 +45,16 @@ export function ContactPage() {
     setTopic(resolveTopic(searchParams.get('topic')))
   }, [searchParams])
 
+  useEffect(() => {
+    if (window.location.hash !== '#contact-form') return
+    const timer = window.setTimeout(() => {
+      document.getElementById('contact-form')?.scrollIntoView({ behavior: 'smooth' })
+    }, 80)
+    return () => window.clearTimeout(timer)
+  }, [])
+
+  const isPartnership = topic === 'partnership'
+
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setError(null)
@@ -48,6 +63,7 @@ export function ContactPage() {
       name,
       email,
       businessName,
+      website: isPartnership ? website : '',
       phone,
       topic,
       message,
@@ -58,6 +74,7 @@ export function ContactPage() {
       setError(result.error)
       return
     }
+    trackMetaInquirySubmitted(topic)
     setDone(true)
   }
 
@@ -92,6 +109,25 @@ export function ContactPage() {
                   Request free onboarding
                 </button>
               </article>
+              <article className="contact-onboarding-card contact-partnership-card">
+                <h2>{CONTACT_PAGE.partnershipHighlight.heading}</h2>
+                <p>{CONTACT_PAGE.partnershipHighlight.body}</p>
+                <div className="contact-partnership-actions">
+                  <CanonicalLink to="/partners" className="btn-secondary">
+                    {CONTACT_PAGE.partnershipHighlight.cta}
+                  </CanonicalLink>
+                  <button
+                    type="button"
+                    className="btn-ghost"
+                    onClick={() => {
+                      setTopic('partnership')
+                      document.getElementById('contact-form')?.scrollIntoView({ behavior: 'smooth' })
+                    }}
+                  >
+                    Select partnership enquiry
+                  </button>
+                </div>
+              </article>
               <p className="contact-direct-email">
                 {CONTACT_PAGE.emailLabel}:{' '}
                 <a href={`mailto:${CONTACT_PAGE.email}`}>{CONTACT_PAGE.email}</a>
@@ -99,6 +135,8 @@ export function ContactPage() {
               <p className="muted contact-trial-note">
                 Prefer to explore first?{' '}
                 <CanonicalLink to="/signup">Start free</CanonicalLink>
+                {' · '}
+                <CanonicalLink to="/try-it">Free cash check</CanonicalLink>
                 {' · '}
                 <CanonicalLink to="/see-how-it-works">See how it works</CanonicalLink>
               </p>
@@ -151,7 +189,11 @@ export function ContactPage() {
                   </label>
 
                   <label className="contact-field">
-                    <span>{CONTACT_PAGE.form.businessLabel}</span>
+                    <span>
+                      {isPartnership
+                        ? CONTACT_PAGE.form.organisationLabel
+                        : CONTACT_PAGE.form.businessLabel}
+                    </span>
                     <input
                       name="business"
                       autoComplete="organization"
@@ -159,6 +201,20 @@ export function ContactPage() {
                       onChange={(e) => setBusinessName(e.target.value)}
                     />
                   </label>
+
+                  {isPartnership ? (
+                    <label className="contact-field">
+                      <span>{CONTACT_PAGE.form.websiteLabel}</span>
+                      <input
+                        type="url"
+                        name="website"
+                        autoComplete="url"
+                        placeholder="https://"
+                        value={website}
+                        onChange={(e) => setWebsite(e.target.value)}
+                      />
+                    </label>
+                  ) : null}
 
                   <label className="contact-field">
                     <span>{CONTACT_PAGE.form.phoneLabel}</span>
@@ -193,7 +249,11 @@ export function ContactPage() {
                       required
                       name="message"
                       rows={5}
-                      placeholder={CONTACT_PAGE.form.messagePlaceholder}
+                      placeholder={
+                        isPartnership
+                          ? CONTACT_PAGE.form.partnershipMessagePlaceholder
+                          : CONTACT_PAGE.form.messagePlaceholder
+                      }
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                     />
@@ -216,7 +276,7 @@ export function ContactPage() {
 
         <MarketingFaqSection
           heading="Before you enquire"
-          lead="Straight answers about free onboarding and how we reply."
+          lead="Straight answers about free onboarding, partnerships and how we reply."
           items={[...CONTACT_FAQS]}
         />
       </main>

@@ -6,6 +6,7 @@ export type InquiryPayload = {
   name: string
   email: string
   businessName?: string
+  website?: string
   phone?: string
   topic: InquiryTopic
   message: string
@@ -29,6 +30,7 @@ export async function submitInquiry(payload: InquiryPayload): Promise<InquiryRes
       name: payload.name.trim(),
       email: payload.email.trim(),
       businessName: payload.businessName?.trim() || '',
+      website: payload.website?.trim() || '',
       phone: payload.phone?.trim() || '',
       topic: payload.topic,
       message: payload.message.trim(),

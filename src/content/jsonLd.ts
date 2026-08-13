@@ -12,6 +12,7 @@ import {
   BLOG_INDEX_SEO,
   CONTACT_SEO,
   TRY_IT_SEO,
+  PARTNERS_SEO,
 } from './marketingSeo'
 import {
   SUBSCRIPTION_TIERS,
@@ -309,6 +310,24 @@ export function tryItPageJsonLd(): JsonLd[] {
       isPartOf: { '@id': `${site}/#website` },
       about: { '@id': `${site}/#product` },
     },
+  ]
+}
+
+export function partnersPageJsonLd(faqs: FaqItem[]): JsonLd[] {
+  const pageUrl = absolutePath(PARTNERS_SEO.path)
+  return [
+    organizationJsonLd(),
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      '@id': pageUrl,
+      url: pageUrl,
+      name: PARTNERS_SEO.title,
+      description: PARTNERS_SEO.description,
+      isPartOf: { '@id': `${site}/#website` },
+      about: { '@id': `${site}/#product` },
+    },
+    faqPageJsonLd(faqs, pageUrl),
   ]
 }
 

@@ -65,9 +65,11 @@ Deno.serve(async (req) => {
     const businessName = String(body.businessName ?? '').trim()
     const phone = String(body.phone ?? '').trim()
     const topicRaw = String(body.topic ?? 'general').trim()
-    const topic = topicRaw === 'onboarding' ? 'onboarding' : 'general'
+    const topic =
+      topicRaw === 'onboarding' || topicRaw === 'partnership' ? topicRaw : 'general'
     const message = String(body.message ?? '').trim()
     const honeypot = String(body.companyWebsite ?? '').trim()
+    const website = String(body.website ?? '').trim()
 
     if (honeypot) {
       // Silent success for bots
@@ -86,15 +88,22 @@ Deno.serve(async (req) => {
     if (message.length > 4000) {
       return jsonResponse({ error: 'Message is too long' }, 400)
     }
-    if (businessName.length > 200 || phone.length > 40) {
+    if (businessName.length > 200 || phone.length > 40 || website.length > 300) {
       return jsonResponse({ error: 'One of the optional fields is too long' }, 400)
     }
 
-    const topicLabel = topic === 'onboarding' ? 'Free personal onboarding' : 'General enquiry'
+    const topicLabel =
+      topic === 'onboarding'
+        ? 'Free personal onboarding'
+        : topic === 'partnership'
+          ? 'Partner with Cash Prophet'
+          : 'General enquiry'
     const subject =
       topic === 'onboarding'
         ? `[Onboarding] ${name}${businessName ? ` — ${businessName}` : ''}`
-        : `[Enquiry] ${name}${businessName ? ` — ${businessName}` : ''}`
+        : topic === 'partnership'
+          ? `[Partnership] ${name}${businessName ? ` — ${businessName}` : ''}`
+          : `[Enquiry] ${name}${businessName ? ` — ${businessName}` : ''}`
 
     const html = `<!DOCTYPE html>
 <html lang="en">
@@ -104,7 +113,8 @@ Deno.serve(async (req) => {
     <p style="margin:0 0 8px"><strong>Topic:</strong> ${escapeHtml(topicLabel)}</p>
     <p style="margin:0 0 8px"><strong>Name:</strong> ${escapeHtml(name)}</p>
     <p style="margin:0 0 8px"><strong>Email:</strong> ${escapeHtml(email)}</p>
-    ${businessName ? `<p style="margin:0 0 8px"><strong>Business:</strong> ${escapeHtml(businessName)}</p>` : ''}
+    ${businessName ? `<p style="margin:0 0 8px"><strong>${topic === 'partnership' ? 'Organisation' : 'Business'}:</strong> ${escapeHtml(businessName)}</p>` : ''}
+    ${website ? `<p style="margin:0 0 8px"><strong>Website:</strong> ${escapeHtml(website)}</p>` : ''}
     ${phone ? `<p style="margin:0 0 8px"><strong>Phone:</strong> ${escapeHtml(phone)}</p>` : ''}
     <p style="margin:20px 0 8px"><strong>Message</strong></p>
     <p style="margin:0;white-space:pre-wrap;line-height:1.55">${escapeHtml(message)}</p>
@@ -136,16 +146,19 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Best-effort store (migration 032). Email already sent above.
+    // Best-effort store (migration 032 / 033). Email already sent above.
     try {
       const adminClient = createClient(supabaseUrl, serviceRoleKey)
+      const messageForStore = website
+        ? `${message}\n\nWebsite: ${website}`
+        : message
       const { error: insertError } = await adminClient.from('marketing_inquiries').insert({
         name,
         email,
         business_name: businessName || null,
         phone: phone || null,
         topic,
-        message,
+        message: messageForStore,
         status: 'new',
       })
       if (insertError) console.error('marketing_inquiries insert', insertError)

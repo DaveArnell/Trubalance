@@ -33273,3 +33273,209 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   }
 }
 
+/* —— Partner with Cash Prophet (/partners) —— */
+
+.partners-hero-inner {
+  text-align: center;
+  max-width: 42rem;
+  margin-inline: auto;
+}
+
+.partners-hero-cta {
+  margin-top: 1.35rem;
+  justify-content: center;
+}
+
+.partners-section {
+  padding-block: 2.75rem 3rem;
+}
+
+.partners-section-inner {
+  max-width: 48rem;
+}
+
+.partners-section-inner > h2 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.4rem, 3vw, 1.85rem);
+  line-height: 1.25;
+  text-align: center;
+}
+
+.partners-lead {
+  margin: 0 auto 1.35rem;
+  max-width: 38rem;
+  text-align: center;
+  line-height: 1.55;
+  color: rgba(15, 27, 45, 0.78);
+}
+
+.partners-prose {
+  margin: 0 auto 0.9rem;
+  max-width: 40rem;
+  line-height: 1.6;
+  color: rgba(15, 27, 45, 0.82);
+}
+
+.partners-audience-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 720px) {
+  .partners-audience-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.partners-audience-card {
+  padding: 1.1rem 1.15rem;
+  border: 1px solid rgba(15, 27, 45, 0.12);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.partners-audience-card h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1.05rem;
+}
+
+.partners-audience-card p {
+  margin: 0;
+  line-height: 1.5;
+  color: rgba(15, 27, 45, 0.75);
+  font-size: 0.95rem;
+}
+
+.partners-compare {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 1.5rem;
+}
+
+@media (min-width: 720px) {
+  .partners-compare {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.partners-compare-col {
+  padding: 1.2rem 1.2rem 1.1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(15, 27, 45, 0.12);
+}
+
+.partners-compare-col--muted {
+  background: #f7f9fb;
+}
+
+.partners-compare-col--accent {
+  background: #f5fff9;
+  border-color: rgba(13, 143, 91, 0.28);
+}
+
+.partners-compare-col h3 {
+  margin: 0 0 0.7rem;
+  font-size: 1.05rem;
+}
+
+.partners-compare-col ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.4rem;
+  line-height: 1.45;
+  color: rgba(15, 27, 45, 0.8);
+}
+
+.partners-benefit-list {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  max-width: 36rem;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.partners-benefit-list li {
+  position: relative;
+  padding: 0.8rem 0.95rem 0.8rem 2.1rem;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid rgba(15, 27, 45, 0.1);
+  line-height: 1.45;
+  color: #0f1b2d;
+}
+
+.partners-benefit-list li::before {
+  content: '';
+  position: absolute;
+  left: 0.9rem;
+  top: 1.1rem;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: #0d8f5b;
+}
+
+.partners-benefit-list--offer li {
+  background: #f5fff9;
+  border-color: rgba(13, 143, 91, 0.18);
+}
+
+.partners-snapshot {
+  text-align: center;
+}
+
+.partners-steps {
+  list-style: none;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.partners-step {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.85rem;
+  align-items: start;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(15, 27, 45, 0.1);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.partners-step-num {
+  font-size: 0.82rem;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  color: #0d8f5b;
+  padding-top: 0.15rem;
+}
+
+.partners-step h3 {
+  margin: 0 0 0.3rem;
+  font-size: 1.05rem;
+}
+
+.partners-step p {
+  margin: 0;
+  line-height: 1.5;
+  color: rgba(15, 27, 45, 0.78);
+}
+
+.contact-partnership-card {
+  margin-top: 1rem;
+}
+
+.contact-partnership-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: center;
+}
+

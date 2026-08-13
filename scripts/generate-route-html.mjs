@@ -45,6 +45,7 @@ const staticRoutes = [
   'SEE_HOW_SEO',
   'CONTACT_SEO',
   'TRY_IT_SEO',
+  'PARTNERS_SEO',
   'BLOG_INDEX_SEO',
   'PRIVACY_SEO',
   'TERMS_SEO',

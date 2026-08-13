@@ -356,3 +356,56 @@ export function trackMetaCashPositionCheck(input: {
     /* ignore */
   }
 }
+
+export function trackMetaPartnerSnapshotClick(): void {
+  try {
+    if (!hasAdvertisingConsent()) return
+    trackMetaPixelCustomEvent('PartnerSnapshotClick', {
+      content_name: 'partners_try_it',
+      content_category: 'partners',
+    })
+  } catch {
+    /* ignore */
+  }
+}
+
+export function trackMetaPartnerEnquireClick(placement: 'hero' | 'footer'): void {
+  try {
+    if (!hasAdvertisingConsent()) return
+    trackMetaPixelCustomEvent('PartnerEnquireClick', {
+      content_name: 'partners_enquire',
+      content_category: 'partners',
+      content_placement: placement,
+    })
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Successful public enquiry form submit (Lead). Does not touch CompleteRegistration. */
+export function trackMetaInquirySubmitted(topic: string): void {
+  try {
+    if (!hasAdvertisingConsent()) return
+    const eventId = newMetaEventId(`inquiry_${topic}`)
+    trackMetaPixelEvent(
+      'Lead',
+      {
+        content_name: topic,
+        content_category: 'enquiry',
+      },
+      eventId,
+    )
+    if (topic === 'partnership') {
+      trackMetaPixelCustomEvent(
+        'PartnershipEnquiry',
+        {
+          content_name: 'partner_with_cash_prophet',
+          content_category: 'partners',
+        },
+        eventId,
+      )
+    }
+  } catch {
+    /* ignore */
+  }
+}

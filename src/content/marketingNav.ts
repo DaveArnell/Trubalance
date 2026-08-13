@@ -13,6 +13,7 @@ export const SECONDARY_NAV = [
   { to: '/blog', label: 'Blog' },
   { to: '/signup', label: 'Get started' },
   { to: '/try-it', label: 'Free cash check' },
+  { to: '/partners', label: 'Partner with Cash Prophet' },
   { to: '/see-how-it-works', label: 'Live demos' },
   { to: '/contact', label: 'Enquire / onboarding' },
 ] as const

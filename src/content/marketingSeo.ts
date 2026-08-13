@@ -89,6 +89,14 @@ export const TRY_IT_SEO = {
   imageAlt: 'Free Cash Prophet cash position check for UK small businesses',
 } as const satisfies RouteSeo
 
+export const PARTNERS_SEO = {
+  title: 'Partner with Cash Prophet | Accountants, Advisers & Member Organisations',
+  description:
+    'Offer your clients or members Cash Prophet at 50% off. A day-to-day financial clarity tool that sits alongside accounting and bookkeeping. We handle onboarding and support.',
+  path: '/partners',
+  imageAlt: 'Partner with Cash Prophet for UK small business clients and members',
+} as const satisfies RouteSeo
+
 export const BLOG_INDEX_SEO = {
   title: 'Business Financial Clarity Blog | Cash Prophet Balance | Cash Prophet',
   description:
@@ -173,6 +181,7 @@ export const PUBLIC_ROUTE_SEO: readonly RouteSeo[] = [
   SEE_HOW_SEO,
   CONTACT_SEO,
   TRY_IT_SEO,
+  PARTNERS_SEO,
   BLOG_INDEX_SEO,
   PRIVACY_SEO,
   TERMS_SEO,
