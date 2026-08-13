@@ -32892,15 +32892,20 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   .try-it-tool {
     grid-template-columns: minmax(0, 1.15fr) minmax(17rem, 0.85fr);
     gap: 2rem;
-    align-items: stretch;
+    align-items: start;
   }
 
-  /* Sit beside the lower form sections; stick under the header when scrolling. */
+  /*
+   * Start at the top of the column. When sticky, sit toward the bottom of the
+   * viewport (not pinned under the header).
+   */
   .try-it-result {
     position: sticky;
-    top: 5.5rem;
-    align-self: end;
+    top: max(1.25rem, calc(100vh - 24rem));
+    align-self: start;
     width: 100%;
+    max-height: calc(100vh - 2.5rem);
+    overflow: auto;
   }
 }
 
