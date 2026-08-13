@@ -14,13 +14,14 @@ import {
   wasMorningCheckInDoneToday,
 } from '../utils/morningCheckIn'
 import { MorningBalancesList } from './MorningBalancesList'
+import { MarkPaidConfirmButton } from './committed/MarkPaidConfirmModal'
 
 interface MorningCheckInModalProps {
   state: AppState
   viewScope: ViewScope
   breakdownColumns: BreakdownColumn[]
   onBalanceSave?: (changes: BalanceSaveChange[]) => BalanceSaveResult
-  onMarkCommitmentPaid?: (id: string) => void
+  onMarkCommitmentPaid?: (id: string, paidAmount?: number) => void
   onOpenDue?: () => void
   onOpenReserve?: () => void
   onCheckInClosed?: () => void
@@ -62,8 +63,8 @@ export function MorningCheckInModal({
     onCheckInClosed?.()
   }
 
-  const handleMarkPaid = (id: string) => {
-    onMarkCommitmentPaid?.(id)
+  const handleMarkPaid = (id: string, paidAmount: number) => {
+    onMarkCommitmentPaid?.(id, paidAmount)
     setPaidIds((prev) => (prev.includes(id) ? prev : [...prev, id]))
   }
 
@@ -129,13 +130,12 @@ export function MorningCheckInModal({
                         </span>
                       </div>
                       {onMarkCommitmentPaid ? (
-                        <button
-                          type="button"
-                          className="btn-secondary btn-tiny"
-                          onClick={() => handleMarkPaid(item.commitmentId)}
-                        >
-                          Mark paid
-                        </button>
+                        <MarkPaidConfirmButton
+                          itemLabel={item.name}
+                          expectedTotal={item.amount}
+                          buttonLabel="Mark paid"
+                          onConfirm={(amount) => handleMarkPaid(item.commitmentId, amount)}
+                        />
                       ) : null}
                     </li>
                   ))}

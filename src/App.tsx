@@ -1114,7 +1114,7 @@ function AppShellInner({
           viewScope={app.viewScope}
           breakdownColumns={breakdownColumns}
           onBalanceSave={handleBalanceSave}
-          onMarkCommitmentPaid={(id) => app.markCommitmentPaid(id)}
+          onMarkCommitmentPaid={(id, amount) => app.markCommitmentPaid(id, amount)}
           onOpenDue={() => {
             setHomeSection('due')
             goToRoute('committed-funds')
