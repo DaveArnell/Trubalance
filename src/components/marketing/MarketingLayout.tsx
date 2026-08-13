@@ -81,9 +81,9 @@ export function MarketingHeader() {
             className={`marketing-menu-toggle${menuOpen ? ' is-open' : ''}`}
             aria-expanded={menuOpen}
             aria-controls={menuId}
+            aria-label={menuOpen ? 'Close site menu' : 'Open site menu'}
             onClick={() => setMenuOpen((open) => !open)}
           >
-            <span className="marketing-menu-toggle-label">Menu</span>
             <span className="marketing-menu-toggle-chevron" aria-hidden />
           </button>
 
@@ -132,7 +132,7 @@ export function MarketingHeader() {
                     className="btn-secondary marketing-nav-btn"
                     onClick={() => setMenuOpen(false)}
                   >
-                    See today&apos;s snapshot
+                    Try it free
                   </CanonicalLink>
                 </>
               )}

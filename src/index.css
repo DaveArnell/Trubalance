@@ -14152,22 +14152,28 @@ tr.sheet-row--received td {
 .marketing-menu-toggle {
   display: none;
   align-items: center;
-  gap: 0.35rem;
+  justify-content: center;
+  width: 2.15rem;
+  height: 2.15rem;
   margin: 0;
-  padding: 0.4rem 0.55rem;
-  border: 1px solid rgba(15, 27, 45, 0.14);
-  border-radius: 999px;
+  padding: 0;
+  border: 1px solid rgba(15, 27, 45, 0.16);
+  border-radius: 50%;
   background: #f4f7fb;
   color: #0f1b2d;
-  font: inherit;
-  font-size: 0.82rem;
-  font-weight: 650;
   cursor: pointer;
+  flex-shrink: 0;
+}
+
+.marketing-menu-toggle:hover,
+.marketing-menu-toggle:focus-visible {
+  background: #eef3f8;
+  outline: none;
 }
 
 .marketing-menu-toggle-chevron {
-  width: 0.45rem;
-  height: 0.45rem;
+  width: 0.48rem;
+  height: 0.48rem;
   border-right: 2px solid currentColor;
   border-bottom: 2px solid currentColor;
   transform: rotate(45deg) translateY(-1px);
@@ -14175,7 +14181,7 @@ tr.sheet-row--received td {
 }
 
 .marketing-menu-toggle.is-open .marketing-menu-toggle-chevron {
-  transform: rotate(-135deg) translateY(-1px);
+  transform: rotate(-135deg) translateY(1px);
 }
 
 .marketing-mobile-drawer {
@@ -32651,9 +32657,10 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 /* ─── Contact / enquiry ─────────────────────────────────────── */
 
 .marketing-hero-onboard-link {
-  margin: 0.85rem 0 0;
-  font-size: 0.95rem;
-  font-weight: 600;
+  margin: 0.7rem 0 0;
+  font-size: 0.92rem;
+  font-weight: 550;
+  opacity: 0.88;
 }
 
 .marketing-hero-onboard-link a {

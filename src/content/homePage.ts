@@ -19,8 +19,8 @@ export const HOME_HERO = {
   ],
   sizzle: 'Less guessing. More confidence.',
   primaryCta: 'Start Free',
-  /** Free interactive check — primary conversion alternative to signup. */
-  snapshotCta: "See today's snapshot",
+  /** Free interactive check — quieter companion to signup. */
+  tryItCta: 'Try it free',
   secondaryCta: 'See How It Works',
   graphs: {
     bank: {
@@ -94,7 +94,7 @@ export const HOME_VIDEO = {
 
 export const HOME_CTA = {
   heading: 'Know where your business really stands',
-  body: 'Start free, try a free snapshot of today’s position, or book free personal onboarding.',
+  body: 'Start free, try it free, or book free personal onboarding.',
 } as const
 
 export const HOME_ONBOARDING = {
