@@ -18,7 +18,7 @@ export const PARTNERS_PAGE = {
     audiences: [
       {
         title: 'Accountants & bookkeepers',
-        body: 'Practices that want clients to stay clearer between reporting cycles.',
+        body: 'Practices whose clients need clearer day-to-day awareness alongside reporting and compliance.',
       },
       {
         title: 'Finance professionals',

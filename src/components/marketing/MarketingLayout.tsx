@@ -189,7 +189,6 @@ export function MarketingFooter() {
             <a className="marketing-footer-email" href={`mailto:${COMPANY_INFO.contactEmail}`}>
               {COMPANY_INFO.contactEmail}
             </a>
-            <span className="marketing-footer-plain">Vocatio.io</span>
           </div>
           <div>
             <p className="marketing-footer-heading">Learn</p>
