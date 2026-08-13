@@ -111,6 +111,18 @@ export function FreeCashPositionCheck() {
 
   const symbol = getCurrencySymbol()
 
+  const sortedRegularCosts = useMemo(() => {
+    return [...regularCosts].sort((a, b) => {
+      const ca = result.regularCosts.find((row) => row.id === a.id)
+      const cb = result.regularCosts.find((row) => row.id === b.id)
+      if (!ca && !cb) return 0
+      if (!ca) return 1
+      if (!cb) return -1
+      if (ca.daysUntilDue !== cb.daysUntilDue) return ca.daysUntilDue - cb.daysUntilDue
+      return ca.name.localeCompare(cb.name)
+    })
+  }, [regularCosts, result.regularCosts])
+
   return (
     <div className="try-it-tool">
       <div className="try-it-tool-inputs">
@@ -165,7 +177,7 @@ export function FreeCashPositionCheck() {
             <p className="try-it-examples muted">{TRY_IT_PAGE.regular.examplesHint}</p>
 
             <ul className="home-dash-cards home-dash-cards--bars try-it-bill-list">
-              {regularCosts.map((cost) => {
+              {sortedRegularCosts.map((cost) => {
                 const computed = result.regularCosts.find((r) => r.id === cost.id)
                 const progress = computed?.progress ?? 0
                 return (
@@ -343,47 +355,51 @@ export function FreeCashPositionCheck() {
         </section>
       </div>
 
-      <section className="try-it-result" aria-labelledby={`${formId}-result`} aria-live="polite">
+      {(hasBank || hasMeaningfulInput) && (
+      <section
+        className={`try-it-result${hasMeaningfulInput ? '' : ' try-it-result--guide'}`}
+        aria-labelledby={`${formId}-result`}
+        aria-live="polite"
+      >
         <h2 id={`${formId}-result`} className="sr-only">
           What is actually yours today
         </h2>
-        {!hasBank ? (
-          <p className="try-it-result-empty">{TRY_IT_PAGE.result.emptyBank}</p>
+        {!hasMeaningfulInput ? (
+          <div className="try-it-result-guide">
+            <p className="try-it-result-guide-title">Your bank balance</p>
+            <p className="try-it-figure try-it-figure--guide">{formatCurrency(result.bankBalance)}</p>
+            <p className="try-it-result-hint">{TRY_IT_PAGE.regular.empty}</p>
+          </div>
         ) : (
-          <>
-            <div className="try-it-result-stack">
-              <div className="try-it-result-row">
-                <span>{TRY_IT_PAGE.result.bankLabel}</span>
-                <strong className="try-it-figure">{formatCurrency(result.bankBalance)}</strong>
-              </div>
-              <div className="try-it-result-row try-it-result-row--spoken">
-                <span>{TRY_IT_PAGE.result.accruedLabel}</span>
-                <strong className="try-it-figure">
-                  {result.regularAccruedTotal > 0
-                    ? `− ${formatCurrency(result.regularAccruedTotal)}`
-                    : formatCurrency(0)}
-                </strong>
-              </div>
-              <div className="try-it-result-row try-it-result-row--spoken">
-                <span>{TRY_IT_PAGE.result.otherLabel}</span>
-                <strong className="try-it-figure">
-                  {result.otherOwedTotal > 0
-                    ? `− ${formatCurrency(result.otherOwedTotal)}`
-                    : formatCurrency(0)}
-                </strong>
-              </div>
-              <div className="try-it-result-row try-it-result-row--available">
-                <span>{TRY_IT_PAGE.result.availableLabel}</span>
-                <strong className="try-it-figure">{formatCurrency(result.availableToday)}</strong>
-              </div>
+          <div className="try-it-result-stack">
+            <div className="try-it-result-row">
+              <span>{TRY_IT_PAGE.result.bankLabel}</span>
+              <strong className="try-it-figure">{formatCurrency(result.bankBalance)}</strong>
             </div>
-
-            {result.regularCosts.length === 0 && result.otherCosts.length === 0 ? (
-              <p className="muted try-it-result-hint">{TRY_IT_PAGE.regular.empty}</p>
-            ) : null}
-          </>
+            <div className="try-it-result-row try-it-result-row--spoken">
+              <span>{TRY_IT_PAGE.result.accruedLabel}</span>
+              <strong className="try-it-figure">
+                {result.regularAccruedTotal > 0
+                  ? `− ${formatCurrency(result.regularAccruedTotal)}`
+                  : formatCurrency(0)}
+              </strong>
+            </div>
+            <div className="try-it-result-row try-it-result-row--spoken">
+              <span>{TRY_IT_PAGE.result.otherLabel}</span>
+              <strong className="try-it-figure">
+                {result.otherOwedTotal > 0
+                  ? `− ${formatCurrency(result.otherOwedTotal)}`
+                  : formatCurrency(0)}
+              </strong>
+            </div>
+            <div className="try-it-result-row try-it-result-row--available">
+              <span>{TRY_IT_PAGE.result.availableLabel}</span>
+              <strong className="try-it-figure">{formatCurrency(result.availableToday)}</strong>
+            </div>
+          </div>
         )}
       </section>
+      )}
     </div>
   )
 }

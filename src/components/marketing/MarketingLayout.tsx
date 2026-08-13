@@ -1,4 +1,5 @@
-import { useRef, type ReactNode } from 'react'
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
+import { useLocation } from 'react-router-dom'
 import { CanonicalLink } from '../CanonicalLink'
 import { useAuth } from '../../contexts/AuthContext'
 import { isSupabaseConfigured } from '../../lib/supabase'
@@ -37,13 +38,107 @@ export function MarketingShell({ children }: { children: ReactNode }) {
 
 export function MarketingHeader() {
   const { user, loading } = useAuth()
+  const location = useLocation()
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuId = useId()
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    setMenuOpen(false)
+  }, [location.pathname])
+
+  useEffect(() => {
+    if (!menuOpen) return
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMenuOpen(false)
+    }
+    const onPointer = (event: MouseEvent | TouchEvent) => {
+      const target = event.target as Node | null
+      if (target && menuRef.current && !menuRef.current.contains(target)) {
+        setMenuOpen(false)
+      }
+    }
+    document.addEventListener('keydown', onKey)
+    document.addEventListener('mousedown', onPointer)
+    document.addEventListener('touchstart', onPointer)
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.removeEventListener('mousedown', onPointer)
+      document.removeEventListener('touchstart', onPointer)
+    }
+  }, [menuOpen])
 
   return (
     <header className="marketing-header">
       <div className="marketing-header-inner">
-        <CanonicalLink to="/" className="marketing-logo" aria-label="Cash Prophet home">
-          <CashProphetLogo variant="header" />
-        </CanonicalLink>
+        <div className="marketing-brand-cluster" ref={menuRef}>
+          <CanonicalLink to="/" className="marketing-logo" aria-label="Cash Prophet home">
+            <CashProphetLogo variant="header" />
+          </CanonicalLink>
+
+          <button
+            type="button"
+            className={`marketing-menu-toggle${menuOpen ? ' is-open' : ''}`}
+            aria-expanded={menuOpen}
+            aria-controls={menuId}
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            <span className="marketing-menu-toggle-label">Menu</span>
+            <span className="marketing-menu-toggle-chevron" aria-hidden />
+          </button>
+
+          <div
+            id={menuId}
+            className={`marketing-mobile-drawer${menuOpen ? ' is-open' : ''}`}
+            hidden={!menuOpen}
+          >
+            <nav className="marketing-mobile-drawer-nav" aria-label="Site">
+              <CanonicalLink to="/" onClick={() => setMenuOpen(false)}>
+                Home
+              </CanonicalLink>
+              {PRIMARY_NAV.map((item) => (
+                <CanonicalLink key={item.to} to={item.to} onClick={() => setMenuOpen(false)}>
+                  {item.label}
+                </CanonicalLink>
+              ))}
+            </nav>
+            <div className="marketing-mobile-drawer-cta">
+              {!loading && user ? (
+                <CanonicalLink
+                  to="/app"
+                  className="btn-primary marketing-nav-btn"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Dashboard
+                </CanonicalLink>
+              ) : (
+                <>
+                  <CanonicalLink
+                    to="/login"
+                    className="btn-ghost marketing-nav-btn"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Log in
+                  </CanonicalLink>
+                  <CanonicalLink
+                    to="/signup"
+                    className="btn-primary marketing-nav-btn"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Get started
+                  </CanonicalLink>
+                  <CanonicalLink
+                    to="/try-it"
+                    className="btn-secondary marketing-nav-btn"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    See today&apos;s snapshot
+                  </CanonicalLink>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
 
         <nav className="marketing-nav" aria-label="Main">
           {PRIMARY_NAV.map((item) => (
@@ -90,7 +185,9 @@ export function MarketingFooter() {
           <div>
             <p className="marketing-footer-heading">Company</p>
             <CanonicalLink to="/contact">Enquire / onboarding</CanonicalLink>
-            <a href={`mailto:${COMPANY_INFO.contactEmail}`}>{COMPANY_INFO.contactEmail}</a>
+            <a className="marketing-footer-email" href={`mailto:${COMPANY_INFO.contactEmail}`}>
+              {COMPANY_INFO.contactEmail}
+            </a>
             <span className="marketing-footer-plain">Vocatio.io</span>
           </div>
           <div>

@@ -75,15 +75,17 @@ export function LandingPage() {
                   {HOME_HERO.primaryCta}
                 </CanonicalLink>
                 <CanonicalLink
-                  to="/how-it-works"
+                  to="/try-it"
                   className="btn-secondary btn-large marketing-cta-secondary--rank"
                 >
-                  {HOME_HERO.secondaryCta}
+                  {HOME_HERO.snapshotCta}
                 </CanonicalLink>
               </div>
               <p className="marketing-hero-onboard-link">
+                <CanonicalLink to="/how-it-works">{HOME_HERO.secondaryCta}</CanonicalLink>
+                {' · '}
                 <CanonicalLink to="/contact?topic=onboarding">
-                  Prefer a guided setup? Free personal onboarding →
+                  Prefer a guided setup? Free personal onboarding
                 </CanonicalLink>
               </p>
               {!isSupabaseConfigured && (
@@ -204,8 +206,8 @@ export function LandingPage() {
               <CanonicalLink to="/signup" className="btn-primary btn-large marketing-cta-btn-on-dark">
                 {HOME_HERO.primaryCta}
               </CanonicalLink>
-              <CanonicalLink to="/how-it-works" className="btn-ghost btn-large marketing-cta-ghost">
-                {HOME_HERO.secondaryCta}
+              <CanonicalLink to="/try-it" className="btn-ghost btn-large marketing-cta-ghost">
+                {HOME_HERO.snapshotCta}
               </CanonicalLink>
               <CanonicalLink
                 to="/contact?topic=onboarding"
