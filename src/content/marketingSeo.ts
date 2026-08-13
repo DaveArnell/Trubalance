@@ -81,6 +81,14 @@ export const CONTACT_SEO = {
   imageAlt: 'Contact Cash Prophet for enquiries and free personal onboarding',
 } as const satisfies RouteSeo
 
+export const TRY_IT_SEO = {
+  title: 'Free Cash Position Check | How Much Is Actually Available | Cash Prophet',
+  description:
+    'Free interactive check: enter your bank balance and regular costs to see how much is already spoken for — and what’s available to use today. No account needed.',
+  path: '/try-it',
+  imageAlt: 'Free Cash Prophet cash position check for UK small businesses',
+} as const satisfies RouteSeo
+
 export const BLOG_INDEX_SEO = {
   title: 'Business Financial Clarity Blog | Cash Prophet Balance | Cash Prophet',
   description:
@@ -164,6 +172,7 @@ export const PUBLIC_ROUTE_SEO: readonly RouteSeo[] = [
   WHO_FOR_SEO,
   SEE_HOW_SEO,
   CONTACT_SEO,
+  TRY_IT_SEO,
   BLOG_INDEX_SEO,
   PRIVACY_SEO,
   TERMS_SEO,

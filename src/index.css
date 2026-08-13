@@ -32700,5 +32700,329 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   line-height: 1.55;
 }
 
+/* —— Free cash position check (/try-it) —— */
 
+.try-it-page .try-it-hero {
+  padding-bottom: 2rem;
+}
+
+.try-it-body {
+  padding-block: 0.5rem 3rem;
+}
+
+.try-it-layout {
+  max-width: 68rem;
+}
+
+.try-it-tool {
+  display: grid;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (min-width: 960px) {
+  .try-it-tool {
+    grid-template-columns: minmax(0, 1.15fr) minmax(17rem, 0.85fr);
+    gap: 2rem;
+  }
+
+  .try-it-result {
+    position: sticky;
+    top: 5.5rem;
+  }
+}
+
+.try-it-tool-inputs {
+  display: grid;
+  gap: 1.35rem;
+}
+
+.try-it-section {
+  padding: 1.35rem 1.25rem;
+  border: 1px solid rgba(15, 27, 45, 0.12);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.try-it-section--bank {
+  border-color: rgba(14, 122, 82, 0.28);
+  background: linear-gradient(180deg, #f5fff9 0%, #fff 55%);
+}
+
+.try-it-section h2 {
+  margin: 0 0 0.45rem;
+  font-size: clamp(1.15rem, 2.5vw, 1.35rem);
+  line-height: 1.25;
+  color: #0f1b2d;
+}
+
+.try-it-section-lead {
+  margin: 0 0 1rem;
+  line-height: 1.55;
+  color: rgba(15, 27, 45, 0.78);
+}
+
+.try-it-examples,
+.try-it-section-note {
+  margin: 0.75rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.try-it-field {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.92rem;
+  font-weight: 650;
+  color: #0f1b2d;
+}
+
+.try-it-field input {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid rgba(15, 27, 45, 0.18);
+  border-radius: 8px;
+  background: #fbfcfd;
+  color: #0f1b2d;
+  font: inherit;
+  font-weight: 500;
+  font-size: 1.05rem;
+}
+
+.try-it-field--hero {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid rgba(14, 122, 82, 0.35);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.try-it-field--hero input {
+  border: none;
+  background: transparent;
+  min-height: 3.25rem;
+  padding: 0.35rem 0;
+  font-size: clamp(1.55rem, 5vw, 2.1rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.try-it-field--hero input:focus {
+  outline: none;
+}
+
+.try-it-field--hero:focus-within {
+  outline: 2px solid rgba(14, 122, 82, 0.45);
+  outline-offset: 2px;
+}
+
+.try-it-currency {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: rgba(15, 27, 45, 0.72);
+}
+
+.try-it-field--hero .try-it-currency {
+  font-size: clamp(1.55rem, 5vw, 2rem);
+}
+
+.try-it-field-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.try-it-field-inline input {
+  flex: 1;
+  min-width: 0;
+}
+
+.try-it-field-inline .try-it-currency {
+  font-size: 1.05rem;
+}
+
+.try-it-cost-list {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.try-it-cost-card {
+  padding: 0.95rem 0.9rem;
+  border: 1px solid rgba(15, 27, 45, 0.1);
+  border-radius: 10px;
+  background: #f8fafb;
+}
+
+.try-it-cost-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.7rem;
+}
+
+.try-it-cost-index {
+  font-size: 0.82rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: rgba(15, 27, 45, 0.55);
+}
+
+.try-it-cost-fields {
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .try-it-cost-fields {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr) minmax(5.5rem, 0.55fr);
+    align-items: end;
+  }
+}
+
+.try-it-cost-accrual {
+  display: grid;
+  gap: 0.2rem;
+  margin-top: 0.85rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(15, 27, 45, 0.1);
+  font-size: 0.92rem;
+  line-height: 1.4;
+  color: rgba(15, 27, 45, 0.78);
+}
+
+.try-it-cost-accrued {
+  font-weight: 700;
+  color: #0e7a52;
+}
+
+.try-it-result {
+  padding: 1.4rem 1.25rem;
+  border-radius: 14px;
+  border: 1px solid rgba(15, 27, 45, 0.14);
+  background: #0f1b2d;
+  color: #f4f7fb;
+  box-shadow: 0 18px 40px rgba(15, 27, 45, 0.18);
+}
+
+.try-it-result-empty,
+.try-it-result-hint {
+  margin: 0;
+  line-height: 1.5;
+  color: rgba(244, 247, 251, 0.78);
+}
+
+.try-it-result-stack {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.try-it-result-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.35rem 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(244, 247, 251, 0.14);
+}
+
+.try-it-result-row span {
+  font-size: 0.88rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(244, 247, 251, 0.68);
+}
+
+.try-it-figure {
+  font-size: clamp(1.35rem, 3.5vw, 1.7rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  transition: opacity 0.2s ease;
+}
+
+.try-it-result-row--spoken .try-it-figure {
+  color: #ffb4a2;
+}
+
+.try-it-result-row--available {
+  border-bottom: none;
+  padding: 1rem 0.85rem 0.15rem;
+  margin: 0.15rem -0.35rem 0;
+  border-radius: 10px;
+  background: rgba(36, 218, 118, 0.12);
+}
+
+.try-it-result-row--available span {
+  color: rgba(244, 247, 251, 0.88);
+  font-weight: 650;
+}
+
+.try-it-result-row--available .try-it-figure {
+  font-size: clamp(1.7rem, 4.5vw, 2.15rem);
+  color: #24da76;
+}
+
+.try-it-provision {
+  margin-top: 1.15rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(244, 247, 251, 0.14);
+}
+
+.try-it-provision h3 {
+  margin: 0 0 0.45rem;
+  font-size: 1rem;
+  color: #fff;
+}
+
+.try-it-provision p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: rgba(244, 247, 251, 0.78);
+}
+
+.try-it-explain {
+  padding-block: 2.75rem 3rem;
+}
+
+.try-it-explain-inner {
+  max-width: 42rem;
+}
+
+.try-it-explain-inner h2 {
+  margin: 0 0 1rem;
+  font-size: clamp(1.35rem, 3vw, 1.75rem);
+  line-height: 1.25;
+}
+
+.try-it-explain-inner p {
+  margin: 0 0 0.9rem;
+  line-height: 1.6;
+  color: rgba(15, 27, 45, 0.82);
+}
+
+@media (max-width: 639px) {
+  .try-it-section {
+    padding: 1.15rem 1rem;
+  }
+
+  .try-it-result {
+    padding: 1.2rem 1rem;
+  }
+
+  .try-it-result-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
 

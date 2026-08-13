@@ -11,6 +11,7 @@ import {
   SEE_HOW_SEO,
   BLOG_INDEX_SEO,
   CONTACT_SEO,
+  TRY_IT_SEO,
 } from './marketingSeo'
 import {
   SUBSCRIPTION_TIERS,
@@ -284,6 +285,30 @@ export function contactPageJsonLd(faqs: FaqItem[]): JsonLd[] {
       about: { '@id': `${site}/#product` },
     },
     faqPageJsonLd(faqs, pageUrl),
+  ]
+}
+
+export function tryItPageJsonLd(): JsonLd[] {
+  const pageUrl = absolutePath(TRY_IT_SEO.path)
+  return [
+    organizationJsonLd(),
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      '@id': pageUrl,
+      url: pageUrl,
+      name: TRY_IT_SEO.title,
+      description: TRY_IT_SEO.description,
+      applicationCategory: 'FinanceApplication',
+      operatingSystem: 'Web',
+      offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'GBP',
+      },
+      isPartOf: { '@id': `${site}/#website` },
+      about: { '@id': `${site}/#product` },
+    },
   ]
 }
 

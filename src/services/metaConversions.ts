@@ -321,3 +321,37 @@ export async function trackMetaInitiateCheckout(input: {
     /* ignore */
   }
 }
+
+const CASH_POSITION_CHECK_KEY = 'cashprophet-meta-cash-position-check'
+
+/**
+ * Free /try-it calculator used meaningfully (once per browser).
+ * Custom Meta event for retargeting — does not touch CompleteRegistration.
+ */
+export function trackMetaCashPositionCheck(input: {
+  bankBalance: number
+  regularCostCount: number
+  regularAccruedTotal: number
+  annualIrregular: number
+  availableToday: number
+}): void {
+  try {
+    if (!hasAdvertisingConsent()) return
+    if (alreadyTracked(CASH_POSITION_CHECK_KEY)) return
+    markTracked(CASH_POSITION_CHECK_KEY)
+    const eventId = newMetaEventId('cash_position_check')
+    trackMetaPixelCustomEvent(
+      'CashPositionCheck',
+      {
+        content_name: 'free_cash_position_check',
+        content_category: 'try_it',
+        value: input.availableToday,
+        currency: 'GBP',
+        num_items: input.regularCostCount,
+      },
+      eventId,
+    )
+  } catch {
+    /* ignore */
+  }
+}

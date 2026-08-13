@@ -20,6 +20,7 @@ import { SeeHowItWorksPage } from './pages/SeeHowItWorksPage'
 import { BlogIndexPage } from './pages/BlogIndexPage'
 import { BlogPostPage } from './pages/BlogPostPage'
 import { ContactPage } from './pages/ContactPage'
+import { TryItPage } from './pages/TryItPage'
 import { PlatformAdminShell, LegacyVocatioAdminRedirect } from './admin/PlatformAdminShell'
 import { isSupabaseConfigured } from './lib/supabase'
 
@@ -46,6 +47,7 @@ export function AppRouter() {
             <Route path="/who-its-for" element={<WhoItsForPage />} />
             <Route path="/see-how-it-works" element={<SeeHowItWorksPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/try-it" element={<TryItPage />} />
             <Route path="/cash-prophet" element={<Navigate to="/" replace />} />
             <Route path="/true-balance-method" element={<Navigate to="/" replace />} />
             <Route path="/blog" element={<BlogIndexPage />} />

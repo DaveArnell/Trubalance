@@ -102,6 +102,7 @@ export function MarketingFooter() {
           </div>
           <div>
             <p className="marketing-footer-heading">Product</p>
+            <CanonicalLink to="/try-it">Try It</CanonicalLink>
             <CanonicalLink to="/see-how-it-works">See it</CanonicalLink>
             <CanonicalLink to="/pricing">Pricing</CanonicalLink>
             <CanonicalLink to="/signup">Start free trial</CanonicalLink>
