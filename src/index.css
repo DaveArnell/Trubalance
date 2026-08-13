@@ -32706,6 +32706,18 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   padding-bottom: 2rem;
 }
 
+.try-it-hero-inner {
+  text-align: center;
+  max-width: 40rem;
+  margin-inline: auto;
+}
+
+.try-it-hero-inner .marketing-eyebrow,
+.try-it-hero-inner h1,
+.try-it-hero-inner .method-edu-hero-lead {
+  text-align: center;
+}
+
 .try-it-body {
   padding-block: 0.5rem 3rem;
 }
@@ -32734,60 +32746,39 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .try-it-tool-inputs {
   display: grid;
-  gap: 1.35rem;
+  gap: 1.25rem;
 }
 
-.try-it-section {
-  padding: 1.35rem 1.25rem;
-  border: 1px solid rgba(15, 27, 45, 0.12);
-  border-radius: 12px;
-  background: #fff;
-}
-
-.try-it-section--bank {
-  border-color: rgba(14, 122, 82, 0.28);
+.try-it-bank {
+  padding: 1.25rem 1.2rem;
+  border: 1px solid rgba(14, 122, 82, 0.28);
+  border-radius: 14px;
   background: linear-gradient(180deg, #f5fff9 0%, #fff 55%);
 }
 
-.try-it-section h2 {
-  margin: 0 0 0.45rem;
+.try-it-bank h2 {
+  margin: 0 0 0.4rem;
   font-size: clamp(1.15rem, 2.5vw, 1.35rem);
   line-height: 1.25;
   color: #0f1b2d;
+  text-align: center;
 }
 
-.try-it-section-lead {
-  margin: 0 0 1rem;
+.try-it-section-lead,
+.try-it-panel-lead {
+  margin: 0 0 0.85rem;
   line-height: 1.55;
   color: rgba(15, 27, 45, 0.78);
 }
 
-.try-it-examples,
-.try-it-section-note {
-  margin: 0.75rem 0 0;
-  font-size: 0.9rem;
+.try-it-bank .try-it-section-lead {
+  text-align: center;
+}
+
+.try-it-examples {
+  margin: -0.35rem 0 0.9rem;
+  font-size: 0.88rem;
   line-height: 1.45;
-}
-
-.try-it-field {
-  display: grid;
-  gap: 0.4rem;
-  font-size: 0.92rem;
-  font-weight: 650;
-  color: #0f1b2d;
-}
-
-.try-it-field input {
-  width: 100%;
-  min-height: 3rem;
-  padding: 0.75rem 0.85rem;
-  border: 1px solid rgba(15, 27, 45, 0.18);
-  border-radius: 8px;
-  background: #fbfcfd;
-  color: #0f1b2d;
-  font: inherit;
-  font-weight: 500;
-  font-size: 1.05rem;
 }
 
 .try-it-field--hero {
@@ -32798,17 +32789,22 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   border: 1px solid rgba(14, 122, 82, 0.35);
   border-radius: 12px;
   background: #fff;
+  max-width: 22rem;
+  margin-inline: auto;
 }
 
 .try-it-field--hero input {
   border: none;
   background: transparent;
+  width: 100%;
   min-height: 3.25rem;
   padding: 0.35rem 0;
+  font: inherit;
   font-size: clamp(1.55rem, 5vw, 2.1rem);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
+  color: #0f1b2d;
 }
 
 .try-it-field--hero input:focus {
@@ -32821,87 +32817,115 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .try-it-currency {
-  font-size: 1.35rem;
+  font-size: clamp(1.55rem, 5vw, 2rem);
   font-weight: 700;
   color: rgba(15, 27, 45, 0.72);
 }
 
-.try-it-field--hero .try-it-currency {
-  font-size: clamp(1.55rem, 5vw, 2rem);
+.try-it-app-panel {
+  margin: 0;
 }
 
-.try-it-field-inline {
+.try-it-app-panel .home-dash {
+  padding: 1rem 1rem 1.1rem;
+}
+
+.try-it-app-panel .home-dash-hero {
+  margin-bottom: 0.75rem;
+}
+
+.try-it-dash--due {
+  border-color: rgba(194, 65, 12, 0.22);
+}
+
+.try-it-label--due {
+  color: #c2410c;
+}
+
+.try-it-bill-list {
+  margin: 0 0 0.85rem;
+}
+
+.try-it-bill-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.45rem;
+  min-height: auto;
+  padding: 0.7rem 0.75rem;
+  align-items: stretch;
+}
+
+.try-it-bill-fields {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(5.5rem, 0.85fr) minmax(3.5rem, 0.45fr) auto;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.try-it-bill-row--due .try-it-bill-fields {
+  grid-template-columns: minmax(0, 1.5fr) minmax(5.5rem, 0.9fr) auto;
+}
+
+.try-it-mini-field {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-}
-
-.try-it-field-inline input {
-  flex: 1;
+  gap: 0.25rem;
   min-width: 0;
 }
 
-.try-it-field-inline .try-it-currency {
-  font-size: 1.05rem;
+.try-it-mini-field input {
+  width: 100%;
+  min-height: 2.45rem;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid rgba(15, 27, 45, 0.16);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #0f1b2d;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 550;
 }
 
-.try-it-cost-list {
-  list-style: none;
-  margin: 0 0 1rem;
-  padding: 0;
-  display: grid;
-  gap: 0.9rem;
+.try-it-mini-field--amount input {
+  font-variant-numeric: tabular-nums;
 }
 
-.try-it-cost-card {
-  padding: 0.95rem 0.9rem;
-  border: 1px solid rgba(15, 27, 45, 0.1);
-  border-radius: 10px;
-  background: #f8fafb;
+.try-it-mini-field--day input {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
 }
 
-.try-it-cost-card-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 0.7rem;
-}
-
-.try-it-cost-index {
-  font-size: 0.82rem;
-  font-weight: 650;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  color: rgba(15, 27, 45, 0.55);
-}
-
-.try-it-cost-fields {
-  display: grid;
-  gap: 0.75rem;
-}
-
-@media (min-width: 640px) {
-  .try-it-cost-fields {
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr) minmax(5.5rem, 0.55fr);
-    align-items: end;
-  }
-}
-
-.try-it-cost-accrual {
-  display: grid;
-  gap: 0.2rem;
-  margin-top: 0.85rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid rgba(15, 27, 45, 0.1);
+.try-it-mini-currency {
   font-size: 0.92rem;
-  line-height: 1.4;
-  color: rgba(15, 27, 45, 0.78);
+  font-weight: 650;
+  color: rgba(15, 27, 45, 0.65);
+  flex-shrink: 0;
 }
 
-.try-it-cost-accrued {
-  font-weight: 700;
-  color: #0e7a52;
+.try-it-remove {
+  justify-self: end;
+  white-space: nowrap;
+}
+
+.try-it-bill-summary {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.35rem 0.75rem;
+}
+
+.try-it-amount--owed strong {
+  color: #c2410c;
+}
+
+.try-it-add {
+  position: relative;
+  z-index: 1;
 }
 
 .try-it-result {
@@ -32972,48 +32996,84 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   color: #24da76;
 }
 
-.try-it-provision {
-  margin-top: 1.15rem;
-  padding-top: 1rem;
-  border-top: 1px solid rgba(244, 247, 251, 0.14);
-}
-
-.try-it-provision h3 {
-  margin: 0 0 0.45rem;
-  font-size: 1rem;
-  color: #fff;
-}
-
-.try-it-provision p {
-  margin: 0;
-  font-size: 0.92rem;
-  line-height: 1.5;
-  color: rgba(244, 247, 251, 0.78);
-}
-
 .try-it-explain {
-  padding-block: 2.75rem 3rem;
+  padding-block: 3rem 3.25rem;
 }
 
 .try-it-explain-inner {
-  max-width: 42rem;
+  max-width: 40rem;
+  margin-inline: auto;
+  text-align: center;
 }
 
 .try-it-explain-inner h2 {
   margin: 0 0 1rem;
-  font-size: clamp(1.35rem, 3vw, 1.75rem);
+  font-size: clamp(1.45rem, 3.2vw, 1.95rem);
   line-height: 1.25;
 }
 
-.try-it-explain-inner p {
-  margin: 0 0 0.9rem;
+.try-it-explain-intro,
+.try-it-explain-close {
+  margin: 0 0 1rem;
   line-height: 1.6;
   color: rgba(15, 27, 45, 0.82);
 }
 
+.try-it-explain-points {
+  list-style: none;
+  margin: 0 auto 1.25rem;
+  padding: 0;
+  display: grid;
+  gap: 0.65rem;
+  text-align: left;
+  max-width: 32rem;
+}
+
+.try-it-explain-points li {
+  position: relative;
+  padding: 0.75rem 0.9rem 0.75rem 2.1rem;
+  border-radius: 10px;
+  background: rgba(13, 143, 91, 0.07);
+  border: 1px solid rgba(13, 143, 91, 0.14);
+  line-height: 1.45;
+  color: #0f1b2d;
+}
+
+.try-it-explain-points li::before {
+  content: '';
+  position: absolute;
+  left: 0.85rem;
+  top: 1.05rem;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: #0d8f5b;
+}
+
+.try-it-explain-close {
+  font-weight: 550;
+}
+
 @media (max-width: 639px) {
-  .try-it-section {
-    padding: 1.15rem 1rem;
+  .try-it-bank {
+    padding: 1.1rem 1rem;
+  }
+
+  .try-it-bill-fields {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr);
+  }
+
+  .try-it-bill-row--due .try-it-bill-fields {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr);
+  }
+
+  .try-it-mini-field--day {
+    grid-column: 1 / 2;
+  }
+
+  .try-it-remove {
+    grid-column: 2 / 3;
+    justify-self: end;
   }
 
   .try-it-result {

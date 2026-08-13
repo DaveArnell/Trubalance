@@ -332,7 +332,8 @@ export function trackMetaCashPositionCheck(input: {
   bankBalance: number
   regularCostCount: number
   regularAccruedTotal: number
-  annualIrregular: number
+  otherCostCount: number
+  otherOwedTotal: number
   availableToday: number
 }): void {
   try {
@@ -347,7 +348,7 @@ export function trackMetaCashPositionCheck(input: {
         content_category: 'try_it',
         value: input.availableToday,
         currency: 'GBP',
-        num_items: input.regularCostCount,
+        num_items: input.regularCostCount + input.otherCostCount,
       },
       eventId,
     )

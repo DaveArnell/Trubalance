@@ -4,51 +4,60 @@ import { CASH_PROPHET_BALANCE } from './brandFoundation'
 export const TRY_IT_PAGE = {
   navLabel: 'Try It',
   path: '/try-it',
-  title: 'How much of your bank balance is actually available to use?',
+  title: 'How much of your bank balance is actually yours?',
   lead:
-    'The number in your bank account doesn’t show costs and commitments already building up. This free check applies the Cash Prophet approach — no account needed.',
+    'The number in your bank account does not show costs and commitments already building up. This free check applies the Cash Prophet approach. No account needed.',
   freeBadge: 'Free check · no signup',
   bank: {
     heading: 'What’s in your business bank account today?',
     hint: 'Enter the balance you’d normally trust at a glance.',
   },
   regular: {
-    heading: 'Regular monthly costs',
+    heading: 'Monthly accruing bills',
     lead:
-      'Add the bills that hit every month. Cash Prophet treats each one as building through the payment cycle — not as if the whole amount is gone on day one.',
-    examplesHint: 'Examples: payroll, rent, loan, utilities, software — add whatever fits your business.',
-    addLabel: 'Add a regular cost',
+      'Add the bills that hit every month. Each one builds through its payment cycle, so only the amount accrued so far is treated as spoken for today.',
+    examplesHint: 'Examples: payroll, rent, loan, utilities, software. Add whatever fits your business.',
+    addLabel: 'Add monthly bill',
     nameLabel: 'Name',
     namePlaceholder: 'e.g. Rent',
-    amountLabel: 'Monthly amount',
-    dueDayLabel: 'Due day of month',
-    empty: 'Add at least one regular cost to see how much has already accrued.',
+    amountLabel: 'Monthly',
+    dueDayLabel: 'Due day',
+    empty: 'Add at least one monthly bill to see how much has already accrued.',
+    kpiMonthly: 'Monthly total',
+    kpiAccrued: 'Accrued now',
   },
-  irregular: {
-    heading: 'Larger or irregular future costs',
+  other: {
+    heading: 'Other bills owed',
     lead:
-      'Many businesses also know about bigger bills across the year — tax, insurance, licences, equipment, servicing, annual subscriptions. You don’t need a perfect list here.',
-    question: 'Roughly how much do you expect to spend over the year on larger or irregular bills?',
-    hint: 'Optional. Leave blank if you’re not sure — this is only a simplified estimate for the free check.',
-    examplesHint:
-      'e.g. VAT/tax, annual insurance, licences, equipment, servicing, annual subscriptions',
+      'Add any other amounts that should come out of today’s balance in full: invoices due, tax you already owe, one-off bills waiting to be paid.',
+    examplesHint: 'Examples: supplier invoice due, VAT already owed, equipment invoice, other known amounts to deduct.',
+    addLabel: 'Add other bill',
+    nameLabel: 'Name',
+    namePlaceholder: 'e.g. Supplier invoice',
+    amountLabel: 'Amount owed',
+    empty: 'Optional. Add bills that should be deducted in full today.',
+    kpiTotal: 'To deduct',
   },
   result: {
     bankLabel: 'Your bank balance',
-    accruedLabel: 'Less regular costs accrued',
-    availableLabel: 'Your available position today',
-    provisionHeading: 'Also plan for irregular costs',
-    provisionBody:
-      'Based on your annual estimate, a simple monthly provision would be about {monthly} (around {daily} a day). Cash Prophet’s Reserve Planner structures this properly over real due months.',
-    emptyBank: 'Enter your bank balance to see your available position.',
+    accruedLabel: 'Less monthly bills accrued',
+    otherLabel: 'Less other bills owed',
+    availableLabel: 'Actually yours today',
+    emptyBank: 'Enter your bank balance to see what is actually yours.',
   },
   explain: {
-    heading: 'You’ve just done manually what Cash Prophet does every day',
-    body: [
-      `This free check is a snapshot for today. ${CASH_PROPHET_BALANCE} in the full product stays updated as commitments build, due items appear, and reserves accrue — so you’re not redoing the maths in your head.`,
-      'Cash Prophet keeps regular commitments visible, helps provision for larger future costs, records your balance over time, and shows the underlying direction of the business without the noise of large payments hitting the bank on different days.',
-      'It sits alongside your accounting software — not instead of it — and runs quietly with a light daily habit.',
+    heading: 'This is the number Cash Prophet keeps clear for you every day',
+    intro:
+      'You have just done by hand what Cash Prophet does quietly in the background: separate what is already spoken for from what is actually yours.',
+    points: [
+      'Keeps monthly bills accruing correctly as the days pass',
+      'Shows other amounts owed when they need to come out of today’s position',
+      `Gives you a reliable ${CASH_PROPHET_BALANCE}`,
+      'Records that balance over time so you can see the real direction of the business',
+      'Cuts through the noise of large bills hitting the bank on different days',
     ],
+    closing:
+      'This free check is a snapshot for today. Cash Prophet is the ongoing system and history, with free personal onboarding if you want a guided start.',
   },
   cta: {
     heading: 'Keep track of this every day with Cash Prophet',

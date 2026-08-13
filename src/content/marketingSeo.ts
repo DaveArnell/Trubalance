@@ -82,9 +82,9 @@ export const CONTACT_SEO = {
 } as const satisfies RouteSeo
 
 export const TRY_IT_SEO = {
-  title: 'Free Cash Position Check | How Much Is Actually Available | Cash Prophet',
+  title: 'Free Cash Position Check | How Much Is Actually Yours | Cash Prophet',
   description:
-    'Free interactive check: enter your bank balance and regular costs to see how much is already spoken for — and what’s available to use today. No account needed.',
+    'Free interactive check: enter your bank balance and bills to see how much is already spoken for, and what is actually yours today. No account needed.',
   path: '/try-it',
   imageAlt: 'Free Cash Prophet cash position check for UK small businesses',
 } as const satisfies RouteSeo

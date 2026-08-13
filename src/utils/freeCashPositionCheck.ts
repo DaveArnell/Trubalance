@@ -1,7 +1,7 @@
 /**
- * Free public cash-position check — accrual math aligned with Cash Prophet monthly costs.
- * Spreads each bill evenly across the real calendar cycle (due day → next due day),
- * not a fixed 30-day month.
+ * Free public cash-position check.
+ * Monthly bills use the same accrual progress as Cash Prophet (real calendar cycles).
+ * Other bills owed are deducted in full, like Due items.
  */
 
 import type { Commitment } from '../types'
@@ -18,6 +18,12 @@ export type FreeRegularCostInput = {
   dueDayOfMonth: number
 }
 
+export type FreeOtherCostInput = {
+  id: string
+  name: string
+  amount: number
+}
+
 export type FreeRegularCostResult = FreeRegularCostInput & {
   accrued: number
   fullAmount: number
@@ -25,15 +31,21 @@ export type FreeRegularCostResult = FreeRegularCostInput & {
   nextDueKey: string
   daysUntilDue: number
   progress: number
+  dailyRate: number
+}
+
+export type FreeOtherCostResult = FreeOtherCostInput & {
+  owed: number
 }
 
 export type FreeCashPositionResult = {
   bankBalance: number
   regularCosts: FreeRegularCostResult[]
   regularAccruedTotal: number
-  annualIrregular: number
-  monthlyProvision: number
-  dailyProvision: number
+  regularMonthlyTotal: number
+  regularDailyTotal: number
+  otherCosts: FreeOtherCostResult[]
+  otherOwedTotal: number
   availableToday: number
 }
 
@@ -83,12 +95,15 @@ export function computeRegularCostAccrual(
       nextDueKey: dateToKey(today),
       daysUntilDue: 0,
       progress: 0,
+      dailyRate: 0,
     }
   }
 
   const { progress, cycle } = accrual
   const accrued = roundCurrency(fullAmount * progress)
   const daysUntilDue = Math.max(0, daysBetween(cycle.today, cycle.cycleEnd))
+  const cycleDays = Math.max(1, daysBetween(cycle.cycleStart, cycle.cycleEnd) + 1)
+  const dailyRate = roundCurrency(fullAmount / cycleDays)
 
   return {
     ...input,
@@ -100,13 +115,14 @@ export function computeRegularCostAccrual(
     nextDueKey: dateToKey(cycle.cycleEnd),
     daysUntilDue,
     progress,
+    dailyRate,
   }
 }
 
 export function computeFreeCashPosition(input: {
   bankBalance: number
   regularCosts: FreeRegularCostInput[]
-  annualIrregular: number
+  otherCosts: FreeOtherCostInput[]
   referenceDate?: Date
 }): FreeCashPositionResult {
   const referenceDate = input.referenceDate ?? getReferenceDate()
@@ -117,18 +133,31 @@ export function computeFreeCashPosition(input: {
   const regularAccruedTotal = roundCurrency(
     regularCosts.reduce((sum, row) => sum + row.accrued, 0),
   )
-  const annualIrregular = roundCurrency(Math.max(0, toAmount(input.annualIrregular)))
-  const monthlyProvision = roundCurrency(annualIrregular / 12)
-  const dailyProvision = roundCurrency(annualIrregular / 365)
-  const availableToday = roundCurrency(bankBalance - regularAccruedTotal)
+  const regularMonthlyTotal = roundCurrency(
+    regularCosts.reduce((sum, row) => sum + row.fullAmount, 0),
+  )
+  const regularDailyTotal = roundCurrency(
+    regularCosts.reduce((sum, row) => sum + row.dailyRate, 0),
+  )
+  const otherCosts = input.otherCosts
+    .filter((c) => toAmount(c.amount) > 0)
+    .map((c) => ({
+      ...c,
+      name: c.name.trim() || 'Other bill',
+      amount: roundCurrency(toAmount(c.amount)),
+      owed: roundCurrency(toAmount(c.amount)),
+    }))
+  const otherOwedTotal = roundCurrency(otherCosts.reduce((sum, row) => sum + row.owed, 0))
+  const availableToday = roundCurrency(bankBalance - regularAccruedTotal - otherOwedTotal)
 
   return {
     bankBalance,
     regularCosts,
     regularAccruedTotal,
-    annualIrregular,
-    monthlyProvision,
-    dailyProvision,
+    regularMonthlyTotal,
+    regularDailyTotal,
+    otherCosts,
+    otherOwedTotal,
     availableToday,
   }
 }
