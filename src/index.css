@@ -32965,7 +32965,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   min-height: 3.25rem;
   padding: 0.35rem 0;
   font: inherit;
-  font-size: clamp(1.55rem, 5vw, 2.1rem);
+  font-size: max(16px, clamp(1.55rem, 5vw, 2.1rem));
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
@@ -33049,7 +33049,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   background: rgba(255, 255, 255, 0.92);
   color: #0f1b2d;
   font: inherit;
-  font-size: 0.95rem;
+  font-size: 16px;
   font-weight: 550;
 }
 
@@ -33244,6 +33244,32 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .try-it-explain-close {
   font-weight: 550;
+}
+
+@media (max-width: 960px) {
+  /* Nested 100vh scrolling + iOS keyboard leaves a dead grey inset after blur. */
+  body:has(.try-it-page),
+  #root:has(.try-it-page) {
+    height: auto;
+    min-height: 100dvh;
+    overflow: auto;
+  }
+
+  .marketing-shell:has(.try-it-page) {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+    scroll-behavior: auto;
+  }
+
+  .try-it-page input {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  .try-it-field--hero input {
+    font-size: max(16px, 1.55rem);
+  }
 }
 
 @media (max-width: 639px) {

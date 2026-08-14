@@ -79,6 +79,35 @@ export function FreeCashPositionCheck() {
     hasBank && (result.regularCosts.length > 0 || result.otherCosts.length > 0)
 
   useEffect(() => {
+    const restoreAfterKeyboard = () => {
+      const shell = document.querySelector('.marketing-shell')
+      const clampScroll = (node: Element | null) => {
+        if (!(node instanceof HTMLElement)) return
+        const max = Math.max(0, node.scrollHeight - node.clientHeight)
+        if (node.scrollTop > max) node.scrollTop = max
+      }
+      clampScroll(shell)
+      clampScroll(document.scrollingElement)
+      if (window.visualViewport && window.visualViewport.offsetTop > 0) {
+        window.scrollBy(0, window.visualViewport.offsetTop)
+      }
+    }
+
+    const onViewportResize = () => {
+      if (!window.visualViewport) return
+      if (window.visualViewport.height / window.innerHeight < 0.85) return
+      window.setTimeout(restoreAfterKeyboard, 50)
+    }
+
+    window.visualViewport?.addEventListener('resize', onViewportResize)
+    window.addEventListener('focusout', restoreAfterKeyboard)
+    return () => {
+      window.visualViewport?.removeEventListener('resize', onViewportResize)
+      window.removeEventListener('focusout', restoreAfterKeyboard)
+    }
+  }, [])
+
+  useEffect(() => {
     if (!hasMeaningfulInput || trackedRef.current) return
     trackedRef.current = true
     trackMetaCashPositionCheck({
