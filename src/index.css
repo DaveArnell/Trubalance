@@ -33247,19 +33247,33 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 @media (max-width: 960px) {
-  /* Nested 100vh scrolling + iOS keyboard leaves a dead grey inset after blur. */
+  /*
+   * Let the document scroll this page instead of a nested 100vh shell.
+   * display:block so flex:1 on main cannot pin the page to the viewport
+   * (which made the page unscrollable).
+   */
+  html:has(.try-it-page),
   body:has(.try-it-page),
   #root:has(.try-it-page) {
     height: auto;
     min-height: 100dvh;
-    overflow: auto;
+    overflow: visible;
   }
 
   .marketing-shell:has(.try-it-page) {
+    display: block;
     height: auto;
     min-height: 100dvh;
     overflow: visible;
     scroll-behavior: auto;
+  }
+
+  .marketing-shell:has(.try-it-page) .marketing-main {
+    flex: none;
+  }
+
+  .try-it-tool {
+    overflow-anchor: none;
   }
 
   .try-it-page input {
