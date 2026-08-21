@@ -487,8 +487,8 @@ export function DuePanel({
                           <button
                             type="button"
                             className="due-new-notice due-new-notice--btn"
-                            title="New in Due today — click to dismiss"
-                            aria-label="New in Due today"
+                            title="New since last visit — click to dismiss"
+                            aria-label="New since last visit"
                             onClick={(e) => {
                               e.stopPropagation()
                               onAcknowledgeNewlyDue?.(dueRowNotifyKey(row))

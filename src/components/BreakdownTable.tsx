@@ -19,6 +19,7 @@ import {
   handleSheetInputTabKey,
   shouldSkipSheetCellBlur,
   sheetCellActivateOnMouseDown,
+  useMultiAccountBalanceDrafts,
   useSheetCellNavigation,
   useSheetInlineDraft,
   type SheetTabHandler,
@@ -180,10 +181,13 @@ function EditableBalanceCell({
   const popoverRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const accountInputRefs = useRef<Array<HTMLInputElement | null>>([])
-  const [drafts, setDrafts] = useState<Record<string, string>>({})
   const [panelPos, setPanelPos] = useState({ top: 0, left: 0 })
-  const draftsRef = useRef(drafts)
-  draftsRef.current = drafts
+  const multiOpen = isActive && accounts.length > 1
+  const { drafts, setDrafts, draftsRef } = useMultiAccountBalanceDrafts(
+    multiOpen,
+    accounts,
+    (balance) => String(toAmount(balance)),
+  )
 
   const updatePanelPos = useCallback(() => {
     if (!cellRef.current) return
@@ -217,22 +221,21 @@ function EditableBalanceCell({
     }
     if (changes.length > 0) onSave?.(changes)
     onDeactivate()
-    setDrafts({})
-  }, [accounts, onSave, onDeactivate])
+  }, [accounts, draftsRef, onSave, onDeactivate])
 
   useLayoutEffect(() => {
-    if (!isActive || accounts.length <= 1) return
+    if (!multiOpen) return
     updatePanelPos()
     requestAnimationFrame(updatePanelPos)
     focusBalancePopoverInput(accountInputRefs)
-  }, [isActive, accounts.length, updatePanelPos])
+  }, [multiOpen, updatePanelPos])
 
   useEffect(() => {
     accountInputRefs.current.length = accounts.length
   }, [accounts.length])
 
   useEffect(() => {
-    if (!isActive || accounts.length <= 1) return
+    if (!multiOpen) return
 
     const handleLayout = () => updatePanelPos()
     window.addEventListener('resize', handleLayout)
@@ -250,13 +253,7 @@ function EditableBalanceCell({
       window.removeEventListener('scroll', handleLayout, true)
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [isActive, accounts.length, commitDrafts, updatePanelPos])
-
-  useEffect(() => {
-    if (isActive && accounts.length > 1) {
-      setDrafts(Object.fromEntries(accounts.map((a) => [a.id, String(toAmount(a.balance))])))
-    }
-  }, [isActive, accounts])
+  }, [multiOpen, commitDrafts, updatePanelPos])
 
   if (!editable) {
     return <td className={numericCellClass(value, columnClass)}>{cellValue(value, roundAmounts)}</td>
@@ -355,7 +352,6 @@ function EditableBalanceCell({
                   if (e.key === 'Enter') commitDrafts()
                   if (e.key === 'Escape') {
                     onDeactivate()
-                    setDrafts({})
                   }
                 }}
               />

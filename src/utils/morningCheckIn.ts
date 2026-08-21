@@ -21,6 +21,8 @@ export interface NewlyDueItem {
   period: string
   scopeLabel: string
   accentColor: string
+  /** Calendar due date (YYYY-MM-DD) for this occurrence */
+  dueDate: string
 }
 
 function dueDateKey(year: number, monthIndex: number, dueDay: number): string {
@@ -29,13 +31,32 @@ function dueDateKey(year: number, monthIndex: number, dueDay: number): string {
   return `${year}-${String(monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
 }
 
-/** Monthly costs whose calendar due date is today (just moved into Due). */
-export function getNewlyDueItemsToday(
+const CHECKIN_KEY = 'trubalance-morning-checkin-date-v4'
+/** Keys the user has dismissed for “new in Due” badges. */
+const DUE_NEW_ACK_KEY = 'trubalance-due-new-acked-v2'
+
+/** Date key of the last completed check-in, if any. */
+export function getLastMorningCheckInDateKey(): string | null {
+  try {
+    return localStorage.getItem(CHECKIN_KEY)
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Monthly costs that moved into Due after the last completed check-in.
+ * If there is no prior check-in, show dues from the last 14 days (not only today),
+ * so a returning user still sees the backlog.
+ */
+export function getNewlyDueItemsSinceLastCheckIn(
   state: AppState,
   viewScope: ViewScope,
   referenceDate: Date = getReferenceDate(),
 ): NewlyDueItem[] {
   const today = dateToKey(referenceDate)
+  const lastCheckIn = getLastMorningCheckInDateKey()
+  const lookbackStart = lastCheckIn ?? dateToKey(addCalendarDays(referenceDate, -14))
   const year = referenceDate.getFullYear()
   const commitments = getCommitmentsForScope(state, viewScope).filter(
     (c): c is Commitment => c.schedule === 'monthly',
@@ -46,9 +67,12 @@ export function getNewlyDueItemsToday(
     const dueDay = commitment.dueDayOfMonth ?? 28
     const occurrences = getCommitmentDueOccurrences(commitment, referenceDate)
     for (const occurrence of occurrences) {
-      // Only the calendar due date itself — not overdue leftovers from earlier days.
       const key = dueDateKey(year, occurrence.monthIndex, dueDay)
-      if (key !== today) continue
+      if (key > today) continue
+      // Already shown on/before the last visit — not "new" this time.
+      // When there is no last visit, lookbackStart is 14 days ago (inclusive floor).
+      if (lastCheckIn ? key <= lookbackStart : key < lookbackStart) continue
+
       const scope = { type: commitment.scopeLevel, id: commitment.scopeId } as const
       items.push({
         commitmentId: commitment.id,
@@ -57,11 +81,28 @@ export function getNewlyDueItemsToday(
         period: occurrence.period,
         scopeLabel: getScopeLabel(state, scope),
         accentColor: chartColorForScope(state, scope),
+        dueDate: key,
       })
       break
     }
   }
+
+  items.sort((a, b) => a.dueDate.localeCompare(b.dueDate) || a.name.localeCompare(b.name))
   return items
+}
+
+function addCalendarDays(date: Date, days: number): Date {
+  const next = new Date(date.getFullYear(), date.getMonth(), date.getDate() + days)
+  return next
+}
+
+/** @deprecated Prefer getNewlyDueItemsSinceLastCheckIn */
+export function getNewlyDueItemsToday(
+  state: AppState,
+  viewScope: ViewScope,
+  referenceDate: Date = getReferenceDate(),
+): NewlyDueItem[] {
+  return getNewlyDueItemsSinceLastCheckIn(state, viewScope, referenceDate)
 }
 
 export function morningGreeting(now: Date = getReferenceDate()): string {
@@ -100,10 +141,6 @@ export function getMorningReserveHint(
   }
 }
 
-const CHECKIN_KEY = 'trubalance-morning-checkin-date-v3'
-/** Keys the user has dismissed for “new in Due today” — resets each calendar day. */
-const DUE_NEW_ACK_KEY = 'trubalance-due-new-acked-v1'
-
 export function wasMorningCheckInDoneToday(today = getReferenceDateKey()): boolean {
   try {
     return localStorage.getItem(CHECKIN_KEY) === today
@@ -132,47 +169,43 @@ export function dueRowNotifyKey(row: {
   return `${row.commitment.id}:${row.dueReferencePeriod ?? row.period}`
 }
 
-function readAcknowledgedNewlyDue(): { date: string; keys: string[] } {
+function readAcknowledgedNewlyDue(): { keys: string[] } {
   try {
     const raw = localStorage.getItem(DUE_NEW_ACK_KEY)
-    if (!raw) return { date: '', keys: [] }
-    const parsed = JSON.parse(raw) as { date?: unknown; keys?: unknown }
-    const date = typeof parsed.date === 'string' ? parsed.date : ''
+    if (!raw) return { keys: [] }
+    const parsed = JSON.parse(raw) as { keys?: unknown; date?: unknown }
     const keys = Array.isArray(parsed.keys)
       ? parsed.keys.filter((k): k is string => typeof k === 'string')
       : []
-    return { date, keys }
+    return { keys }
   } catch {
-    return { date: '', keys: [] }
+    return { keys: [] }
   }
 }
 
-export function getAcknowledgedNewlyDueKeys(today = getReferenceDateKey()): Set<string> {
-  const stored = readAcknowledgedNewlyDue()
-  if (stored.date !== today) return new Set()
-  return new Set(stored.keys)
+export function getAcknowledgedNewlyDueKeys(): Set<string> {
+  return new Set(readAcknowledgedNewlyDue().keys)
 }
 
-export function acknowledgeNewlyDueKey(key: string, today = getReferenceDateKey()) {
-  const stored = readAcknowledgedNewlyDue()
-  const prev = stored.date === today ? stored.keys : []
+export function acknowledgeNewlyDueKey(key: string) {
+  const prev = readAcknowledgedNewlyDue().keys
   try {
     localStorage.setItem(
       DUE_NEW_ACK_KEY,
-      JSON.stringify({ date: today, keys: [...new Set([...prev, key])] }),
+      JSON.stringify({ keys: [...new Set([...prev, key])] }),
     )
   } catch {
     /* ignore */
   }
 }
 
-/** Active “new today” keys — newly due today and not yet dismissed. Expires overnight. */
+/** Active “new since last visit” keys — not yet dismissed. */
 export function getActiveNewlyDueNotifyKeys(
   state: AppState,
   viewScope: ViewScope,
 ): string[] {
   const acked = getAcknowledgedNewlyDueKeys()
-  return getNewlyDueItemsToday(state, viewScope)
+  return getNewlyDueItemsSinceLastCheckIn(state, viewScope)
     .map(dueNotifyKey)
     .filter((key) => !acked.has(key))
 }

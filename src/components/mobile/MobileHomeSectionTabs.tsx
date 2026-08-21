@@ -33,7 +33,7 @@ export function MobileHomeSectionTabs({
             aria-current={isActive ? 'page' : undefined}
             aria-label={
               showNew
-                ? `${tab.label}, new bills moved into Due today`
+                ? `${tab.label}, new bills moved into Due since last visit`
                 : showAttention
                   ? `${tab.label}, ${dueBadgeCount} needing attention`
                   : tab.label

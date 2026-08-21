@@ -108,7 +108,7 @@ export function MobileDueList({
           title={item.name}
           titleBadges={
             isNewToday ? (
-              <span className="due-new-badge" title="New in Due today" aria-label="New in Due today">
+              <span className="due-new-badge" title="New since last visit" aria-label="New since last visit">
                 New
               </span>
             ) : null

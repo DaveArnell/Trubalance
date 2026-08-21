@@ -6,7 +6,7 @@ import type { BreakdownColumn } from '../utils/breakdownTable'
 import { formatCurrency } from '../utils/format'
 import {
   getMorningReserveHint,
-  getNewlyDueItemsToday,
+  getNewlyDueItemsSinceLastCheckIn,
   isStartOfMonth,
   markMorningCheckInDone,
   morningGreeting,
@@ -29,7 +29,7 @@ interface MorningCheckInModalProps {
 }
 
 /**
- * Once-per-day check-in: update bank balances, see newly due items, month-start reserve tip.
+ * Once-per-day check-in: update bank balances, see items that moved into Due since last visit.
  */
 export function MorningCheckInModal({
   state,
@@ -45,7 +45,10 @@ export function MorningCheckInModal({
   const [open, setOpen] = useState(false)
   const [paidIds, setPaidIds] = useState<string[]>([])
 
-  const newlyDue = useMemo(() => getNewlyDueItemsToday(state, viewScope), [state, viewScope])
+  const newlyDue = useMemo(
+    () => getNewlyDueItemsSinceLastCheckIn(state, viewScope),
+    [state, viewScope],
+  )
   const visibleDue = newlyDue.filter((item) => !paidIds.includes(item.commitmentId))
   const reserveHint = useMemo(() => getMorningReserveHint(state, viewScope), [state, viewScope])
   const showMonthTip = isStartOfMonth() || Boolean(reserveHint)
@@ -83,7 +86,8 @@ export function MorningCheckInModal({
           <p className="morning-checkin-kicker">{morningGreeting()}</p>
           <h2 id="morning-checkin-title">Today’s check-in</h2>
           <p className="morning-checkin-lead">
-            Confirm today’s bank balances, then note anything that moved into Due.
+            Confirm today’s bank balances, then note anything that moved into Due since your last
+            visit.
           </p>
         </header>
 
@@ -110,7 +114,7 @@ export function MorningCheckInModal({
             {visibleDue.length > 0 ? (
               <section className="morning-checkin-panel morning-checkin-panel--due">
                 <div className="morning-checkin-panel-head">
-                  <h3>New in Due today</h3>
+                  <h3>New in Due since last visit</h3>
                   <p>Moved from monthly accruing — mark paid when it leaves the account.</p>
                 </div>
                 <ul className="morning-checkin-due-list">
@@ -149,8 +153,8 @@ export function MorningCheckInModal({
             ) : (
               <section className="morning-checkin-panel morning-checkin-panel--quiet">
                 <div className="morning-checkin-panel-head">
-                  <h3>Due today</h3>
-                  <p>Nothing new moved into Due this morning.</p>
+                  <h3>Due since last visit</h3>
+                  <p>Nothing new moved into Due since you were last here.</p>
                 </div>
               </section>
             )}

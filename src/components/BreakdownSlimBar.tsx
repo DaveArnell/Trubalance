@@ -4,7 +4,14 @@ import type { BalanceSaveChange } from '../hooks/useAppState'
 import type { BreakdownColumn } from '../utils/breakdownTable'
 import { toAmount, roundCurrency } from '../utils/amounts'
 import { formatCurrencyCompact } from '../utils/format'
-import { breakdownBalanceCellIds, finishSheetCellEdit, shouldSkipSheetCellBlur, useSheetCellNavigation, useSheetInlineDraft } from '../utils/sheetCellNavigation'
+import {
+  breakdownBalanceCellIds,
+  finishSheetCellEdit,
+  shouldSkipSheetCellBlur,
+  useMultiAccountBalanceDrafts,
+  useSheetCellNavigation,
+  useSheetInlineDraft,
+} from '../utils/sheetCellNavigation'
 
 function SlimColumnPill({
   column,
@@ -20,12 +27,20 @@ function SlimColumnPill({
   onSave: (changes: BalanceSaveChange[]) => void
 }) {
   const columnRef = useRef<HTMLElement>(null)
-  const accounts = [...column.currentAccounts, ...column.savingsAccounts]
+  const accounts = useMemo(
+    () => [...column.currentAccounts, ...column.savingsAccounts],
+    [column.currentAccounts, column.savingsAccounts],
+  )
   const editable = !column.isRollup && accounts.length > 0
   const inputRef = useRef<HTMLInputElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
-  const [drafts, setDrafts] = useState<Record<string, string>>({})
   const [panelPos, setPanelPos] = useState({ top: 0, left: 0 })
+  const multiOpen = isActive && accounts.length > 1
+  const { drafts, setDrafts, draftsRef } = useMultiAccountBalanceDrafts(
+    multiOpen,
+    accounts,
+    (balance) => String(toAmount(balance)),
+  )
 
   const updatePanelPos = useCallback(() => {
     if (!columnRef.current) return
@@ -50,7 +65,7 @@ function SlimColumnPill({
   const commitDrafts = useCallback(() => {
     const changes: BalanceSaveChange[] = []
     for (const account of accounts) {
-      const raw = drafts[account.id]
+      const raw = draftsRef.current[account.id]
       if (raw === undefined || raw.trim() === '') continue
       const balance = roundCurrency(toAmount(raw))
       if (balance !== toAmount(account.balance)) {
@@ -59,17 +74,16 @@ function SlimColumnPill({
     }
     if (changes.length > 0) onSave(changes)
     onDeactivate()
-    setDrafts({})
-  }, [accounts, drafts, onSave, onDeactivate])
+  }, [accounts, draftsRef, onSave, onDeactivate])
 
   useLayoutEffect(() => {
-    if (!isActive || accounts.length <= 1) return
+    if (!multiOpen) return
     updatePanelPos()
     requestAnimationFrame(updatePanelPos)
-  }, [isActive, accounts.length, updatePanelPos])
+  }, [multiOpen, updatePanelPos])
 
   useEffect(() => {
-    if (!isActive || accounts.length <= 1) return
+    if (!multiOpen) return
 
     const handleLayout = () => updatePanelPos()
     window.addEventListener('resize', handleLayout)
@@ -87,13 +101,7 @@ function SlimColumnPill({
       window.removeEventListener('scroll', handleLayout, true)
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [isActive, accounts.length, commitDrafts, updatePanelPos])
-
-  useEffect(() => {
-    if (isActive && accounts.length > 1) {
-      setDrafts(Object.fromEntries(accounts.map((a) => [a.id, String(toAmount(a.balance))])))
-    }
-  }, [isActive, accounts])
+  }, [multiOpen, commitDrafts, updatePanelPos])
 
   const commitSingle = () => {
     if (!singleAccount) return
@@ -112,8 +120,7 @@ function SlimColumnPill({
 
   const balancePopover =
     editable &&
-    isActive &&
-    accounts.length > 1 &&
+    multiOpen &&
     createPortal(
       <div
         ref={popoverRef}

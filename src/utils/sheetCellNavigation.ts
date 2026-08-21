@@ -114,6 +114,36 @@ export function useSheetInlineDraft(isActive: boolean, seed: string) {
   return [draft, setDraft] as const
 }
 
+/**
+ * Seed multi-account balance drafts only when the editor opens.
+ * Do not re-seed on every parent re-render — account array identity often changes
+ * even when balances do not, which previously wiped in-progress edits.
+ */
+export function useMultiAccountBalanceDrafts(
+  isOpen: boolean,
+  accounts: { id: string; balance: number }[],
+  formatBalance: (balance: number) => string,
+) {
+  const [drafts, setDrafts] = useState<Record<string, string>>({})
+  const draftsRef = useRef(drafts)
+  draftsRef.current = drafts
+  const wasOpenRef = useRef(false)
+
+  useLayoutEffect(() => {
+    if (isOpen && !wasOpenRef.current) {
+      setDrafts(Object.fromEntries(accounts.map((a) => [a.id, formatBalance(a.balance)])))
+    }
+    if (!isOpen) {
+      setDrafts({})
+    }
+    wasOpenRef.current = isOpen
+    // Seed from balances only at open; ignore later account/balance identity churn.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional open-edge seeding
+  }, [isOpen])
+
+  return { drafts, setDrafts, draftsRef }
+}
+
 export function handleSheetInputTabKey(
   event: KeyboardEvent,
   onTab: SheetTabHandler | undefined,
