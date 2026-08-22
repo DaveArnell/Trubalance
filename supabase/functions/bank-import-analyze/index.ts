@@ -230,7 +230,8 @@ Deno.serve(async (req) => {
   }
 
   // Quality first — same class of model users get good DIY results with.
-  const model = Deno.env.get('OPENAI_MODEL_TEXT') ?? 'gpt-4o'
+  const preferredModel = Deno.env.get('OPENAI_MODEL_TEXT') ?? 'gpt-4o'
+  const fallbackModel = Deno.env.get('OPENAI_MODEL_FALLBACK') ?? 'gpt-4o-mini'
 
   const minMonthly =
     typeof body.minMonthlyAmount === 'number' && Number.isFinite(body.minMonthlyAmount)
@@ -279,31 +280,50 @@ Deno.serve(async (req) => {
     ? `Schema (keep pence; many specific rows):\n${schemaHint}\n\nAnalysis period: ${JSON.stringify(body.analysisPeriod ?? null)}\nMeaningful monthly threshold: £${minMonthly}\nFile: ${body.fileName ?? 'statement'}\n\nLedger (date\\tdescription\\tamount):\n${ledger}`
     : `Schema:\n${schemaHint}\n\nFallback grouped data (prefer ledger when available):\n${JSON.stringify({ analysis_period: body.analysisPeriod, groups: groups.slice(0, 80) })}`
 
-  try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+  async function callOpenAi(modelName: string): Promise<Response> {
+    return fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${openAiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model,
+        model: modelName,
         response_format: { type: 'json_object' },
         messages: [
           { role: 'system', content: buildDiySystemPrompt(minMonthly) },
           { role: 'user', content: userContent },
         ],
         temperature: 0.1,
-        max_tokens: 12000,
+        max_tokens: 8000,
       }),
     })
+  }
+
+  try {
+    let response = await callOpenAi(preferredModel)
+
+    // Rate limits are common on large statements — wait once, then try a lighter model.
+    if (response.status === 429) {
+      console.warn('OpenAI 429 on preferred model; retrying after brief wait')
+      await sleep(2500)
+      response = await callOpenAi(preferredModel)
+    }
+    if (response.status === 429 && fallbackModel !== preferredModel) {
+      console.warn('OpenAI still 429; falling back to', fallbackModel)
+      await sleep(1500)
+      response = await callOpenAi(fallbackModel)
+    }
 
     if (!response.ok) {
       const errText = await response.text()
       console.error('OpenAI error', response.status, errText.slice(0, 800))
       let detail = 'AI analysis failed. Please try again later.'
       if (response.status === 429) {
-        detail = 'The AI service is busy right now. Wait a minute and try again.'
+        detail =
+          'OpenAI is temporarily limiting requests (busy). Wait about a minute, then upload again.'
       } else if (response.status === 401 || response.status === 403) {
         detail = 'AI analysis is not authorised. Check the OpenAI API key in Edge secrets.'
       } else if (response.status === 400) {

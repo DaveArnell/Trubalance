@@ -387,7 +387,7 @@ export function BankStatementImportPanel({
         <span className="bank-import-badge">CSV or PDF</span>
       </header>
 
-      {aiHealth && (
+      {aiHealth && !error && (
         <p
           className={`bank-import-ai-status${aiHealth.ok ? ' bank-import-ai-status--ok' : ' bank-import-ai-status--off'}`}
           role="status"
