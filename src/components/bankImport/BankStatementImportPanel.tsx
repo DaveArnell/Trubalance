@@ -502,11 +502,13 @@ export function BankStatementImportPanel({
         <div className="bank-import-panel">
           <aside className="bank-import-privacy" role="note">
             <strong>Private by design.</strong> Your file is sent securely for analysis, then
-            discarded. We do not store the statement or use it to train models.
+            discarded from Cash Prophet. We do not keep the statement, and we do not use it to train
+            models.
           </aside>
           <p className="bank-import-hint">
-            Drop a CSV or PDF for <strong>{accountLabel(state, accountId)}</strong>. A longer history
-            (ideally a year or more) usually gives a better draft.
+            Drop a CSV or PDF into the box below for{' '}
+            <strong>{accountLabel(state, accountId)}</strong>. A longer history (ideally a year or
+            more) usually gives a better draft.
           </p>
           <div
             className={`bank-import-dropzone${dragOver ? ' is-dragover' : ''}${analyzing || aiHealth?.ok === false ? ' is-disabled' : ''}`}
@@ -544,8 +546,8 @@ export function BankStatementImportPanel({
               className="sr-only"
               onChange={handleFileChange}
             />
-            <p className="bank-import-dropzone-title">Drag and drop your statement here</p>
-            <p className="muted bank-import-dropzone-sub">CSV or PDF</p>
+            <p className="bank-import-dropzone-title">Drop your statement in this box</p>
+            <p className="muted bank-import-dropzone-sub">CSV or PDF — or use Choose file</p>
             <div className="bank-import-upload-row">
               <button
                 type="button"
@@ -576,7 +578,7 @@ export function BankStatementImportPanel({
             {analyzingStatus}
           </p>
           <p className="muted bank-import-hint">
-            Please keep this page open. Longer statements can take a minute or two.
+            Please keep this page open. Most drafts finish in under a minute.
           </p>
         </div>
       )}

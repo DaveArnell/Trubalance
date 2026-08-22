@@ -5,37 +5,30 @@ function money2(value: number): number {
   return Math.round(toAmount(value) * 100) / 100
 }
 
-function shortDesc(value: string, max = 90): string {
+function shortDesc(value: string, max = 55): string {
   const cleaned = value.replace(/\s+/g, ' ').trim()
   if (cleaned.length <= max) return cleaned
   return `${cleaned.slice(0, max - 1).trimEnd()}…`
 }
 
 /**
- * Compact ledger for the model — same raw visibility ChatGPT gets from a statement,
- * without our earlier aggressive pre-grouping that collapsed payees.
+ * Compact money-out ledger for the DIY prompt.
+ * Keeps payee/date/amount detail the model needs, but stays small enough for
+ * OpenAI tokens-per-minute limits (full 1800-line CSVs were ~100k+ input tokens).
  */
 export function prepareCompactLedger(
   transactions: ParsedBankTransaction[],
   options?: { maxLines?: number },
 ): string {
-  const maxLines = options?.maxLines ?? 2800
-  const sorted = [...transactions].sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id))
+  // ~900 short outflow lines ≈ a workable statement without burning the rate limit.
+  const maxLines = options?.maxLines ?? 900
 
-  // Prefer keeping outflows if we must truncate (bills matter more for this draft).
-  let rows = sorted
-  if (rows.length > maxLines) {
-    const outflows = sorted.filter((t) => t.amount < 0)
-    const inflows = sorted.filter((t) => t.amount >= 0)
-    if (outflows.length >= maxLines) {
-      rows = outflows.slice(-maxLines)
-    } else {
-      const inflowBudget = maxLines - outflows.length
-      rows = [...outflows, ...inflows.slice(-inflowBudget)].sort((a, b) =>
-        a.date.localeCompare(b.date),
-      )
-    }
-  }
+  const outflows = [...transactions]
+    .filter((t) => t.amount < 0)
+    .sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id))
+
+  // Prefer the most recent history (patterns that matter for setup).
+  const rows = outflows.length > maxLines ? outflows.slice(-maxLines) : outflows
 
   return rows
     .map((t) => `${t.date}\t${shortDesc(t.description)}\t${money2(t.amount).toFixed(2)}`)

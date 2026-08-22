@@ -420,7 +420,6 @@ Deno.serve(async (req) => {
 
   // Prefer the same quality class as ChatGPT DIY. Override with OPENAI_MODEL_TEXT if needed.
   const preferredModel = Deno.env.get('OPENAI_MODEL_TEXT') ?? 'gpt-4o'
-  const fallbackModel = Deno.env.get('OPENAI_MODEL_FALLBACK') ?? 'gpt-4o'
 
   const minMonthly =
     typeof body.minMonthlyAmount === 'number' && Number.isFinite(body.minMonthlyAmount)
@@ -428,16 +427,19 @@ Deno.serve(async (req) => {
       : 200
 
   const diyPrompt = buildDiyPrompt(minMonthly)
+  const lineCount = ledger.split('\n').filter((l) => l.trim()).length
   const userContent = `File name: ${body.fileName ?? 'statement.csv'}
 Analysis period: ${JSON.stringify(body.analysisPeriod ?? null)}
+Rows in extract: ${lineCount} (money-out lines; most recent history preferred)
 
-Below is the transaction export for ONE business (CSV-style: date, description, amount).
-Negative amounts are money out. Work only from this data.
+Below is a compact CSV extract for ONE business (date, description, amount).
+Negative amounts are money out. Work only from this data — apply the full DIY rules.
 
 \`\`\`csv
 date,description,amount
 ${ledger
   .split('\n')
+  .filter((l) => l.trim())
   .map((line) => {
     const [date, description, amount] = line.split('\t')
     const desc = (description ?? '').replace(/"/g, '""')
@@ -450,16 +452,15 @@ Follow the instructions exactly. Output the three markdown tables with Exact hea
 
   const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-  function retryWaitMs(response: Response, attempt: number): number {
+  function retryWaitMs(response: Response): number {
     const header = response.headers.get('retry-after')
     if (header) {
       const asSeconds = Number(header)
       if (Number.isFinite(asSeconds) && asSeconds > 0) {
-        return Math.min(60_000, Math.max(5_000, Math.round(asSeconds * 1000)))
+        return Math.min(70_000, Math.max(20_000, Math.round(asSeconds * 1000)))
       }
     }
-    // Large statement uploads burn tokens-per-minute quickly — wait longer each attempt.
-    return Math.min(45_000, 8_000 * attempt)
+    return 55_000
   }
 
   async function callOpenAi(modelName: string): Promise<Response> {
@@ -476,26 +477,19 @@ Follow the instructions exactly. Output the three markdown tables with Exact hea
           { role: 'user', content: userContent },
         ],
         temperature: 0.1,
-        max_tokens: 8000,
+        max_tokens: 6000,
       }),
     })
   }
 
   try {
     let response = await callOpenAi(preferredModel)
-    let attempt = 1
-    while (response.status === 429 && attempt < 3) {
-      const waitMs = retryWaitMs(response, attempt)
-      console.warn(`OpenAI 429 — waiting ${waitMs}ms before retry ${attempt}`)
+    // One patient retry only — repeated retries burn tokens/minute and make limits worse.
+    if (response.status === 429) {
+      const waitMs = retryWaitMs(response)
+      console.warn(`OpenAI 429 — single wait ${waitMs}ms then one retry`)
       await sleep(waitMs)
       response = await callOpenAi(preferredModel)
-      attempt += 1
-    }
-    if (response.status === 429 && fallbackModel !== preferredModel) {
-      const waitMs = retryWaitMs(response, attempt)
-      console.warn(`OpenAI still 429 — waiting ${waitMs}ms then fallback ${fallbackModel}`)
-      await sleep(waitMs)
-      response = await callOpenAi(fallbackModel)
     }
 
     if (!response.ok) {
@@ -504,7 +498,7 @@ Follow the instructions exactly. Output the three markdown tables with Exact hea
       let detail = 'AI analysis failed. Please try again later.'
       if (response.status === 429) {
         detail =
-          'OpenAI is rate-limiting this API key (tokens per minute). Wait 1–2 minutes, then upload once — do not retry immediately.'
+          'Analysis is queued behind OpenAI capacity. Keep this page open and try once more in about a minute — do not upload repeatedly.'
       } else if (response.status === 401 || response.status === 403) {
         detail = 'AI analysis is not authorised. Check the OpenAI API key in Edge secrets.'
       } else if (response.status === 400) {

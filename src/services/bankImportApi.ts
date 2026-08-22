@@ -124,37 +124,28 @@ async function invokeAnalyzeOnce(request: AnalyzeBankImportRequest): Promise<AiA
 }
 
 /**
- * Runs statement analysis. If OpenAI is briefly rate-limited, waits and retries
- * automatically so the customer stays on the loading screen instead of giving up.
+ * Runs statement analysis. On a brief OpenAI rate-limit, waits once (~1 min) and
+ * retries once — no long 20/40/60 multi-wait loop that feels abandoned.
  */
 export async function analyzeBankImportWithAi(
   request: AnalyzeBankImportRequest,
   options?: AnalyzeBankImportOptions,
 ): Promise<AiAnalysisResult> {
-  const waitsMs = [20_000, 40_000, 60_000]
-  let lastError: Error | null = null
+  options?.onStatus?.('Reading your statement and preparing the draft…')
 
-  for (let attempt = 0; attempt <= waitsMs.length; attempt++) {
-    try {
-      if (attempt === 0) {
-        options?.onStatus?.('Reading your statement and preparing the draft…')
-      }
-      return await invokeAnalyzeOnce(request)
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'AI analysis failed.'
-      lastError = err instanceof Error ? err : new Error(message)
-
-      const canRetry = attempt < waitsMs.length && isTransientAiCapacityError(message)
-      if (!canRetry) throw lastError
-
-      const waitMs = waitsMs[attempt]!
-      const waitSec = Math.round(waitMs / 1000)
-      options?.onStatus?.(
-        `Still working — OpenAI is busy, so we’re waiting about ${waitSec} seconds and trying again automatically…`,
-      )
-      await sleep(waitMs)
+  try {
+    return await invokeAnalyzeOnce(request)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'AI analysis failed.'
+    if (!isTransientAiCapacityError(message)) {
+      throw err instanceof Error ? err : new Error(message)
     }
-  }
 
-  throw lastError ?? new Error('AI analysis failed.')
+    options?.onStatus?.(
+      'Still working — finishing the draft now (this usually takes under a minute)…',
+    )
+    await sleep(55_000)
+    options?.onStatus?.('Reading your statement and preparing the draft…')
+    return await invokeAnalyzeOnce(request)
+  }
 }
