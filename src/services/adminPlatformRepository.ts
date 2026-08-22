@@ -97,7 +97,7 @@ export async function fetchServerAccessOverride(userId: string): Promise<Workspa
   const { data: workspace, error } = await supabase
     .from('workspaces')
     .select(
-      'id, subscription_tier, trial_ends_at, lifetime_access, beta_tester, admin_tier_override',
+      'id, subscription_tier, trial_ends_at, lifetime_access, beta_tester, admin_tier_override, statement_ai_unlimited',
     )
     .eq('owner_id', userId)
     .limit(1)
@@ -126,6 +126,7 @@ export async function fetchServerAccessOverride(userId: string): Promise<Workspa
     betaTester,
     lifetimeAccess,
     trialEndsAt,
+    statementAiUnlimited: Boolean(workspace.statement_ai_unlimited),
     updatedAt: new Date().toISOString(),
   }
 }
@@ -154,11 +155,20 @@ export async function saveServerAccessOverride(
     throw new Error(error.message)
   }
 
+  const { error: unlimitedError } = await supabase.rpc('admin_set_statement_ai_unlimited', {
+    p_user_id: override.userId,
+    p_unlimited: Boolean(override.statementAiUnlimited),
+  })
+  if (unlimitedError) {
+    throw new Error(unlimitedError.message)
+  }
+
   return {
     ...override,
     subscriptionPlan,
     lifetimeAccess,
     betaTester,
+    statementAiUnlimited: Boolean(override.statementAiUnlimited),
     trialEndsAt: lifetimeAccess ? null : override.trialEndsAt,
     updatedAt: new Date().toISOString(),
   }

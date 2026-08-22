@@ -26,6 +26,8 @@ export interface WorkspaceSubscription {
   cancelAtPeriodEnd: boolean
   gracePeriodEndsAt: string | null
   billingInterval: 'monthly' | 'annual' | null
+  /** Admin: allow more than one statement AI analysis per business. */
+  statementAiUnlimited: boolean
 }
 
 export interface WorkspaceUsage {

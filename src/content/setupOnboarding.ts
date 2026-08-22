@@ -16,7 +16,7 @@ export interface SetupOnboardingStep {
 }
 
 /**
- * Teach-first flow → optional statement helper → hand off to the live dashboard.
+ * Structure → choose upload or manual → teach → live dashboard.
  */
 export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
   {
@@ -24,7 +24,7 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     title: 'Welcome to Cash Prophet',
     videoLabel: 'Welcome to Cash Prophet',
     explain:
-      'In this introduction we will help you set up your company structure, talk you through how Cash Prophet works, and then take you onto the screens to get you started.',
+      'In this introduction we will help you set up your company structure, add your bills, talk you through how Cash Prophet works, and then take you onto the screens to get you started.',
   },
   {
     id: 'business',
@@ -32,6 +32,22 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     videoLabel: 'Businesses, sites and accounts',
     explain:
       'Start with the business you want to track. Add sites if you have more than one. Add every current and savings account the business holds, so Cash Prophet can see all the money you have in the bank. Do not add a reserve account here. That is linked later when you set up the Reserve Planner.',
+  },
+  {
+    id: 'setup-route',
+    title: 'Add your bills',
+    explain:
+      'Upload a bank statement so Cash Prophet can suggest monthly costs and reserve bills for you to review, or enter everything yourself. Nothing is added until you confirm.',
+    hideVideo: true,
+    skippable: true,
+  },
+  {
+    id: 'statement-import',
+    title: 'Upload a bank statement',
+    explain:
+      'Choose the account this statement belongs to, upload a CSV or PDF, then review the suggestions before anything is added.',
+    hideVideo: true,
+    skippable: true,
   },
   {
     id: 'committed-explain',
@@ -88,14 +104,6 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     page: 'trends',
     spotlight: '[data-widget-id="trends-chart"]',
   },
-  {
-    id: 'statement-helper',
-    title: 'Speed things up with a bank export',
-    videoLabel: 'Using a bank export with ChatGPT',
-    explain:
-      'Optional. Download a transaction history for this business, paste our prompt into ChatGPT, and get a draft list of monthly costs and Reserve bills to type in.',
-    skippable: true,
-  },
 ]
 
 export function getSetupOnboardingSteps(): SetupOnboardingStep[] {
@@ -117,13 +125,14 @@ export const QUICK_COMMITMENT_TEMPLATES = [
 export const SETUP_ONBOARDING_STEP_LABELS: Record<string, string> = {
   why: 'Welcome',
   business: 'Structure',
+  'setup-route': 'Add bills',
+  'statement-import': 'Statement upload',
   'committed-explain': 'Monthly costs',
   'month-view': 'Month view',
   'due-explain': 'Due',
   'receipts-explain': 'Receipts',
   reserve: 'Reserve',
   'trends-explain': 'Trends',
-  'statement-helper': 'Transaction log',
 }
 
 export const SETUP_ONBOARDING_DISMISSED_KEY = 'trubalance-setup-onboarding-dismissed-v1'

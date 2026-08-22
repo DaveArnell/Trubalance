@@ -9,7 +9,7 @@ export function PrivacyPage() {
     <LegalPageLayout
       title="Privacy policy"
       seoTitle={PRIVACY_SEO.title}
-      updated="9 August 2026"
+      updated="22 August 2026"
       description={PRIVACY_SEO.description}
       path={PRIVACY_SEO.path}
       imageAlt={PRIVACY_SEO.imageAlt}
@@ -39,6 +39,14 @@ export function PrivacyPage() {
           businesses, accounts, balances, commitments, expected receipts, reserve plans, and snapshots.
         </li>
         <li>
+          <strong>Bank statements (optional setup)</strong> — if you upload a CSV or PDF during setup,
+          we process it to suggest recurring costs and reserve bills for you to review. We send a
+          compact summary of transactions to OpenAI&apos;s API for that analysis only. We do not use
+          the ChatGPT consumer website for this. We do not keep the raw statement file once analysis
+          is complete; we may keep the structured suggestions you reviewed so you can reopen them
+          without re-uploading.
+        </li>
+        <li>
           <strong>Usage</strong> — basic technical information needed to run and secure the service,
           and (if you accept advertising cookies) page-view information sent to Meta to measure our
           ads. We do not send your workspace financial figures to Meta.
@@ -59,6 +67,11 @@ export function PrivacyPage() {
         <li>
           <strong>Without an account</strong> — data stays in your browser&apos;s local storage on
           that device only. We do not receive it unless you sign up and sync, or contact us directly.
+        </li>
+        <li>
+          <strong>Statement analysis</strong> — OpenAI (OpenAI, L.L.C. / affiliated entities) processes
+          transaction summaries as our processor for setup suggestions. We configure this through
+          OpenAI&apos;s API. We aim not to retain raw statement files after analysis.
         </li>
         <li>
           <strong>Downloads</strong> — when you export JSON from Settings, that file is saved wherever

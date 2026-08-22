@@ -7,29 +7,29 @@ export const GUIDED_SETUP_EDITABLE_NOTE =
 
 export const GUIDED_SETUP_PATH_OPTIONS = [
   {
-    id: 'manual' as const,
-    title: 'Manual setup',
-    badge: 'Recommended if you know your bills',
-    subtitle: 'Enter your numbers yourself',
-    lead: 'Add your business, bank balances, and regular monthly costs step by step.',
-    timeEstimate: '15–20 minutes',
+    id: 'statement' as const,
+    title: 'Upload bank statements',
+    badge: 'Faster start',
+    subtitle: 'AI suggests — you approve everything',
+    lead: 'Upload a CSV or PDF for this business. Cash Prophet suggests monthly costs and reserve bills. Nothing is added until you say yes.',
+    timeEstimate: 'About 10–15 minutes',
     highlights: [
-      'Full control from the start',
-      'No bank file needed',
-      'You can upload statements later in Settings',
+      'CSV works best; PDF is fine too',
+      'Review and edit every suggestion',
+      'One AI pass per business on the trial',
     ],
   },
   {
-    id: 'statement' as const,
-    title: 'Upload bank statements',
-    badge: 'Assisted',
-    subtitle: 'AI suggests — you approve everything',
-    lead: 'Upload CSV or PDF exports. AI reads your transactions and suggests monthly costs, reserve bills and receipts. Nothing is added until you say yes.',
-    timeEstimate: '10–15 minutes',
+    id: 'manual' as const,
+    title: 'Enter manually',
+    badge: 'Full control',
+    subtitle: 'Type your bills yourself',
+    lead: 'Skip the upload and add monthly costs and reserve bills on the live screens after a short walkthrough.',
+    timeEstimate: 'About 15–20 minutes',
     highlights: [
-      'CSV works best',
-      'Review every suggestion',
-      'Then finish setup manually for anything missed',
+      'No bank file needed',
+      'Full control from the start',
+      'You can still edit everything later',
     ],
   },
 ] as const
@@ -49,9 +49,9 @@ export const WHY_CASH_PROPHET_CONTENT = {
     'In this introduction we will help you set up your company structure, talk you through how Cash Prophet works, and then take you onto the screens to get you started.',
   bullets: [
     'Set up your business, sites and bank accounts',
+    'Add bills from a statement upload or by hand',
     'Walk through how Cash Prophet keeps commitments in view',
     'Show you each main screen as we go',
-    'Optionally use a bank export later to speed up adding bills',
   ],
 } as const
 

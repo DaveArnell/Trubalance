@@ -187,6 +187,7 @@ export interface WorkspaceAccessOverride {
   betaTester: boolean
   lifetimeAccess: boolean
   trialEndsAt: string | null
+  statementAiUnlimited: boolean
   updatedAt: string
 }
 

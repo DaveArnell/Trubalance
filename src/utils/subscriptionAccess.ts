@@ -33,6 +33,7 @@ export function createDefaultSubscription(now = new Date()): WorkspaceSubscripti
     cancelAtPeriodEnd: false,
     gracePeriodEndsAt: null,
     billingInterval: null,
+    statementAiUnlimited: false,
   }
 }
 

@@ -759,6 +759,7 @@ export async function adminFetchAccessOverride(userId: string): Promise<Workspac
       betaTester: false,
       lifetimeAccess: false,
       trialEndsAt: null,
+      statementAiUnlimited: false,
       updatedAt: new Date().toISOString(),
     }
   }
@@ -777,6 +778,7 @@ export async function adminFetchAccessOverride(userId: string): Promise<Workspac
     betaTester: user.betaTester,
     lifetimeAccess: user.lifetimeAccess,
     trialEndsAt: user.trialEndsAt,
+    statementAiUnlimited: false,
     updatedAt: new Date().toISOString(),
   }
 }

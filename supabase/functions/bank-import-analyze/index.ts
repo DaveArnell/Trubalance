@@ -5,23 +5,25 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const SYSTEM_PROMPT = `You are assisting a UK small-business owner in setting up a simple financial management system.
+const SYSTEM_PROMPT = `You are assisting a UK small-business owner setting up Cash Prophet.
 
 You are not preparing accounts, submitting tax returns or giving regulated financial advice.
+Work only from the supplied transaction groups. Do not invent industry-specific suppliers.
 
-Analyse the supplied bank transaction groups and identify patterns that may help pre-fill:
-
-A. Monthly Accruing — costs that build up continuously or recur regularly (payroll, rent, utilities, finance agreements, regular software).
-
-B. Reserve Planner — irregular, quarterly, annual or uneven bills where money should be built up in advance (VAT, corporation tax, annual insurance, licences, quarterly rent).
-
+Identify patterns to pre-fill:
+A. Monthly Accruing — about once per calendar month (payroll, rent, utilities, finance, regular software). Variable monthly stays Monthly, not Reserve.
+B. Reserve Planner — quarterly / six-monthly / annual / large non-monthly bills (VAT, corporation tax when identifiable, insurance, licences, large landlord-style payments). Prefer material amounts.
 C. Expected Receipts — only identifiable, non-routine future money that is sufficiently certain. Do NOT treat daily card takings as expected receipts.
+D. Manual Review — uncertain HMRC, credit-card repayments (double-count risk), ambiguous items.
+E. Excluded — weekly noise, internal transfers, refunds, random one-offs, small recurring under the meaningful monthly threshold.
 
-D. Manual Review — uncertain HMRC payments, credit-card repayments (double-count risk), ambiguous items.
-
-Exclude internal transfers, refunds, normal card settlement income, and random one-off purchases.
-
-Never silently assume every HMRC payment is VAT or corporation tax.
+Rules:
+- Respect MEANINGFUL_MONTHLY_THRESHOLD when provided: drop clear small noise under it; do not drop larger variable monthly costs just because they wobble.
+- One due day only (integer 1–31), never ranges. One amount only, never ranges.
+- Payroll: one Monthly row “Payroll” with a recent-run total — not per person.
+- Names: short plain Cash Prophet labels; keep bank payee separately in supplier_group when useful.
+- Purpose unknown is fine: still include strong patterns with lower confidence.
+- Never silently assume every HMRC payment is VAT or corporation tax.
 
 Return ONLY valid JSON matching the schema provided. No markdown.`
 
@@ -82,6 +84,7 @@ Deno.serve(async (req) => {
     scopeLevel?: string
     scopeId?: string
     fileName?: string
+    minMonthlyAmount?: number
   }
 
   try {
@@ -99,12 +102,18 @@ Deno.serve(async (req) => {
   const maxGroups = 40
   const chunk = groups.slice(0, maxGroups)
 
+  const minMonthly =
+    typeof body.minMonthlyAmount === 'number' && Number.isFinite(body.minMonthlyAmount)
+      ? Math.max(0, Math.round(body.minMonthlyAmount))
+      : null
+
   const userPayload = {
     analysis_period: body.analysisPeriod,
     scope: { level: body.scopeLevel, id: body.scopeId },
+    meaningful_monthly_threshold: minMonthly,
     transaction_groups: chunk,
     instructions:
-      'Suggest monthly_accruing_suggestions, reserve_planner_suggestions, expected_receipt_suggestions, manual_review_items, excluded_patterns. Include evidence dates and amounts. Confidence 0-100.',
+      'Suggest monthly_accruing_suggestions, reserve_planner_suggestions, expected_receipt_suggestions, manual_review_items, excluded_patterns. Include evidence dates and amounts. Confidence 0-100. Obey meaningful_monthly_threshold when set.',
   }
 
   const schemaHint = `{

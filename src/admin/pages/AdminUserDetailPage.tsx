@@ -296,9 +296,18 @@ export function AdminUserDetailPage() {
                 />
                 <span>Lifetime access</span>
               </label>
+              <label className="admin-check-block">
+                <input
+                  type="checkbox"
+                  checked={Boolean(access.statementAiUnlimited)}
+                  onChange={(e) => patchAccess({ statementAiUnlimited: e.target.checked })}
+                />
+                <span>Unlimited statement AI (manual onboarding)</span>
+              </label>
               <p className="muted admin-detail-hint">
-                Lifetime and beta access unlock the full Group plan with no trial expiry. Changes
-                are saved on the server immediately.
+                Lifetime and beta access unlock the full Group plan with no trial expiry. Unlimited
+                statement AI lets support re-run analysis while onboarding someone. Changes are saved
+                on the server immediately.
               </p>
               {accessSaveError && <p className="auth-error">{accessSaveError}</p>}
               {accessSaveMessage && <p className="muted">{accessSaveMessage}</p>}

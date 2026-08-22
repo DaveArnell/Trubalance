@@ -12,11 +12,13 @@ function readRaw(): WorkspaceSubscription | null {
     if (!raw) return null
     const parsed = JSON.parse(raw) as WorkspaceSubscription
     return {
+      ...createDefaultSubscription(),
       ...parsed,
       tierId: normalizeTierId(parsed.tierId),
       adminTierOverride: parsed.adminTierOverride
         ? normalizeTierId(parsed.adminTierOverride)
         : null,
+      statementAiUnlimited: Boolean(parsed.statementAiUnlimited),
     }
   } catch {
     return null

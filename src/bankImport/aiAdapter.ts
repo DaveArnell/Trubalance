@@ -31,6 +31,7 @@ export const serverAiBankImportAdapter: BankImportAiAdapter = {
       scopeLevel: input.scopeLevel,
       scopeId: input.scopeId,
       fileName: options?.fileName,
+      minMonthlyAmount: input.minMonthlyAmount,
     })
 
     return {

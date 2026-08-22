@@ -173,20 +173,20 @@ export const METHOD_RESERVE_PLANNER = {
   ],
 } as const
 
-/** First setup — simple onboarding via bank history + ChatGPT draft. */
+/** First setup — statement upload in Cash Prophet, or enter by hand. */
 export const METHOD_FIRST_SETUP = {
   heading: 'Getting set up is straightforward',
   lead: [
-    'You do not need to rebuild your bills from memory. A bank history and a prompt we give you do most of the work.',
+    'You do not need to rebuild your bills from memory. Upload a bank history in Getting started and review the draft Cash Prophet suggests.',
   ],
   body: [
-    'In Getting started, copy our detailed prompt into your own ChatGPT, then upload a transaction history from your bank. Together they produce a draft of the monthly costs and Reserve bills to enter into Cash Prophet.',
-    'Review the draft, type in what you want to keep, and you are set up in about 5 to 10 minutes. After that, Cash Prophet carries the day-to-day picture for you.',
+    'In Getting started, upload a CSV or PDF transaction history for your business. Cash Prophet suggests monthly costs and Reserve bills for you to review, edit, and confirm.',
+    'Nothing is added until you approve it. After that, Cash Prophet carries the day-to-day picture for you.',
   ],
   timeline: [
     'Download a bank history',
-    'Paste our prompt into ChatGPT',
-    'Enter the draft into Cash Prophet',
+    'Upload it in Cash Prophet',
+    'Review and confirm the draft',
     'Simple daily updates',
   ],
 } as const
@@ -200,7 +200,7 @@ export const METHOD_CUSTOMER_JOURNEY = [
   {
     step: '02',
     title: 'Add your monthly costs',
-    body: 'Use a bank export and our ChatGPT prompt for a draft, or enter rent, payroll and other regular costs by hand.',
+    body: 'Upload a bank statement for a suggested draft, or enter rent, payroll and other regular costs by hand.',
   },
   {
     step: '03',

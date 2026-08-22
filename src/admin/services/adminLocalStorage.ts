@@ -72,6 +72,7 @@ export function defaultAccessOverride(
     betaTester: false,
     lifetimeAccess: false,
     trialEndsAt,
+    statementAiUnlimited: false,
     updatedAt: new Date().toISOString(),
   }
 }

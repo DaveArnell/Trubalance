@@ -858,6 +858,7 @@ function mapWorkspaceSubscriptionRow(
     cancelAtPeriodEnd: Boolean(subscriptionRow?.cancel_at_period_end),
     gracePeriodEndsAt: gracePeriodEndsAt ? String(gracePeriodEndsAt) : null,
     billingInterval,
+    statementAiUnlimited: Boolean(row.statement_ai_unlimited),
   }
 }
 
@@ -865,19 +866,37 @@ export async function loadWorkspaceSubscription(workspaceId: string): Promise<Wo
   const supabase = tryGetSupabase()
   if (!supabase) return null
 
-  const { data, error } = await supabase
-    .from('workspaces')
-    .select(
-      `subscription_tier, trial_ends_at, lifetime_access, beta_tester, admin_tier_override,
+  const withUnlimited = `subscription_tier, trial_ends_at, lifetime_access, beta_tester, admin_tier_override,
+       grace_period_ends_at, billing_interval, stripe_customer_id, statement_ai_unlimited,
+       subscriptions (
+         stripe_subscription_id, stripe_price_id, status, tier,
+         current_period_start, current_period_end, cancel_at_period_end,
+         grace_period_ends_at, billing_interval
+       )`
+  const withoutUnlimited = `subscription_tier, trial_ends_at, lifetime_access, beta_tester, admin_tier_override,
        grace_period_ends_at, billing_interval, stripe_customer_id,
        subscriptions (
          stripe_subscription_id, stripe_price_id, status, tier,
          current_period_start, current_period_end, cancel_at_period_end,
          grace_period_ends_at, billing_interval
-       )`,
-    )
+       )`
+
+  let { data, error } = await supabase
+    .from('workspaces')
+    .select(withUnlimited)
     .eq('id', workspaceId)
     .maybeSingle()
+
+  if (error) {
+    const missingColumn =
+      /statement_ai_unlimited/i.test(error.message) || error.code === '42703' || error.code === 'PGRST204'
+    if (!missingColumn) return null
+    ;({ data, error } = await supabase
+      .from('workspaces')
+      .select(withoutUnlimited)
+      .eq('id', workspaceId)
+      .maybeSingle())
+  }
 
   if (error || !data) return null
 

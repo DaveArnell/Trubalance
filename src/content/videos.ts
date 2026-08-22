@@ -92,7 +92,7 @@ export const VIDEO_LIBRARY: Record<VideoKey, VideoEntry> = {
   },
   'onboarding-statement': {
     key: 'onboarding-statement',
-    label: 'Using a bank export with ChatGPT',
+    label: 'Upload a bank statement',
     durationTarget: '60–90s',
     url: '',
   },
@@ -128,7 +128,8 @@ export const SETUP_STEP_VIDEO_KEY: Record<string, VideoKey> = {
   'receipts-explain': 'onboarding-receipts',
   reserve: 'onboarding-reserve',
   'trends-explain': 'onboarding-trends',
-  'statement-helper': 'onboarding-statement',
+  'statement-import': 'onboarding-statement',
+  'setup-route': 'onboarding-statement',
 }
 
 /**

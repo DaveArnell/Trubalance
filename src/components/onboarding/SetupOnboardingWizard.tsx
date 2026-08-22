@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { AppActions } from '../../hooks/useAppState'
 import type { AppState, DashboardMetrics, ViewScope } from '../../types'
+import type { GuidedSetupPath } from '../../content/guidedSetup'
 import {
   SETUP_ONBOARDING_STEP_LABELS,
   dismissSetupOnboardingLocally,
@@ -16,7 +17,8 @@ import { SetupStructureTree } from './SetupStructureTree'
 import { SetupAccruingCycleDemo } from './SetupAccruingCycleDemo'
 import { SetupDueCardsDemo } from './SetupDueCardsDemo'
 import { SetupReceiptCardsDemo } from './SetupReceiptCardsDemo'
-import { SetupStatementHelper } from './SetupStatementHelper'
+import { SetupRouteChooser } from './SetupRouteChooser'
+import { BankStatementImportPanel } from '../bankImport/BankStatementImportPanel'
 import { useAuth } from '../../contexts/AuthContext'
 import { trackEvent } from '../../services/eventTracking'
 
@@ -40,6 +42,11 @@ const PREVIEW_STEP_IDS = new Set([
   'trends-explain',
 ])
 
+function firstTeachStepIndex(steps: { id: string }[]): number {
+  const idx = steps.findIndex((item) => item.id === 'committed-explain')
+  return idx >= 0 ? idx : 0
+}
+
 export function SetupOnboardingWizard({
   state,
   viewScope: _viewScope,
@@ -51,7 +58,7 @@ export function SetupOnboardingWizard({
   startAtStepId,
 }: SetupOnboardingWizardProps) {
   const { user } = useAuth()
-  const PROGRESS_KEY = 'trubalance-setup-step-index-v7'
+  const PROGRESS_KEY = 'trubalance-setup-step-index-v8'
   const steps = useMemo(() => getSetupOnboardingSteps(), [])
 
   const initialStepIndex = (() => {
@@ -80,8 +87,11 @@ export function SetupOnboardingWizard({
   const stepCount = steps.length
   const isLast = stepIndex >= stepCount - 1
   const isReserveStep = step.id === 'reserve'
-  const usesWideLayout = PREVIEW_STEP_IDS.has(step.id)
+  const isStatementStep = step.id === 'statement-import'
+  const isRouteStep = step.id === 'setup-route'
+  const usesWideLayout = PREVIEW_STEP_IDS.has(step.id) || isStatementStep
   const contentWidth = isReserveStep ? 'reserve' : usesWideLayout ? 'wide' : 'default'
+  const hidePrimaryContinue = isRouteStep || isStatementStep
 
   useEffect(() => {
     if (!step.page || step.id === 'reserve') return
@@ -143,6 +153,21 @@ export function SetupOnboardingWizard({
     document.body.classList.remove('setup-onboarding-spotlight-active')
   }, [])
 
+  const finishSetup = () => {
+    try {
+      localStorage.removeItem(PROGRESS_KEY)
+    } catch {
+      /* */
+    }
+    dismissSetupOnboardingLocally()
+    onNavigate('committed-funds')
+    onComplete()
+  }
+
+  const goToTeach = () => {
+    setStepIndex(firstTeachStepIndex(steps))
+  }
+
   const handleDismiss = () => {
     if (user?.id) {
       void trackEvent('setup_step_dismiss', user.id, undefined, {
@@ -201,7 +226,24 @@ export function SetupOnboardingWizard({
     setPendingBusinessAdvance(true)
   }
 
+  const handleRouteChoose = (path: GuidedSetupPath) => {
+    if (user?.id) {
+      void trackEvent('setup_route_chosen', user.id, undefined, { path })
+    }
+    if (path === 'manual') {
+      goToTeach()
+      return
+    }
+    const importIdx = steps.findIndex((item) => item.id === 'statement-import')
+    setStepIndex(importIdx >= 0 ? importIdx : stepIndex + 1)
+  }
+
   const handleBack = () => {
+    if (step.id === 'statement-import') {
+      const routeIdx = steps.findIndex((item) => item.id === 'setup-route')
+      setStepIndex(routeIdx >= 0 ? routeIdx : Math.max(0, stepIndex - 1))
+      return
+    }
     setStepIndex((i) => Math.max(0, i - 1))
   }
 
@@ -210,15 +252,11 @@ export function SetupOnboardingWizard({
       handleBusinessNext()
       return
     }
+    if (step.id === 'setup-route' || step.id === 'statement-import') {
+      return
+    }
     if (isLast) {
-      try {
-        localStorage.removeItem(PROGRESS_KEY)
-      } catch {
-        /* */
-      }
-      dismissSetupOnboardingLocally()
-      onNavigate('committed-funds')
-      onComplete()
+      finishSetup()
       return
     }
     setStepIndex((i) => i + 1)
@@ -242,9 +280,19 @@ export function SetupOnboardingWizard({
         >
           Back
         </button>
-        <button type="button" className="btn-primary" onClick={handleNext}>
-          {isLast ? 'Open dashboard' : 'Continue'}
-        </button>
+        {!hidePrimaryContinue ? (
+          <button type="button" className="btn-primary" onClick={handleNext}>
+            {isLast ? 'Open dashboard' : 'Continue'}
+          </button>
+        ) : step.id === 'statement-import' ? (
+          <button type="button" className="btn-ghost" onClick={goToTeach}>
+            Skip upload — continue
+          </button>
+        ) : (
+          <button type="button" className="btn-ghost" onClick={goToTeach}>
+            Skip for now
+          </button>
+        )}
       </div>
     </>
   )
@@ -256,7 +304,7 @@ export function SetupOnboardingWizard({
       sidebarLead={
         startAtStepId
           ? undefined
-          : 'Welcome. We will set up your structure, explain how Cash Prophet works, then walk you through the screens.'
+          : 'Welcome. Set up your structure, add your bills, then we will walk you through how Cash Prophet works.'
       }
       steps={steps.map((item) => ({
         id: item.id,
@@ -319,6 +367,18 @@ export function SetupOnboardingWizard({
           </div>
         )}
 
+        {step.id === 'setup-route' && <SetupRouteChooser onChoose={handleRouteChoose} />}
+
+        {step.id === 'statement-import' && (
+          <BankStatementImportPanel
+            state={state}
+            actions={actions}
+            embedded
+            onboarding
+            onOnboardingComplete={goToTeach}
+          />
+        )}
+
         {step.id === 'committed-explain' && <SetupAccruingCycleDemo />}
         {step.id === 'due-explain' && <SetupDueCardsDemo />}
         {step.id === 'receipts-explain' && <SetupReceiptCardsDemo />}
@@ -329,8 +389,6 @@ export function SetupOnboardingWizard({
           </div>
         )}
         {step.id === 'trends-explain' && <SetupWidgetPreview previewId="trends" />}
-
-        {step.id === 'statement-helper' && <SetupStatementHelper />}
       </div>
     </SetupOnboardingShell>
   )

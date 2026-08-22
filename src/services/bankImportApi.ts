@@ -13,6 +13,7 @@ export interface AnalyzeBankImportRequest {
   scopeLevel: string
   scopeId: string
   fileName?: string
+  minMonthlyAmount?: number
 }
 
 export async function checkBankImportAiHealth(): Promise<BankImportAiHealth> {
