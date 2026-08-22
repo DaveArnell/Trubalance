@@ -24,12 +24,13 @@ function money2(value: number): number {
 /**
  * Compact payee groups for the model — keep payees distinct (not “Utilities”).
  * Prefer largest outflows so important bills are not dropped when capping group count.
+ * Keep the payload small enough for Edge + OpenAI time limits on long statements.
  */
 export function prepareTransactionGroups(
   transactions: ParsedBankTransaction[],
   options?: { maxGroups?: number },
 ): TransactionGroupForAi[] {
-  const maxGroups = options?.maxGroups ?? 100
+  const maxGroups = options?.maxGroups ?? 80
   const buckets = new Map<string, ParsedBankTransaction[]>()
 
   for (const tx of transactions) {
@@ -49,10 +50,12 @@ export function prepareTransactionGroups(
       items.filter((t) => t.amount < 0).reduce((s, t) => s + Math.abs(t.amount), 0),
     )
     const inTotal = money2(items.filter((t) => t.amount > 0).reduce((s, t) => s + t.amount, 0))
+    const shortDesc = (value: string) =>
+      value.length > 72 ? `${value.slice(0, 69).trimEnd()}…` : value
 
     groups.push({
-      supplier_group: supplierGroup === '__PAYROLL__' ? 'Payroll' : supplierGroup,
-      sample_descriptions: [...new Set(items.map((t) => t.description))].slice(0, 8),
+      supplier_group: supplierGroup === '__PAYROLL__' ? 'Payroll' : shortDesc(supplierGroup),
+      sample_descriptions: [...new Set(items.map((t) => shortDesc(t.description)))].slice(0, 4),
       transaction_count: items.length,
       total_out: outTotal,
       total_in: inTotal,
@@ -60,15 +63,18 @@ export function prepareTransactionGroups(
       is_likely_payroll:
         supplierGroup === '__PAYROLL__' || items.some((t) => isPayrollLine(t.description)),
       is_likely_hmrc: /\bHMRC\b/i.test(items.map((t) => t.description).join(' ')),
-      transactions: sorted.slice(-24).map((t) => ({
+      // Recent samples only — enough for pattern/amount, small enough for Edge timeouts.
+      transactions: sorted.slice(-12).map((t) => ({
         date: t.date,
-        description: t.description,
+        description: shortDesc(t.description),
         amount: money2(t.amount),
       })),
     })
   }
 
-  return groups.sort((a, b) => b.total_out - a.total_out || b.transaction_count - a.transaction_count).slice(0, maxGroups)
+  return groups
+    .sort((a, b) => b.total_out - a.total_out || b.transaction_count - a.transaction_count)
+    .slice(0, maxGroups)
 }
 
 export function analysisPeriodFromTransactions(transactions: ParsedBankTransaction[]): {

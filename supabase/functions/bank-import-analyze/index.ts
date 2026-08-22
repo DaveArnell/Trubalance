@@ -213,10 +213,21 @@ Deno.serve(async (req) => {
     )
   }
 
-  // Prefer a stronger model when set; keep mini as fallback for cost.
-  const model = Deno.env.get('OPENAI_MODEL_TEXT') ?? 'gpt-4o'
-  const maxGroups = 100
-  const chunk = groups.slice(0, maxGroups)
+  // Prefer a stronger model when set. Default mini for reliability on large statements.
+  const model = Deno.env.get('OPENAI_MODEL_TEXT') ?? 'gpt-4o-mini'
+  const maxGroups = 80
+  const chunk = (groups as Record<string, unknown>[])
+    .slice(0, maxGroups)
+    .map((group) => {
+      const txs = Array.isArray(group.transactions) ? group.transactions.slice(-12) : []
+      return {
+        ...group,
+        sample_descriptions: Array.isArray(group.sample_descriptions)
+          ? group.sample_descriptions.slice(0, 4)
+          : [],
+        transactions: txs,
+      }
+    })
 
   const minMonthly =
     typeof body.minMonthlyAmount === 'number' && Number.isFinite(body.minMonthlyAmount)
@@ -264,8 +275,16 @@ Deno.serve(async (req) => {
 
     if (!response.ok) {
       const errText = await response.text()
-      console.error('OpenAI error', response.status, errText)
-      return jsonResponse({ error: 'AI analysis failed. Please try again later.' }, 502)
+      console.error('OpenAI error', response.status, errText.slice(0, 800))
+      let detail = 'AI analysis failed. Please try again later.'
+      if (response.status === 429) {
+        detail = 'The AI service is busy right now. Wait a minute and try again.'
+      } else if (response.status === 401 || response.status === 403) {
+        detail = 'AI analysis is not authorised. Check the OpenAI API key in Edge secrets.'
+      } else if (response.status === 400) {
+        detail = 'The statement was too large or complex for analysis. Try a shorter export.'
+      }
+      return jsonResponse({ error: detail, code: 'OPENAI_ERROR', status: response.status }, 502)
     }
 
     const completion = await response.json()

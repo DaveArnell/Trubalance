@@ -111,6 +111,7 @@ export function BankStatementImportPanel({
   const [aiNotes, setAiNotes] = useState<string | null>(null)
   const [parsedCount, setParsedCount] = useState(0)
   const [dragOver, setDragOver] = useState(false)
+  const dragDepthRef = useRef(0)
 
   useEffect(() => {
     void getBankImportAiStatus().then(setAiHealth)
@@ -253,6 +254,14 @@ export function BankStatementImportPanel({
 
   const loadCsv = (text: string, name: string) => {
     void loadStatement(new File([text], name, { type: 'text/csv' }))
+  }
+
+  const acceptDroppedFile = (file: File | undefined) => {
+    if (!file || analyzing || aiHealth?.ok === false) return
+    void loadStatement(file).catch((loadError) => {
+      setError(loadError instanceof Error ? loadError.message : 'Could not read that file.')
+      setStep('upload')
+    })
   }
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -496,32 +505,32 @@ export function BankStatementImportPanel({
             onDragEnter={(event) => {
               event.preventDefault()
               event.stopPropagation()
-              if (!analyzing && aiHealth?.ok !== false) setDragOver(true)
+              if (analyzing || aiHealth?.ok === false) return
+              dragDepthRef.current += 1
+              setDragOver(true)
             }}
             onDragOver={(event) => {
               event.preventDefault()
               event.stopPropagation()
+              if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy'
             }}
             onDragLeave={(event) => {
               event.preventDefault()
               event.stopPropagation()
-              setDragOver(false)
+              dragDepthRef.current = Math.max(0, dragDepthRef.current - 1)
+              if (dragDepthRef.current === 0) setDragOver(false)
             }}
             onDrop={(event) => {
               event.preventDefault()
               event.stopPropagation()
+              dragDepthRef.current = 0
               setDragOver(false)
-              if (analyzing || aiHealth?.ok === false) return
-              const file = event.dataTransfer.files?.[0]
-              if (!file) return
-              void loadStatement(file).catch((loadError) => {
-                setError(loadError instanceof Error ? loadError.message : 'Could not read that file.')
-                setStep('upload')
-              })
+              acceptDroppedFile(event.dataTransfer.files?.[0])
             }}
           >
             <input
               ref={fileInputRef}
+              id="bank-import-file"
               type="file"
               accept={BANK_STATEMENT_ACCEPT}
               className="sr-only"
@@ -529,19 +538,21 @@ export function BankStatementImportPanel({
             />
             <p className="bank-import-dropzone-title">Drag and drop your statement here</p>
             <p className="muted bank-import-dropzone-sub">CSV or PDF</p>
-            <button
-              type="button"
-              className="btn-primary"
-              disabled={analyzing || aiHealth?.ok === false}
-              onClick={() => fileInputRef.current?.click()}
-            >
-              Choose file
-            </button>
-            {!onboarding ? (
-              <button type="button" className="btn-secondary" onClick={handleDemoCsv}>
-                Try demo data
+            <div className="bank-import-upload-row">
+              <button
+                type="button"
+                className="btn-primary"
+                disabled={analyzing || aiHealth?.ok === false}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                Choose file
               </button>
-            ) : null}
+              {!onboarding ? (
+                <button type="button" className="btn-secondary" onClick={handleDemoCsv}>
+                  Try demo data
+                </button>
+              ) : null}
+            </div>
           </div>
           <div className="bank-import-actions">
             <button type="button" className="btn-ghost" onClick={() => setStep('account')}>

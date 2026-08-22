@@ -18,6 +18,34 @@ export interface AnalyzeBankImportRequest {
   minMonthlyAmount?: number
 }
 
+async function messageFromFunctionsError(error: unknown, data: unknown): Promise<string> {
+  if (data && typeof data === 'object') {
+    const payload = data as { error?: string; message?: string }
+    if (typeof payload.error === 'string' && payload.error.trim()) return payload.error
+    if (typeof payload.message === 'string' && payload.message.trim()) return payload.message
+  }
+
+  if (!error || typeof error !== 'object') {
+    return 'AI analysis failed.'
+  }
+
+  const err = error as { message?: string; context?: Response }
+  const fallback = err.message || 'AI analysis failed.'
+
+  try {
+    const context = err.context
+    if (context && typeof context.json === 'function') {
+      const body = (await context.json()) as { error?: string; message?: string; code?: string }
+      if (typeof body.error === 'string' && body.error.trim()) return body.error
+      if (typeof body.message === 'string' && body.message.trim()) return body.message
+    }
+  } catch {
+    // Keep the generic Supabase message if the body cannot be read.
+  }
+
+  return fallback
+}
+
 export async function checkBankImportAiHealth(): Promise<BankImportAiHealth> {
   if (!isSupabaseConfigured) {
     return {
@@ -31,10 +59,13 @@ export async function checkBankImportAiHealth(): Promise<BankImportAiHealth> {
     const supabase = getSupabase()
     const { data, error } = await supabase.functions.invoke('bank-import-ai-health', { body: {} })
     if (error) {
-      return { configured: false, ok: false, message: error.message }
+      return {
+        configured: false,
+        ok: false,
+        message: await messageFromFunctionsError(error, data),
+      }
     }
-    const result = data as BankImportAiHealth
-    return result
+    return data as BankImportAiHealth
   } catch (err) {
     return {
       configured: false,
@@ -53,7 +84,7 @@ export async function analyzeBankImportWithAi(
   })
 
   if (error) {
-    throw new Error(error.message || 'AI analysis failed.')
+    throw new Error(await messageFromFunctionsError(error, data))
   }
 
   const payload = data as { error?: string; analysis?: AiAnalysisResult }
