@@ -24,9 +24,14 @@ export interface AnalyzeBankImportRequest {
   minMonthlyAmount?: number
 }
 
+export interface AnalyzeBankImportOptions {
+  /** Called while we quietly wait out OpenAI rate limits — keep the user on the loading screen. */
+  onStatus?: (message: string) => void
+}
+
 async function messageFromFunctionsError(error: unknown, data: unknown): Promise<string> {
   if (data && typeof data === 'object') {
-    const payload = data as { error?: string; message?: string }
+    const payload = data as { error?: string; message?: string; code?: string }
     if (typeof payload.error === 'string' && payload.error.trim()) return payload.error
     if (typeof payload.message === 'string' && payload.message.trim()) return payload.message
   }
@@ -44,12 +49,32 @@ async function messageFromFunctionsError(error: unknown, data: unknown): Promise
       const body = (await context.json()) as { error?: string; message?: string; code?: string }
       if (typeof body.error === 'string' && body.error.trim()) return body.error
       if (typeof body.message === 'string' && body.message.trim()) return body.message
+      if (body.code === 'OPENAI_ERROR') return body.error || fallback
     }
   } catch {
     // Keep the generic Supabase message if the body cannot be read.
   }
 
   return fallback
+}
+
+function isTransientAiCapacityError(message: string): boolean {
+  const lower = message.toLowerCase()
+  return (
+    lower.includes('rate-limit') ||
+    lower.includes('rate limiting') ||
+    lower.includes('tokens per minute') ||
+    lower.includes('temporarily limiting') ||
+    lower.includes('busy') ||
+    lower.includes('429') ||
+    lower.includes('try again') ||
+    lower.includes('wait 1') ||
+    lower.includes('wait about a minute')
+  )
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 export async function checkBankImportAiHealth(): Promise<BankImportAiHealth> {
@@ -81,9 +106,7 @@ export async function checkBankImportAiHealth(): Promise<BankImportAiHealth> {
   }
 }
 
-export async function analyzeBankImportWithAi(
-  request: AnalyzeBankImportRequest,
-): Promise<AiAnalysisResult> {
+async function invokeAnalyzeOnce(request: AnalyzeBankImportRequest): Promise<AiAnalysisResult> {
   const supabase = getSupabase()
   const { data, error } = await supabase.functions.invoke('bank-import-analyze', {
     body: request,
@@ -98,4 +121,40 @@ export async function analyzeBankImportWithAi(
   if (!payload.analysis) throw new Error('AI analysis returned no results.')
 
   return payload.analysis
+}
+
+/**
+ * Runs statement analysis. If OpenAI is briefly rate-limited, waits and retries
+ * automatically so the customer stays on the loading screen instead of giving up.
+ */
+export async function analyzeBankImportWithAi(
+  request: AnalyzeBankImportRequest,
+  options?: AnalyzeBankImportOptions,
+): Promise<AiAnalysisResult> {
+  const waitsMs = [20_000, 40_000, 60_000]
+  let lastError: Error | null = null
+
+  for (let attempt = 0; attempt <= waitsMs.length; attempt++) {
+    try {
+      if (attempt === 0) {
+        options?.onStatus?.('Reading your statement and preparing the draft…')
+      }
+      return await invokeAnalyzeOnce(request)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'AI analysis failed.'
+      lastError = err instanceof Error ? err : new Error(message)
+
+      const canRetry = attempt < waitsMs.length && isTransientAiCapacityError(message)
+      if (!canRetry) throw lastError
+
+      const waitMs = waitsMs[attempt]!
+      const waitSec = Math.round(waitMs / 1000)
+      options?.onStatus?.(
+        `Still working — OpenAI is busy, so we’re waiting about ${waitSec} seconds and trying again automatically…`,
+      )
+      await sleep(waitMs)
+    }
+  }
+
+  throw lastError ?? new Error('AI analysis failed.')
 }

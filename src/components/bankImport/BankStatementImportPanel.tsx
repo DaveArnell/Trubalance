@@ -111,6 +111,9 @@ export function BankStatementImportPanel({
   const [aiNotes, setAiNotes] = useState<string | null>(null)
   const [parsedCount, setParsedCount] = useState(0)
   const [dragOver, setDragOver] = useState(false)
+  const [analyzingStatus, setAnalyzingStatus] = useState(
+    'Reading your statement and preparing the draft…',
+  )
   const dragDepthRef = useRef(0)
 
   useEffect(() => {
@@ -169,6 +172,7 @@ export function BankStatementImportPanel({
     setStep('analyzing')
     setError(null)
     setAiNotes(null)
+    setAnalyzingStatus('Reading your statement and preparing the draft…')
     try {
       const result = await analyzeBankTransactions(
         {
@@ -178,7 +182,11 @@ export function BankStatementImportPanel({
           businessId,
           minMonthlyAmount: minMonthlyAmount > 0 ? minMonthlyAmount : undefined,
         },
-        { sourceAccountId: accountId, fileName: sourceFileName },
+        {
+          sourceAccountId: accountId,
+          fileName: sourceFileName,
+          onStatus: setAnalyzingStatus,
+        },
       )
 
       if (!result.aiConfigured || result.suggestions.length === 0) {
@@ -565,8 +573,10 @@ export function BankStatementImportPanel({
       {step === 'analyzing' && (
         <div className="bank-import-panel">
           <p className="bank-import-hint" role="status">
-            Reading your statement with the same DIY analysis prompt as ChatGPT… This can take a
-            short while on a long file.
+            {analyzingStatus}
+          </p>
+          <p className="muted bank-import-hint">
+            Please keep this page open. Longer statements can take a minute or two.
           </p>
         </div>
       )}
