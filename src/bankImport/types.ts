@@ -72,6 +72,10 @@ export interface BankImportSuggestion {
   frequency: SuggestionFrequency
   likelyDueDay?: number
   likelyDueMonth?: number
+  /** e.g. "Mar, Jun, Sep, Dec" for reserve rows */
+  dueMonthsLabel?: string
+  /** Statement payee as shown on the bank file */
+  bankPayee?: string
   confidence: number
   reason: string
   destination: SuggestionDestination
@@ -82,6 +86,7 @@ export interface BankImportSuggestion {
   sourceAccountId?: string
   editedName?: string
   editedAmount?: number
+  editedDueDay?: number
   editedDestination?: SuggestionDestination
   isInflow: boolean
   /** AI review bucket */

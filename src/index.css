@@ -24357,6 +24357,133 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   margin-bottom: var(--space-5);
 }
 
+.bank-import-status-legend {
+  margin: 0 0 var(--space-3);
+  font-size: 0.85rem;
+}
+
+.bank-import-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+}
+
+.bank-import-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.bank-import-table th,
+.bank-import-table td {
+  padding: 8px 10px;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.bank-import-table th {
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: var(--bg-subtle);
+  white-space: nowrap;
+}
+
+.bank-import-table-row--ignored {
+  opacity: 0.55;
+}
+
+.bank-import-table-row--accepted,
+.bank-import-table-row--edited {
+  background: color-mix(in srgb, var(--overview-accent, #0f766e) 5%, transparent);
+}
+
+.bank-import-table-status {
+  width: 2.5rem;
+  text-align: center;
+  font-size: 1rem;
+}
+
+.bank-import-table-input,
+.bank-import-table-select {
+  width: 100%;
+  min-width: 0;
+  padding: 7px 9px;
+  font: inherit;
+  color: var(--text-primary);
+  border: 1px solid #c5cdd6;
+  border-radius: var(--radius-sm);
+  background: #fff;
+  box-shadow: inset 0 1px 2px rgb(15 23 42 / 4%);
+}
+
+.bank-import-table-input:focus,
+.bank-import-table-select:focus {
+  outline: 2px solid color-mix(in srgb, var(--overview-accent, #0f766e) 45%, white);
+  outline-offset: 1px;
+}
+
+.bank-import-table-input--name {
+  min-width: 8rem;
+  font-weight: 600;
+}
+
+.bank-import-table-input--day {
+  width: 4.25rem;
+  min-width: 4.25rem;
+  text-align: center;
+}
+
+.bank-import-table-input--amount {
+  width: 7rem;
+  min-width: 6.5rem;
+}
+
+.bank-import-table-select {
+  min-width: 10rem;
+  background-color: #f4f6f8;
+}
+
+.bank-import-table-payee,
+.bank-import-table-months {
+  display: inline-block;
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.bank-import-table-actions {
+  white-space: nowrap;
+}
+
+.bank-import-table-actions .btn-tiny + .btn-tiny {
+  margin-left: 4px;
+}
+
+.bank-import-table-note {
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.bank-import-table-note p {
+  margin: 4px 0 0;
+  max-width: 16rem;
+  white-space: normal;
+}
+
+.bank-import-ignored-hint {
+  margin: var(--space-2) 0 0;
+  font-size: 0.8rem;
+}
+
 .bank-import-ai-status {
   margin: 0 0 var(--space-4);
   padding: 10px 12px;

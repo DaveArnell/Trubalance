@@ -8,7 +8,10 @@ export interface BankImportAiHealth {
 }
 
 export interface AnalyzeBankImportRequest {
-  groups: TransactionGroupForAi[]
+  /** Preferred: compact tab-separated ledger (date, description, amount). */
+  ledger?: string
+  /** Legacy fallback only. */
+  groups?: TransactionGroupForAi[]
   analysisPeriod: { start_date: string; end_date: string; months_covered: number }
   scopeLevel: string
   scopeId: string

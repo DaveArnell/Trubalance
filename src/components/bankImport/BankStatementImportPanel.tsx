@@ -653,8 +653,8 @@ export function BankStatementImportPanel({
                 from <strong>{parsedCount}</strong> transactions
               </>
             ) : null}
-            . Stronger suggestions are pre-selected — edit amounts, ignore anything wrong, then add
-            what you want.
+            . Same style of tables as before — edit day, amount, or ignore rows, then add what you
+            want.
           </p>
 
           <BankImportSuggestionReview

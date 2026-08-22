@@ -1,6 +1,6 @@
 import type { BankImportAnalysisInput, BankImportAnalysisResult } from './types'
 import { mapAiAnalysisToSuggestions } from './mapAiSuggestions'
-import { analysisPeriodFromTransactions, prepareTransactionGroups } from './prepareForAi'
+import { analysisPeriodFromTransactions, prepareCompactLedger } from './prepareForAi'
 import { analyzeBankImportWithAi, checkBankImportAiHealth } from '../services/bankImportApi'
 import { isSupabaseConfigured } from '../lib/supabase'
 
@@ -22,11 +22,11 @@ export const serverAiBankImportAdapter: BankImportAiAdapter = {
       }
     }
 
-    const groups = prepareTransactionGroups(input.transactions)
+    const ledger = prepareCompactLedger(input.transactions)
     const analysisPeriod = analysisPeriodFromTransactions(input.transactions)
 
     const analysis = await analyzeBankImportWithAi({
-      groups,
+      ledger,
       analysisPeriod,
       scopeLevel: input.scopeLevel,
       scopeId: input.scopeId,

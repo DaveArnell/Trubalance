@@ -7,63 +7,75 @@ const corsHeaders = {
 }
 
 /**
- * Same rules as the DIY ChatGPT statement prompt — JSON output instead of markdown tables.
- * Keep in sync with src/content/diyStatementPrompt.ts
+ * Same rules as src/content/diyStatementPrompt.ts — JSON instead of markdown tables.
+ * Keep in sync when the DIY prompt changes.
  */
-function buildSystemPrompt(minMonthly: number | null): string {
-  const threshold =
-    minMonthly != null && minMonthly > 0
-      ? `£${minMonthly}`
-      : '£200 (default — caller did not override)'
+function buildDiySystemPrompt(minMonthly: number): string {
+  return `You are helping set up Cash Prophet for a UK small business.
 
-  return `You are helping set up Cash Prophet for a UK small business from ONE bank statement’s transaction groups.
-
+You will receive a compact bank transaction ledger for ONE business (tab-separated: date, description, amount). Work only from this ledger. Do not assume industry or known suppliers.
 You are not preparing accounts, submitting tax returns, or giving regulated financial advice.
-Work ONLY from the supplied transaction_groups. Do not invent industry or known suppliers.
 
-GOAL — FIRST DRAFT for Cash Prophet:
-A) monthly_accruing_suggestions — about once per calendar month
-B) reserve_planner_suggestions — quarterly / six-monthly / annual / large non-monthly
-C) expected_receipt_suggestions — only identifiable non-routine future money (NOT daily card takings)
-D) manual_review_items — uncertain items needing a human question
-E) excluded_patterns — weekly noise, transfers, refunds, small/unclear patterns
+GOAL — FIRST DRAFT for Cash Prophet (be as complete as a careful human + ChatGPT review):
+A) monthly_accruing_suggestions — Monthly commitments
+B) reserve_planner_suggestions — Reserve Planner (quarterly / six-monthly / annual / large non-monthly)
+C) expected_receipt_suggestions — only rare non-routine future money (NOT daily card takings); usually empty
+D) manual_review_items — up to 5 confirm-first questions
+E) excluded_patterns — Not imported (noticed only)
 
-MEANINGFUL MONTHLY THRESHOLD = ${threshold}
+MEANINGFUL MONTHLY THRESHOLD = £${minMonthly}
 - Minimum size for monthly bills meaningful enough to track — not every small cost.
 - Drop small recurring noise clearly under this per month → excluded_patterns.
 - Do NOT drop clear monthly costs around/above the threshold just because the amount varies.
 
-CRITICAL OUTPUT QUALITY (match a careful human review):
-- Prefer MANY specific payee rows over a few vague lumps. NEVER merge unrelated suppliers into “Utilities”, “Software”, or “Other”.
-- Separate finance agreements / policies to the same lender or insurer into separate rows when amounts or schedules differ (e.g. two Barclaycard agreements).
-- Keep bank-facing text in supplier_group; suggested_name = short plain Cash Prophet label (Property payment, Payroll, Nest pension, Mailchimp, British Gas, HMRC VAT, etc.).
-- Amounts: ONE number with pence when the statement has pence. Do NOT round to nearest thousand or even nearest £10. Fixed → latest repeated amount; stable variable → median of ~last 6; recent level change → weight last 3–4.
-- One due day only: integer 1–31, never ranges.
-- Payroll: ONE monthly row “Payroll” with a recent-run total (cluster early-month / payroll wording) — not per person. Exclude dividends from Payroll.
-- Variable monthly (tax, utilities, finance, revolving credit) stays Monthly — not Reserve.
-- Must appear in most months across a meaningful stretch for Monthly. Short recent window only → Reserve (if large/cyclical) or excluded (if unclear).
-- Weekly / several times most months → excluded (do not invent a monthly total).
+ONE DAY ONLY
+- suggested_due_day / likely_due_day must be a single integer 1–31.
+- Never ranges. Use the most common day, or the median of recent days if it wobbles.
 
-RESERVE PLANNER (do not under-fill):
+WEEKLY VS MONTHLY VS RESERVE
+- Several times most months / ~weekly → excluded (do not invent a monthly total).
+- About once per calendar month → Monthly.
+- Roughly every 3 / 6 / 12 months, or same month(s) each year → Reserve — even if the payee looks odd.
+- Do NOT dump large cyclical payments into excluded as “irregular” or “internal” if amount and spacing clearly repeat.
+
+MONTHLY RULES
+- Variable monthly (tax, utilities, finance, revolving credit) stays Monthly — not Reserve.
+- Must appear in most months across a meaningful stretch.
+- Sort monthly_accruing_suggestions by suggested_due_day ascending.
+- Distinct rows per payee / agreement — NEVER merge into vague “Utilities”, “Software”, or “Other”.
+- Separate Barclaycard / Capital on Tap / GoCardless agreements with different refs into separate rows.
+
+RESERVE PLANNER (do not under-fill)
 Include when ANY fit:
-1) Quarterly-ish (~80–100 days) or same 4 month-slots each year — list ALL due months in likely_payment_months (e.g. Mar, Jun, Sep, Dec) even if only some appear in the file.
+1) Quarterly-ish (~80–100 days) or same 4 month-slots — list ALL due months in likely_payment_months as month names (e.g. "Mar","Jun","Sep","Dec") even if only some appear.
 2) Six-monthly or annual repeats.
-3) Large non-monthly bills that matter for cash planning (VAT, corporation tax when identifiable, insurance, licences, large landlord/management payments, big yearly charges).
-4) Purpose unknown is fine: keep payee-based name, lower confidence, but STILL include if schedule and size qualify.
+3) Large non-monthly bills (VAT, corporation tax when identifiable, insurance, licences, large landlord/management, big yearly charges).
+4) Purpose unknown is fine: payee-based name, lower confidence, but STILL include if schedule and size qualify.
 Never put every-month payments in Reserve.
 
-For reserve_planner_suggestions:
-- suggested_annual_amount = the payment size when due (same sense as a “Amount (£)” column on a reserve table) — e.g. one VAT payment ≈ 23999.00, not a monthly slice and not a round 12000.
-- suggested_monthly_reserve = suggested_annual_amount / 12 for annual, or payment/4 for quarterly, etc. (secondary; prefer accurate payment size in suggested_annual_amount).
-- schedule: quarterly | annual | specific_months | other as appropriate.
-- likely_payment_months: month names as in data (e.g. "Mar","Jun","Sep","Dec").
+PAYROLL
+- Early-month cluster / payroll or wage wording → ONE Monthly row “Payroll”, one recent-run total. Not per person. Exclude dividends.
+
+AMOUNTS
+- One number only — never ranges. Keep pence (e.g. 17851.52 not 18000 or 20000).
+- Fixed → latest repeated amount.
+- Stable variable → median of ~last 6.
+- Recent level change → weight last 3–4 more.
+- For reserve: suggested_annual_amount = payment size when due (e.g. one VAT payment), NOT a rounded guess.
+- suggested_monthly_reserve = payment/12 for annual, payment/4 for quarterly, etc.
+
+NAMES
+- suggested_name = short plain Cash Prophet label.
+- bank_payee / supplier_group = as on the statement (may include refs).
+- Do NOT put long refs in suggested_name.
 
 CONFIDENCE
-- high / 🟢-like when consistent; medium / 🟠 when estimated; low / 🔴 when draft / decide first.
-- confidence 0–100; confidence_label high|medium|low.
+- confidence_label high ≈ 🟢 enter; medium ≈ 🟠 enter then check; low ≈ 🔴 decide first.
+- confidence 0–100.
 
-EXCLUSIONS
-List meaningful noticed-but-not-imported patterns in excluded_patterns with a clear reason_excluded (weekly; below threshold; purchase activity; transfers; unclear pattern; etc.).
+COMPLETENESS
+Aim for many specific monthly rows when the ledger supports them (often 10–25 for a busy SME), plus a full Reserve table — not 2–3 vague lumps.
+List meaningful exclusions in excluded_patterns with clear reasons.
 
 Return ONLY valid JSON matching the schema. No markdown.`
 }
@@ -131,6 +143,7 @@ Deno.serve(async (req) => {
   }
 
   let body: {
+    ledger?: string
     groups?: unknown[]
     analysisPeriod?: { start_date: string; end_date: string; months_covered: number }
     scopeLevel?: string
@@ -151,14 +164,17 @@ Deno.serve(async (req) => {
     return jsonResponse({ error: 'businessId is required for statement analysis.' }, 400)
   }
 
-  const groups = body.groups ?? []
-  if (!Array.isArray(groups) || groups.length === 0) {
-    return jsonResponse({ error: 'No transaction groups to analyse' }, 400)
+  const ledger =
+    typeof body.ledger === 'string' && body.ledger.trim().length > 0
+      ? body.ledger.trim()
+      : ''
+  const groups = Array.isArray(body.groups) ? body.groups : []
+
+  if (!ledger && groups.length === 0) {
+    return jsonResponse({ error: 'No transactions to analyse' }, 400)
   }
 
-  const admin = serviceKey
-    ? createClient(supabaseUrl, serviceKey)
-    : supabase
+  const admin = serviceKey ? createClient(supabaseUrl, serviceKey) : supabase
 
   const { data: member } = await admin
     .from('workspace_members')
@@ -213,44 +229,55 @@ Deno.serve(async (req) => {
     )
   }
 
-  // Prefer a stronger model when set. Default mini for reliability on large statements.
-  const model = Deno.env.get('OPENAI_MODEL_TEXT') ?? 'gpt-4o-mini'
-  const maxGroups = 80
-  const chunk = (groups as Record<string, unknown>[])
-    .slice(0, maxGroups)
-    .map((group) => {
-      const txs = Array.isArray(group.transactions) ? group.transactions.slice(-12) : []
-      return {
-        ...group,
-        sample_descriptions: Array.isArray(group.sample_descriptions)
-          ? group.sample_descriptions.slice(0, 4)
-          : [],
-        transactions: txs,
-      }
-    })
+  // Quality first — same class of model users get good DIY results with.
+  const model = Deno.env.get('OPENAI_MODEL_TEXT') ?? 'gpt-4o'
 
   const minMonthly =
     typeof body.minMonthlyAmount === 'number' && Number.isFinite(body.minMonthlyAmount)
-      ? Math.max(0, Math.round(body.minMonthlyAmount))
-      : null
-
-  const userPayload = {
-    analysis_period: body.analysisPeriod,
-    scope: { level: body.scopeLevel, id: body.scopeId },
-    meaningful_monthly_threshold: minMonthly,
-    transaction_groups: chunk,
-    instructions:
-      'Fill monthly_accruing_suggestions and reserve_planner_suggestions generously with specific payees (aim for completeness like a careful spreadsheet review). Keep pence. Do not lump. Obey meaningful_monthly_threshold. List exclusions.',
-  }
+      ? Math.max(1, Math.round(body.minMonthlyAmount))
+      : 200
 
   const schemaHint = `{
   "analysis_period": { "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD", "months_covered": 0 },
-  "monthly_accruing_suggestions": [{ "suggested_name": "Payroll", "supplier_group": "PAYROLL GRP", "category": "payroll", "frequency": "monthly", "suggested_monthly_amount": 17851.52, "amount_method": "recent run total", "suggested_due_day": 2, "confidence": 75, "confidence_label": "medium", "evidence": [{ "date": "2025-01-02", "description": "", "amount": -17851.52 }], "reasoning_summary": "", "warnings": [] }],
-  "reserve_planner_suggestions": [{ "suggested_name": "HMRC VAT", "category": "hmrc", "schedule": "quarterly", "suggested_annual_amount": 23999.00, "suggested_monthly_reserve": 1999.92, "likely_payment_months": ["Mar","Jun","Sep","Dec"], "likely_due_day": 11, "amount_method": "typical payment", "confidence": 70, "confidence_label": "medium", "evidence": [], "reasoning_summary": "", "warnings": [] }],
+  "monthly_accruing_suggestions": [{
+    "suggested_name": "Payroll",
+    "bank_payee": "PAYROLL GRP / SWINDON PAY GRP",
+    "supplier_group": "PAYROLL GRP / SWINDON PAY GRP",
+    "category": "payroll",
+    "frequency": "monthly",
+    "suggested_monthly_amount": 17851.52,
+    "amount_method": "recent run total",
+    "suggested_due_day": 2,
+    "confidence": 75,
+    "confidence_label": "medium",
+    "evidence": [{ "date": "2025-01-02", "description": "PAYROLL GRP", "amount": -17851.52 }],
+    "reasoning_summary": "",
+    "warnings": []
+  }],
+  "reserve_planner_suggestions": [{
+    "suggested_name": "HMRC VAT",
+    "bank_payee": "HMRC E VAT 000918124048",
+    "category": "hmrc",
+    "schedule": "quarterly",
+    "suggested_annual_amount": 23999.00,
+    "suggested_monthly_reserve": 1999.92,
+    "likely_payment_months": ["Mar","Jun","Sep","Dec"],
+    "likely_due_day": 11,
+    "amount_method": "typical payment",
+    "confidence": 70,
+    "confidence_label": "medium",
+    "evidence": [],
+    "reasoning_summary": "",
+    "warnings": []
+  }],
   "expected_receipt_suggestions": [],
   "manual_review_items": [{ "supplier_group": "", "issue": "", "question_for_user": "", "evidence": [] }],
-  "excluded_patterns": [{ "supplier_group": "", "reason_excluded": "" }]
+  "excluded_patterns": [{ "supplier_group": "BOOKER LTD", "reason_excluded": "Irregular purchase activity" }]
 }`
+
+  const userContent = ledger
+    ? `Schema (keep pence; many specific rows):\n${schemaHint}\n\nAnalysis period: ${JSON.stringify(body.analysisPeriod ?? null)}\nMeaningful monthly threshold: £${minMonthly}\nFile: ${body.fileName ?? 'statement'}\n\nLedger (date\\tdescription\\tamount):\n${ledger}`
+    : `Schema:\n${schemaHint}\n\nFallback grouped data (prefer ledger when available):\n${JSON.stringify({ analysis_period: body.analysisPeriod, groups: groups.slice(0, 80) })}`
 
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -263,13 +290,11 @@ Deno.serve(async (req) => {
         model,
         response_format: { type: 'json_object' },
         messages: [
-          { role: 'system', content: buildSystemPrompt(minMonthly) },
-          {
-            role: 'user',
-            content: `Schema (example amounts show pence precision — copy that precision):\n${schemaHint}\n\nData:\n${JSON.stringify(userPayload)}`,
-          },
+          { role: 'system', content: buildDiySystemPrompt(minMonthly) },
+          { role: 'user', content: userContent },
         ],
-        temperature: 0.15,
+        temperature: 0.1,
+        max_tokens: 12000,
       }),
     })
 

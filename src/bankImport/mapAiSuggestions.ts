@@ -3,9 +3,75 @@ import { toAmount } from '../utils/amounts'
 import type { AiAnalysisResult } from './analysisSchema'
 import type { BankImportSuggestion, SuggestionCategory } from './types'
 
-/** Keep pence — do not round to whole pounds (that produced 20000 / 12000 junk). */
 function money2(value: number): number {
   return Math.round(toAmount(value) * 100) / 100
+}
+
+const MONTH_NAME_TO_NUM: Record<string, number> = {
+  jan: 1,
+  january: 1,
+  feb: 2,
+  february: 2,
+  mar: 3,
+  march: 3,
+  apr: 4,
+  april: 4,
+  may: 5,
+  jun: 6,
+  june: 6,
+  jul: 7,
+  july: 7,
+  aug: 8,
+  august: 8,
+  sep: 9,
+  sept: 9,
+  september: 9,
+  oct: 10,
+  october: 10,
+  nov: 11,
+  november: 11,
+  dec: 12,
+  december: 12,
+}
+
+function parseMonthToken(raw: number | string): number | null {
+  if (typeof raw === 'number' && Number.isFinite(raw)) {
+    const n = Math.round(raw)
+    return n >= 1 && n <= 12 ? n : null
+  }
+  if (typeof raw !== 'string') return null
+  const trimmed = raw.trim()
+  if (!trimmed) return null
+  const asNum = Number(trimmed)
+  if (Number.isFinite(asNum)) {
+    const n = Math.round(asNum)
+    return n >= 1 && n <= 12 ? n : null
+  }
+  return MONTH_NAME_TO_NUM[trimmed.toLowerCase()] ?? null
+}
+
+function formatDueMonths(months: Array<number | string>): { label: string; first?: number } {
+  const labels: string[] = []
+  const nums: number[] = []
+  for (const token of months) {
+    if (typeof token === 'string' && MONTH_NAME_TO_NUM[token.trim().toLowerCase()] != null) {
+      labels.push(token.trim().slice(0, 3).replace(/^./, (c) => c.toUpperCase()))
+      const n = parseMonthToken(token)
+      if (n) nums.push(n)
+      continue
+    }
+    const n = parseMonthToken(token)
+    if (n) {
+      nums.push(n)
+      labels.push(
+        ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][
+          n - 1
+        ]!,
+      )
+    }
+  }
+  const unique = [...new Set(labels)]
+  return { label: unique.join(', '), first: nums[0] }
 }
 
 function mapCategory(raw: string): SuggestionCategory {
@@ -48,10 +114,22 @@ function mapReserveFrequency(schedule: string): BankImportSuggestion['frequency'
   return 'irregular'
 }
 
-/** High / medium drafts start accepted so the user mainly edits or ignores. */
-function defaultStatus(confidence: number, label?: string): BankImportSuggestion['status'] {
+function defaultStatus(
+  confidence: number,
+  label?: string,
+): BankImportSuggestion['status'] {
   if (label === 'low' || confidence < 55) return 'pending'
   return 'accepted'
+}
+
+function confidenceFromLabel(label?: string, confidence?: number): number {
+  if (typeof confidence === 'number' && Number.isFinite(confidence)) {
+    return Math.min(100, Math.max(0, Math.round(confidence)))
+  }
+  if (label === 'high') return 85
+  if (label === 'medium') return 70
+  if (label === 'low') return 40
+  return 60
 }
 
 export function mapAiAnalysisToSuggestions(
@@ -60,24 +138,32 @@ export function mapAiAnalysisToSuggestions(
 ): BankImportSuggestion[] {
   const suggestions: BankImportSuggestion[] = []
 
-  for (const item of analysis.monthly_accruing_suggestions) {
+  const monthly = [...analysis.monthly_accruing_suggestions].sort((a, b) => {
+    const da = a.suggested_due_day ?? 99
+    const db = b.suggested_due_day ?? 99
+    return da - db
+  })
+
+  for (const item of monthly) {
     const amount = money2(item.suggested_monthly_amount)
+    const bankPayee = (item.bank_payee || item.supplier_group || '').trim()
     suggestions.push({
       id: newId(),
       suggestedName: item.suggested_name,
+      bankPayee: bankPayee || undefined,
       category: mapCategory(item.category || item.suggested_name),
       amount,
       averageAmount: amount,
       frequency: mapMonthlyFrequency(item.frequency),
       likelyDueDay: item.suggested_due_day ?? undefined,
-      confidence: Math.min(100, Math.max(0, Math.round(item.confidence))),
+      confidence: confidenceFromLabel(item.confidence_label, item.confidence),
       reason: [item.reasoning_summary, item.amount_method, ...item.warnings]
         .filter(Boolean)
         .join(' '),
       destination: 'building_commitment',
       status: defaultStatus(item.confidence, item.confidence_label),
       transactionIds: [],
-      sampleDescriptions: [item.supplier_group, ...item.evidence.map((e) => e.description)]
+      sampleDescriptions: [bankPayee, ...item.evidence.map((e) => e.description)]
         .filter(Boolean)
         .slice(0, 6),
       sourceAccountId: options?.sourceAccountId,
@@ -88,7 +174,6 @@ export function mapAiAnalysisToSuggestions(
   }
 
   for (const item of analysis.reserve_planner_suggestions) {
-    // Payment size when due (ChatGPT “Amount” column) — not a monthly provision slice.
     const paymentAmount = money2(
       item.suggested_annual_amount > 0
         ? item.suggested_annual_amount
@@ -96,23 +181,24 @@ export function mapAiAnalysisToSuggestions(
           ? item.suggested_monthly_reserve * 12
           : 0,
     )
-    const month = item.likely_payment_months[0]
+    const months = formatDueMonths(item.likely_payment_months ?? [])
+    const bankPayee = (item.bank_payee || '').trim()
     suggestions.push({
       id: newId(),
       suggestedName: item.suggested_name,
+      bankPayee: bankPayee || undefined,
       category: mapCategory(item.category || item.suggested_name),
       amount: paymentAmount,
       averageAmount: paymentAmount,
       frequency: mapReserveFrequency(item.schedule),
       likelyDueDay: item.likely_due_day ?? undefined,
-      likelyDueMonth: month,
-      confidence: Math.min(100, Math.max(0, Math.round(item.confidence))),
+      likelyDueMonth: months.first,
+      dueMonthsLabel: months.label || undefined,
+      confidence: confidenceFromLabel(item.confidence_label, item.confidence),
       reason: [
         item.reasoning_summary,
         item.amount_method,
-        item.likely_payment_months.length
-          ? `Due months: ${item.likely_payment_months.join(', ')}`
-          : '',
+        months.label ? `Due months: ${months.label}` : '',
         ...item.warnings,
       ]
         .filter(Boolean)
@@ -120,7 +206,9 @@ export function mapAiAnalysisToSuggestions(
       destination: 'reserve_bill',
       status: defaultStatus(item.confidence, item.confidence_label),
       transactionIds: [],
-      sampleDescriptions: item.evidence.map((e) => e.description).slice(0, 5),
+      sampleDescriptions: [bankPayee, ...item.evidence.map((e) => e.description)]
+        .filter(Boolean)
+        .slice(0, 5),
       sourceAccountId: options?.sourceAccountId,
       isInflow: false,
       reviewSection: 'reserve_planner',
@@ -133,11 +221,12 @@ export function mapAiAnalysisToSuggestions(
     suggestions.push({
       id: newId(),
       suggestedName: item.suggested_name,
+      bankPayee: item.supplier_group || undefined,
       category: 'customer_receipt',
       amount,
       averageAmount: amount,
       frequency: 'one_off',
-      confidence: Math.min(100, Math.max(0, Math.round(item.confidence))),
+      confidence: confidenceFromLabel(item.confidence_label, item.confidence),
       reason: [item.reasoning_summary, ...item.warnings].filter(Boolean).join(' '),
       destination: 'expected_receipt',
       status: 'pending',
@@ -155,6 +244,7 @@ export function mapAiAnalysisToSuggestions(
     suggestions.push({
       id: newId(),
       suggestedName: item.supplier_group || 'Needs review',
+      bankPayee: item.supplier_group || undefined,
       category: 'other',
       amount: 0,
       averageAmount: 0,
@@ -176,6 +266,7 @@ export function mapAiAnalysisToSuggestions(
     suggestions.push({
       id: newId(),
       suggestedName: item.supplier_group || 'Excluded',
+      bankPayee: item.supplier_group || undefined,
       category: 'other',
       amount: 0,
       averageAmount: 0,

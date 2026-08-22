@@ -8,6 +8,8 @@ export interface AiEvidenceRow {
 
 export interface AiMonthlyAccruingSuggestion {
   suggested_name: string
+  /** Statement payee text for matching (preferred). */
+  bank_payee?: string
   supplier_group: string
   category: string
   frequency: 'weekly' | 'fortnightly' | 'monthly' | 'variable_monthly' | 'other'
@@ -23,11 +25,13 @@ export interface AiMonthlyAccruingSuggestion {
 
 export interface AiReservePlannerSuggestion {
   suggested_name: string
+  bank_payee?: string
   category: string
   schedule: 'quarterly' | 'annual' | 'specific_months' | 'irregular' | 'unknown'
   suggested_annual_amount: number
   suggested_monthly_reserve: number
-  likely_payment_months: number[]
+  /** Month numbers 1–12 and/or names like "Mar". */
+  likely_payment_months: Array<number | string>
   likely_due_day: number | null
   amount_method: string
   confidence: number

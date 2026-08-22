@@ -1,21 +1,10 @@
-import { formatCurrency } from '../../utils/format'
-import { MONTHS } from '../../utils/format'
-import {
-  categoryDisplayName,
-  destinationDisplayName,
-  frequencyDisplayName,
-  normalizeDestination,
-} from '../../bankImport/categorize'
-import {
-  LOW_CONFIDENCE_CATEGORY_OPTIONS,
-  SUGGESTION_DESTINATION_OPTIONS,
-} from '../../content/guidedSetup'
+import { normalizeDestination } from '../../bankImport/categorize'
+import { SUGGESTION_DESTINATION_OPTIONS } from '../../content/guidedSetup'
 import type { ImportTrendInsight } from '../../bankImport/trendInsights'
 import type {
   BankImportSuggestion,
   BankImportReviewSection,
   ImportSuggestionStatus,
-  SuggestionCategory,
   SuggestionDestination,
 } from '../../bankImport/types'
 
@@ -35,17 +24,15 @@ const SECTION_ORDER: BankImportReviewSection[] = [
   'excluded',
 ]
 
-const LOW_CONFIDENCE_THRESHOLD = 60
-
-function confidenceLabel(score: number): string {
-  if (score >= 80) return 'High'
-  if (score >= 60) return 'Medium'
-  return 'Low'
+function statusMark(suggestion: BankImportSuggestion): { symbol: string; title: string } {
+  if (suggestion.confidence >= 80) return { symbol: '🟢', title: 'Consistent — enter' }
+  if (suggestion.confidence >= 55) return { symbol: '🟠', title: 'Estimated — enter then check' }
+  return { symbol: '🔴', title: 'Draft — decide before trusting' }
 }
 
-function dueMonthLabel(month?: number): string {
-  if (!month || month < 1 || month > 12) return ''
-  return MONTHS[month - 1]!
+function effectiveDueDay(suggestion: BankImportSuggestion): number | '' {
+  const value = suggestion.editedDueDay ?? suggestion.likelyDueDay
+  return value && value >= 1 && value <= 31 ? value : ''
 }
 
 interface BankImportSuggestionReviewProps {
@@ -80,10 +67,13 @@ export function BankImportSuggestionReview({
   onUpdate,
   onSetStatus,
   insights = [],
-  compact = false,
 }: BankImportSuggestionReviewProps) {
   if (suggestions.length === 0) {
-    return <p className="muted">No suggestions yet. Try a longer statement or check AI is connected in Settings.</p>
+    return (
+      <p className="muted">
+        No suggestions yet. Try a longer statement or check AI is connected in Settings.
+      </p>
+    )
   }
 
   const grouped = SECTION_ORDER.map((section) => ({
@@ -94,181 +84,188 @@ export function BankImportSuggestionReview({
   return (
     <>
       <BankImportInsightsPanel insights={insights} />
-      {grouped.map(({ section, items }) => (
-        <section key={section} className="bank-import-review-section">
-          <h4 className="bank-import-review-section-title">{SECTION_LABELS[section]}</h4>
-          <div className={`bank-import-suggestion-list${compact ? ' bank-import-suggestion-list--compact' : ''}`}>
-            {items.map((suggestion) => {
-          const lowConfidence = suggestion.confidence < LOW_CONFIDENCE_THRESHOLD
-          const category = suggestion.category
-          const destination = normalizeDestination(
-            suggestion.editedDestination ?? suggestion.destination,
-          )
-          const dueMonth = dueMonthLabel(suggestion.likelyDueMonth)
-          const isExcluded = suggestion.reviewSection === 'excluded'
+      <p className="muted bank-import-status-legend">
+        🟢 enter · 🟠 enter then check · 🔴 decide before trusting
+      </p>
+      {grouped.map(({ section, items }) => {
+        const isMonthly = section === 'monthly_accruing'
+        const isReserve = section === 'reserve_planner'
+        const isExcluded = section === 'excluded'
+        const showDay = isMonthly || isReserve || section === 'expected_receipt'
 
-          return (
-            <article
-              key={suggestion.id}
-              className={`bank-import-suggestion bank-import-suggestion--${suggestion.status}`}
-            >
-              <div className="bank-import-suggestion-head">
-                <div>
-                  {isExcluded ? (
-                    <strong>{suggestion.suggestedName}</strong>
-                  ) : (
-                    <input
-                      className="bank-import-name-input"
-                      value={suggestion.editedName ?? suggestion.suggestedName}
-                      onChange={(event) =>
-                        onUpdate(suggestion.id, {
-                          editedName: event.target.value,
-                          status: 'edited',
-                        })
-                      }
-                    />
-                  )}
-                  <p className="bank-import-suggestion-meta muted">
-                    {categoryDisplayName(category)} · {frequencyDisplayName(suggestion.frequency)}
-                    {suggestion.likelyDueDay ? ` · around day ${suggestion.likelyDueDay}` : ''}
-                    {dueMonth ? ` · likely ${dueMonth}` : ''}
-                  </p>
-                  {destination === 'building_commitment' && (
-                    <p className="bank-import-suggestion-tag">Regular monthly outgoing</p>
-                  )}
-                </div>
-                {!isExcluded && (
-                <div className="bank-import-confidence">
-                  <span
-                    className={`bank-import-confidence-pill bank-import-confidence-pill--${confidenceLabel(suggestion.confidence).toLowerCase()}`}
-                  >
-                    {confidenceLabel(suggestion.confidence)} · {suggestion.confidence}%
-                  </span>
-                </div>
-                )}
-              </div>
-
-              <p className="bank-import-reason">{suggestion.reason}</p>
-              {suggestion.aiEvidence && suggestion.aiEvidence.length > 0 && (
-                <details className="bank-import-evidence">
-                  <summary>View supporting transactions</summary>
-                  <ul>
-                    {suggestion.aiEvidence.map((row, index) => (
-                      <li key={index}>
-                        {row.date} · {row.description} · {formatCurrency(Math.abs(row.amount))}
-                      </li>
-                    ))}
-                  </ul>
-                </details>
-              )}
-              {suggestion.sampleDescriptions.length > 0 && !suggestion.aiEvidence?.length && (
-                <p className="muted bank-import-samples">
-                  e.g. {suggestion.sampleDescriptions.join(' · ')}
-                </p>
-              )}
-
-              {!isExcluded && lowConfidence && (
-                <label className="bank-import-field bank-import-field--category-pick">
-                  <span>What is this?</span>
-                  <select
-                    className="bank-import-select"
-                    value={category}
-                    onChange={(event) =>
-                      onUpdate(suggestion.id, {
-                        category: event.target.value as SuggestionCategory,
-                        status: 'edited',
-                      })
-                    }
-                  >
-                    {LOW_CONFIDENCE_CATEGORY_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              )}
-
-              {!isExcluded && (
-              <div className="bank-import-suggestion-fields">
-                <label className="bank-import-field bank-import-field--inline">
-                  <span>Amount</span>
-                  <input
-                    type="number"
-                    min={0}
-                    step="0.01"
-                    className="bank-import-input"
-                    value={suggestion.editedAmount ?? suggestion.averageAmount}
-                    onChange={(event) =>
-                      onUpdate(suggestion.id, {
-                        editedAmount: Number(event.target.value),
-                        status: 'edited',
-                      })
-                    }
-                  />
-                </label>
-                <label className="bank-import-field bank-import-field--inline">
-                  <span>Add as</span>
-                  <select
-                    className="bank-import-select"
-                    value={destination}
-                    onChange={(event) =>
-                      onUpdate(suggestion.id, {
-                        editedDestination: event.target.value as SuggestionDestination,
-                        status: 'edited',
-                      })
-                    }
-                  >
-                    {SUGGESTION_DESTINATION_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <p className="bank-import-amount-hint muted">
-                  Suggested {formatCurrency(suggestion.averageAmount)}
-                  {' · '}
-                  {destinationDisplayName(destination)}
-                </p>
-              </div>
-              )}
-
-              {!isExcluded && (
-              <div className="bank-import-suggestion-actions">
-                <button
-                  type="button"
-                  className={`btn-tiny${suggestion.status === 'accepted' || suggestion.status === 'edited' ? ' btn-primary' : ' btn-secondary'}`}
-                  onClick={() =>
-                    onSetStatus(
-                      suggestion.id,
-                      suggestion.status === 'edited' ? 'edited' : 'accepted',
+        return (
+          <section key={section} className="bank-import-review-section">
+            <h4 className="bank-import-review-section-title">{SECTION_LABELS[section]}</h4>
+            <div className="bank-import-table-wrap">
+              <table className={`bank-import-table${isExcluded ? ' bank-import-table--excluded' : ''}`}>
+                <thead>
+                  <tr>
+                    {!isExcluded && <th scope="col">Status</th>}
+                    <th scope="col">{isExcluded ? 'Bank payee' : 'Name'}</th>
+                    {!isExcluded && <th scope="col">Bank payee</th>}
+                    {showDay && (
+                      <th scope="col">{isReserve ? 'Due day' : 'Day of month'}</th>
+                    )}
+                    {isReserve && <th scope="col">Due months</th>}
+                    {!isExcluded && <th scope="col">Amount (£)</th>}
+                    {!isExcluded && <th scope="col">Add as</th>}
+                    <th scope="col">{isExcluded ? 'Why excluded' : 'Actions'}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((suggestion) => {
+                    const destination = normalizeDestination(
+                      suggestion.editedDestination ?? suggestion.destination,
                     )
-                  }
-                >
-                  Accept
-                </button>
-                <button
-                  type="button"
-                  className="btn-tiny btn-ghost"
-                  onClick={() => onSetStatus(suggestion.id, 'ignored')}
-                >
-                  Ignore
-                </button>
-              </div>
-              )}
-            </article>
-          )
-        })}
-          </div>
-        </section>
-      ))}
+                    const mark = statusMark(suggestion)
+                    const bankPayee =
+                      suggestion.bankPayee ||
+                      suggestion.sampleDescriptions[0] ||
+                      ''
+
+                    if (isExcluded) {
+                      return (
+                        <tr key={suggestion.id} className="bank-import-table-row--excluded">
+                          <td>{suggestion.suggestedName}</td>
+                          <td className="muted">{suggestion.reason}</td>
+                        </tr>
+                      )
+                    }
+
+                    return (
+                      <tr
+                        key={suggestion.id}
+                        className={`bank-import-table-row bank-import-table-row--${suggestion.status}`}
+                      >
+                        <td className="bank-import-table-status" title={mark.title}>
+                          <span aria-label={mark.title}>{mark.symbol}</span>
+                        </td>
+                        <td>
+                          <input
+                            className="bank-import-table-input bank-import-table-input--name"
+                            value={suggestion.editedName ?? suggestion.suggestedName}
+                            onChange={(event) =>
+                              onUpdate(suggestion.id, {
+                                editedName: event.target.value,
+                                status: 'edited',
+                              })
+                            }
+                          />
+                        </td>
+                        <td>
+                          <span className="bank-import-table-payee" title={bankPayee}>
+                            {bankPayee || '—'}
+                          </span>
+                        </td>
+                        {showDay && (
+                          <td>
+                            <input
+                              type="number"
+                              min={1}
+                              max={31}
+                              className="bank-import-table-input bank-import-table-input--day"
+                              value={effectiveDueDay(suggestion)}
+                              onChange={(event) => {
+                                const parsed = Number(event.target.value)
+                                onUpdate(suggestion.id, {
+                                  editedDueDay:
+                                    Number.isFinite(parsed) && parsed >= 1 && parsed <= 31
+                                      ? Math.round(parsed)
+                                      : undefined,
+                                  status: 'edited',
+                                })
+                              }}
+                            />
+                          </td>
+                        )}
+                        {isReserve && (
+                          <td>
+                            <span className="bank-import-table-months">
+                              {suggestion.dueMonthsLabel || '—'}
+                            </span>
+                          </td>
+                        )}
+                        <td>
+                          <input
+                            type="number"
+                            min={0}
+                            step="0.01"
+                            className="bank-import-table-input bank-import-table-input--amount"
+                            value={suggestion.editedAmount ?? suggestion.averageAmount}
+                            onChange={(event) =>
+                              onUpdate(suggestion.id, {
+                                editedAmount: Number(event.target.value),
+                                status: 'edited',
+                              })
+                            }
+                          />
+                        </td>
+                        <td>
+                          <select
+                            className="bank-import-table-select"
+                            value={destination}
+                            onChange={(event) =>
+                              onUpdate(suggestion.id, {
+                                editedDestination: event.target.value as SuggestionDestination,
+                                status: 'edited',
+                              })
+                            }
+                          >
+                            {SUGGESTION_DESTINATION_OPTIONS.map((option) => (
+                              <option key={option.value} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="bank-import-table-actions">
+                          <button
+                            type="button"
+                            className={`btn-tiny${suggestion.status === 'accepted' || suggestion.status === 'edited' ? ' btn-primary' : ' btn-secondary'}`}
+                            onClick={() =>
+                              onSetStatus(
+                                suggestion.id,
+                                suggestion.status === 'edited' ? 'edited' : 'accepted',
+                              )
+                            }
+                          >
+                            Keep
+                          </button>
+                          <button
+                            type="button"
+                            className="btn-tiny btn-ghost"
+                            onClick={() => onSetStatus(suggestion.id, 'ignored')}
+                          >
+                            Ignore
+                          </button>
+                          {suggestion.reason ? (
+                            <details className="bank-import-table-note">
+                              <summary>Note</summary>
+                              <p>{suggestion.reason}</p>
+                            </details>
+                          ) : null}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+            {!isExcluded && items.some((s) => s.status === 'ignored') ? (
+              <p className="muted bank-import-ignored-hint">
+                Ignored rows stay listed until you add — they will not be imported.
+              </p>
+            ) : null}
+          </section>
+        )
+      })}
     </>
   )
 }
 
 export function countAcceptedSuggestions(suggestions: BankImportSuggestion[]): number {
   return suggestions.filter((item) => {
+    if (item.reviewSection === 'excluded') return false
     if (item.status !== 'accepted' && item.status !== 'edited') return false
     return normalizeDestination(item.editedDestination ?? item.destination) !== 'ignore'
   }).length

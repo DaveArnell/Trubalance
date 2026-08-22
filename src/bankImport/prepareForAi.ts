@@ -1,80 +1,45 @@
 import type { ParsedBankTransaction } from './types'
-import type { TransactionGroupForAi } from './analysisSchema'
-import { groupKeyForDescription } from './normalize'
 import { toAmount } from '../utils/amounts'
-
-const PAYROLL_MARKERS = /\b(PAYROLL|WAGES?|SALAR(Y|IES)|NET PAY|PAY GRP|SWINDON PAY)\b/i
-const DIVIDEND_MARKERS = /\bDIVIDEND/i
-const TRANSFER_MARKERS =
-  /\b(TRANSFER|TFR|SWEEP|INTERNAL|BETWEEN ACCOUNTS|TO SAV|FROM SAV|RESERVE)\b/i
-
-function isPayrollLine(description: string): boolean {
-  if (DIVIDEND_MARKERS.test(description)) return false
-  return PAYROLL_MARKERS.test(description)
-}
-
-function isTransferLine(description: string): boolean {
-  return TRANSFER_MARKERS.test(description)
-}
 
 function money2(value: number): number {
   return Math.round(toAmount(value) * 100) / 100
 }
 
+function shortDesc(value: string, max = 90): string {
+  const cleaned = value.replace(/\s+/g, ' ').trim()
+  if (cleaned.length <= max) return cleaned
+  return `${cleaned.slice(0, max - 1).trimEnd()}…`
+}
+
 /**
- * Compact payee groups for the model — keep payees distinct (not “Utilities”).
- * Prefer largest outflows so important bills are not dropped when capping group count.
- * Keep the payload small enough for Edge + OpenAI time limits on long statements.
+ * Compact ledger for the model — same raw visibility ChatGPT gets from a statement,
+ * without our earlier aggressive pre-grouping that collapsed payees.
  */
-export function prepareTransactionGroups(
+export function prepareCompactLedger(
   transactions: ParsedBankTransaction[],
-  options?: { maxGroups?: number },
-): TransactionGroupForAi[] {
-  const maxGroups = options?.maxGroups ?? 80
-  const buckets = new Map<string, ParsedBankTransaction[]>()
+  options?: { maxLines?: number },
+): string {
+  const maxLines = options?.maxLines ?? 2800
+  const sorted = [...transactions].sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id))
 
-  for (const tx of transactions) {
-    // Keep HMRC / card agreements separate by normalised payee — do not merge all tax into one bucket.
-    let key = groupKeyForDescription(tx.description)
-    if (isPayrollLine(tx.description)) key = '__PAYROLL__'
-    const list = buckets.get(key) ?? []
-    list.push(tx)
-    buckets.set(key, list)
+  // Prefer keeping outflows if we must truncate (bills matter more for this draft).
+  let rows = sorted
+  if (rows.length > maxLines) {
+    const outflows = sorted.filter((t) => t.amount < 0)
+    const inflows = sorted.filter((t) => t.amount >= 0)
+    if (outflows.length >= maxLines) {
+      rows = outflows.slice(-maxLines)
+    } else {
+      const inflowBudget = maxLines - outflows.length
+      rows = [...outflows, ...inflows.slice(-inflowBudget)].sort((a, b) =>
+        a.date.localeCompare(b.date),
+      )
+    }
   }
 
-  const groups: TransactionGroupForAi[] = []
-
-  for (const [supplierGroup, items] of buckets) {
-    const sorted = [...items].sort((a, b) => a.date.localeCompare(b.date))
-    const outTotal = money2(
-      items.filter((t) => t.amount < 0).reduce((s, t) => s + Math.abs(t.amount), 0),
-    )
-    const inTotal = money2(items.filter((t) => t.amount > 0).reduce((s, t) => s + t.amount, 0))
-    const shortDesc = (value: string) =>
-      value.length > 72 ? `${value.slice(0, 69).trimEnd()}…` : value
-
-    groups.push({
-      supplier_group: supplierGroup === '__PAYROLL__' ? 'Payroll' : shortDesc(supplierGroup),
-      sample_descriptions: [...new Set(items.map((t) => shortDesc(t.description)))].slice(0, 4),
-      transaction_count: items.length,
-      total_out: outTotal,
-      total_in: inTotal,
-      is_likely_transfer: items.some((t) => isTransferLine(t.description)),
-      is_likely_payroll:
-        supplierGroup === '__PAYROLL__' || items.some((t) => isPayrollLine(t.description)),
-      is_likely_hmrc: /\bHMRC\b/i.test(items.map((t) => t.description).join(' ')),
-      // Recent samples only — enough for pattern/amount, small enough for Edge timeouts.
-      transactions: sorted.slice(-12).map((t) => ({
-        date: t.date,
-        description: shortDesc(t.description),
-        amount: money2(t.amount),
-      })),
-    })
-  }
-
-  return groups
-    .sort((a, b) => b.total_out - a.total_out || b.transaction_count - a.transaction_count)
-    .slice(0, maxGroups)
+  return rows
+    .map((t) => `${t.date}\t${shortDesc(t.description)}\t${money2(t.amount).toFixed(2)}`)
+    .join('\n')
 }
 
 export function analysisPeriodFromTransactions(transactions: ParsedBankTransaction[]): {

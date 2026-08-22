@@ -140,7 +140,7 @@ export function applyBankImportSuggestions(
           name,
           schedule: 'monthly',
           amount,
-          dueDayOfMonth: suggestion.likelyDueDay ?? 28,
+          dueDayOfMonth: suggestion.editedDueDay ?? suggestion.likelyDueDay ?? 28,
           scopeLevel: scope.scopeLevel,
           scopeId: scope.scopeId,
           status: 'healthy',
