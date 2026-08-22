@@ -14,7 +14,7 @@ export const GUIDED_SETUP_PATH_OPTIONS = [
     lead: 'Upload a CSV or PDF for this business. Cash Prophet suggests monthly costs and reserve bills. Nothing is added until you say yes.',
     timeEstimate: 'About 10–15 minutes',
     highlights: [
-      'CSV works best; PDF is fine too',
+      'CSV or PDF from your bank',
       'Review and edit every suggestion',
       'One AI pass per business on the trial',
     ],

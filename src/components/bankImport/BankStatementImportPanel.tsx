@@ -300,7 +300,7 @@ export function BankStatementImportPanel({
           </h3>
           <p className="muted bank-import-lead">
             {onboarding
-              ? 'Pick the account this file belongs to so suggestions link to the right business or venue. CSV is best; PDF works too.'
+              ? 'Pick the current account this file belongs to so suggestions link to the right business or venue. CSV or PDF.'
               : BANK_IMPORT_NOTE}
           </p>
         </div>
@@ -413,8 +413,8 @@ export function BankStatementImportPanel({
       {step === 'upload' && (
         <div className="bank-import-panel">
           <p className="bank-import-hint">
-            CSV exports from your bank usually work best. PDF also supported. Prefer a longer history
-            when you can (ideally a year or more).
+            Upload a CSV or PDF export for this account. Prefer a longer history when you can
+            (ideally a year or more).
           </p>
           <div className="bank-import-upload-row">
             <input
