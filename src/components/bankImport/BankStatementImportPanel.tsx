@@ -565,7 +565,8 @@ export function BankStatementImportPanel({
       {step === 'analyzing' && (
         <div className="bank-import-panel">
           <p className="bank-import-hint" role="status">
-            Reading your statement and preparing suggested bills… This usually takes a short moment.
+            Reading your statement with the same DIY analysis prompt as ChatGPT… This can take a
+            short while on a long file.
           </p>
         </div>
       )}

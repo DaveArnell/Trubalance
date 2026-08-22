@@ -1,13 +1,16 @@
 /**
  * DIY ChatGPT prompt for statement → Cash Prophet setup.
  * Keep generic — any UK business / bank. Inject monthly threshold before copy.
+ *
+ * This text must stay aligned with supabase/functions/bank-import-analyze
+ * (same rules that produced the good ChatGPT DIY results).
  */
 
 export const DIY_STATEMENT_DEFAULT_MIN_MONTHLY = 200
 
-const DIY_STATEMENT_PROMPT_TEMPLATE = `You are helping me set up Cash Prophet for a UK small business.
+const DIY_STATEMENT_PROMPT_TEMPLATE = `You are helping me set up Cash Prophet (UK small-business cash position tool — not bookkeeping).
 
-I will upload bank statement(s) or a transaction export for ONE business (PDF or CSV — either is fine). Work only from this file. Do not assume industry or known suppliers.
+I will upload bank statement(s) or a transaction export for ONE business (CSV preferred). Work only from this file. Do not assume industry or known suppliers.
 
 GOAL
 FIRST DRAFT for Cash Prophet:
@@ -17,7 +20,7 @@ B) Reserve Planner (quarterly / six-monthly / annual / large non-monthly)
 Tables first. No essay. Exact headers only.
 
 MEANINGFUL MONTHLY THRESHOLD = £{{MIN_MONTHLY}}
-- This is the minimum size for monthly bills that are meaningful enough to track and provision for — not every small cost absorbed into day-to-day running.
+(If you still see the literal text "{{MIN_MONTHLY}}", treat it as 200.)
 - Drop small recurring noise clearly under this amount per month → Not imported.
 - Do not drop clear monthly costs that are around/above the threshold just because the amount varies.
 
@@ -38,14 +41,13 @@ MONTHLY RULES
 - Distinct Names per payee (do not merge different finance agreements into one vague name).
 
 RESERVE PLANNER RULES (important — do not under-fill this table)
+First estimate a typical “meaningful monthly” total for this business from the Monthly candidates (rough sense of scale).
 Include in Reserve when ANY of these fit:
 1) Quarterly-ish spacing (~80–100 days) or the same 4 month-slots each year — list ALL due months in the cycle (e.g. Mar, Jun, Sep, Dec) even if only some appear in the file; 🟠/🔴 if incomplete.
 2) Six-monthly or annual repeats (same month ± a few weeks across years).
 3) Large non-monthly bills that matter for cash planning: tax (VAT / corporation tax when identifiable), insurance, licences, large landlord/management/property-style payments, other big yearly charges.
-4) Prefer material amounts — skip tiny annual noise. Include anything that clearly matters to cash planning even if purpose is unclear (Status 🔴).
-
+4) Size guide: prefer items that are material versus monthly costs — typically hundreds to thousands, or at least about half of one typical meaningful monthly total for this business. Skip tiny annual noise.
 Purpose unknown is fine: keep a payee-based Name, Status 🔴, but STILL list it in Reserve if the schedule and size qualify.
-
 Never put every-month payments in Reserve.
 
 PAYROLL
@@ -59,11 +61,8 @@ AMOUNTS
 - Large variable monthly → include with estimate; 🟠 or 🔴.
 
 NAMES
-- Name = short plain label for Cash Prophet (e.g. Electricity, Business rates, Pension, Payroll, Waste).
-- Do NOT put account numbers, policy refs, agreement IDs, or long reference codes in Name — keep those only in Bank payee if present.
-- Prefer a clear everyday label when the payee type is obvious; if purpose is unclear, use a short payee-based Name and Status 🔴.
-- Bank payee = as on the statement, for matching (may include refs).
-- Separate policies / agreements to the same insurer or lender → separate rows with distinct short Names if the amounts/schedules differ.
+- Short Cash Prophet label + Bank payee for matching.
+- Do not invent purpose when unsure → 🔴.
 
 STATUS
 🟢 consistent — enter
