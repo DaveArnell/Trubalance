@@ -1,6 +1,7 @@
 import type { BankImportAnalysisInput, BankImportAnalysisResult } from './types'
 import { mapAiAnalysisToSuggestions } from './mapAiSuggestions'
-import { analysisPeriodFromTransactions, prepareCompactLedger } from './prepareForAi'
+import { analysisPeriodFromTransactions } from './prepareForAi'
+import { buildRecurringCandidates } from './recurringCandidates'
 import { analyzeBankImportWithAi, checkBankImportAiHealth } from '../services/bankImportApi'
 import { isSupabaseConfigured } from '../lib/supabase'
 
@@ -22,11 +23,21 @@ export const serverAiBankImportAdapter: BankImportAiAdapter = {
       }
     }
 
-    const ledger = prepareCompactLedger(input.transactions)
-    const analysisPeriod = analysisPeriodFromTransactions(input.transactions)
+    const candidates = buildRecurringCandidates(input.transactions, {
+      minMonthlyAmount: input.minMonthlyAmount,
+    })
+    if (candidates.length === 0) {
+      return {
+        suggestions: [],
+        aiConfigured: true,
+        aiNotes:
+          'No recurring bills above your meaningful monthly threshold were found. Try a longer statement, or lower the threshold.',
+      }
+    }
 
+    const analysisPeriod = analysisPeriodFromTransactions(input.transactions)
     const analysis = await analyzeBankImportWithAi({
-      ledger,
+      candidates,
       analysisPeriod,
       scopeLevel: input.scopeLevel,
       scopeId: input.scopeId,
@@ -41,7 +52,7 @@ export const serverAiBankImportAdapter: BankImportAiAdapter = {
       }),
       aiConfigured: true,
       analysisPeriod: analysis.analysis_period,
-      aiNotes: `Analysed ${input.transactions.length} transactions across ${analysis.analysis_period.months_covered} month(s). Review each suggestion before adding.`,
+      aiNotes: `Found ${candidates.length} recurring payees in ${input.transactions.length} transactions across ${analysis.analysis_period.months_covered} month(s). Review before adding.`,
     }
   },
 }

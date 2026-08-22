@@ -1,5 +1,6 @@
 import { getSupabase, isSupabaseConfigured } from '../lib/supabase'
 import type { AiAnalysisResult, TransactionGroupForAi } from '../bankImport/analysisSchema'
+import type { RecurringCandidateForAi } from '../bankImport/recurringCandidates'
 
 export interface BankImportAiHealth {
   configured: boolean
@@ -8,7 +9,9 @@ export interface BankImportAiHealth {
 }
 
 export interface AnalyzeBankImportRequest {
-  /** Preferred: compact tab-separated ledger (date, description, amount). */
+  /** Deterministic recurring payee candidates for the model to classify. */
+  candidates?: RecurringCandidateForAi[]
+  /** Optional compact ledger (legacy / debug). */
   ledger?: string
   /** Legacy fallback only. */
   groups?: TransactionGroupForAi[]

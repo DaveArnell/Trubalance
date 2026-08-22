@@ -6,78 +6,35 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-/**
- * Same rules as src/content/diyStatementPrompt.ts — JSON instead of markdown tables.
- * Keep in sync when the DIY prompt changes.
- */
-function buildDiySystemPrompt(minMonthly: number): string {
+function buildClassifyPrompt(minMonthly: number): string {
   return `You are helping set up Cash Prophet for a UK small business.
 
-You will receive a compact bank transaction ledger for ONE business (tab-separated: date, description, amount). Work only from this ledger. Do not assume industry or known suppliers.
+You will receive recurring PAYEE CANDIDATES already discovered from a bank ledger (amounts, days, gaps, coverage). Your job is to CLASSIFY and NAME them — not to invent a tiny shortlist from scratch.
+
 You are not preparing accounts, submitting tax returns, or giving regulated financial advice.
 
-GOAL — FIRST DRAFT for Cash Prophet (be as complete as a careful human + ChatGPT review):
-A) monthly_accruing_suggestions — Monthly commitments
-B) reserve_planner_suggestions — Reserve Planner (quarterly / six-monthly / annual / large non-monthly)
-C) expected_receipt_suggestions — only rare non-routine future money (NOT daily card takings); usually empty
-D) manual_review_items — up to 5 confirm-first questions
-E) excluded_patterns — Not imported (noticed only)
-
 MEANINGFUL MONTHLY THRESHOLD = £${minMonthly}
-- Minimum size for monthly bills meaningful enough to track — not every small cost.
-- Drop small recurring noise clearly under this per month → excluded_patterns.
-- Do NOT drop clear monthly costs around/above the threshold just because the amount varies.
 
-ONE DAY ONLY
-- suggested_due_day / likely_due_day must be a single integer 1–31.
-- Never ranges. Use the most common day, or the median of recent days if it wobbles.
+For EVERY candidate, set destination to exactly one of:
+- "monthly" — about once per calendar month (including variable monthly tax/utilities/finance/credit)
+- "reserve" — quarterly / six-monthly / annual / large non-monthly
+- "exclude" — weekly noise, transfers, refunds, purchase activity, clearly under threshold, unclear
+- "manual_review" — ONLY when a human question is essential (max 5 total). Do NOT use this for ordinary monthly bills.
 
-WEEKLY VS MONTHLY VS RESERVE
-- Several times most months / ~weekly → excluded (do not invent a monthly total).
-- About once per calendar month → Monthly.
-- Roughly every 3 / 6 / 12 months, or same month(s) each year → Reserve — even if the payee looks odd.
-- Do NOT dump large cyclical payments into excluded as “irregular” or “internal” if amount and spacing clearly repeat.
+CRITICAL COMPLETENESS
+- Prefer many specific monthly rows when candidates support them (often 10–25 for a busy SME).
+- Do NOT collapse different payees into “Utilities” / “Software”.
+- Separate finance agreements (different Barclaycard / Capital on Tap / GoCardless refs) stay separate.
+- Payroll: if is_likely_payroll, ONE monthly row “Payroll” using recent_amount or typical_amount as a recent-run total — exclude dividends.
+- Variable monthly stays monthly, not reserve.
+- Weekly / several times most months → exclude (do not invent a monthly total).
+- Large cyclical / same month slots → reserve; list ALL due months in the cycle (e.g. Mar, Jun, Sep, Dec) even if only some appear.
+- Amounts: keep pence. Prefer typical_amount or recent_amount from the candidate — do not round to thousands.
+- due_day: single integer 1–31 from suggested_due_day when sensible.
+- You MUST return a classification for every candidate_id provided.
+- Never leave a clear monthly candidate as manual_review with amount 0.
 
-MONTHLY RULES
-- Variable monthly (tax, utilities, finance, revolving credit) stays Monthly — not Reserve.
-- Must appear in most months across a meaningful stretch.
-- Sort monthly_accruing_suggestions by suggested_due_day ascending.
-- Distinct rows per payee / agreement — NEVER merge into vague “Utilities”, “Software”, or “Other”.
-- Separate Barclaycard / Capital on Tap / GoCardless agreements with different refs into separate rows.
-
-RESERVE PLANNER (do not under-fill)
-Include when ANY fit:
-1) Quarterly-ish (~80–100 days) or same 4 month-slots — list ALL due months in likely_payment_months as month names (e.g. "Mar","Jun","Sep","Dec") even if only some appear.
-2) Six-monthly or annual repeats.
-3) Large non-monthly bills (VAT, corporation tax when identifiable, insurance, licences, large landlord/management, big yearly charges).
-4) Purpose unknown is fine: payee-based name, lower confidence, but STILL include if schedule and size qualify.
-Never put every-month payments in Reserve.
-
-PAYROLL
-- Early-month cluster / payroll or wage wording → ONE Monthly row “Payroll”, one recent-run total. Not per person. Exclude dividends.
-
-AMOUNTS
-- One number only — never ranges. Keep pence (e.g. 17851.52 not 18000 or 20000).
-- Fixed → latest repeated amount.
-- Stable variable → median of ~last 6.
-- Recent level change → weight last 3–4 more.
-- For reserve: suggested_annual_amount = payment size when due (e.g. one VAT payment), NOT a rounded guess.
-- suggested_monthly_reserve = payment/12 for annual, payment/4 for quarterly, etc.
-
-NAMES
-- suggested_name = short plain Cash Prophet label.
-- bank_payee / supplier_group = as on the statement (may include refs).
-- Do NOT put long refs in suggested_name.
-
-CONFIDENCE
-- confidence_label high ≈ 🟢 enter; medium ≈ 🟠 enter then check; low ≈ 🔴 decide first.
-- confidence 0–100.
-
-COMPLETENESS
-Aim for many specific monthly rows when the ledger supports them (often 10–25 for a busy SME), plus a full Reserve table — not 2–3 vague lumps.
-List meaningful exclusions in excluded_patterns with clear reasons.
-
-Return ONLY valid JSON matching the schema. No markdown.`
+Return ONLY valid JSON.`
 }
 
 function jsonResponse(body: unknown, status = 200) {
@@ -87,16 +44,6 @@ function jsonResponse(body: unknown, status = 200) {
   })
 }
 
-function validateAnalysis(raw: Record<string, unknown>): boolean {
-  return (
-    Array.isArray(raw.monthly_accruing_suggestions) &&
-    Array.isArray(raw.reserve_planner_suggestions) &&
-    Array.isArray(raw.expected_receipt_suggestions) &&
-    Array.isArray(raw.manual_review_items) &&
-    Array.isArray(raw.excluded_patterns)
-  )
-}
-
 function asUsageMap(raw: unknown): Record<string, string> {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {}
   const out: Record<string, string> = {}
@@ -104,6 +51,241 @@ function asUsageMap(raw: unknown): Record<string, string> {
     if (typeof value === 'string' && value.trim()) out[key] = value
   }
   return out
+}
+
+function money2(value: unknown): number {
+  const n = typeof value === 'number' ? value : Number(value)
+  return Number.isFinite(n) ? Math.round(n * 100) / 100 : 0
+}
+
+function asString(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : ''
+}
+
+function asDay(value: unknown): number | null {
+  const n = typeof value === 'number' ? value : Number(value)
+  if (!Number.isFinite(n)) return null
+  const day = Math.round(n)
+  return day >= 1 && day <= 31 ? day : null
+}
+
+type Candidate = {
+  candidate_id?: string
+  bank_payee?: string
+  sample_descriptions?: string[]
+  typical_amount?: number
+  recent_amount?: number
+  max_amount?: number
+  suggested_due_day?: number | null
+  payment_months?: string[]
+  detected_frequency?: string
+  is_likely_payroll?: boolean
+  is_likely_hmrc?: boolean
+  recent_transactions?: Array<{ date: string; description: string; amount: number }>
+}
+
+function buildAnalysisFromClassifications(
+  candidates: Candidate[],
+  raw: Record<string, unknown>,
+  analysisPeriod: unknown,
+): Record<string, unknown> {
+  const byId = new Map(
+    candidates
+      .filter((c) => typeof c.candidate_id === 'string')
+      .map((c) => [c.candidate_id as string, c]),
+  )
+
+  const classifications = Array.isArray(raw.classifications) ? raw.classifications : []
+  const seen = new Set<string>()
+
+  const monthly: unknown[] = []
+  const reserve: unknown[] = []
+  const manual: unknown[] = []
+  const excluded: unknown[] = []
+
+  for (const row of classifications) {
+    if (!row || typeof row !== 'object') continue
+    const item = row as Record<string, unknown>
+    const id = asString(item.candidate_id)
+    const candidate = byId.get(id)
+    if (!candidate || seen.has(id)) continue
+    seen.add(id)
+
+    const destination = asString(item.destination).toLowerCase()
+    const bankPayee =
+      asString(item.bank_payee) ||
+      asString(candidate.bank_payee) ||
+      candidate.sample_descriptions?.[0] ||
+      id
+    const name =
+      asString(item.suggested_name) ||
+      (candidate.is_likely_payroll ? 'Payroll' : bankPayee)
+    const amount = money2(
+      item.suggested_amount ??
+        candidate.recent_amount ??
+        candidate.typical_amount ??
+        candidate.max_amount ??
+        0,
+    )
+    const dueDay = asDay(item.due_day) ?? asDay(candidate.suggested_due_day)
+    const confidence = Math.min(100, Math.max(0, Math.round(money2(item.confidence) || 70)))
+    const label = asString(item.confidence_label) || (confidence >= 80 ? 'high' : confidence >= 55 ? 'medium' : 'low')
+    const evidence = Array.isArray(candidate.recent_transactions)
+      ? candidate.recent_transactions.slice(-4)
+      : []
+    const warnings = Array.isArray(item.warnings)
+      ? item.warnings.filter((w) => typeof w === 'string')
+      : []
+    const reasoning = asString(item.reasoning)
+
+    if (destination === 'monthly') {
+      monthly.push({
+        suggested_name: candidate.is_likely_payroll ? 'Payroll' : name,
+        bank_payee: bankPayee,
+        supplier_group: bankPayee,
+        category: candidate.is_likely_payroll
+          ? 'payroll'
+          : candidate.is_likely_hmrc
+            ? 'hmrc'
+            : asString(item.category) || 'supplier',
+        frequency: 'monthly',
+        suggested_monthly_amount: amount,
+        amount_method: asString(item.amount_method) || 'candidate typical/recent',
+        suggested_due_day: dueDay,
+        confidence,
+        confidence_label: label,
+        evidence,
+        reasoning_summary: reasoning,
+        warnings,
+      })
+      continue
+    }
+
+    if (destination === 'reserve') {
+      const months = Array.isArray(item.due_months)
+        ? item.due_months.filter((m) => typeof m === 'string')
+        : Array.isArray(candidate.payment_months)
+          ? candidate.payment_months
+          : []
+      reserve.push({
+        suggested_name: name,
+        bank_payee: bankPayee,
+        category: candidate.is_likely_hmrc ? 'hmrc' : asString(item.category) || 'other',
+        schedule:
+          asString(item.schedule) ||
+          (candidate.detected_frequency === 'quarterly'
+            ? 'quarterly'
+            : candidate.detected_frequency === 'annual'
+              ? 'annual'
+              : 'specific_months'),
+        suggested_annual_amount: amount,
+        suggested_monthly_reserve: money2(amount / 12),
+        likely_payment_months: months,
+        likely_due_day: dueDay,
+        amount_method: asString(item.amount_method) || 'candidate typical/recent',
+        confidence,
+        confidence_label: label,
+        evidence,
+        reasoning_summary: reasoning,
+        warnings,
+      })
+      continue
+    }
+
+    if (destination === 'manual_review') {
+      manual.push({
+        supplier_group: bankPayee,
+        issue: reasoning || 'Needs confirmation',
+        question_for_user: asString(item.question_for_user) || reasoning || 'Can you confirm what this is?',
+        evidence,
+      })
+      continue
+    }
+
+    excluded.push({
+      supplier_group: bankPayee,
+      reason_excluded: reasoning || asString(item.reason_excluded) || 'Excluded from setup',
+    })
+  }
+
+  // Any candidate the model skipped → keep as monthly/reserve heuristically so we never return a tiny list.
+  for (const candidate of candidates) {
+    const id = asString(candidate.candidate_id)
+    if (!id || seen.has(id)) continue
+    const bankPayee = asString(candidate.bank_payee) || id
+    const amount = money2(candidate.recent_amount ?? candidate.typical_amount)
+    const dueDay = asDay(candidate.suggested_due_day)
+    const evidence = Array.isArray(candidate.recent_transactions)
+      ? candidate.recent_transactions.slice(-4)
+      : []
+    const freq = asString(candidate.detected_frequency)
+
+    if (freq === 'weekly') {
+      excluded.push({
+        supplier_group: bankPayee,
+        reason_excluded: 'Approximately weekly; no monthly total invented (model skipped)',
+      })
+      continue
+    }
+
+    if (freq === 'quarterly' || freq === 'annual') {
+      reserve.push({
+        suggested_name: candidate.is_likely_payroll ? 'Payroll' : bankPayee,
+        bank_payee: bankPayee,
+        category: candidate.is_likely_hmrc ? 'hmrc' : 'other',
+        schedule: freq === 'quarterly' ? 'quarterly' : 'annual',
+        suggested_annual_amount: amount,
+        suggested_monthly_reserve: money2(amount / 12),
+        likely_payment_months: Array.isArray(candidate.payment_months)
+          ? candidate.payment_months
+          : [],
+        likely_due_day: dueDay,
+        amount_method: 'candidate fallback',
+        confidence: 55,
+        confidence_label: 'medium',
+        evidence,
+        reasoning_summary: 'Included from statement pattern; model did not classify this candidate.',
+        warnings: ['Review before trusting'],
+      })
+      continue
+    }
+
+    if (amount > 0) {
+      monthly.push({
+        suggested_name: candidate.is_likely_payroll ? 'Payroll' : bankPayee,
+        bank_payee: bankPayee,
+        supplier_group: bankPayee,
+        category: candidate.is_likely_payroll
+          ? 'payroll'
+          : candidate.is_likely_hmrc
+            ? 'hmrc'
+            : 'supplier',
+        frequency: 'monthly',
+        suggested_monthly_amount: amount,
+        amount_method: 'candidate fallback',
+        suggested_due_day: dueDay,
+        confidence: 55,
+        confidence_label: 'medium',
+        evidence,
+        reasoning_summary: 'Included from statement pattern; model did not classify this candidate.',
+        warnings: ['Review before trusting'],
+      })
+    }
+  }
+
+  const extrasMonthly = Array.isArray(raw.extra_monthly) ? raw.extra_monthly : []
+  const extrasReserve = Array.isArray(raw.extra_reserve) ? raw.extra_reserve : []
+
+  return {
+    analysis_period: analysisPeriod,
+    monthly_accruing_suggestions: [...monthly, ...extrasMonthly],
+    reserve_planner_suggestions: [...reserve, ...extrasReserve],
+    expected_receipt_suggestions: [],
+    manual_review_items: Array.isArray(raw.confirm_first)
+      ? [...manual, ...raw.confirm_first].slice(0, 5)
+      : manual.slice(0, 5),
+    excluded_patterns: excluded,
+  }
 }
 
 Deno.serve(async (req) => {
@@ -143,8 +325,8 @@ Deno.serve(async (req) => {
   }
 
   let body: {
+    candidates?: Candidate[]
     ledger?: string
-    groups?: unknown[]
     analysisPeriod?: { start_date: string; end_date: string; months_covered: number }
     scopeLevel?: string
     scopeId?: string
@@ -164,14 +346,12 @@ Deno.serve(async (req) => {
     return jsonResponse({ error: 'businessId is required for statement analysis.' }, 400)
   }
 
-  const ledger =
-    typeof body.ledger === 'string' && body.ledger.trim().length > 0
-      ? body.ledger.trim()
-      : ''
-  const groups = Array.isArray(body.groups) ? body.groups : []
-
-  if (!ledger && groups.length === 0) {
-    return jsonResponse({ error: 'No transactions to analyse' }, 400)
+  const candidates = Array.isArray(body.candidates) ? body.candidates.slice(0, 80) : []
+  if (candidates.length === 0) {
+    return jsonResponse(
+      { error: 'No recurring candidates found in that statement. Try a longer export.' },
+      400,
+    )
   }
 
   const admin = serviceKey ? createClient(supabaseUrl, serviceKey) : supabase
@@ -229,7 +409,6 @@ Deno.serve(async (req) => {
     )
   }
 
-  // Quality first — same class of model users get good DIY results with.
   const preferredModel = Deno.env.get('OPENAI_MODEL_TEXT') ?? 'gpt-4o'
   const fallbackModel = Deno.env.get('OPENAI_MODEL_FALLBACK') ?? 'gpt-4o-mini'
 
@@ -239,46 +418,38 @@ Deno.serve(async (req) => {
       : 200
 
   const schemaHint = `{
-  "analysis_period": { "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD", "months_covered": 0 },
-  "monthly_accruing_suggestions": [{
+  "classifications": [{
+    "candidate_id": "c0",
+    "destination": "monthly",
     "suggested_name": "Payroll",
-    "bank_payee": "PAYROLL GRP / SWINDON PAY GRP",
-    "supplier_group": "PAYROLL GRP / SWINDON PAY GRP",
+    "bank_payee": "PAYROLL GRP",
     "category": "payroll",
-    "frequency": "monthly",
-    "suggested_monthly_amount": 17851.52,
+    "suggested_amount": 17851.52,
+    "due_day": 2,
+    "due_months": [],
+    "schedule": "",
+    "confidence": 80,
+    "confidence_label": "high",
     "amount_method": "recent run total",
-    "suggested_due_day": 2,
-    "confidence": 75,
-    "confidence_label": "medium",
-    "evidence": [{ "date": "2025-01-02", "description": "PAYROLL GRP", "amount": -17851.52 }],
-    "reasoning_summary": "",
-    "warnings": []
+    "reasoning": "",
+    "warnings": [],
+    "question_for_user": "",
+    "reason_excluded": ""
   }],
-  "reserve_planner_suggestions": [{
-    "suggested_name": "HMRC VAT",
-    "bank_payee": "HMRC E VAT 000918124048",
-    "category": "hmrc",
-    "schedule": "quarterly",
-    "suggested_annual_amount": 23999.00,
-    "suggested_monthly_reserve": 1999.92,
-    "likely_payment_months": ["Mar","Jun","Sep","Dec"],
-    "likely_due_day": 11,
-    "amount_method": "typical payment",
-    "confidence": 70,
-    "confidence_label": "medium",
-    "evidence": [],
-    "reasoning_summary": "",
-    "warnings": []
-  }],
-  "expected_receipt_suggestions": [],
-  "manual_review_items": [{ "supplier_group": "", "issue": "", "question_for_user": "", "evidence": [] }],
-  "excluded_patterns": [{ "supplier_group": "BOOKER LTD", "reason_excluded": "Irregular purchase activity" }]
+  "extra_monthly": [],
+  "extra_reserve": [],
+  "confirm_first": []
 }`
 
-  const userContent = ledger
-    ? `Schema (keep pence; many specific rows):\n${schemaHint}\n\nAnalysis period: ${JSON.stringify(body.analysisPeriod ?? null)}\nMeaningful monthly threshold: £${minMonthly}\nFile: ${body.fileName ?? 'statement'}\n\nLedger (date\\tdescription\\tamount):\n${ledger}`
-    : `Schema:\n${schemaHint}\n\nFallback grouped data (prefer ledger when available):\n${JSON.stringify({ analysis_period: body.analysisPeriod, groups: groups.slice(0, 80) })}`
+  const userContent = `Classify EVERY candidate. Meaningful monthly threshold £${minMonthly}.
+Period: ${JSON.stringify(body.analysisPeriod ?? null)}
+File: ${body.fileName ?? 'statement'}
+
+Schema:
+${schemaHint}
+
+Candidates (${candidates.length}):
+${JSON.stringify(candidates)}`
 
   const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -293,7 +464,7 @@ Deno.serve(async (req) => {
         model: modelName,
         response_format: { type: 'json_object' },
         messages: [
-          { role: 'system', content: buildDiySystemPrompt(minMonthly) },
+          { role: 'system', content: buildClassifyPrompt(minMonthly) },
           { role: 'user', content: userContent },
         ],
         temperature: 0.1,
@@ -304,16 +475,12 @@ Deno.serve(async (req) => {
 
   try {
     let response = await callOpenAi(preferredModel)
-
-    // Rate limits are common on large statements — wait once, then try a lighter model.
     if (response.status === 429) {
-      console.warn('OpenAI 429 on preferred model; retrying after brief wait')
-      await sleep(2500)
+      await sleep(3000)
       response = await callOpenAi(preferredModel)
     }
     if (response.status === 429 && fallbackModel !== preferredModel) {
-      console.warn('OpenAI still 429; falling back to', fallbackModel)
-      await sleep(1500)
+      await sleep(2000)
       response = await callOpenAi(fallbackModel)
     }
 
@@ -345,12 +512,17 @@ Deno.serve(async (req) => {
       return jsonResponse({ error: 'AI returned invalid JSON.' }, 502)
     }
 
-    if (!validateAnalysis(parsed)) {
-      return jsonResponse({ error: 'AI response did not match the expected structure.' }, 502)
-    }
+    const analysis = buildAnalysisFromClassifications(
+      candidates,
+      parsed,
+      body.analysisPeriod ?? null,
+    )
 
-    if (!parsed.analysis_period && body.analysisPeriod) {
-      parsed.analysis_period = body.analysisPeriod
+    if (
+      !Array.isArray(analysis.monthly_accruing_suggestions) ||
+      !Array.isArray(analysis.reserve_planner_suggestions)
+    ) {
+      return jsonResponse({ error: 'AI response did not match the expected structure.' }, 502)
     }
 
     if (!unlimited) {
@@ -381,10 +553,10 @@ Deno.serve(async (req) => {
           500,
         )
       }
-      return jsonResponse({ analysis: parsed, businessId, usedAt })
+      return jsonResponse({ analysis, businessId, usedAt })
     }
 
-    return jsonResponse({ analysis: parsed, businessId, usedAt: null })
+    return jsonResponse({ analysis, businessId, usedAt: null })
   } catch (err) {
     console.error(err)
     return jsonResponse({ error: 'AI analysis failed unexpectedly.' }, 500)
