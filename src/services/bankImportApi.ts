@@ -12,6 +12,8 @@ export interface AnalyzeBankImportRequest {
   analysisPeriod: { start_date: string; end_date: string; months_covered: number }
   scopeLevel: string
   scopeId: string
+  /** Business id used for one-pass server entitlement. */
+  businessId: string
   fileName?: string
   minMonthlyAmount?: number
 }

@@ -34,6 +34,7 @@ export function createDefaultSubscription(now = new Date()): WorkspaceSubscripti
     gracePeriodEndsAt: null,
     billingInterval: null,
     statementAiUnlimited: false,
+    statementAiUsage: {},
   }
 }
 

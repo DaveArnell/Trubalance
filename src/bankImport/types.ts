@@ -106,6 +106,8 @@ export interface BankImportAnalysisInput {
   transactions: ParsedBankTransaction[]
   scopeLevel: ScopeLevel
   scopeId: string
+  /** Business id for server-side one-pass entitlement. */
+  businessId: string
   /** Ignore recurring suggestions below this approximate monthly amount. */
   minMonthlyAmount?: number
 }

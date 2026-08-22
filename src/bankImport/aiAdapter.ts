@@ -30,6 +30,7 @@ export const serverAiBankImportAdapter: BankImportAiAdapter = {
       analysisPeriod,
       scopeLevel: input.scopeLevel,
       scopeId: input.scopeId,
+      businessId: input.businessId,
       fileName: options?.fileName,
       minMonthlyAmount: input.minMonthlyAmount,
     })

@@ -51,9 +51,10 @@ export function setStatementAiUnlimitedLocally(enabled: boolean) {
 
 export function hasUsedStatementAiForBusiness(
   businessId: string,
-  options?: { unlimited?: boolean },
+  options?: { unlimited?: boolean; serverUsage?: Record<string, string> },
 ): boolean {
   if (options?.unlimited || isStatementAiUnlimitedLocally()) return false
+  if (options?.serverUsage && options.serverUsage[businessId]) return true
   return Boolean(readUsedMap()[businessId])
 }
 

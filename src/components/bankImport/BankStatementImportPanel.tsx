@@ -88,8 +88,9 @@ export function BankStatementImportPanel({
   onboarding = false,
   onOnboardingComplete,
 }: BankStatementImportPanelProps) {
-  const { subscription } = useSubscription()
+  const { subscription, updateSubscription } = useSubscription()
   const unlimited = Boolean(subscription.statementAiUnlimited)
+  const serverUsage = subscription.statementAiUsage ?? {}
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [step, setStep] = useState<WizardStep>('account')
   const [accountId, setAccountId] = useState(state.accounts.find((a) => a.active)?.id ?? '')
@@ -123,7 +124,10 @@ export function BankStatementImportPanel({
   const selectedBusinessId = accountId ? businessIdForAccount(state, accountId) : null
   const analysisAlreadyUsed =
     Boolean(selectedBusinessId) &&
-    hasUsedStatementAiForBusiness(selectedBusinessId!, { unlimited })
+    hasUsedStatementAiForBusiness(selectedBusinessId!, {
+      unlimited,
+      serverUsage,
+    })
   const activeProgress = progressStepIndex(step)
 
   const clearRawStatementData = () => {
@@ -151,7 +155,7 @@ export function BankStatementImportPanel({
       return
     }
 
-    if (hasUsedStatementAiForBusiness(businessId, { unlimited })) {
+    if (hasUsedStatementAiForBusiness(businessId, { unlimited, serverUsage })) {
       setError(
         'This business already used its statement analysis. Open the saved review, or add anything else by hand.',
       )
@@ -169,6 +173,7 @@ export function BankStatementImportPanel({
           transactions,
           scopeLevel: scope.scopeLevel,
           scopeId: scope.scopeId,
+          businessId,
           minMonthlyAmount: minMonthlyAmount > 0 ? minMonthlyAmount : undefined,
         },
         { sourceAccountId: accountId, fileName: sourceFileName },
@@ -187,6 +192,12 @@ export function BankStatementImportPanel({
       setInsights(result.insights ?? [])
       setParsedCount(transactions.length)
       markStatementAiUsedForBusiness(businessId, undefined, { unlimited })
+      if (!unlimited) {
+        const usedAt = new Date().toISOString()
+        updateSubscription({
+          statementAiUsage: { ...serverUsage, [businessId]: usedAt },
+        })
+      }
       cacheStatementAiSuggestions(businessId, {
         suggestions: result.suggestions,
         insights: result.insights ?? [],

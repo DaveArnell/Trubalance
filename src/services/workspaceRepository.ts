@@ -859,7 +859,17 @@ function mapWorkspaceSubscriptionRow(
     gracePeriodEndsAt: gracePeriodEndsAt ? String(gracePeriodEndsAt) : null,
     billingInterval,
     statementAiUnlimited: Boolean(row.statement_ai_unlimited),
+    statementAiUsage: asStatementAiUsage(row.statement_ai_usage),
   }
+}
+
+function asStatementAiUsage(raw: unknown): Record<string, string> {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {}
+  const out: Record<string, string> = {}
+  for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (typeof value === 'string' && value.trim()) out[key] = value
+  }
+  return out
 }
 
 export async function loadWorkspaceSubscription(workspaceId: string): Promise<WorkspaceSubscription | null> {
@@ -867,7 +877,7 @@ export async function loadWorkspaceSubscription(workspaceId: string): Promise<Wo
   if (!supabase) return null
 
   const withUnlimited = `subscription_tier, trial_ends_at, lifetime_access, beta_tester, admin_tier_override,
-       grace_period_ends_at, billing_interval, stripe_customer_id, statement_ai_unlimited,
+       grace_period_ends_at, billing_interval, stripe_customer_id, statement_ai_unlimited, statement_ai_usage,
        subscriptions (
          stripe_subscription_id, stripe_price_id, status, tier,
          current_period_start, current_period_end, cancel_at_period_end,
@@ -889,7 +899,9 @@ export async function loadWorkspaceSubscription(workspaceId: string): Promise<Wo
 
   if (error) {
     const missingColumn =
-      /statement_ai_unlimited/i.test(error.message) || error.code === '42703' || error.code === 'PGRST204'
+      /statement_ai_unlimited|statement_ai_usage/i.test(error.message) ||
+      error.code === '42703' ||
+      error.code === 'PGRST204'
     if (!missingColumn) return null
     ;({ data, error } = await supabase
       .from('workspaces')

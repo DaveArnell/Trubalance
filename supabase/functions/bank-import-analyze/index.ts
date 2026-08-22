@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1'
+import { getAnonKey, getServiceRoleKey } from '../_shared/supabaseEnv.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -44,6 +45,15 @@ function validateAnalysis(raw: Record<string, unknown>): boolean {
   )
 }
 
+function asUsageMap(raw: unknown): Record<string, string> {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {}
+  const out: Record<string, string> = {}
+  for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (typeof value === 'string' && value.trim()) out[key] = value
+  }
+  return out
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -66,7 +76,9 @@ Deno.serve(async (req) => {
   }
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-  const supabase = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!, {
+  const serviceKey = getServiceRoleKey()
+  const anonKey = getAnonKey() || Deno.env.get('SUPABASE_ANON_KEY')!
+  const supabase = createClient(supabaseUrl, anonKey, {
     global: { headers: { Authorization: authHeader } },
   })
 
@@ -83,6 +95,7 @@ Deno.serve(async (req) => {
     analysisPeriod?: { start_date: string; end_date: string; months_covered: number }
     scopeLevel?: string
     scopeId?: string
+    businessId?: string
     fileName?: string
     minMonthlyAmount?: number
   }
@@ -93,9 +106,72 @@ Deno.serve(async (req) => {
     return jsonResponse({ error: 'Invalid request body' }, 400)
   }
 
+  const businessId = typeof body.businessId === 'string' ? body.businessId.trim() : ''
+  if (!businessId) {
+    return jsonResponse({ error: 'businessId is required for statement analysis.' }, 400)
+  }
+
   const groups = body.groups ?? []
   if (!Array.isArray(groups) || groups.length === 0) {
     return jsonResponse({ error: 'No transaction groups to analyse' }, 400)
+  }
+
+  // Resolve workspace + enforce one successful analysis per business (server-side).
+  const admin = serviceKey
+    ? createClient(supabaseUrl, serviceKey)
+    : supabase
+
+  const { data: member } = await admin
+    .from('workspace_members')
+    .select('workspace_id')
+    .eq('user_id', user.id)
+    .limit(1)
+    .maybeSingle()
+
+  let workspaceId = member?.workspace_id as string | undefined
+  if (!workspaceId) {
+    const { data: owned } = await admin
+      .from('workspaces')
+      .select('id')
+      .eq('owner_id', user.id)
+      .limit(1)
+      .maybeSingle()
+    workspaceId = owned?.id as string | undefined
+  }
+
+  if (!workspaceId) {
+    return jsonResponse({ error: 'No workspace found for this account.' }, 403)
+  }
+
+  const { data: workspace, error: workspaceError } = await admin
+    .from('workspaces')
+    .select('id, statement_ai_unlimited, statement_ai_usage')
+    .eq('id', workspaceId)
+    .maybeSingle()
+
+  if (workspaceError || !workspace) {
+    console.error('workspace entitlement load failed', workspaceError)
+    return jsonResponse(
+      {
+        error:
+          'Statement AI entitlement is not available yet. Please run the latest Supabase SQL migration, then try again.',
+        code: 'STATEMENT_AI_ENTITLEMENT_UNAVAILABLE',
+      },
+      503,
+    )
+  }
+
+  const unlimited = Boolean(workspace.statement_ai_unlimited)
+  const usage = asUsageMap(workspace.statement_ai_usage)
+  if (!unlimited && usage[businessId]) {
+    return jsonResponse(
+      {
+        error:
+          'This business has already used its statement analysis. Open the saved review, or ask support to unlock another pass.',
+        code: 'STATEMENT_AI_ALREADY_USED',
+      },
+      403,
+    )
   }
 
   const model = Deno.env.get('OPENAI_MODEL_TEXT') ?? 'gpt-4o-mini'
@@ -173,7 +249,39 @@ Deno.serve(async (req) => {
       parsed.analysis_period = body.analysisPeriod
     }
 
-    return jsonResponse({ analysis: parsed })
+    // Mark used only after a successful analysis — refresh / new browser cannot bypass this.
+    if (!unlimited) {
+      if (!serviceKey) {
+        return jsonResponse(
+          {
+            error:
+              'Statement AI entitlement lock is not configured (service role missing). Analysis blocked.',
+            code: 'STATEMENT_AI_USAGE_LOCK_UNAVAILABLE',
+          },
+          503,
+        )
+      }
+      const usedAt = new Date().toISOString()
+      const nextUsage = { ...usage, [businessId]: usedAt }
+      const { error: usageError } = await admin
+        .from('workspaces')
+        .update({ statement_ai_usage: nextUsage, updated_at: usedAt })
+        .eq('id', workspaceId)
+      if (usageError) {
+        console.error('Failed to persist statement_ai_usage', usageError)
+        return jsonResponse(
+          {
+            error:
+              'Analysis completed but could not lock this business’s AI pass. Please contact support before retrying.',
+            code: 'STATEMENT_AI_USAGE_PERSIST_FAILED',
+          },
+          500,
+        )
+      }
+      return jsonResponse({ analysis: parsed, businessId, usedAt })
+    }
+
+    return jsonResponse({ analysis: parsed, businessId, usedAt: null })
   } catch (err) {
     console.error(err)
     return jsonResponse({ error: 'AI analysis failed unexpectedly.' }, 500)

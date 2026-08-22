@@ -28,6 +28,8 @@ export interface WorkspaceSubscription {
   billingInterval: 'monthly' | 'annual' | null
   /** Admin: allow more than one statement AI analysis per business. */
   statementAiUnlimited: boolean
+  /** Server map of businessId -> ISO timestamp when statement AI was used. */
+  statementAiUsage: Record<string, string>
 }
 
 export interface WorkspaceUsage {

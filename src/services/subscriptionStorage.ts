@@ -19,6 +19,14 @@ function readRaw(): WorkspaceSubscription | null {
         ? normalizeTierId(parsed.adminTierOverride)
         : null,
       statementAiUnlimited: Boolean(parsed.statementAiUnlimited),
+      statementAiUsage:
+        parsed.statementAiUsage && typeof parsed.statementAiUsage === 'object'
+          ? Object.fromEntries(
+              Object.entries(parsed.statementAiUsage as Record<string, unknown>).filter(
+                (entry): entry is [string, string] => typeof entry[1] === 'string',
+              ),
+            )
+          : {},
     }
   } catch {
     return null
