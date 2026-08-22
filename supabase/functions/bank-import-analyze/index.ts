@@ -450,6 +450,18 @@ Follow the instructions exactly. Output the three markdown tables with Exact hea
 
   const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
+  function retryWaitMs(response: Response, attempt: number): number {
+    const header = response.headers.get('retry-after')
+    if (header) {
+      const asSeconds = Number(header)
+      if (Number.isFinite(asSeconds) && asSeconds > 0) {
+        return Math.min(60_000, Math.max(5_000, Math.round(asSeconds * 1000)))
+      }
+    }
+    // Large statement uploads burn tokens-per-minute quickly — wait longer each attempt.
+    return Math.min(45_000, 8_000 * attempt)
+  }
+
   async function callOpenAi(modelName: string): Promise<Response> {
     return fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -471,12 +483,18 @@ Follow the instructions exactly. Output the three markdown tables with Exact hea
 
   try {
     let response = await callOpenAi(preferredModel)
-    if (response.status === 429) {
-      await sleep(3500)
+    let attempt = 1
+    while (response.status === 429 && attempt < 3) {
+      const waitMs = retryWaitMs(response, attempt)
+      console.warn(`OpenAI 429 — waiting ${waitMs}ms before retry ${attempt}`)
+      await sleep(waitMs)
       response = await callOpenAi(preferredModel)
+      attempt += 1
     }
-    if (!response.ok && response.status === 429 && fallbackModel !== preferredModel) {
-      await sleep(2000)
+    if (response.status === 429 && fallbackModel !== preferredModel) {
+      const waitMs = retryWaitMs(response, attempt)
+      console.warn(`OpenAI still 429 — waiting ${waitMs}ms then fallback ${fallbackModel}`)
+      await sleep(waitMs)
       response = await callOpenAi(fallbackModel)
     }
 
@@ -486,7 +504,7 @@ Follow the instructions exactly. Output the three markdown tables with Exact hea
       let detail = 'AI analysis failed. Please try again later.'
       if (response.status === 429) {
         detail =
-          'OpenAI is temporarily limiting requests (busy). Wait about a minute, then upload again.'
+          'OpenAI is rate-limiting this API key (tokens per minute). Wait 1–2 minutes, then upload once — do not retry immediately.'
       } else if (response.status === 401 || response.status === 403) {
         detail = 'AI analysis is not authorised. Check the OpenAI API key in Edge secrets.'
       } else if (response.status === 400) {
