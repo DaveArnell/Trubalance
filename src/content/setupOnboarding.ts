@@ -45,7 +45,7 @@ export const SETUP_ONBOARDING_STEPS: SetupOnboardingStep[] = [
     id: 'statement-import',
     title: 'Upload a bank statement',
     explain:
-      'Choose the account this statement belongs to, upload a CSV or PDF, then review the suggestions before anything is added.',
+      'Choose the current account, upload a CSV or PDF, then review the suggested monthly costs and reserve bills. Nothing is added until you confirm.',
     hideVideo: true,
     skippable: true,
   },
