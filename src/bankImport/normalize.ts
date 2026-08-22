@@ -26,6 +26,7 @@ export function groupKeyForDescription(description: string): string {
     .filter(Boolean)
     .filter((word) => !GROUP_STOP_WORDS.has(word))
   if (words.length === 0) return normalized
-  if (words.length <= 2) return words.join(' ')
-  return words.slice(0, 2).join(' ')
+  // Keep enough of the payee to separate agreements / products (e.g. two Barclaycards).
+  if (words.length <= 4) return words.join(' ')
+  return words.slice(0, 4).join(' ')
 }

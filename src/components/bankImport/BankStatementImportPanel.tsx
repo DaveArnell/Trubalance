@@ -110,6 +110,7 @@ export function BankStatementImportPanel({
   const [aiHealth, setAiHealth] = useState<BankImportAiHealth | null>(null)
   const [aiNotes, setAiNotes] = useState<string | null>(null)
   const [parsedCount, setParsedCount] = useState(0)
+  const [dragOver, setDragOver] = useState(false)
 
   useEffect(() => {
     void getBankImportAiStatus().then(setAiHealth)
@@ -340,12 +341,24 @@ export function BankStatementImportPanel({
   }
 
   const acceptedCount = countAcceptedSuggestions(suggestions)
-  const stepLabels: Record<(typeof USER_STEPS)[number], string> = {
-    account: 'Account',
-    upload: 'Upload',
-    review: 'Review',
+  const stageTitles: Record<(typeof USER_STEPS)[number], string> = {
+    account: 'Choose the account',
+    upload: 'Upload your statement',
+    review: 'Review the draft',
     done: 'Done',
   }
+  const stageKey: (typeof USER_STEPS)[number] =
+    step === 'analyzing' || step === 'mapping'
+      ? 'upload'
+      : step === 'review'
+        ? 'review'
+        : step === 'done'
+          ? 'done'
+          : step === 'account'
+            ? 'account'
+            : 'upload'
+  const stageNumber = activeProgress + 1
+  const stageTotal = USER_STEPS.length
 
   return (
     <section
@@ -358,11 +371,11 @@ export function BankStatementImportPanel({
           </h3>
           <p className="muted bank-import-lead">
             {onboarding
-              ? 'Pick the current account, upload a CSV or PDF, then review the suggested bills before anything is added.'
+              ? 'We prepare a draft list of bills from your statement. You review before anything is added.'
               : BANK_IMPORT_NOTE}
           </p>
         </div>
-        <span className="bank-import-badge">CSV or PDF · AI assisted</span>
+        <span className="bank-import-badge">CSV or PDF</span>
       </header>
 
       {aiHealth && (
@@ -374,24 +387,23 @@ export function BankStatementImportPanel({
         </p>
       )}
 
-      <ol className="bank-import-steps" aria-label="Import progress">
-        {USER_STEPS.map((key, index) => {
-          const active = index <= activeProgress
-          const current =
-            step === key ||
-            (key === 'upload' && (step === 'analyzing' || step === 'mapping')) ||
-            (key === 'review' && step === 'review')
-          return (
-            <li
-              key={key}
-              className={`bank-import-step${active ? ' is-active' : ''}${current ? ' is-current' : ''}`}
-            >
-              <span className="bank-import-step-num">{index + 1}</span>
-              {stepLabels[key]}
-            </li>
-          )
-        })}
-      </ol>
+      <div className="bank-import-stage" aria-label={`Stage ${stageNumber} of ${stageTotal}`}>
+        <div className="bank-import-stage-top">
+          <p className="bank-import-stage-kicker">
+            Stage {stageNumber} of {stageTotal}
+          </p>
+          <h4 className="bank-import-stage-title">{stageTitles[stageKey]}</h4>
+        </div>
+        <div
+          className="bank-import-stage-bar"
+          role="progressbar"
+          aria-valuemin={1}
+          aria-valuemax={stageTotal}
+          aria-valuenow={stageNumber}
+        >
+          <span style={{ width: `${(stageNumber / stageTotal) * 100}%` }} />
+        </div>
+      </div>
 
       {error && (
         <p className="bank-import-error" role="alert">
@@ -435,10 +447,14 @@ export function BankStatementImportPanel({
             </p>
           )}
           <BankImportMinMonthlyField
-            label="Smallest monthly bill worth tracking"
+            label="Only suggest meaningful monthly bills"
             value={minMonthlyAmount}
             onChange={setMinMonthlyAmount}
           />
+          <p className="muted bank-import-privacy-note">
+            Your statement is processed securely to prepare a draft. We do not keep the file after
+            analysis.
+          </p>
           {analysisAlreadyUsed && (
             <p className="bank-import-hint" role="status">
               This business already used its AI pass.{' '}
@@ -467,12 +483,43 @@ export function BankStatementImportPanel({
 
       {step === 'upload' && (
         <div className="bank-import-panel">
+          <aside className="bank-import-privacy" role="note">
+            <strong>Private by design.</strong> Your file is sent securely for analysis, then
+            discarded. We do not store the statement or use it to train models.
+          </aside>
           <p className="bank-import-hint">
-            Upload a CSV or PDF for this account. Prefer a longer history when you can (ideally a
-            year or more). After upload, Cash Prophet prepares a draft list of bills for you to
-            review — same idea as before, but filled in for you.
+            Drop a CSV or PDF for <strong>{accountLabel(state, accountId)}</strong>. A longer history
+            (ideally a year or more) usually gives a better draft.
           </p>
-          <div className="bank-import-upload-row">
+          <div
+            className={`bank-import-dropzone${dragOver ? ' is-dragover' : ''}${analyzing || aiHealth?.ok === false ? ' is-disabled' : ''}`}
+            onDragEnter={(event) => {
+              event.preventDefault()
+              event.stopPropagation()
+              if (!analyzing && aiHealth?.ok !== false) setDragOver(true)
+            }}
+            onDragOver={(event) => {
+              event.preventDefault()
+              event.stopPropagation()
+            }}
+            onDragLeave={(event) => {
+              event.preventDefault()
+              event.stopPropagation()
+              setDragOver(false)
+            }}
+            onDrop={(event) => {
+              event.preventDefault()
+              event.stopPropagation()
+              setDragOver(false)
+              if (analyzing || aiHealth?.ok === false) return
+              const file = event.dataTransfer.files?.[0]
+              if (!file) return
+              void loadStatement(file).catch((loadError) => {
+                setError(loadError instanceof Error ? loadError.message : 'Could not read that file.')
+                setStep('upload')
+              })
+            }}
+          >
             <input
               ref={fileInputRef}
               type="file"
@@ -480,6 +527,8 @@ export function BankStatementImportPanel({
               className="sr-only"
               onChange={handleFileChange}
             />
+            <p className="bank-import-dropzone-title">Drag and drop your statement here</p>
+            <p className="muted bank-import-dropzone-sub">CSV or PDF</p>
             <button
               type="button"
               className="btn-primary"
@@ -593,7 +642,8 @@ export function BankStatementImportPanel({
                 from <strong>{parsedCount}</strong> transactions
               </>
             ) : null}
-            . Accept, edit, or ignore each line — nothing is added until you confirm.
+            . Stronger suggestions are pre-selected — edit amounts, ignore anything wrong, then add
+            what you want.
           </p>
 
           <BankImportSuggestionReview

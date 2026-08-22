@@ -20,11 +20,11 @@ import type {
 } from '../../bankImport/types'
 
 const SECTION_LABELS: Record<BankImportReviewSection, string> = {
-  monthly_accruing: 'Recommended monthly accruing',
-  reserve_planner: 'Recommended reserve planner',
+  monthly_accruing: 'Monthly commitments',
+  reserve_planner: 'Reserve Planner',
   expected_receipt: 'Possible expected receipts',
   manual_review: 'Needs your confirmation',
-  excluded: 'Excluded from setup',
+  excluded: 'Not imported',
 }
 
 const SECTION_ORDER: BankImportReviewSection[] = [
@@ -227,10 +227,7 @@ export function BankImportSuggestionReview({
                   </select>
                 </label>
                 <p className="bank-import-amount-hint muted">
-                  Typical {formatCurrency(suggestion.averageAmount)}
-                  {suggestion.amount !== suggestion.averageAmount
-                    ? ` · max ${formatCurrency(suggestion.amount)}`
-                    : ''}
+                  Suggested {formatCurrency(suggestion.averageAmount)}
                   {' · '}
                   {destinationDisplayName(destination)}
                 </p>

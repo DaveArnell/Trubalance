@@ -1,7 +1,7 @@
 const MIN_MONTHLY_KEY = 'trubalance.bankImport.minMonthlyAmount'
 
 export const BANK_IMPORT_MIN_MONTHLY_HELP =
-  'Optional — only suggest recurring costs averaging at least this per month. Leave at 0 when first checking a statement import; raise it later to hide small subscriptions.'
+  'Default £200. Only suggest monthly bills that are meaningful enough to track — skip smaller recurring noise.'
 
 export function readBankImportMinMonthlyAmount(): number {
   if (typeof window === 'undefined') return 0

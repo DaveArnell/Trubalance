@@ -1,31 +1,39 @@
 import type { ParsedBankTransaction } from './types'
 import type { TransactionGroupForAi } from './analysisSchema'
 import { groupKeyForDescription } from './normalize'
-import { roundCurrency } from '../utils/amounts'
+import { toAmount } from '../utils/amounts'
 
-const PAYROLL_MARKERS = /\b(PAYROLL|WAGES?|SALAR(Y|IES)|NET PAY)\b/i
-const HMRC_MARKERS = /\b(HMRC|VAT|PAYE|CORPORATION TAX)\b/i
+const PAYROLL_MARKERS = /\b(PAYROLL|WAGES?|SALAR(Y|IES)|NET PAY|PAY GRP|SWINDON PAY)\b/i
+const DIVIDEND_MARKERS = /\bDIVIDEND/i
 const TRANSFER_MARKERS =
   /\b(TRANSFER|TFR|SWEEP|INTERNAL|BETWEEN ACCOUNTS|TO SAV|FROM SAV|RESERVE)\b/i
 
 function isPayrollLine(description: string): boolean {
+  if (DIVIDEND_MARKERS.test(description)) return false
   return PAYROLL_MARKERS.test(description)
-}
-
-function isHmrcLine(description: string): boolean {
-  return HMRC_MARKERS.test(description)
 }
 
 function isTransferLine(description: string): boolean {
   return TRANSFER_MARKERS.test(description)
 }
 
+function money2(value: number): number {
+  return Math.round(toAmount(value) * 100) / 100
+}
+
+/**
+ * Compact payee groups for the model — keep payees distinct (not “Utilities”).
+ * Prefer largest outflows so important bills are not dropped when capping group count.
+ */
 export function prepareTransactionGroups(
   transactions: ParsedBankTransaction[],
+  options?: { maxGroups?: number },
 ): TransactionGroupForAi[] {
+  const maxGroups = options?.maxGroups ?? 100
   const buckets = new Map<string, ParsedBankTransaction[]>()
 
   for (const tx of transactions) {
+    // Keep HMRC / card agreements separate by normalised payee — do not merge all tax into one bucket.
     let key = groupKeyForDescription(tx.description)
     if (isPayrollLine(tx.description)) key = '__PAYROLL__'
     const list = buckets.get(key) ?? []
@@ -37,31 +45,30 @@ export function prepareTransactionGroups(
 
   for (const [supplierGroup, items] of buckets) {
     const sorted = [...items].sort((a, b) => a.date.localeCompare(b.date))
-    const outTotal = roundCurrency(
+    const outTotal = money2(
       items.filter((t) => t.amount < 0).reduce((s, t) => s + Math.abs(t.amount), 0),
     )
-    const inTotal = roundCurrency(
-      items.filter((t) => t.amount > 0).reduce((s, t) => s + t.amount, 0),
-    )
+    const inTotal = money2(items.filter((t) => t.amount > 0).reduce((s, t) => s + t.amount, 0))
 
     groups.push({
       supplier_group: supplierGroup === '__PAYROLL__' ? 'Payroll' : supplierGroup,
-      sample_descriptions: [...new Set(items.map((t) => t.description))].slice(0, 5),
+      sample_descriptions: [...new Set(items.map((t) => t.description))].slice(0, 8),
       transaction_count: items.length,
       total_out: outTotal,
       total_in: inTotal,
       is_likely_transfer: items.some((t) => isTransferLine(t.description)),
-      is_likely_payroll: supplierGroup === '__PAYROLL__' || items.some((t) => isPayrollLine(t.description)),
-      is_likely_hmrc: items.some((t) => isHmrcLine(t.description)),
-      transactions: sorted.slice(0, 12).map((t) => ({
+      is_likely_payroll:
+        supplierGroup === '__PAYROLL__' || items.some((t) => isPayrollLine(t.description)),
+      is_likely_hmrc: /\bHMRC\b/i.test(items.map((t) => t.description).join(' ')),
+      transactions: sorted.slice(-24).map((t) => ({
         date: t.date,
         description: t.description,
-        amount: t.amount,
+        amount: money2(t.amount),
       })),
     })
   }
 
-  return groups.sort((a, b) => b.transaction_count - a.transaction_count)
+  return groups.sort((a, b) => b.total_out - a.total_out || b.transaction_count - a.transaction_count).slice(0, maxGroups)
 }
 
 export function analysisPeriodFromTransactions(transactions: ParsedBankTransaction[]): {

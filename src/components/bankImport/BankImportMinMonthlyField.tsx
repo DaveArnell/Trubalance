@@ -1,10 +1,4 @@
-import { useState } from 'react'
-import { FieldHelpTip } from '../FieldHelpTip'
-import {
-  BANK_IMPORT_MIN_MONTHLY_HELP,
-  readBankImportMinMonthlyAmount,
-  writeBankImportMinMonthlyAmount,
-} from '../../utils/bankImportPreferences'
+import { DIY_STATEMENT_DEFAULT_MIN_MONTHLY } from '../../content/diyStatementPrompt'
 
 interface BankImportMinMonthlyFieldProps {
   value: number
@@ -16,15 +10,16 @@ interface BankImportMinMonthlyFieldProps {
 export function BankImportMinMonthlyField({
   value,
   onChange,
-  label = 'Minimum monthly amount',
+  label = 'Only suggest meaningful monthly bills',
   compact = false,
 }: BankImportMinMonthlyFieldProps) {
+  const effective = value > 0 ? value : DIY_STATEMENT_DEFAULT_MIN_MONTHLY
+
   return (
-    <label className={`bank-import-min-amount-field${compact ? ' bank-import-min-amount-field--compact' : ''}`}>
-      <span className="bank-import-min-amount-label">
-        {label}
-        <FieldHelpTip label={label}>{BANK_IMPORT_MIN_MONTHLY_HELP}</FieldHelpTip>
-      </span>
+    <label
+      className={`bank-import-min-amount-field${compact ? ' bank-import-min-amount-field--compact' : ''}`}
+    >
+      <span className="bank-import-min-amount-label">{label}</span>
       <div className="bank-import-min-amount-input">
         <span>£</span>
         <input
@@ -32,22 +27,21 @@ export function BankImportMinMonthlyField({
           min={0}
           step={1}
           inputMode="numeric"
-          value={value > 0 ? value : ''}
-          placeholder="0"
+          value={effective}
           onChange={(event) => {
             const parsed = Number(event.target.value)
-            const next = Number.isFinite(parsed) && parsed > 0 ? parsed : 0
+            const next =
+              Number.isFinite(parsed) && parsed > 0
+                ? parsed
+                : DIY_STATEMENT_DEFAULT_MIN_MONTHLY
             onChange(next)
-            writeBankImportMinMonthlyAmount(next)
           }}
         />
       </div>
-      <small>Outgoing payments below this monthly average are skipped. Use 0 to include everything.</small>
+      <small>
+        Default £{DIY_STATEMENT_DEFAULT_MIN_MONTHLY}. Skip smaller recurring noise; keep clear monthly
+        costs around or above this.
+      </small>
     </label>
   )
-}
-
-export function useBankImportMinMonthlyAmount(): [number, (value: number) => void] {
-  const [value, setValue] = useState(readBankImportMinMonthlyAmount)
-  return [value, setValue]
 }

@@ -1,6 +1,11 @@
 import type { AppState, ScopeLevel } from '../types'
 import type { AppActions } from '../hooks/useAppState'
-import { roundCurrency, toAmount } from '../utils/amounts'
+import { toAmount } from '../utils/amounts'
+
+/** Import amounts keep pence (statement figures), not whole-pound rounding. */
+function money2(value: number): number {
+  return Math.round(toAmount(value) * 100) / 100
+}
 import { getAccountBusinessId } from '../utils/accounts'
 import { currentPeriod } from '../utils/commitmentCalculations'
 import { getReservePlannerIdForScope } from '../utils/reserveCalculations'
@@ -42,7 +47,7 @@ function effectiveName(suggestion: BankImportSuggestion): string {
 }
 
 function effectiveAmount(suggestion: BankImportSuggestion): number {
-  return roundCurrency(suggestion.editedAmount ?? suggestion.averageAmount)
+  return money2(suggestion.editedAmount ?? suggestion.averageAmount)
 }
 
 function viewScopeFromLevel(scopeLevel: ScopeLevel, scopeId: string) {
