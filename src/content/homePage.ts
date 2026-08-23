@@ -21,8 +21,7 @@ export const HOME_HERO = {
   /** Full product trial (account). */
   primaryCta: 'Start Free',
   /** Interactive tool — no account; wording must not echo “Start Free”. */
-  tryItCta: 'Free cash check',
-  tryItHint: 'No account needed',
+  tryItCta: 'Try the free snapshot',
   secondaryCta: 'See How It Works',
   graphs: {
     bank: {
