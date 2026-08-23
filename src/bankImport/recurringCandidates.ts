@@ -146,12 +146,44 @@ function daysBetween(a: string, b: string): number {
   return Math.round((end - start) / 86_400_000)
 }
 
-/** One payroll payday cluster per month — then we average those run totals. */
+/** Same payroll wording stays together; PAYROLL GRP and PAYROLL BBP stay separate. */
+function payrollStreamKey(description: string): string {
+  return groupKeyForDescription(description) || 'PAYROLL'
+}
+
+/** Use the stream that appears in the most months — do not sum every payroll-shaped extra. */
+function dominantPayrollStream(items: ParsedBankTransaction[]): ParsedBankTransaction[] {
+  const buckets = new Map<string, ParsedBankTransaction[]>()
+  for (const tx of items) {
+    const key = payrollStreamKey(tx.description)
+    const list = buckets.get(key) ?? []
+    list.push(tx)
+    buckets.set(key, list)
+  }
+  if (buckets.size <= 1) return items
+
+  let best: ParsedBankTransaction[] = items
+  let bestMonths = -1
+  let bestTotal = -1
+  for (const list of buckets.values()) {
+    const months = new Set(list.map((tx) => monthKey(tx.date))).size
+    const total = list.reduce((sum, tx) => sum + Math.abs(tx.amount), 0)
+    if (months > bestMonths || (months === bestMonths && total > bestTotal)) {
+      best = list
+      bestMonths = months
+      bestTotal = total
+    }
+  }
+  return best
+}
+
+/** One payday total per month for the main payroll stream, then we average those. */
 function payrollMonthlyRuns(
   items: ParsedBankTransaction[],
 ): Array<{ date: string; total: number }> {
+  const stream = dominantPayrollStream(items)
   const byMonth = new Map<string, ParsedBankTransaction[]>()
-  for (const tx of items) {
+  for (const tx of stream) {
     const key = monthKey(tx.date)
     const list = byMonth.get(key) ?? []
     list.push(tx)

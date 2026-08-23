@@ -58,7 +58,7 @@ Purpose unknown is fine: keep a payee-based Name, Status 🔴, but STILL list it
 Never put every-month payments in Reserve.
 
 PAYROLL
-- Early-month cluster to multiple people / payroll or wage wording → ONE Monthly row “Payroll”. Amount = average of payday totals over the last 6–12 months in the file (not the latest month alone). Not per person. Exclude dividends.
+- Early-month cluster to multiple people / payroll or wage wording → ONE Monthly row “Payroll”. Use the main recurring payroll stream only (do not add every extra payroll-shaped payment in the same week). Amount = average of that stream’s payday totals over the last 6–12 months in the file. Not per person. Exclude dividends.
 
 AMOUNTS
 - One number only — never ranges.
