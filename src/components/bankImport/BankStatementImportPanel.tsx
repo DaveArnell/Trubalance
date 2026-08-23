@@ -20,7 +20,6 @@ import type {
   BankImportColumnKey,
   BankImportColumnMapping,
   BankImportSuggestion,
-  ImportSuggestionStatus,
   ParsedBankTransaction,
 } from '../../bankImport/types'
 import type { ImportTrendInsight } from '../../bankImport/trendInsights'
@@ -100,7 +99,6 @@ export function BankStatementImportPanel({
   const [mapping, setMapping] = useState<BankImportColumnMapping>({ date: 0, description: 1 })
   const [suggestions, setSuggestions] = useState<BankImportSuggestion[]>([])
   const [insights, setInsights] = useState<ImportTrendInsight[]>([])
-  const [confirmNotes, setConfirmNotes] = useState<string[]>([])
   const [analyzing, setAnalyzing] = useState(false)
   const [applySummary, setApplySummary] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -201,7 +199,6 @@ export function BankStatementImportPanel({
 
       setSuggestions(result.suggestions)
       setInsights(result.insights ?? [])
-      setConfirmNotes(result.confirmNotes ?? [])
       setParsedCount(transactions.length)
       markStatementAiUsedForBusiness(businessId, undefined, { unlimited })
       if (!unlimited) {
@@ -213,7 +210,6 @@ export function BankStatementImportPanel({
       cacheStatementAiSuggestions(businessId, {
         suggestions: result.suggestions,
         insights: result.insights ?? [],
-        confirmNotes: result.confirmNotes ?? [],
       })
       clearRawStatementData()
       setStep('review')
@@ -301,7 +297,6 @@ export function BankStatementImportPanel({
     const cached = readCachedStatementAiSuggestions<{
       suggestions: BankImportSuggestion[]
       insights?: ImportTrendInsight[]
-      confirmNotes?: string[]
     }>(selectedBusinessId)
     if (!cached?.suggestions?.length) {
       setError('No saved suggestions for this business. Add bills manually on the dashboard.')
@@ -309,7 +304,6 @@ export function BankStatementImportPanel({
     }
     setSuggestions(cached.suggestions)
     setInsights(cached.insights ?? [])
-    setConfirmNotes(cached.confirmNotes ?? [])
     setStep('review')
     setError(null)
   }
@@ -318,10 +312,6 @@ export function BankStatementImportPanel({
     setSuggestions((current) =>
       current.map((item) => (item.id === id ? { ...item, ...patch } : item)),
     )
-  }
-
-  const setSuggestionStatus = (id: string, status: ImportSuggestionStatus) => {
-    updateSuggestion(id, { status })
   }
 
   const handleApply = () => {
@@ -666,14 +656,12 @@ export function BankStatementImportPanel({
           <p className="bank-import-hint">
             {parsedCount > 0 ? (
               <>
-                Draft from <strong>{parsedCount}</strong> transactions. Check each row — edit the day
-                or amount if needed, keep what looks right, and ignore anything that isn’t. Nothing
-                is added until you confirm.
+                Draft from <strong>{parsedCount}</strong> transactions. Turn a row green to add it.
+                Orange stays out. Nothing is added until you confirm.
               </>
             ) : (
               <>
-                Check each row — edit the day or amount if needed, keep what looks right, and ignore
-                anything that isn’t. Nothing is added until you confirm.
+                Turn a row green to add it. Orange stays out. Nothing is added until you confirm.
               </>
             )}
           </p>
@@ -681,9 +669,7 @@ export function BankStatementImportPanel({
           <BankImportSuggestionReview
             suggestions={suggestions}
             onUpdate={updateSuggestion}
-            onSetStatus={setSuggestionStatus}
             insights={insights}
-            confirmNotes={confirmNotes}
           />
 
           <div className="bank-import-actions">
@@ -693,7 +679,7 @@ export function BankStatementImportPanel({
               disabled={acceptedCount === 0}
               onClick={handleApply}
             >
-              Add {acceptedCount} accepted item{acceptedCount === 1 ? '' : 's'} to Cash Prophet
+              Add {acceptedCount} green item{acceptedCount === 1 ? '' : 's'} to Cash Prophet
             </button>
           </div>
         </div>

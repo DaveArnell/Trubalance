@@ -54,24 +54,36 @@ function monthLabel(date: string): string {
   ]!
 }
 
-/** Keep the regular large bills; drop smaller extras on the same payee. */
+/** Keep the repeating bill; drop smaller extras — or a single expensive outlier. */
 function dominantAmountCluster(items: ParsedBankTransaction[]): ParsedBankTransaction[] {
   if (items.length < 3) return items
   const values = items.map((t) => Math.abs(t.amount))
   const med = median(values)
   const hi = Math.max(...values)
-  if (hi < med * 2.5) return items
   const large = items.filter((t) => Math.abs(t.amount) >= hi * 0.6)
-  if (large.length >= 2) return large
-  const byMedian = items.filter((t) => Math.abs(t.amount) >= med * 2.5)
-  if (byMedian.length >= 2 && byMedian.length < items.length) return byMedian
+  const regular = items.filter((t) => {
+    const amount = Math.abs(t.amount)
+    return amount >= med * 0.7 && amount <= med * 1.4
+  })
+  // Repeating large bills plus smaller extras (rent vs service charge).
+  if (hi >= med * 2.5 && large.length >= 2) return large
+  // One catch-up / balancing payment vs many similar instalments (rates).
+  if (hi >= med * 2 && large.length <= 1 && regular.length >= 3) return regular
   return items
 }
 
 const PAYROLL_MARKERS = /\b(PAYROLL|WAGES?|SALAR(Y|IES)|NET PAY|PAY\s*GRP|WAGE\s*GRP)\b/i
 const DIVIDEND_MARKERS = /\bDIVIDEND/i
 const TRANSFER_MARKERS =
-  /\b(TRANSFER|TFR|TRNS\s+FT|SWEEP|INTERNAL|BETWEEN ACCOUNTS|TO SAV|FROM SAV|RESERVE)\b/i
+  /\b(TRANSFER|TFR|TRNS\s+FT|BILLS\s+ACC|ACC\s+FT|SWEEP|INTERNAL|BETWEEN ACCOUNTS|TO SAV|FROM SAV|RESERVE)\b/i
+
+function isDividendLine(description: string): boolean {
+  return DIVIDEND_MARKERS.test(description)
+}
+
+function isRatesLine(description: string): boolean {
+  return /business\s+rates|\bnndr\b|council\s+rates|\bbc\s+central\b/i.test(description)
+}
 
 function isPayrollLine(description: string): boolean {
   if (DIVIDEND_MARKERS.test(description)) return false
@@ -223,10 +235,14 @@ export function buildRecurringCandidates(
   for (const [key, items] of buckets) {
     if (items.length < 2 && Math.abs(items[0]?.amount ?? 0) < minMonthly * 5) continue
 
+    if (items.some((t) => isDividendLine(t.description))) continue
+
     const sortedAll = [...items].sort((a, b) => a.date.localeCompare(b.date))
     const isPayroll = key === '__PAYROLL__'
+    const looksRates = sortedAll.some((t) => isRatesLine(t.description))
     // Same payee can have a regular large bill and smaller extras (e.g. rent vs service charge).
-    const sorted = isPayroll ? sortedAll : dominantAmountCluster(sortedAll)
+    // Rates: keep the repeating instalment, including when one month is a catch-up.
+    const sorted = isPayroll || looksRates ? sortedAll : dominantAmountCluster(sortedAll)
     const payrollRuns = isPayroll ? payrollMonthlyRuns(sortedAll) : []
 
     let working = sorted
@@ -268,7 +284,10 @@ export function buildRecurringCandidates(
     const months = new Set(dates.map(monthKey))
     const monthsSeen = months.size
     const coverage = monthsSeen / spanMonths
-    const typical = money2(median(amounts.slice(-6)))
+    const typical =
+      isPayroll && amounts.length > 0
+        ? money2(amounts[amounts.length - 1]!)
+        : money2(median(amounts.slice(-6)))
     const recent = money2(amounts[amounts.length - 1] ?? 0)
     const maxAmount = money2(Math.max(...amounts))
     const totalOut = money2(

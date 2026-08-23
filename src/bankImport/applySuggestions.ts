@@ -9,10 +9,11 @@ function money2(value: number): number {
 import { getAccountBusinessId } from '../utils/accounts'
 import { currentPeriod } from '../utils/commitmentCalculations'
 import { getReservePlannerIdForScope } from '../utils/reserveCalculations'
-import type {
-  BankImportApplyResult,
-  BankImportSuggestion,
-  SuggestionDestination,
+import {
+  isStatementImportGreen,
+  type BankImportApplyResult,
+  type BankImportSuggestion,
+  type SuggestionDestination,
 } from './types'
 import { normalizeDestination } from './categorize'
 
@@ -77,7 +78,9 @@ export function applyBankImportSuggestions(
   }
 
   const accepted = suggestions.filter(
-    (item) => item.status === 'accepted' || item.status === 'edited',
+    (item) =>
+      isStatementImportGreen(item) &&
+      (item.reviewSection === 'monthly_accruing' || item.reviewSection === 'reserve_planner'),
   )
 
   const periodKey = currentPeriod()

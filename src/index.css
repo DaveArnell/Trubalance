@@ -24379,6 +24379,14 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   font-size: 0.85rem;
 }
 
+.bank-import-status-legend p {
+  margin: 0 0 0.4rem;
+}
+
+.bank-import-status-legend p:last-child {
+  margin-bottom: 0;
+}
+
 .bank-import-table-wrap {
   overflow-x: auto;
   border: 1px solid var(--border-subtle);
@@ -24415,7 +24423,8 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .bank-import-table-row--accepted,
-.bank-import-table-row--edited {
+.bank-import-table-row--edited,
+.bank-import-table-row--green {
   background: color-mix(in srgb, var(--overview-accent, #0f766e) 5%, transparent);
 }
 
@@ -24423,6 +24432,26 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   width: 2.5rem;
   text-align: center;
   font-size: 1rem;
+}
+
+.bank-import-light {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 2px 4px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.bank-import-light:hover,
+.bank-import-light:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--overview-accent, #0f766e) 45%, white);
+  outline-offset: 1px;
 }
 
 .bank-import-table-input,
@@ -24442,6 +24471,10 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .bank-import-table-select:focus {
   outline: 2px solid color-mix(in srgb, var(--overview-accent, #0f766e) 45%, white);
   outline-offset: 1px;
+}
+
+.bank-import-table-input--months {
+  min-width: 9rem;
 }
 
 .bank-import-table-input--name {

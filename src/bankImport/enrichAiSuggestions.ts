@@ -87,18 +87,33 @@ function monthsLabelFromCandidate(candidate: RecurringCandidateForAi): string {
   return unique.join(', ')
 }
 
+function candidateBlob(candidate: RecurringCandidateForAi): string {
+  return `${candidate.bank_payee} ${candidate.sample_descriptions.join(' ')}`
+}
+
+function looksRatesPayee(candidate: RecurringCandidateForAi): boolean {
+  return /business\s+rates|\bnndr\b|council\s+rates|\bbc\s+central\b/i.test(candidateBlob(candidate))
+}
+
 function looksMonthly(candidate: RecurringCandidateForAi): boolean {
+  if (looksRatesPayee(candidate) && candidate.months_seen >= 3) return true
+  if (candidate.detected_frequency === 'weekly') return false
+  if (candidate.detected_frequency === 'quarterly' || candidate.detected_frequency === 'annual') {
+    return false
+  }
+  if (candidate.detected_frequency === 'monthly') {
+    return candidate.month_coverage_ratio >= 0.5 || candidate.months_seen >= 6
+  }
   return (
-    candidate.detected_frequency === 'monthly' ||
-    (candidate.month_coverage_ratio >= 0.45 &&
-      candidate.median_gap_days != null &&
-      candidate.median_gap_days >= 20 &&
-      candidate.median_gap_days <= 45)
+    candidate.month_coverage_ratio >= 0.55 &&
+    candidate.median_gap_days != null &&
+    candidate.median_gap_days >= 25 &&
+    candidate.median_gap_days <= 40 &&
+    candidate.months_seen >= 5
   )
 }
 
-function looksReserve(candidate: RecurringCandidateForAi, minMonthly = 200): boolean {
-  if (!looksMonthly(candidate) && candidate.typical_amount >= minMonthly * 5) return true
+function looksReservePattern(candidate: RecurringCandidateForAi): boolean {
   return (
     candidate.detected_frequency === 'quarterly' ||
     candidate.detected_frequency === 'annual' ||
@@ -106,6 +121,12 @@ function looksReserve(candidate: RecurringCandidateForAi, minMonthly = 200): boo
       candidate.median_gap_days != null &&
       candidate.median_gap_days >= 70)
   )
+}
+
+function looksReserve(candidate: RecurringCandidateForAi, minMonthly = 200): boolean {
+  if (looksRatesPayee(candidate) && candidate.months_seen >= 3) return false
+  if (looksReservePattern(candidate)) return true
+  return !looksMonthly(candidate) && candidate.typical_amount >= minMonthly * 5
 }
 
 function coversCandidate(
@@ -192,12 +213,14 @@ function applyCandidateFacts(
     next.suggestedName = friendlyName(next.suggestedName, next.bankPayee || candidate.bank_payee)
   }
 
-  if (looksMonthly(candidate) && next.reviewSection === 'reserve_planner') {
+  const rates = looksRatesPayee(candidate)
+  if ((looksMonthly(candidate) || (rates && candidate.months_seen >= 3)) && next.reviewSection === 'reserve_planner') {
     next.reviewSection = 'monthly_accruing'
     next.destination = 'building_commitment'
     next.frequency = 'monthly'
     next.dueMonthsLabel = undefined
   } else if (
+    !rates &&
     looksReserve(candidate) &&
     !looksMonthly(candidate) &&
     next.reviewSection === 'monthly_accruing'
@@ -207,8 +230,12 @@ function applyCandidateFacts(
     next.frequency = candidate.detected_frequency === 'quarterly' ? 'quarterly' : 'annual'
   }
 
+  if (candidate.is_likely_payroll) {
+    next.confidence = Math.max(next.confidence, 85)
+  }
+
   if (next.reviewSection === 'reserve_planner') {
-    const months = monthsLabelFromCandidate(candidate)
+    const months = collapseSparseReserveMonths(candidate, monthsLabelFromCandidate(candidate))
     if (months) {
       next.dueMonthsLabel = months
       const first = months.split(',')[0]?.trim()
@@ -218,6 +245,82 @@ function applyCandidateFacts(
   }
 
   return next
+}
+
+function collapseSparseReserveMonths(
+  candidate: RecurringCandidateForAi,
+  label: string,
+): string {
+  const unique = label
+    .split(',')
+    .map((part) => part.trim())
+    .filter((month) => MONTHS.includes(month))
+  if (unique.length !== 2) return label
+  const start = MONTHS.indexOf(unique[0]!)
+  const end = MONTHS.indexOf(unique[1]!)
+  const gap = Math.min(Math.abs(end - start), 12 - Math.abs(end - start))
+  if (gap >= 5 && gap <= 7) return unique.join(', ')
+  const top = [...candidate.recent_transactions].sort(
+    (a, b) => Math.abs(b.amount) - Math.abs(a.amount),
+  )[0]
+  if (!top?.date) return unique[unique.length - 1]!
+  return MONTHS[Number(top.date.slice(5, 7)) - 1] ?? unique[unique.length - 1]!
+}
+
+function dueMonthCount(suggestion: BankImportSuggestion): number {
+  return (suggestion.dueMonthsLabel || '')
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean).length
+}
+
+function keepReliableReserve(suggestion: BankImportSuggestion, minMonthly: number): boolean {
+  const blob = `${suggestion.suggestedName} ${suggestion.bankPayee || ''}`
+  if (/\bdividend/i.test(blob)) return false
+  if (/bills\s+acc|\bacc\s+ft\b/i.test(blob)) return false
+  if (/hmrc|\bvat\b/i.test(blob)) return true
+  const months = dueMonthCount(suggestion)
+  const amount = suggestion.editedAmount ?? suggestion.averageAmount
+  if (suggestion.confidence >= 80) return true
+  if (months >= 3 && amount >= minMonthly * 2) return true
+  if (months === 2 && amount >= minMonthly * 5) return true
+  return (
+    months <= 1 &&
+    amount >= minMonthly * 5 &&
+    /insur|licence|license|\bsuite\b|software|\bbroker\b/i.test(blob)
+  )
+}
+
+function dedupeSimilarReserve(rows: BankImportSuggestion[]): BankImportSuggestion[] {
+  const kept: BankImportSuggestion[] = []
+  for (const row of rows) {
+    const index = kept.findIndex((existing) => {
+      const score = Math.max(
+        scoreNameToCandidate(row.suggestedName, {
+          bank_payee: existing.suggestedName,
+          sample_descriptions: [existing.bankPayee || ''],
+        } as RecurringCandidateForAi),
+        scoreNameToCandidate(existing.suggestedName, {
+          bank_payee: row.suggestedName,
+          sample_descriptions: [row.bankPayee || ''],
+        } as RecurringCandidateForAi),
+      )
+      return score >= 72
+    })
+    if (index < 0) {
+      kept.push(row)
+      continue
+    }
+    const other = kept[index]!
+    const rowMonths = dueMonthCount(row)
+    const otherMonths = dueMonthCount(other)
+    kept[index] =
+      rowMonths > otherMonths ||
+      (rowMonths === otherMonths && (row.averageAmount || 0) > (other.averageAmount || 0))
+        ? row
+        : other
+  }
+  return kept
 }
 
 function rowFromCandidate(
@@ -317,7 +420,7 @@ export function enrichAiSuggestionsFromEvidence(
       averageAmount: payroll.typical_amount,
       frequency: 'monthly',
       likelyDueDay: payroll.suggested_due_day ?? undefined,
-      confidence: 70,
+      confidence: 85,
       reason: '',
       destination: 'building_commitment',
       status: 'accepted',
@@ -337,10 +440,10 @@ export function enrichAiSuggestionsFromEvidence(
     const monthlyLike =
       looksMonthly(candidate) &&
       candidate.typical_amount >= minMonthly &&
-      (candidate.month_coverage_ratio >= 0.35 || candidate.months_seen >= 4)
+      (candidate.month_coverage_ratio >= 0.5 || candidate.months_seen >= 6)
     const reserveLike =
       !looksMonthly(candidate) &&
-      looksReserve(candidate, minMonthly) &&
+      looksReservePattern(candidate) &&
       (candidate.typical_amount >= minMonthly * 5 ||
         candidate.typical_amount * Math.max(candidate.payment_months.length, 1) >= minReserveAnnual)
 
@@ -348,44 +451,33 @@ export function enrichAiSuggestionsFromEvidence(
       next.push(rowFromCandidate(candidate, 'monthly_accruing', options))
       continue
     }
-    if (reserveLike) {
+    if (reserveLike || (candidate.is_likely_hmrc && !looksMonthly(candidate))) {
       next.push(rowFromCandidate(candidate, 'reserve_planner', options))
     }
   }
 
   const kept = next.filter((s) => {
+    const blob = `${s.suggestedName} ${s.bankPayee || ''}`
+    if (/\bdividend/i.test(blob)) return false
     const amount = s.editedAmount ?? s.averageAmount
     if (s.reviewSection === 'monthly_accruing') {
       return amount >= minMonthly
     }
     if (s.reviewSection === 'reserve_planner') {
-      const monthCount = (s.dueMonthsLabel || '')
-        .split(',')
-        .map((m) => m.trim())
-        .filter(Boolean).length
-      const annual = amount * Math.max(monthCount, 1)
-      return annual >= minReserveAnnual || amount >= minMonthly * 2
+      return keepReliableReserve(s, minMonthly)
     }
     return true
   })
 
-  const listed = kept.filter(
-    (s) => s.reviewSection === 'monthly_accruing' || s.reviewSection === 'reserve_planner',
-  )
-  const withoutPromoted = kept.filter((s) => {
-    if (s.reviewSection !== 'excluded' && s.reviewSection !== 'manual_review') return true
-    return !candidates.some((candidate) => {
-      if (!coversCandidate(listed, candidate)) return false
-      return (
-        scoreNameToCandidate(s.suggestedName, candidate) >= 70 ||
-        scoreNameToCandidate(s.bankPayee || '', candidate) >= 70
-      )
-    })
-  })
-
-  const monthly = withoutPromoted
+  const monthly = kept
     .filter((s) => s.reviewSection === 'monthly_accruing')
     .sort((a, b) => (a.likelyDueDay ?? 99) - (b.likelyDueDay ?? 99))
-  const rest = withoutPromoted.filter((s) => s.reviewSection !== 'monthly_accruing')
-  return [...monthly, ...rest]
+  const reserve = dedupeSimilarReserve(
+    kept.filter((s) => s.reviewSection === 'reserve_planner'),
+  ).sort((a, b) => {
+    const light = (b.confidence >= 80 ? 1 : 0) - (a.confidence >= 80 ? 1 : 0)
+    if (light !== 0) return light
+    return (b.averageAmount || 0) - (a.averageAmount || 0)
+  })
+  return [...monthly, ...reserve]
 }

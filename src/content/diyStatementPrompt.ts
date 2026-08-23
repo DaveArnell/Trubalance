@@ -31,7 +31,8 @@ ONE DAY ONLY
 
 WEEKLY VS MONTHLY VS RESERVE
 - Several times most months / ~weekly → Not imported (do not invent a monthly total).
-- About once per calendar month → Monthly. Include council / business rates / NNDR instalments even if they skip a month or two.
+- Dividends → Not imported (not a monthly commitment).
+- About once per calendar month → Monthly. Include council / business rates / NNDR instalments even if they skip a month or two. Water / waste is often quarterly or six-monthly — do not force those into Monthly.
 - Roughly every 3 / 6 / 12 months, or same month(s) each year → Reserve Planner — even if the payee name looks odd, like a person, brand, or “transfer”.
 - Large one-off or once-in-the-file bills at or above about 5× the monthly threshold → Reserve Planner (due month = the month it fell). That is what Reserve is for.
 - Do NOT dump large cyclical or large irregular payments into Not imported as “irregular” or “internal”. Not imported is for weekly noise, transfers, income, and small stuff.

@@ -76,6 +76,4 @@ export const LOW_CONFIDENCE_CATEGORY_OPTIONS: { value: SuggestionCategory; label
 export const SUGGESTION_DESTINATION_OPTIONS: { value: SuggestionDestination; label: string }[] = [
   { value: 'building_commitment', label: 'Monthly accruing cost' },
   { value: 'reserve_bill', label: 'Reserve planner bill' },
-  { value: 'expected_receipt', label: 'Expected receipt' },
-  { value: 'ignore', label: 'Ignore' },
 ]

@@ -95,6 +95,15 @@ export interface BankImportSuggestion {
   expectedReceiptDate?: string
 }
 
+/** Green traffic light — only these rows are added from statement review. */
+export const STATEMENT_IMPORT_GREEN_MIN = 80
+
+export function isStatementImportGreen(
+  suggestion: Pick<BankImportSuggestion, 'confidence'>,
+): boolean {
+  return (suggestion.confidence ?? 0) >= STATEMENT_IMPORT_GREEN_MIN
+}
+
 export interface BankImportSession {
   accountId: string
   scopeLevel: ScopeLevel
