@@ -2,8 +2,8 @@
  * DIY ChatGPT prompt for statement → Cash Prophet setup.
  * Keep generic — any UK business / bank. Inject monthly threshold before copy.
  *
- * This is the prompt that produced the successful Swindon ChatGPT draft.
- * Keep the edge function in sync.
+ * Same rules as the copy-paste ChatGPT prompt. Keep the edge function in sync.
+ * Must stay generic — any UK bank, any sector, any payees.
  */
 
 export const DIY_STATEMENT_DEFAULT_MIN_MONTHLY = 200

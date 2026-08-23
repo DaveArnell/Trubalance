@@ -58,9 +58,9 @@ function appendDescription(current: string, extra: string): string {
 }
 
 /**
- * Barclays (and similar) PDF exports wrap each transaction across several visual
- * lines: type, DD/MM, payee + amounts, /YYYY, reference.
- * Column-based parsing glues the next BCARD credit onto the previous debit.
+ * Many UK bank PDF exports wrap one transaction across several visual lines
+ * (type, date, payee, amount, year, reference). Column-based parsing then
+ * attaches the next credit’s reference to the previous debit.
  */
 export function parseWrappedBankPdfRows(items: PdfTextItem[]): ParsedPdfRow[] {
   const rawLines = clusterPdfItemsIntoRows(items)

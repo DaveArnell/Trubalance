@@ -54,7 +54,7 @@ function monthLabel(date: string): string {
   ]!
 }
 
-const PAYROLL_MARKERS = /\b(PAYROLL|WAGES?|SALAR(Y|IES)|NET PAY|PAY GRP|SWINDON PAY)\b/i
+const PAYROLL_MARKERS = /\b(PAYROLL|WAGES?|SALAR(Y|IES)|NET PAY|PAY GRP|WAGE GRP)\b/i
 const DIVIDEND_MARKERS = /\bDIVIDEND/i
 const TRANSFER_MARKERS =
   /\b(TRANSFER|TFR|SWEEP|INTERNAL|BETWEEN ACCOUNTS|TO SAV|FROM SAV|RESERVE)\b/i
@@ -69,7 +69,8 @@ function isTransferLine(description: string): boolean {
 }
 
 /**
- * Prefer separating multiple agreements to the same lender (Barclaycard BCD…, Capital on Tap, GoCardless).
+ * Keep separate finance / collection agreements when the statement includes
+ * a distinct reference, so two contracts to the same lender stay two rows.
  */
 export function candidateKeyForDescription(description: string): string {
   if (isPayrollLine(description)) return '__PAYROLL__'
