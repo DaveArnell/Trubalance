@@ -6,7 +6,11 @@ import { getAccountBusinessId } from '../../utils/accounts'
 import { getScopeItemLabel } from '../../utils/scope'
 import { analyzeBankTransactions, getBankImportAiStatus } from '../../bankImport/aiAdapter'
 import type { BankImportAiHealth } from '../../services/bankImportApi'
-import { applyBankImportSuggestions, scopeForAccount } from '../../bankImport/applySuggestions'
+import {
+  applyBankImportSuggestions,
+  importAssignmentOptions,
+  scopeForAccount,
+} from '../../bankImport/applySuggestions'
 import { BankImportMinMonthlyField } from './BankImportMinMonthlyField'
 import {
   readBankImportMinMonthlyAmount,
@@ -353,6 +357,12 @@ export function BankStatementImportPanel({
   }
 
   const acceptedCount = countAcceptedSuggestions(suggestions)
+  const scopeOptions = useMemo(
+    () => (accountId ? importAssignmentOptions(state, accountId) : []),
+    [accountId, state],
+  )
+  const defaultScope = scopeForAccount(state, accountId)
+  const defaultScopeKey = defaultScope ? `${defaultScope.scopeLevel}:${defaultScope.scopeId}` : ''
   const stageTitles: Record<(typeof USER_STEPS)[number], string> = {
     account: 'Choose the account',
     upload: 'Upload your statement',
@@ -670,6 +680,8 @@ export function BankStatementImportPanel({
             suggestions={suggestions}
             onUpdate={updateSuggestion}
             insights={insights}
+            scopeOptions={scopeOptions}
+            defaultScopeKey={defaultScopeKey}
           />
 
           <div className="bank-import-actions">

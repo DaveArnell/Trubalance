@@ -77,6 +77,28 @@ function dominantAmountCluster(items: ParsedBankTransaction[]): ParsedBankTransa
   return items
 }
 
+/** Two regular amounts on the same payee stay two bills — do not keep only the larger. */
+function splitRepeatingAmountPatterns(items: ParsedBankTransaction[]): ParsedBankTransaction[][] {
+  if (items.length < 4) return [items]
+  const sorted = [...items].sort((a, b) => Math.abs(a.amount) - Math.abs(b.amount))
+  const groups: ParsedBankTransaction[][] = []
+  for (const tx of sorted) {
+    const amount = Math.abs(tx.amount)
+    const last = groups[groups.length - 1]
+    if (last) {
+      const centre = median(last.map((item) => Math.abs(item.amount)))
+      if (amount >= centre * 0.85 && amount <= centre * 1.15) {
+        last.push(tx)
+        continue
+      }
+    }
+    groups.push([tx])
+  }
+  const repeating = groups.filter((group) => group.length >= 2)
+  if (repeating.length >= 2) return repeating
+  return [items]
+}
+
 const PAYROLL_MARKERS = /\b(PAYROLL|WAGES?|SALAR(Y|IES)|NET PAY|PAY\s*GRP|WAGE\s*GRP)\b/i
 const DIVIDEND_MARKERS = /\bDIVIDEND/i
 const TRANSFER_MARKERS =
@@ -87,7 +109,9 @@ function isDividendLine(description: string): boolean {
 }
 
 function isRatesLine(description: string): boolean {
-  return /business\s+rates|\bnndr\b|council\s+rates|\bbc\s+central\b/i.test(description)
+  return /business\s+rates|\bnndr\b|\bndr\b|non-?domestic|\bcc\s+tax\b|council\s+tax|council\s+rates|\bbc\s+central\b/i.test(
+    description,
+  )
 }
 
 function isPayrollLine(description: string): boolean {
@@ -111,7 +135,8 @@ export function candidateKeyForDescription(description: string): string {
     upper.match(/\b(BCD\d{6,})\b/) ||
     upper.match(/\b(VEC[A-Z0-9]{5,})\b/) ||
     upper.match(/\b(LQGB-[A-Z0-9]+)\b/) ||
-    upper.match(/\b(TP\d{5,}-\d)\b/)
+    upper.match(/\b(TP\d{5,}-\d)\b/) ||
+    upper.match(/\b(\d{8,})\b/)
 
   const base = groupKeyForDescription(description)
   if (agreement) return `${base} ${agreement[1]}`
@@ -277,10 +302,11 @@ export function buildRecurringCandidates(
 
     const sortedAll = [...items].sort((a, b) => a.date.localeCompare(b.date))
     const isPayroll = key === '__PAYROLL__'
-    const looksRates = sortedAll.some((t) => isRatesLine(t.description))
-    // Same payee can have a regular large bill and smaller extras (e.g. rent vs service charge).
-    // Rates: keep the repeating instalment, including when one month is a catch-up.
-    const sorted = isPayroll || looksRates ? sortedAll : dominantAmountCluster(sortedAll)
+    const patternGroups = isPayroll ? [sortedAll] : splitRepeatingAmountPatterns(sortedAll)
+
+    for (const patternItems of patternGroups) {
+    const looksRates = patternItems.some((t) => isRatesLine(t.description))
+    const sorted = isPayroll || looksRates ? patternItems : dominantAmountCluster(patternItems)
     const payrollRuns = isPayroll ? payrollMonthlyRuns(sortedAll) : []
 
     let working = sorted
@@ -393,6 +419,7 @@ export function buildRecurringCandidates(
         amount: money2(t.amount),
       })),
     })
+    }
   }
 
   return candidates

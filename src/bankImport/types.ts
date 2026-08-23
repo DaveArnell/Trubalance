@@ -88,6 +88,9 @@ export interface BankImportSuggestion {
   editedAmount?: number
   editedDueDay?: number
   editedDestination?: SuggestionDestination
+  /** When the statement account is a venue, the user can assign the bill to the business or another venue. */
+  editedScopeLevel?: ScopeLevel
+  editedScopeId?: string
   isInflow: boolean
   /** AI review bucket */
   reviewSection?: BankImportReviewSection

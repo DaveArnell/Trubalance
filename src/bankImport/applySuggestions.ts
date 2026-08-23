@@ -7,7 +7,9 @@ function money2(value: number): number {
   return Math.round(toAmount(value) * 100) / 100
 }
 import { getAccountBusinessId } from '../utils/accounts'
+import { getScopeItemLabel } from '../utils/scope'
 import { currentPeriod } from '../utils/commitmentCalculations'
+import { getImportableAccounts } from './importableAccounts'
 import { getReservePlannerIdForScope } from '../utils/reserveCalculations'
 import {
   isStatementImportGreen,
@@ -39,6 +41,57 @@ export function scopeForAccount(
   return null
 }
 
+export interface ImportScopeOption {
+  scopeLevel: ScopeLevel
+  scopeId: string
+  label: string
+}
+
+/** Shown only when this business has more than one venue or current account. */
+export function importAssignmentOptions(
+  state: AppState,
+  accountId: string,
+): ImportScopeOption[] {
+  const account = state.accounts.find((item) => item.id === accountId)
+  if (!account) return []
+  const businessId = getAccountBusinessId(state, account)
+  if (!businessId) return []
+  const venues = state.venues.filter((venue) => venue.businessId === businessId)
+  const currentAccounts = getImportableAccounts(state).filter(
+    (item) => getAccountBusinessId(state, item) === businessId,
+  )
+  if (venues.length < 2 && currentAccounts.length < 2) return []
+
+  const business = state.businesses.find((item) => item.id === businessId)
+  const options: ImportScopeOption[] = []
+  if (business) {
+    options.push({
+      scopeLevel: 'business',
+      scopeId: business.id,
+      label: `${business.name} (whole business)`,
+    })
+  }
+  for (const venue of venues) {
+    options.push({
+      scopeLevel: 'venue',
+      scopeId: venue.id,
+      label: getScopeItemLabel(state, 'venue', venue.id),
+    })
+  }
+  return options
+}
+
+function scopeForSuggestion(
+  state: AppState,
+  accountId: string,
+  suggestion: BankImportSuggestion,
+): { scopeLevel: ScopeLevel; scopeId: string } | null {
+  if (suggestion.editedScopeLevel && suggestion.editedScopeId) {
+    return { scopeLevel: suggestion.editedScopeLevel, scopeId: suggestion.editedScopeId }
+  }
+  return scopeForAccount(state, accountId)
+}
+
 function effectiveDestination(suggestion: BankImportSuggestion): SuggestionDestination {
   return normalizeDestination(suggestion.editedDestination ?? suggestion.destination)
 }
@@ -63,7 +116,7 @@ export function applyBankImportSuggestions(
   suggestions: BankImportSuggestion[],
   actions: ApplyActions,
 ): BankImportApplyResult {
-  const scope = scopeForAccount(state, accountId)
+  const fallbackScope = scopeForAccount(state, accountId)
   const result: BankImportApplyResult = {
     commitmentsCreated: 0,
     receiptsCreated: 0,
@@ -72,7 +125,7 @@ export function applyBankImportSuggestions(
     errors: [],
   }
 
-  if (!scope) {
+  if (!fallbackScope) {
     result.errors.push('Could not determine scope for the selected account.')
     return result
   }
@@ -97,6 +150,7 @@ export function applyBankImportSuggestions(
       continue
     }
 
+    const scope = scopeForSuggestion(state, accountId, suggestion) ?? fallbackScope
     const name = effectiveName(suggestion)
     const amount = effectiveAmount(suggestion)
     const note = `From bank statement import. ${suggestion.reason}`

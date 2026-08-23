@@ -92,7 +92,9 @@ function candidateBlob(candidate: RecurringCandidateForAi): string {
 }
 
 function looksRatesPayee(candidate: RecurringCandidateForAi): boolean {
-  return /business\s+rates|\bnndr\b|council\s+rates|\bbc\s+central\b/i.test(candidateBlob(candidate))
+  return /business\s+rates|\bnndr\b|\bndr\b|non-?domestic|\bcc\s+tax\b|council\s+tax|council\s+rates|\bbc\s+central\b/i.test(
+    candidateBlob(candidate),
+  )
 }
 
 function looksMonthly(candidate: RecurringCandidateForAi): boolean {
@@ -163,7 +165,11 @@ function friendlyName(name: string, payee: string): string {
   if (/hmrc/i.test(evidence) && /sdds/i.test(evidence)) return 'HMRC monthly payment'
   if (/hmrc/i.test(evidence) && /shipley/i.test(evidence)) return 'HMRC annual payment'
   if (/capital\s+on\s+tap/i.test(evidence)) return 'Capital on Tap'
-  if (/business\s+rates|\bnndr\b|council\s+rates|\bbc\s+central\b/i.test(evidence)) {
+  if (
+    /business\s+rates|\bnndr\b|\bndr\b|non-?domestic|\bcc\s+tax\b|council\s+tax|council\s+rates|\bbc\s+central\b/i.test(
+      evidence,
+    )
+  ) {
     return 'Business rates'
   }
   if (/hmrc/i.test(name) && payee && !/hmrc/i.test(payee)) {

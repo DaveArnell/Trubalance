@@ -7,6 +7,7 @@ import {
 } from '../../bankImport/types'
 import { SUGGESTION_DESTINATION_OPTIONS } from '../../content/guidedSetup'
 import type { ImportTrendInsight } from '../../bankImport/trendInsights'
+import type { ImportScopeOption } from '../../bankImport/applySuggestions'
 
 const SECTION_LABELS: Record<BankImportReviewSection, string> = {
   monthly_accruing: 'Monthly commitments',
@@ -59,6 +60,8 @@ interface BankImportSuggestionReviewProps {
   suggestions: BankImportSuggestion[]
   onUpdate: (id: string, patch: Partial<BankImportSuggestion>) => void
   insights?: ImportTrendInsight[]
+  scopeOptions?: ImportScopeOption[]
+  defaultScopeKey?: string
 }
 
 export function BankImportInsightsPanel({ insights }: { insights: ImportTrendInsight[] }) {
@@ -84,7 +87,10 @@ export function BankImportSuggestionReview({
   suggestions,
   onUpdate,
   insights = [],
+  scopeOptions = [],
+  defaultScopeKey = '',
 }: BankImportSuggestionReviewProps) {
+  const showAssign = scopeOptions.length > 1
   const grouped = VISIBLE_SECTIONS.map((section) => ({
     section,
     items: sortSectionItems(
@@ -114,6 +120,11 @@ export function BankImportSuggestionReview({
           This is not every transaction. Only meaningful bills for this business — use the minimum
           amount to control how much is suggested. Best done once per business.
         </p>
+        {showAssign ? (
+          <p className="muted">
+            Assign to another venue or the whole business when a bill from this account is shared.
+          </p>
+        ) : null}
       </div>
       {grouped.map(({ section, items }) => {
         const isReserve = section === 'reserve_planner'
@@ -132,6 +143,7 @@ export function BankImportSuggestionReview({
                     {isReserve && <th scope="col">Due months</th>}
                     <th scope="col">Amount (£)</th>
                     <th scope="col">Add as</th>
+                    {showAssign && <th scope="col">Assign to</th>}
                   </tr>
                 </thead>
                 <tbody>
@@ -256,6 +268,38 @@ export function BankImportSuggestionReview({
                             ))}
                           </select>
                         </td>
+                        {showAssign && (
+                          <td>
+                            <select
+                              className="bank-import-table-select"
+                              value={
+                                suggestion.editedScopeLevel && suggestion.editedScopeId
+                                  ? `${suggestion.editedScopeLevel}:${suggestion.editedScopeId}`
+                                  : defaultScopeKey
+                              }
+                              onChange={(event) => {
+                                const [level, ...rest] = event.target.value.split(':')
+                                const scopeId = rest.join(':')
+                                if (level !== 'business' && level !== 'venue' && level !== 'group') {
+                                  return
+                                }
+                                onUpdate(suggestion.id, {
+                                  editedScopeLevel: level,
+                                  editedScopeId: scopeId,
+                                })
+                              }}
+                            >
+                              {scopeOptions.map((option) => (
+                                <option
+                                  key={`${option.scopeLevel}:${option.scopeId}`}
+                                  value={`${option.scopeLevel}:${option.scopeId}`}
+                                >
+                                  {option.label}
+                                </option>
+                              ))}
+                            </select>
+                          </td>
+                        )}
                       </tr>
                     )
                   })}

@@ -46,6 +46,7 @@ MONTHLY RULES
 - Must appear in most months across a meaningful stretch. If it only appears a few times a year, or only in a short recent window without a clear every-month pattern, do NOT force it into Monthly — put it in Reserve if it is material.
 - Sort Monthly by Day of month ascending.
 - Distinct Names per payee (do not merge different finance agreements into one vague name).
+- Same payee, two regular amounts (both repeat) → two Monthly rows. Do not keep only the larger.
 
 RESERVE PLANNER RULES (important — do not under-fill this table)
 First estimate a typical “meaningful monthly” total for this business from the Monthly candidates (rough sense of scale).
