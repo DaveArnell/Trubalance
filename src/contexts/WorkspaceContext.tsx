@@ -21,7 +21,7 @@ import {
   buildSafeTableEmptyDeletes,
 } from '../services/workspaceRepository'
 import { isSupabaseConfigured, tryGetSupabase } from '../lib/supabase'
-import { emptyAppState, isBuiltinDemoWorkspace, isUserOwnedWorkspace, backupBrowserStateToSession, mergeMissingLocalWorkspaceData, countCriticalEntitiesAdded, unionExpectedReceipts, expectedReceiptsSyncKey, snapshotsSyncKey, historyRecordsSyncKey, unionSnapshotsByUpdatedAt, unionHistoryRecordsBySavedAt } from '../utils/localStateStorage'
+import { emptyAppState, isBuiltinDemoWorkspace, isUserOwnedWorkspace, backupBrowserStateToSession, mergeMissingLocalWorkspaceData, countCriticalEntitiesAdded, unionExpectedReceipts, expectedReceiptsSyncKey, snapshotsSyncKey, historyRecordsSyncKey, unionSnapshotsByUpdatedAt, unionHistoryRecordsBySavedAt, stripEntitiesOutsideWorkspace } from '../utils/localStateStorage'
 import { readBrowserAppState } from '../hooks/useAppState'
 import { normalizeWorkspaceStateForDisplay } from '../utils/workspaceNormalize'
 
@@ -230,8 +230,21 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
       const dbEmpty = await isWorkspaceEmptyInDatabase(wsId)
       const { state: loadedState, loadHadErrors } = await loadWorkspaceState(wsId)
-      let state = loadedState
-      const localState = !isImpersonating && user?.id === effectiveUserId ? readBrowserAppState() : null
+      const cloudRaw = stripEntitiesOutsideWorkspace(loadedState)
+      let state = cloudRaw
+
+      const lastAuthUserId =
+        typeof window !== 'undefined' ? window.localStorage.getItem('trubalance-last-auth-user-id') : null
+      const localBelongsToThisUser = !lastAuthUserId || lastAuthUserId === effectiveUserId
+      const localState =
+        !isImpersonating && user?.id === effectiveUserId && localBelongsToThisUser
+          ? readBrowserAppState()
+          : null
+
+      if (!localBelongsToThisUser && typeof window !== 'undefined') {
+        // Different signed-in user than the last one that wrote localStorage — do not merge.
+        console.warn('[Workspace] Ignoring browser workspace cache from a different signed-in user')
+      }
 
       const cloudLooksLikeDemo = isBuiltinDemoWorkspace(state)
       const localLooksLikeUserData = localState && isUserOwnedWorkspace(localState)
@@ -257,6 +270,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       }
 
       // Fold in anything this device still has locally (and any edit queued mid-pull).
+      // Only entities that belong to THIS workspace’s businesses are kept.
       const localSources = [localState, pendingBeforeLoad].filter(Boolean) as AppState[]
       if (!isImpersonating && user?.id === effectiveUserId && localSources.length > 0) {
         const beforeMerge = state
@@ -269,10 +283,12 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
           state = unionSnapshotsByUpdatedAt(state, source)
           state = unionHistoryRecordsBySavedAt(state, source)
         }
+        state = stripEntitiesOutsideWorkspace(state)
         const afterUnion = state
         // Restore frozen History captures before deciding to push — never push past
         // Trends that were rewritten from today's live balances on load.
         state = normalizeWorkspaceStateForDisplay(state)
+        state = stripEntitiesOutsideWorkspace(state)
         const added = countCriticalEntitiesAdded(beforeMerge, state)
         const receiptsChanged =
           expectedReceiptsSyncKey(beforeMerge) !== expectedReceiptsSyncKey(state)
@@ -324,6 +340,31 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       // Already normalized above when local sources were merged; still normalize when not.
       if (localSources.length === 0 || isImpersonating || user?.id !== effectiveUserId) {
         state = normalizeWorkspaceStateForDisplay(state)
+      }
+      state = stripEntitiesOutsideWorkspace(state)
+
+      // If an earlier buggy merge pushed foreign planners into this account, remove them in cloud.
+      const orphanPlannerIds = loadedState.reservePlanners
+        .filter((planner) => !state.reservePlanners.some((row) => row.id === planner.id))
+        .map((planner) => planner.id)
+      if (orphanPlannerIds.length > 0 && !isImpersonating) {
+        try {
+          await saveWorkspaceState(wsId, state, {
+            allowEmptyDeletes: true,
+            previousState: loadedState,
+          })
+          console.warn(
+            `[Workspace] Removed ${orphanPlannerIds.length} reserve plan(s) that did not belong to this workspace`,
+          )
+        } catch (error) {
+          console.warn('[Workspace] Failed to remove orphan reserve plans from cloud', error)
+        }
+      }
+
+      try {
+        window.localStorage.setItem('trubalance-last-auth-user-id', effectiveUserId)
+      } catch {
+        /* ignore */
       }
 
       loadedStateRef.current = state

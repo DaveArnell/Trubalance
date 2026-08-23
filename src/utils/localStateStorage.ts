@@ -97,16 +97,113 @@ export function readSessionBackup(): AppState | null {
   }
 }
 
+/** Recover reserve planners (and their bills) present locally but missing from a cloud load. */
+export function mergeMissingReservePlanners(cloud: AppState, local: AppState | null): AppState {
+  if (!local?.reservePlanners.length) return cloud
+  const cloudIds = new Set(cloud.reservePlanners.map((planner) => planner.id))
+  const cloudBusinessIds = new Set(cloud.businesses.map((business) => business.id))
+  // Never import planners that belong to another workspace / demo structure.
+  const missing = local.reservePlanners.filter(
+    (planner) => !cloudIds.has(planner.id) && cloudBusinessIds.has(planner.businessId),
+  )
+  if (missing.length === 0) return cloud
+  return {
+    ...cloud,
+    workspaceOrigin: cloud.workspaceOrigin ?? 'user',
+    reservePlanners: [...cloud.reservePlanners, ...missing],
+  }
+}
+
+/** Recover commitments present locally but missing from a cloud load. */
+export function mergeMissingCommitments(cloud: AppState, local: AppState | null): AppState {
+  if (!local?.commitments.length) return cloud
+  const cloudIds = new Set(cloud.commitments.map((commitment) => commitment.id))
+  const groupIds = new Set(cloud.groups.map((group) => group.id))
+  const businessIds = new Set(cloud.businesses.map((business) => business.id))
+  const venueIds = new Set(cloud.venues.map((venue) => venue.id))
+  const missing = local.commitments.filter((commitment) => {
+    if (cloudIds.has(commitment.id)) return false
+    if (commitment.scopeLevel === 'group') return groupIds.has(commitment.scopeId)
+    if (commitment.scopeLevel === 'business') return businessIds.has(commitment.scopeId)
+    if (commitment.scopeLevel === 'venue') return venueIds.has(commitment.scopeId)
+    return false
+  })
+  if (missing.length === 0) return cloud
+  return {
+    ...cloud,
+    workspaceOrigin: cloud.workspaceOrigin ?? 'user',
+    commitments: [...cloud.commitments, ...missing],
+  }
+}
+
 /** Recover expected receipts present locally but missing from a cloud load. */
 export function mergeMissingExpectedReceipts(cloud: AppState, local: AppState | null): AppState {
   if (!local?.expectedReceipts.length) return cloud
   const cloudIds = new Set(cloud.expectedReceipts.map((receipt) => receipt.id))
-  const missing = local.expectedReceipts.filter((receipt) => !cloudIds.has(receipt.id))
+  const groupIds = new Set(cloud.groups.map((group) => group.id))
+  const businessIds = new Set(cloud.businesses.map((business) => business.id))
+  const venueIds = new Set(cloud.venues.map((venue) => venue.id))
+  const missing = local.expectedReceipts.filter((receipt) => {
+    if (cloudIds.has(receipt.id)) return false
+    if (receipt.scopeLevel === 'group') return groupIds.has(receipt.scopeId)
+    if (receipt.scopeLevel === 'business') return businessIds.has(receipt.scopeId)
+    if (receipt.scopeLevel === 'venue') return venueIds.has(receipt.scopeId)
+    return false
+  })
   if (missing.length === 0) return cloud
   return {
     ...cloud,
     workspaceOrigin: cloud.workspaceOrigin ?? 'user',
     expectedReceipts: [...cloud.expectedReceipts, ...missing],
+  }
+}
+
+/**
+ * Drop structure/data that does not belong to this workspace’s groups/businesses.
+ * Prevents demo or another account’s localStorage from leaking into the sidebar / cloud push.
+ */
+export function stripEntitiesOutsideWorkspace(state: AppState): AppState {
+  const groupIds = new Set(state.groups.map((group) => group.id))
+  const businesses = state.businesses.filter((business) => groupIds.has(business.groupId))
+  const businessIds = new Set(businesses.map((business) => business.id))
+  const venues = state.venues.filter((venue) => businessIds.has(venue.businessId))
+  const venueIds = new Set(venues.map((venue) => venue.id))
+
+  const accounts = state.accounts.filter((account) => {
+    if (account.venueId) return venueIds.has(account.venueId)
+    if (account.businessId) return businessIds.has(account.businessId)
+    return false
+  })
+
+  const reservePlanners = state.reservePlanners
+    .filter((planner) => businessIds.has(planner.businessId))
+    .map((planner) => ({
+      ...planner,
+      bills: planner.bills.filter((bill) => !bill.venueId || venueIds.has(bill.venueId)),
+    }))
+
+  const commitments = state.commitments.filter((commitment) => {
+    if (commitment.scopeLevel === 'group') return groupIds.has(commitment.scopeId)
+    if (commitment.scopeLevel === 'business') return businessIds.has(commitment.scopeId)
+    if (commitment.scopeLevel === 'venue') return venueIds.has(commitment.scopeId)
+    return false
+  })
+
+  const expectedReceipts = state.expectedReceipts.filter((receipt) => {
+    if (receipt.scopeLevel === 'group') return groupIds.has(receipt.scopeId)
+    if (receipt.scopeLevel === 'business') return businessIds.has(receipt.scopeId)
+    if (receipt.scopeLevel === 'venue') return venueIds.has(receipt.scopeId)
+    return false
+  })
+
+  return {
+    ...state,
+    businesses,
+    venues,
+    accounts,
+    reservePlanners,
+    commitments,
+    expectedReceipts,
   }
 }
 
@@ -248,38 +345,12 @@ export function unionHistoryRecordsBySavedAt(
   }
 }
 
-/** Recover reserve planners (and their bills) present locally but missing from a cloud load. */
-export function mergeMissingReservePlanners(cloud: AppState, local: AppState | null): AppState {
-  if (!local?.reservePlanners.length) return cloud
-  const cloudIds = new Set(cloud.reservePlanners.map((planner) => planner.id))
-  const missing = local.reservePlanners.filter((planner) => !cloudIds.has(planner.id))
-  if (missing.length === 0) return cloud
-  return {
-    ...cloud,
-    workspaceOrigin: cloud.workspaceOrigin ?? 'user',
-    reservePlanners: [...cloud.reservePlanners, ...missing],
-  }
-}
-
-/** Recover commitments present locally but missing from a cloud load. */
-export function mergeMissingCommitments(cloud: AppState, local: AppState | null): AppState {
-  if (!local?.commitments.length) return cloud
-  const cloudIds = new Set(cloud.commitments.map((commitment) => commitment.id))
-  const missing = local.commitments.filter((commitment) => !cloudIds.has(commitment.id))
-  if (missing.length === 0) return cloud
-  return {
-    ...cloud,
-    workspaceOrigin: cloud.workspaceOrigin ?? 'user',
-    commitments: [...cloud.commitments, ...missing],
-  }
-}
-
 /** Merge critical local entities that a partial/failed cloud load may have dropped. */
 export function mergeMissingLocalWorkspaceData(cloud: AppState, local: AppState | null): AppState {
   let next = mergeMissingExpectedReceipts(cloud, local)
   next = mergeMissingReservePlanners(next, local)
   next = mergeMissingCommitments(next, local)
-  return next
+  return stripEntitiesOutsideWorkspace(next)
 }
 
 /** How many critical entities local added on top of a cloud (or other) snapshot. */

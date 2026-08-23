@@ -158,9 +158,12 @@ export function Sidebar({
       (isMobile || !DESKTOP_SIDEBAR_HIDDEN_PAGES.has(page.id)),
   )
   const plannersById = new Map(state.reservePlanners.map((p) => [p.id, p]))
+  const businessIds = new Set(state.businesses.map((business) => business.id))
   const orderedPlanners = orderedPlannerIds
     .map((id) => plannersById.get(id))
-    .filter((planner) => planner !== undefined)
+    .filter((planner): planner is NonNullable<typeof planner> =>
+      Boolean(planner && businessIds.has(planner.businessId)),
+    )
   const scopePlannerId = getReservePlannerIdForScope(state, viewScope)
   const reserveNeedsSetup =
     !demoMode && state.businesses.length > 0 && state.reservePlanners.length === 0
