@@ -168,6 +168,8 @@ export function Sidebar({
   const reserveNeedsSetup =
     !demoMode && state.businesses.length > 0 && state.reservePlanners.length === 0
   const canAddReservePlan = !editReadOnly && businessesWithoutReservePlan(state).length > 0
+  const reserveChooserNeeded =
+    orderedPlanners.length > 1 || (canAddReservePlan && orderedPlanners.length > 0)
 
   const finishDrag = () => {
     setDraggingKey(null)
@@ -178,7 +180,7 @@ export function Sidebar({
   const plannerKey = (id: string) => `planner:${id}`
 
   const reserveFlyout =
-    showCollapsed && reserveMenuOpen ? (
+    showCollapsed && reserveMenuOpen && reserveChooserNeeded ? (
       <div className="sidebar-flyout" role="menu" aria-label="Reserve plans">
         <p className="sidebar-flyout-title">Reserve Planner</p>
         {orderedPlanners.map((planner) => (
@@ -334,7 +336,7 @@ export function Sidebar({
                       }`}
                       data-tour="nav-reserve-planner"
                       aria-current={onReservePage ? 'page' : undefined}
-                      aria-expanded={reserveMenuOpen}
+                      aria-expanded={reserveChooserNeeded ? reserveMenuOpen : undefined}
                       title={
                         showCollapsed
                           ? reserveNeedsSetup
@@ -344,12 +346,16 @@ export function Sidebar({
                       }
                       onClick={(e) => {
                         e.preventDefault()
-                        setReserveMenuOpen((open) => !open)
+                        if (reserveChooserNeeded) {
+                          setReserveMenuOpen((open) => !open)
+                        } else {
+                          setReserveMenuOpen(false)
+                        }
                         if (orderedPlanners.length > 0) {
                           const targetId =
                             scopePlannerId ??
                             activeRoute.reservePlannerId ??
-                            orderedPlanners[0].id
+                            orderedPlanners[0]!.id
                           handleNavigate('reserve-planner', targetId)
                         } else {
                           handleNavigate('reserve-planner')
@@ -370,7 +376,9 @@ export function Sidebar({
                         </span>
                       ) : null}
                     </a>
-                    {!showCollapsed && (reserveMenuOpen || onReservePage) && (
+                    {!showCollapsed &&
+                      reserveChooserNeeded &&
+                      (reserveMenuOpen || onReservePage) && (
                       <div className="sidebar-submenu">
                         {orderedPlanners.map((planner, subIndex) => (
                           <NavDragShell
