@@ -68,7 +68,7 @@ export const WHO_FOR_SEO = {
 export const CAFES_SEO = {
   title: 'Automated Budgeting for Cafes and Coffee Shops | Cash Prophet',
   description:
-    'Cafe and coffee shop budgeting that accounts for wages, rent and regular costs as they build up. See what the cafe can actually afford today with the Cash Prophet Balance.',
+    'Cafe and coffee shop budgeting that accounts for wages, rent and regular costs as they build up. See a trusted cash position, keep bills in view, and follow the direction over time with the Cash Prophet Balance.',
   path: '/cafes',
   imageAlt: 'Automated budgeting for cafes and coffee shops with Cash Prophet Balance',
 } as const satisfies RouteSeo

@@ -89,7 +89,11 @@ export function CafesPage() {
               </div>
               <p className="marketing-hero-category cafes-hero-category">{CAFES_PAGE.hero.category}</p>
               <h1>{CAFES_PAGE.hero.headline}</h1>
-              <p className="marketing-lead">{CAFES_PAGE.hero.lead}</p>
+              <div className="marketing-lead marketing-lead--stack">
+                {CAFES_PAGE.hero.lead.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </div>
               <div className="marketing-cta-row marketing-cta-row--hero">
                 <SignupCta
                   placement="hero"

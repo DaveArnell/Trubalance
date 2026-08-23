@@ -33,8 +33,10 @@ export const CAFES_PAGE = {
   hero: {
     category: 'Automated budgeting for cafés and coffee shops',
     headline: 'Your takings come in every day. Your bills don\'t.',
-    lead:
-      'Cash Prophet accounts for wages, rent and other regular costs as they build up, so you have a clearer idea of what the café can actually afford today.',
+    lead: [
+      'Cash Prophet accounts for wages, rent and other regular costs as they build up, so you see the café\'s cash position, not just what is in the bank.',
+      'Bills stay in view, and you can follow the direction over time instead of reading too much into a busy day or a quiet week.',
+    ],
     primaryCta: `Start ${TRIAL_DAYS} days free`,
     secondaryCta: 'Try the free snapshot',
     onboarding: 'Free personal onboarding available',
