@@ -223,6 +223,7 @@ export function buildRecurringCandidates(
   const buckets = new Map<string, ParsedBankTransaction[]>()
   for (const tx of transactions) {
     if (tx.amount >= 0) continue
+    if (/bcard\d+/i.test(tx.description)) continue
     const key = candidateKeyForDescription(tx.description)
     const list = buckets.get(key) ?? []
     list.push(tx)
@@ -299,7 +300,11 @@ export function buildRecurringCandidates(
     // Keep candidates that look monthly/reserve-worthy OR large / high coverage.
     const looksMonthly =
       frequency === 'monthly' ||
-      (monthsSeen >= Math.min(4, spanMonths) && coverage >= 0.45 && medianGap != null && medianGap >= 20 && medianGap <= 45)
+      (monthsSeen >= Math.min(3, spanMonths) &&
+        coverage >= 0.4 &&
+        medianGap != null &&
+        medianGap >= 20 &&
+        medianGap <= 45)
     const looksLargeOneOff = !looksMonthly && typical >= minMonthly * 5
     const looksReserve =
       frequency === 'quarterly' ||

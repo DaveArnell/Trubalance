@@ -31,7 +31,7 @@ export function prepareCompactLedger(
   const maxLines = options?.maxLines ?? 1100
 
   const outflows = [...transactions]
-    .filter((t) => t.amount < 0)
+    .filter((t) => t.amount < 0 && !/bcard\d+/i.test(t.description))
     .sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id))
 
   // Prefer the most recent history (patterns that matter for setup).

@@ -49,6 +49,10 @@ function applyMovement(
   if (balance) draft.balance = balance
 }
 
+function looksCardSettlement(text: string): boolean {
+  return /bcard\d+/i.test(text)
+}
+
 function appendDescription(current: string, extra: string): string {
   const piece = extra.replace(/\s+/g, ' ').trim()
   if (!piece || NOISE_LINE.test(piece)) return current
@@ -153,7 +157,15 @@ export function parseWrappedBankPdfRows(items: PdfTextItem[]): ParsedPdfRow[] {
       }
       if (rest) {
         const current = ensureDraft()
-        current.description = appendDescription(current.description, rest)
+        if (
+          looksCardSettlement(rest) &&
+          current.description &&
+          !looksCardSettlement(current.description)
+        ) {
+          // Card-settlement wrap from a neighbouring credit — do not glue it onto this bill.
+        } else {
+          current.description = appendDescription(current.description, rest)
+        }
       }
       continue
     }
@@ -168,6 +180,14 @@ export function parseWrappedBankPdfRows(items: PdfTextItem[]): ParsedPdfRow[] {
     }
 
     if (amounts.length > 0) {
+      if (
+        draftHasMoney() &&
+        looksCardSettlement(desc) &&
+        state.draft &&
+        !looksCardSettlement(state.draft.description)
+      ) {
+        flush()
+      }
       const current = ensureDraft()
       if (!current.date && pendingDatePrefix && lastYear) {
         current.date = parseDateCell(`${pendingDatePrefix}/${lastYear}`) ?? current.date

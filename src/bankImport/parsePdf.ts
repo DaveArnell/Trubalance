@@ -107,11 +107,12 @@ export async function parsePdfBankStatement(
   function parseScore(result: { rows: string[][] } | null): number {
     if (!result) return 0
     const money = countParsableMoneyCells(result.rows)
-    const distinctPayees = new Set(
-      result.rows.map((row) => (row[1] ?? '').replace(/\s+/g, ' ').trim().slice(0, 24)),
-    ).size
-    // Prefer a parse that keeps real payees, not one repeated card reference.
-    return money + distinctPayees * 2 + result.rows.length * 0.01
+    const payees = result.rows.map((row) => (row[1] ?? '').replace(/\s+/g, ' ').trim())
+    const cardRefs = payees.filter((payee) => /bcard\d+/i.test(payee)).length
+    const realPayees = payees.filter((payee) => payee.length > 3 && !/bcard\d+/i.test(payee))
+    const distinctReal = new Set(realPayees.map((payee) => payee.slice(0, 28).toUpperCase())).size
+    // Card settlement IDs look “unique” but they are not bill payees.
+    return money + distinctReal * 4 - cardRefs * 3 + result.rows.length * 0.01
   }
 
   const candidates = [wrappedResult, tableResult, fallback.rows.length > 0 ? fallback : null]

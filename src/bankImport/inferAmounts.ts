@@ -12,6 +12,7 @@ export function inferDirectionFromDescription(description: string): 'in' | 'out'
     return 'out'
   }
   if (/^(COUNTER\s+CREDIT|BANK GIRO CREDIT|CREDIT\b|BGC\b)/.test(upper)) return 'in'
+  if (/\bBCARD\d+/i.test(upper) && /\bB\s*GC\b/.test(upper)) return 'in'
   if (/^(DD|DDR|SO|STO|FPO|DEB|DIV|TEL|CHQ|PAY|DCP|POS|VIS)\b/.test(upper)) return 'out'
   if (/^(FPI|BGC|CR|DEP|BAC|CHAPS\s+CR)\b/.test(upper)) return 'in'
   if (/\bINTERNAL\s+TRANSFER\b/.test(upper) || /\bSWEEP\b/.test(upper) || /\bTRNS\s+FT\b/.test(upper)) {

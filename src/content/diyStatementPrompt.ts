@@ -68,9 +68,9 @@ AMOUNTS
 - Large variable monthly → include with estimate; 🟠 or 🔴.
 
 NAMES
-- Short Cash Prophet label + Bank payee for matching.
-- Use a recognised purpose when the statement makes it obvious (generic UK only): NEST → Pension; Mailchimp (not the parent company name); HMRC VAT / HMRC monthly payment / HMRC annual payment; Payroll; business rates / NNDR / “BC CENTRAL” style council rates → Business rates.
-- Do not invent purpose when unsure → 🔴.
+- Short name from the bank payee. Keep it generic — any UK business.
+- Only use a purpose label when those words are on the payee (Payroll, HMRC, NEST, Mailchimp, business rates). Never put HMRC or Payroll on a different supplier.
+- Do not invent purpose when unsure — keep the cleaned payee name.
 
 STATUS
 🟢 consistent — enter

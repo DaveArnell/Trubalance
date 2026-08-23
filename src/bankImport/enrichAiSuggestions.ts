@@ -102,14 +102,15 @@ function looksMonthly(candidate: RecurringCandidateForAi): boolean {
     return false
   }
   if (candidate.detected_frequency === 'monthly') {
-    return candidate.month_coverage_ratio >= 0.5 || candidate.months_seen >= 6
+    const need = Math.min(4, Math.max(2, candidate.months_covered - 1))
+    return candidate.month_coverage_ratio >= 0.4 || candidate.months_seen >= need
   }
   return (
-    candidate.month_coverage_ratio >= 0.55 &&
+    candidate.month_coverage_ratio >= 0.4 &&
     candidate.median_gap_days != null &&
     candidate.median_gap_days >= 25 &&
     candidate.median_gap_days <= 40 &&
-    candidate.months_seen >= 5
+    candidate.months_seen >= Math.min(4, candidate.months_covered)
   )
 }
 
@@ -152,18 +153,24 @@ function isInflowLabel(value: string): boolean {
   return /^(counter\s+credit|bank giro credit|credit\b)/i.test(value.trim())
 }
 
-/** Short Cash Prophet labels for common UK payees — not a specific business. */
+/** Short labels only when the bank payee itself makes the purpose obvious. */
 function friendlyName(name: string, payee: string): string {
-  const blob = `${name} ${payee}`
-  if (/payroll|pay grp|wage grp/i.test(blob)) return 'Payroll'
-  if (/\bnest\b/i.test(blob)) return 'Pension'
-  if (/mailchi/i.test(blob)) return 'Mailchimp'
-  if (/hmrc/i.test(blob) && /vat/i.test(blob)) return 'HMRC VAT'
-  if (/hmrc/i.test(blob) && /sdds/i.test(blob)) return 'HMRC monthly payment'
-  if (/hmrc/i.test(blob) && /shipley/i.test(blob)) return 'HMRC annual payment'
-  if (/capital\s+on\s+tap/i.test(blob)) return 'Capital on Tap'
-  if (/business\s+rates|\bnndr\b|council\s+rates|\bbc\s+central\b/i.test(blob)) {
+  const evidence = payee || name
+  if (/payroll|pay grp|wage grp/i.test(evidence)) return 'Payroll'
+  if (/\bnest\b/i.test(evidence)) return 'Pension'
+  if (/mailchi/i.test(evidence)) return 'Mailchimp'
+  if (/hmrc/i.test(evidence) && /vat/i.test(evidence)) return 'HMRC VAT'
+  if (/hmrc/i.test(evidence) && /sdds/i.test(evidence)) return 'HMRC monthly payment'
+  if (/hmrc/i.test(evidence) && /shipley/i.test(evidence)) return 'HMRC annual payment'
+  if (/capital\s+on\s+tap/i.test(evidence)) return 'Capital on Tap'
+  if (/business\s+rates|\bnndr\b|council\s+rates|\bbc\s+central\b/i.test(evidence)) {
     return 'Business rates'
+  }
+  if (/hmrc/i.test(name) && payee && !/hmrc/i.test(payee)) {
+    return nameFromPayee(payee)
+  }
+  if (/payroll/i.test(name) && payee && !/payroll|pay grp|wage grp/i.test(payee)) {
+    return nameFromPayee(payee)
   }
   return name
 }
@@ -207,10 +214,10 @@ function applyCandidateFacts(
       next.bankPayee,
       ...candidate.sample_descriptions,
     ].slice(0, 6)
-    if (TYPE_PREFIX.test(next.suggestedName)) {
-      next.suggestedName = nameFromPayee(next.suggestedName)
-    }
-    next.suggestedName = friendlyName(next.suggestedName, next.bankPayee || candidate.bank_payee)
+    next.suggestedName = friendlyName(
+      nameFromPayee(next.bankPayee || candidate.bank_payee),
+      next.bankPayee || candidate.bank_payee,
+    )
   }
 
   const rates = looksRatesPayee(candidate)
@@ -383,6 +390,9 @@ export function enrichAiSuggestionsFromEvidence(
     if (isInflowLabel(suggestion.suggestedName) || isInflowLabel(suggestion.bankPayee || '')) {
       continue
     }
+    if (/bcard\d+/i.test(suggestion.suggestedName) || /bcard\d+/i.test(suggestion.bankPayee || '')) {
+      continue
+    }
 
     const candidate = findBestCandidate(suggestion, candidates, junkPayees)
     if (!candidate) {
@@ -440,7 +450,8 @@ export function enrichAiSuggestionsFromEvidence(
     const monthlyLike =
       looksMonthly(candidate) &&
       candidate.typical_amount >= minMonthly &&
-      (candidate.month_coverage_ratio >= 0.5 || candidate.months_seen >= 6)
+      (candidate.month_coverage_ratio >= 0.4 ||
+        candidate.months_seen >= Math.min(4, candidate.months_covered))
     const reserveLike =
       !looksMonthly(candidate) &&
       looksReservePattern(candidate) &&
