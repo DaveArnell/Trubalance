@@ -1,11 +1,16 @@
 import { CompactKpiStrip } from '../CompactKpiStrip'
-import { CAFES_EXAMPLE, CAFES_PAGE } from '../../content/cafesPage'
+import {
+  CAFES_EXAMPLE,
+  CAFES_EXAMPLE_ACCRUED,
+  CAFES_EXAMPLE_PROPHET,
+  CAFES_PAGE,
+} from '../../content/cafesPage'
+import { CASH_PROPHET_BALANCE } from '../../content/brandFoundation'
 import { formatCurrency } from '../../utils/format'
 
 const ACCRUE_ACCENT = '#0d8f5b'
 
 const MONTHLY_TOTAL = CAFES_EXAMPLE.bills.reduce((sum, bill) => sum + bill.total, 0)
-const ACCRUED_NOW = CAFES_EXAMPLE.bills.reduce((sum, bill) => sum + bill.accrued, 0)
 const PER_DAY = Math.round(MONTHLY_TOTAL / 30)
 
 function dueInLabel(days: number) {
@@ -14,47 +19,69 @@ function dueInLabel(days: number) {
   return `Due in ${days} days`
 }
 
-/** Same monthly accruing-bills card as the homepage, with café figures. */
-export function CafeAccruingBills() {
+function CafeAccruingRows() {
+  const bills = [...CAFES_EXAMPLE.bills].sort((a, b) => a.dueInDays - b.dueInDays)
+  return (
+    <>
+      <div className="home-dash-hero home-dash-hero--accruing">
+        <p className="home-snap-label home-snap-label--teal">Monthly accruing bills</p>
+        <div className="home-dash-kpis">
+          <CompactKpiStrip
+            items={[
+              { label: 'Monthly total', value: formatCurrency(MONTHLY_TOTAL) },
+              { label: 'Accrued now', value: formatCurrency(CAFES_EXAMPLE_ACCRUED), emphasis: true },
+              { label: 'Per day', value: formatCurrency(PER_DAY) },
+            ]}
+          />
+        </div>
+      </div>
+      <ul className="home-dash-cards home-dash-cards--bars">
+        {bills.map((bill) => {
+          const progress = bill.accrued / bill.total
+          return (
+            <li key={bill.name} className="home-accrue-row">
+              <div
+                className="home-accrue-row-fill"
+                style={{ width: `${Math.round(progress * 100)}%`, background: ACCRUE_ACCENT }}
+                aria-hidden
+              />
+              <span className="home-accrue-row-due">{dueInLabel(bill.dueInDays)}</span>
+              <span className="home-accrue-row-name">{bill.name}</span>
+              <span className="home-accrue-row-amount">
+                <strong>{formatCurrency(bill.accrued)}</strong>
+                <span> / {formatCurrency(bill.total)}</span>
+              </span>
+            </li>
+          )
+        })}
+      </ul>
+    </>
+  )
+}
+
+/** Bank balance, then accruing bills in due-date order, then Cash Prophet Balance. */
+export function CafePositionStory() {
   return (
     <aside
-      className="home-snap home-snap--wide"
-      aria-label="Café example: monthly accruing bills building toward today’s position"
+      className="cafe-example cafe-example--story"
+      aria-label="Café example: bank balance, monthly accruing bills, and Cash Prophet Balance"
     >
-      <div className="home-dash home-dash--cards home-dash--accruing">
-        <div className="home-dash-hero home-dash-hero--accruing">
-          <p className="home-snap-label home-snap-label--teal">Monthly accruing bills</p>
-          <div className="home-dash-kpis">
-            <CompactKpiStrip
-              items={[
-                { label: 'Monthly total', value: formatCurrency(MONTHLY_TOTAL) },
-                { label: 'Accrued now', value: formatCurrency(ACCRUED_NOW), emphasis: true },
-                { label: 'Per day', value: formatCurrency(PER_DAY) },
-              ]}
-            />
-          </div>
-        </div>
+      <div className="cafe-example-bank">
+        <p className="cafe-example-label">{CAFES_PAGE.example.bankLabel}</p>
+        <p className="cafe-example-amount">{formatCurrency(CAFES_EXAMPLE.bank)}</p>
+        <p className="cafe-example-note">{CAFES_PAGE.example.bankNote}</p>
+      </div>
 
-        <ul className="home-dash-cards home-dash-cards--bars">
-          {CAFES_EXAMPLE.bills.map((bill) => {
-            const progress = bill.accrued / bill.total
-            return (
-              <li key={bill.name} className="home-accrue-row">
-                <div
-                  className="home-accrue-row-fill"
-                  style={{ width: `${Math.round(progress * 100)}%`, background: ACCRUE_ACCENT }}
-                  aria-hidden
-                />
-                <span className="home-accrue-row-due">{dueInLabel(bill.dueInDays)}</span>
-                <span className="home-accrue-row-name">{bill.name}</span>
-                <span className="home-accrue-row-amount">
-                  <strong>{formatCurrency(bill.accrued)}</strong>
-                  <span> / {formatCurrency(bill.total)}</span>
-                </span>
-              </li>
-            )
-          })}
-        </ul>
+      <div className="home-dash home-dash--cards home-dash--accruing cafe-example-bills">
+        <CafeAccruingRows />
+      </div>
+
+      <div className="cafe-example-prophet">
+        <p className="cafe-example-label cafe-example-label--prophet">{CASH_PROPHET_BALANCE}</p>
+        <p className="cafe-example-amount cafe-example-amount--prophet">
+          {formatCurrency(CAFES_EXAMPLE_PROPHET)}
+        </p>
+        <p className="cafe-example-note">{CAFES_PAGE.example.prophetNote}</p>
       </div>
     </aside>
   )

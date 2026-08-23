@@ -10,9 +10,9 @@ import { MarketingFaqSection } from '../components/marketing/MarketingFaqSection
 import { MarketingJsonLd, cafesPageJsonLd } from '../components/marketing/MarketingJsonLd'
 import { HeroBalanceGraphs } from '../components/marketing/HeroBalanceGraphs'
 import {
-  CafeAccruingBills,
   CafeEquation,
   CafePayrollBuild,
+  CafePositionStory,
   CafeReserveVisual,
 } from '../components/marketing/CafesLandingVisuals'
 import { CAFES_FAQS } from '../content/marketingFaqs'
@@ -115,47 +115,42 @@ export function CafesPage() {
               )}
             </div>
             <div className="marketing-hero-rank-visual cafes-hero-visual">
-              <CafeAccruingBills />
+              <CafePositionStory />
             </div>
           </div>
         </section>
 
         <section className="home-band home-band--mist" aria-labelledby="cafe-noisy-heading">
-          <div className="marketing-section-inner marketing-section-inner--home">
-            <div className="home-band-head">
+          <div className="marketing-section-inner marketing-section-inner--home home-split home-split--flip cafe-split">
+            <div className="home-split-copy">
               <h2 id="cafe-noisy-heading">{CAFES_PAGE.noisy.heading}</h2>
               <p className="home-split-lead">{CAFES_PAGE.noisy.lead}</p>
-              <p className="home-split-prose">{CAFES_PAGE.noisy.body}</p>
             </div>
             <div className="cafe-graphs">
               <HeroBalanceGraphs />
             </div>
-            <p className="cafe-section-close">{CAFES_PAGE.noisy.close}</p>
           </div>
         </section>
 
         <section className="home-band home-band--paper" aria-labelledby="cafe-budget-heading">
-          <div className="marketing-section-inner marketing-section-inner--home home-split">
+          <div className="marketing-section-inner marketing-section-inner--home home-split cafe-split">
             <div className="home-split-copy">
               <h2 id="cafe-budget-heading">{CAFES_PAGE.budgeting.heading}</h2>
               <p className="home-split-lead">{CAFES_PAGE.budgeting.lead}</p>
-              <p className="home-split-prose">{CAFES_PAGE.budgeting.example}</p>
-              <p className="home-split-prose">{CAFES_PAGE.budgeting.close}</p>
             </div>
             <CafePayrollBuild />
           </div>
         </section>
 
         <section className="home-band home-band--mist" aria-labelledby="cafe-bills-heading">
-          <div className="marketing-section-inner marketing-section-inner--home cafe-section cafe-section--narrow">
+          <div className="marketing-section-inner marketing-section-inner--home cafe-section--center">
             <h2 id="cafe-bills-heading">{CAFES_PAGE.bills.heading}</h2>
             <p className="home-split-lead">{CAFES_PAGE.bills.lead}</p>
-            <p className="home-split-prose">{CAFES_PAGE.bills.body}</p>
           </div>
         </section>
 
         <section className="home-band home-band--paper" aria-labelledby="cafe-reserve-heading">
-          <div className="marketing-section-inner marketing-section-inner--home home-split home-split--flip">
+          <div className="marketing-section-inner marketing-section-inner--home home-split home-split--flip cafe-split">
             <div className="home-split-copy">
               <h2 id="cafe-reserve-heading">{CAFES_PAGE.reserve.heading}</h2>
               <p className="home-split-lead">{CAFES_PAGE.reserve.lead}</p>
@@ -166,13 +161,12 @@ export function CafesPage() {
         </section>
 
         <section className="home-band home-band--mist" aria-labelledby="cafe-number-heading">
-          <div className="marketing-section-inner marketing-section-inner--home cafe-section">
-            <div className="home-band-head">
+          <div className="marketing-section-inner marketing-section-inner--home home-split cafe-split">
+            <div className="home-split-copy">
               <h2 id="cafe-number-heading">{CAFES_PAGE.oneNumber.heading}</h2>
               <p className="home-split-lead">{CAFES_PAGE.oneNumber.lead}</p>
             </div>
             <CafeEquation />
-            <p className="cafe-section-close">{CAFES_PAGE.oneNumber.close}</p>
           </div>
         </section>
 
@@ -192,16 +186,16 @@ export function CafesPage() {
         </section>
 
         <section className="home-band home-band--mist" aria-labelledby="cafe-light-heading">
-          <div className="marketing-section-inner marketing-section-inner--home cafe-section">
-            <div className="home-band-head">
+          <div className="marketing-section-inner marketing-section-inner--home home-split cafe-split">
+            <div className="home-split-copy">
               <h2 id="cafe-light-heading">{CAFES_PAGE.lightweight.heading}</h2>
               <p className="home-split-lead">{CAFES_PAGE.lightweight.lead}</p>
+              <ul className="cafe-light-points">
+                {CAFES_PAGE.lightweight.points.map((point) => (
+                  <li key={point}>{point}</li>
+                ))}
+              </ul>
             </div>
-            <ul className="cafe-light-points">
-              {CAFES_PAGE.lightweight.points.map((point) => (
-                <li key={point}>{point}</li>
-              ))}
-            </ul>
             <figure className="cafe-product-shot">
               <img
                 src={PRODUCT_MONITOR_IMAGE}
@@ -216,10 +210,8 @@ export function CafesPage() {
         </section>
 
         <section className="home-band home-band--paper" aria-labelledby="cafe-benefits-heading">
-          <div className="marketing-section-inner marketing-section-inner--home cafe-section">
-            <div className="home-band-head">
-              <h2 id="cafe-benefits-heading">{CAFES_PAGE.benefits.heading}</h2>
-            </div>
+          <div className="marketing-section-inner marketing-section-inner--home cafe-section--center">
+            <h2 id="cafe-benefits-heading">{CAFES_PAGE.benefits.heading}</h2>
             <ul className="cafe-benefits">
               {CAFES_PAGE.benefits.items.map((item) => (
                 <li key={item.title} className="cafe-benefit">
@@ -232,7 +224,7 @@ export function CafesPage() {
         </section>
 
         <section className="home-band home-band--founder" aria-labelledby="cafe-founder-heading">
-          <div className="marketing-section-inner marketing-section-inner--home cafe-section cafe-section--narrow">
+          <div className="marketing-section-inner marketing-section-inner--home cafe-section--center cafe-section--narrow">
             <h2 id="cafe-founder-heading">{CAFES_PAGE.founder.heading}</h2>
             <p className="home-split-prose">{CAFES_PAGE.founder.body}</p>
           </div>

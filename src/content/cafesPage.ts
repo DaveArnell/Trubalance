@@ -11,16 +11,23 @@ export const CAFES_TRY_IT_PATH = '/try-it?sector=cafe' as const
 export const CAFES_SIGNUP_PATH = '/signup' as const
 export const CAFES_ONBOARDING_PATH = '/contact?topic=onboarding' as const
 
-/** Café bills for the homepage-style accruing list. Sorted soonest due first. */
+/**
+ * Café example: soonest due first, and fuller the closer the due date.
+ * Accrued amounts follow the remaining cycle so the bars match the labels.
+ */
 export const CAFES_EXAMPLE = {
+  bank: 18400,
   bills: [
-    { dueInDays: 2, name: 'Rent', accrued: 1600, total: 2400 },
-    { dueInDays: 8, name: 'Utilities', accrued: 650, total: 800 },
-    { dueInDays: 12, name: 'Equipment finance', accrued: 450, total: 600 },
-    { dueInDays: 18, name: 'Subscriptions', accrued: 700, total: 1050 },
-    { dueInDays: 24, name: 'Wages', accrued: 5200, total: 9000 },
+    { dueInDays: 2, name: 'Rent', accrued: 2200, total: 2400 },
+    { dueInDays: 8, name: 'Utilities', accrued: 600, total: 800 },
+    { dueInDays: 12, name: 'Equipment finance', accrued: 360, total: 600 },
+    { dueInDays: 18, name: 'Subscriptions', accrued: 440, total: 1050 },
+    { dueInDays: 24, name: 'Wages', accrued: 1800, total: 9000 },
   ],
 } as const
+
+export const CAFES_EXAMPLE_ACCRUED = CAFES_EXAMPLE.bills.reduce((sum, bill) => sum + bill.accrued, 0)
+export const CAFES_EXAMPLE_PROPHET = CAFES_EXAMPLE.bank - CAFES_EXAMPLE_ACCRUED
 
 export const CAFES_PAGE = {
   hero: {
@@ -32,29 +39,25 @@ export const CAFES_PAGE = {
     secondaryCta: 'Try the free snapshot',
     onboarding: 'Free personal onboarding available',
   },
+  example: {
+    bankLabel: 'Bank balance',
+    bankNote: 'In the café account today',
+    prophetNote: 'After regular costs already accrued',
+  },
   noisy: {
     heading: 'Why the bank balance can look better than it is',
     lead:
-      'Cafés take money regularly, often every day. The large costs do not leave the bank evenly. Wages, rent, utilities, finance and other recurring costs hit at different points in the month.',
-    body:
-      'That means the bank balance can look healthy simply because some of those payments have not happened yet. Money that is already spoken for can look like money available to spend.',
-    close:
-      'Cash Prophet does not remove the ups and downs of trade. It removes some of the timing distortion from the way the bank balance is interpreted.',
+      'Takings come in most days. Wages, rent, utilities and finance leave at different points, so the bank can look healthy simply because a bill has not hit yet.',
   },
   budgeting: {
     heading: 'A business budget that updates itself every day',
     lead:
-      'Rather than writing a monthly budget and then trying to remember how much of it has effectively been used, Cash Prophet accounts for regular costs as their payment cycles progress.',
-    example:
-      'If payroll is £9,000 a month, Cash Prophet does not wait until payday before treating it as a cost. A proportion of that commitment builds into the calculation every day. The same principle applies to rent and other recurring commitments.',
-    close: `That is why the ${CASH_PROPHET_BALANCE} is different from simply looking at the bank.`,
+      'If payroll is £9,000 a month, Cash Prophet does not wait until payday. A proportion builds into the figure every day. The same applies to rent and other regular costs.',
   },
   bills: {
     heading: 'Stay on top of recurring bills without another job',
     lead:
-      'Café owners already have enough to manage operationally. Cash Prophet keeps wages, rent, utilities, finance and other regular costs organised and visible.',
-    body:
-      'The benefit is not simply receiving reminders. Those recurring costs actively influence the Cash Prophet Balance as they build up, so staying aware of the bills and knowing what you can afford are the same habit.',
+      'The bills stay organised and visible, and they feed the Cash Prophet Balance as they build up. That is more than a reminder.',
   },
   reserve: {
     heading: 'Set money aside for the costs that do not fit the monthly cycle',
@@ -72,8 +75,6 @@ export const CAFES_PAGE = {
       { label: 'Planned provisions kept in mind', detail: 'Larger future costs you are setting aside for' },
       { label: CASH_PROPHET_BALANCE, detail: 'The number to follow day to day' },
     ],
-    close:
-      'Because Cash Prophet records that balance over time, you can see whether the underlying financial position is improving or deteriorating without being distracted by the normal payment-cycle spikes in the bank account.',
   },
   snapshot: {
     heading: 'Try it with your café',
