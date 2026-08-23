@@ -194,6 +194,7 @@ export function MarketingFooter() {
             <p className="marketing-footer-heading">Learn</p>
             <CanonicalLink to="/how-it-works">How it works</CanonicalLink>
             <CanonicalLink to="/who-its-for">Who it’s for</CanonicalLink>
+            <CanonicalLink to="/cafes">For cafés</CanonicalLink>
             <CanonicalLink to="/how-it-works#habits">Habits</CanonicalLink>
             <CanonicalLink to="/blog">Blog</CanonicalLink>
           </div>

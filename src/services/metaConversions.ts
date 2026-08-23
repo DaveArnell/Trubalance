@@ -335,6 +335,7 @@ export function trackMetaCashPositionCheck(input: {
   otherCostCount: number
   otherOwedTotal: number
   availableToday: number
+  source?: 'try_it' | 'cafes'
 }): void {
   try {
     if (!hasAdvertisingConsent()) return
@@ -344,14 +345,41 @@ export function trackMetaCashPositionCheck(input: {
     trackMetaPixelCustomEvent(
       'CashPositionCheck',
       {
-        content_name: 'free_cash_position_check',
-        content_category: 'try_it',
+        content_name:
+          input.source === 'cafes' ? 'free_cash_position_check_cafe' : 'free_cash_position_check',
+        content_category: input.source === 'cafes' ? 'cafes' : 'try_it',
         value: input.availableToday,
         currency: 'GBP',
         num_items: input.regularCostCount + input.otherCostCount,
       },
       eventId,
     )
+  } catch {
+    /* ignore */
+  }
+}
+
+export function trackMetaCafeSignupClick(placement: 'hero' | 'snapshot' | 'footer'): void {
+  try {
+    if (!hasAdvertisingConsent()) return
+    trackMetaPixelCustomEvent('CafeSignupClick', {
+      content_name: 'cafes_signup',
+      content_category: 'cafes',
+      content_placement: placement,
+    })
+  } catch {
+    /* ignore */
+  }
+}
+
+export function trackMetaCafeTryItClick(placement: 'hero' | 'snapshot' | 'footer'): void {
+  try {
+    if (!hasAdvertisingConsent()) return
+    trackMetaPixelCustomEvent('CafeTryItClick', {
+      content_name: 'cafes_try_it',
+      content_category: 'cafes',
+      content_placement: placement,
+    })
   } catch {
     /* ignore */
   }

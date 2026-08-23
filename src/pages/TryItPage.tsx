@@ -1,3 +1,4 @@
+import { useSearchParams } from 'react-router-dom'
 import { CanonicalLink } from '../components/CanonicalLink'
 import {
   MarketingFooter,
@@ -6,11 +7,17 @@ import {
 } from '../components/marketing/MarketingLayout'
 import { FreeCashPositionCheck } from '../components/marketing/FreeCashPositionCheck'
 import { MarketingJsonLd, tryItPageJsonLd } from '../components/marketing/MarketingJsonLd'
-import { TRY_IT_PAGE } from '../content/tryItPage'
+import { TRY_IT_CAFE, TRY_IT_PAGE } from '../content/tryItPage'
 import { TRY_IT_SEO } from '../content/marketingSeo'
 import { usePageMeta } from '../hooks/usePageMeta'
 
+function isCafeSector(value: string | null): boolean {
+  return value === 'cafe' || value === 'cafes'
+}
+
 export function TryItPage() {
+  const [params] = useSearchParams()
+  const cafe = isCafeSector(params.get('sector'))
   usePageMeta(TRY_IT_SEO)
   return (
     <MarketingShell>
@@ -20,14 +27,14 @@ export function TryItPage() {
         <header className="method-edu-hero marketing-surface--hero try-it-hero">
           <div className="method-edu-inner try-it-hero-inner">
             <p className="marketing-eyebrow">{TRY_IT_PAGE.freeBadge}</p>
-            <h1>{TRY_IT_PAGE.title}</h1>
-            <p className="method-edu-hero-lead">{TRY_IT_PAGE.lead}</p>
+            <h1>{cafe ? TRY_IT_CAFE.title : TRY_IT_PAGE.title}</h1>
+            <p className="method-edu-hero-lead">{cafe ? TRY_IT_CAFE.lead : TRY_IT_PAGE.lead}</p>
           </div>
         </header>
 
         <section className="try-it-body marketing-surface--mist">
           <div className="marketing-section-inner try-it-layout">
-            <FreeCashPositionCheck />
+            <FreeCashPositionCheck variant={cafe ? 'cafe' : 'default'} />
           </div>
         </section>
 

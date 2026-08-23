@@ -16,6 +16,7 @@ import { DemoPage } from './pages/DemoPage'
 import { HowItWorksPage } from './pages/HowItWorksPage'
 import { HabitsPage } from './pages/HabitsPage'
 import { WhoItsForPage } from './pages/WhoItsForPage'
+import { CafesPage } from './pages/CafesPage'
 import { SeeHowItWorksPage } from './pages/SeeHowItWorksPage'
 import { BlogIndexPage } from './pages/BlogIndexPage'
 import { BlogPostPage } from './pages/BlogPostPage'
@@ -46,6 +47,8 @@ export function AppRouter() {
             <Route path="/how-it-works" element={<HowItWorksPage />} />
             <Route path="/habits" element={<HabitsPage />} />
             <Route path="/who-its-for" element={<WhoItsForPage />} />
+            <Route path="/cafes" element={<CafesPage />} />
+            <Route path="/cafes-coffee-shops" element={<Navigate to="/cafes" replace />} />
             <Route path="/see-how-it-works" element={<SeeHowItWorksPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/try-it" element={<TryItPage />} />

@@ -65,6 +65,14 @@ export const WHO_FOR_SEO = {
   imageAlt: 'Who Cash Prophet is for',
 } as const satisfies RouteSeo
 
+export const CAFES_SEO = {
+  title: 'Automated Budgeting for Cafes and Coffee Shops | Cash Prophet',
+  description:
+    'Cafe and coffee shop budgeting that accounts for wages, rent and regular costs as they build up. See what the cafe can actually afford today with the Cash Prophet Balance.',
+  path: '/cafes',
+  imageAlt: 'Automated budgeting for cafes and coffee shops with Cash Prophet Balance',
+} as const satisfies RouteSeo
+
 export const SEE_HOW_SEO = {
   title: 'Cash Prophet Live Demo | Try Cash Prophet Balance',
   description:
@@ -178,6 +186,7 @@ export const PUBLIC_ROUTE_SEO: readonly RouteSeo[] = [
   PRICING_SEO,
   HOW_IT_WORKS_SEO,
   WHO_FOR_SEO,
+  CAFES_SEO,
   SEE_HOW_SEO,
   CONTACT_SEO,
   TRY_IT_SEO,

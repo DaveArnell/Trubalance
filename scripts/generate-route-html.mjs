@@ -42,6 +42,7 @@ const staticRoutes = [
   'PRICING_SEO',
   'HOW_IT_WORKS_SEO',
   'WHO_FOR_SEO',
+  'CAFES_SEO',
   'SEE_HOW_SEO',
   'CONTACT_SEO',
   'TRY_IT_SEO',
@@ -266,6 +267,12 @@ function jsonLdForRoute(path, routeMeta, blogPost) {
     return [
       organizationGraph(),
       faqGraph(extractFaqConst('WHO_FOR_FAQS'), `${site}/who-its-for`),
+    ]
+  }
+  if (path === '/cafes') {
+    return [
+      organizationGraph(),
+      faqGraph(extractFaqConst('CAFES_FAQS'), `${site}/cafes`),
     ]
   }
   if (path === '/see-how-it-works') {

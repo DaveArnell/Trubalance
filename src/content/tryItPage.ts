@@ -67,3 +67,15 @@ export const TRY_IT_PAGE = {
     tertiary: 'See how it works',
   },
 } as const
+
+/** Optional café flavour for /try-it?sector=cafe. Does not change the calculator. */
+export const TRY_IT_CAFE = {
+  title: 'How much of your café bank balance is actually yours?',
+  lead:
+    'Enter the café current-account balance, wages, rent and regular bills. This free check shows how much is already spoken for today. No account needed.',
+  bankHint: 'Enter the café current-account balance you would normally trust at a glance.',
+  regularExamples:
+    'Examples: wages, rent, coffee wholesale standing order, utilities, card fees. Add whatever fits your café.',
+  regularPlaceholder: 'e.g. Wages',
+  otherExamples: 'Examples: supplier invoice due, VAT already owed, equipment invoice, other known amounts to deduct.',
+} as const

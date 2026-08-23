@@ -54,6 +54,25 @@ export const PRICING_FAQS: FaqItem[] = [
   },
 ]
 
+export const CAFES_FAQS: FaqItem[] = [
+  {
+    q: 'Is Cash Prophet accounting software for cafés?',
+    a: 'No. It is a lightweight budgeting and financial awareness tool for the owner. It sits alongside your accountant or bookkeeper. It is not bookkeeping, not a replacement for an accountant, and not conventional cash flow forecasting.',
+  },
+  {
+    q: 'How is this different from looking at the bank?',
+    a: 'The bank shows what is in the account. It does not show wages, rent and other regular costs that have already built up. Cash Prophet accounts for those as they progress through their payment cycles, and gives you one Cash Prophet Balance to follow.',
+  },
+  {
+    q: 'Do I need to be good with numbers?',
+    a: 'No. Once regular costs are in, Cash Prophet quietly keeps the picture updated. You do not need accounting knowledge, and it is not another finance system to learn.',
+  },
+  {
+    q: 'Is there a free trial?',
+    a: 'Yes. New accounts get 30 days free, with no card needed to start. You can also try the free Snapshot with your café figures without creating an account. Free personal onboarding is available if you want a guided start.',
+  },
+]
+
 export const WHO_FOR_FAQS: FaqItem[] = [
   {
     q: 'Who is Cash Prophet for?',

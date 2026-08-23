@@ -1,6 +1,6 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { CompactKpiStrip } from '../CompactKpiStrip'
-import { TRY_IT_PAGE } from '../../content/tryItPage'
+import { TRY_IT_CAFE, TRY_IT_PAGE } from '../../content/tryItPage'
 import { trackMetaCashPositionCheck } from '../../services/metaConversions'
 import { formatCurrency, getCurrencySymbol } from '../../utils/format'
 import { toAmount } from '../../utils/amounts'
@@ -57,7 +57,7 @@ function otherDraftsToInputs(drafts: OtherDraft[]): FreeOtherCostInput[] {
     .filter((d) => d.amount > 0)
 }
 
-export function FreeCashPositionCheck() {
+export function FreeCashPositionCheck({ variant = 'default' }: { variant?: 'default' | 'cafe' }) {
   const formId = useId()
   const [bankBalance, setBankBalance] = useState('')
   const [regularCosts, setRegularCosts] = useState<RegularDraft[]>([emptyRegular()])
@@ -88,8 +88,9 @@ export function FreeCashPositionCheck() {
       otherCostCount: result.otherCosts.length,
       otherOwedTotal: result.otherOwedTotal,
       availableToday: result.availableToday,
+      source: variant === 'cafe' ? 'cafes' : 'try_it',
     })
-  }, [hasMeaningfulInput, result])
+  }, [hasMeaningfulInput, result, variant])
 
   const updateRegular = (id: string, patch: Partial<RegularDraft>) => {
     setRegularCosts((prev) => prev.map((row) => (row.id === id ? { ...row, ...patch } : row)))
@@ -128,7 +129,9 @@ export function FreeCashPositionCheck() {
       <div className="try-it-tool-inputs">
         <section className="try-it-bank" aria-labelledby={`${formId}-bank`}>
           <h2 id={`${formId}-bank`}>{TRY_IT_PAGE.bank.heading}</h2>
-          <p className="try-it-section-lead">{TRY_IT_PAGE.bank.hint}</p>
+          <p className="try-it-section-lead">
+            {variant === 'cafe' ? TRY_IT_CAFE.bankHint : TRY_IT_PAGE.bank.hint}
+          </p>
           <label className="try-it-field try-it-field--hero">
             <span className="try-it-currency">{symbol}</span>
             <input
@@ -174,7 +177,9 @@ export function FreeCashPositionCheck() {
             </div>
 
             <p className="try-it-panel-lead">{TRY_IT_PAGE.regular.lead}</p>
-            <p className="try-it-examples muted">{TRY_IT_PAGE.regular.examplesHint}</p>
+            <p className="try-it-examples muted">
+              {variant === 'cafe' ? TRY_IT_CAFE.regularExamples : TRY_IT_PAGE.regular.examplesHint}
+            </p>
 
             <ul className="home-dash-cards home-dash-cards--bars try-it-bill-list">
               {sortedRegularCosts.map((cost) => {
@@ -196,7 +201,11 @@ export function FreeCashPositionCheck() {
                         <input
                           type="text"
                           value={cost.name}
-                          placeholder={TRY_IT_PAGE.regular.namePlaceholder}
+                          placeholder={
+                            variant === 'cafe'
+                              ? TRY_IT_CAFE.regularPlaceholder
+                              : TRY_IT_PAGE.regular.namePlaceholder
+                          }
                           onChange={(e) => updateRegular(cost.id, { name: e.target.value })}
                         />
                       </label>
@@ -283,7 +292,9 @@ export function FreeCashPositionCheck() {
             </div>
 
             <p className="try-it-panel-lead">{TRY_IT_PAGE.other.lead}</p>
-            <p className="try-it-examples muted">{TRY_IT_PAGE.other.examplesHint}</p>
+            <p className="try-it-examples muted">
+              {variant === 'cafe' ? TRY_IT_CAFE.otherExamples : TRY_IT_PAGE.other.examplesHint}
+            </p>
 
             <ul className="home-dash-cards home-dash-cards--bars try-it-bill-list">
               {otherCosts.map((cost) => {

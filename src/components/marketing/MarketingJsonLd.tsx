@@ -28,6 +28,7 @@ export {
   pricingPageJsonLd,
   howItWorksPageJsonLd,
   whoItsForPageJsonLd,
+  cafesPageJsonLd,
   seeHowPageJsonLd,
   contactPageJsonLd,
   tryItPageJsonLd,

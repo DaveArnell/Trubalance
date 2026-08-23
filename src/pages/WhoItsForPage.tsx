@@ -79,6 +79,19 @@ export function WhoItsForPage() {
           </div>
         </section>
 
+        <section className="who-for-guides marketing-surface--mist" aria-labelledby="who-for-cafes-heading">
+          <div className="marketing-section-inner who-for-guides-inner">
+            <h2 id="who-for-cafes-heading">If you run a café or coffee shop</h2>
+            <p className="who-for-guides-lead">
+              There is a page written specifically for café owners: daily takings, uneven bills, and
+              a clearer figure for what the café can actually afford.
+            </p>
+            <p className="who-for-guides-more">
+              <CanonicalLink to="/cafes">Automated budgeting for cafés</CanonicalLink>
+            </p>
+          </div>
+        </section>
+
         <section className="who-for-guides marketing-surface--mist" aria-labelledby="who-for-guides-heading">
           <div className="marketing-section-inner who-for-guides-inner">
             <h2 id="who-for-guides-heading">Guides for your kind of business</h2>
