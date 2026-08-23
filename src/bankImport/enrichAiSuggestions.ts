@@ -97,7 +97,8 @@ function looksMonthly(candidate: RecurringCandidateForAi): boolean {
   )
 }
 
-function looksReserve(candidate: RecurringCandidateForAi): boolean {
+function looksReserve(candidate: RecurringCandidateForAi, minMonthly = 200): boolean {
+  if (!looksMonthly(candidate) && candidate.typical_amount >= minMonthly * 5) return true
   return (
     candidate.detected_frequency === 'quarterly' ||
     candidate.detected_frequency === 'annual' ||
@@ -105,6 +106,22 @@ function looksReserve(candidate: RecurringCandidateForAi): boolean {
       candidate.median_gap_days != null &&
       candidate.median_gap_days >= 70)
   )
+}
+
+function coversCandidate(
+  rows: BankImportSuggestion[],
+  candidate: RecurringCandidateForAi,
+): boolean {
+  return rows.some((s) => {
+    if (s.reviewSection !== 'monthly_accruing' && s.reviewSection !== 'reserve_planner') {
+      return false
+    }
+    const score = Math.max(
+      scoreNameToCandidate(s.suggestedName, candidate),
+      scoreNameToCandidate(s.bankPayee || '', candidate),
+    )
+    return score >= 70
+  })
 }
 
 const TYPE_PREFIX =
@@ -124,6 +141,9 @@ function friendlyName(name: string, payee: string): string {
   if (/hmrc/i.test(blob) && /sdds/i.test(blob)) return 'HMRC monthly payment'
   if (/hmrc/i.test(blob) && /shipley/i.test(blob)) return 'HMRC annual payment'
   if (/capital\s+on\s+tap/i.test(blob)) return 'Capital on Tap'
+  if (/business\s+rates|\bnndr\b|council\s+rates|\bbc\s+central\b/i.test(blob)) {
+    return 'Business rates'
+  }
   return name
 }
 
@@ -177,7 +197,11 @@ function applyCandidateFacts(
     next.destination = 'building_commitment'
     next.frequency = 'monthly'
     next.dueMonthsLabel = undefined
-  } else if (looksReserve(candidate) && !looksMonthly(candidate) && next.reviewSection === 'monthly_accruing') {
+  } else if (
+    looksReserve(candidate) &&
+    !looksMonthly(candidate) &&
+    next.reviewSection === 'monthly_accruing'
+  ) {
     next.reviewSection = 'reserve_planner'
     next.destination = 'reserve_bill'
     next.frequency = candidate.detected_frequency === 'quarterly' ? 'quarterly' : 'annual'
@@ -194,6 +218,34 @@ function applyCandidateFacts(
   }
 
   return next
+}
+
+function rowFromCandidate(
+  candidate: RecurringCandidateForAi,
+  section: 'monthly_accruing' | 'reserve_planner',
+  options?: { sourceAccountId?: string },
+): BankImportSuggestion {
+  const name = friendlyName(nameFromPayee(candidate.bank_payee), candidate.bank_payee)
+  const stub: BankImportSuggestion = {
+    id: newId(),
+    suggestedName: name,
+    bankPayee: candidate.bank_payee,
+    category: candidate.is_likely_hmrc ? 'hmrc' : 'supplier',
+    amount: candidate.typical_amount,
+    averageAmount: candidate.typical_amount,
+    frequency: section === 'monthly_accruing' ? 'monthly' : 'annual',
+    likelyDueDay: candidate.suggested_due_day ?? undefined,
+    confidence: 60,
+    reason: '',
+    destination: section === 'monthly_accruing' ? 'building_commitment' : 'reserve_bill',
+    status: 'accepted',
+    transactionIds: [],
+    sampleDescriptions: candidate.sample_descriptions.slice(0, 6),
+    sourceAccountId: options?.sourceAccountId,
+    isInflow: false,
+    reviewSection: section,
+  }
+  return applyCandidateFacts(stub, candidate)
 }
 
 /**
@@ -277,6 +329,30 @@ export function enrichAiSuggestionsFromEvidence(
     })
   }
 
+  for (const candidate of candidates) {
+    if (candidate.is_likely_transfer || candidate.is_likely_payroll) continue
+    if (candidate.detected_frequency === 'weekly') continue
+    if (coversCandidate(next, candidate)) continue
+
+    const monthlyLike =
+      looksMonthly(candidate) &&
+      candidate.typical_amount >= minMonthly &&
+      (candidate.month_coverage_ratio >= 0.35 || candidate.months_seen >= 4)
+    const reserveLike =
+      !looksMonthly(candidate) &&
+      looksReserve(candidate, minMonthly) &&
+      (candidate.typical_amount >= minMonthly * 5 ||
+        candidate.typical_amount * Math.max(candidate.payment_months.length, 1) >= minReserveAnnual)
+
+    if (monthlyLike) {
+      next.push(rowFromCandidate(candidate, 'monthly_accruing', options))
+      continue
+    }
+    if (reserveLike) {
+      next.push(rowFromCandidate(candidate, 'reserve_planner', options))
+    }
+  }
+
   const kept = next.filter((s) => {
     const amount = s.editedAmount ?? s.averageAmount
     if (s.reviewSection === 'monthly_accruing') {
@@ -293,9 +369,23 @@ export function enrichAiSuggestionsFromEvidence(
     return true
   })
 
-  const monthly = kept
+  const listed = kept.filter(
+    (s) => s.reviewSection === 'monthly_accruing' || s.reviewSection === 'reserve_planner',
+  )
+  const withoutPromoted = kept.filter((s) => {
+    if (s.reviewSection !== 'excluded' && s.reviewSection !== 'manual_review') return true
+    return !candidates.some((candidate) => {
+      if (!coversCandidate(listed, candidate)) return false
+      return (
+        scoreNameToCandidate(s.suggestedName, candidate) >= 70 ||
+        scoreNameToCandidate(s.bankPayee || '', candidate) >= 70
+      )
+    })
+  })
+
+  const monthly = withoutPromoted
     .filter((s) => s.reviewSection === 'monthly_accruing')
     .sort((a, b) => (a.likelyDueDay ?? 99) - (b.likelyDueDay ?? 99))
-  const rest = kept.filter((s) => s.reviewSection !== 'monthly_accruing')
+  const rest = withoutPromoted.filter((s) => s.reviewSection !== 'monthly_accruing')
   return [...monthly, ...rest]
 }

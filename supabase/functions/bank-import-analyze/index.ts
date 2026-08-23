@@ -34,13 +34,14 @@ ONE DAY ONLY
 
 WEEKLY VS MONTHLY VS RESERVE
 - Several times most months / ~weekly → Not imported (do not invent a monthly total).
-- About once per calendar month → Monthly.
+- About once per calendar month → Monthly. Include council / business rates / NNDR instalments even if they skip a month or two.
 - Roughly every 3 / 6 / 12 months, or same month(s) each year → Reserve Planner — even if the payee name looks odd, like a person, brand, or “transfer”.
-- Do NOT dump large cyclical payments into Not imported as “irregular” or “internal” if the amount and spacing clearly repeat.
+- Large one-off or once-in-the-file bills at or above about 5× the monthly threshold → Reserve Planner (due month = the month it fell). That is what Reserve is for.
+- Do NOT dump large cyclical or large irregular payments into Not imported as “irregular” or “internal”. Not imported is for weekly noise, transfers, income, and small stuff.
 
 MONTHLY RULES
-- Variable monthly (tax, utilities, finance, revolving credit) stays Monthly — 🟠/🔴, not Reserve.
-- Must appear in most months across a meaningful stretch. If it only appears a few times a year, or only in a short recent window without a clear every-month pattern, do NOT force it into Monthly — put it in Reserve (if large/cyclical) or Not imported (if unclear).
+- Variable monthly (tax, utilities, finance, revolving credit, business rates) stays Monthly — 🟠/🔴, not Reserve.
+- Must appear in most months across a meaningful stretch. If it only appears a few times a year, or only in a short recent window without a clear every-month pattern, do NOT force it into Monthly — put it in Reserve if it is material.
 - Sort Monthly by Day of month ascending.
 - Distinct Names per payee (do not merge different finance agreements into one vague name).
 
@@ -49,7 +50,7 @@ First estimate a typical “meaningful monthly” total for this business from t
 Include in Reserve when ANY of these fit:
 1) Quarterly-ish spacing (~80–100 days) or the same 4 month-slots each year — list ALL due months in the cycle (e.g. Mar, Jun, Sep, Dec) even if only some appear in the file; 🟠/🔴 if incomplete.
 2) Six-monthly or annual repeats (same month ± a few weeks across years).
-3) Large non-monthly bills that matter for cash planning: tax (VAT / corporation tax when identifiable), insurance, licences, large landlord/management/property-style payments, other big yearly charges.
+3) Large non-monthly bills that matter for cash planning: tax (VAT / corporation tax when identifiable), insurance, licences, annual software, large landlord/management/property-style payments, other big yearly or one-off charges.
 4) Size guide: include only if (typical amount × due months in a year) is at least about 5× the monthly threshold (threshold £200 → about £1,000+ per year), or a single payment is at least about 2× the threshold. Skip small annual noise (streaming, small shops).
 5) Same payee, mixed sizes: if a payee has a regular large repeating amount plus smaller extras, keep ONLY the large repeating cluster. Do not average or merge the small ones in.
 6) HMRC: VAT is usually one quarterly row (e.g. Mar, Jun, Sep, Dec). Annual corporation-tax style payments (often “Shipley”) are ONE month and the large payment only — do not merge two different months into one row.
@@ -70,7 +71,7 @@ AMOUNTS
 
 NAMES
 - Short Cash Prophet label + Bank payee for matching.
-- Use a recognised purpose when the statement makes it obvious (generic UK only): NEST → Pension; Mailchimp (not the parent company name); HMRC VAT / HMRC monthly payment / HMRC annual payment; Payroll.
+- Use a recognised purpose when the statement makes it obvious (generic UK only): NEST → Pension; Mailchimp (not the parent company name); HMRC VAT / HMRC monthly payment / HMRC annual payment; Payroll; business rates / NNDR / “BC CENTRAL” style council rates → Business rates.
 - Do not invent purpose when unsure → 🔴.
 
 STATUS

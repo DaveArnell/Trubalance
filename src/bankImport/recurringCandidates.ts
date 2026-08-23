@@ -221,7 +221,7 @@ export function buildRecurringCandidates(
   let index = 0
 
   for (const [key, items] of buckets) {
-    if (items.length < 2 && Math.abs(items[0]?.amount ?? 0) < minMonthly * 3) continue
+    if (items.length < 2 && Math.abs(items[0]?.amount ?? 0) < minMonthly * 5) continue
 
     const sortedAll = [...items].sort((a, b) => a.date.localeCompare(b.date))
     const isPayroll = key === '__PAYROLL__'
@@ -281,10 +281,12 @@ export function buildRecurringCandidates(
     const looksMonthly =
       frequency === 'monthly' ||
       (monthsSeen >= Math.min(4, spanMonths) && coverage >= 0.45 && medianGap != null && medianGap >= 20 && medianGap <= 45)
+    const looksLargeOneOff = !looksMonthly && typical >= minMonthly * 5
     const looksReserve =
       frequency === 'quarterly' ||
       frequency === 'annual' ||
-      (monthsSeen >= 2 && medianGap != null && medianGap >= 70)
+      (monthsSeen >= 2 && medianGap != null && medianGap >= 70) ||
+      looksLargeOneOff
     const looksLarge = typical >= minMonthly || maxAmount >= minMonthly * 2
 
     // Drop clear weekly noise under threshold
