@@ -58,7 +58,10 @@ export const serverAiBankImportAdapter: BankImportAiAdapter = {
     const mapped = mapAiAnalysisToSuggestions(analysis, {
       sourceAccountId: options?.sourceAccountId,
     })
-    const suggestions = enrichAiSuggestionsFromEvidence(mapped, candidates)
+    const suggestions = enrichAiSuggestionsFromEvidence(mapped, candidates, {
+      sourceAccountId: options?.sourceAccountId,
+      minMonthlyAmount: input.minMonthlyAmount,
+    })
 
     return {
       suggestions,

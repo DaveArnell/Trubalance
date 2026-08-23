@@ -108,6 +108,66 @@ function dayOfMonthFromDates(dates: string[]): number | null {
   return Math.round(median(days))
 }
 
+function daysBetween(a: string, b: string): number {
+  const start = new Date(`${a}T12:00:00`).getTime()
+  const end = new Date(`${b}T12:00:00`).getTime()
+  return Math.round((end - start) / 86_400_000)
+}
+
+/** One payroll payday cluster per month — the recent-run total ChatGPT used, not one wage line. */
+function payrollMonthlyRuns(
+  items: ParsedBankTransaction[],
+): Array<{ date: string; total: number }> {
+  const byMonth = new Map<string, ParsedBankTransaction[]>()
+  for (const tx of items) {
+    const key = monthKey(tx.date)
+    const list = byMonth.get(key) ?? []
+    list.push(tx)
+    byMonth.set(key, list)
+  }
+
+  const runs: Array<{ date: string; total: number }> = []
+  for (const monthItems of byMonth.values()) {
+    const sorted = [...monthItems].sort((a, b) => a.date.localeCompare(b.date))
+    const clusters: ParsedBankTransaction[][] = []
+    let current: ParsedBankTransaction[] = []
+    for (const tx of sorted) {
+      if (current.length === 0) {
+        current = [tx]
+        continue
+      }
+      const prev = current[current.length - 1]!
+      if (daysBetween(prev.date, tx.date) <= 1) {
+        current.push(tx)
+      } else {
+        clusters.push(current)
+        current = [tx]
+      }
+    }
+    if (current.length > 0) clusters.push(current)
+
+    let best = clusters[0] ?? []
+    let bestTotal = best.reduce((sum, tx) => sum + Math.abs(tx.amount), 0)
+    for (const cluster of clusters.slice(1)) {
+      const total = cluster.reduce((sum, tx) => sum + Math.abs(tx.amount), 0)
+      if (total > bestTotal) {
+        best = cluster
+        bestTotal = total
+      }
+    }
+    if (best.length === 0) continue
+    const dayTotals = new Map<string, number>()
+    for (const tx of best) {
+      dayTotals.set(tx.date, (dayTotals.get(tx.date) ?? 0) + Math.abs(tx.amount))
+    }
+    const bestDay =
+      [...dayTotals.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? best[0]!.date
+    runs.push({ date: bestDay, total: money2(bestTotal) })
+  }
+
+  return runs.sort((a, b) => a.date.localeCompare(b.date))
+}
+
 function analysisSpanMonths(transactions: ParsedBankTransaction[]): number {
   if (transactions.length === 0) return 1
   const dates = transactions.map((t) => t.date).sort()
@@ -149,13 +209,18 @@ export function buildRecurringCandidates(
     if (items.length < 2 && Math.abs(items[0]?.amount ?? 0) < minMonthly * 3) continue
 
     const sorted = [...items].sort((a, b) => a.date.localeCompare(b.date))
-    const amounts = sorted.map((t) => Math.abs(t.amount))
-    const dates = sorted.map((t) => t.date)
+    const isPayroll = key === '__PAYROLL__'
+    const payrollRuns = isPayroll ? payrollMonthlyRuns(sorted) : []
+
+    const amounts = isPayroll && payrollRuns.length > 0
+      ? payrollRuns.map((run) => run.total)
+      : sorted.map((t) => Math.abs(t.amount))
+    const dates = isPayroll && payrollRuns.length > 0
+      ? payrollRuns.map((run) => run.date)
+      : sorted.map((t) => t.date)
     const gaps: number[] = []
     for (let i = 1; i < dates.length; i++) {
-      const a = new Date(`${dates[i - 1]!}T12:00:00`).getTime()
-      const b = new Date(`${dates[i]!}T12:00:00`).getTime()
-      gaps.push(Math.round((b - a) / 86_400_000))
+      gaps.push(daysBetween(dates[i - 1]!, dates[i]!))
     }
     const { frequency, medianGap } = detectFrequencyFromGaps(gaps)
 
@@ -165,7 +230,11 @@ export function buildRecurringCandidates(
     const typical = money2(median(amounts.slice(-6)))
     const recent = money2(amounts[amounts.length - 1] ?? 0)
     const maxAmount = money2(Math.max(...amounts))
-    const totalOut = money2(amounts.reduce((s, n) => s + n, 0))
+    const totalOut = money2(
+      isPayroll && payrollRuns.length > 0
+        ? payrollRuns.reduce((sum, run) => sum + run.total, 0)
+        : sorted.reduce((sum, t) => sum + Math.abs(t.amount), 0),
+    )
 
     // Keep candidates that look monthly/reserve-worthy OR large / high coverage.
     const looksMonthly =
