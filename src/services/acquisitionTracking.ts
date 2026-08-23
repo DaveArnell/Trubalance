@@ -138,25 +138,19 @@ export async function syncAcquisitionVisitorAttribution(): Promise<void> {
   }
 }
 
-/** Once per calendar day per browser tab for visit counting (DB also dedupes per day). */
+const VISIT_DAY_KEY = 'cashprophet-acquisition-visit-day'
+
+/** Once per UTC day per browser (DB also dedupes). Claim storage first to avoid a 409. */
 export function trackAcquisitionVisitOncePerDay(): void {
   const today = new Date().toISOString().slice(0, 10)
-  const key = 'cashprophet-acquisition-visit-day'
   try {
-    if (sessionStorage.getItem(key) === today) {
-      // Still refresh last_seen / first-touch upsert if UTMs are present.
+    if (localStorage.getItem(VISIT_DAY_KEY) === today) {
       void syncAcquisitionVisitorAttribution()
       return
     }
+    localStorage.setItem(VISIT_DAY_KEY, today)
   } catch {
-    /* continue */
+    /* continue — still try the insert */
   }
-  void trackAcquisitionEvent('visit').then((ok) => {
-    if (!ok) return
-    try {
-      sessionStorage.setItem(key, today)
-    } catch {
-      /* ignore */
-    }
-  })
+  void trackAcquisitionEvent('visit')
 }
