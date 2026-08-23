@@ -37,6 +37,11 @@ function median(values: number[]): number {
     : sorted[mid]!
 }
 
+function mean(values: number[]): number {
+  if (values.length === 0) return 0
+  return values.reduce((sum, value) => sum + value, 0) / values.length
+}
+
 function shortDesc(value: string, max = 80): string {
   const cleaned = value.replace(/\s+/g, ' ').trim()
   if (cleaned.length <= max) return cleaned
@@ -141,7 +146,7 @@ function daysBetween(a: string, b: string): number {
   return Math.round((end - start) / 86_400_000)
 }
 
-/** One payroll payday cluster per month — the recent-run total ChatGPT used, not one wage line. */
+/** One payroll payday cluster per month — then we average those run totals. */
 function payrollMonthlyRuns(
   items: ParsedBankTransaction[],
 ): Array<{ date: string; total: number }> {
@@ -287,7 +292,7 @@ export function buildRecurringCandidates(
     const coverage = monthsSeen / spanMonths
     const typical =
       isPayroll && amounts.length > 0
-        ? money2(amounts[amounts.length - 1]!)
+        ? money2(mean(amounts.slice(-12)))
         : money2(median(amounts.slice(-6)))
     const recent = money2(amounts[amounts.length - 1] ?? 0)
     const maxAmount = money2(Math.max(...amounts))

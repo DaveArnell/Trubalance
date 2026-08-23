@@ -35,7 +35,8 @@ ONE DAY ONLY
 WEEKLY VS MONTHLY VS RESERVE
 - Several times most months / ~weekly → Not imported (do not invent a monthly total).
 - Dividends → Not imported (not a monthly commitment).
-- About once per calendar month → Monthly. Include council / business rates / NNDR instalments even if they skip a month or two. Water / waste is often quarterly or six-monthly — do not force those into Monthly.
+- About once per calendar month → Monthly. Include council / business rates / NNDR instalments even if they skip a month or two.
+- If the spacing is not about once a month, it is not Monthly — regardless of the payee name.
 - Roughly every 3 / 6 / 12 months, or same month(s) each year → Reserve Planner — even if the payee name looks odd, like a person, brand, or “transfer”.
 - Large one-off or once-in-the-file bills at or above about 5× the monthly threshold → Reserve Planner (due month = the month it fell). That is what Reserve is for.
 - Do NOT dump large cyclical or large irregular payments into Not imported as “irregular” or “internal”. Not imported is for weekly noise, transfers, income, and small stuff.
@@ -60,7 +61,7 @@ Purpose unknown is fine: keep a payee-based Name, Status 🔴, but STILL list it
 Never put every-month payments in Reserve.
 
 PAYROLL
-- Early-month cluster to multiple people / payroll or wage wording → ONE Monthly row “Payroll”, one recent-run total. Not per person. Exclude dividends.
+- Early-month cluster to multiple people / payroll or wage wording → ONE Monthly row “Payroll”. Amount = average of payday totals over the last 6–12 months in the file (not the latest month alone). Not per person. Exclude dividends.
 
 AMOUNTS
 - One number only — never ranges.
