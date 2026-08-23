@@ -21,7 +21,7 @@ Tables first. No essay. Exact headers only.
 
 MEANINGFUL MONTHLY THRESHOLD = £{{MIN_MONTHLY}}
 (If you still see the literal text "{{MIN_MONTHLY}}", treat it as 200.)
-- Drop small recurring noise clearly under this amount per month → Not imported.
+- Drop anything under this amount per month → Not imported. Do not list it in Monthly.
 - Do not drop clear monthly costs that are around/above the threshold just because the amount varies.
 
 ONE DAY ONLY
@@ -47,7 +47,10 @@ Include in Reserve when ANY of these fit:
 1) Quarterly-ish spacing (~80–100 days) or the same 4 month-slots each year — list ALL due months in the cycle (e.g. Mar, Jun, Sep, Dec) even if only some appear in the file; 🟠/🔴 if incomplete.
 2) Six-monthly or annual repeats (same month ± a few weeks across years).
 3) Large non-monthly bills that matter for cash planning: tax (VAT / corporation tax when identifiable), insurance, licences, large landlord/management/property-style payments, other big yearly charges.
-4) Size guide: prefer items that are material versus monthly costs — typically hundreds to thousands, or at least about half of one typical meaningful monthly total for this business. Skip tiny annual noise.
+4) Size guide: include only if (typical amount × due months in a year) is at least about 5× the monthly threshold (threshold £200 → about £1,000+ per year), or a single payment is at least about 2× the threshold. Skip small annual noise (streaming, small shops).
+5) Same payee, mixed sizes: if a payee has a regular large repeating amount plus smaller extras, keep ONLY the large repeating cluster. Do not average or merge the small ones in.
+6) HMRC: VAT is usually one quarterly row (e.g. Mar, Jun, Sep, Dec). Annual corporation-tax style payments (often “Shipley”) are ONE month and the large payment only — do not merge two different months into one row.
+
 Purpose unknown is fine: keep a payee-based Name, Status 🔴, but STILL list it in Reserve if the schedule and size qualify.
 Never put every-month payments in Reserve.
 
@@ -64,6 +67,7 @@ AMOUNTS
 
 NAMES
 - Short Cash Prophet label + Bank payee for matching.
+- Use a recognised purpose when the statement makes it obvious (generic UK only): NEST → Pension; Mailchimp (not the parent company name); HMRC VAT / HMRC monthly payment / HMRC annual payment; Payroll.
 - Do not invent purpose when unsure → 🔴.
 
 STATUS

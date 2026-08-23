@@ -1,3 +1,4 @@
+import { newId } from '../utils/id'
 import type { RecurringCandidateForAi } from './recurringCandidates'
 import { groupKeyForDescription, normalizeDescription } from './normalize'
 import type { BankImportSuggestion } from './types'
@@ -113,6 +114,19 @@ function isInflowLabel(value: string): boolean {
   return /^(counter\s+credit|bank giro credit|credit\b)/i.test(value.trim())
 }
 
+/** Short Cash Prophet labels for common UK payees — not a specific business. */
+function friendlyName(name: string, payee: string): string {
+  const blob = `${name} ${payee}`
+  if (/payroll|pay grp|wage grp/i.test(blob)) return 'Payroll'
+  if (/\bnest\b/i.test(blob)) return 'Pension'
+  if (/mailchi/i.test(blob)) return 'Mailchimp'
+  if (/hmrc/i.test(blob) && /vat/i.test(blob)) return 'HMRC VAT'
+  if (/hmrc/i.test(blob) && /sdds/i.test(blob)) return 'HMRC monthly payment'
+  if (/hmrc/i.test(blob) && /shipley/i.test(blob)) return 'HMRC annual payment'
+  if (/capital\s+on\s+tap/i.test(blob)) return 'Capital on Tap'
+  return name
+}
+
 function nameFromPayee(payee: string): string {
   const cleaned = payee
     .replace(TYPE_PREFIX, '')
@@ -155,6 +169,7 @@ function applyCandidateFacts(
     if (TYPE_PREFIX.test(next.suggestedName)) {
       next.suggestedName = nameFromPayee(next.suggestedName)
     }
+    next.suggestedName = friendlyName(next.suggestedName, next.bankPayee || candidate.bank_payee)
   }
 
   if (looksMonthly(candidate) && next.reviewSection === 'reserve_planner') {
@@ -188,7 +203,7 @@ function applyCandidateFacts(
 export function enrichAiSuggestionsFromEvidence(
   suggestions: BankImportSuggestion[],
   candidates: RecurringCandidateForAi[],
-  _options?: { sourceAccountId?: string; minMonthlyAmount?: number },
+  options?: { sourceAccountId?: string; minMonthlyAmount?: number },
 ): BankImportSuggestion[] {
   if (candidates.length === 0) {
     return suggestions.filter(
@@ -219,10 +234,12 @@ export function enrichAiSuggestionsFromEvidence(
       const cleanedName = TYPE_PREFIX.test(suggestion.suggestedName)
         ? nameFromPayee(suggestion.suggestedName)
         : suggestion.suggestedName
+      const bankPayee =
+        (suggestion.bankPayee || '').replace(TYPE_PREFIX, '').trim() || suggestion.bankPayee
       next.push({
         ...suggestion,
-        suggestedName: cleanedName,
-        bankPayee: (suggestion.bankPayee || '').replace(TYPE_PREFIX, '').trim() || suggestion.bankPayee,
+        suggestedName: friendlyName(cleanedName, bankPayee || ''),
+        bankPayee,
       })
       continue
     }
@@ -230,9 +247,55 @@ export function enrichAiSuggestionsFromEvidence(
     next.push(applyCandidateFacts(suggestion, candidate))
   }
 
-  const monthly = next
+  const minMonthly =
+    options?.minMonthlyAmount && options.minMonthlyAmount > 0 ? options.minMonthlyAmount : 200
+  const minReserveAnnual = minMonthly * 5
+
+  const payroll = candidates.find((c) => c.is_likely_payroll && c.typical_amount >= minMonthly)
+  const hasPayroll = next.some(
+    (s) => s.category === 'payroll' || /payroll/i.test(s.suggestedName),
+  )
+  if (payroll && !hasPayroll) {
+    next.push({
+      id: newId(),
+      suggestedName: 'Payroll',
+      bankPayee: 'Payroll',
+      category: 'payroll',
+      amount: payroll.typical_amount,
+      averageAmount: payroll.typical_amount,
+      frequency: 'monthly',
+      likelyDueDay: payroll.suggested_due_day ?? undefined,
+      confidence: 70,
+      reason: '',
+      destination: 'building_commitment',
+      status: 'accepted',
+      transactionIds: [],
+      sampleDescriptions: payroll.sample_descriptions.slice(0, 6),
+      sourceAccountId: options?.sourceAccountId,
+      isInflow: false,
+      reviewSection: 'monthly_accruing',
+    })
+  }
+
+  const kept = next.filter((s) => {
+    const amount = s.editedAmount ?? s.averageAmount
+    if (s.reviewSection === 'monthly_accruing') {
+      return amount >= minMonthly
+    }
+    if (s.reviewSection === 'reserve_planner') {
+      const monthCount = (s.dueMonthsLabel || '')
+        .split(',')
+        .map((m) => m.trim())
+        .filter(Boolean).length
+      const annual = amount * Math.max(monthCount, 1)
+      return annual >= minReserveAnnual || amount >= minMonthly * 2
+    }
+    return true
+  })
+
+  const monthly = kept
     .filter((s) => s.reviewSection === 'monthly_accruing')
     .sort((a, b) => (a.likelyDueDay ?? 99) - (b.likelyDueDay ?? 99))
-  const rest = next.filter((s) => s.reviewSection !== 'monthly_accruing')
+  const rest = kept.filter((s) => s.reviewSection !== 'monthly_accruing')
   return [...monthly, ...rest]
 }

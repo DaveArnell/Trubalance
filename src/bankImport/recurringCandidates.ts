@@ -54,7 +54,21 @@ function monthLabel(date: string): string {
   ]!
 }
 
-const PAYROLL_MARKERS = /\b(PAYROLL|WAGES?|SALAR(Y|IES)|NET PAY|PAY GRP|WAGE GRP)\b/i
+/** Keep the regular large bills; drop smaller extras on the same payee. */
+function dominantAmountCluster(items: ParsedBankTransaction[]): ParsedBankTransaction[] {
+  if (items.length < 3) return items
+  const values = items.map((t) => Math.abs(t.amount))
+  const med = median(values)
+  const hi = Math.max(...values)
+  if (hi < med * 2.5) return items
+  const large = items.filter((t) => Math.abs(t.amount) >= hi * 0.6)
+  if (large.length >= 2) return large
+  const byMedian = items.filter((t) => Math.abs(t.amount) >= med * 2.5)
+  if (byMedian.length >= 2 && byMedian.length < items.length) return byMedian
+  return items
+}
+
+const PAYROLL_MARKERS = /\b(PAYROLL|WAGES?|SALAR(Y|IES)|NET PAY|PAY\s*GRP|WAGE\s*GRP)\b/i
 const DIVIDEND_MARKERS = /\bDIVIDEND/i
 const TRANSFER_MARKERS =
   /\b(TRANSFER|TFR|TRNS\s+FT|SWEEP|INTERNAL|BETWEEN ACCOUNTS|TO SAV|FROM SAV|RESERVE)\b/i
@@ -209,16 +223,42 @@ export function buildRecurringCandidates(
   for (const [key, items] of buckets) {
     if (items.length < 2 && Math.abs(items[0]?.amount ?? 0) < minMonthly * 3) continue
 
-    const sorted = [...items].sort((a, b) => a.date.localeCompare(b.date))
+    const sortedAll = [...items].sort((a, b) => a.date.localeCompare(b.date))
     const isPayroll = key === '__PAYROLL__'
-    const payrollRuns = isPayroll ? payrollMonthlyRuns(sorted) : []
+    // Same payee can have a regular large bill and smaller extras (e.g. rent vs service charge).
+    const sorted = isPayroll ? sortedAll : dominantAmountCluster(sortedAll)
+    const payrollRuns = isPayroll ? payrollMonthlyRuns(sortedAll) : []
 
-    const amounts = isPayroll && payrollRuns.length > 0
+    let working = sorted
+    const hmrcVat = working.some((t) => /\bVAT\b/i.test(t.description))
+    const looksHmrcAnnual =
+      !isPayroll &&
+      working.some((t) => /\bHMRC\b/i.test(t.description)) &&
+      !hmrcVat &&
+      working.length >= 1
+    if (looksHmrcAnnual) {
+      const gapsProbe: number[] = []
+      for (let i = 1; i < working.length; i++) {
+        gapsProbe.push(daysBetween(working[i - 1]!.date, working[i]!.date))
+      }
+      const probe = detectFrequencyFromGaps(gapsProbe)
+      const monthCount = new Set(working.map((t) => monthKey(t.date))).size
+      if (
+        probe.frequency === 'annual' ||
+        monthCount <= 2 ||
+        (probe.medianGap != null && probe.medianGap >= 140)
+      ) {
+        const top = [...working].sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount))[0]!
+        working = [top]
+      }
+    }
+
+    let amounts = isPayroll && payrollRuns.length > 0
       ? payrollRuns.map((run) => run.total)
-      : sorted.map((t) => Math.abs(t.amount))
-    const dates = isPayroll && payrollRuns.length > 0
+      : working.map((t) => Math.abs(t.amount))
+    let dates = isPayroll && payrollRuns.length > 0
       ? payrollRuns.map((run) => run.date)
-      : sorted.map((t) => t.date)
+      : working.map((t) => t.date)
     const gaps: number[] = []
     for (let i = 1; i < dates.length; i++) {
       gaps.push(daysBetween(dates[i - 1]!, dates[i]!))
@@ -234,7 +274,7 @@ export function buildRecurringCandidates(
     const totalOut = money2(
       isPayroll && payrollRuns.length > 0
         ? payrollRuns.reduce((sum, run) => sum + run.total, 0)
-        : sorted.reduce((sum, t) => sum + Math.abs(t.amount), 0),
+        : working.reduce((sum, t) => sum + Math.abs(t.amount), 0),
     )
 
     // Keep candidates that look monthly/reserve-worthy OR large / high coverage.
@@ -250,7 +290,12 @@ export function buildRecurringCandidates(
     // Drop clear weekly noise under threshold
     if (frequency === 'weekly' && typical < minMonthly) continue
     if (!looksMonthly && !looksReserve && !(looksLarge && monthsSeen >= 2)) continue
-    if (looksMonthly && typical < minMonthly * 0.85 && maxAmount < minMonthly) continue
+    if (looksMonthly && typical < minMonthly) continue
+    const monthSlots = new Set(dates.map(monthLabel)).size
+    const annualEst = typical * Math.max(monthSlots, 1)
+    if (!isPayroll && !looksMonthly && annualEst < minMonthly * 5 && typical < minMonthly * 2) {
+      continue
+    }
 
     const sampleDescriptions = [...new Set(sorted.map((t) => shortDesc(t.description)))].slice(0, 5)
     const bankPayee =

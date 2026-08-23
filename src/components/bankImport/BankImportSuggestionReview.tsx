@@ -260,12 +260,6 @@ export function BankImportSuggestionReview({
                           >
                             Ignore
                           </button>
-                          {suggestion.reason ? (
-                            <details className="bank-import-table-note">
-                              <summary>Note</summary>
-                              <p>{suggestion.reason}</p>
-                            </details>
-                          ) : null}
                         </td>
                       </tr>
                     )
