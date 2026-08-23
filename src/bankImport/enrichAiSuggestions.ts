@@ -1,4 +1,3 @@
-import { newId } from '../utils/id'
 import type { RecurringCandidateForAi } from './recurringCandidates'
 import { groupKeyForDescription, normalizeDescription } from './normalize'
 import type { BankImportSuggestion } from './types'
@@ -107,8 +106,16 @@ function looksReserve(candidate: RecurringCandidateForAi): boolean {
   )
 }
 
+const TYPE_PREFIX =
+  /^(bill payment|direct debit|standing order|counter credit|bank giro credit|faster payment|card payment|debit|credit)\s+/i
+
+function isInflowLabel(value: string): boolean {
+  return /^(counter\s+credit|bank giro credit|credit\b)/i.test(value.trim())
+}
+
 function nameFromPayee(payee: string): string {
   const cleaned = payee
+    .replace(TYPE_PREFIX, '')
     .replace(/\b[A-Z0-9]*\d[A-Z0-9]{3,}\b/g, ' ')
     .replace(/[^A-Za-z0-9&./\s-]/g, ' ')
     .replace(/\s+/g, ' ')
@@ -121,31 +128,12 @@ function nameFromPayee(payee: string): string {
     .join(' ')
 }
 
-function alreadyCovered(
-  candidate: RecurringCandidateForAi,
-  suggestions: BankImportSuggestion[],
-): boolean {
-  return suggestions.some((s) => {
-    if (s.reviewSection !== 'monthly_accruing' && s.reviewSection !== 'reserve_planner') {
-      return false
-    }
-    const score = Math.max(
-      scoreNameToCandidate(s.editedName ?? s.suggestedName, candidate),
-      s.bankPayee ? scoreNameToCandidate(s.bankPayee, candidate) : 0,
-    )
-    return score >= 70
-  })
-}
-
 function applyCandidateFacts(
   suggestion: BankImportSuggestion,
   candidate: RecurringCandidateForAi,
 ): BankImportSuggestion {
   const next: BankImportSuggestion = { ...suggestion }
-  const amount =
-    next.reviewSection === 'reserve_planner' && candidate.max_amount >= candidate.typical_amount * 1.5
-      ? candidate.max_amount
-      : candidate.typical_amount
+  const amount = candidate.typical_amount
 
   if (candidate.suggested_due_day != null) {
     next.likelyDueDay = candidate.suggested_due_day
@@ -154,12 +142,19 @@ function applyCandidateFacts(
     next.amount = amount
     next.averageAmount = amount
   }
-  if (candidate.bank_payee) {
-    next.bankPayee = candidate.bank_payee
+  if (candidate.is_likely_payroll) {
+    next.suggestedName = 'Payroll'
+    next.bankPayee = 'Payroll'
+    next.sampleDescriptions = candidate.sample_descriptions.slice(0, 6)
+  } else if (candidate.bank_payee) {
+    next.bankPayee = candidate.bank_payee.replace(TYPE_PREFIX, '').trim() || candidate.bank_payee
     next.sampleDescriptions = [
-      candidate.bank_payee,
+      next.bankPayee,
       ...candidate.sample_descriptions,
     ].slice(0, 6)
+    if (TYPE_PREFIX.test(next.suggestedName)) {
+      next.suggestedName = nameFromPayee(next.suggestedName)
+    }
   }
 
   if (looksMonthly(candidate) && next.reviewSection === 'reserve_planner') {
@@ -186,62 +181,24 @@ function applyCandidateFacts(
   return next
 }
 
-function suggestionFromCandidate(
-  candidate: RecurringCandidateForAi,
-  options?: { sourceAccountId?: string },
-): BankImportSuggestion {
-  const reserve = looksReserve(candidate) && !looksMonthly(candidate)
-  const months = monthsLabelFromCandidate(candidate)
-  const amount =
-    reserve && candidate.max_amount >= candidate.typical_amount * 1.5
-      ? candidate.max_amount
-      : candidate.typical_amount
-  const name = candidate.is_likely_payroll ? 'Payroll' : nameFromPayee(candidate.bank_payee)
-
-  return {
-    id: newId(),
-    suggestedName: name,
-    bankPayee: candidate.bank_payee,
-    category: candidate.is_likely_payroll
-      ? 'payroll'
-      : candidate.is_likely_hmrc
-        ? 'hmrc'
-        : 'supplier',
-    amount,
-    averageAmount: amount,
-    frequency: reserve
-      ? candidate.detected_frequency === 'quarterly'
-        ? 'quarterly'
-        : 'annual'
-      : 'monthly',
-    likelyDueDay: candidate.suggested_due_day ?? undefined,
-    likelyDueMonth: reserve && months ? MONTHS.indexOf(months.split(',')[0]!.trim()) + 1 : undefined,
-    dueMonthsLabel: reserve ? months || undefined : undefined,
-    confidence: candidate.month_coverage_ratio >= 0.6 ? 70 : 40,
-    reason: 'Added from the statement pattern — check the name and keep or ignore.',
-    destination: reserve ? 'reserve_bill' : 'building_commitment',
-    status: candidate.month_coverage_ratio >= 0.6 ? 'accepted' : 'pending',
-    transactionIds: [],
-    sampleDescriptions: candidate.sample_descriptions.slice(0, 6),
-    sourceAccountId: options?.sourceAccountId,
-    isInflow: false,
-    reviewSection: reserve ? 'reserve_planner' : 'monthly_accruing',
-  }
-}
-
 /**
- * The DIY model often invents day 1, a single wage, and a repeated card payee.
- * Overlay real statement facts, then add material payees the draft missed.
+ * Overlay statement days/amounts on the AI draft. Do not invent extra rows
+ * from every payee — that dumped income and one-off spend into the tables.
  */
 export function enrichAiSuggestionsFromEvidence(
   suggestions: BankImportSuggestion[],
   candidates: RecurringCandidateForAi[],
-  options?: { sourceAccountId?: string; minMonthlyAmount?: number },
+  _options?: { sourceAccountId?: string; minMonthlyAmount?: number },
 ): BankImportSuggestion[] {
-  if (candidates.length === 0) return suggestions
+  if (candidates.length === 0) {
+    return suggestions.filter(
+      (s) =>
+        !isInflowLabel(s.suggestedName) &&
+        !isInflowLabel(s.bankPayee || ''),
+    )
+  }
 
   const junkPayees = junkBankPayees(suggestions)
-  const used = new Set<string>()
   const next: BankImportSuggestion[] = []
 
   for (const suggestion of suggestions) {
@@ -253,34 +210,24 @@ export function enrichAiSuggestionsFromEvidence(
       continue
     }
 
+    if (isInflowLabel(suggestion.suggestedName) || isInflowLabel(suggestion.bankPayee || '')) {
+      continue
+    }
+
     const candidate = findBestCandidate(suggestion, candidates, junkPayees)
     if (!candidate) {
-      if (junkPayees.has(norm(suggestion.bankPayee || ''))) {
-        next.push({ ...suggestion, bankPayee: undefined })
-      } else {
-        next.push(suggestion)
-      }
+      const cleanedName = TYPE_PREFIX.test(suggestion.suggestedName)
+        ? nameFromPayee(suggestion.suggestedName)
+        : suggestion.suggestedName
+      next.push({
+        ...suggestion,
+        suggestedName: cleanedName,
+        bankPayee: (suggestion.bankPayee || '').replace(TYPE_PREFIX, '').trim() || suggestion.bankPayee,
+      })
       continue
     }
-    used.add(candidate.candidate_id)
-    next.push(applyCandidateFacts(suggestion, candidate))
-  }
-
-  const minMonthly = options?.minMonthlyAmount && options.minMonthlyAmount > 0
-    ? options.minMonthlyAmount
-    : 200
-
-  for (const candidate of candidates) {
-    if (used.has(candidate.candidate_id)) continue
     if (candidate.is_likely_transfer) continue
-    if (candidate.detected_frequency === 'weekly' && candidate.typical_amount < minMonthly * 2) {
-      continue
-    }
-    if (candidate.typical_amount < minMonthly && candidate.max_amount < minMonthly * 2) {
-      continue
-    }
-    if (alreadyCovered(candidate, next)) continue
-    next.push(suggestionFromCandidate(candidate, options))
+    next.push(applyCandidateFacts(suggestion, candidate))
   }
 
   const monthly = next

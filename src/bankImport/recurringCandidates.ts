@@ -57,7 +57,7 @@ function monthLabel(date: string): string {
 const PAYROLL_MARKERS = /\b(PAYROLL|WAGES?|SALAR(Y|IES)|NET PAY|PAY GRP|WAGE GRP)\b/i
 const DIVIDEND_MARKERS = /\bDIVIDEND/i
 const TRANSFER_MARKERS =
-  /\b(TRANSFER|TFR|SWEEP|INTERNAL|BETWEEN ACCOUNTS|TO SAV|FROM SAV|RESERVE)\b/i
+  /\b(TRANSFER|TFR|TRNS\s+FT|SWEEP|INTERNAL|BETWEEN ACCOUNTS|TO SAV|FROM SAV|RESERVE)\b/i
 
 function isPayrollLine(description: string): boolean {
   if (DIVIDEND_MARKERS.test(description)) return false
@@ -255,7 +255,7 @@ export function buildRecurringCandidates(
     const sampleDescriptions = [...new Set(sorted.map((t) => shortDesc(t.description)))].slice(0, 5)
     const bankPayee =
       key === '__PAYROLL__'
-        ? sampleDescriptions.find((d) => /payroll|pay grp/i.test(d)) || 'Payroll'
+        ? 'Payroll'
         : sampleDescriptions[0] || key
 
     const paymentMonths = [...new Set(dates.map(monthLabel))]

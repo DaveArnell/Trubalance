@@ -4,9 +4,19 @@ import type { ParsedBankTransaction } from './types'
 /** UK statement type codes at the start of a description. */
 export function inferDirectionFromDescription(description: string): 'in' | 'out' | null {
   const upper = description.toUpperCase().trim()
+  if (
+    /^(BILL PAYMENT|DIRECT DEBIT|STANDING ORDER|DEBIT\b|FASTER PAYMENT|CARD PAYMENT)\b/.test(
+      upper,
+    )
+  ) {
+    return 'out'
+  }
+  if (/^(COUNTER\s+CREDIT|BANK GIRO CREDIT|CREDIT\b|BGC\b)/.test(upper)) return 'in'
   if (/^(DD|DDR|SO|STO|FPO|DEB|DIV|TEL|CHQ|PAY|DCP|POS|VIS)\b/.test(upper)) return 'out'
   if (/^(FPI|BGC|CR|DEP|BAC|CHAPS\s+CR)\b/.test(upper)) return 'in'
-  if (/\bINTERNAL\s+TRANSFER\b/.test(upper) || /\bSWEEP\b/.test(upper)) return 'out'
+  if (/\bINTERNAL\s+TRANSFER\b/.test(upper) || /\bSWEEP\b/.test(upper) || /\bTRNS\s+FT\b/.test(upper)) {
+    return 'out'
+  }
   return null
 }
 
@@ -14,16 +24,9 @@ export function countParsedOutflows(transactions: ParsedBankTransaction[]): numb
   return transactions.filter((transaction) => transaction.amount < 0).length
 }
 
-function movementMatchesBalanceDelta(parsedAbs: number, balanceDelta: number): boolean {
-  if (parsedAbs === 0 || balanceDelta === 0) return false
-  const deltaAbs = Math.abs(balanceDelta)
-  const tolerance = Math.max(0.02, deltaAbs * 0.02)
-  return Math.abs(parsedAbs - deltaAbs) <= tolerance
-}
-
 /**
- * Use running balances to fix mis-signed or mis-columned amounts from PDF/CSV imports.
- * Lloyds and similar UK statements always include a balance column — this is the most reliable signal.
+ * Fill a missing amount from the running balance when the file had no money in/out.
+ * Do not overwrite an amount the statement already gave.
  */
 export function inferAmountsFromRunningBalance(
   transactions: ParsedBankTransaction[],
@@ -48,39 +51,15 @@ export function inferAmountsFromRunningBalance(
     const deltaAbs = Math.abs(balanceDelta)
     const parsedAbs = Math.abs(transaction.amount) || Math.max(transaction.moneyIn, transaction.moneyOut)
 
+    // Only fill a missing amount from the running balance. Never replace a
+    // parsed payment with a balance-to-balance jump — same-day rows get
+    // shuffled and those jumps look like £40k “bills”.
     if (parsedAbs === 0) {
       return {
         ...transaction,
         moneyIn: balanceDelta > 0 ? deltaAbs : 0,
         moneyOut: balanceDelta < 0 ? deltaAbs : 0,
         amount: balanceDelta,
-      }
-    }
-
-    if (!movementMatchesBalanceDelta(parsedAbs, balanceDelta)) {
-      return {
-        ...transaction,
-        moneyIn: balanceDelta > 0 ? deltaAbs : 0,
-        moneyOut: balanceDelta < 0 ? deltaAbs : 0,
-        amount: balanceDelta,
-      }
-    }
-
-    if (transaction.amount > 0 && balanceDelta < 0) {
-      return {
-        ...transaction,
-        moneyIn: 0,
-        moneyOut: deltaAbs,
-        amount: -deltaAbs,
-      }
-    }
-
-    if (transaction.amount < 0 && balanceDelta > 0) {
-      return {
-        ...transaction,
-        moneyIn: deltaAbs,
-        moneyOut: 0,
-        amount: deltaAbs,
       }
     }
 

@@ -7,7 +7,13 @@ function money2(value: number): number {
 }
 
 function shortDesc(value: string, max = 55): string {
-  const cleaned = value.replace(/\s+/g, ' ').trim()
+  const cleaned = value
+    .replace(
+      /^(Bill Payment|Direct Debit|Standing Order|Counter Credit|Bank Giro Credit|Faster Payment|Card Payment|Debit|Credit)\s+/i,
+      '',
+    )
+    .replace(/\s+/g, ' ')
+    .trim()
   if (cleaned.length <= max) return cleaned
   return `${cleaned.slice(0, max - 1).trimEnd()}…`
 }
