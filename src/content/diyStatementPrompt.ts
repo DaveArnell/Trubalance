@@ -2,8 +2,8 @@
  * DIY ChatGPT prompt for statement → Cash Prophet setup.
  * Keep generic — any UK business / bank. Inject monthly threshold before copy.
  *
- * This text must stay aligned with supabase/functions/bank-import-analyze
- * (same rules that produced the good ChatGPT DIY results).
+ * This is the prompt that produced the successful Swindon ChatGPT draft.
+ * Keep the edge function in sync.
  */
 
 export const DIY_STATEMENT_DEFAULT_MIN_MONTHLY = 200
@@ -28,16 +28,6 @@ ONE DAY ONLY
 - Day of month and Due day must be a single integer 1–31 (e.g. 2 or 24).
 - Never output ranges like 1–2 or 26–30. Use the most common day, or the median of recent days if it wobbles.
 - NEVER default every row to day 1. Only use 1 when payments clearly cluster on the 1st.
-- When PAYEE EVIDENCE includes due_day for a matching bank_payee, use that day.
-
-AMOUNTS
-- Keep pence where the statement shows them (e.g. 17851.52) — do not round to whole pounds.
-- One number only — never ranges.
-- Fixed → latest repeated amount.
-- Stable variable → median of ~last 6.
-- Recent level change → weight last 3–4 more.
-- Large variable monthly → include with estimate; 🟠 or 🔴.
-- When PAYEE EVIDENCE includes typical_amount for a matching payee, prefer that over guessing.
 
 WEEKLY VS MONTHLY VS RESERVE
 - Several times most months / ~weekly → Not imported (do not invent a monthly total).
@@ -63,6 +53,14 @@ Never put every-month payments in Reserve.
 
 PAYROLL
 - Early-month cluster to multiple people / payroll or wage wording → ONE Monthly row “Payroll”, one recent-run total. Not per person. Exclude dividends.
+
+AMOUNTS
+- One number only — never ranges.
+- Keep pence where the statement shows them.
+- Fixed → latest repeated amount.
+- Stable variable → median of ~last 6.
+- Recent level change → weight last 3–4 more.
+- Large variable monthly → include with estimate; 🟠 or 🔴.
 
 NAMES
 - Short Cash Prophet label + Bank payee for matching.

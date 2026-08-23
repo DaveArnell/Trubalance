@@ -1,5 +1,7 @@
 import { clusterPdfItemsIntoRows, extractPdfTextItems, rowText } from './pdfTextExtract'
+import type { PdfTextItem } from './pdfTextExtract'
 import { parsePdfTableRows, parsedPdfRowsToStatementRows } from './pdfTableParser'
+import { parseWrappedBankPdfRows } from './parseWrappedStatement'
 import { parseDateCell } from './parseDate'
 import { inferDirectionFromDescription } from './inferAmounts'
 import { looksLikeMoney, parseMoneyCell } from './parseMoney'
@@ -85,8 +87,6 @@ function parsePdfLinesFallback(lines: string[]): { headers: string[]; rows: stri
   return { headers, rows }
 }
 
-import type { PdfTextItem } from './pdfTextExtract'
-
 function linesFromItems(items: PdfTextItem[]): string[] {
   return clusterPdfItemsIntoRows(items)
     .map((row) => normalizeLineText(rowText(row)))
@@ -100,22 +100,26 @@ export async function parsePdfBankStatement(
   const items = await extractPdfTextItems(file, onProgress)
   const tableRows = parsePdfTableRows(items)
   const tableResult = tableRows.length > 0 ? parsedPdfRowsToStatementRows(tableRows) : null
+  const wrappedRows = parseWrappedBankPdfRows(items)
+  const wrappedResult = wrappedRows.length > 0 ? parsedPdfRowsToStatementRows(wrappedRows) : null
   const fallback = parsePdfLinesFallback(linesFromItems(items))
 
   function parseScore(result: { rows: string[][] } | null): number {
     if (!result) return 0
-    return countParsableMoneyCells(result.rows) + result.rows.length * 0.01
+    const money = countParsableMoneyCells(result.rows)
+    const distinctPayees = new Set(
+      result.rows.map((row) => (row[1] ?? '').replace(/\s+/g, ' ').trim().slice(0, 24)),
+    ).size
+    // Prefer a parse that keeps real payees, not one repeated card reference.
+    return money + distinctPayees * 2 + result.rows.length * 0.01
   }
 
-  const tableScore = parseScore(tableResult)
-  const fallbackScore = parseScore(fallback)
-
-  const best =
-    tableResult && tableScore >= fallbackScore
-      ? tableResult
-      : fallback.rows.length > 0
-        ? fallback
-        : tableResult
+  const candidates = [wrappedResult, tableResult, fallback.rows.length > 0 ? fallback : null]
+  const best = candidates.reduce<{ headers: string[]; rows: string[][] } | null>((lead, current) => {
+    if (!current) return lead
+    if (!lead) return current
+    return parseScore(current) > parseScore(lead) ? current : lead
+  }, null)
 
   if (!best || best.rows.length === 0) {
     throw new Error(
