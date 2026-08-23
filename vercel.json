@@ -26,6 +26,11 @@
       "permanent": true
     },
     {
+      "source": "/cafe",
+      "destination": "/cafes",
+      "permanent": true
+    },
+    {
       "source": "/blog/what-is-true-balance",
       "destination": "/blog/what-is-cash-prophet-balance",
       "permanent": true

@@ -48,6 +48,7 @@ export function AppRouter() {
             <Route path="/habits" element={<HabitsPage />} />
             <Route path="/who-its-for" element={<WhoItsForPage />} />
             <Route path="/cafes" element={<CafesPage />} />
+            <Route path="/cafe" element={<Navigate to="/cafes" replace />} />
             <Route path="/cafes-coffee-shops" element={<Navigate to="/cafes" replace />} />
             <Route path="/see-how-it-works" element={<SeeHowItWorksPage />} />
             <Route path="/contact" element={<ContactPage />} />

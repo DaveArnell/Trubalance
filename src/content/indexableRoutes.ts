@@ -31,6 +31,7 @@ export const LEGACY_REDIRECTS: readonly { from: string; to: string }[] = [
   { from: '/cash-prophet', to: '/' },
   { from: '/true-balance-method', to: '/' },
   { from: '/cafes-coffee-shops', to: '/cafes' },
+  { from: '/cafe', to: '/cafes' },
   // Old "True Balance" blog URLs — keep 301s so Google consolidates onto Cash Prophet slugs.
   { from: '/blog/what-is-true-balance', to: '/blog/what-is-cash-prophet-balance' },
   {
