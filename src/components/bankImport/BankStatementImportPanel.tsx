@@ -664,15 +664,18 @@ export function BankStatementImportPanel({
       {step === 'review' && (
         <div className="bank-import-panel">
           <p className="bank-import-hint">
-            Draft ready
             {parsedCount > 0 ? (
               <>
-                {' '}
-                from <strong>{parsedCount}</strong> transactions
+                Draft from <strong>{parsedCount}</strong> transactions. Check each row — edit the day
+                or amount if needed, keep what looks right, and ignore anything that isn’t. Nothing
+                is added until you confirm.
               </>
-            ) : null}
-            . Same style of tables as before — edit day, amount, or ignore rows, then add what you
-            want.
+            ) : (
+              <>
+                Check each row — edit the day or amount if needed, keep what looks right, and ignore
+                anything that isn’t. Nothing is added until you confirm.
+              </>
+            )}
           </p>
 
           <BankImportSuggestionReview
