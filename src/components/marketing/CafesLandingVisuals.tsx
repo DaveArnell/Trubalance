@@ -1,112 +1,62 @@
+import { CompactKpiStrip } from '../CompactKpiStrip'
 import { CAFES_EXAMPLE, CAFES_PAGE } from '../../content/cafesPage'
 import { formatCurrency } from '../../utils/format'
 
 const ACCRUE_ACCENT = '#0d8f5b'
 
-export function CafeAccrualExample({ compact = false }: { compact?: boolean }) {
-  return (
-    <aside
-      className={`cafe-example${compact ? ' cafe-example--compact' : ''}`}
-      aria-label="Illustrative café example: bank balance, accrued regular costs, and Cash Prophet Balance"
-    >
-      <div className="cafe-example-bank">
-        <p className="cafe-example-label">{CAFES_PAGE.example.bankLabel}</p>
-        <p className="cafe-example-amount">{formatCurrency(CAFES_EXAMPLE.bank)}</p>
-        <p className="cafe-example-note">{CAFES_PAGE.example.bankNote}</p>
-      </div>
+const MONTHLY_TOTAL = CAFES_EXAMPLE.bills.reduce((sum, bill) => sum + bill.total, 0)
+const ACCRUED_NOW = CAFES_EXAMPLE.bills.reduce((sum, bill) => sum + bill.accrued, 0)
+const PER_DAY = Math.round(MONTHLY_TOTAL / 30)
 
-      <p className="cafe-example-spoken-label">{CAFES_PAGE.example.spokenLabel}</p>
-      <ul className="cafe-example-rows">
-        {CAFES_EXAMPLE.commitments.map((row) => {
-          const progress = Math.round((row.accrued / row.monthly) * 100)
-          return (
-            <li key={row.name} className="cafe-example-row">
-              <div
-                className="cafe-example-row-fill"
-                style={{ width: `${progress}%`, background: ACCRUE_ACCENT }}
-                aria-hidden
-              />
-              <div className="cafe-example-row-copy">
-                <span className="cafe-example-row-name">{row.name}</span>
-                <span className="cafe-example-row-hint">{row.hint}</span>
-              </div>
-              <span className="cafe-example-row-amount">
-                <strong>{formatCurrency(row.accrued)}</strong>
-                <span> of {formatCurrency(row.monthly)}</span>
-              </span>
-            </li>
-          )
-        })}
-      </ul>
-
-      <div className="cafe-example-prophet">
-        <p className="cafe-example-label cafe-example-label--prophet">{CAFES_PAGE.example.prophetLabel}</p>
-        <p className="cafe-example-amount cafe-example-amount--prophet">
-          {formatCurrency(CAFES_EXAMPLE.prophet)}
-        </p>
-        <p className="cafe-example-note">{CAFES_PAGE.example.prophetNote}</p>
-      </div>
-      <p className="cafe-example-footnote">{CAFES_PAGE.example.footnote}</p>
-    </aside>
-  )
+function dueInLabel(days: number) {
+  if (days <= 0) return 'Due today'
+  if (days === 1) return 'Due in 1 day'
+  return `Due in ${days} days`
 }
 
-const MONTH_EVENTS = [
-  { x: 16, label: 'Utilities' },
-  { x: 34, label: 'Finance' },
-  { x: 48, label: 'Suppliers' },
-  { x: 72, label: 'Payroll' },
-  { x: 88, label: 'Rent' },
-] as const
-
-/** Bank path: climbs with daily takings, drops on bill days. SVG y: higher = lower balance. */
-const BANK_PATH =
-  'M8 78 C 18 70, 28 62, 38 58 C 44 56, 48 92, 50 94 C 56 88, 64 72, 70 66 C 76 60, 82 108, 86 110 C 92 96, 102 84, 112 70 C 122 58, 132 52, 142 48 C 150 46, 156 88, 160 90 C 168 78, 180 64, 196 54 C 208 48, 216 118, 220 122 C 230 104, 246 78, 262 62 C 270 56, 278 112, 284 116 C 292 98, 308 70, 328 58'
-
-const PROPHET_PATH =
-  'M8 92 C 40 90, 80 86, 120 82 C 160 78, 200 76, 240 72 C 280 68, 308 66, 328 64'
-
-export function CafeMonthContrast() {
+/** Same monthly accruing-bills card as the homepage, with café figures. */
+export function CafeAccruingBills() {
   return (
-    <div className="cafe-month" aria-label="Typical café month: noisy bank balance versus a calmer Cash Prophet Balance">
-      <div className="cafe-month-card">
-        <div className="cafe-month-head">
-          <p className="cafe-month-title">{CAFES_PAGE.noisy.bankTitle}</p>
-          <p className="cafe-month-caption">{CAFES_PAGE.noisy.bankCaption}</p>
+    <aside
+      className="home-snap home-snap--wide"
+      aria-label="Café example: monthly accruing bills building toward today’s position"
+    >
+      <div className="home-dash home-dash--cards home-dash--accruing">
+        <div className="home-dash-hero home-dash-hero--accruing">
+          <p className="home-snap-label home-snap-label--teal">Monthly accruing bills</p>
+          <div className="home-dash-kpis">
+            <CompactKpiStrip
+              items={[
+                { label: 'Monthly total', value: formatCurrency(MONTHLY_TOTAL) },
+                { label: 'Accrued now', value: formatCurrency(ACCRUED_NOW), emphasis: true },
+                { label: 'Per day', value: formatCurrency(PER_DAY) },
+              ]}
+            />
+          </div>
         </div>
-        <svg className="cafe-month-chart" viewBox="0 0 340 150" role="img" aria-hidden>
-          <line x1="8" y1="132" x2="328" y2="132" className="cafe-month-axis" />
-          <path d={BANK_PATH} className="cafe-month-line cafe-month-line--bank" />
-          {MONTH_EVENTS.map((event) => (
-            <g key={event.label}>
-              <line
-                x1={(event.x / 100) * 320 + 8}
-                y1="28"
-                x2={(event.x / 100) * 320 + 8}
-                y2="132"
-                className="cafe-month-event"
-              />
-            </g>
-          ))}
-        </svg>
-        <ul className="cafe-month-chips">
-          {MONTH_EVENTS.map((event) => (
-            <li key={event.label}>{event.label}</li>
-          ))}
+
+        <ul className="home-dash-cards home-dash-cards--bars">
+          {CAFES_EXAMPLE.bills.map((bill) => {
+            const progress = bill.accrued / bill.total
+            return (
+              <li key={bill.name} className="home-accrue-row">
+                <div
+                  className="home-accrue-row-fill"
+                  style={{ width: `${Math.round(progress * 100)}%`, background: ACCRUE_ACCENT }}
+                  aria-hidden
+                />
+                <span className="home-accrue-row-due">{dueInLabel(bill.dueInDays)}</span>
+                <span className="home-accrue-row-name">{bill.name}</span>
+                <span className="home-accrue-row-amount">
+                  <strong>{formatCurrency(bill.accrued)}</strong>
+                  <span> / {formatCurrency(bill.total)}</span>
+                </span>
+              </li>
+            )
+          })}
         </ul>
       </div>
-
-      <div className="cafe-month-card cafe-month-card--prophet">
-        <div className="cafe-month-head">
-          <p className="cafe-month-title">{CAFES_PAGE.noisy.prophetTitle}</p>
-          <p className="cafe-month-caption">{CAFES_PAGE.noisy.prophetCaption}</p>
-        </div>
-        <svg className="cafe-month-chart" viewBox="0 0 340 150" role="img" aria-hidden>
-          <line x1="8" y1="132" x2="328" y2="132" className="cafe-month-axis" />
-          <path d={PROPHET_PATH} className="cafe-month-line cafe-month-line--prophet" />
-        </svg>
-      </div>
-    </div>
+    </aside>
   )
 }
 

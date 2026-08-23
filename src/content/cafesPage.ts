@@ -11,16 +11,15 @@ export const CAFES_TRY_IT_PATH = '/try-it?sector=cafe' as const
 export const CAFES_SIGNUP_PATH = '/signup' as const
 export const CAFES_ONBOARDING_PATH = '/contact?topic=onboarding' as const
 
+/** Café bills for the homepage-style accruing list. Sorted soonest due first. */
 export const CAFES_EXAMPLE = {
-  bank: 18400,
-  commitments: [
-    { name: 'Payroll accrued', accrued: 5200, monthly: 9000, hint: 'Wages building toward payday' },
-    { name: 'Rent accrued', accrued: 1600, monthly: 2400, hint: 'Part of this month already spoken for' },
-    { name: 'Utilities accrued', accrued: 650, monthly: 800, hint: 'Energy and water through the cycle' },
-    { name: 'Finance / equipment', accrued: 450, monthly: 600, hint: 'A regular finance payment building' },
-    { name: 'Other regular commitments', accrued: 700, monthly: 1050, hint: 'Subscriptions and standing costs' },
+  bills: [
+    { dueInDays: 2, name: 'Rent', accrued: 1600, total: 2400 },
+    { dueInDays: 8, name: 'Utilities', accrued: 650, total: 800 },
+    { dueInDays: 12, name: 'Equipment finance', accrued: 450, total: 600 },
+    { dueInDays: 18, name: 'Subscriptions', accrued: 700, total: 1050 },
+    { dueInDays: 24, name: 'Wages', accrued: 5200, total: 9000 },
   ],
-  prophet: 9800,
 } as const
 
 export const CAFES_PAGE = {
@@ -31,19 +30,7 @@ export const CAFES_PAGE = {
       'Cash Prophet accounts for wages, rent and other regular costs as they build up, so you have a clearer idea of what the café can actually afford today.',
     primaryCta: `Start ${TRIAL_DAYS} days free`,
     secondaryCta: 'Try the free snapshot',
-    secondaryHint: 'No account needed',
     onboarding: 'Free personal onboarding available',
-  },
-  example: {
-    heading: 'What that looks like in a café',
-    lead:
-      'A typical mid-month picture. The full bills have not necessarily left the bank yet. Part of each regular obligation has already built up as of today.',
-    bankLabel: 'Bank balance',
-    bankNote: 'In the café account today',
-    spokenLabel: 'Already building',
-    prophetLabel: CASH_PROPHET_BALANCE,
-    prophetNote: 'What the café can actually work with today, after regular costs already accrued',
-    footnote: 'Illustrative figures only. The point is the principle, not these exact amounts.',
   },
   noisy: {
     heading: 'Why the bank balance can look better than it is',
@@ -51,10 +38,6 @@ export const CAFES_PAGE = {
       'Cafés take money regularly, often every day. The large costs do not leave the bank evenly. Wages, rent, utilities, finance and other recurring costs hit at different points in the month.',
     body:
       'That means the bank balance can look healthy simply because some of those payments have not happened yet. Money that is already spoken for can look like money available to spend.',
-    bankTitle: 'Bank balance through a café month',
-    bankCaption: 'Jumps around depending on where you are in the payment cycle.',
-    prophetTitle: CASH_PROPHET_BALANCE,
-    prophetCaption: 'Regular obligations are accounted for gradually, so the direction is easier to read.',
     close:
       'Cash Prophet does not remove the ups and downs of trade. It removes some of the timing distortion from the way the bank balance is interpreted.',
   },
@@ -141,9 +124,9 @@ export const CAFES_PAGE = {
     ],
   },
   founder: {
-    heading: 'Built from a real hospitality business',
+    heading: 'Used in a real hospitality business',
     body:
-      'The Cash Prophet approach comes from many years of using this discipline in a leisure and hospitality business with regular customer income and significant recurring costs. The page is about your café, not our story. The same timing problem shows up wherever takings are steady and bills are not.',
+      'This approach comes from many years of using the same financial discipline in a leisure and hospitality business: regular customer income, and significant recurring costs that never leave the bank evenly. Café owners face that same timing problem.',
   },
   cta: {
     heading: 'See what your café can actually afford',

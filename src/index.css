@@ -33907,6 +33907,11 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   width: 100%;
 }
 
+.cafe-graphs {
+  width: min(100%, 34rem);
+  margin: 1.5rem auto 0;
+}
+
 .cafe-section {
   max-width: 52rem;
 }
@@ -34309,30 +34314,8 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 @media (max-width: 900px) {
-  .cafes-page .cafes-hero-visual {
-    display: none;
-  }
-
   .cafes-page .cafes-hero-category {
     max-width: none;
-  }
-
-  .cafe-example-row {
-    grid-template-columns: 1fr;
-  }
-
-  .cafe-example-row-amount {
-    text-align: left;
-  }
-
-  .cafe-example-row-amount strong {
-    display: inline;
-  }
-}
-
-@media (min-width: 901px) {
-  .cafe-example-band {
-    display: none;
   }
 }
 

@@ -8,10 +8,10 @@ import { CashProphetLogo } from '../components/marketing/CashProphetLogo'
 import { CompanyLegalNotice } from '../components/marketing/CompanyLegalNotice'
 import { MarketingFaqSection } from '../components/marketing/MarketingFaqSection'
 import { MarketingJsonLd, cafesPageJsonLd } from '../components/marketing/MarketingJsonLd'
+import { HeroBalanceGraphs } from '../components/marketing/HeroBalanceGraphs'
 import {
-  CafeAccrualExample,
+  CafeAccruingBills,
   CafeEquation,
-  CafeMonthContrast,
   CafePayrollBuild,
   CafeReserveVisual,
 } from '../components/marketing/CafesLandingVisuals'
@@ -97,15 +97,12 @@ export function CafesPage() {
                 >
                   {CAFES_PAGE.hero.primaryCta}
                 </SignupCta>
-                <div className="marketing-cta-secondary-wrap">
-                  <TryItCta
-                    placement="hero"
-                    className="btn-secondary btn-large marketing-cta-secondary--rank"
-                  >
-                    {CAFES_PAGE.hero.secondaryCta}
-                  </TryItCta>
-                  <span className="marketing-cta-hint">{CAFES_PAGE.hero.secondaryHint}</span>
-                </div>
+                <TryItCta
+                  placement="hero"
+                  className="btn-secondary btn-large marketing-cta-secondary--rank"
+                >
+                  {CAFES_PAGE.hero.secondaryCta}
+                </TryItCta>
               </div>
               <p className="marketing-hero-onboard-link">
                 <CanonicalLink to={CAFES_ONBOARDING_PATH}>{CAFES_PAGE.hero.onboarding}</CanonicalLink>
@@ -118,32 +115,21 @@ export function CafesPage() {
               )}
             </div>
             <div className="marketing-hero-rank-visual cafes-hero-visual">
-              <CafeAccrualExample compact />
+              <CafeAccruingBills />
             </div>
-          </div>
-        </section>
-
-        <section
-          className="home-band home-band--paper cafe-example-band"
-          aria-labelledby="cafe-example-heading"
-        >
-          <div className="marketing-section-inner marketing-section-inner--home cafe-section">
-            <div className="home-band-head">
-              <h2 id="cafe-example-heading">{CAFES_PAGE.example.heading}</h2>
-              <p className="home-split-lead">{CAFES_PAGE.example.lead}</p>
-            </div>
-            <CafeAccrualExample />
           </div>
         </section>
 
         <section className="home-band home-band--mist" aria-labelledby="cafe-noisy-heading">
-          <div className="marketing-section-inner marketing-section-inner--home cafe-section">
+          <div className="marketing-section-inner marketing-section-inner--home">
             <div className="home-band-head">
               <h2 id="cafe-noisy-heading">{CAFES_PAGE.noisy.heading}</h2>
               <p className="home-split-lead">{CAFES_PAGE.noisy.lead}</p>
               <p className="home-split-prose">{CAFES_PAGE.noisy.body}</p>
             </div>
-            <CafeMonthContrast />
+            <div className="cafe-graphs">
+              <HeroBalanceGraphs />
+            </div>
             <p className="cafe-section-close">{CAFES_PAGE.noisy.close}</p>
           </div>
         </section>
