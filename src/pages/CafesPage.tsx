@@ -223,13 +223,6 @@ export function CafesPage() {
           </div>
         </section>
 
-        <section className="home-band home-band--founder" aria-labelledby="cafe-founder-heading">
-          <div className="marketing-section-inner marketing-section-inner--home cafe-section--center cafe-section--narrow">
-            <h2 id="cafe-founder-heading">{CAFES_PAGE.founder.heading}</h2>
-            <p className="home-split-prose">{CAFES_PAGE.founder.body}</p>
-          </div>
-        </section>
-
         <section className="marketing-company-band home-band--legal" aria-label="Company information">
           <div className="marketing-section-inner marketing-section-inner--home">
             <CompanyLegalNotice variant="inline" />

@@ -124,11 +124,6 @@ export const CAFES_PAGE = {
       },
     ],
   },
-  founder: {
-    heading: 'Used in a real hospitality business',
-    body:
-      'This approach comes from many years of using the same financial discipline in a leisure and hospitality business: regular customer income, and significant recurring costs that never leave the bank evenly. Café owners face that same timing problem.',
-  },
   cta: {
     heading: 'See what your café can actually afford',
     body: `Start ${TRIAL_DAYS} days free, or try the free snapshot with your own figures. Free personal onboarding is available if you want a guided start.`,
