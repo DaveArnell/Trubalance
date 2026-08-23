@@ -121,6 +121,8 @@ export interface BankImportAnalysisResult {
   suggestions: BankImportSuggestion[]
   /** Trend insights only — never auto-applied. */
   insights?: ImportTrendInsight[]
+  /** “Confirm these first” bullets from the DIY draft — advisory only. */
+  confirmNotes?: string[]
   aiNotes?: string
   aiConfigured?: boolean
   analysisPeriod?: { start_date: string; end_date: string; months_covered: number }

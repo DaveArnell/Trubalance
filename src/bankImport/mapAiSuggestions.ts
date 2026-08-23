@@ -241,21 +241,25 @@ export function mapAiAnalysisToSuggestions(
   }
 
   for (const item of analysis.manual_review_items) {
-    const payee = (item.supplier_group || '').trim().toLowerCase()
+    const payee = (item.supplier_group || '').trim()
+    // DIY “Confirm these first” bullets used to be mapped as blank Confirm / £0 rows.
+    if (!payee || /^confirm$/i.test(payee)) continue
+
+    const payeeLower = payee.toLowerCase()
     const alreadyCovered = suggestions.some((s) => {
       if (s.reviewSection !== 'monthly_accruing' && s.reviewSection !== 'reserve_planner') {
         return false
       }
       const existing = (s.bankPayee || s.suggestedName || '').trim().toLowerCase()
-      if (!payee || !existing) return false
-      return existing.includes(payee) || payee.includes(existing)
+      if (!payeeLower || !existing) return false
+      return existing.includes(payeeLower) || payeeLower.includes(existing)
     })
     if (alreadyCovered) continue
 
     suggestions.push({
       id: newId(),
-      suggestedName: item.supplier_group || 'Needs review',
-      bankPayee: item.supplier_group || undefined,
+      suggestedName: payee,
+      bankPayee: payee,
       category: 'other',
       amount: 0,
       averageAmount: 0,

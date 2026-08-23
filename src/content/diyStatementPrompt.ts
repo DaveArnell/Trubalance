@@ -27,6 +27,17 @@ MEANINGFUL MONTHLY THRESHOLD = £{{MIN_MONTHLY}}
 ONE DAY ONLY
 - Day of month and Due day must be a single integer 1–31 (e.g. 2 or 24).
 - Never output ranges like 1–2 or 26–30. Use the most common day, or the median of recent days if it wobbles.
+- NEVER default every row to day 1. Only use 1 when payments clearly cluster on the 1st.
+- When PAYEE EVIDENCE includes due_day for a matching bank_payee, use that day.
+
+AMOUNTS
+- Keep pence where the statement shows them (e.g. 17851.52) — do not round to whole pounds.
+- One number only — never ranges.
+- Fixed → latest repeated amount.
+- Stable variable → median of ~last 6.
+- Recent level change → weight last 3–4 more.
+- Large variable monthly → include with estimate; 🟠 or 🔴.
+- When PAYEE EVIDENCE includes typical_amount for a matching payee, prefer that over guessing.
 
 WEEKLY VS MONTHLY VS RESERVE
 - Several times most months / ~weekly → Not imported (do not invent a monthly total).
@@ -53,13 +64,6 @@ Never put every-month payments in Reserve.
 PAYROLL
 - Early-month cluster to multiple people / payroll or wage wording → ONE Monthly row “Payroll”, one recent-run total. Not per person. Exclude dividends.
 
-AMOUNTS
-- One number only — never ranges.
-- Fixed → latest repeated amount.
-- Stable variable → median of ~last 6.
-- Recent level change → weight last 3–4 more.
-- Large variable monthly → include with estimate; 🟠 or 🔴.
-
 NAMES
 - Short Cash Prophet label + Bank payee for matching.
 - Do not invent purpose when unsure → 🔴.
@@ -84,7 +88,7 @@ OUTPUT
 | --- | --- |
 
 After tables, only:
-1) “Confirm these first” — max 5 bullets
+1) “Confirm these first” — max 5 bullets (advisory notes only — do NOT invent table rows for these)
 2) 🟢 enter · 🟠 enter then check · 🔴 decide before trusting`
 
 export function buildDiyStatementPrompt(options: { minMonthly: number }): string {

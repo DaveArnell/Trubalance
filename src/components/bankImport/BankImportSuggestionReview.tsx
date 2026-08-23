@@ -40,6 +40,8 @@ interface BankImportSuggestionReviewProps {
   onUpdate: (id: string, patch: Partial<BankImportSuggestion>) => void
   onSetStatus: (id: string, status: ImportSuggestionStatus) => void
   insights?: ImportTrendInsight[]
+  /** DIY “Confirm these first” advisory bullets — not editable rows. */
+  confirmNotes?: string[]
   compact?: boolean
 }
 
@@ -67,8 +69,9 @@ export function BankImportSuggestionReview({
   onUpdate,
   onSetStatus,
   insights = [],
+  confirmNotes = [],
 }: BankImportSuggestionReviewProps) {
-  if (suggestions.length === 0) {
+  if (suggestions.length === 0 && confirmNotes.length === 0) {
     return (
       <p className="muted">
         No suggestions yet. Try a longer statement or check AI is connected in Settings.
@@ -79,7 +82,16 @@ export function BankImportSuggestionReview({
   const grouped = SECTION_ORDER.map((section) => ({
     section,
     items: suggestions.filter((s) => (s.reviewSection ?? 'monthly_accruing') === section),
-  })).filter((g) => g.items.length > 0)
+  })).filter((g) => {
+    if (g.section === 'manual_review') {
+      // Hide the old blank Confirm / £0 rows — notes render separately.
+      return g.items.some((item) => {
+        const name = (item.editedName ?? item.suggestedName).trim()
+        return name.length > 0 && !/^confirm$/i.test(name) && (item.averageAmount > 0 || item.amount > 0)
+      })
+    }
+    return g.items.length > 0
+  })
 
   return (
     <>
@@ -87,6 +99,16 @@ export function BankImportSuggestionReview({
       <p className="muted bank-import-status-legend">
         🟢 enter · 🟠 enter then check · 🔴 decide before trusting
       </p>
+      {confirmNotes.length > 0 ? (
+        <aside className="bank-import-confirm-notes" aria-label="Confirm these first">
+          <h4 className="bank-import-review-section-title">Confirm these first</h4>
+          <ul>
+            {confirmNotes.map((note) => (
+              <li key={note}>{note}</li>
+            ))}
+          </ul>
+        </aside>
+      ) : null}
       {grouped.map(({ section, items }) => {
         const isMonthly = section === 'monthly_accruing'
         const isReserve = section === 'reserve_planner'

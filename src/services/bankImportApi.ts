@@ -9,9 +9,11 @@ export interface BankImportAiHealth {
 }
 
 export interface AnalyzeBankImportRequest {
-  /** Deterministic recurring payee candidates for the model to classify. */
+  /** Deterministic recurring payee evidence (days/amounts/months) — AI still classifies. */
   candidates?: RecurringCandidateForAi[]
-  /** Optional compact ledger (legacy / debug). */
+  /** Compact CSV of payee evidence (preferred over raw candidates JSON). */
+  payeeEvidence?: string
+  /** Compact money-out ledger for context. */
   ledger?: string
   /** Legacy fallback only. */
   groups?: TransactionGroupForAi[]

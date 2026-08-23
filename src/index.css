@@ -23207,6 +23207,23 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   margin-top: 6px;
 }
 
+.bank-import-confirm-notes {
+  margin: 0 0 var(--space-3);
+  padding: var(--space-3);
+  border-left: 3px solid var(--accent, #5b6ee1);
+  background: var(--bg-subtle);
+}
+
+.bank-import-confirm-notes ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  font-size: 0.9rem;
+}
+
+.bank-import-confirm-notes li + li {
+  margin-top: 6px;
+}
+
 .bank-import-suggestion-tag {
   margin: 4px 0 0;
   font-size: 0.72rem;

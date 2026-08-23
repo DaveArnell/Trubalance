@@ -8,7 +8,7 @@ const corsHeaders = {
 
 /**
  * Exact DIY ChatGPT prompt (src/content/diyStatementPrompt.ts).
- * Keep in sync — this is what produced the good ChatGPT results.
+ * Keep in sync — this is what produced the good ChatGPT DIY results.
  */
 function buildDiyPrompt(minMonthly: number): string {
   return `You are helping me set up Cash Prophet (UK small-business cash position tool — not bookkeeping).
@@ -30,6 +30,17 @@ MEANINGFUL MONTHLY THRESHOLD = £${minMonthly}
 ONE DAY ONLY
 - Day of month and Due day must be a single integer 1–31 (e.g. 2 or 24).
 - Never output ranges like 1–2 or 26–30. Use the most common day, or the median of recent days if it wobbles.
+- NEVER default every row to day 1. Only use 1 when payments clearly cluster on the 1st.
+- When PAYEE EVIDENCE includes due_day for a matching bank_payee, use that day.
+
+AMOUNTS
+- Keep pence where the statement shows them (e.g. 17851.52) — do not round to whole pounds.
+- One number only — never ranges.
+- Fixed → latest repeated amount.
+- Stable variable → median of ~last 6.
+- Recent level change → weight last 3–4 more.
+- Large variable monthly → include with estimate; 🟠 or 🔴.
+- When PAYEE EVIDENCE includes typical_amount for a matching payee, prefer that over guessing.
 
 WEEKLY VS MONTHLY VS RESERVE
 - Several times most months / ~weekly → Not imported (do not invent a monthly total).
@@ -56,13 +67,6 @@ Never put every-month payments in Reserve.
 PAYROLL
 - Early-month cluster to multiple people / payroll or wage wording → ONE Monthly row “Payroll”, one recent-run total. Not per person. Exclude dividends.
 
-AMOUNTS
-- One number only — never ranges.
-- Fixed → latest repeated amount.
-- Stable variable → median of ~last 6.
-- Recent level change → weight last 3–4 more.
-- Large variable monthly → include with estimate; 🟠 or 🔴.
-
 NAMES
 - Short Cash Prophet label + Bank payee for matching.
 - Do not invent purpose when unsure → 🔴.
@@ -87,7 +91,7 @@ OUTPUT
 | --- | --- |
 
 After tables, only:
-1) “Confirm these first” — max 5 bullets
+1) “Confirm these first” — max 5 bullets (advisory notes only — do NOT invent table rows for these)
 2) 🟢 enter · 🟠 enter then check · 🔴 decide before trusting`
 }
 
@@ -165,7 +169,12 @@ function parseAmount(raw: string): number {
 }
 
 function parseDay(raw: string): number | null {
-  const match = raw.match(/\b([1-9]|[12]\d|3[01])\b/)
+  const trimmed = raw.trim()
+  // Exact day cell only — avoid pulling "1" out of amounts or month lists.
+  if (/^(?:[1-9]|[12]\d|3[01])(?:st|nd|rd|th)?$/i.test(trimmed)) {
+    return Number(trimmed.replace(/\D/g, ''))
+  }
+  const match = trimmed.match(/^(?:day\s*)?([1-9]|[12]\d|3[01])$/i)
   if (!match) return null
   return Number(match[1])
 }
@@ -180,25 +189,13 @@ function statusToConfidence(status: string): { confidence: number; label: 'high'
   return { confidence: 70, label: 'medium' }
 }
 
-function parseConfirmBullets(markdown: string): Array<{
-  supplier_group: string
-  issue: string
-  question_for_user: string
-  evidence: []
-}> {
+function parseConfirmNotes(markdown: string): string[] {
   const section = markdown.split(/Confirm these first/i)[1] ?? ''
-  const bullets = section
+  return section
     .split(/\r?\n/)
     .map((line) => line.replace(/^[-*•\d.)\s]+/, '').trim())
-    .filter((line) => line.length > 8 && !line.startsWith('🟢'))
+    .filter((line) => line.length > 8 && !line.startsWith('🟢') && !/^confirm$/i.test(line))
     .slice(0, 5)
-
-  return bullets.map((line) => ({
-    supplier_group: 'Confirm',
-    issue: line,
-    question_for_user: line,
-    evidence: [],
-  }))
 }
 
 function analysisFromDiyMarkdown(
@@ -296,7 +293,8 @@ function analysisFromDiyMarkdown(
     monthly_accruing_suggestions,
     reserve_planner_suggestions,
     expected_receipt_suggestions: [],
-    manual_review_items: parseConfirmBullets(markdown),
+    manual_review_items: [],
+    confirm_notes: parseConfirmNotes(markdown),
     excluded_patterns,
   }
 }
@@ -339,6 +337,7 @@ Deno.serve(async (req) => {
 
   let body: {
     ledger?: string
+    payeeEvidence?: string
     analysisPeriod?: { start_date: string; end_date: string; months_covered: number }
     scopeLevel?: string
     scopeId?: string
@@ -359,7 +358,9 @@ Deno.serve(async (req) => {
   }
 
   const ledger = typeof body.ledger === 'string' ? body.ledger.trim() : ''
-  if (!ledger) {
+  const payeeEvidence =
+    typeof body.payeeEvidence === 'string' ? body.payeeEvidence.trim() : ''
+  if (!ledger && !payeeEvidence) {
     return jsonResponse({ error: 'No statement transactions to analyse.' }, 400)
   }
 
@@ -428,12 +429,18 @@ Deno.serve(async (req) => {
 
   const diyPrompt = buildDiyPrompt(minMonthly)
   const lineCount = ledger.split('\n').filter((l) => l.trim()).length
-  const userContent = `File name: ${body.fileName ?? 'statement.csv'}
-Analysis period: ${JSON.stringify(body.analysisPeriod ?? null)}
-Rows in extract: ${lineCount} (money-out lines; most recent history preferred)
+  const evidenceBlock = payeeEvidence
+    ? `PAYEE EVIDENCE (computed from the full statement — use due_day, typical_amount, and payment_months when the bank_payee matches; do not invent day 1 or round away pence):
 
-Below is a compact CSV extract for ONE business (date, description, amount).
-Negative amounts are money out. Work only from this data — apply the full DIY rules.
+\`\`\`csv
+${payeeEvidence}
+\`\`\`
+`
+    : ''
+
+  const ledgerBlock = ledger
+    ? `Below is a compact CSV extract for ONE business (date, description, amount).
+Negative amounts are money out. Use this for anything missing from PAYEE EVIDENCE (e.g. rent / landlord / large one-offs).
 
 \`\`\`csv
 date,description,amount
@@ -447,8 +454,18 @@ ${ledger
   })
   .join('\n')}
 \`\`\`
+`
+    : ''
 
-Follow the instructions exactly. Output the three markdown tables with Exact headers only.`
+  const userContent = `File name: ${body.fileName ?? 'statement.csv'}
+Analysis period: ${JSON.stringify(body.analysisPeriod ?? null)}
+Rows in ledger extract: ${lineCount} (money-out lines; most recent history preferred)
+
+${evidenceBlock}
+${ledgerBlock}
+Follow the instructions exactly. Output the three markdown tables with Exact headers only.
+Fill Monthly and Reserve thoroughly (payroll, utilities, finance, VAT/tax, rent/property, insurance, licences) when the evidence supports them.
+Never invent blank “Confirm” table rows.`
 
   const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -477,7 +494,7 @@ Follow the instructions exactly. Output the three markdown tables with Exact hea
           { role: 'user', content: userContent },
         ],
         temperature: 0.1,
-        max_tokens: 6000,
+        max_tokens: 8000,
       }),
     })
   }

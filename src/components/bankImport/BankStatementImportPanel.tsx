@@ -100,6 +100,7 @@ export function BankStatementImportPanel({
   const [mapping, setMapping] = useState<BankImportColumnMapping>({ date: 0, description: 1 })
   const [suggestions, setSuggestions] = useState<BankImportSuggestion[]>([])
   const [insights, setInsights] = useState<ImportTrendInsight[]>([])
+  const [confirmNotes, setConfirmNotes] = useState<string[]>([])
   const [analyzing, setAnalyzing] = useState(false)
   const [applySummary, setApplySummary] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -200,6 +201,7 @@ export function BankStatementImportPanel({
 
       setSuggestions(result.suggestions)
       setInsights(result.insights ?? [])
+      setConfirmNotes(result.confirmNotes ?? [])
       setParsedCount(transactions.length)
       markStatementAiUsedForBusiness(businessId, undefined, { unlimited })
       if (!unlimited) {
@@ -211,6 +213,7 @@ export function BankStatementImportPanel({
       cacheStatementAiSuggestions(businessId, {
         suggestions: result.suggestions,
         insights: result.insights ?? [],
+        confirmNotes: result.confirmNotes ?? [],
       })
       clearRawStatementData()
       setStep('review')
@@ -298,6 +301,7 @@ export function BankStatementImportPanel({
     const cached = readCachedStatementAiSuggestions<{
       suggestions: BankImportSuggestion[]
       insights?: ImportTrendInsight[]
+      confirmNotes?: string[]
     }>(selectedBusinessId)
     if (!cached?.suggestions?.length) {
       setError('No saved suggestions for this business. Add bills manually on the dashboard.')
@@ -305,6 +309,7 @@ export function BankStatementImportPanel({
     }
     setSuggestions(cached.suggestions)
     setInsights(cached.insights ?? [])
+    setConfirmNotes(cached.confirmNotes ?? [])
     setStep('review')
     setError(null)
   }
@@ -675,6 +680,7 @@ export function BankStatementImportPanel({
             onUpdate={updateSuggestion}
             onSetStatus={setSuggestionStatus}
             insights={insights}
+            confirmNotes={confirmNotes}
           />
 
           <div className="bank-import-actions">

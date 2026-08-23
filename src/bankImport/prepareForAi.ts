@@ -1,4 +1,5 @@
 import type { ParsedBankTransaction } from './types'
+import type { RecurringCandidateForAi } from './recurringCandidates'
 import { toAmount } from '../utils/amounts'
 
 function money2(value: number): number {
@@ -20,8 +21,8 @@ export function prepareCompactLedger(
   transactions: ParsedBankTransaction[],
   options?: { maxLines?: number },
 ): string {
-  // ~900 short outflow lines ≈ a workable statement without burning the rate limit.
-  const maxLines = options?.maxLines ?? 900
+  // ~1100 short outflow lines — more history for rent/VAT/annual patterns.
+  const maxLines = options?.maxLines ?? 1100
 
   const outflows = [...transactions]
     .filter((t) => t.amount < 0)
@@ -31,8 +32,28 @@ export function prepareCompactLedger(
   const rows = outflows.length > maxLines ? outflows.slice(-maxLines) : outflows
 
   return rows
-    .map((t) => `${t.date}\t${shortDesc(t.description)}\t${money2(t.amount).toFixed(2)}`)
+    .map((t) => `${t.date}\t${shortDesc(t.description, 72)}\t${money2(t.amount).toFixed(2)}`)
     .join('\n')
+}
+
+/** Compact CSV of payee evidence so the model gets real due days / amounts / months. */
+export function preparePayeeEvidenceCsv(candidates: RecurringCandidateForAi[]): string {
+  const header =
+    'bank_payee,count,months_seen,median_gap_days,typical_amount,recent_amount,max_amount,due_day,payment_months,flags'
+  const lines = candidates.map((c) => {
+    const payee = c.bank_payee.replace(/"/g, '""')
+    const months = c.payment_months.join(' ')
+    const flags = [
+      c.is_likely_payroll ? 'payroll' : '',
+      c.is_likely_hmrc ? 'hmrc' : '',
+      c.is_likely_transfer ? 'transfer' : '',
+      c.detected_frequency !== 'unknown' ? c.detected_frequency : '',
+    ]
+      .filter(Boolean)
+      .join('|')
+    return `"${payee}",${c.transaction_count},${c.months_seen},${c.median_gap_days ?? ''},${c.typical_amount.toFixed(2)},${c.recent_amount.toFixed(2)},${c.max_amount.toFixed(2)},${c.suggested_due_day ?? ''},"${months}","${flags}"`
+  })
+  return [header, ...lines].join('\n')
 }
 
 export function analysisPeriodFromTransactions(transactions: ParsedBankTransaction[]): {

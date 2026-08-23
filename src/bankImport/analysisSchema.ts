@@ -75,6 +75,8 @@ export interface AiAnalysisResult {
   reserve_planner_suggestions: AiReservePlannerSuggestion[]
   expected_receipt_suggestions: AiExpectedReceiptSuggestion[]
   manual_review_items: AiManualReviewItem[]
+  /** Advisory bullets only — never shown as editable £0 suggestion rows. */
+  confirm_notes?: string[]
   excluded_patterns: AiExcludedPattern[]
 }
 
