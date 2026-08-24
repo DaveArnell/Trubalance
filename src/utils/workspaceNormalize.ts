@@ -1,7 +1,7 @@
 import type { AppState } from '../types'
 import { applyDemoOperatingSnapshot } from '../data/demoScenarios/operatingSnapshot'
 import { ensureGroupStructure } from './groupStructure'
-import { reconstructHistoryRecordsFromSnapshots, repairEmptySnapshotChangedAccounts } from './historyRebuild'
+import { reconstructHistoryRecordsFromSnapshots, explodeGroupHistoryIntoBusinessLogs, repairEmptySnapshotChangedAccounts } from './historyRebuild'
 import { stripEntitiesOutsideWorkspace } from './localStateStorage'
 import { getReferenceDate } from './referenceDate'
 import { backfillScopeSnapshots } from './snapshotRollup'
@@ -12,7 +12,9 @@ import { repairHistoryRecoveredReceipts, recoverLivingCostsFromHistory } from '.
 export function normalizeWorkspaceStateForDisplay(state: AppState, now = new Date().toISOString()): AppState {
   const scoped = stripEntitiesOutsideWorkspace(state)
   const grouped = ensureGroupStructure(scoped)
-  const withHistoryLogs = reconstructHistoryRecordsFromSnapshots(grouped)
+  const withHistoryLogs = explodeGroupHistoryIntoBusinessLogs(
+    reconstructHistoryRecordsFromSnapshots(grouped),
+  )
   const repairedReceipts = recoverLivingCostsFromHistory(repairHistoryRecoveredReceipts(withHistoryLogs).state)
   const repaired = repairEmptySnapshotChangedAccounts(repairedReceipts)
   const restored = restorePastSnapshotMetricsFromHistory(repaired, now)
@@ -27,7 +29,9 @@ export function normalizeWorkspaceStateForDisplay(state: AppState, now = new Dat
 export function normalizeWorkspaceState(state: AppState, now = new Date().toISOString()): AppState {
   const scoped = stripEntitiesOutsideWorkspace(state)
   const grouped = ensureGroupStructure(scoped)
-  const withHistoryLogs = reconstructHistoryRecordsFromSnapshots(grouped)
+  const withHistoryLogs = explodeGroupHistoryIntoBusinessLogs(
+    reconstructHistoryRecordsFromSnapshots(grouped),
+  )
   const repairedReceipts = recoverLivingCostsFromHistory(repairHistoryRecoveredReceipts(withHistoryLogs).state)
   const repaired = repairEmptySnapshotChangedAccounts(repairedReceipts)
   // Restore frozen History captures before backfill so we do not push poisoned past rows.

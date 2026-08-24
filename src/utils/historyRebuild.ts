@@ -14,9 +14,9 @@ import {
 } from './commitmentCalculations'
 import { getEffectiveReceiptAmount, getReceiptTiming } from './receiptCalculations'
 import { buildReserveAccruingRows, buildReserveDueRows } from './reserveCalculations'
-import { getBusinessIdsForScope, getGroupIdForScope, getVenueIdsForScope, businessHasVenues, getVenuesInBusiness } from './scope'
+import { getBusinessesInGroup, getBusinessIdsForScope, getGroupIdForScope, getScopeLabel, getVenueIdsForScope, businessHasVenues, getVenuesInBusiness } from './scope'
+import { getAncestorScopes, getFreshness, getSnapshotIdsForDateInScope, getSnapshotsForDateInScopeTree, snapshotScopeSpecificity, todayDateKey } from './snapshots'
 import { computeCommittedFundsAt, computeExpectedReceiptsAt } from './metricsAtDate'
-import { getAncestorScopes, getSnapshotIdsForDateInScope, getSnapshotsForDateInScopeTree, snapshotScopeSpecificity, todayDateKey } from './snapshots'
 import { getEffectiveSnapshotMetric } from './snapshotMetrics'
 import { isPersistedSnapshot } from './scopeSnapshotSeries'
 
@@ -170,6 +170,201 @@ export function reconstructHistoryRecordsFromSnapshots(state: AppState): AppStat
   if (added.length === 0) return state
   console.info(`[Workspace] Restored ${added.length} missing History logs from daily snapshots`)
   return { ...state, workspaceOrigin: state.workspaceOrigin ?? 'user', historyRecords: [...(state.historyRecords ?? []), ...added] }
+}
+
+function historyAccountBusinessId(
+  state: AppState,
+  account: HistoryRecord['accounts'][number],
+): string | null {
+  if (account.businessId && state.businesses.some((business) => business.id === account.businessId)) {
+    return account.businessId
+  }
+  if (account.venueId) {
+    const venue = state.venues.find((row) => row.id === account.venueId)
+    if (venue) return venue.businessId
+  }
+  const live = state.accounts.find((row) => row.id === account.id)
+  if (live) return getAccountBusinessId(state, live)
+  if (account.businessName) {
+    const named = state.businesses.find((business) => business.name === account.businessName)
+    if (named) return named.id
+  }
+  return null
+}
+
+function historyItemInBusiness(
+  state: AppState,
+  item: { scopeLevel: HistoryRecord['dueItems'][number]['scopeLevel']; scopeId: string },
+  businessId: string,
+): boolean {
+  if (item.scopeLevel === 'business') return item.scopeId === businessId
+  if (item.scopeLevel === 'venue') {
+    return state.venues.find((venue) => venue.id === item.scopeId)?.businessId === businessId
+  }
+  return false
+}
+
+function accountsFromGroupSnapshot(
+  state: AppState,
+  groupId: string,
+  date: string,
+): HistoryRecord['accounts'] {
+  const snap = state.snapshots.find(
+    (row) => row.date === date && row.scopeType === 'group' && row.scopeId === groupId,
+  )
+  if (!snap?.changedAccounts?.length) return []
+  return snap.changedAccounts.map((change) => {
+    const live = state.accounts.find((account) => account.id === change.accountId)
+    return {
+      id: change.accountId,
+      name: change.accountName,
+      type: live?.type ?? ('current' as const),
+      balance: change.balance,
+      venueId: change.venueId ?? live?.venueId,
+      businessId: live ? getAccountBusinessId(state, live) ?? undefined : undefined,
+      venueName: change.venueName ?? null,
+      active: live?.active ?? true,
+    }
+  })
+}
+
+function splitGroupHistoryForBusiness(
+  state: AppState,
+  record: HistoryRecord,
+  businessId: string,
+): HistoryRecord | null {
+  const accountsSource =
+    record.accounts.length > 0 ? record.accounts : accountsFromGroupSnapshot(state, record.viewScope.id, record.date)
+  const accounts = accountsSource.filter((account) => historyAccountBusinessId(state, account) === businessId)
+  const dueItems = (record.dueItems ?? []).filter((item) => historyItemInBusiness(state, item, businessId))
+  const buildingUpItems = (record.buildingUpItems ?? []).filter((item) =>
+    historyItemInBusiness(state, item, businessId),
+  )
+  const expectedReceipts = (record.expectedReceipts ?? []).filter((item) =>
+    historyItemInBusiness(state, item, businessId),
+  )
+  const commitments = (record.commitments ?? []).filter((item) => historyItemInBusiness(state, item, businessId))
+  const reservePlanners = (record.reservePlanners ?? []).filter((planner) => planner.businessId === businessId)
+
+  const cash = roundCurrency(accounts.reduce((sum, account) => sum + account.balance, 0))
+  const lineCommitted = roundCurrency(
+    dueItems.reduce((sum, item) => sum + item.amount, 0) +
+      buildingUpItems.reduce((sum, item) => sum + item.accruedAmount, 0),
+  )
+  const receipts = roundCurrency(
+    expectedReceipts.filter((item) => !item.received).reduce((sum, item) => sum + item.amount, 0),
+  )
+
+  const groupCash = record.summary.cash
+  const hasLines = dueItems.length + buildingUpItems.length + expectedReceipts.length > 0
+  let committedFunds = lineCommitted
+  let expectedReceiptsTotal = receipts
+  let trueBalance = roundCurrency(cash - committedFunds + expectedReceiptsTotal)
+
+  if (!hasLines && groupCash > 0 && cash > 0) {
+    const share = cash / groupCash
+    committedFunds = roundCurrency(record.summary.committedFunds * share)
+    expectedReceiptsTotal = roundCurrency(record.summary.expectedReceipts * share)
+    trueBalance = roundCurrency(record.summary.trueBalance * share)
+  }
+
+  if (cash === 0 && trueBalance === 0 && dueItems.length === 0 && accounts.length === 0) {
+    return null
+  }
+
+  const business = state.businesses.find((row) => row.id === businessId)
+  return {
+    id: `split-history:${record.id}:${businessId}`,
+    date: record.date,
+    savedAt: record.savedAt,
+    viewScope: { type: 'business', id: businessId },
+    viewName: business?.name || getScopeLabel(state, { type: 'business', id: businessId }),
+    note: 'Split from group History capture',
+    summary: {
+      cash,
+      committedFunds,
+      expectedReceipts: expectedReceiptsTotal,
+      trueBalance,
+    },
+    accounts,
+    buildingUpItems,
+    dueItems,
+    expectedReceipts,
+    commitments,
+    reservePlanners,
+  }
+}
+
+function snapshotFromSplitHistory(record: HistoryRecord): BalanceSnapshot {
+  return {
+    id: `split-snap:${record.id}`,
+    date: record.date,
+    scopeType: record.viewScope.type,
+    scopeId: record.viewScope.id,
+    viewName: record.viewName,
+    cash: record.summary.cash,
+    committedFunds: record.summary.committedFunds,
+    expectedReceipts: record.summary.expectedReceipts,
+    trueBalance: record.summary.trueBalance,
+    freshness: getFreshness(0),
+    changedAccounts: record.accounts.map((account) => ({
+      accountId: account.id,
+      accountName: account.name,
+      venueId: account.venueId,
+      venueName: account.venueName ?? '',
+      balance: account.balance,
+    })),
+    updatedAt: record.savedAt,
+  }
+}
+
+/**
+ * Group check-ins kept the Total for a day but the database deleted business logs.
+ * Rebuild each business's Cash Prophet Balance from that day's group accounts and Due/receipt lines.
+ */
+export function explodeGroupHistoryIntoBusinessLogs(state: AppState): AppState {
+  if (state.workspaceOrigin === 'builtin-demo') return state
+
+  const existingHistory = new Set(
+    (state.historyRecords ?? []).map(
+      (record) => `${record.date}:${record.viewScope.type}:${record.viewScope.id}`,
+    ),
+  )
+  const existingSnaps = new Set(
+    state.snapshots
+      .filter((snap) => !snap.id.startsWith('derived:') && !snap.id.startsWith('history:'))
+      .map((snap) => `${snap.date}:${snap.scopeType}:${snap.scopeId}`),
+  )
+
+  const historyAdded: HistoryRecord[] = []
+  const snapshotsAdded: BalanceSnapshot[] = []
+
+  for (const record of state.historyRecords ?? []) {
+    if (record.viewScope.type !== 'group') continue
+    for (const business of getBusinessesInGroup(state, record.viewScope.id)) {
+      const key = `${record.date}:business:${business.id}`
+      if (existingHistory.has(key)) continue
+      const split = splitGroupHistoryForBusiness(state, record, business.id)
+      if (!split) continue
+      existingHistory.add(key)
+      historyAdded.push(split)
+      if (!existingSnaps.has(key)) {
+        existingSnaps.add(key)
+        snapshotsAdded.push(snapshotFromSplitHistory(split))
+      }
+    }
+  }
+
+  if (historyAdded.length === 0 && snapshotsAdded.length === 0) return state
+  console.info(
+    `[Workspace] Split ${historyAdded.length} business History days from group captures, ${snapshotsAdded.length} snapshot points`,
+  )
+  return {
+    ...state,
+    workspaceOrigin: 'user',
+    historyRecords: [...(state.historyRecords ?? []), ...historyAdded],
+    snapshots: [...state.snapshots, ...snapshotsAdded],
+  }
 }
 
 function snapshotAppliesToScope(state: AppState, snap: BalanceSnapshot, scope: ViewScope): boolean {
