@@ -19,7 +19,6 @@ import { CompanyLegalNotice } from '../components/marketing/CompanyLegalNotice'
 import {
   HOME_CTA,
   HOME_DOES,
-  HOME_FOUNDER,
   HOME_HERO,
   HOME_NEED,
   HOME_ONBOARDING,
@@ -160,19 +159,6 @@ export function LandingPage() {
             </div>
             <HomeCompareStrip />
             <p className="home-split-prose home-why-close">{HOME_WHY_IT_WORKS.close}</p>
-          </div>
-        </section>
-
-        <section className="home-band home-band--founder" aria-label="Why Cash Prophet exists">
-          <div className="marketing-section-inner marketing-section-inner--home">
-            <div className="home-founder">
-              <h2>{HOME_FOUNDER.heading}</h2>
-              <div className="home-founder-prose">
-                {HOME_FOUNDER.body.map((paragraph) => (
-                  <p key={paragraph}>{paragraph}</p>
-                ))}
-              </div>
-            </div>
           </div>
         </section>
 

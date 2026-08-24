@@ -79,15 +79,6 @@ export const HOME_WHY_IT_WORKS = {
     'By continuously accounting for your financial commitments, it gives you a clearer picture of what your business can safely afford right now. That’s the number you rely on instead of your bank balance.',
 } as const
 
-export const HOME_FOUNDER = {
-  heading: "I built Cash Prophet because I wasn't short of financial information",
-  body: [
-    'I was short of a number I could trust.',
-    'Like many business owners, I checked the bank and then mentally accounted for payroll, VAT, tax and everything else before I could decide what we could actually afford.',
-    'Cash Prophet keeps those commitments in view for me, so I can stop carrying them in my head and get on with the business.',
-  ],
-} as const
-
 /** Homepage product snapshot band: monitor image until the walkthrough video is ready. */
 export const HOME_VIDEO = {
   heading: 'One simple dashboard that keeps you on track',
