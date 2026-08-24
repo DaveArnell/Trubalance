@@ -5,10 +5,6 @@ import { plannerMonthlyDeposit } from './reserveCalculations'
 import { todayDateKey } from './snapshots'
 import { rememberDeletedReceiptIds, readDeletedReceiptIds } from './localStateStorage'
 
-function newId(): string {
-  return crypto.randomUUID()
-}
-
 const RESTORED_NOTE_V2 =
   'Restored from balance history — estimated target from daily build-up; please confirm amount'
 
@@ -329,73 +325,199 @@ export function repairHistoryRecoveredReceipts(state: AppState): {
   }
 }
 
-function monthAmountsForMonthlyDeposit(monthly: number): Record<string, number> {
-  const amounts: Record<string, number> = {}
-  if (monthly <= 0) return amounts
-  for (const month of MONTHS) amounts[month] = monthly
-  return amounts
+function isRestoredCostNotes(notes: string | undefined): boolean {
+  return (notes ?? '').toLowerCase().includes('restored from balance history')
+}
+
+function isReserveTransferHistoryName(name: string): boolean {
+  return /reserve\s*(plan|provision|transfer)/i.test(name)
+}
+
+function isPoisonedReserveBill(bill: ReserveBill): boolean {
+  if (/reserve provision/i.test(bill.name)) return true
+  const amounts = MONTHS.map((month) => toAmount(bill.monthAmounts[month] ?? 0))
+  const nonzero = amounts.filter((amount) => amount > 0)
+  return nonzero.length === 12 && nonzero.every((amount) => amount === nonzero[0])
+}
+
+function parseReserveBillDueRowId(
+  rowId: string,
+): { plannerId: string; billId: string; period: string } | null {
+  const match = rowId.match(
+    /^reserve-due-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})-(\d{4}-\d{2})$/i,
+  )
+  if (!match) return null
+  return { plannerId: match[1]!, billId: match[2]!, period: match[3]! }
+}
+
+function monthKeyFromPeriod(period: string): string | null {
+  if (!/^\d{4}-\d{2}$/.test(period) || period.startsWith('2099')) return null
+  const index = Number(period.slice(5, 7)) - 1
+  return MONTHS[index] ?? null
+}
+
+function dayOfMonth(dateKey: string): number | null {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) return null
+  const day = Number(dateKey.slice(8, 10))
+  return day >= 1 && day <= 31 ? day : null
+}
+
+function modeNumber(values: number[]): number | undefined {
+  if (values.length === 0) return undefined
+  const counts = new Map<number, number>()
+  for (const value of values) counts.set(value, (counts.get(value) ?? 0) + 1)
+  return [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0]![0]
+}
+
+function historyCommitmentIdFromDueRow(rowId: string): string | null {
+  if (rowId.startsWith('reserve-')) return null
+  return parseDueRowCommitmentId(rowId)
+}
+
+type HistoryCostHint = {
+  dueDays: number[]
+  plannedPeriods: string[]
+  lastBuildingDate?: string
+  lastDueDate?: string
+  lastPaidPeriod?: string
+  schedule?: Commitment['schedule']
+  accrued?: number
+  budget?: number
+}
+
+function collectHistoryCostHints(state: AppState): Map<string, HistoryCostHint> {
+  const hints = new Map<string, HistoryCostHint>()
+  const sorted = [...(state.historyRecords ?? [])].sort((a, b) => {
+    const byDate = a.date.localeCompare(b.date)
+    if (byDate !== 0) return byDate
+    return String(a.savedAt).localeCompare(String(b.savedAt))
+  })
+
+  const hintFor = (id: string): HistoryCostHint => {
+    const existing = hints.get(id)
+    if (existing) return existing
+    const created: HistoryCostHint = { dueDays: [], plannedPeriods: [] }
+    hints.set(id, created)
+    return created
+  }
+
+  for (const record of sorted) {
+    const dueIds = new Set<string>()
+    for (const item of record.dueItems ?? []) {
+      if (item.source !== 'commitment') continue
+      const id = historyCommitmentIdFromDueRow(item.rowId)
+      if (!id) continue
+      dueIds.add(id)
+      const hint = hintFor(id)
+      hint.lastDueDate = record.date
+      const day = dayOfMonth(record.date)
+      if (day != null) hint.dueDays.push(day)
+      if (item.schedule === 'planned' || item.rowId.startsWith('planned-')) {
+        hint.schedule = 'planned'
+        if (item.period && !item.period.startsWith('2099')) hint.plannedPeriods.push(item.period)
+      } else if (item.schedule === 'monthly') {
+        hint.schedule = 'monthly'
+      }
+    }
+    for (const item of record.buildingUpItems ?? []) {
+      if (item.source !== 'commitment') continue
+      if (item.rowId.startsWith('reserve-')) continue
+      const hint = hintFor(item.rowId)
+      hint.lastBuildingDate = record.date
+      hint.accrued = item.accruedAmount
+      hint.budget = item.budgetAmount
+      if (item.schedule === 'planned') hint.schedule = 'planned'
+      else if (item.schedule === 'monthly') hint.schedule = 'monthly'
+    }
+    for (const row of record.commitments ?? []) {
+      if (row.id.startsWith('reserve-')) continue
+      const hint = hintFor(row.id)
+      if (row.schedule === 'planned' || row.schedule === 'monthly') hint.schedule = row.schedule
+    }
+    for (const [id, hint] of hints) {
+      if (dueIds.has(id)) continue
+      const day = dayOfMonth(record.date)
+      const inferred = modeNumber(hint.dueDays)
+      if (inferred != null && day != null && day >= inferred) {
+        hint.lastPaidPeriod = record.date.slice(0, 7)
+      }
+    }
+  }
+
+  return hints
+}
+
+export function workspaceCostsRepairKey(state: AppState): string {
+  const costs = state.commitments
+    .map(
+      (commitment) =>
+        `${commitment.id}:${commitment.schedule}:${commitment.dueDayOfMonth ?? ''}:${commitment.plannedDueDate ?? ''}:${commitment.lastPaidPeriod ?? ''}`,
+    )
+    .sort()
+    .join('|')
+  const bills = state.reservePlanners
+    .map(
+      (planner) =>
+        `${planner.id}:${planner.bills
+          .map((bill) => `${bill.name}:${MONTHS.map((month) => bill.monthAmounts[month] ?? 0).join(',')}`)
+          .join(';')}`,
+    )
+    .sort()
+    .join('|')
+  return `${costs}#${bills}`
+}
+
+function reconstructReserveBillsFromHistory(state: AppState): Map<string, ReserveBill[]> {
+  const byPlanner = new Map<string, Map<string, ReserveBill>>()
+
+  for (const record of state.historyRecords ?? []) {
+    for (const item of record.dueItems ?? []) {
+      if (item.source !== 'reserve') continue
+      if (isReserveTransferHistoryName(item.name)) continue
+      const parsed = parseReserveBillDueRowId(item.rowId)
+      if (!parsed) continue
+      const month = monthKeyFromPeriod(parsed.period) ?? monthKeyFromPeriod(record.date.slice(0, 7))
+      if (!month || item.amount <= 0) continue
+      const plannerBills = byPlanner.get(parsed.plannerId) ?? new Map<string, ReserveBill>()
+      const existing = plannerBills.get(parsed.billId)
+      const monthAmounts = { ...(existing?.monthAmounts ?? {}) }
+      monthAmounts[month] = item.amount
+      plannerBills.set(parsed.billId, {
+        id: parsed.billId,
+        plannerId: parsed.plannerId,
+        name: item.name.replace(/\s+reserve provision$/i, '').trim() || item.name,
+        monthAmounts,
+        createdAt: existing?.createdAt ?? record.date,
+        sortOrder: existing?.sortOrder ?? plannerBills.size,
+      })
+      byPlanner.set(parsed.plannerId, plannerBills)
+    }
+  }
+
+  const result = new Map<string, ReserveBill[]>()
+  for (const [plannerId, bills] of byPlanner) {
+    result.set(plannerId, [...bills.values()])
+  }
+  return result
 }
 
 /**
- * When a reserve planner still exists but its bills were wiped, rebuild a single
- * annual bill from the last history "budgetAmount" for that reserve row.
+ * Rebuild named reserve bills from History. Clears the fake “£X every month”
+ * provision that recovery previously invented.
  */
 export function recoverReserveBillsFromHistory(state: AppState): {
   state: AppState
   restoredPlannerIds: string[]
 } {
+  const reconstructed = reconstructReserveBillsFromHistory(state)
   const restoredPlannerIds: string[] = []
-  const history = latestHistoryRecords(state)
-
-  const reserveBudgets = new Map<string, { name: string; budgetAmount: number; scopeId: string }>()
-  for (const record of history) {
-    for (const item of record.buildingUpItems ?? []) {
-      if (item.source !== 'reserve' || item.budgetAmount <= 0) continue
-      const key = `${item.scopeId}::${item.name}`
-      const prev = reserveBudgets.get(key)
-      if (!prev || item.budgetAmount > prev.budgetAmount) {
-        reserveBudgets.set(key, {
-          name: item.name,
-          budgetAmount: item.budgetAmount,
-          scopeId: item.scopeId,
-        })
-      }
-    }
-  }
 
   const reservePlanners: ReservePlanner[] = state.reservePlanners.map((planner) => {
-    if (plannerMonthlyDeposit(planner.bills) > 0) return planner
-
-    const business = state.businesses.find((b) => b.id === planner.businessId)
-    const candidates = [...reserveBudgets.values()].filter((entry) => {
-      if (entry.scopeId === planner.businessId) return true
-      const venue = state.venues.find((v) => v.id === entry.scopeId)
-      if (venue?.businessId === planner.businessId) return true
-      const name = entry.name.toLowerCase()
-      const plannerName = planner.name.toLowerCase()
-      const businessName = (business?.name ?? '').toLowerCase()
-      return (
-        name.includes(plannerName) ||
-        plannerName.includes(name) ||
-        (businessName && (name.includes(businessName) || businessName.includes(name)))
-      )
-    })
-
-    const best = candidates.sort((a, b) => b.budgetAmount - a.budgetAmount)[0]
-    if (!best || best.budgetAmount <= 0) return planner
-
-    const monthly = best.budgetAmount
-    const bill: ReserveBill = {
-      id: newId(),
-      plannerId: planner.id,
-      name: `${best.name.replace(/\s+reserve.*$/i, '').trim() || planner.name} reserve provision`,
-      monthAmounts: monthAmountsForMonthlyDeposit(monthly),
-      createdAt: todayDateKey(),
-      sortOrder: 0,
-    }
-
+    const poisoned = planner.bills.length === 0 || planner.bills.every(isPoisonedReserveBill)
+    if (!poisoned) return planner
+    const bills = reconstructed.get(planner.id) ?? []
     restoredPlannerIds.push(planner.id)
-    return { ...planner, bills: [bill] }
+    return { ...planner, bills }
   })
 
   if (restoredPlannerIds.length === 0) return { state, restoredPlannerIds }
@@ -451,7 +573,7 @@ export function recoverCommitmentsFromHistory(state: AppState): {
   })
 
   const upsert = (next: Commitment) => {
-    if (!next.id || !scopeExists(state, next.scopeLevel, next.scopeId)) return
+    if (!next.id || next.id.startsWith('reserve-') || !scopeExists(state, next.scopeLevel, next.scopeId)) return
     const existing = byId.get(next.id)
     byId.set(next.id, existing ? { ...existing, ...next, name: next.name || existing.name } : next)
   }
@@ -541,11 +663,79 @@ export function recoverReservePlannerShellsFromHistory(state: AppState): AppStat
   return { ...state, workspaceOrigin: 'user', reservePlanners: [...byId.values()] }
 }
 
+function inferDueDayFromAccrual(hint: HistoryCostHint | undefined): number | undefined {
+  if (!hint?.budget || hint.budget <= 0 || hint.accrued == null || !hint.lastBuildingDate) return undefined
+  const todayDay = dayOfMonth(hint.lastBuildingDate)
+  if (todayDay == null) return undefined
+  const progress = Math.min(1, Math.max(0, hint.accrued / hint.budget))
+  const elapsed = Math.round(progress * 30)
+  let inferred = todayDay - elapsed
+  if (inferred < 1) inferred += 30
+  if (inferred > 28) inferred = 28
+  return inferred
+}
+
+/** Replace the 28th/2099 guesses with due days and dates taken from History. */
+export function refineRestoredCommitmentsFromHistory(state: AppState): AppState {
+  const hints = collectHistoryCostHints(state)
+  let changed = false
+  const commitments: Commitment[] = []
+
+  for (const commitment of state.commitments) {
+    if (commitment.id.startsWith('reserve-')) {
+      changed = true
+      continue
+    }
+    const hint = hints.get(commitment.id)
+    const needsRepair =
+      isRestoredCostNotes(commitment.notes) ||
+      (commitment.schedule === 'planned' &&
+        (!commitment.plannedDueDate || commitment.plannedDueDate.startsWith('2099')))
+    if (!needsRepair) {
+      commitments.push(commitment)
+      continue
+    }
+
+    const schedule = hint?.schedule ?? commitment.schedule
+    const dueDay = modeNumber(hint?.dueDays ?? []) ?? inferDueDayFromAccrual(hint)
+    const plannedPeriod = [...(hint?.plannedPeriods ?? [])].sort().at(-1)
+    const plannedDueDate =
+      schedule === 'planned'
+        ? plannedPeriod
+          ? lastDayOfMonth(`${plannedPeriod}-01`)
+          : undefined
+        : undefined
+
+    const next: Commitment = {
+      ...commitment,
+      schedule,
+      dueDayOfMonth: schedule === 'monthly' ? dueDay ?? commitment.dueDayOfMonth : undefined,
+      plannedDueDate,
+      lastPaidPeriod:
+        schedule === 'monthly' ? (hint?.lastPaidPeriod ?? commitment.lastPaidPeriod) : commitment.lastPaidPeriod,
+    }
+    if (
+      next.dueDayOfMonth !== commitment.dueDayOfMonth ||
+      next.plannedDueDate !== commitment.plannedDueDate ||
+      next.schedule !== commitment.schedule ||
+      next.lastPaidPeriod !== commitment.lastPaidPeriod
+    ) {
+      changed = true
+    }
+    commitments.push(next)
+  }
+
+  if (!changed) return state
+  console.info('[Workspace] Refined restored costs from History due dates')
+  return { ...state, workspaceOrigin: 'user', commitments }
+}
+
 /** Rebuild costs, due items, and reserve plans from History when the live lists were emptied. */
 export function recoverLivingCostsFromHistory(state: AppState): AppState {
   const pruned = pruneStaleHistoryRestoredReceipts(state)
   const withCosts = recoverCommitmentsFromHistory(pruned)
-  const withShells = recoverReservePlannerShellsFromHistory(withCosts.state)
+  const refined = refineRestoredCommitmentsFromHistory(withCosts.state)
+  const withShells = recoverReservePlannerShellsFromHistory(refined)
   const withBills = recoverReserveBillsFromHistory(withShells)
   return withBills.state
 }
@@ -559,7 +749,8 @@ export function recoverWorkspaceFromHistory(state: AppState): {
 } {
   const pruned = pruneStaleHistoryRestoredReceipts(state)
   const costs = recoverCommitmentsFromHistory(pruned)
-  const withShells = recoverReservePlannerShellsFromHistory(costs.state)
+  const refined = refineRestoredCommitmentsFromHistory(costs.state)
+  const withShells = recoverReservePlannerShellsFromHistory(refined)
   const bills = recoverReserveBillsFromHistory(withShells)
   return {
     state: bills.state,

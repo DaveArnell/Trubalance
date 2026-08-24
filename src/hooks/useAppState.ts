@@ -52,6 +52,7 @@ import { MONTHS, currentMonthIndex } from '../utils/format'
 import { syncGuidedStructureInState, type GuidedBusinessPayload } from '../utils/structureDraftSync'
 import { backupBrowserStateToSession, isUserOwnedWorkspace, mergeMissingLocalWorkspaceData, countCriticalEntitiesAdded, unionExpectedReceipts, expectedReceiptsSyncKey, accountsSyncKey, snapshotsSyncKey, historyRecordsSyncKey, unionAccountsByUpdatedAt, unionSnapshotsByUpdatedAt, unionHistoryRecordsBySavedAt, omitDeletedReceipts, rememberDeletedReceiptIds, readRawBrowserStateJson, statesMatchRoughly } from '../utils/localStateStorage'
 import { normalizeWorkspaceState } from '../utils/workspaceNormalize'
+import { workspaceCostsRepairKey } from '../utils/workspaceRecovery'
 import { getReferenceDate, getReferenceDateKey } from '../utils/referenceDate'
 import { migrateDayNotes } from '../utils/dayNotes'
 
@@ -379,7 +380,8 @@ export function useAppState(options?: UseAppStateOptions) {
     const mergeAdded = countCriticalEntitiesAdded(cloudNormalized, next).total > 0
     const recoveredFromHistory =
       countCriticalEntitiesAdded(cloudBeforeNormalize, next).total > 0 ||
-      expectedReceiptsSyncKey(cloudBeforeNormalize) !== expectedReceiptsSyncKey(next)
+      expectedReceiptsSyncKey(cloudBeforeNormalize) !== expectedReceiptsSyncKey(next) ||
+      workspaceCostsRepairKey(cloudBeforeNormalize) !== workspaceCostsRepairKey(next)
     const receiptsChanged =
       expectedReceiptsSyncKey(cloudNormalized) !== expectedReceiptsSyncKey(next)
     const accountsChanged = accountsSyncKey(cloudNormalized) !== accountsSyncKey(next)

@@ -24,6 +24,7 @@ import { isSupabaseConfigured, tryGetSupabase } from '../lib/supabase'
 import { emptyAppState, isBuiltinDemoWorkspace, isUserOwnedWorkspace, backupBrowserStateToSession, mergeMissingLocalWorkspaceData, countCriticalEntitiesAdded, unionExpectedReceipts, expectedReceiptsSyncKey, accountsSyncKey, snapshotsSyncKey, historyRecordsSyncKey, unionAccountsByUpdatedAt, unionSnapshotsByUpdatedAt, unionHistoryRecordsBySavedAt, stripEntitiesOutsideWorkspace, omitDeletedReceipts } from '../utils/localStateStorage'
 import { readBrowserAppState } from '../hooks/useAppState'
 import { normalizeWorkspaceStateForDisplay } from '../utils/workspaceNormalize'
+import { workspaceCostsRepairKey } from '../utils/workspaceRecovery'
 
 /** Lightweight fingerprint so tab-focus reloads only remount UI when cloud data actually changed. */
 function workspaceSyncFingerprint(state: AppState): string {
@@ -374,9 +375,10 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       const prunedRestoredReceipts =
         expectedReceiptsSyncKey(loadedState) !== expectedReceiptsSyncKey(state) &&
         state.expectedReceipts.length < loadedState.expectedReceipts.length
+      const costsRepaired = workspaceCostsRepairKey(loadedState) !== workspaceCostsRepairKey(state)
       if (
         !isImpersonating &&
-        (recoveredCosts || recoveredPlanners || prunedRestoredReceipts)
+        (recoveredCosts || recoveredPlanners || prunedRestoredReceipts || costsRepaired)
       ) {
         try {
           await saveWorkspaceState(wsId, state, {
