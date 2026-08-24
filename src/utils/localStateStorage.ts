@@ -164,7 +164,10 @@ export function mergeMissingExpectedReceipts(cloud: AppState, local: AppState | 
  */
 export function stripEntitiesOutsideWorkspace(state: AppState): AppState {
   const groupIds = new Set(state.groups.map((group) => group.id))
-  const businesses = state.businesses.filter((business) => groupIds.has(business.groupId))
+  // Solo businesses have no group. Keep those; only drop businesses pointing at a group that is not in this workspace.
+  const businesses = state.businesses.filter(
+    (business) => !business.groupId || groupIds.has(business.groupId),
+  )
   const businessIds = new Set(businesses.map((business) => business.id))
   const venues = state.venues.filter((venue) => businessIds.has(venue.businessId))
   const venueIds = new Set(venues.map((venue) => venue.id))
