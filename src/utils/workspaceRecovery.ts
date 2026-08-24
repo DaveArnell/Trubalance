@@ -3,7 +3,7 @@ import { roundCurrency, toAmount } from './amounts'
 import { MONTHS } from './format'
 import { plannerMonthlyDeposit } from './reserveCalculations'
 import { todayDateKey } from './snapshots'
-import { rememberDeletedReceiptIds, readDeletedReceiptIds } from './localStateStorage'
+import { rememberDeletedReceiptIds, readDeletedReceiptIds, forgetDeletedReceiptIds } from './localStateStorage'
 
 const RESTORED_NOTE_V2 =
   'Restored from balance history — estimated target from daily build-up; please confirm amount'
@@ -153,14 +153,43 @@ function isRestoredReceiptNotes(notes: string | undefined): boolean {
   return (notes ?? '').toLowerCase().includes('restored from balance history')
 }
 
+/** Real calendar day — today's History may already contain the exploded Due list. */
+function calendarDateKey(): string {
+  const now = new Date()
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+}
+
+/**
+ * Prefer the last History date before today. Same-day snapshots are overwritten on
+ * check-in, so today's row can be the post-wipe Due list rather than the real one.
+ */
+function trustedHistoryDate(state: AppState): string | null {
+  const records = state.historyRecords ?? []
+  if (records.length === 0) return null
+  const dates = [...new Set(records.map((record) => record.date))].sort()
+  const today = calendarDateKey()
+  const beforeToday = dates.filter((date) => date < today)
+  if (beforeToday.length > 0) return beforeToday[beforeToday.length - 1]!
+  return dates[dates.length - 1] ?? null
+}
+
+function previousPeriod(period: string): string {
+  const [year, month] = period.split('-').map(Number)
+  if (!year || !month) return period
+  if (month === 1) return `${year - 1}-12`
+  return `${year}-${String(month - 1).padStart(2, '0')}`
+}
+
 /**
  * Drop expected receipts that were rebuilt from History. Those rows were often
  * already deleted; they must not return on the next sync.
  */
 export function pruneStaleHistoryRestoredReceipts(state: AppState): AppState {
+  const keep = currentHistoryOpenReceiptIds(state)
   const removed: string[] = []
   const expectedReceipts = state.expectedReceipts.filter((receipt) => {
     if (!isRestoredReceiptNotes(receipt.notes)) return true
+    if (keep.has(receipt.id)) return true
     removed.push(receipt.id)
     return false
   })
@@ -175,14 +204,13 @@ function needsEstimatedTargetRepair(notes: string | undefined): boolean {
   return !(notes ?? '').toLowerCase().includes('estimated target')
 }
 
-/** Open receipt ids still present on the most recent history date. */
+/** Open receipt ids on the last trusted History date (before today's wipe if possible). */
 export function currentHistoryOpenReceiptIds(state: AppState): Set<string> {
-  const records = state.historyRecords ?? []
-  if (records.length === 0) return new Set()
-  const latestDate = records.reduce((max, record) => (record.date > max ? record.date : max), records[0]!.date)
+  const trusted = trustedHistoryDate(state)
   const ids = new Set<string>()
-  for (const record of records) {
-    if (record.date !== latestDate) continue
+  if (!trusted) return ids
+  for (const record of state.historyRecords ?? []) {
+    if (record.date !== trusted) continue
     for (const receipt of record.expectedReceipts ?? []) {
       if (!receipt.received) ids.add(receipt.id)
     }
@@ -511,11 +539,30 @@ export function recoverReserveBillsFromHistory(state: AppState): {
 } {
   const reconstructed = reconstructReserveBillsFromHistory(state)
   const restoredPlannerIds: string[] = []
+  const trusted = trustedHistoryDate(state)
+  const reserveDue = new Map<string, string>()
+  if (trusted) {
+    for (const record of state.historyRecords ?? []) {
+      if (record.date !== trusted) continue
+      for (const item of record.dueItems ?? []) {
+        if (item.source !== 'reserve') continue
+        const parsed = parseReserveBillDueRowId(item.rowId)
+        if (!parsed) continue
+        reserveDue.set(`${parsed.plannerId}:${parsed.billId}`, parsed.period)
+      }
+    }
+  }
 
   const reservePlanners: ReservePlanner[] = state.reservePlanners.map((planner) => {
     const poisoned = planner.bills.length === 0 || planner.bills.every(isPoisonedReserveBill)
     if (!poisoned) return planner
-    const bills = reconstructed.get(planner.id) ?? []
+    const bills = (reconstructed.get(planner.id) ?? []).map((bill) => {
+      const duePeriod = reserveDue.get(`${planner.id}:${bill.id}`)
+      return {
+        ...bill,
+        lastPaidPeriod: duePeriod ? previousPeriod(duePeriod) : trusted?.slice(0, 7),
+      }
+    })
     restoredPlannerIds.push(planner.id)
     return { ...planner, bills }
   })
@@ -530,6 +577,45 @@ export function recoverReserveBillsFromHistory(state: AppState): {
 
 const RESTORED_COST_NOTE =
   'Restored from balance history — confirm due day and amount'
+
+/** What History last recorded as actually Due — used so paid items do not come back rolled up. */
+function latestHistoryDueByCommitment(
+  state: AppState,
+): Map<string, { period: string; planned: boolean }> {
+  const trusted = trustedHistoryDate(state)
+  const due = new Map<string, { period: string; planned: boolean }>()
+  if (!trusted) return due
+  for (const record of state.historyRecords ?? []) {
+    if (record.date !== trusted) continue
+    for (const item of record.dueItems ?? []) {
+      if (item.source !== 'commitment') continue
+      const id = historyCommitmentIdFromDueRow(item.rowId)
+      if (!id) continue
+      due.set(id, {
+        period: item.period && !item.period.startsWith('2099') ? item.period : record.date.slice(0, 7),
+        planned: item.schedule === 'planned' || item.rowId.startsWith('planned-'),
+      })
+    }
+  }
+  return due
+}
+
+function lastPaidPeriodFromDueList(
+  commitment: Pick<Commitment, 'schedule' | 'dueDayOfMonth' | 'plannedDueDate'>,
+  dueNow: { period: string } | undefined,
+  trustedDate: string,
+): string | undefined {
+  const trustedPeriod = trustedDate.slice(0, 7)
+  if (dueNow) return previousPeriod(dueNow.period)
+  if (commitment.schedule === 'planned') {
+    return commitment.plannedDueDate?.slice(0, 7) ?? trustedPeriod
+  }
+  const dueDay = commitment.dueDayOfMonth ?? 28
+  const trustedDay = Number(trustedDate.slice(8, 10))
+  // Still building up as of that snapshot — do not mark this month paid.
+  if (Number.isFinite(trustedDay) && dueDay > trustedDay) return previousPeriod(trustedPeriod)
+  return trustedPeriod
+}
 
 function parseDueRowCommitmentId(rowId: string): string {
   const planned = rowId.match(/^planned-(.+)$/)
@@ -678,6 +764,7 @@ function inferDueDayFromAccrual(hint: HistoryCostHint | undefined): number | und
 /** Replace the 28th/2099 guesses with due days and dates taken from History. */
 export function refineRestoredCommitmentsFromHistory(state: AppState): AppState {
   const hints = collectHistoryCostHints(state)
+  const latestDue = latestHistoryDueByCommitment(state)
   let changed = false
   const commitments: Commitment[] = []
 
@@ -687,11 +774,12 @@ export function refineRestoredCommitmentsFromHistory(state: AppState): AppState 
       continue
     }
     const hint = hints.get(commitment.id)
+    const dueSynced = /due list synced v2/i.test(commitment.notes ?? '')
     const needsRepair =
       isRestoredCostNotes(commitment.notes) ||
       (commitment.schedule === 'planned' &&
         (!commitment.plannedDueDate || commitment.plannedDueDate.startsWith('2099')))
-    if (!needsRepair) {
+    if (!needsRepair || dueSynced) {
       commitments.push(commitment)
       continue
     }
@@ -706,22 +794,23 @@ export function refineRestoredCommitmentsFromHistory(state: AppState): AppState 
           : undefined
         : undefined
 
+    const trusted = trustedHistoryDate(state) ?? todayDateKey()
+    const dueNow = latestDue.get(commitment.id)
+    const lastPaidPeriod = lastPaidPeriodFromDueList(
+      { schedule, dueDayOfMonth: dueDay ?? commitment.dueDayOfMonth, plannedDueDate },
+      dueNow,
+      trusted,
+    )
+
     const next: Commitment = {
       ...commitment,
       schedule,
       dueDayOfMonth: schedule === 'monthly' ? dueDay ?? commitment.dueDayOfMonth : undefined,
       plannedDueDate,
-      lastPaidPeriod:
-        schedule === 'monthly' ? (hint?.lastPaidPeriod ?? commitment.lastPaidPeriod) : commitment.lastPaidPeriod,
+      lastPaidPeriod,
+      notes: `${RESTORED_COST_NOTE} · due list synced v2`,
     }
-    if (
-      next.dueDayOfMonth !== commitment.dueDayOfMonth ||
-      next.plannedDueDate !== commitment.plannedDueDate ||
-      next.schedule !== commitment.schedule ||
-      next.lastPaidPeriod !== commitment.lastPaidPeriod
-    ) {
-      changed = true
-    }
+    changed = true
     commitments.push(next)
   }
 
@@ -732,8 +821,14 @@ export function refineRestoredCommitmentsFromHistory(state: AppState): AppState 
 
 /** Rebuild costs, due items, and reserve plans from History when the live lists were emptied. */
 export function recoverLivingCostsFromHistory(state: AppState): AppState {
+  const trusted = trustedHistoryDate(state)
+  if (trusted) {
+    console.info('[Workspace] Repairing Due and receipts from History date', trusted)
+  }
+  forgetDeletedReceiptIds([...currentHistoryOpenReceiptIds(state)])
   const pruned = pruneStaleHistoryRestoredReceipts(state)
-  const withCosts = recoverCommitmentsFromHistory(pruned)
+  const receipts = recoverExpectedReceiptsFromHistory(pruned)
+  const withCosts = recoverCommitmentsFromHistory(receipts.state)
   const refined = refineRestoredCommitmentsFromHistory(withCosts.state)
   const withShells = recoverReservePlannerShellsFromHistory(refined)
   const withBills = recoverReserveBillsFromHistory(withShells)
@@ -747,15 +842,17 @@ export function recoverWorkspaceFromHistory(state: AppState): {
   costsRestored: number
   diagnosis: ReturnType<typeof diagnoseReservePlanners>
 } {
+  forgetDeletedReceiptIds([...currentHistoryOpenReceiptIds(state)])
   const pruned = pruneStaleHistoryRestoredReceipts(state)
-  const costs = recoverCommitmentsFromHistory(pruned)
-  const refined = refineRestoredCommitmentsFromHistory(costs.state)
+  const receipts = recoverExpectedReceiptsFromHistory(pruned)
+  const withCosts = recoverCommitmentsFromHistory(receipts.state)
+  const refined = refineRestoredCommitmentsFromHistory(withCosts.state)
   const withShells = recoverReservePlannerShellsFromHistory(refined)
   const bills = recoverReserveBillsFromHistory(withShells)
   return {
     state: bills.state,
-    receiptsRestored: 0,
-    costsRestored: costs.restoredCount,
+    receiptsRestored: receipts.restoredCount,
+    costsRestored: withCosts.restoredCount,
     plannersRepaired: bills.restoredPlannerIds,
     diagnosis: diagnoseReservePlanners(bills.state),
   }

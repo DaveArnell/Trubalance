@@ -28,6 +28,17 @@ export function rememberDeletedReceiptIds(ids: string[]): void {
   }
 }
 
+export function forgetDeletedReceiptIds(ids: string[]): void {
+  if (ids.length === 0) return
+  try {
+    const next = readDeletedReceiptIds()
+    for (const id of ids) next.delete(id)
+    window.localStorage.setItem(DELETED_RECEIPT_IDS_KEY, JSON.stringify([...next]))
+  } catch {
+    /* ignore quota */
+  }
+}
+
 export function omitDeletedReceipts(state: AppState): AppState {
   const deleted = readDeletedReceiptIds()
   if (deleted.size === 0) return state
