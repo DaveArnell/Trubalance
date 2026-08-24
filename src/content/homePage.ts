@@ -10,9 +10,9 @@ export const HOME_HERO = {
   category: 'Simple money management for small businesses',
   /** Slogan under the brand. */
   tagline: BRAND_SLOGAN,
-  headline: 'Your business finances are messy enough. Cash Prophet keeps them organised.',
-  headlineStart: 'Your business finances are messy enough.',
-  headlineHighlight: 'Cash Prophet keeps them organised.',
+  headline: 'Your daily finance dashboard. A position you can trust.',
+  headlineStart: 'Your daily finance dashboard.',
+  headlineHighlight: 'A position you can trust.',
   lead: "Know what's already spoken for, stay ahead of regular and larger bills, and see what your business can actually afford today.",
   withoutLabel: 'Without Cash Prophet',
   withLabel: 'With Cash Prophet',
