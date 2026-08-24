@@ -486,7 +486,7 @@ export function workspaceCostsRepairKey(state: AppState): string {
   const bills = state.reservePlanners
     .map(
       (planner) =>
-        `${planner.id}:${planner.bills
+        `${planner.id}:${planner.bufferAmount}:${planner.bills
           .map((bill) => `${bill.name}:${MONTHS.map((month) => bill.monthAmounts[month] ?? 0).join(',')}`)
           .join(';')}`,
     )
@@ -738,7 +738,7 @@ export function recoverReservePlannerShellsFromHistory(state: AppState): AppStat
         id: planner.id,
         name: planner.name,
         businessId: planner.businessId,
-        bufferAmount: planner.bufferAmount,
+        bufferAmount: 0,
         actualBalance: planner.actualBalance,
         bills: [],
       })
@@ -747,6 +747,38 @@ export function recoverReservePlannerShellsFromHistory(state: AppState): AppStat
 
   if (byId.size === 0) return state
   return { ...state, workspaceOrigin: 'user', reservePlanners: [...byId.values()] }
+}
+
+/** Empty planners must not keep a leftover buffer line after the bill grid was wiped. */
+export function restoreReservePlannerBuffersFromHistory(state: AppState): AppState {
+  const trusted = trustedHistoryDate(state)
+  const buffers = new Map<string, number>()
+  if (trusted) {
+    for (const record of state.historyRecords ?? []) {
+      if (record.date !== trusted) continue
+      if ((record.note ?? '').includes('Restored from saved daily snapshot')) continue
+      for (const planner of record.reservePlanners ?? []) {
+        buffers.set(planner.id, planner.bufferAmount)
+      }
+    }
+  }
+
+  let changed = false
+  const reservePlanners = state.reservePlanners.map((planner) => {
+    if (planner.bills.length === 0) {
+      if (planner.bufferAmount === 0) return planner
+      changed = true
+      return { ...planner, bufferAmount: 0 }
+    }
+    if (!buffers.has(planner.id)) return planner
+    const bufferAmount = buffers.get(planner.id)!
+    if (planner.bufferAmount === bufferAmount) return planner
+    changed = true
+    return { ...planner, bufferAmount }
+  })
+
+  if (!changed) return state
+  return { ...state, workspaceOrigin: 'user', reservePlanners }
 }
 
 function inferDueDayFromAccrual(hint: HistoryCostHint | undefined): number | undefined {
@@ -832,7 +864,7 @@ export function recoverLivingCostsFromHistory(state: AppState): AppState {
   const refined = refineRestoredCommitmentsFromHistory(withCosts.state)
   const withShells = recoverReservePlannerShellsFromHistory(refined)
   const withBills = recoverReserveBillsFromHistory(withShells)
-  return withBills.state
+  return restoreReservePlannerBuffersFromHistory(withBills.state)
 }
 
 export function recoverWorkspaceFromHistory(state: AppState): {
@@ -849,8 +881,9 @@ export function recoverWorkspaceFromHistory(state: AppState): {
   const refined = refineRestoredCommitmentsFromHistory(withCosts.state)
   const withShells = recoverReservePlannerShellsFromHistory(refined)
   const bills = recoverReserveBillsFromHistory(withShells)
+  const withBuffers = restoreReservePlannerBuffersFromHistory(bills.state)
   return {
-    state: bills.state,
+    state: withBuffers,
     receiptsRestored: receipts.restoredCount,
     costsRestored: withCosts.restoredCount,
     plannersRepaired: bills.restoredPlannerIds,

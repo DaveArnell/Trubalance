@@ -119,6 +119,59 @@ export function getHistoryDatesForViewScope(state: AppState, viewScope: ViewScop
   return [...dates].sort((a, b) => b.localeCompare(a))
 }
 
+/**
+ * The database could only store one History row per day, so business/venue captures
+ * were deleted on save. Daily snapshots still keep per-scope totals — rebuild those logs.
+ */
+export function reconstructHistoryRecordsFromSnapshots(state: AppState): AppState {
+  if (state.workspaceOrigin === 'builtin-demo') return state
+  const existing = new Set(
+    (state.historyRecords ?? []).map(
+      (record) => `${record.date}:${record.viewScope.type}:${record.viewScope.id}`,
+    ),
+  )
+  const added: HistoryRecord[] = []
+
+  for (const snap of state.snapshots) {
+    if (snap.id.startsWith('derived:') || snap.id.startsWith('history:')) continue
+    const key = `${snap.date}:${snap.scopeType}:${snap.scopeId}`
+    if (existing.has(key)) continue
+    existing.add(key)
+    added.push({
+      id: `snapshot-history:${snap.id}`,
+      date: snap.date,
+      savedAt: snap.updatedAt,
+      viewScope: { type: snap.scopeType, id: snap.scopeId },
+      viewName: snap.viewName || '',
+      note: 'Restored from saved daily snapshot',
+      summary: {
+        cash: snap.cash,
+        committedFunds: snap.committedFunds,
+        expectedReceipts: snap.expectedReceipts,
+        trueBalance: snap.trueBalance,
+      },
+      accounts: (snap.changedAccounts ?? []).map((change) => ({
+        id: change.accountId,
+        name: change.accountName,
+        type: 'current' as const,
+        balance: change.balance,
+        venueId: change.venueId,
+        venueName: change.venueName ?? null,
+        active: true,
+      })),
+      buildingUpItems: [],
+      dueItems: [],
+      expectedReceipts: [],
+      commitments: [],
+      reservePlanners: [],
+    })
+  }
+
+  if (added.length === 0) return state
+  console.info(`[Workspace] Restored ${added.length} missing History logs from daily snapshots`)
+  return { ...state, workspaceOrigin: state.workspaceOrigin ?? 'user', historyRecords: [...(state.historyRecords ?? []), ...added] }
+}
+
 function snapshotAppliesToScope(state: AppState, snap: BalanceSnapshot, scope: ViewScope): boolean {
   const snapScope: ViewScope = { type: snap.scopeType, id: snap.scopeId }
   if (snapScope.type === scope.type && snapScope.id === scope.id) return true

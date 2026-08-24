@@ -123,6 +123,10 @@ export function restorePastSnapshotMetricsFromHistory(state: AppState, now: stri
     const scope: ViewScope = { type: snapshot.scopeType, id: snapshot.scopeId }
     const summary = getExactHistorySummaryForScopeDate(state, scope, snapshot.date)
     if (!summary) return snapshot
+    // Do not copy History onto snapshots that already have totals. Collapsed
+    // one-row-per-day History was overwriting other businesses' Trends.
+    const snapshotLooksEmpty = snapshot.cash === 0 && snapshot.trueBalance === 0
+    if (!snapshotLooksEmpty) return snapshot
 
     const next = { ...snapshot }
     let touched = false

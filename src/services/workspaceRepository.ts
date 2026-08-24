@@ -13,19 +13,66 @@ function toNumber(value: unknown): number {
   return 0
 }
 
+type PackedHistoryRecord = HistoryRecord & { scopedRecords?: HistoryRecord[] }
+
+function stripPackedSiblings(record: HistoryRecord): HistoryRecord {
+  const { scopedRecords: _ignored, ...rest } = record as PackedHistoryRecord
+  return rest
+}
+
+function historyCaptureScore(record: HistoryRecord): number {
+  if ((record.note ?? '').includes('Restored from saved daily snapshot')) return 0
+  return (
+    (record.dueItems?.length ?? 0) * 1000 +
+    (record.expectedReceipts?.length ?? 0) * 10 +
+    (record.buildingUpItems?.length ?? 0) +
+    (record.commitments?.length ?? 0)
+  )
+}
+
 /**
- * DB enforces UNIQUE (workspace_id, date). The client can hold multiple scoped
- * records for one day — keep the newest so upserts do not 23505-spam Postgres.
+ * DB still has UNIQUE (workspace_id, date) — one row per day. Pack every scope
+ * for that day into the payload so business History is not deleted on save.
  */
-function dedupeHistoryRecordsForCloud(records: HistoryRecord[]): HistoryRecord[] {
-  const byDate = new Map<string, HistoryRecord>()
+function packHistoryRecordsForCloud(records: HistoryRecord[]): HistoryRecord[] {
+  const byDate = new Map<string, HistoryRecord[]>()
   for (const record of records) {
-    const previous = byDate.get(record.date)
-    if (!previous || String(record.savedAt) >= String(previous.savedAt)) {
-      byDate.set(record.date, record)
-    }
+    const clean = stripPackedSiblings(record)
+    const list = byDate.get(clean.date) ?? []
+    list.push(clean)
+    byDate.set(clean.date, list)
   }
-  return [...byDate.values()]
+
+  return [...byDate.values()].map((list) => {
+    const sorted = [...list].sort((a, b) => {
+      const byScore = historyCaptureScore(b) - historyCaptureScore(a)
+      if (byScore !== 0) return byScore
+      return String(b.savedAt).localeCompare(String(a.savedAt))
+    })
+    const primary = sorted[0]!
+    const siblings = sorted.slice(1)
+    if (siblings.length === 0) return primary
+    return { ...primary, scopedRecords: siblings } as HistoryRecord
+  })
+}
+
+export function unpackHistoryRecords(records: HistoryRecord[]): HistoryRecord[] {
+  const out: HistoryRecord[] = []
+  const seen = new Set<string>()
+
+  const add = (record: HistoryRecord) => {
+    if (!record?.date || !record.viewScope?.type || !record.viewScope?.id) return
+    const key = `${record.date}:${record.viewScope.type}:${record.viewScope.id}`
+    if (seen.has(key)) return
+    seen.add(key)
+    const packed = record as PackedHistoryRecord
+    const siblings = packed.scopedRecords ?? []
+    out.push(stripPackedSiblings(record))
+    for (const sibling of siblings) add(sibling)
+  }
+
+  for (const record of records) add(record)
+  return out
 }
 
 function mapGroup(row: Record<string, unknown>): Group {
@@ -323,7 +370,9 @@ export async function loadWorkspaceState(workspaceId: string): Promise<Workspace
     expectedReceipts: (receiptsRes.data ?? []).map((row) => mapReceipt(row as Record<string, unknown>)),
     reservePlanners,
     snapshots: (snapshotsRes.data ?? []).map((row) => mapSnapshot(row as Record<string, unknown>)),
-    historyRecords: (historyRes.data ?? []).map((row) => mapHistoryRecord(row as Record<string, unknown>)),
+    historyRecords: unpackHistoryRecords(
+      (historyRes.data ?? []).map((row) => mapHistoryRecord(row as Record<string, unknown>)),
+    ),
     dayNotes: (dayNotesRes.data ?? []).map((row) => mapDayNote(row as Record<string, unknown>)),
   }
 
@@ -573,7 +622,7 @@ export async function saveWorkspaceState(
     updated_at: s.updatedAt ?? new Date().toISOString(),
     ...ws,
   }))
-  const historyRows = dedupeHistoryRecordsForCloud(state.historyRecords ?? []).map((r) => ({
+  const historyRows = packHistoryRecordsForCloud(state.historyRecords ?? []).map((r) => ({
     id: r.id,
     date: r.date,
     saved_at: r.savedAt,
@@ -641,6 +690,8 @@ export async function saveWorkspaceState(
     'businesses',
     'venues',
     'groups',
+    'history_records',
+    'balance_snapshots',
   ])
 
   const previousIdsByTable = (tableName: string): string[] => {
@@ -663,6 +714,10 @@ export async function saveWorkspaceState(
         return previous.reservePlanners.map((row) => row.id)
       case 'reserve_bills':
         return previous.reservePlanners.flatMap((planner) => planner.bills.map((bill) => bill.id))
+      case 'history_records':
+        return (previous.historyRecords ?? []).map((row) => row.id)
+      case 'balance_snapshots':
+        return previous.snapshots.map((row) => row.id)
       default:
         return []
     }
