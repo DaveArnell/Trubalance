@@ -34541,7 +34541,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .home-hero-dash-kicker {
   margin: 0;
-  font-size: 0.68rem;
+  font-size: 0.76rem;
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -34559,8 +34559,8 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .home-hero-dash-delta {
   margin: 5px 0 0;
-  font-size: 0.72rem;
-  font-weight: 650;
+  font-size: 0.82rem;
+  font-weight: 700;
   color: #15803d;
 }
 
@@ -34583,7 +34583,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .home-hero-dash-card h3 {
   margin: 0 0 6px;
-  font-size: 0.62rem;
+  font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -34594,8 +34594,9 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   display: flex;
   justify-content: space-between;
   gap: 8px;
-  font-size: 0.78rem;
-  line-height: 1.5;
+  font-size: 0.9rem;
+  font-weight: 650;
+  line-height: 1.55;
 }
 
 .home-hero-dash-business {
@@ -34605,21 +34606,21 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .home-hero-dash-business h3 {
   margin-bottom: 8px;
-  font-size: 0.68rem;
+  font-size: 0.74rem;
 }
 
 .home-hero-dash-business .home-hero-dash-kv {
-  font-size: 0.92rem;
+  font-size: 1rem;
   line-height: 1.7;
 }
 
 .home-hero-dash-business .home-hero-dash-kv strong {
-  font-size: 1.08rem;
+  font-size: 1.18rem;
 }
 
 .home-hero-dash-kv strong {
   font-variant-numeric: tabular-nums;
-  font-weight: 750;
+  font-weight: 800;
 }
 
 .home-hero-dash-kv--teal {
@@ -34654,20 +34655,32 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   min-height: 0;
 }
 
+.home-hero-dash-building h3 {
+  font-size: 0.78rem;
+  margin-bottom: 8px;
+}
+
 .home-hero-dash-building .compact-kpi-strip {
-  margin: 0 0 8px;
-  padding: 8px 12px;
+  margin: 0 0 10px;
+  padding: 10px 12px;
   background: #f8fafc;
   color: #111827;
 }
 
 .home-hero-dash-building .compact-kpi-strip-label {
-  color: #6b7280;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #4b5563;
 }
 
 .home-hero-dash-building .compact-kpi-strip-value {
-  font-size: 0.92rem;
+  font-size: 1.12rem;
+  font-weight: 800;
   color: #111827;
+}
+
+.home-hero-dash-building .compact-kpi-strip-item--emphasis .compact-kpi-strip-value {
+  font-size: 1.2rem;
 }
 
 .home-hero-dash-row {
@@ -34677,11 +34690,11 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   justify-content: space-between;
   gap: 10px;
   flex: 1;
-  min-height: 36px;
-  padding: 0 12px;
+  min-height: 40px;
+  padding: 0 14px;
   border-radius: 8px;
   overflow: hidden;
-  font-size: 0.8rem;
+  font-size: 0.98rem;
   background: #f8fafc;
 }
 
@@ -34702,17 +34715,19 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .home-hero-dash-row-name {
-  font-weight: 750;
+  font-weight: 800;
   color: #111827;
 }
 
 .home-hero-dash-row-amt {
   font-variant-numeric: tabular-nums;
-  color: #6b7280;
+  font-weight: 650;
+  color: #4b5563;
   white-space: nowrap;
 }
 
 .home-hero-dash-row-amt strong {
+  font-weight: 800;
   color: #111827;
 }
 
