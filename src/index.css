@@ -34604,12 +34604,28 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   flex: 1;
 }
 
+.home-hero-dash-building .compact-kpi-strip {
+  margin: 0 0 6px;
+  padding: 6px 10px;
+  background: #f8fafc;
+  color: #111827;
+}
+
+.home-hero-dash-building .compact-kpi-strip-label {
+  color: #6b7280;
+}
+
+.home-hero-dash-building .compact-kpi-strip-value {
+  font-size: 0.92rem;
+  color: #111827;
+}
+
 .home-hero-dash-row {
   position: relative;
-  display: grid;
-  grid-template-columns: 4.6rem minmax(0, 1fr) auto;
+  display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: space-between;
+  gap: 8px;
   flex: 1;
   min-height: 28px;
   padding: 0 8px;
@@ -34625,25 +34641,17 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   top: 0;
   bottom: 0;
   background: #c4b5fd;
-  opacity: 0.32;
+  opacity: 0.9;
   pointer-events: none;
 }
 
-.home-hero-dash-row-due,
 .home-hero-dash-row-name,
 .home-hero-dash-row-amt {
   position: relative;
   z-index: 1;
 }
 
-.home-hero-dash-row-due {
-  color: #6b7280;
-  font-weight: 650;
-  white-space: nowrap;
-}
-
 .home-hero-dash-row-name {
-  text-align: center;
   font-weight: 750;
   color: #111827;
 }

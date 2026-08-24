@@ -1,13 +1,20 @@
+import { CompactKpiStrip } from '../CompactKpiStrip'
+import { formatCurrency } from '../../utils/format'
+
 /**
  * Compact Cash Prophet dashboard for the homepage hero.
  * Same layout and figures as the product, drawn flat so it fills the card.
  */
 const BUILDING = [
-  { due: 'Due 1st', name: 'Business Rates', accrued: '£1,850', total: '£2,000', pct: 92.5 },
-  { due: 'Due 15th', name: 'Loan', accrued: '£1,100', total: '£1,300', pct: 84.6 },
-  { due: 'Due 10th', name: 'Insurance', accrued: '£180', total: '£400', pct: 45 },
-  { due: 'Due 1st', name: 'Rent', accrued: '£2,200', total: '£5,800', pct: 37.9 },
+  { name: 'Business Rates', accrued: 1850, total: 2000 },
+  { name: 'Loan', accrued: 1100, total: 1300 },
+  { name: 'Insurance', accrued: 180, total: 400 },
+  { name: 'Rent', accrued: 2200, total: 5800 },
 ] as const
+
+const MONTHLY_TOTAL = BUILDING.reduce((sum, row) => sum + row.total, 0)
+const ACCRUED_NOW = BUILDING.reduce((sum, row) => sum + row.accrued, 0)
+const PER_DAY = Math.round(MONTHLY_TOTAL / 30)
 
 const TREND =
   'M8 52 C 28 46, 48 48, 68 38 C 88 28, 108 34, 128 26 C 148 18, 168 22, 188 14 C 200 10, 212 12, 224 8'
@@ -188,14 +195,23 @@ export function HomeHeroDashboard() {
 
       <div className="home-hero-dash-card home-hero-dash-building">
         <h3>Building up</h3>
+        <CompactKpiStrip
+          items={[
+            { label: 'Monthly total', value: formatCurrency(MONTHLY_TOTAL) },
+            { label: 'Accrued now', value: formatCurrency(ACCRUED_NOW), emphasis: true },
+            { label: 'Per day', value: formatCurrency(PER_DAY) },
+          ]}
+        />
         <ul>
           {BUILDING.map((row) => (
             <li key={row.name} className="home-hero-dash-row">
-              <span className="home-hero-dash-row-fill" style={{ width: `${row.pct}%` }} />
-              <span className="home-hero-dash-row-due">{row.due}</span>
+              <span
+                className="home-hero-dash-row-fill"
+                style={{ width: `${Math.round((row.accrued / row.total) * 1000) / 10}%` }}
+              />
               <span className="home-hero-dash-row-name">{row.name}</span>
               <span className="home-hero-dash-row-amt">
-                <strong>{row.accrued}</strong> / {row.total}
+                <strong>{formatCurrency(row.accrued)}</strong> / {formatCurrency(row.total)}
               </span>
             </li>
           ))}
