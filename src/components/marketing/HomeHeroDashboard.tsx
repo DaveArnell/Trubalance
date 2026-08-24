@@ -158,42 +158,6 @@ export function HomeHeroDashboard() {
           <p className="home-hero-dash-delta">↑ Up £410 this week · Up £1,860 this month</p>
         </div>
 
-        <div className="home-hero-dash-side">
-          <div className="home-hero-dash-card">
-            <h3>Business</h3>
-            <div className="home-hero-dash-kv">
-              <span>Bank balance</span>
-              <strong>£33,350</strong>
-            </div>
-            <div className="home-hero-dash-kv">
-              <span>Cash Prophet Balance</span>
-              <strong className="home-hero-dash-kv--teal">£21,880</strong>
-            </div>
-          </div>
-          <div className="home-hero-dash-card">
-            <h3>Due bills</h3>
-            <div className="home-hero-dash-kv">
-              <span>VAT</span>
-              <strong className="home-hero-dash-kv--due">£5,400</strong>
-            </div>
-            <div className="home-hero-dash-kv">
-              <span>Corporation tax</span>
-              <strong className="home-hero-dash-kv--due">£3,600</strong>
-            </div>
-            <div className="home-hero-dash-kv">
-              <span>Public liability</span>
-              <strong className="home-hero-dash-kv--due">£1,200</strong>
-            </div>
-          </div>
-          <div className="home-hero-dash-card">
-            <h3>Expected receipts</h3>
-            <div className="home-hero-dash-kv">
-              <span>Client payment</span>
-              <strong className="home-hero-dash-kv--in">£4,800</strong>
-            </div>
-          </div>
-        </div>
-
         <div className="home-hero-dash-card home-hero-dash-building">
           <h3>Building up</h3>
           <CompactKpiStrip
@@ -219,7 +183,33 @@ export function HomeHeroDashboard() {
           </ul>
         </div>
 
-        <div className="home-hero-dash-charts">
+        <div className="home-hero-dash-side">
+          <div className="home-hero-dash-card home-hero-dash-business">
+            <h3>Business</h3>
+            <div className="home-hero-dash-kv">
+              <span>Bank balance</span>
+              <strong>£33,350</strong>
+            </div>
+            <div className="home-hero-dash-kv">
+              <span>Cash Prophet Balance</span>
+              <strong className="home-hero-dash-kv--teal">£21,880</strong>
+            </div>
+          </div>
+          <div className="home-hero-dash-card">
+            <h3>Due bills</h3>
+            <div className="home-hero-dash-kv">
+              <span>VAT</span>
+              <strong className="home-hero-dash-kv--due">£5,400</strong>
+            </div>
+            <div className="home-hero-dash-kv">
+              <span>Corporation tax</span>
+              <strong className="home-hero-dash-kv--due">£3,600</strong>
+            </div>
+            <div className="home-hero-dash-kv">
+              <span>Public liability</span>
+              <strong className="home-hero-dash-kv--due">£1,200</strong>
+            </div>
+          </div>
           <div className="home-hero-dash-card home-hero-dash-chart">
             <h3>Cash Prophet Balance trend</h3>
             <svg viewBox="0 0 232 60" aria-hidden>
