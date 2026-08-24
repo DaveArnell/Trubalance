@@ -39,9 +39,14 @@ function mapGroup(row: Record<string, unknown>): Group {
 
 function mapBusiness(row: Record<string, unknown>): Business {
   const accentColor = row.accent_color ? String(row.accent_color) : undefined
+  const rawGroupId = row.group_id
+  const groupId =
+    rawGroupId != null && String(rawGroupId).trim() !== '' && String(rawGroupId) !== 'null'
+      ? String(rawGroupId)
+      : ''
   return {
     id: String(row.id),
-    groupId: String(row.group_id),
+    groupId,
     name: String(row.name),
     ...(accentColor ? { accentColor } : {}),
   }
@@ -330,12 +335,19 @@ export async function isWorkspaceEmptyInDatabase(workspaceId: string): Promise<b
   const supabase = tryGetSupabase()
   if (!supabase) return true
 
-  const { count } = await supabase
-    .from('groups')
-    .select('id', { count: 'exact', head: true })
-    .eq('workspace_id', workspaceId)
+  // Groups alone is not enough — a groups count error used to look like a blank
+  // workspace and the client then replaced living businesses/costs with empty state.
+  const tables = ['groups', 'businesses', 'accounts', 'commitments', 'reserve_planners'] as const
+  for (const table of tables) {
+    const { count, error } = await supabase
+      .from(table)
+      .select('id', { count: 'exact', head: true })
+      .eq('workspace_id', workspaceId)
+    if (error) return false
+    if ((count ?? 0) > 0) return false
+  }
 
-  return (count ?? 0) === 0
+  return true
 }
 
 const WORKSPACE_TABLE_NAMES = [
@@ -658,6 +670,19 @@ export async function saveWorkspaceState(
 
   const hasPreviousState = Boolean(options?.previousState)
 
+  const refuseMassDelete = (tableName: string, removed: string[], previous: string[]): boolean => {
+    if (!TARGETED_DELETE_TABLES.has(tableName)) return false
+    // Explicit import/restore may replace the whole workspace.
+    if (allowEmptyDeletes && !hasPreviousState) return false
+    if (previous.length > 1 && removed.length === previous.length) {
+      console.error(
+        `[workspaceRepository] Refusing to delete all ${previous.length} ${tableName} rows in one save`,
+      )
+      return true
+    }
+    return false
+  }
+
   for (const table of tables) {
     if (table.rows.length === 0) {
       // Empty wipe is only for explicit import/restore (allowEmptyDeletes, no previousState).
@@ -671,7 +696,7 @@ export async function saveWorkspaceState(
         !(options?.tableEmptyDeletes?.[table.name as WorkspaceTableName] === true)
       ) {
         const removed = previousIdsByTable(table.name)
-        if (removed.length > 0) {
+        if (removed.length > 0 && !refuseMassDelete(table.name, removed, removed)) {
           await supabase.from(table.name).delete().eq('workspace_id', workspaceId).in('id', removed)
         }
         continue
@@ -714,8 +739,9 @@ export async function saveWorkspaceState(
     // expected receipts (e.g. Swindon/Blackpool).
     if (TARGETED_DELETE_TABLES.has(table.name) && (!allowEmptyDeletes || hasPreviousState)) {
       const keep = new Set(ids)
-      const removed = previousIdsByTable(table.name).filter((id) => !keep.has(id))
-      if (removed.length > 0) {
+      const previousIds = previousIdsByTable(table.name)
+      const removed = previousIds.filter((id) => !keep.has(id))
+      if (removed.length > 0 && !refuseMassDelete(table.name, removed, previousIds)) {
         await supabase.from(table.name).delete().eq('workspace_id', workspaceId).in('id', removed)
       }
       continue

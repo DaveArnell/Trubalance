@@ -50,7 +50,7 @@ import { todayDateKey, getFreshness } from '../utils/snapshots'
 import { parseVirtualSnapshotId } from '../utils/scopeSnapshotSeries'
 import { MONTHS, currentMonthIndex } from '../utils/format'
 import { syncGuidedStructureInState, type GuidedBusinessPayload } from '../utils/structureDraftSync'
-import { backupBrowserStateToSession, isUserOwnedWorkspace, mergeMissingLocalWorkspaceData, countCriticalEntitiesAdded, unionExpectedReceipts, expectedReceiptsSyncKey, snapshotsSyncKey, historyRecordsSyncKey, unionSnapshotsByUpdatedAt, unionHistoryRecordsBySavedAt, readRawBrowserStateJson, statesMatchRoughly } from '../utils/localStateStorage'
+import { backupBrowserStateToSession, isUserOwnedWorkspace, mergeMissingLocalWorkspaceData, countCriticalEntitiesAdded, unionExpectedReceipts, expectedReceiptsSyncKey, accountsSyncKey, snapshotsSyncKey, historyRecordsSyncKey, unionAccountsByUpdatedAt, unionSnapshotsByUpdatedAt, unionHistoryRecordsBySavedAt, readRawBrowserStateJson, statesMatchRoughly } from '../utils/localStateStorage'
 import { normalizeWorkspaceState } from '../utils/workspaceNormalize'
 import { getReferenceDate, getReferenceDateKey } from '../utils/referenceDate'
 import { migrateDayNotes } from '../utils/dayNotes'
@@ -369,6 +369,7 @@ export function useAppState(options?: UseAppStateOptions) {
     const cloudNormalized = normalizeWorkspaceState(cloudBeforeNormalize)
     let next = mergeMissingLocalWorkspaceData(cloudNormalized, stateRef.current)
     next = unionExpectedReceipts(next, stateRef.current)
+    next = unionAccountsByUpdatedAt(next, stateRef.current)
     next = unionSnapshotsByUpdatedAt(next, stateRef.current)
     next = unionHistoryRecordsBySavedAt(next, stateRef.current)
     // Union can reintroduce a newer poisoned local past row — restore History again.
@@ -377,6 +378,7 @@ export function useAppState(options?: UseAppStateOptions) {
     const mergeAdded = countCriticalEntitiesAdded(cloudNormalized, next).total > 0
     const receiptsChanged =
       expectedReceiptsSyncKey(cloudNormalized) !== expectedReceiptsSyncKey(next)
+    const accountsChanged = accountsSyncKey(cloudNormalized) !== accountsSyncKey(next)
     // Only push Trends rows this device still has that the cloud lacked before normalize.
     // Never push hydrate-only rewrites of past metrics (that poisoned history across devices).
     const cloudSnapIds = new Set(cloudBeforeNormalize.snapshots.map((snap) => snap.id))
@@ -388,7 +390,16 @@ export function useAppState(options?: UseAppStateOptions) {
       snapshotsSyncKey(afterUnion) !== snapshotsSyncKey(next) ||
       historyRecordsSyncKey(afterUnion) !== historyRecordsSyncKey(next) ||
       snapshotsSyncKey(cloudBeforeNormalize) !== snapshotsSyncKey(cloudNormalized)
-    const shouldPushMerge = mergeAdded || receiptsChanged || localHasExtraHistory || restoredHistory
+    const shouldPushMerge = mergeAdded || receiptsChanged || accountsChanged || localHasExtraHistory || restoredHistory
+    if (
+      isUserOwnedWorkspace(stateRef.current) &&
+      stateRef.current.businesses.length > 0 &&
+      next.businesses.length === 0
+    ) {
+      console.error('[Workspace] Refusing to hydrate empty cloud data over this device’s businesses')
+      options?.onRemoteHydrated?.()
+      return
+    }
     setState(next)
     undoStackRef.current = []
     setCanUndo(false)
@@ -747,7 +758,6 @@ export function useAppState(options?: UseAppStateOptions) {
     if (changes.length === 0) return { updated: 0, snapshotted: false }
 
     let result: BalanceSaveResult = { updated: 0, snapshotted: false }
-    requestImmediatePersist()
 
     setState((s) => {
       const now = new Date().toISOString()
@@ -784,8 +794,22 @@ export function useAppState(options?: UseAppStateOptions) {
       }
 
       result = { updated: changedAccounts.length, snapshotted: true }
+      // Keep stateRef current before the immediate persist microtask, otherwise a
+      // concurrent pull saves the previous balances and the UI reverts a moment later.
+      stateRef.current = nextState
+      if (!options?.skipLocalPersist) {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState))
+        } catch {
+          /* ignore quota */
+        }
+      }
       return nextState
     })
+
+    if (result.updated > 0) {
+      requestImmediatePersist()
+    }
 
     return result
   }

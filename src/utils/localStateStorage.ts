@@ -158,16 +158,30 @@ export function mergeMissingExpectedReceipts(cloud: AppState, local: AppState | 
   }
 }
 
+function isAssignedGroupId(groupId: string | undefined | null): boolean {
+  if (groupId == null) return false
+  const value = String(groupId).trim()
+  return value.length > 0 && value !== 'null' && value !== 'undefined'
+}
+
 /**
  * Drop structure/data that does not belong to this workspace’s groups/businesses.
  * Prevents demo or another account’s localStorage from leaking into the sidebar / cloud push.
  */
 export function stripEntitiesOutsideWorkspace(state: AppState): AppState {
   const groupIds = new Set(state.groups.map((group) => group.id))
+  // If groups failed to load, do not drop every business (that emptied live dashboards).
+  const keepAllBusinesses = state.groups.length === 0 && state.businesses.length > 0
   // Solo businesses have no group. Keep those; only drop businesses pointing at a group that is not in this workspace.
-  const businesses = state.businesses.filter(
-    (business) => !business.groupId || groupIds.has(business.groupId),
-  )
+  const businesses = keepAllBusinesses
+    ? state.businesses
+    : state.businesses.filter(
+        (business) => !isAssignedGroupId(business.groupId) || groupIds.has(business.groupId),
+      )
+  if (state.businesses.length > 0 && businesses.length === 0) {
+    console.warn('[Workspace] Refusing to drop all businesses during strip')
+    return state
+  }
   const businessIds = new Set(businesses.map((business) => business.id))
   const venues = state.venues.filter((venue) => businessIds.has(venue.businessId))
   const venueIds = new Set(venues.map((venue) => venue.id))
@@ -310,6 +324,45 @@ export function unionSnapshotsByUpdatedAt(
     ...cloud,
     workspaceOrigin: cloud.workspaceOrigin ?? 'user',
     snapshots: [...byId.values()],
+  }
+}
+
+export function accountsSyncKey(state: AppState): string {
+  return state.accounts
+    .map((account) => `${account.id}:${account.balance}:${account.updatedAt ?? ''}:${account.active ? 1 : 0}`)
+    .sort()
+    .join('|')
+}
+
+/** Prefer newer account balances so a stale cloud pull cannot revert a save still in flight. */
+export function unionAccountsByUpdatedAt(
+  cloud: AppState,
+  ...sources: Array<AppState | null | undefined>
+): AppState {
+  const byId = new Map(cloud.accounts.map((account) => [account.id, account]))
+  for (const source of sources) {
+    if (!source?.accounts.length) continue
+    for (const account of source.accounts) {
+      const existing = byId.get(account.id)
+      if (!existing) {
+        byId.set(account.id, account)
+        continue
+      }
+      const existingTs = existing.updatedAt ?? ''
+      const nextTs = account.updatedAt ?? ''
+      if (nextTs > existingTs) {
+        byId.set(account.id, account)
+        continue
+      }
+      if (nextTs === existingTs && account.balance !== existing.balance) {
+        byId.set(account.id, account)
+      }
+    }
+  }
+  return {
+    ...cloud,
+    workspaceOrigin: cloud.workspaceOrigin ?? 'user',
+    accounts: [...byId.values()],
   }
 }
 

@@ -21,7 +21,7 @@ import {
   buildSafeTableEmptyDeletes,
 } from '../services/workspaceRepository'
 import { isSupabaseConfigured, tryGetSupabase } from '../lib/supabase'
-import { emptyAppState, isBuiltinDemoWorkspace, isUserOwnedWorkspace, backupBrowserStateToSession, mergeMissingLocalWorkspaceData, countCriticalEntitiesAdded, unionExpectedReceipts, expectedReceiptsSyncKey, snapshotsSyncKey, historyRecordsSyncKey, unionSnapshotsByUpdatedAt, unionHistoryRecordsBySavedAt, stripEntitiesOutsideWorkspace } from '../utils/localStateStorage'
+import { emptyAppState, isBuiltinDemoWorkspace, isUserOwnedWorkspace, backupBrowserStateToSession, mergeMissingLocalWorkspaceData, countCriticalEntitiesAdded, unionExpectedReceipts, expectedReceiptsSyncKey, accountsSyncKey, snapshotsSyncKey, historyRecordsSyncKey, unionAccountsByUpdatedAt, unionSnapshotsByUpdatedAt, unionHistoryRecordsBySavedAt, stripEntitiesOutsideWorkspace } from '../utils/localStateStorage'
 import { readBrowserAppState } from '../hooks/useAppState'
 import { normalizeWorkspaceStateForDisplay } from '../utils/workspaceNormalize'
 
@@ -263,7 +263,15 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         allowEmptyDeletesRef.current = false
         setImportedFromLocal(true)
       } else if (dbEmpty && !localLooksLikeUserData) {
-        state = emptyAppState()
+        const cloudHasRows =
+          loadedState.businesses.length > 0 ||
+          loadedState.accounts.length > 0 ||
+          loadedState.commitments.length > 0 ||
+          loadedState.reservePlanners.length > 0 ||
+          loadedState.expectedReceipts.length > 0
+        if (!cloudHasRows) {
+          state = emptyAppState()
+        }
         allowEmptyDeletesRef.current = false
       } else {
         allowEmptyDeletesRef.current = false
@@ -280,6 +288,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
             workspaceOrigin: source.workspaceOrigin ?? 'user',
           })
           state = unionExpectedReceipts(state, source)
+          state = unionAccountsByUpdatedAt(state, source)
           state = unionSnapshotsByUpdatedAt(state, source)
           state = unionHistoryRecordsBySavedAt(state, source)
         }
@@ -292,6 +301,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         const added = countCriticalEntitiesAdded(beforeMerge, state)
         const receiptsChanged =
           expectedReceiptsSyncKey(beforeMerge) !== expectedReceiptsSyncKey(state)
+        const accountsChanged = accountsSyncKey(beforeMerge) !== accountsSyncKey(state)
         const cloudSnapIds = new Set(beforeMerge.snapshots.map((snap) => snap.id))
         const cloudHistoryIds = new Set((beforeMerge.historyRecords ?? []).map((r) => r.id))
         const localHasExtraHistory = localSources.some(
@@ -310,7 +320,11 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         }
         // Push living data this device still had, plus History-restored Trends baselines.
         if (
-          (added.total > 0 || receiptsChanged || localHasExtraHistory || restoredHistory) &&
+          (added.total > 0 ||
+            receiptsChanged ||
+            accountsChanged ||
+            localHasExtraHistory ||
+            restoredHistory) &&
           !isImpersonating
         ) {
           try {
@@ -320,6 +334,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
             })
             console.info(
               `[Workspace] Pushed ${added.receipts} receipts, ${added.commitments} costs, ${added.planners} planners` +
+                (accountsChanged ? ', account balances' : '') +
                 (restoredHistory || localHasExtraHistory ? ', and updated Trends baselines' : '') +
                 ' from this device to your account',
             )
@@ -343,23 +358,24 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       }
       state = stripEntitiesOutsideWorkspace(state)
 
-      // If an earlier buggy merge pushed foreign planners into this account, remove them in cloud.
-      const orphanPlannerIds = loadedState.reservePlanners
-        .filter((planner) => !state.reservePlanners.some((row) => row.id === planner.id))
-        .map((planner) => planner.id)
-      if (orphanPlannerIds.length > 0 && !isImpersonating) {
-        try {
-          await saveWorkspaceState(wsId, state, {
-            allowEmptyDeletes: true,
-            previousState: loadedState,
-          })
-          console.warn(
-            `[Workspace] Removed ${orphanPlannerIds.length} reserve plan(s) that did not belong to this workspace`,
-          )
-        } catch (error) {
-          console.warn('[Workspace] Failed to remove orphan reserve plans from cloud', error)
-        }
+      if (
+        loadedState.businesses.length > 0 &&
+        state.businesses.length === 0
+      ) {
+        console.error('[Workspace] Loaded businesses were dropped — keeping cloud rows')
+        state = loadedState
       }
+
+      console.info('[Workspace] cloud rows', {
+        groups: state.groups.length,
+        businesses: state.businesses.length,
+        accounts: state.accounts.length,
+        commitments: state.commitments.length,
+        receipts: state.expectedReceipts.length,
+        planners: state.reservePlanners.length,
+        snapshots: state.snapshots.length,
+        loadHadErrors,
+      })
 
       try {
         window.localStorage.setItem('trubalance-last-auth-user-id', effectiveUserId)
@@ -484,6 +500,20 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       const state = pendingStateRef.current
       pendingStateRef.current = null
 
+      const loaded = loadedStateRef.current
+      if (
+        loaded &&
+        loaded.businesses.length > 0 &&
+        state.businesses.length === 0 &&
+        (loaded.commitments.length > 0 ||
+          loaded.accounts.length > 0 ||
+          loaded.reservePlanners.length > 0)
+      ) {
+        console.error('[Workspace] Refusing to save an empty workspace over loaded account data')
+        pendingStateRef.current = null
+        break
+      }
+
       try {
         await saveWorkspaceState(workspaceId, state, {
           allowEmptyDeletes: allowEmptyDeletesRef.current,
@@ -577,6 +607,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       syncInFlightRef.current = true
       lastPullAt = now
       try {
+        await saveChainRef.current.catch(() => undefined)
         await flushPendingSoon()
         if (cancelled) return
         await loadWorkspace()
@@ -637,6 +668,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         syncInFlightRef.current = true
         void (async () => {
           try {
+            await saveChainRef.current.catch(() => undefined)
             if (saveTimerRef.current) {
               clearTimeout(saveTimerRef.current)
               saveTimerRef.current = null
@@ -718,6 +750,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       merged = mergeMissingLocalWorkspaceData(merged, { ...liveState, workspaceOrigin: 'user' })
       merged = unionExpectedReceipts(merged, liveState)
     }
+    merged = unionAccountsByUpdatedAt(merged, local, liveState)
     merged = unionSnapshotsByUpdatedAt(merged, local, liveState)
     merged = unionHistoryRecordsBySavedAt(merged, local, liveState)
     merged = normalizeWorkspaceStateForDisplay({
