@@ -3,6 +3,7 @@ import { roundCurrency, toAmount } from './amounts'
 import { MONTHS } from './format'
 import { plannerMonthlyDeposit } from './reserveCalculations'
 import { todayDateKey } from './snapshots'
+import { rememberDeletedReceiptIds, readDeletedReceiptIds } from './localStateStorage'
 
 function newId(): string {
   return crypto.randomUUID()
@@ -156,10 +157,44 @@ function isRestoredReceiptNotes(notes: string | undefined): boolean {
   return (notes ?? '').toLowerCase().includes('restored from balance history')
 }
 
+/**
+ * Drop receipts that recovery rebuilt from old history days after they had already
+ * been deleted. Keeps restored rows that still appear on the latest history date.
+ */
+export function pruneStaleHistoryRestoredReceipts(state: AppState): AppState {
+  const currentIds = currentHistoryOpenReceiptIds(state)
+  if (currentIds.size === 0) return state
+  const removed: string[] = []
+  const expectedReceipts = state.expectedReceipts.filter((receipt) => {
+    if (!isRestoredReceiptNotes(receipt.notes)) return true
+    if (currentIds.has(receipt.id)) return true
+    removed.push(receipt.id)
+    return false
+  })
+  if (removed.length === 0) return state
+  rememberDeletedReceiptIds(removed)
+  return { ...state, workspaceOrigin: state.workspaceOrigin ?? 'user', expectedReceipts }
+}
+
 function needsEstimatedTargetRepair(notes: string | undefined): boolean {
   if (!isRestoredReceiptNotes(notes)) return false
   // One-shot upgrade from the first recovery (effective-as-target + early expected date).
   return !(notes ?? '').toLowerCase().includes('estimated target')
+}
+
+/** Open receipt ids still present on the most recent history date. */
+export function currentHistoryOpenReceiptIds(state: AppState): Set<string> {
+  const records = state.historyRecords ?? []
+  if (records.length === 0) return new Set()
+  const latestDate = records.reduce((max, record) => (record.date > max ? record.date : max), records[0]!.date)
+  const ids = new Set<string>()
+  for (const record of records) {
+    if (record.date !== latestDate) continue
+    for (const receipt of record.expectedReceipts ?? []) {
+      if (!receipt.received) ids.add(receipt.id)
+    }
+  }
+  return ids
 }
 
 /** Latest history row per view scope, newest date first overall. */
@@ -206,8 +241,12 @@ export function recoverExpectedReceiptsFromHistory(state: AppState): {
   restoredCount: number
 } {
   const existingIds = new Set(state.expectedReceipts.map((receipt) => receipt.id))
+  const deleted = readDeletedReceiptIds()
+  const currentIds = currentHistoryOpenReceiptIds(state)
   const seriesById = collectReceiptHistorySeries(state)
-  const toRestore = [...seriesById.values()].filter((series) => !existingIds.has(series.id))
+  const toRestore = [...seriesById.values()].filter(
+    (series) => !existingIds.has(series.id) && currentIds.has(series.id) && !deleted.has(series.id),
+  )
 
   if (toRestore.length === 0) return { state, restoredCount: 0 }
 

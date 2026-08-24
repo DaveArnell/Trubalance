@@ -9,6 +9,7 @@ import { backupBrowserStateToSession, readSessionBackup, sessionBackupLooksRiche
 import { parseImportedAppState } from '../utils/importAppState'
 import {
   diagnoseReservePlanners,
+  currentHistoryOpenReceiptIds,
   recoverWorkspaceFromHistory,
   reservePlannersMissingDeposit,
 } from '../utils/workspaceRecovery'
@@ -45,13 +46,10 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
   const signedIn = Boolean(user)
   const cloudBacked = remoteEnabled && isSupabaseConfigured
   const emptyReservePlans = reservePlannersMissingDeposit(state)
-  const historyReceiptCount = (state.historyRecords ?? []).reduce(
-    (max, record) => Math.max(max, record.expectedReceipts?.length ?? 0),
-    0,
-  )
+  const latestHistoryReceiptCount = currentHistoryOpenReceiptIds(state).size
   const canRecoverFromHistory =
     (state.historyRecords?.length ?? 0) > 0 &&
-    (summary.receipts < historyReceiptCount || emptyReservePlans.length > 0)
+    (summary.receipts < latestHistoryReceiptCount || emptyReservePlans.length > 0)
 
   const handleSyncThisDevice = async () => {
     if (!cloudBacked || readOnly) return
@@ -210,9 +208,9 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
         parts.push(`reserve bills for ${result.plannersRepaired.length} plan(s)`)
       }
       setStatus(
-        `Recovered from your balance history: ${parts.join(' and ')}.` +
+        `Recovered from your last recorded day: ${parts.join(' and ')}.` +
           (cloudBacked ? ' Saved to your account.' : '') +
-          ' Check expected dates on restored receipts, and open each repaired Reserve Planner to confirm the monthly amounts.',
+          ' Older receipts you already deleted are left out. Check expected dates on restored receipts, and open each repaired Reserve Planner to confirm the monthly amounts.',
       )
     } catch (err) {
       console.error('[History recover] Failed:', err)

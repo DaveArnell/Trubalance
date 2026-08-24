@@ -3,6 +3,38 @@ import { initialState } from '../data/initialState'
 
 export const LOCAL_STORAGE_KEY = 'trubalance-app-state-v4'
 const LEGACY_KEYS = ['trubalance-app-state-v3', 'trubalance-app-state-v2']
+const DELETED_RECEIPT_IDS_KEY = 'trubalance-deleted-receipt-ids-v1'
+
+export function readDeletedReceiptIds(): Set<string> {
+  try {
+    const raw = window.localStorage.getItem(DELETED_RECEIPT_IDS_KEY)
+    if (!raw) return new Set()
+    const parsed = JSON.parse(raw) as unknown
+    if (!Array.isArray(parsed)) return new Set()
+    return new Set(parsed.filter((id): id is string => typeof id === 'string' && id.length > 0))
+  } catch {
+    return new Set()
+  }
+}
+
+export function rememberDeletedReceiptIds(ids: string[]): void {
+  if (ids.length === 0) return
+  try {
+    const next = readDeletedReceiptIds()
+    for (const id of ids) next.add(id)
+    window.localStorage.setItem(DELETED_RECEIPT_IDS_KEY, JSON.stringify([...next]))
+  } catch {
+    /* ignore quota */
+  }
+}
+
+export function omitDeletedReceipts(state: AppState): AppState {
+  const deleted = readDeletedReceiptIds()
+  if (deleted.size === 0) return state
+  const expectedReceipts = state.expectedReceipts.filter((receipt) => !deleted.has(receipt.id))
+  if (expectedReceipts.length === state.expectedReceipts.length) return state
+  return { ...state, expectedReceipts }
+}
 
 export const emptyAppState = (): AppState => ({
   groups: [],
@@ -143,8 +175,9 @@ export function mergeMissingExpectedReceipts(cloud: AppState, local: AppState | 
   const groupIds = new Set(cloud.groups.map((group) => group.id))
   const businessIds = new Set(cloud.businesses.map((business) => business.id))
   const venueIds = new Set(cloud.venues.map((venue) => venue.id))
+  const deleted = readDeletedReceiptIds()
   const missing = local.expectedReceipts.filter((receipt) => {
-    if (cloudIds.has(receipt.id)) return false
+    if (deleted.has(receipt.id) || cloudIds.has(receipt.id)) return false
     if (receipt.scopeLevel === 'group') return groupIds.has(receipt.scopeId)
     if (receipt.scopeLevel === 'business') return businessIds.has(receipt.scopeId)
     if (receipt.scopeLevel === 'venue') return venueIds.has(receipt.scopeId)
@@ -232,11 +265,17 @@ export function unionExpectedReceipts(
   cloud: AppState,
   ...sources: Array<AppState | null | undefined>
 ): AppState {
-  const byId = new Map(cloud.expectedReceipts.map((receipt) => [receipt.id, receipt]))
+  const deleted = readDeletedReceiptIds()
+  const byId = new Map(
+    cloud.expectedReceipts
+      .filter((receipt) => !deleted.has(receipt.id))
+      .map((receipt) => [receipt.id, receipt]),
+  )
 
   for (const source of sources) {
     if (!source?.expectedReceipts.length) continue
     for (const receipt of source.expectedReceipts) {
+      if (deleted.has(receipt.id)) continue
       const existing = byId.get(receipt.id)
       if (!existing) {
         byId.set(receipt.id, receipt)

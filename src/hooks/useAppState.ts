@@ -50,7 +50,7 @@ import { todayDateKey, getFreshness } from '../utils/snapshots'
 import { parseVirtualSnapshotId } from '../utils/scopeSnapshotSeries'
 import { MONTHS, currentMonthIndex } from '../utils/format'
 import { syncGuidedStructureInState, type GuidedBusinessPayload } from '../utils/structureDraftSync'
-import { backupBrowserStateToSession, isUserOwnedWorkspace, mergeMissingLocalWorkspaceData, countCriticalEntitiesAdded, unionExpectedReceipts, expectedReceiptsSyncKey, accountsSyncKey, snapshotsSyncKey, historyRecordsSyncKey, unionAccountsByUpdatedAt, unionSnapshotsByUpdatedAt, unionHistoryRecordsBySavedAt, readRawBrowserStateJson, statesMatchRoughly } from '../utils/localStateStorage'
+import { backupBrowserStateToSession, isUserOwnedWorkspace, mergeMissingLocalWorkspaceData, countCriticalEntitiesAdded, unionExpectedReceipts, expectedReceiptsSyncKey, accountsSyncKey, snapshotsSyncKey, historyRecordsSyncKey, unionAccountsByUpdatedAt, unionSnapshotsByUpdatedAt, unionHistoryRecordsBySavedAt, omitDeletedReceipts, rememberDeletedReceiptIds, readRawBrowserStateJson, statesMatchRoughly } from '../utils/localStateStorage'
 import { normalizeWorkspaceState } from '../utils/workspaceNormalize'
 import { getReferenceDate, getReferenceDateKey } from '../utils/referenceDate'
 import { migrateDayNotes } from '../utils/dayNotes'
@@ -372,6 +372,7 @@ export function useAppState(options?: UseAppStateOptions) {
     next = unionAccountsByUpdatedAt(next, stateRef.current)
     next = unionSnapshotsByUpdatedAt(next, stateRef.current)
     next = unionHistoryRecordsBySavedAt(next, stateRef.current)
+    next = omitDeletedReceipts(next)
     // Union can reintroduce a newer poisoned local past row — restore History again.
     const afterUnion = next
     next = normalizeWorkspaceState(next)
@@ -1032,7 +1033,6 @@ export function useAppState(options?: UseAppStateOptions) {
     })
 
   const deleteCommitment = (id: string) => {
-    requestImmediatePersist()
     update((s) => {
       const existing = s.commitments.find((c) => c.id === id)
       if (!existing) return s
@@ -1041,13 +1041,16 @@ export function useAppState(options?: UseAppStateOptions) {
         commitments: s.commitments.filter((c) => c.id !== id),
       }
       const fromDate = getCommitmentRebuildFromDateKey(existing, getReferenceDate())
-      return refreshSnapshotsForScopes(
+      const next = refreshSnapshotsForScopes(
         nextState,
         getScopesForCommitment(nextState, existing),
         fromDate,
         new Date().toISOString(),
       )
+      stateRef.current = next
+      return next
     })
+    requestImmediatePersist()
   }
 
   const duplicateCommitment = (id: string) =>
@@ -1186,7 +1189,7 @@ export function useAppState(options?: UseAppStateOptions) {
   }
 
   const deleteReceipt = (id: string) => {
-    requestImmediatePersist()
+    rememberDeletedReceiptIds([id])
     update((s) => {
       const existing = s.expectedReceipts.find((r) => r.id === id)
       if (!existing) return s
@@ -1194,13 +1197,16 @@ export function useAppState(options?: UseAppStateOptions) {
         ...s,
         expectedReceipts: s.expectedReceipts.filter((r) => r.id !== id),
       }
-      return refreshSnapshotsForScopes(
+      const next = refreshSnapshotsForScopes(
         nextState,
         getScopesForReceipt(nextState, existing),
         getReceiptDeleteFromDateKey(existing),
         new Date().toISOString(),
       )
+      stateRef.current = next
+      return next
     })
+    requestImmediatePersist()
   }
 
   const duplicateReceipt = (id: string) =>
