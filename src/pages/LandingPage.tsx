@@ -7,7 +7,7 @@ import {
   scrollToMarketingSection,
 } from '../components/marketing/MarketingLayout'
 import { CashProphetLogo } from '../components/marketing/CashProphetLogo'
-import { HeroBalanceGraphs } from '../components/marketing/HeroBalanceGraphs'
+import { HomeHeroCompare } from '../components/marketing/HomeHeroCompare'
 import { HomeHeroVideo } from '../components/marketing/HomeHeroVideo'
 import {
   HomeAvailablePanel,
@@ -50,24 +50,23 @@ export function LandingPage() {
       <MarketingHeader />
 
       <main className="marketing-main marketing-main--home marketing-main--home-vivid">
-        <section className="marketing-hero marketing-hero--rank marketing-surface--hero">
-          <div className="marketing-hero-rank-inner">
-            <div className="marketing-hero-rank-copy">
+        <section className="marketing-hero marketing-hero--rank marketing-hero--compare marketing-surface--hero">
+          <div className="home-hero-compare">
+            <div className="home-hero-compare-copy">
               <div className="marketing-hero-brand">
                 <CashProphetLogo variant="hero" onDark />
               </div>
               <h1>
                 {HOME_HERO.headlineStart}{' '}
-                <span className="marketing-hero-highlight">{HOME_HERO.headlineHighlight}</span>
+                <span className="marketing-hero-highlight marketing-hero-highlight--line">
+                  {HOME_HERO.headlineHighlight}
+                </span>
               </h1>
-              <p className="marketing-hero-category">{HOME_HERO.category}</p>
-              <div className="marketing-lead marketing-lead--stack">
-                {HOME_HERO.subheading.map((paragraph) => (
-                  <p key={paragraph}>{paragraph}</p>
-                ))}
-              </div>
-              <p className="marketing-hero-sizzle">{HOME_HERO.sizzle}</p>
-              <div className="marketing-cta-row marketing-cta-row--hero">
+              <p className="marketing-lead">{HOME_HERO.lead}</p>
+            </div>
+            <HomeHeroCompare />
+            <div className="home-hero-compare-actions">
+              <div className="marketing-cta-row marketing-cta-row--hero marketing-cta-row--center">
                 <CanonicalLink
                   to="/signup"
                   className="btn-primary btn-large marketing-cta-primary marketing-cta-primary--rank"
@@ -92,9 +91,6 @@ export function LandingPage() {
                   <CanonicalLink to="/app">try the app locally</CanonicalLink> without an account.
                 </p>
               )}
-            </div>
-            <div className="marketing-hero-rank-visual">
-              <HeroBalanceGraphs />
             </div>
           </div>
         </section>

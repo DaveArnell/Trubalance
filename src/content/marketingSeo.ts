@@ -13,6 +13,13 @@ export const PRODUCT_MONITOR_IMAGE_ALT =
 export const PRODUCT_MONITOR_IMAGE_WIDTH = 1536
 export const PRODUCT_MONITOR_IMAGE_HEIGHT = 1024
 
+/** Screen-only crop of the product monitor, used in the homepage hero. */
+export const PRODUCT_DASHBOARD_IMAGE = '/product-dashboard.png' as const
+export const PRODUCT_DASHBOARD_IMAGE_ALT =
+  'Cash Prophet dashboard: Cash Prophet Balance, accruing costs, due bills, balance trend and Reserve Planner' as const
+export const PRODUCT_DASHBOARD_IMAGE_WIDTH = 860
+export const PRODUCT_DASHBOARD_IMAGE_HEIGHT = 500
+
 export type RouteSeo = {
   title: string
   description: string

@@ -13,6 +13,9 @@ export const HOME_HERO = {
   headline: 'Your business finances are messy enough. Cash Prophet keeps them organised.',
   headlineStart: 'Your business finances are messy enough.',
   headlineHighlight: 'Cash Prophet keeps them organised.',
+  lead: "Know what's already spoken for, stay ahead of regular and larger bills, and see what your business can actually afford today.",
+  withoutLabel: 'Without Cash Prophet',
+  withLabel: 'With Cash Prophet',
   subheading: [
     "Your bank balance only shows what's in the account. It doesn't show regular costs already building, or larger bills still ahead.",
     'Cash Prophet automatically accounts for those commitments as they build and helps you prepare for bigger future costs, so you get a daily financial position you can trust.',
