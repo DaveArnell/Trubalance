@@ -147,90 +147,93 @@ function HomeHeroReserveChart() {
 
 export function HomeHeroDashboard() {
   return (
-    <div
-      className="home-hero-dash"
-      aria-label="Cash Prophet dashboard: Cash Prophet Balance, accruing costs, due bills, balance trend and Reserve Planner"
-    >
-      <div className="home-hero-dash-hero">
-        <p className="home-hero-dash-kicker">Cash Prophet Balance</p>
-        <p className="home-hero-dash-amount">£21,880</p>
-        <p className="home-hero-dash-delta">↑ Up £410 this week · Up £1,860 this month</p>
-      </div>
+    <div className="home-hero-dash-frame">
+      <div
+        className="home-hero-dash"
+        aria-label="Cash Prophet dashboard: Cash Prophet Balance, accruing costs, due bills, balance trend and Reserve Planner"
+      >
+        <div className="home-hero-dash-hero">
+          <p className="home-hero-dash-kicker">Cash Prophet Balance</p>
+          <p className="home-hero-dash-amount">£21,880</p>
+          <p className="home-hero-dash-delta">↑ Up £410 this week · Up £1,860 this month</p>
+        </div>
 
-      <div className="home-hero-dash-side">
-        <div className="home-hero-dash-card">
-          <h3>Business</h3>
-          <div className="home-hero-dash-kv">
-            <span>Bank balance</span>
-            <strong>£33,350</strong>
+        <div className="home-hero-dash-side">
+          <div className="home-hero-dash-card">
+            <h3>Business</h3>
+            <div className="home-hero-dash-kv">
+              <span>Bank balance</span>
+              <strong>£33,350</strong>
+            </div>
+            <div className="home-hero-dash-kv">
+              <span>Cash Prophet Balance</span>
+              <strong className="home-hero-dash-kv--teal">£21,880</strong>
+            </div>
           </div>
-          <div className="home-hero-dash-kv">
-            <span>Cash Prophet Balance</span>
-            <strong className="home-hero-dash-kv--teal">£21,880</strong>
+          <div className="home-hero-dash-card">
+            <h3>Due bills</h3>
+            <div className="home-hero-dash-kv">
+              <span>VAT</span>
+              <strong className="home-hero-dash-kv--due">£5,400</strong>
+            </div>
+            <div className="home-hero-dash-kv">
+              <span>Corporation tax</span>
+              <strong className="home-hero-dash-kv--due">£3,600</strong>
+            </div>
+            <div className="home-hero-dash-kv">
+              <span>Public liability</span>
+              <strong className="home-hero-dash-kv--due">£1,200</strong>
+            </div>
+          </div>
+          <div className="home-hero-dash-card">
+            <h3>Expected receipts</h3>
+            <div className="home-hero-dash-kv">
+              <span>Client payment</span>
+              <strong className="home-hero-dash-kv--in">£4,800</strong>
+            </div>
           </div>
         </div>
-        <div className="home-hero-dash-card">
-          <h3>Due bills</h3>
-          <div className="home-hero-dash-kv">
-            <span>VAT</span>
-            <strong className="home-hero-dash-kv--due">£5,400</strong>
-          </div>
-          <div className="home-hero-dash-kv">
-            <span>Corporation tax</span>
-            <strong className="home-hero-dash-kv--due">£3,600</strong>
-          </div>
-          <div className="home-hero-dash-kv">
-            <span>Public liability</span>
-            <strong className="home-hero-dash-kv--due">£1,200</strong>
-          </div>
-        </div>
-        <div className="home-hero-dash-card">
-          <h3>Expected receipts</h3>
-          <div className="home-hero-dash-kv">
-            <span>Client payment</span>
-            <strong className="home-hero-dash-kv--in">£4,800</strong>
-          </div>
-        </div>
-      </div>
 
-      <div className="home-hero-dash-card home-hero-dash-building">
-        <h3>Building up</h3>
-        <CompactKpiStrip
-          items={[
-            { label: 'Monthly total', value: formatCurrency(MONTHLY_TOTAL) },
-            { label: 'Accrued now', value: formatCurrency(ACCRUED_NOW), emphasis: true },
-            { label: 'Per day', value: formatCurrency(PER_DAY) },
-          ]}
-        />
-        <ul>
-          {BUILDING.map((row) => (
-            <li key={row.name} className="home-hero-dash-row">
-              <span
-                className="home-hero-dash-row-fill"
-                style={{ width: `${Math.round((row.accrued / row.total) * 1000) / 10}%` }}
-              />
-              <span className="home-hero-dash-row-name">{row.name}</span>
-              <span className="home-hero-dash-row-amt">
-                <strong>{formatCurrency(row.accrued)}</strong> / {formatCurrency(row.total)}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="home-hero-dash-charts">
-        <div className="home-hero-dash-card home-hero-dash-chart">
-          <h3>Cash Prophet Balance trend</h3>
-          <svg viewBox="0 0 232 60" aria-hidden>
-            <path d={`${TREND} L 224 58 L 8 58 Z`} fill="#0d8f5b" opacity="0.14" />
-            <path d={TREND} fill="none" stroke="#0d8f5b" strokeWidth="2.2" strokeLinecap="round" />
-          </svg>
+        <div className="home-hero-dash-card home-hero-dash-building">
+          <h3>Building up</h3>
+          <CompactKpiStrip
+            items={[
+              { label: 'Monthly total', value: formatCurrency(MONTHLY_TOTAL) },
+              { label: 'Accrued now', value: formatCurrency(ACCRUED_NOW), emphasis: true },
+              { label: 'Per day', value: formatCurrency(PER_DAY) },
+            ]}
+          />
+          <ul>
+            {BUILDING.map((row) => (
+              <li key={row.name} className="home-hero-dash-row">
+                <span
+                  className="home-hero-dash-row-fill"
+                  style={{ width: `${Math.round((row.accrued / row.total) * 1000) / 10}%` }}
+                />
+                <span className="home-hero-dash-row-name">{row.name}</span>
+                <span className="home-hero-dash-row-amt">
+                  <strong>{formatCurrency(row.accrued)}</strong> / {formatCurrency(row.total)}
+                </span>
+              </li>
+            ))}
+          </ul>
         </div>
-        <div className="home-hero-dash-card home-hero-dash-chart home-hero-dash-chart--reserve">
-          <h3>Reserve planner</h3>
-          <HomeHeroReserveChart />
+
+        <div className="home-hero-dash-charts">
+          <div className="home-hero-dash-card home-hero-dash-chart">
+            <h3>Cash Prophet Balance trend</h3>
+            <svg viewBox="0 0 232 60" aria-hidden>
+              <path d={`${TREND} L 224 58 L 8 58 Z`} fill="#0d8f5b" opacity="0.14" />
+              <path d={TREND} fill="none" stroke="#0d8f5b" strokeWidth="2.2" strokeLinecap="round" />
+            </svg>
+          </div>
+          <div className="home-hero-dash-card home-hero-dash-chart home-hero-dash-chart--reserve">
+            <h3>Reserve planner</h3>
+            <HomeHeroReserveChart />
+          </div>
         </div>
       </div>
     </div>
   )
 }
+
