@@ -10,9 +10,9 @@ export const HOME_HERO = {
   category: 'Simple money management for small businesses',
   /** Slogan under the brand. */
   tagline: BRAND_SLOGAN,
-  headline: 'Finally understand where your business really stands.',
-  headlineStart: 'Finally understand',
-  headlineHighlight: 'where your business really stands.',
+  headline: 'Your business finances are messy enough. Cash Prophet keeps them organised.',
+  headlineStart: 'Your business finances are messy enough.',
+  headlineHighlight: 'Cash Prophet keeps them organised.',
   subheading: [
     "Your bank balance only shows what's in the account. It doesn't show regular costs already building, or larger bills still ahead.",
     'Cash Prophet automatically accounts for those commitments as they build and helps you prepare for bigger future costs, so you get a daily financial position you can trust.',
