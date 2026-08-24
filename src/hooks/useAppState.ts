@@ -377,6 +377,9 @@ export function useAppState(options?: UseAppStateOptions) {
     const afterUnion = next
     next = normalizeWorkspaceState(next)
     const mergeAdded = countCriticalEntitiesAdded(cloudNormalized, next).total > 0
+    const recoveredFromHistory =
+      countCriticalEntitiesAdded(cloudBeforeNormalize, next).total > 0 ||
+      expectedReceiptsSyncKey(cloudBeforeNormalize) !== expectedReceiptsSyncKey(next)
     const receiptsChanged =
       expectedReceiptsSyncKey(cloudNormalized) !== expectedReceiptsSyncKey(next)
     const accountsChanged = accountsSyncKey(cloudNormalized) !== accountsSyncKey(next)
@@ -391,7 +394,7 @@ export function useAppState(options?: UseAppStateOptions) {
       snapshotsSyncKey(afterUnion) !== snapshotsSyncKey(next) ||
       historyRecordsSyncKey(afterUnion) !== historyRecordsSyncKey(next) ||
       snapshotsSyncKey(cloudBeforeNormalize) !== snapshotsSyncKey(cloudNormalized)
-    const shouldPushMerge = mergeAdded || receiptsChanged || accountsChanged || localHasExtraHistory || restoredHistory
+    const shouldPushMerge = mergeAdded || recoveredFromHistory || receiptsChanged || accountsChanged || localHasExtraHistory || restoredHistory
     if (
       isUserOwnedWorkspace(stateRef.current) &&
       stateRef.current.businesses.length > 0 &&

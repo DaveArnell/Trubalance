@@ -1,4 +1,4 @@
-import type { AppState, ExpectedReceipt, HistoryRecord, ReserveBill, ReservePlanner } from '../types'
+import type { AppState, Commitment, ExpectedReceipt, HistoryRecord, ReserveBill, ReservePlanner, StatusColor } from '../types'
 import { roundCurrency, toAmount } from './amounts'
 import { MONTHS } from './format'
 import { plannerMonthlyDeposit } from './reserveCalculations'
@@ -158,16 +158,13 @@ function isRestoredReceiptNotes(notes: string | undefined): boolean {
 }
 
 /**
- * Drop receipts that recovery rebuilt from old history days after they had already
- * been deleted. Keeps restored rows that still appear on the latest history date.
+ * Drop expected receipts that were rebuilt from History. Those rows were often
+ * already deleted; they must not return on the next sync.
  */
 export function pruneStaleHistoryRestoredReceipts(state: AppState): AppState {
-  const currentIds = currentHistoryOpenReceiptIds(state)
-  if (currentIds.size === 0) return state
   const removed: string[] = []
   const expectedReceipts = state.expectedReceipts.filter((receipt) => {
     if (!isRestoredReceiptNotes(receipt.notes)) return true
-    if (currentIds.has(receipt.id)) return true
     removed.push(receipt.id)
     return false
   })
@@ -409,18 +406,165 @@ export function recoverReserveBillsFromHistory(state: AppState): {
   }
 }
 
+const RESTORED_COST_NOTE =
+  'Restored from balance history — confirm due day and amount'
+
+function parseDueRowCommitmentId(rowId: string): string {
+  const planned = rowId.match(/^planned-(.+)$/)
+  if (planned?.[1]) return planned[1]
+  const monthly = rowId.match(/^(.*)-\d{4}-\d{2}$/)
+  if (monthly?.[1]) return monthly[1]
+  return rowId
+}
+
+function periodEndDate(period: string): string {
+  if (!/^\d{4}-\d{2}$/.test(period)) return `${todayDateKey().slice(0, 7)}-28`
+  return lastDayOfMonth(`${period}-01`)
+}
+
+function scopeExists(
+  state: AppState,
+  scopeLevel: Commitment['scopeLevel'],
+  scopeId: string,
+): boolean {
+  if (scopeLevel === 'group') return state.groups.some((group) => group.id === scopeId)
+  if (scopeLevel === 'business') return state.businesses.some((business) => business.id === scopeId)
+  if (scopeLevel === 'venue') return state.venues.some((venue) => venue.id === scopeId)
+  return false
+}
+
+/**
+ * Rebuild monthly / planned costs when the live list was wiped but History still
+ * has Building up and Due rows.
+ */
+export function recoverCommitmentsFromHistory(state: AppState): {
+  state: AppState
+  restoredCount: number
+} {
+  if (state.commitments.length > 0) return { state, restoredCount: 0 }
+
+  const byId = new Map<string, Commitment>()
+  const sorted = [...(state.historyRecords ?? [])].sort((a, b) => {
+    const byDate = a.date.localeCompare(b.date)
+    if (byDate !== 0) return byDate
+    return String(a.savedAt).localeCompare(String(b.savedAt))
+  })
+
+  const upsert = (next: Commitment) => {
+    if (!next.id || !scopeExists(state, next.scopeLevel, next.scopeId)) return
+    const existing = byId.get(next.id)
+    byId.set(next.id, existing ? { ...existing, ...next, name: next.name || existing.name } : next)
+  }
+
+  for (const record of sorted) {
+    for (const row of record.commitments ?? []) {
+      const planned = row.schedule === 'planned'
+      upsert({
+        id: row.id,
+        name: row.name,
+        schedule: planned ? 'planned' : 'monthly',
+        amount: row.amount,
+        dueDayOfMonth: planned ? undefined : 28,
+        scopeLevel: row.scopeLevel,
+        scopeId: row.scopeId,
+        status: (row.status as StatusColor) || 'healthy',
+        notes: RESTORED_COST_NOTE,
+        createdAt: record.date,
+      })
+    }
+    for (const item of record.buildingUpItems ?? []) {
+      if (item.source !== 'commitment') continue
+      const planned = item.schedule === 'planned'
+      upsert({
+        id: item.rowId,
+        name: item.name,
+        schedule: planned ? 'planned' : 'monthly',
+        amount: item.budgetAmount,
+        dueDayOfMonth: planned ? undefined : 28,
+        scopeLevel: item.scopeLevel,
+        scopeId: item.scopeId,
+        status: 'healthy',
+        notes: RESTORED_COST_NOTE,
+        createdAt: record.date,
+      })
+    }
+    for (const item of record.dueItems ?? []) {
+      if (item.source !== 'commitment') continue
+      const id = parseDueRowCommitmentId(item.rowId)
+      const planned = item.schedule === 'planned' || item.rowId.startsWith('planned-')
+      upsert({
+        id,
+        name: item.name,
+        schedule: planned ? 'planned' : 'monthly',
+        amount: item.amount,
+        dueDayOfMonth: planned ? undefined : 28,
+        plannedDueDate: planned ? periodEndDate(item.period) : undefined,
+        scopeLevel: item.scopeLevel,
+        scopeId: item.scopeId,
+        status: (item.status as StatusColor) || 'healthy',
+        notes: RESTORED_COST_NOTE,
+        createdAt: record.date,
+      })
+    }
+  }
+
+  const restored = [...byId.values()]
+  if (restored.length === 0) return { state, restoredCount: 0 }
+
+  console.info(`[Workspace] Restored ${restored.length} costs from balance history`)
+  return {
+    state: { ...state, workspaceOrigin: 'user', commitments: restored },
+    restoredCount: restored.length,
+  }
+}
+
+export function recoverReservePlannerShellsFromHistory(state: AppState): AppState {
+  if (state.reservePlanners.length > 0) return state
+  const byId = new Map<string, ReservePlanner>()
+  const businessIds = new Set(state.businesses.map((business) => business.id))
+
+  for (const record of state.historyRecords ?? []) {
+    for (const planner of record.reservePlanners ?? []) {
+      if (!businessIds.has(planner.businessId)) continue
+      byId.set(planner.id, {
+        id: planner.id,
+        name: planner.name,
+        businessId: planner.businessId,
+        bufferAmount: planner.bufferAmount,
+        actualBalance: planner.actualBalance,
+        bills: [],
+      })
+    }
+  }
+
+  if (byId.size === 0) return state
+  return { ...state, workspaceOrigin: 'user', reservePlanners: [...byId.values()] }
+}
+
+/** Rebuild costs, due items, and reserve plans from History when the live lists were emptied. */
+export function recoverLivingCostsFromHistory(state: AppState): AppState {
+  const pruned = pruneStaleHistoryRestoredReceipts(state)
+  const withCosts = recoverCommitmentsFromHistory(pruned)
+  const withShells = recoverReservePlannerShellsFromHistory(withCosts.state)
+  const withBills = recoverReserveBillsFromHistory(withShells)
+  return withBills.state
+}
+
 export function recoverWorkspaceFromHistory(state: AppState): {
   state: AppState
   receiptsRestored: number
   plannersRepaired: string[]
+  costsRestored: number
   diagnosis: ReturnType<typeof diagnoseReservePlanners>
 } {
-  const repaired = repairHistoryRecoveredReceipts(state)
-  const receipts = recoverExpectedReceiptsFromHistory(repaired.state)
-  const bills = recoverReserveBillsFromHistory(receipts.state)
+  const pruned = pruneStaleHistoryRestoredReceipts(state)
+  const costs = recoverCommitmentsFromHistory(pruned)
+  const withShells = recoverReservePlannerShellsFromHistory(costs.state)
+  const bills = recoverReserveBillsFromHistory(withShells)
   return {
     state: bills.state,
-    receiptsRestored: receipts.restoredCount + repaired.repairedCount,
+    receiptsRestored: 0,
+    costsRestored: costs.restoredCount,
     plannersRepaired: bills.restoredPlannerIds,
     diagnosis: diagnoseReservePlanners(bills.state),
   }

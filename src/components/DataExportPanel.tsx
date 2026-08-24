@@ -49,7 +49,9 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
   const latestHistoryReceiptCount = currentHistoryOpenReceiptIds(state).size
   const canRecoverFromHistory =
     (state.historyRecords?.length ?? 0) > 0 &&
-    (summary.receipts < latestHistoryReceiptCount || emptyReservePlans.length > 0)
+    (state.commitments.length === 0 ||
+      summary.receipts < latestHistoryReceiptCount ||
+      emptyReservePlans.length > 0)
 
   const handleSyncThisDevice = async () => {
     if (!cloudBacked || readOnly) return
@@ -186,14 +188,18 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
     setStatus(null)
     try {
       const result = recoverWorkspaceFromHistory(state)
-      if (result.receiptsRestored === 0 && result.plannersRepaired.length === 0) {
+      if (
+        result.costsRestored === 0 &&
+        result.receiptsRestored === 0 &&
+        result.plannersRepaired.length === 0
+      ) {
         const empty = diagnoseReservePlanners(state)
           .filter((row) => row.monthlyDeposit <= 0)
           .map((row) => row.name)
         setStatus(
           empty.length > 0
             ? `No history snapshot had enough detail to rebuild ${empty.join(', ')}. Open each Reserve Planner and re-add the bills, or restore an older JSON export if you have one.`
-            : 'History did not contain missing receipts to restore.',
+            : 'History did not contain monthly costs or reserve bills to restore.',
         )
         return
       }
@@ -203,14 +209,14 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
         await restoreWorkspaceState(result.state)
       }
       const parts: string[] = []
-      if (result.receiptsRestored > 0) parts.push(`${result.receiptsRestored} expected receipts`)
+      if (result.costsRestored > 0) parts.push(`${result.costsRestored} monthly / planned costs`)
       if (result.plannersRepaired.length > 0) {
         parts.push(`reserve bills for ${result.plannersRepaired.length} plan(s)`)
       }
       setStatus(
-        `Recovered from your last recorded day: ${parts.join(' and ')}.` +
+        `Recovered from your balance history: ${parts.join(' and ')}.` +
           (cloudBacked ? ' Saved to your account.' : '') +
-          ' Older receipts you already deleted are left out. Check expected dates on restored receipts, and open each repaired Reserve Planner to confirm the monthly amounts.',
+          ' Confirm due days and amounts — History does not store every original setting.',
       )
     } catch (err) {
       console.error('[History recover] Failed:', err)

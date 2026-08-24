@@ -367,6 +367,32 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         state = loadedState
       }
 
+      const recoveredCosts =
+        loadedState.commitments.length === 0 && state.commitments.length > 0
+      const recoveredPlanners =
+        loadedState.reservePlanners.length === 0 && state.reservePlanners.length > 0
+      const prunedRestoredReceipts =
+        expectedReceiptsSyncKey(loadedState) !== expectedReceiptsSyncKey(state) &&
+        state.expectedReceipts.length < loadedState.expectedReceipts.length
+      if (
+        !isImpersonating &&
+        (recoveredCosts || recoveredPlanners || prunedRestoredReceipts)
+      ) {
+        try {
+          await saveWorkspaceState(wsId, state, {
+            allowEmptyDeletes: false,
+            previousState: loadedState,
+          })
+          console.info('[Workspace] Saved history recovery to account', {
+            costs: state.commitments.length,
+            planners: state.reservePlanners.length,
+            receipts: state.expectedReceipts.length,
+          })
+        } catch (error) {
+          console.warn('[Workspace] Failed to save history recovery', error)
+        }
+      }
+
       console.info('[Workspace] cloud rows', {
         groups: state.groups.length,
         businesses: state.businesses.length,

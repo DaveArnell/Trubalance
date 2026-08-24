@@ -6,13 +6,13 @@ import { stripEntitiesOutsideWorkspace } from './localStateStorage'
 import { getReferenceDate } from './referenceDate'
 import { backfillScopeSnapshots } from './snapshotRollup'
 import { refreshAllSnapshotMetrics, restorePastSnapshotMetricsFromHistory } from './snapshotRebuild'
-import { repairHistoryRecoveredReceipts, pruneStaleHistoryRestoredReceipts } from './workspaceRecovery'
+import { repairHistoryRecoveredReceipts, recoverLivingCostsFromHistory } from './workspaceRecovery'
 
 /** Align stored metrics for display without inventing past Trends from live balances. */
 export function normalizeWorkspaceStateForDisplay(state: AppState, now = new Date().toISOString()): AppState {
   const scoped = stripEntitiesOutsideWorkspace(state)
   const grouped = ensureGroupStructure(scoped)
-  const repairedReceipts = pruneStaleHistoryRestoredReceipts(repairHistoryRecoveredReceipts(grouped).state)
+  const repairedReceipts = recoverLivingCostsFromHistory(repairHistoryRecoveredReceipts(grouped).state)
   const repaired = repairEmptySnapshotChangedAccounts(repairedReceipts)
   const restored = restorePastSnapshotMetricsFromHistory(repaired, now)
   const refreshed = refreshAllSnapshotMetrics(restored, now)
@@ -26,7 +26,7 @@ export function normalizeWorkspaceStateForDisplay(state: AppState, now = new Dat
 export function normalizeWorkspaceState(state: AppState, now = new Date().toISOString()): AppState {
   const scoped = stripEntitiesOutsideWorkspace(state)
   const grouped = ensureGroupStructure(scoped)
-  const repairedReceipts = pruneStaleHistoryRestoredReceipts(repairHistoryRecoveredReceipts(grouped).state)
+  const repairedReceipts = recoverLivingCostsFromHistory(repairHistoryRecoveredReceipts(grouped).state)
   const repaired = repairEmptySnapshotChangedAccounts(repairedReceipts)
   // Restore frozen History captures before backfill so we do not push poisoned past rows.
   const restored = restorePastSnapshotMetricsFromHistory(repaired, now)
