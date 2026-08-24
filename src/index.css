@@ -34606,16 +34606,16 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .home-hero-dash-row {
   position: relative;
-  display: flex;
+  display: grid;
+  grid-template-columns: 4.6rem minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
   flex: 1;
   min-height: 28px;
   padding: 0 8px;
   border-radius: 6px;
   overflow: hidden;
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   background: #f8fafc;
 }
 
@@ -34625,19 +34625,32 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   top: 0;
   bottom: 0;
   background: #c4b5fd;
-  opacity: 0.9;
+  opacity: 0.32;
   pointer-events: none;
 }
 
+.home-hero-dash-row-due,
 .home-hero-dash-row-name,
 .home-hero-dash-row-amt {
   position: relative;
   z-index: 1;
 }
 
+.home-hero-dash-row-due {
+  color: #6b7280;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.home-hero-dash-row-name {
+  text-align: center;
+  font-weight: 750;
+  color: #111827;
+}
+
 .home-hero-dash-row-amt {
   font-variant-numeric: tabular-nums;
-  color: #4b5563;
+  color: #6b7280;
   white-space: nowrap;
 }
 
@@ -34652,10 +34665,29 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   gap: 8px;
 }
 
-.home-hero-dash-chart svg {
+.home-hero-dash-chart:not(.home-hero-dash-chart--reserve) svg {
   display: block;
   width: 100%;
   height: 72px;
+}
+
+.home-hero-dash-chart--reserve {
+  min-width: 0;
+}
+
+.home-hero-dash-reserve {
+  min-width: 0;
+}
+
+.home-hero-dash-chart--reserve .reserve-plan-chart-svg {
+  height: 118px;
+  width: 100%;
+  margin-left: 0;
+}
+
+.home-hero-dash-chart--reserve .reserve-plan-chart-axis,
+.home-hero-dash-chart--reserve .reserve-plan-chart-month {
+  font-size: 8px;
 }
 
 .home-hero-compare-actions {

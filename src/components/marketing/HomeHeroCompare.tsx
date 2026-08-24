@@ -17,9 +17,9 @@ export function HomeHeroCompare() {
         <div className="home-hero-visual home-hero-visual--paper">
           <img
             src={MESSY_PAPER}
-            alt="Handwritten notes around a bank balance of £18,400, asking how much is actually left today"
-            width={1002}
-            height={1485}
+            alt="Handwritten notes around a bank balance of £33,350, asking how much is actually left today"
+            width={995}
+            height={1374}
             decoding="async"
             fetchPriority="high"
           />
