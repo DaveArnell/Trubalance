@@ -13,14 +13,12 @@ import {
   HomeAvailablePanel,
   HomeCompareStrip,
   HomeOutcomeBeats,
-  HomeSpokenForPanel,
 } from '../components/marketing/HomeMarketingVisuals'
 import { CompanyLegalNotice } from '../components/marketing/CompanyLegalNotice'
 import {
   HOME_CTA,
-  HOME_DOES,
+  HOME_BANK_TO_PROPHET,
   HOME_HERO,
-  HOME_NEED,
   HOME_ONBOARDING,
   HOME_OUTCOME,
   HOME_WHY_IT_WORKS,
@@ -96,36 +94,17 @@ export function LandingPage() {
 
         <HomeHeroVideo />
 
-        {/* Visual left, text right */}
+        {/* Bank balance problem + Cash Prophet solution — one band */}
         <section
           className="home-band home-band--paper"
           id="why-bank-balance"
-          aria-labelledby="need-heading"
-        >
-          <div className="marketing-section-inner marketing-section-inner--home home-split home-split--flip">
-            <div className="home-split-copy">
-              <h2 id="need-heading">{HOME_NEED.heading}</h2>
-              <p className="home-split-lead">{HOME_NEED.lead}</p>
-              {HOME_NEED.body.map((paragraph) => (
-                <p key={paragraph} className="home-split-prose">
-                  {paragraph}
-                </p>
-              ))}
-            </div>
-            <HomeSpokenForPanel />
-          </div>
-        </section>
-
-        {/* Text left, visual right — alternates with the section above */}
-        <section
-          className="home-band home-band--wash"
-          id="what-it-does"
-          aria-labelledby="does-heading"
+          aria-labelledby="bank-to-prophet-heading"
         >
           <div className="marketing-section-inner marketing-section-inner--home home-split">
             <div className="home-split-copy">
-              <h2 id="does-heading">{HOME_DOES.heading}</h2>
-              {HOME_DOES.body.map((paragraph) => (
+              <h2 id="bank-to-prophet-heading">{HOME_BANK_TO_PROPHET.heading}</h2>
+              <p className="home-split-lead">{HOME_BANK_TO_PROPHET.lead}</p>
+              {HOME_BANK_TO_PROPHET.body.map((paragraph) => (
                 <p key={paragraph} className="home-split-prose">
                   {paragraph}
                 </p>

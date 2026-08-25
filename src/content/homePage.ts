@@ -41,23 +41,23 @@ export const HOME_HERO = {
   },
 } as const
 
-/** Recognition: bank balance vs what's already committed */
-export const HOME_NEED = {
-  heading: "Your bank balance tells you what's in the account",
-  lead: "It doesn't tell you what's already committed.",
+/** Recognition + solution: bank balance vs Cash Prophet doing the work */
+export const HOME_BANK_TO_PROPHET = {
+  heading: "Your bank balance only shows what's in the account",
+  lead: "Cash Prophet accounts for what's already building and what's still ahead.",
   body: [
-    "Payroll, VAT, tax, rent, insurance and supplier payments are already spoken for, but the bank doesn't show that until the money leaves.",
-    "That's why so many owners never quite trust the balance they're looking at. Before almost any decision, they run through everything that's coming in their head.",
+    'Payroll, VAT, rent and the rest are spoken for long before the money leaves — but the bank does not show that until it is too late.',
+    'Regular costs build into today’s position. Larger bills are provisioned steadily. Expected income is reflected where it belongs — so you get a daily number you can trust without running the maths in your head.',
   ],
 } as const
 
-/** How Cash Prophet does the mental accounting for you */
+/** @deprecated Use HOME_BANK_TO_PROPHET — kept for any deep links / tests */
+export const HOME_NEED = HOME_BANK_TO_PROPHET
+
+/** @deprecated Use HOME_BANK_TO_PROPHET */
 export const HOME_DOES = {
-  heading: 'Cash Prophet does that work for you',
-  body: [
-    'Regular costs build into today’s position. Larger bills are provisioned for steadily instead of arriving as a surprise. Expected income is reflected where it belongs.',
-    'That trusted number updates every day, so you can stop interpreting the bank balance and get on with running the business.',
-  ],
+  heading: HOME_BANK_TO_PROPHET.lead,
+  body: [HOME_BANK_TO_PROPHET.body[1]!],
 } as const
 
 /** Outcome: confidence from a balance you can trust */

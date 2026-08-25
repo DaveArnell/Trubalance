@@ -327,7 +327,7 @@ function dateOnly(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate())
 }
 
-/** Clamp due day to valid calendar day (e.g. 31 → 30 in April). */
+/** Clamp due day to valid calendar day (e.g. 31 → 28 in Feb, 30 in April). */
 export function clampDueDay(year: number, month: number, dueDay: number): number {
   const last = new Date(year, month + 1, 0).getDate()
   return Math.min(Math.max(1, dueDay), last)
