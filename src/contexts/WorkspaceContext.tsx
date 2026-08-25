@@ -21,7 +21,7 @@ import {
   buildSafeTableEmptyDeletes,
 } from '../services/workspaceRepository'
 import { isSupabaseConfigured, tryGetSupabase } from '../lib/supabase'
-import { emptyAppState, isBuiltinDemoWorkspace, isUserOwnedWorkspace, backupBrowserStateToSession, mergeMissingLocalWorkspaceData, countCriticalEntitiesAdded, unionExpectedReceipts, expectedReceiptsSyncKey, accountsSyncKey, snapshotsSyncKey, historyRecordsSyncKey, unionAccountsByUpdatedAt, unionSnapshotsByUpdatedAt, unionHistoryRecordsBySavedAt, stripEntitiesOutsideWorkspace, omitDeletedReceipts, LOCAL_STORAGE_KEY } from '../utils/localStateStorage'
+import { emptyAppState, isBuiltinDemoWorkspace, isUserOwnedWorkspace, backupBrowserStateToSession, mergeMissingLocalWorkspaceData, countCriticalEntitiesAdded, unionExpectedReceipts, expectedReceiptsSyncKey, accountsSyncKey, snapshotsSyncKey, historyRecordsSyncKey, unionAccountsByUpdatedAt, unionSnapshotsByUpdatedAt, unionHistoryRecordsBySavedAt, stripEntitiesOutsideWorkspace, omitDeletedReceipts, syncDeletedReceiptIdsToBrowser, LOCAL_STORAGE_KEY } from '../utils/localStateStorage'
 import { readBrowserAppState } from '../hooks/useAppState'
 import { normalizeWorkspaceStateForDisplay } from '../utils/workspaceNormalize'
 import { workspaceCostsRepairKey } from '../utils/workspaceRecovery'
@@ -230,7 +230,8 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
       const dbEmpty = await isWorkspaceEmptyInDatabase(wsId)
       const { state: loadedState, loadHadErrors } = await loadWorkspaceState(wsId)
-      const cloudRaw = stripEntitiesOutsideWorkspace(loadedState)
+      syncDeletedReceiptIdsToBrowser(loadedState.deletedReceiptIds ?? [])
+      const cloudRaw = stripEntitiesOutsideWorkspace(omitDeletedReceipts(loadedState))
       let state = cloudRaw
 
       const lastAuthUserId =

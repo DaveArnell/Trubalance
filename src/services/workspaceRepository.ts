@@ -303,6 +303,7 @@ export async function loadWorkspaceState(workspaceId: string): Promise<Workspace
     snapshotsRes,
     historyRes,
     dayNotesRes,
+    workspaceMetaRes,
   ] = await Promise.all([
     supabase.from('groups').select('*').eq('workspace_id', workspaceId).order('sort_order'),
     supabase.from('businesses').select('*').eq('workspace_id', workspaceId).order('sort_order'),
@@ -315,6 +316,7 @@ export async function loadWorkspaceState(workspaceId: string): Promise<Workspace
     supabase.from('balance_snapshots').select('*').eq('workspace_id', workspaceId).order('date'),
     supabase.from('history_records').select('*').eq('workspace_id', workspaceId).order('date', { ascending: false }),
     supabase.from('day_notes').select('*').eq('workspace_id', workspaceId).order('date'),
+    supabase.from('workspaces').select('reveal_from_overrides').eq('id', workspaceId).maybeSingle(),
   ])
 
   const responses = [
@@ -361,19 +363,27 @@ export async function loadWorkspaceState(workspaceId: string): Promise<Workspace
     }
   })
 
+  const deletedReceiptIds = parseDeletedReceiptIdsFromWorkspaceMeta(
+    (workspaceMetaRes.data as { reveal_from_overrides?: unknown } | null)?.reveal_from_overrides,
+  )
+  const deletedReceiptIdSet = new Set(deletedReceiptIds)
+
   const state: AppState = {
     groups: (groupsRes.data ?? []).map((row) => mapGroup(row as Record<string, unknown>)),
     businesses: (businessesRes.data ?? []).map((row) => mapBusiness(row as Record<string, unknown>)),
     venues: (venuesRes.data ?? []).map((row) => mapVenue(row as Record<string, unknown>)),
     accounts: (accountsRes.data ?? []).map((row) => mapAccount(row as Record<string, unknown>)),
     commitments: (commitmentsRes.data ?? []).map((row) => mapCommitment(row as Record<string, unknown>)),
-    expectedReceipts: (receiptsRes.data ?? []).map((row) => mapReceipt(row as Record<string, unknown>)),
+    expectedReceipts: (receiptsRes.data ?? [])
+      .map((row) => mapReceipt(row as Record<string, unknown>))
+      .filter((receipt) => !deletedReceiptIdSet.has(receipt.id)),
     reservePlanners,
     snapshots: (snapshotsRes.data ?? []).map((row) => mapSnapshot(row as Record<string, unknown>)),
     historyRecords: unpackHistoryRecords(
       (historyRes.data ?? []).map((row) => mapHistoryRecord(row as Record<string, unknown>)),
     ),
     dayNotes: (dayNotesRes.data ?? []).map((row) => mapDayNote(row as Record<string, unknown>)),
+    deletedReceiptIds,
   }
 
   return { state, loadHadErrors }
@@ -863,6 +873,59 @@ export async function saveWorkspaceState(
 
   if (failedCritical.length > 0) {
     throw new Error(`Cloud save failed for: ${failedCritical.join('; ')}`)
+  }
+
+  await saveWorkspaceDeletedReceiptIds(workspaceId, state.deletedReceiptIds ?? [])
+}
+
+const DELETED_RECEIPTS_META_KEY = '__deletedReceiptIds'
+
+function parseDeletedReceiptIdsFromWorkspaceMeta(raw: unknown): string[] {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return []
+  const ids = (raw as Record<string, unknown>)[DELETED_RECEIPTS_META_KEY]
+  if (!Array.isArray(ids)) return []
+  return ids.filter((id): id is string => typeof id === 'string' && id.length > 0)
+}
+
+export async function saveWorkspaceDeletedReceiptIds(
+  workspaceId: string,
+  ids: string[],
+): Promise<void> {
+  const supabase = tryGetSupabase()
+  if (!supabase) return
+
+  const { data, error: readError } = await supabase
+    .from('workspaces')
+    .select('reveal_from_overrides')
+    .eq('id', workspaceId)
+    .maybeSingle()
+
+  if (readError) {
+    console.warn('[workspaceRepository] load deleted receipt tombstones:', readError.message)
+    return
+  }
+
+  const current =
+    data?.reveal_from_overrides &&
+    typeof data.reveal_from_overrides === 'object' &&
+    !Array.isArray(data.reveal_from_overrides)
+      ? { ...(data.reveal_from_overrides as Record<string, unknown>) }
+      : {}
+
+  const unique = [...new Set(ids.filter(Boolean))]
+  if (unique.length === 0) {
+    delete current[DELETED_RECEIPTS_META_KEY]
+  } else {
+    current[DELETED_RECEIPTS_META_KEY] = unique
+  }
+
+  const { error } = await supabase
+    .from('workspaces')
+    .update({ reveal_from_overrides: current, updated_at: new Date().toISOString() })
+    .eq('id', workspaceId)
+
+  if (error) {
+    console.warn('[workspaceRepository] save deleted receipt tombstones:', error.message)
   }
 }
 

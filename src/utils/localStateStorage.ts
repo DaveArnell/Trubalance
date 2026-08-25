@@ -17,6 +17,19 @@ export function readDeletedReceiptIds(): Set<string> {
   }
 }
 
+/** Merge browser tombstones with workspace-level deleted receipt ids. */
+export function getDeletedReceiptIds(state?: Pick<AppState, 'deletedReceiptIds'>): Set<string> {
+  const ids = readDeletedReceiptIds()
+  for (const id of state?.deletedReceiptIds ?? []) {
+    if (id) ids.add(id)
+  }
+  return ids
+}
+
+export function syncDeletedReceiptIdsToBrowser(ids: Iterable<string>): void {
+  rememberDeletedReceiptIds([...ids])
+}
+
 export function rememberDeletedReceiptIds(ids: string[]): void {
   if (ids.length === 0) return
   try {
@@ -40,7 +53,7 @@ export function forgetDeletedReceiptIds(ids: string[]): void {
 }
 
 export function omitDeletedReceipts(state: AppState): AppState {
-  const deleted = readDeletedReceiptIds()
+  const deleted = getDeletedReceiptIds(state)
   if (deleted.size === 0) return state
   const expectedReceipts = state.expectedReceipts.filter((receipt) => !deleted.has(receipt.id))
   if (expectedReceipts.length === state.expectedReceipts.length) return state
@@ -276,7 +289,7 @@ export function unionExpectedReceipts(
   cloud: AppState,
   ...sources: Array<AppState | null | undefined>
 ): AppState {
-  const deleted = readDeletedReceiptIds()
+  const deleted = getDeletedReceiptIds(cloud)
   const byId = new Map(
     cloud.expectedReceipts
       .filter((receipt) => !deleted.has(receipt.id))

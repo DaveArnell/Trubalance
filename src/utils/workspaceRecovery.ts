@@ -3,7 +3,7 @@ import { roundCurrency, toAmount } from './amounts'
 import { MONTHS } from './format'
 import { plannerMonthlyDeposit } from './reserveCalculations'
 import { todayDateKey } from './snapshots'
-import { rememberDeletedReceiptIds, readDeletedReceiptIds, forgetDeletedReceiptIds } from './localStateStorage'
+import { rememberDeletedReceiptIds, getDeletedReceiptIds } from './localStateStorage'
 
 const RESTORED_NOTE_V2 =
   'Restored from balance history — estimated target from daily build-up; please confirm amount'
@@ -288,7 +288,7 @@ export function recoverExpectedReceiptsFromHistory(state: AppState): {
   restoredCount: number
 } {
   const existingIds = new Set(state.expectedReceipts.map((receipt) => receipt.id))
-  const deleted = readDeletedReceiptIds()
+  const deleted = getDeletedReceiptIds(state)
   const restorableIds = restorableReceiptIdsFromHistory(state)
   const seriesById = collectReceiptHistorySeries(state)
   const toRestore = [...seriesById.values()].filter(
@@ -1056,23 +1056,9 @@ export function reopenCommittedFundsFromHistory(state: AppState): AppState {
   return { ...state, workspaceOrigin: 'user', commitments }
 }
 
-/** Restore missing expected receipts whenever History still shows them open. */
-export function recoverMissingReceiptsFromHistory(state: AppState): AppState {
-  const restorable = restorableReceiptIdsFromHistory(state)
-  if (restorable.size === 0) return state
-
-  forgetDeletedReceiptIds([...restorable])
-  const pruned = pruneStaleHistoryRestoredReceipts(state)
-  const { state: next, restoredCount } = recoverExpectedReceiptsFromHistory(pruned)
-  if (restoredCount > 0) {
-    console.info(`[Workspace] Restored ${restoredCount} expected receipt(s) from History`)
-  }
-  return next
-}
-
 /** Rebuild costs / receipts / reserve shells only when live lists were wiped. */
 export function recoverLivingCostsFromHistory(state: AppState): AppState {
-  const stripped = stripInventedHistoryReserveBills(recoverMissingReceiptsFromHistory(state))
+  const stripped = stripInventedHistoryReserveBills(state)
   const needsFullRepair =
     stripped.commitments.length === 0 ||
     stripped.reservePlanners.length === 0 ||
@@ -1081,7 +1067,6 @@ export function recoverLivingCostsFromHistory(state: AppState): AppState {
   if (!needsFullRepair) return stripped
 
   const before = workspaceCostsRepairKey(stripped)
-  forgetDeletedReceiptIds([...restorableReceiptIdsFromHistory(stripped)])
   const pruned = pruneStaleHistoryRestoredReceipts(stripped)
   const receipts = recoverExpectedReceiptsFromHistory(pruned)
   const withCosts = recoverCommitmentsFromHistory(receipts.state)
@@ -1118,8 +1103,7 @@ export function recoverWorkspaceFromHistory(state: AppState): {
   costsRestored: number
   diagnosis: ReturnType<typeof diagnoseReservePlanners>
 } {
-  forgetDeletedReceiptIds([...restorableReceiptIdsFromHistory(state)])
-  const pruned = pruneStaleHistoryRestoredReceipts(recoverMissingReceiptsFromHistory(state))
+  const pruned = pruneStaleHistoryRestoredReceipts(state)
   const receipts = recoverExpectedReceiptsFromHistory(pruned)
   const withCosts = recoverCommitmentsFromHistory(receipts.state)
   const refined = refineRestoredCommitmentsFromHistory(withCosts.state)

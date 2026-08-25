@@ -1231,8 +1231,10 @@ export function useAppState(options?: UseAppStateOptions) {
     update((s) => {
       const existing = s.expectedReceipts.find((r) => r.id === id)
       if (!existing) return s
+      const deletedReceiptIds = [...new Set([...(s.deletedReceiptIds ?? []), id])]
       const nextState: AppState = {
         ...s,
+        deletedReceiptIds,
         expectedReceipts: s.expectedReceipts.filter((r) => r.id !== id),
       }
       const next = refreshSnapshotsForScopes(

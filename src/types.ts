@@ -273,6 +273,8 @@ export interface AppState {
   historyRecords: HistoryRecord[]
   /** User annotations for a calendar day — shown on trends and balance log. */
   dayNotes: DayNote[]
+  /** Receipt ids the user removed — kept so History recovery cannot resurrect them. */
+  deletedReceiptIds?: string[]
   /** Set when loading built-in demo or restoring a user export. */
   workspaceOrigin?: 'builtin-demo' | 'user'
 }
