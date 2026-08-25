@@ -45,6 +45,7 @@ export function AppPage() {
         externalState={remoteEnabled ? initialRemoteState : null}
         externalStateVersion={remoteEnabled ? remoteStateVersion : undefined}
         remotePersist={remoteEnabled}
+        skipLocalPersist={remoteEnabled}
         onStateChange={persistState}
         onRemoteHydrated={markRemoteHydrated}
         readOnly={readOnly}

@@ -603,25 +603,63 @@ export async function saveWorkspaceState(
       ...ws,
     })),
   )
-  const snapshotRows = state.snapshots.map((s) => ({
-    id: s.id,
-    date: s.date,
-    scope_type: s.scopeType,
-    scope_id: s.scopeId,
-    view_name: s.viewName ?? '',
-    cash: s.cash ?? 0,
-    committed_funds: s.committedFunds ?? 0,
-    expected_receipts: s.expectedReceipts ?? 0,
-    true_balance: s.trueBalance ?? 0,
-    note: s.note ?? null,
-    note_source: s.noteSource ?? null,
-    freshness: s.freshness ?? 'green',
-    changed_accounts: s.changedAccounts ?? [],
-    recorded_values: s.recordedValues ?? null,
-    corrected_at: s.correctedAt ?? null,
-    updated_at: s.updatedAt ?? new Date().toISOString(),
-    ...ws,
-  }))
+  // One row per (date, scope). Upsert-by-id alone 409s when another id already
+  // owns the UNIQUE (workspace_id, date, scope_type, scope_id) slot.
+  const previousSnapshotIdByKey = new Map(
+    (options?.previousState?.snapshots ?? []).map((snap) => [
+      `${snap.date}:${snap.scopeType}:${snap.scopeId}`,
+      snap.id,
+    ]),
+  )
+  const snapshotByKey = new Map<
+    string,
+    {
+      id: string
+      date: string
+      scope_type: string
+      scope_id: string
+      view_name: string
+      cash: number
+      committed_funds: number
+      expected_receipts: number
+      true_balance: number
+      note: string | null
+      note_source: string | null
+      freshness: string
+      changed_accounts: unknown
+      recorded_values: unknown
+      corrected_at: string | null
+      updated_at: string
+      workspace_id: string
+    }
+  >()
+  for (const s of state.snapshots) {
+    if (String(s.id).startsWith('split-snap:')) continue
+    const key = `${s.date}:${s.scopeType}:${s.scopeId}`
+    const updatedAt = s.updatedAt ?? new Date().toISOString()
+    const existing = snapshotByKey.get(key)
+    if (existing && String(existing.updated_at) > updatedAt) continue
+    snapshotByKey.set(key, {
+      id: previousSnapshotIdByKey.get(key) ?? s.id,
+      date: s.date,
+      scope_type: s.scopeType,
+      scope_id: s.scopeId,
+      view_name: s.viewName ?? '',
+      cash: s.cash ?? 0,
+      committed_funds: s.committedFunds ?? 0,
+      expected_receipts: s.expectedReceipts ?? 0,
+      true_balance: s.trueBalance ?? 0,
+      note: s.note ?? null,
+      note_source: s.noteSource ?? null,
+      freshness: s.freshness ?? 'green',
+      changed_accounts: s.changedAccounts ?? [],
+      recorded_values: s.recordedValues ?? null,
+      corrected_at: s.correctedAt ?? null,
+      updated_at: updatedAt,
+      ...ws,
+    })
+  }
+  const snapshotRows = [...snapshotByKey.values()]
   const historyRows = packHistoryRecordsForCloud(state.historyRecords ?? []).map((r) => ({
     id: r.id,
     date: r.date,
@@ -665,7 +703,11 @@ export async function saveWorkspaceState(
     'received_date',
   ]
 
-  /** Fail the whole save if these cannot upsert — silent continue left devices out of sync. */
+  /**
+   * Fail the whole save if these cannot upsert — silent continue left devices out of sync.
+   * Trends tables are NOT critical: a snapshot/history conflict must never block Due,
+   * reserve bills, or account saves (that caused edits to appear then vanish).
+   */
   const CRITICAL_UPSERT_TABLES = new Set([
     'groups',
     'businesses',
@@ -675,9 +717,15 @@ export async function saveWorkspaceState(
     'expected_receipts',
     'reserve_planners',
     'reserve_bills',
-    'balance_snapshots',
-    'history_records',
   ])
+
+  const upsertConflict = (tableName: string): { onConflict: string } | undefined => {
+    if (tableName === 'history_records') return { onConflict: 'workspace_id,date' }
+    if (tableName === 'balance_snapshots') {
+      return { onConflict: 'workspace_id,date,scope_type,scope_id' }
+    }
+    return undefined
+  }
   const failedCritical: string[] = []
 
   /** Tables where a partial hydrate + orphan-delete previously wiped live data. */
@@ -763,7 +811,7 @@ export async function saveWorkspaceState(
 
     const { error } = await supabase.from(table.name).upsert(
       table.rows as Record<string, unknown>[],
-      table.name === 'history_records' ? { onConflict: 'workspace_id,date' } : undefined,
+      upsertConflict(table.name),
     )
     if (error) {
       console.warn(`[workspaceRepository] upsert ${table.name}:`, error.message)
@@ -774,7 +822,7 @@ export async function saveWorkspaceState(
       })
       const { error: retryErr } = await supabase.from(table.name).upsert(
         coreRows,
-        table.name === 'history_records' ? { onConflict: 'workspace_id,date' } : undefined,
+        upsertConflict(table.name),
       )
       if (retryErr) {
         console.warn(`[workspaceRepository] upsert ${table.name} (retry):`, retryErr.message)

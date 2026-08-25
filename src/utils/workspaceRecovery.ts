@@ -436,133 +436,6 @@ function isReconstructedSnapshotNote(note: string | undefined): boolean {
   return (note ?? '').includes('Restored from saved daily snapshot')
 }
 
-function parseReserveAccruingRowId(rowId: string): string | null {
-  const match = rowId.match(
-    /^reserve-(?:shared-)?([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i,
-  )
-  return match?.[1] ?? null
-}
-
-function parseReserveTransferDueRowId(rowId: string): string | null {
-  const match = rowId.match(
-    /^reserve-transfer-(?:shared-)?([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})-\d{4}-\d{2}$/i,
-  )
-  return match?.[1] ?? null
-}
-
-function plannerIdFromReserveHistoryRow(
-  state: AppState,
-  item: {
-    scopeLevel: HistoryRecord['dueItems'][number]['scopeLevel']
-    scopeId: string
-    rowId: string
-  },
-): string | null {
-  const accruingId = parseReserveAccruingRowId(item.rowId)
-  if (accruingId && state.reservePlanners.some((planner) => planner.id === accruingId)) {
-    return accruingId
-  }
-  const transferId = parseReserveTransferDueRowId(item.rowId)
-  if (transferId && state.reservePlanners.some((planner) => planner.id === transferId)) {
-    return transferId
-  }
-  return plannerIdForReserveHistoryItem(state, item)
-}
-
-/** Monthly reserve deposit History was actually accruing — not a fake 12-month grid. */
-function historyReserveMonthlyDeposits(state: AppState): Map<string, number> {
-  const records = [...(state.historyRecords ?? [])].sort((a, b) => a.date.localeCompare(b.date))
-  const today = calendarDateKey()
-  const dates = [...new Set(records.map((record) => record.date))]
-    .filter((date) => date < today)
-    .sort()
-    .reverse()
-  const searchDates = dates.length > 0 ? dates : [...new Set(records.map((record) => record.date))].sort().reverse()
-
-  let best = new Map<string, number>()
-  let bestTotal = 0
-
-  const collectForDate = (date: string, allowTransferFallback: boolean) => {
-    const dayDeposits = new Map<string, number>()
-    for (const record of records) {
-      if (record.date !== date) continue
-      if (isReconstructedSnapshotNote(record.note)) continue
-      for (const item of record.buildingUpItems ?? []) {
-        if (item.source !== 'reserve' || item.budgetAmount <= 0) continue
-        const plannerId = plannerIdFromReserveHistoryRow(state, item)
-        if (!plannerId) continue
-        dayDeposits.set(plannerId, Math.max(dayDeposits.get(plannerId) ?? 0, item.budgetAmount))
-      }
-    }
-    if (dayDeposits.size === 0 && allowTransferFallback) {
-      for (const record of records) {
-        if (record.date !== date) continue
-        if (isReconstructedSnapshotNote(record.note)) continue
-        for (const item of record.dueItems ?? []) {
-          if (item.source !== 'reserve' || item.amount <= 0) continue
-          if (!parseReserveTransferDueRowId(item.rowId)) continue
-          const plannerId = plannerIdFromReserveHistoryRow(state, item)
-          if (!plannerId) continue
-          dayDeposits.set(plannerId, Math.max(dayDeposits.get(plannerId) ?? 0, item.amount))
-        }
-      }
-    }
-    const total = [...dayDeposits.values()].reduce((sum, amount) => sum + amount, 0)
-    if (total > bestTotal) {
-      best = dayDeposits
-      bestTotal = total
-    }
-  }
-
-  for (const date of searchDates) collectForDate(date, false)
-  if (bestTotal === 0) {
-    for (const date of searchDates) collectForDate(date, true)
-  }
-
-  return best
-}
-
-function applyHistoryReserveMonthlyTargets(
-  planners: ReservePlanner[],
-  deposits: Map<string, number>,
-  trusted: string | null,
-): { planners: ReservePlanner[]; changedIds: string[] } {
-  const changedIds: string[] = []
-  const nextPlanners = planners.map((planner) => {
-    const historyMonthly = deposits.get(planner.id) ?? 0
-    const namedBills = planner.bills.filter((bill) => !isHistoryReserveTargetBill(bill))
-    const namedMonthly = plannerMonthlyDeposit(namedBills)
-    const remainderAnnual = roundCurrency((historyMonthly - namedMonthly) * 12)
-    const existingTarget = planner.bills.find((bill) => isHistoryReserveTargetBill(bill))
-
-    if (remainderAnnual <= 50) {
-      if (!existingTarget) return planner
-      changedIds.push(planner.id)
-      return { ...planner, bills: namedBills }
-    }
-
-    const lastMonth = MONTHS[MONTHS.length - 1]!
-    const bill: ReserveBill = {
-      id: existingTarget?.id ?? historyBillKey(planner.id, HISTORY_RESERVE_TARGET_BILL),
-      plannerId: planner.id,
-      name: HISTORY_RESERVE_TARGET_BILL,
-      monthAmounts: { [lastMonth]: remainderAnnual },
-      createdAt: existingTarget?.createdAt ?? trusted ?? undefined,
-      lastPaidPeriod: trusted ? previousPeriod(trusted.slice(0, 7)) : existingTarget?.lastPaidPeriod,
-      notes: RESTORED_COST_NOTE,
-      sortOrder: existingTarget?.sortOrder ?? 999,
-    }
-    const before = existingTarget ? toAmount(existingTarget.monthAmounts[lastMonth]) : 0
-    if (Math.abs(before - remainderAnnual) < 1 && existingTarget) return planner
-    changedIds.push(planner.id)
-    console.info(
-      `[Workspace] Restored £${Math.round(historyMonthly)}/month reserve earmark for ${planner.name || planner.id}`,
-    )
-    return { ...planner, bills: [...namedBills, bill] }
-  })
-  return { planners: nextPlanners, changedIds }
-}
-
 function monthKeyFromPeriod(period: string): string | null {
   if (!/^\d{4}-\d{2}$/.test(period) || period.startsWith('2099')) return null
   const index = Number(period.slice(5, 7)) - 1
@@ -781,16 +654,15 @@ export function recoverReserveBillsFromHistory(state: AppState): {
     }
   }
 
-  const poisonedMonthlyByPlanner = new Map<string, number>()
   const reservePlanners: ReservePlanner[] = state.reservePlanners.map((planner) => {
     const incoming = reconstructed.get(planner.id) ?? []
     const poisoned = planner.bills.length === 0 || planner.bills.every(isPoisonedReserveBill)
-    if (poisoned) {
-      const monthly = plannerMonthlyDeposit(planner.bills)
-      if (monthly > 0) poisonedMonthlyByPlanner.set(planner.id, monthly)
-    }
-    const currentBills = poisoned ? [] : planner.bills
-    const bills = mergeReserveBills(currentBills, incoming).map((bill) => {
+    const currentBills = poisoned
+      ? []
+      : planner.bills.filter((bill) => !isHistoryReserveTargetBill(bill))
+    const bills = mergeReserveBills(currentBills, incoming)
+      .filter((bill) => !isHistoryReserveTargetBill(bill))
+      .map((bill) => {
       const duePeriod = reserveDue.get(`${planner.id}:${bill.id}`)
       if (!poisoned && currentBills.some((existing) => existing.id === bill.id)) {
         return bill
@@ -804,7 +676,7 @@ export function recoverReserveBillsFromHistory(state: AppState): {
             : undefined,
       }
     })
-    const before = currentBills
+    const before = (poisoned ? [] : planner.bills)
       .map((bill) => `${bill.id}:${MONTHS.map((month) => bill.monthAmounts[month] ?? 0).join(',')}`)
       .join('|')
     const after = bills
@@ -815,19 +687,12 @@ export function recoverReserveBillsFromHistory(state: AppState): {
     return { ...planner, bills }
   })
 
-  const deposits = historyReserveMonthlyDeposits({ ...state, reservePlanners })
-  for (const [plannerId, monthly] of poisonedMonthlyByPlanner) {
-    if ((deposits.get(plannerId) ?? 0) < monthly) deposits.set(plannerId, monthly)
-  }
-  const withTargets = applyHistoryReserveMonthlyTargets(reservePlanners, deposits, trusted)
-  for (const plannerId of withTargets.changedIds) {
-    if (!restoredPlannerIds.includes(plannerId)) restoredPlannerIds.push(plannerId)
-  }
-
+  // Do not invent a lump “Recovered from History” bill. Named months from Due
+  // history are enough; the owner rebuilds the real year grid when ready.
   if (restoredPlannerIds.length === 0) return { state, restoredPlannerIds }
 
   return {
-    state: { ...state, workspaceOrigin: 'user', reservePlanners: withTargets.planners },
+    state: { ...state, workspaceOrigin: 'user', reservePlanners },
     restoredPlannerIds,
   }
 }

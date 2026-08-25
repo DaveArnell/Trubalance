@@ -21,7 +21,7 @@ import {
   buildSafeTableEmptyDeletes,
 } from '../services/workspaceRepository'
 import { isSupabaseConfigured, tryGetSupabase } from '../lib/supabase'
-import { emptyAppState, isBuiltinDemoWorkspace, isUserOwnedWorkspace, backupBrowserStateToSession, mergeMissingLocalWorkspaceData, countCriticalEntitiesAdded, unionExpectedReceipts, expectedReceiptsSyncKey, accountsSyncKey, snapshotsSyncKey, historyRecordsSyncKey, unionAccountsByUpdatedAt, unionSnapshotsByUpdatedAt, unionHistoryRecordsBySavedAt, stripEntitiesOutsideWorkspace, omitDeletedReceipts } from '../utils/localStateStorage'
+import { emptyAppState, isBuiltinDemoWorkspace, isUserOwnedWorkspace, backupBrowserStateToSession, mergeMissingLocalWorkspaceData, countCriticalEntitiesAdded, unionExpectedReceipts, expectedReceiptsSyncKey, accountsSyncKey, snapshotsSyncKey, historyRecordsSyncKey, unionAccountsByUpdatedAt, unionSnapshotsByUpdatedAt, unionHistoryRecordsBySavedAt, stripEntitiesOutsideWorkspace, omitDeletedReceipts, LOCAL_STORAGE_KEY } from '../utils/localStateStorage'
 import { readBrowserAppState } from '../hooks/useAppState'
 import { normalizeWorkspaceStateForDisplay } from '../utils/workspaceNormalize'
 import { workspaceCostsRepairKey } from '../utils/workspaceRecovery'
@@ -279,9 +279,13 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         allowEmptyDeletesRef.current = false
       }
 
-      // Fold in anything this device still has locally (and any edit queued mid-pull).
-      // Only entities that belong to THIS workspace’s businesses are kept.
-      const localSources = [localState, pendingBeforeLoad].filter(Boolean) as AppState[]
+      // Prefer the account as source of truth. Only fold in an in-flight edit from this
+      // pull — not a stale browser cache (that rewrote Trends and undid Due / reserve edits).
+      const localSources = (
+        dbEmpty || cloudLooksLikeDemo
+          ? [localState, pendingBeforeLoad]
+          : [pendingBeforeLoad]
+      ).filter(Boolean) as AppState[]
       if (!isImpersonating && user?.id === effectiveUserId && localSources.length > 0) {
         const beforeMerge = state
         for (const source of localSources) {
@@ -406,6 +410,16 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         snapshots: state.snapshots.length,
         loadHadErrors,
       })
+
+      // Signed-in workspaces live on the account — drop the old browser cache so it
+      // cannot silently overwrite cloud data on the next pull.
+      try {
+        window.localStorage.removeItem(LOCAL_STORAGE_KEY)
+        window.localStorage.removeItem('trubalance-app-state-v3')
+        window.localStorage.removeItem('trubalance-app-state-v2')
+      } catch {
+        /* ignore */
+      }
 
       try {
         window.localStorage.setItem('trubalance-last-auth-user-id', effectiveUserId)

@@ -4,6 +4,24 @@ import { getReferenceDate, getReferenceDateKey } from './referenceDate'
 
 export const todayDateKey = () => getReferenceDateKey()
 
+/** One saved Trends point per date + scope — duplicates cause cloud 409 conflicts. */
+export function dedupeSnapshotsByScopeDate(snapshots: BalanceSnapshot[]): BalanceSnapshot[] {
+  const byKey = new Map<string, BalanceSnapshot>()
+  for (const snap of snapshots) {
+    if (String(snap.id).startsWith('split-snap:')) continue
+    const key = `${snap.date}:${snap.scopeType}:${snap.scopeId}`
+    const existing = byKey.get(key)
+    if (!existing) {
+      byKey.set(key, snap)
+      continue
+    }
+    const existingAt = existing.updatedAt ?? ''
+    const nextAt = snap.updatedAt ?? ''
+    if (nextAt >= existingAt) byKey.set(key, snap)
+  }
+  return [...byKey.values()]
+}
+
 export const daysBetween = (from: string | Date, to: Date = getReferenceDate()) => {
   const start = typeof from === 'string' ? new Date(from) : from
   if (isNaN(start.getTime())) return 0

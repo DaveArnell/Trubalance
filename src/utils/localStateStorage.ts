@@ -455,10 +455,32 @@ export function unionHistoryRecordsBySavedAt(
 export function mergeMissingLocalWorkspaceData(cloud: AppState, local: AppState | null): AppState {
   let next = mergeMissingExpectedReceipts(cloud, local)
   next = mergeMissingReservePlanners(next, local)
+  next = unionReservePlannerBills(next, local)
   next = mergeMissingCommitments(next, local)
   next = unionCommitmentsPaidState(next, local)
   next = unionReservePlannersPaidState(next, local)
   return stripEntitiesOutsideWorkspace(next)
+}
+
+/**
+ * Keep bills this device just added when a sync pull still has the older planner
+ * without them (duplicate / new row appeared then vanished).
+ */
+export function unionReservePlannerBills(cloud: AppState, local: AppState | null): AppState {
+  if (!local?.reservePlanners.length) return cloud
+  const localById = new Map(local.reservePlanners.map((planner) => [planner.id, planner]))
+  let changed = false
+  const reservePlanners = cloud.reservePlanners.map((planner) => {
+    const localPlanner = localById.get(planner.id)
+    if (!localPlanner?.bills.length) return planner
+    const cloudIds = new Set(planner.bills.map((bill) => bill.id))
+    const missing = localPlanner.bills.filter((bill) => !cloudIds.has(bill.id))
+    if (missing.length === 0) return planner
+    changed = true
+    return { ...planner, bills: [...planner.bills, ...missing] }
+  })
+  if (!changed) return cloud
+  return { ...cloud, workspaceOrigin: cloud.workspaceOrigin ?? 'user', reservePlanners }
 }
 
 function latestPaidDate(dates: Record<string, string> | undefined): string {

@@ -1273,6 +1273,7 @@ export function useAppState(options?: UseAppStateOptions) {
 
   const addReserveBill = (bill: Omit<ReserveBill, 'id'>) => {
     const id = newId()
+    requestImmediatePersist()
     update((s) => ({
       ...s,
       reservePlanners: s.reservePlanners.map((p) =>
@@ -1343,7 +1344,8 @@ export function useAppState(options?: UseAppStateOptions) {
       )
     })
 
-  const duplicateReserveBill = (plannerId: string, billId: string) =>
+  const duplicateReserveBill = (plannerId: string, billId: string) => {
+    requestImmediatePersist()
     update((s) => ({
       ...s,
       reservePlanners: s.reservePlanners.map((p) => {
@@ -1366,6 +1368,7 @@ export function useAppState(options?: UseAppStateOptions) {
         return { ...p, bills: [...p.bills, copy] }
       }),
     }))
+  }
 
   const copyReservePlannerBillsFrom = (
     targetPlannerId: string,

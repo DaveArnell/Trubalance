@@ -37,7 +37,7 @@ const SECTIONS: {
   {
     id: 'data',
     label: 'Your data',
-    lead: 'Download a backup, restore from a file, or delete your account.',
+    lead: 'Download a copy, or delete your account.',
   },
 ]
 
