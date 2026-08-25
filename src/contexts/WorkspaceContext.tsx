@@ -108,8 +108,6 @@ const REALTIME_PULL_TABLES = [
   'accounts',
   'reserve_planners',
   'reserve_bills',
-  'balance_snapshots',
-  'history_records',
 ] as const
 
 function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
@@ -169,6 +167,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const pullGenerationRef = useRef(0)
   const hydratedGenerationRef = useRef(0)
   const lastRestorePointAtRef = useRef(0)
+  const lastLocalSaveAtRef = useRef(0)
   const loadedForUserRef = useRef<string | null>(null)
   const hasLoadedStateRef = useRef(
     (() => {
@@ -560,6 +559,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
           loadedStateRef.current = state
           lastSyncFingerprintRef.current = workspaceSyncFingerprint(state)
           setInitialRemoteState(state)
+          lastLocalSaveAtRef.current = Date.now()
           const now = Date.now()
           if (now - lastRestorePointAtRef.current > 10 * 60 * 1000) {
             lastRestorePointAtRef.current = now
@@ -697,10 +697,12 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
     let pullTimer: ReturnType<typeof setTimeout> | null = null
     const schedulePull = () => {
+      if (Date.now() - lastLocalSaveAtRef.current < 4_000) return
       if (pullTimer) clearTimeout(pullTimer)
       pullTimer = setTimeout(() => {
         if (document.visibilityState !== 'visible') return
         if (syncInFlightRef.current) return
+        if (Date.now() - lastLocalSaveAtRef.current < 4_000) return
         syncInFlightRef.current = true
         void (async () => {
           try {
