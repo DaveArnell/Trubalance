@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { AppState } from '../types'
 import { useAuth } from '../contexts/AuthContext'
@@ -13,6 +13,13 @@ import {
   recoverWorkspaceFromHistory,
   reservePlannersMissingDeposit,
 } from '../utils/workspaceRecovery'
+import {
+  applyRestorePointPayload,
+  insertRestorePoint,
+  listRestorePoints,
+  loadRestorePointPayload,
+  type RestorePointMeta,
+} from '../services/restorePoints'
 
 interface DataExportPanelProps {
   state: AppState
@@ -23,6 +30,7 @@ interface DataExportPanelProps {
 export function DataExportPanel({ state, onReplaceState, embedded = false }: DataExportPanelProps) {
   const { user } = useAuth()
   const {
+    workspaceId,
     remoteEnabled,
     readOnly,
     cancelPendingPersist,
@@ -36,6 +44,9 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
   const [restoringBackup, setRestoringBackup] = useState(false)
   const [recoveringHistory, setRecoveringHistory] = useState(false)
   const [syncingDevice, setSyncingDevice] = useState(false)
+  const [restorePoints, setRestorePoints] = useState<RestorePointMeta[]>([])
+  const [restoringPointId, setRestoringPointId] = useState<string | null>(null)
+  const [savingPoint, setSavingPoint] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState('')
   const [deletingAccount, setDeletingAccount] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -45,6 +56,14 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
   const summary = summarizeAppState(state)
   const signedIn = Boolean(user)
   const cloudBacked = remoteEnabled && isSupabaseConfigured
+
+  useEffect(() => {
+    if (!workspaceId || !cloudBacked) {
+      setRestorePoints([])
+      return
+    }
+    void listRestorePoints(workspaceId).then(setRestorePoints)
+  }, [workspaceId, cloudBacked, state.snapshots.length, state.reservePlanners.length])
   const emptyReservePlans = reservePlannersMissingDeposit(state)
   const latestHistoryReceiptCount = currentHistoryOpenReceiptIds(state).size
   const canRecoverFromHistory =
@@ -99,6 +118,51 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
     link.click()
     URL.revokeObjectURL(url)
     setStatus('Download started.')
+  }
+
+  const handleSaveRestorePoint = async () => {
+    if (!workspaceId || !cloudBacked || readOnly) return
+    setSavingPoint(true)
+    setStatus(null)
+    try {
+      await insertRestorePoint(workspaceId, state, 'manual')
+      setRestorePoints(await listRestorePoints(workspaceId))
+      setStatus('Restore point saved. You can come back to this copy of Trends, costs, receipts and reserve plans.')
+    } catch (err) {
+      setStatus(
+        err instanceof Error
+          ? err.message
+          : 'Could not save a restore point. Run the restore-points SQL in Supabase first.',
+      )
+    } finally {
+      setSavingPoint(false)
+    }
+  }
+
+  const handleRestorePoint = async (point: RestorePointMeta) => {
+    if (!workspaceId || !cloudBacked || readOnly) return
+    const confirmed = window.confirm(
+      `Replace Trends, Due, receipts, reserve plans and account balances with the copy from ${point.label}?`,
+    )
+    if (!confirmed) return
+    setRestoringPointId(point.id)
+    setStatus(null)
+    try {
+      const payload = await loadRestorePointPayload(workspaceId, point.id)
+      if (!payload) {
+        setStatus('That restore point could not be loaded.')
+        return
+      }
+      cancelPendingPersist()
+      const next = applyRestorePointPayload(state, payload)
+      onReplaceState(next)
+      await restoreWorkspaceState(next)
+      setStatus(`Restored to ${point.label}. Hard-refresh if the screen still looks stale.`)
+    } catch (err) {
+      setStatus(err instanceof Error ? err.message : 'Restore failed.')
+    } finally {
+      setRestoringPointId(null)
+    }
   }
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -303,6 +367,16 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
           <button
             type="button"
             className="btn-secondary btn-tiny"
+            disabled={readOnly || savingPoint || !workspaceId}
+            onClick={handleSaveRestorePoint}
+          >
+            {savingPoint ? 'Saving…' : 'Save restore point'}
+          </button>
+        ) : null}
+        {cloudBacked ? (
+          <button
+            type="button"
+            className="btn-secondary btn-tiny"
             disabled={readOnly || syncingDevice}
             onClick={handleSyncThisDevice}
             title="Uploads receipts, costs and reserve plans that exist on this device but not yet in your account. Safe — does not delete anything."
@@ -347,6 +421,37 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
             These reserve plans have no monthly bills right now, so they will not show in Accruing:{' '}
             {emptyReservePlans.join(', ')}. Use recovery above, or re-add bills in each Reserve Planner.
           </p>
+        ) : null}
+        {cloudBacked ? (
+          <article className="data-export-block">
+            <h3>Restore to a saved point</h3>
+            <p className="muted">
+              These copies are separate from live sync, so a later save cannot delete them. After you run
+              the restore-points SQL in Supabase, the app keeps the last 40 automatically.
+            </p>
+            {restorePoints.length === 0 ? (
+              <p className="muted">No restore points yet. Save one now, or wait for the next account save.</p>
+            ) : (
+              <ul className="data-export-points">
+                {restorePoints.map((point) => (
+                  <li key={point.id}>
+                    <span>
+                      {point.label}
+                      {point.kind === 'manual' ? ' (saved by you)' : ''}
+                    </span>
+                    <button
+                      type="button"
+                      className="btn-secondary btn-tiny"
+                      disabled={readOnly || restoringPointId != null}
+                      onClick={() => void handleRestorePoint(point)}
+                    >
+                      {restoringPointId === point.id ? 'Restoring…' : 'Restore'}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </article>
         ) : null}
         <input
           ref={fileInputRef}

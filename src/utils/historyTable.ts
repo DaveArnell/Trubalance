@@ -242,23 +242,6 @@ function alignedSnapshotsForPeriod(
   return aligned
 }
 
-function rollupTotalValue(
-  values: Record<string, HistoryCellData>,
-  columns: HistoryColumn[],
-): number | null {
-  const detailColumns = columns.filter((col) => !col.isTotal && !col.isShared)
-  const sharedColumns = columns.filter((col) => col.isShared)
-  const totalColumn = columns.find((col) => col.isTotal)
-
-  const detailValues = detailColumns.map((col) => values[col.key]?.value ?? null)
-  if (detailValues.every((value) => value != null)) {
-    const sharedSum = sharedColumns.reduce((sum, col) => sum + (values[col.key]?.value ?? 0), 0)
-    return roundCurrency(detailValues.reduce((sum, value) => sum + value!, 0) + sharedSum)
-  }
-
-  return totalColumn?.key ? values[totalColumn.key]?.value ?? null : null
-}
-
 export function buildHistoryTable(
   state: AppState,
   viewScope: ViewScope,
@@ -325,17 +308,7 @@ export function buildHistoryTable(
 
       if (columns.some((col) => col.isTotal)) {
         values[totalKey] = cellFromSnapshot(state, parentSnap, metric, granularity)
-        // Group total can reconcile venues + GROUP column; business total is its own saved figure.
-        // Builtin demos keep the authored parent Available line (no child rollup spikes).
-        if (viewScope.type === 'group' && state.workspaceOrigin !== 'builtin-demo') {
-          const rolledUp = rollupTotalValue(values, columns)
-          if (rolledUp != null) {
-            values[totalKey] = {
-              ...values[totalKey]!,
-              value: rolledUp,
-            }
-          }
-        }
+        // Never replace a saved Total with a sum of reconstructed child cells.
       }
 
       return { date: period, values }

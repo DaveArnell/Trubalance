@@ -10,7 +10,9 @@ function isDerivedSnapshotId(id: string): boolean {
 }
 
 export function isPersistedSnapshot(snapshot: BalanceSnapshot): boolean {
-  return !isDerivedSnapshotId(snapshot.id)
+  if (snapshot.id.startsWith('derived:') || snapshot.id.startsWith('history:')) return false
+  if (snapshot.id.startsWith('split-snap:')) return false
+  return true
 }
 
 /** Parse `derived:type:id:YYYY-MM-DD` or `history:type:id:YYYY-MM-DD` virtual snapshot ids. */

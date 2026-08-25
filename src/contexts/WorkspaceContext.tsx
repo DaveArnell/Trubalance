@@ -25,6 +25,7 @@ import { emptyAppState, isBuiltinDemoWorkspace, isUserOwnedWorkspace, backupBrow
 import { readBrowserAppState } from '../hooks/useAppState'
 import { normalizeWorkspaceStateForDisplay } from '../utils/workspaceNormalize'
 import { workspaceCostsRepairKey } from '../utils/workspaceRecovery'
+import { insertRestorePoint } from '../services/restorePoints'
 
 /** Lightweight fingerprint so tab-focus reloads only remount UI when cloud data actually changed. */
 function workspaceSyncFingerprint(state: AppState): string {
@@ -167,6 +168,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const flushSaveRef = useRef<() => Promise<void>>(async () => {})
   const pullGenerationRef = useRef(0)
   const hydratedGenerationRef = useRef(0)
+  const lastRestorePointAtRef = useRef(0)
   const loadedForUserRef = useRef<string | null>(null)
   const hasLoadedStateRef = useRef(
     (() => {
@@ -558,6 +560,11 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
           loadedStateRef.current = state
           lastSyncFingerprintRef.current = workspaceSyncFingerprint(state)
           setInitialRemoteState(state)
+          const now = Date.now()
+          if (now - lastRestorePointAtRef.current > 10 * 60 * 1000) {
+            lastRestorePointAtRef.current = now
+            void insertRestorePoint(workspaceId, state, 'autosave')
+          }
         }
         if (saveRetryTimerRef.current) {
           clearTimeout(saveRetryTimerRef.current)

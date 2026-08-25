@@ -24259,8 +24259,16 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .data-export-points {
   margin: 0;
-  padding-left: 1.1rem;
+  padding-left: 0;
   color: var(--text-secondary);
+  list-style: none;
+}
+
+.data-export-points li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
 }
 
 .data-export-points li + li {

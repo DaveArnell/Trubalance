@@ -172,6 +172,22 @@ export function reconstructHistoryRecordsFromSnapshots(state: AppState): AppStat
   return { ...state, workspaceOrigin: state.workspaceOrigin ?? 'user', historyRecords: [...(state.historyRecords ?? []), ...added] }
 }
 
+/** Drop Trend/History points invented after the wipe. Keep only dates that were actually saved. */
+export function stripInventedTrendPoints(state: AppState): AppState {
+  const snapshots = state.snapshots.filter((snap) => !snap.id.startsWith('split-snap:'))
+  const historyRecords = (state.historyRecords ?? []).filter(
+    (record) => !record.id.startsWith('split-history:'),
+  )
+  if (
+    snapshots.length === state.snapshots.length &&
+    historyRecords.length === (state.historyRecords ?? []).length
+  ) {
+    return state
+  }
+  console.info('[Workspace] Removed reconstructed Trend points — using saved Balance log values only')
+  return { ...state, workspaceOrigin: state.workspaceOrigin ?? 'user', snapshots, historyRecords }
+}
+
 function historyAccountBusinessId(
   state: AppState,
   account: HistoryRecord['accounts'][number],
