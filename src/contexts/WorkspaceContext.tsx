@@ -398,7 +398,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      console.info('[Workspace] cloud rows', {
+      console.debug('[Workspace] cloud rows', {
         groups: state.groups.length,
         businesses: state.businesses.length,
         accounts: state.accounts.length,

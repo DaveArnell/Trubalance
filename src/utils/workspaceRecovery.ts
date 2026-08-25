@@ -1033,21 +1033,45 @@ export function reopenCommittedFundsFromHistory(state: AppState): AppState {
   return { ...state, workspaceOrigin: 'user', commitments }
 }
 
-/** Rebuild costs, due items, and reserve plans from History when the live lists were emptied. */
+/** Rebuild costs / receipts / reserve shells only when live lists were wiped. */
 export function recoverLivingCostsFromHistory(state: AppState): AppState {
-  const trusted = trustedHistoryDate(state)
-  if (trusted) {
-    console.info('[Workspace] Repairing Due and receipts from History date', trusted)
-  }
-  forgetDeletedReceiptIds([...currentHistoryOpenReceiptIds(state)])
-  const pruned = pruneStaleHistoryRestoredReceipts(state)
+  const stripped = stripInventedHistoryReserveBills(state)
+  const needsFullRepair =
+    stripped.commitments.length === 0 ||
+    stripped.reservePlanners.length === 0 ||
+    (stripped.expectedReceipts.length === 0 && currentHistoryOpenReceiptIds(stripped).size > 0)
+
+  if (!needsFullRepair) return stripped
+
+  const before = workspaceCostsRepairKey(stripped)
+  forgetDeletedReceiptIds([...currentHistoryOpenReceiptIds(stripped)])
+  const pruned = pruneStaleHistoryRestoredReceipts(stripped)
   const receipts = recoverExpectedReceiptsFromHistory(pruned)
   const withCosts = recoverCommitmentsFromHistory(receipts.state)
   const refined = refineRestoredCommitmentsFromHistory(withCosts.state)
   const reopened = reopenCommittedFundsFromHistory(refined)
   const withShells = recoverReservePlannerShellsFromHistory(reopened)
   const withBills = recoverReserveBillsFromHistory(withShells)
-  return restoreReservePlannerBuffersFromHistory(withBills.state)
+  const next = restoreReservePlannerBuffersFromHistory(withBills.state)
+  if (workspaceCostsRepairKey(next) !== before) {
+    const trusted = trustedHistoryDate(next)
+    console.info(
+      '[Workspace] Restored living costs from History' + (trusted ? ` (${trusted})` : ''),
+    )
+  }
+  return next
+}
+
+function stripInventedHistoryReserveBills(state: AppState): AppState {
+  let changed = false
+  const reservePlanners = state.reservePlanners.map((planner) => {
+    const bills = planner.bills.filter((bill) => !isHistoryReserveTargetBill(bill))
+    if (bills.length === planner.bills.length) return planner
+    changed = true
+    return { ...planner, bills }
+  })
+  if (!changed) return state
+  return { ...state, workspaceOrigin: 'user', reservePlanners }
 }
 
 export function recoverWorkspaceFromHistory(state: AppState): {
