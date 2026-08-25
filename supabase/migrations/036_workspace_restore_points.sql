@@ -26,7 +26,13 @@ DROP POLICY IF EXISTS workspace_restore_points_delete ON public.workspace_restor
 CREATE POLICY workspace_restore_points_delete ON public.workspace_restore_points FOR DELETE
   USING (workspace_id IN (SELECT public.user_workspace_ids()) OR public.is_admin());
 
-DROP TRIGGER IF EXISTS trg_enforce_workspace_writable ON public.workspace_restore_points;
-CREATE TRIGGER trg_enforce_workspace_writable
-  BEFORE INSERT OR UPDATE OR DELETE ON public.workspace_restore_points
-  FOR EACH ROW EXECUTE FUNCTION public.enforce_workspace_writable();
+-- Only attach if the subscription guard exists (older projects may not have it yet).
+DO $$
+BEGIN
+  IF to_regprocedure('public.enforce_workspace_writable()') IS NOT NULL THEN
+    DROP TRIGGER IF EXISTS trg_enforce_workspace_writable ON public.workspace_restore_points;
+    CREATE TRIGGER trg_enforce_workspace_writable
+      BEFORE INSERT OR UPDATE OR DELETE ON public.workspace_restore_points
+      FOR EACH ROW EXECUTE FUNCTION public.enforce_workspace_writable();
+  END IF;
+END $$;

@@ -1,4 +1,4 @@
-import type { AppState } from '../types'
+import type { AppState, Commitment, ReserveBill, ReservePlanner } from '../types'
 import { initialState } from '../data/initialState'
 
 export const LOCAL_STORAGE_KEY = 'trubalance-app-state-v4'
@@ -456,7 +456,84 @@ export function mergeMissingLocalWorkspaceData(cloud: AppState, local: AppState 
   let next = mergeMissingExpectedReceipts(cloud, local)
   next = mergeMissingReservePlanners(next, local)
   next = mergeMissingCommitments(next, local)
+  next = unionCommitmentsPaidState(next, local)
+  next = unionReservePlannersPaidState(next, local)
   return stripEntitiesOutsideWorkspace(next)
+}
+
+function latestPaidDate(dates: Record<string, string> | undefined): string {
+  if (!dates) return ''
+  return Object.values(dates).sort().at(-1) ?? ''
+}
+
+function preferPaidCommitment(cloud: Commitment, local: Commitment): Commitment {
+  const localMark = latestPaidDate(local.paidPeriodDates)
+  const cloudMark = latestPaidDate(cloud.paidPeriodDates)
+  if (localMark > cloudMark) return local
+  if (cloudMark > localMark) return cloud
+  if ((local.lastPaidPeriod ?? '') > (cloud.lastPaidPeriod ?? '') && localMark) return local
+  return cloud
+}
+
+/** Keep this device's mark-paid so a stale cloud pull cannot resurrect Due items. */
+export function unionCommitmentsPaidState(cloud: AppState, local: AppState | null): AppState {
+  if (!local?.commitments.length) return cloud
+  const localById = new Map(local.commitments.map((commitment) => [commitment.id, commitment]))
+  let changed = false
+  const commitments = cloud.commitments.map((commitment) => {
+    const localCommitment = localById.get(commitment.id)
+    if (!localCommitment) return commitment
+    const next = preferPaidCommitment(commitment, localCommitment)
+    if (next !== commitment) changed = true
+    return next
+  })
+  if (!changed) return cloud
+  return { ...cloud, workspaceOrigin: cloud.workspaceOrigin ?? 'user', commitments }
+}
+
+function preferPaidBill(cloud: ReserveBill, local: ReserveBill): ReserveBill {
+  if ((local.lastPaidOnDate ?? '') > (cloud.lastPaidOnDate ?? '')) return local
+  if ((cloud.lastPaidOnDate ?? '') > (local.lastPaidOnDate ?? '')) return cloud
+  if ((local.lastPaidPeriod ?? '') > (cloud.lastPaidPeriod ?? '')) return local
+  return cloud
+}
+
+function confirmationsWithMoreTransfers(
+  cloud?: ReservePlanner['monthConfirmations'],
+  local?: ReservePlanner['monthConfirmations'],
+): ReservePlanner['monthConfirmations'] {
+  const done = (value?: ReservePlanner['monthConfirmations']) =>
+    Object.values(value ?? {}).filter((row) => row.transferDone).length
+  return done(local) > done(cloud) ? local : cloud
+}
+
+export function unionReservePlannersPaidState(cloud: AppState, local: AppState | null): AppState {
+  if (!local?.reservePlanners.length) return cloud
+  const localById = new Map(local.reservePlanners.map((planner) => [planner.id, planner]))
+  let changed = false
+  const reservePlanners = cloud.reservePlanners.map((planner) => {
+    const localPlanner = localById.get(planner.id)
+    if (!localPlanner) return planner
+    const localBills = new Map(localPlanner.bills.map((bill) => [bill.id, bill]))
+    let plannerChanged = false
+    const bills = planner.bills.map((bill) => {
+      const localBill = localBills.get(bill.id)
+      if (!localBill) return bill
+      const next = preferPaidBill(bill, localBill)
+      if (next !== bill) plannerChanged = true
+      return next
+    })
+    const monthConfirmations = confirmationsWithMoreTransfers(
+      planner.monthConfirmations,
+      localPlanner.monthConfirmations,
+    )
+    if (monthConfirmations !== planner.monthConfirmations) plannerChanged = true
+    if (!plannerChanged) return planner
+    changed = true
+    return { ...planner, bills, monthConfirmations }
+  })
+  if (!changed) return cloud
+  return { ...cloud, workspaceOrigin: cloud.workspaceOrigin ?? 'user', reservePlanners }
 }
 
 /** How many critical entities local added on top of a cloud (or other) snapshot. */

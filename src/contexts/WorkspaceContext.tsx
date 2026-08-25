@@ -545,6 +545,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       }
 
       try {
+        lastLocalSaveAtRef.current = Date.now()
         await saveWorkspaceState(workspaceId, state, {
           allowEmptyDeletes: allowEmptyDeletesRef.current,
           tableEmptyDeletes: buildSafeTableEmptyDeletes(state, {

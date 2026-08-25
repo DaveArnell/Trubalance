@@ -426,6 +426,12 @@ function isRecoveredCostNotes(notes: string | undefined): boolean {
   return value.includes('restored from balance history') || value.includes('due list synced v2')
 }
 
+function hasExplicitMarkPaid(commitment: Pick<Commitment, 'paidPeriodDates' | 'paidPeriodAmounts'>, period: string): boolean {
+  const dates = commitment.paidPeriodDates ?? {}
+  const amounts = commitment.paidPeriodAmounts ?? {}
+  return Object.keys(dates).some((key) => key >= period) || Object.keys(amounts).some((key) => key >= period)
+}
+
 function isReconstructedSnapshotNote(note: string | undefined): boolean {
   return (note ?? '').includes('Restored from saved daily snapshot')
 }
@@ -1139,6 +1145,7 @@ export function reopenCommittedFundsFromHistory(state: AppState): AppState {
   const commitments = state.commitments.map((commitment) => {
     if (commitment.schedule !== 'monthly') return commitment
     if (!isRecoveredCostNotes(commitment.notes)) return commitment
+    if (hasExplicitMarkPaid(commitment, trustedPeriod)) return commitment
     const duePeriod = duePeriods.get(commitment.id)
     if (duePeriod) {
       const next = previousPeriod(duePeriod)
@@ -1146,8 +1153,10 @@ export function reopenCommittedFundsFromHistory(state: AppState): AppState {
       changed = true
       return { ...commitment, lastPaidPeriod: next }
     }
-    const markedPaidThisMonth = (commitment.lastPaidPeriod ?? '') >= trustedPeriod
-    if (!buildingIds.has(commitment.id) && !markedPaidThisMonth) return commitment
+    const inferredPaidThisMonth =
+      (commitment.lastPaidPeriod ?? '') >= trustedPeriod &&
+      !hasExplicitMarkPaid(commitment, trustedPeriod)
+    if (!buildingIds.has(commitment.id) && !inferredPaidThisMonth) return commitment
     const next = previousPeriod(trustedPeriod)
     if (commitment.lastPaidPeriod === next) return commitment
     changed = true

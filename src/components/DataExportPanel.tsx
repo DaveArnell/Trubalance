@@ -8,12 +8,6 @@ import { deleteUserAccount, finishSelfAccountDeletion } from '../services/accoun
 import { backupBrowserStateToSession, readSessionBackup, sessionBackupLooksRicher, summarizeAppState } from '../utils/localStateStorage'
 import { parseImportedAppState } from '../utils/importAppState'
 import {
-  diagnoseReservePlanners,
-  currentHistoryOpenReceiptIds,
-  recoverWorkspaceFromHistory,
-  reservePlannersMissingDeposit,
-} from '../utils/workspaceRecovery'
-import {
   applyRestorePointPayload,
   insertRestorePoint,
   listRestorePoints,
@@ -29,21 +23,11 @@ interface DataExportPanelProps {
 
 export function DataExportPanel({ state, onReplaceState, embedded = false }: DataExportPanelProps) {
   const { user } = useAuth()
-  const {
-    workspaceId,
-    remoteEnabled,
-    readOnly,
-    cancelPendingPersist,
-    restoreWorkspaceState,
-    syncMissingLocalToCloud,
-    reload,
-  } = useWorkspace()
+  const { workspaceId, remoteEnabled, readOnly, cancelPendingPersist, restoreWorkspaceState } = useWorkspace()
   const [status, setStatus] = useState<string | null>(null)
   const [pendingImport, setPendingImport] = useState<AppState | null>(null)
   const [importing, setImporting] = useState(false)
   const [restoringBackup, setRestoringBackup] = useState(false)
-  const [recoveringHistory, setRecoveringHistory] = useState(false)
-  const [syncingDevice, setSyncingDevice] = useState(false)
   const [restorePoints, setRestorePoints] = useState<RestorePointMeta[]>([])
   const [restoringPointId, setRestoringPointId] = useState<string | null>(null)
   const [savingPoint, setSavingPoint] = useState(false)
@@ -58,91 +42,43 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
   const cloudBacked = remoteEnabled && isSupabaseConfigured
 
   useEffect(() => {
-    if (!workspaceId || !cloudBacked) {
+    if (!workspaceId) {
       setRestorePoints([])
       return
     }
     void listRestorePoints(workspaceId).then(setRestorePoints)
-  }, [workspaceId, cloudBacked, state.snapshots.length, state.reservePlanners.length])
-  const emptyReservePlans = reservePlannersMissingDeposit(state)
-  const latestHistoryReceiptCount = currentHistoryOpenReceiptIds(state).size
-  const canRecoverFromHistory =
-    (state.historyRecords?.length ?? 0) > 0 &&
-    (state.commitments.length === 0 ||
-      summary.receipts < latestHistoryReceiptCount ||
-      emptyReservePlans.length > 0)
-
-  const handleSyncThisDevice = async () => {
-    if (!cloudBacked || readOnly) return
-    setSyncingDevice(true)
-    setStatus(null)
-    try {
-      const openOnDevice = state.expectedReceipts.filter((receipt) => !receipt.received)
-      const openNames = openOnDevice
-        .slice(0, 5)
-        .map((receipt) => receipt.name.trim() || 'Untitled')
-        .join(', ')
-      const added = await syncMissingLocalToCloud(state)
-      if (!added) {
-        setStatus('Could not sync — check you are signed in.')
-        return
-      }
-      const scopeHint =
-        'On the PC, match Viewing to the same business/venue as the phone, then hard-refresh (Ctrl+Shift+R).'
-      if (added.openReceipts === 0 && openOnDevice.length === 0) {
-        setStatus(
-          'This device has no open expected receipts to upload. If the phone still shows some, open Receipts there and sync again.',
-        )
-      } else {
-        setStatus(
-          `Uploaded ${added.openReceipts} open receipt${added.openReceipts === 1 ? '' : 's'} to your account` +
-            (openNames ? ` (${openNames}${openOnDevice.length > 5 ? '…' : ''})` : '') +
-            `. ${scopeHint}`,
-        )
-      }
-      await reload()
-    } catch (err) {
-      console.error('[Sync] Failed:', err)
-      setStatus(`Sync failed: ${err instanceof Error ? err.message : 'Unknown error'}. Try again.`)
-    } finally {
-      setSyncingDevice(false)
-    }
-  }
+  }, [workspaceId, cloudBacked, state.snapshots.length, state.commitments.length])
 
   const handleDownload = () => {
     const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `trubalance-export-${new Date().toISOString().slice(0, 10)}.json`
+    link.download = `cash-prophet-backup-${new Date().toISOString().slice(0, 10)}.json`
     link.click()
     URL.revokeObjectURL(url)
     setStatus('Download started.')
   }
 
   const handleSaveRestorePoint = async () => {
-    if (!workspaceId || !cloudBacked || readOnly) return
+    if (!workspaceId || readOnly) return
     setSavingPoint(true)
     setStatus(null)
     try {
       await insertRestorePoint(workspaceId, state, 'manual')
       setRestorePoints(await listRestorePoints(workspaceId))
-      setStatus('Restore point saved. You can come back to this copy of Trends, costs, receipts and reserve plans.')
+      setStatus('Saved a copy you can restore later.')
     } catch (err) {
-      setStatus(
-        err instanceof Error
-          ? err.message
-          : 'Could not save a restore point. Run the restore-points SQL in Supabase first.',
-      )
+      setStatus(err instanceof Error ? err.message : 'Could not save a copy just now. Try downloading your data instead.')
     } finally {
       setSavingPoint(false)
     }
   }
 
   const handleRestorePoint = async (point: RestorePointMeta) => {
-    if (!workspaceId || !cloudBacked || readOnly) return
+    if (!workspaceId || readOnly) return
     const confirmed = window.confirm(
-      `Replace Trends, Due, receipts, reserve plans and account balances with the copy from ${point.label}?`,
+      `Replace your current workspace with the copy from ${point.label}?`,
     )
     if (!confirmed) return
     setRestoringPointId(point.id)
@@ -150,14 +86,14 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
     try {
       const payload = await loadRestorePointPayload(workspaceId, point.id)
       if (!payload) {
-        setStatus('That restore point could not be loaded.')
+        setStatus('That copy could not be loaded.')
         return
       }
       cancelPendingPersist()
       const next = applyRestorePointPayload(state, payload)
       onReplaceState(next)
-      await restoreWorkspaceState(next)
-      setStatus(`Restored to ${point.label}. Hard-refresh if the screen still looks stale.`)
+      if (cloudBacked) await restoreWorkspaceState(next)
+      setStatus(`Restored the copy from ${point.label}.`)
     } catch (err) {
       setStatus(err instanceof Error ? err.message : 'Restore failed.')
     } finally {
@@ -181,7 +117,7 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
       }
       setPendingImport(result.state)
     } catch {
-      setStatus('Could not read that file. Check it is a Trubalance JSON export.')
+      setStatus('Could not read that file. Use a backup downloaded from Cash Prophet.')
     }
   }
 
@@ -193,28 +129,12 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
       backupBrowserStateToSession()
       cancelPendingPersist()
       const withOrigin: AppState = { ...pendingImport, workspaceOrigin: 'user' }
-      console.log('[Import] State to restore:', {
-        commitments: withOrigin.commitments.length,
-        receipts: withOrigin.expectedReceipts.length,
-        planners: withOrigin.reservePlanners.length,
-        sampleCommitment: withOrigin.commitments[0] ? {
-          name: withOrigin.commitments[0].name,
-          lastPaidPeriod: withOrigin.commitments[0].lastPaidPeriod,
-          createdAt: withOrigin.commitments[0].createdAt,
-        } : null,
-      })
       onReplaceState(withOrigin)
-      if (cloudBacked) {
-        await restoreWorkspaceState(withOrigin)
-      }
-      const summary = summarizeAppState(withOrigin)
+      if (cloudBacked) await restoreWorkspaceState(withOrigin)
+      const imported = summarizeAppState(withOrigin)
       setPendingImport(null)
-      setStatus(
-        `Restored "${summary.label}" — ${summary.commitments} costs, ${summary.receipts} receipts, ${summary.planners} planners.` +
-        (cloudBacked ? ' Saved to your account.' : ''),
-      )
+      setStatus(`Restored ${imported.label}.`)
     } catch (err) {
-      console.error('[Import] Failed:', err)
       setStatus(`Restore failed: ${err instanceof Error ? err.message : 'Unknown error'}. Try again.`)
     } finally {
       setImporting(false)
@@ -230,63 +150,12 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
       cancelPendingPersist()
       const withOrigin: AppState = { ...backup, workspaceOrigin: 'user' }
       onReplaceState(withOrigin)
-      if (cloudBacked) {
-        await restoreWorkspaceState(withOrigin)
-      }
-      const restored = summarizeAppState(withOrigin)
-      setStatus(
-        `Restored browser backup from this session — ${restored.receipts} expected receipts, ${restored.commitments} costs.` +
-          (cloudBacked ? ' Saved to your account.' : ''),
-      )
+      if (cloudBacked) await restoreWorkspaceState(withOrigin)
+      setStatus('Restored the copy this browser still had from earlier in this session.')
     } catch (err) {
-      console.error('[Restore backup] Failed:', err)
       setStatus(`Restore failed: ${err instanceof Error ? err.message : 'Unknown error'}.`)
     } finally {
       setRestoringBackup(false)
-    }
-  }
-
-  const handleRecoverFromHistory = async () => {
-    if (readOnly) return
-    setRecoveringHistory(true)
-    setStatus(null)
-    try {
-      const result = recoverWorkspaceFromHistory(state)
-      if (
-        result.costsRestored === 0 &&
-        result.receiptsRestored === 0 &&
-        result.plannersRepaired.length === 0
-      ) {
-        const empty = diagnoseReservePlanners(state)
-          .filter((row) => row.monthlyDeposit <= 0)
-          .map((row) => row.name)
-        setStatus(
-          empty.length > 0
-            ? `No history snapshot had enough detail to rebuild ${empty.join(', ')}. Open each Reserve Planner and re-add the bills, or restore an older JSON export if you have one.`
-            : 'History did not contain monthly costs or reserve bills to restore.',
-        )
-        return
-      }
-      cancelPendingPersist()
-      onReplaceState(result.state)
-      if (cloudBacked) {
-        await restoreWorkspaceState(result.state)
-      }
-      const parts: string[] = []
-      if (result.costsRestored > 0) parts.push(`${result.costsRestored} monthly / planned costs`)
-      if (result.plannersRepaired.length > 0) {
-        parts.push(`reserve bills for ${result.plannersRepaired.length} plan(s)`)
-      }
-      setStatus(
-        `Recovered from your balance history: ${parts.join(' and ')}.` +
-          (cloudBacked ? ' Saved to your account.' : '') +
-          ' Confirm due days and amounts — History does not store every original setting.',
-      )
-    } catch (err) {
-      console.error('[History recover] Failed:', err)
-      setStatus(`Recovery failed: ${err instanceof Error ? err.message : 'Unknown error'}.`)
-    } finally {
-      setRecoveringHistory(false)
     }
   }
 
@@ -314,6 +183,8 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
   }
 
   const pendingSummary = pendingImport ? summarizeAppState(pendingImport) : null
+  const showSessionRestore =
+    Boolean(sessionBackupSummary) && sessionBackupLooksRicher(sessionBackupSummary!, summary)
 
   const body = (
     <>
@@ -322,16 +193,11 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
           <h3>Where it is saved</h3>
           {cloudBacked ? (
             <p className="muted">
-              Your workspace syncs to your account automatically while you are signed in — including
-              when you switch apps or come back online. Phone and desktop pull the latest copy within
-              a few seconds. Use <strong>Sync this device to account</strong> only if something still
-              looks wrong on one device after a refresh.
+              Your workspace saves to your account while you are signed in. Phone and desktop stay in
+              step on their own. Download a copy if you want a file on this computer.
             </p>
           ) : signedIn ? (
-            <p className="muted">
-              Cloud sync is not configured in this environment. Your workspace is stored in this browser
-              only.
-            </p>
+            <p className="muted">Your workspace is stored in this browser only.</p>
           ) : (
             <p className="muted">
               Everything stays in this browser until you{' '}
@@ -355,33 +221,17 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
       </div>
 
       <div className="data-export-actions">
-        <button
-          type="button"
-          className="btn-primary btn-tiny"
-          disabled={readOnly}
-          onClick={handleDownload}
-        >
-          Download your data
+        <button type="button" className="btn-primary btn-tiny" disabled={readOnly} onClick={handleDownload}>
+          Download a copy
         </button>
-        {cloudBacked ? (
+        {workspaceId ? (
           <button
             type="button"
             className="btn-secondary btn-tiny"
-            disabled={readOnly || savingPoint || !workspaceId}
-            onClick={handleSaveRestorePoint}
+            disabled={readOnly || savingPoint}
+            onClick={() => void handleSaveRestorePoint()}
           >
-            {savingPoint ? 'Saving…' : 'Save restore point'}
-          </button>
-        ) : null}
-        {cloudBacked ? (
-          <button
-            type="button"
-            className="btn-secondary btn-tiny"
-            disabled={readOnly || syncingDevice}
-            onClick={handleSyncThisDevice}
-            title="Uploads receipts, costs and reserve plans that exist on this device but not yet in your account. Safe — does not delete anything."
-          >
-            {syncingDevice ? 'Syncing…' : 'Sync this device to account'}
+            {savingPoint ? 'Saving…' : 'Save a restore point'}
           </button>
         ) : null}
         <button
@@ -390,83 +240,57 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
           disabled={readOnly || importing}
           onClick={() => fileInputRef.current?.click()}
         >
-          Restore from file
+          Restore from a file
         </button>
-        {sessionBackupSummary && sessionBackupLooksRicher(sessionBackupSummary, summary) ? (
+        {showSessionRestore ? (
           <button
             type="button"
             className="btn-secondary btn-tiny"
             disabled={readOnly || restoringBackup}
-            onClick={handleRestoreSessionBackup}
+            onClick={() => void handleRestoreSessionBackup()}
           >
-            Restore browser backup
-            {sessionBackupSummary.planners > summary.planners ||
-            sessionBackupSummary.receipts > summary.receipts
-              ? ` (${sessionBackupSummary.planners} plans, ${sessionBackupSummary.receipts} receipts)`
-              : ''}
+            Restore this browser’s earlier copy
           </button>
-        ) : null}
-        {canRecoverFromHistory ? (
-          <button
-            type="button"
-            className="btn-secondary btn-tiny"
-            disabled={readOnly || recoveringHistory}
-            onClick={handleRecoverFromHistory}
-          >
-            {recoveringHistory ? 'Recovering…' : 'Recover from balance history'}
-          </button>
-        ) : null}
-        {emptyReservePlans.length > 0 ? (
-          <p className="muted data-export-warning">
-            These reserve plans have no monthly bills right now, so they will not show in Accruing:{' '}
-            {emptyReservePlans.join(', ')}. Use recovery above, or re-add bills in each Reserve Planner.
-          </p>
-        ) : null}
-        {cloudBacked ? (
-          <article className="data-export-block">
-            <h3>Restore to a saved point</h3>
-            <p className="muted">
-              These copies are separate from live sync, so a later save cannot delete them. After you run
-              the restore-points SQL in Supabase, the app keeps the last 40 automatically.
-            </p>
-            {restorePoints.length === 0 ? (
-              <p className="muted">No restore points yet. Save one now, or wait for the next account save.</p>
-            ) : (
-              <ul className="data-export-points">
-                {restorePoints.map((point) => (
-                  <li key={point.id}>
-                    <span>
-                      {point.label}
-                      {point.kind === 'manual' ? ' (saved by you)' : ''}
-                    </span>
-                    <button
-                      type="button"
-                      className="btn-secondary btn-tiny"
-                      disabled={readOnly || restoringPointId != null}
-                      onClick={() => void handleRestorePoint(point)}
-                    >
-                      {restoringPointId === point.id ? 'Restoring…' : 'Restore'}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </article>
         ) : null}
         <input
           ref={fileInputRef}
           type="file"
           accept="application/json,.json"
           className="sr-only"
-          onChange={handleFileChange}
+          onChange={(event) => void handleFileChange(event)}
         />
       </div>
+
+      {restorePoints.length > 0 ? (
+        <article className="data-export-block">
+          <h3>Restore points</h3>
+          <p className="muted">Saved copies of this workspace. Restoring one replaces what you see now.</p>
+          <ul className="data-export-points">
+            {restorePoints.map((point) => (
+              <li key={point.id}>
+                <span>
+                  {point.label}
+                  {point.kind === 'manual' ? ' (saved by you)' : ''}
+                </span>
+                <button
+                  type="button"
+                  className="btn-secondary btn-tiny"
+                  disabled={readOnly || restoringPointId != null}
+                  onClick={() => void handleRestorePoint(point)}
+                >
+                  {restoringPointId === point.id ? 'Restoring…' : 'Restore'}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </article>
+      ) : null}
 
       {signedIn && (
         <article className="data-export-block data-export-danger-zone">
           <h3>Delete your account and data</h3>
           <p className="muted">
-            Permanently removes your account and workspace. Download an export first if you want a copy.
+            Permanently removes your account and workspace. Download a copy first if you want to keep one.
           </p>
           <label className="data-export-delete-confirm">
             <span className="muted">Type DELETE to confirm</span>
@@ -484,7 +308,7 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
             type="button"
             className="btn-ghost btn-tiny admin-danger-btn"
             disabled={readOnly || deletingAccount || deleteConfirm.trim().toUpperCase() !== 'DELETE'}
-            onClick={handleDeleteAccount}
+            onClick={() => void handleDeleteAccount()}
           >
             {deletingAccount ? 'Deleting…' : 'Delete my account and all data'}
           </button>
@@ -507,7 +331,7 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
               type="button"
               className="btn-primary btn-tiny"
               disabled={importing}
-              onClick={handleConfirmImport}
+              onClick={() => void handleConfirmImport()}
             >
               {importing ? 'Restoring…' : 'Yes, restore from file'}
             </button>
@@ -537,8 +361,7 @@ export function DataExportPanel({ state, onReplaceState, embedded = false }: Dat
         <div>
           <h2>Your data</h2>
           <p className="muted data-export-lead">
-            Download a copy of your workspace any time, or restore from a file you saved earlier. Layout
-            preferences stay in this browser only and are not included in exports.
+            Download a copy of your workspace, restore from a file you saved, or delete your account.
           </p>
         </div>
       </div>
