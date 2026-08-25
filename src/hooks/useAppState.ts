@@ -28,6 +28,7 @@ import { getStoredHistoryRecordIdsForDay, getSnapshotIdsForDayInViewScope, repai
 import { getCommitmentsForScope } from '../utils/calculations'
 import {
   buildAmountChangePatch,
+  buildDueDayChangePatch,
   buildMarkPaidPatch,
   currentPeriod,
   getActiveAccrualPeriod,
@@ -858,6 +859,38 @@ export function useAppState(options?: UseAppStateOptions) {
       }
 
       let merged = { ...existing, ...patch }
+      if (
+        patch.dueDayOfMonth !== undefined &&
+        patch.dueDayOfMonth !== existing.dueDayOfMonth &&
+        existing.schedule === 'monthly'
+      ) {
+        const reopened = buildDueDayChangePatch(existing, patch.dueDayOfMonth, getReferenceDate())
+        const currentPeriodKey = getReferenceDateKey().slice(0, 7)
+        // Reopen branch always includes lastPaidPeriod; plain due-day-only patch does not.
+        const reopenThisMonth = Object.prototype.hasOwnProperty.call(reopened, 'lastPaidPeriod')
+        merged = {
+          ...merged,
+          ...reopened,
+          dismissedDuePeriods: reopenThisMonth
+            ? (patch.dismissedDuePeriods ?? merged.dismissedDuePeriods ?? []).filter(
+                (period) => period !== currentPeriodKey,
+              )
+            : (patch.dismissedDuePeriods ?? merged.dismissedDuePeriods),
+          preservedDuePeriods: reopenThisMonth
+            ? (patch.preservedDuePeriods ?? merged.preservedDuePeriods ?? []).filter(
+                (period) => period !== currentPeriodKey,
+              )
+            : (patch.preservedDuePeriods ?? merged.preservedDuePeriods),
+        }
+        if (reopenThisMonth) {
+          if (!('paidPeriodAmounts' in reopened) || reopened.paidPeriodAmounts === undefined) {
+            delete merged.paidPeriodAmounts
+          }
+          if (!('paidPeriodDates' in reopened) || reopened.paidPeriodDates === undefined) {
+            delete merged.paidPeriodDates
+          }
+        }
+      }
       if (patch.amount !== undefined && patch.amount !== existing.amount) {
         merged = { ...merged, ...buildAmountChangePatch(existing, patch.amount) }
       } else if (patch.periodAmountOverrides !== undefined) {

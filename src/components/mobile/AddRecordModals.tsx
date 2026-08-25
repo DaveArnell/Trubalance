@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type MouseEvent, type MutableRefObject, type PointerEvent } from 'react'
 import { createPortal } from 'react-dom'
 import type { AppState, PlannedFundingMethod, ScopeLevel, ViewScope } from '../../types'
 import {
@@ -9,6 +9,22 @@ import {
 } from '../../utils/scope'
 import { toAmount, roundCurrency } from '../../utils/amounts'
 import { todayDateKey } from '../../utils/snapshots'
+
+/** Close only on a true backdrop click — not when a drag/selection ends outside the dialog. */
+function backdropDismissHandlers(
+  onClose: () => void,
+  pointerDownOnBackdrop: MutableRefObject<boolean>,
+) {
+  return {
+    onPointerDown: (e: PointerEvent<HTMLDivElement>) => {
+      pointerDownOnBackdrop.current = e.target === e.currentTarget
+    },
+    onClick: (e: MouseEvent<HTMLDivElement>) => {
+      if (pointerDownOnBackdrop.current && e.target === e.currentTarget) onClose()
+      pointerDownOnBackdrop.current = false
+    },
+  }
+}
 
 type MonthlySave = {
   name: string
@@ -88,6 +104,7 @@ export function AddMonthlyCostModal({
   const [scopeKey, setScopeKey] = useState(`${defaults.scopeLevel}:${defaults.scopeId}`)
   const [error, setError] = useState('')
   const savingRef = useRef(false)
+  const backdropPointerDown = useRef(false)
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -120,13 +137,14 @@ export function AddMonthlyCostModal({
   }
 
   return createPortal(
-    <div className="snapshot-correction-backdrop" onClick={onClose}>
+    <div className="snapshot-correction-backdrop" {...backdropDismissHandlers(onClose, backdropPointerDown)}>
       <div
         className="snapshot-correction-modal mobile-item-modal"
         role="dialog"
         aria-modal="true"
         aria-labelledby="add-monthly-title"
         onClick={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
       >
         <h3 id="add-monthly-title">Add monthly cost</h3>
         <div className="mobile-accruing-edit-fields">
@@ -201,6 +219,7 @@ export function AddPlannedCostModal({
   const [reserveNow, setReserveNow] = useState('')
   const [scopeKey, setScopeKey] = useState(`${defaults.scopeLevel}:${defaults.scopeId}`)
   const [error, setError] = useState('')
+  const backdropPointerDown = useRef(false)
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -244,13 +263,14 @@ export function AddPlannedCostModal({
   }
 
   return createPortal(
-    <div className="snapshot-correction-backdrop" onClick={onClose}>
+    <div className="snapshot-correction-backdrop" {...backdropDismissHandlers(onClose, backdropPointerDown)}>
       <div
         className="snapshot-correction-modal mobile-item-modal"
         role="dialog"
         aria-modal="true"
         aria-labelledby="add-planned-title"
         onClick={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
       >
         <h3 id="add-planned-title">Add planned cost</h3>
         <div className="mobile-accruing-edit-fields">
@@ -380,6 +400,7 @@ export function AddReceiptModal({
       : `${viewScope.type}:${viewScope.id}`,
   )
   const [error, setError] = useState('')
+  const backdropPointerDown = useRef(false)
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -406,13 +427,14 @@ export function AddReceiptModal({
   }
 
   return createPortal(
-    <div className="snapshot-correction-backdrop" onClick={onClose}>
+    <div className="snapshot-correction-backdrop" {...backdropDismissHandlers(onClose, backdropPointerDown)}>
       <div
         className="snapshot-correction-modal mobile-item-modal"
         role="dialog"
         aria-modal="true"
         aria-labelledby="add-receipt-title"
         onClick={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
       >
         <h3 id="add-receipt-title">Add expected receipt</h3>
         <div className="mobile-accruing-edit-fields">

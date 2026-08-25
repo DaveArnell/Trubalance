@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { AppState, ExpectedReceipt, ScopeLevel, ViewScope } from '../../types'
 import { getCommitmentScopeOptionsForView, isSoloOrganisation, formatScopeOptionLabel } from '../../utils/scope'
@@ -55,6 +55,7 @@ export function MobileReceiptEditModal({
   const [scopeKey, setScopeKey] = useState(`${receipt.scopeLevel}:${receipt.scopeId}`)
   const [error, setError] = useState('')
   const [receiveOpen, setReceiveOpen] = useState(false)
+  const backdropPointerDown = useRef(false)
 
   useEffect(() => {
     setName(receipt.name)
@@ -103,13 +104,23 @@ export function MobileReceiptEditModal({
 
   return createPortal(
     <>
-      <div className="snapshot-correction-backdrop" onClick={onClose}>
+      <div
+        className="snapshot-correction-backdrop"
+        onPointerDown={(e) => {
+          backdropPointerDown.current = e.target === e.currentTarget
+        }}
+        onClick={(e) => {
+          if (backdropPointerDown.current && e.target === e.currentTarget) onClose()
+          backdropPointerDown.current = false
+        }}
+      >
         <div
           className="snapshot-correction-modal mobile-item-modal"
           role="dialog"
           aria-modal="true"
           aria-labelledby="mobile-receipt-edit-title"
           onClick={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
           style={{ borderTop: `4px solid ${accentColor}` }}
         >
           <h3 id="mobile-receipt-edit-title">{editReadOnly ? receipt.name : 'Edit expected receipt'}</h3>

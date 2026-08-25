@@ -143,6 +143,61 @@ export function getActiveAccrualPeriod(
   return `${nextYear}-${String(nextMonth + 1).padStart(2, '0')}`
 }
 
+function previousCalendarPeriod(period: string): string {
+  const [year, month] = period.split('-').map(Number)
+  if (!year || !month) return period
+  if (month === 1) return `${year - 1}-12`
+  return `${year}-${String(month - 1).padStart(2, '0')}`
+}
+
+/**
+ * When the due day moves to a later day that is still ahead this month, reopen this
+ * month's accrual. Otherwise the old "paid / due on the 1st" state leaves Accrued at £0.
+ */
+export function buildDueDayChangePatch(
+  commitment: Commitment,
+  nextDueDay: number,
+  referenceDate: Date = getReferenceDate(),
+): Partial<Commitment> {
+  const dueDayOfMonth = Math.min(31, Math.max(1, Math.round(nextDueDay)))
+  if (commitment.schedule !== 'monthly') return { dueDayOfMonth }
+
+  const today = dateOnly(referenceDate)
+  const thisMonthDue = getDueDate(today.getFullYear(), today.getMonth(), dueDayOfMonth)
+  const currentPeriodKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`
+
+  // New due day still in the future — clear paid-through for this month so accrual rebuilds.
+  if (today.getTime() < thisMonthDue.getTime()) {
+    const paidPeriodAmounts = { ...(commitment.paidPeriodAmounts ?? {}) }
+    const paidPeriodDates = { ...(commitment.paidPeriodDates ?? {}) }
+    delete paidPeriodAmounts[currentPeriodKey]
+    delete paidPeriodDates[currentPeriodKey]
+
+    let lastPaidPeriod = commitment.lastPaidPeriod
+    if ((lastPaidPeriod ?? '') >= currentPeriodKey) {
+      lastPaidPeriod = previousCalendarPeriod(currentPeriodKey)
+    }
+
+    const dismissed = (commitment.dismissedDuePeriods ?? []).filter(
+      (period) => period !== currentPeriodKey,
+    )
+    const preserved = (commitment.preservedDuePeriods ?? []).filter(
+      (period) => period !== currentPeriodKey,
+    )
+
+    return {
+      dueDayOfMonth,
+      lastPaidPeriod,
+      paidPeriodAmounts: Object.keys(paidPeriodAmounts).length > 0 ? paidPeriodAmounts : undefined,
+      paidPeriodDates: Object.keys(paidPeriodDates).length > 0 ? paidPeriodDates : undefined,
+      dismissedDuePeriods: dismissed.length > 0 ? dismissed : undefined,
+      preservedDuePeriods: preserved.length > 0 ? preserved : undefined,
+    }
+  }
+
+  return { dueDayOfMonth }
+}
+
 export interface MarkPaidOptions {
   paidAmount?: number
 }
