@@ -780,3 +780,18 @@ export function formatDaysUntil(days: number | null): string {
   const years = (rounded / 365).toFixed(1)
   return `~${years} years`
 }
+
+/**
+ * When Cash Prophet Balance is falling and still above zero, estimate when the
+ * current trajectory crosses £0. Used under the Trends chart as a light runway cue.
+ */
+export function estimateZeroCrossing(
+  latestValue: number,
+  latestDate: string,
+  slopePerDay: number,
+): { daysToZero: number; zeroReachDate: string } | null {
+  if (!(latestValue > 0) || !(slopePerDay < -0.01)) return null
+  const days = (0 - latestValue) / slopePerDay
+  if (!(days >= 0) || days >= 365 * 25) return null
+  return { daysToZero: days, zeroReachDate: addDays(latestDate, days) }
+}

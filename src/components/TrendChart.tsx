@@ -16,6 +16,9 @@ import {
   addDays,
   buildSmoothedTrendSeries,
   canUseSeasonalProjection,
+  estimateZeroCrossing,
+  formatDaysUntil,
+  formatProjectionDateLabel,
   formatTrendRate,
   projectionHorizonDays,
   type ProjectionMethod,
@@ -441,6 +444,18 @@ export function TrendChart({
   const hasData = series.some((s) => s.points.length > 0)
   const showProjection = effectiveProjectionMode !== 'off' && projections.length > 0
   const primaryProjection = projections[0] ?? null
+  const primarySeries = primaryProjection
+    ? series.find((entry) => entry.key === primaryProjection.key) ?? series[0] ?? null
+    : null
+  const primaryLatestPoint = primarySeries?.points[primarySeries.points.length - 1] ?? null
+  const zeroCrossing =
+    showProjection && primaryProjection && primarySeries && primaryLatestPoint
+      ? estimateZeroCrossing(
+          getMetricValue(primaryLatestPoint.snapshot, primarySeries.metric),
+          primaryLatestPoint.date,
+          primaryProjection.slopePerDay,
+        )
+      : null
   const trendLegendLabel =
     primaryProjection?.effectiveMethod === 'weighted'
       ? 'Smoothed trend'
@@ -911,6 +926,50 @@ export function TrendChart({
           </div>
 
           {legendBlock}
+
+          {showProjection && primaryProjection ? (
+            <div className="chart-runway" aria-live="polite">
+              <div className="chart-runway-rate">
+                <span className="chart-runway-label">Trajectory</span>
+                <span className="chart-runway-value">
+                  {formatTrendRate(primaryProjection.slopePerDay)}
+                  <span className="chart-runway-method muted">
+                    {' '}
+                    · {primaryProjection.effectiveMethod === 'weighted' ? 'Smoothed' : 'Straight'}
+                  </span>
+                </span>
+              </div>
+              {zeroCrossing ? (
+                <div className="chart-runway-zero chart-runway-zero--warn">
+                  <span className="chart-runway-label">Toward £0</span>
+                  <span className="chart-runway-value">
+                    {formatDaysUntil(zeroCrossing.daysToZero)}
+                    <span className="chart-runway-date muted">
+                      {' '}
+                      · {formatProjectionDateLabel(zeroCrossing.zeroReachDate)}
+                    </span>
+                  </span>
+                </div>
+              ) : primaryProjection.slopePerDay < -0.01 &&
+                primarySeries &&
+                primaryLatestPoint &&
+                getMetricValue(primaryLatestPoint.snapshot, primarySeries.metric) <= 0 ? (
+                <div className="chart-runway-zero chart-runway-zero--warn">
+                  <span className="chart-runway-label">Toward £0</span>
+                  <span className="chart-runway-value">Already at or below zero</span>
+                </div>
+              ) : (
+                <div className="chart-runway-zero">
+                  <span className="chart-runway-label">Toward £0</span>
+                  <span className="chart-runway-value muted">
+                    {primaryProjection.slopePerDay >= -0.01
+                      ? 'Not heading toward zero on this trajectory'
+                      : 'Beyond a practical horizon'}
+                  </span>
+                </div>
+              )}
+            </div>
+          ) : null}
 
           {showProjection && primaryProjection && !embedded && (
             <p className="chart-projection-footnote muted">
