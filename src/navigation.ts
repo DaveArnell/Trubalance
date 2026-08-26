@@ -3,6 +3,7 @@ export const APP_PAGES = [
   { id: 'due', label: 'Due', kicker: 'Payments due', icon: '✓' },
   { id: 'receipts', label: 'Receipts', kicker: 'Expected in', icon: '↓' },
   { id: 'trends', label: 'Trends', kicker: 'Balance over time', icon: '↗' },
+  { id: 'calendar', label: 'Calendar', kicker: 'Financial checklist', icon: '▣' },
   { id: 'forecast', label: 'Forecast', kicker: 'Forward look', icon: '⇢' },
   { id: 'history', label: 'History', kicker: 'Saved days', icon: '◷' },
   { id: 'reserve-planner', label: 'Reserve Planner', kicker: 'Irregular bills', icon: '◎' },
@@ -15,6 +16,7 @@ export type PageId = (typeof APP_PAGES)[number]['id']
 export const MOBILE_PRIMARY_PAGES: PageId[] = [
   'committed-funds',
   'trends',
+  'calendar',
   'reserve-planner',
   'settings',
 ]

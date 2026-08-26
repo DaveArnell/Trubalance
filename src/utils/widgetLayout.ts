@@ -56,6 +56,7 @@ export const WIDGET_LABELS: Record<string, string> = {
   'committed-funds': 'Monthly accruing',
   due: 'Due',
   'expected-receipts': 'Expected receipts',
+  'financial-calendar': 'Financial calendar',
   'reserve-planner': 'Reserve planner',
   settings: 'Organisation',
 }
@@ -65,6 +66,7 @@ export const PAGE_WIDGET_IDS: Record<PageId, string[]> = {
   due: ['due'],
   receipts: ['expected-receipts'],
   trends: ['trends-chart', 'trends-history'],
+  calendar: ['financial-calendar'],
   forecast: ['forecast-cash-outlook', 'forecast-projection'],
   history: ['history'],
   'reserve-planner': ['reserve-planner'],
@@ -87,6 +89,7 @@ const DEFAULT_GRID: Record<string, GridDefaults> = {
   due: { col: 40, row: 0, colSpan: 56, rowSpan: 5 },
   'expected-receipts': { col: 40, row: 5, colSpan: 56, rowSpan: 5 },
   'reserve-planner': { col: 0, row: 0, colSpan: 96, rowSpan: 10 },
+  'financial-calendar': { col: 0, row: 0, colSpan: 96, rowSpan: 12 },
   settings: { col: 0, row: 0, colSpan: 96, rowSpan: 10 },
 }
 
@@ -112,6 +115,7 @@ const DEFAULT_LAYOUTS: Record<PageId, PageWidgetLayout> = {
   ],
   due: [defaultItem('due', 0)],
   receipts: [defaultItem('expected-receipts', 0)],
+  calendar: [defaultItem('financial-calendar', 0)],
   'reserve-planner': [defaultItem('reserve-planner', 0)],
   settings: [defaultItem('settings', 0)],
 }

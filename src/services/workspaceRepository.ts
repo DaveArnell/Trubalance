@@ -1,4 +1,4 @@
-import type { AppState, BalanceSnapshot, Commitment, DayNote, ExpectedReceipt, Group, Business, Venue, Account, ReservePlanner, ReserveBill, HistoryRecord } from '../types'
+import type { AppState, BalanceSnapshot, Commitment, DayNote, ExpectedReceipt, FinancialChecklistItem, Group, Business, Venue, Account, ReservePlanner, ReserveBill, HistoryRecord } from '../types'
 import { normalizeTierId } from '../config/subscriptionTiers'
 import { FOUNDER_LIFETIME_SIGNUP_LIMIT } from '../config/founderProgram'
 import type { SubscriptionStatus, WorkspaceSubscription } from '../types/subscription'
@@ -281,6 +281,32 @@ function mapDayNote(row: Record<string, unknown>): DayNote {
   }
 }
 
+function mapFinancialChecklistItem(row: Record<string, unknown>): FinancialChecklistItem {
+  const completedRaw = row.completed_periods
+  const completedPeriods = Array.isArray(completedRaw)
+    ? completedRaw.map(String)
+    : completedRaw && typeof completedRaw === 'object'
+      ? Object.values(completedRaw as Record<string, unknown>).map(String)
+      : []
+  const dueMonths = Array.isArray(row.due_months)
+    ? (row.due_months as unknown[]).map(Number).filter((n) => n >= 1 && n <= 12)
+    : undefined
+  return {
+    id: String(row.id),
+    name: String(row.name),
+    recurrence: (row.recurrence as FinancialChecklistItem['recurrence']) ?? 'monthly',
+    dueDate: row.due_date ? String(row.due_date).slice(0, 10) : undefined,
+    dueDayOfMonth: row.due_day_of_month != null ? Number(row.due_day_of_month) : undefined,
+    dueMonths,
+    scopeLevel: row.scope_level === 'group' ? 'group' : 'business',
+    scopeId: String(row.scope_id),
+    notes: row.notes ? String(row.notes) : undefined,
+    completedPeriods,
+    sortOrder: row.sort_order != null ? Number(row.sort_order) : undefined,
+    createdAt: row.created_at ? String(row.created_at).slice(0, 10) : undefined,
+  }
+}
+
 export interface WorkspaceLoadResult {
   state: AppState
   /** True when any table failed to load — cloud save must not wipe missing tables. */
@@ -303,6 +329,7 @@ export async function loadWorkspaceState(workspaceId: string): Promise<Workspace
     snapshotsRes,
     historyRes,
     dayNotesRes,
+    checklistRes,
     workspaceMetaRes,
   ] = await Promise.all([
     supabase.from('groups').select('*').eq('workspace_id', workspaceId).order('sort_order'),
@@ -316,6 +343,7 @@ export async function loadWorkspaceState(workspaceId: string): Promise<Workspace
     supabase.from('balance_snapshots').select('*').eq('workspace_id', workspaceId).order('date'),
     supabase.from('history_records').select('*').eq('workspace_id', workspaceId).order('date', { ascending: false }),
     supabase.from('day_notes').select('*').eq('workspace_id', workspaceId).order('date'),
+    supabase.from('financial_checklist_items').select('*').eq('workspace_id', workspaceId).order('sort_order'),
     supabase.from('workspaces').select('reveal_from_overrides').eq('id', workspaceId).maybeSingle(),
   ])
 
@@ -331,11 +359,17 @@ export async function loadWorkspaceState(workspaceId: string): Promise<Workspace
     ['balance_snapshots', snapshotsRes],
     ['history_records', historyRes],
     ['day_notes', dayNotesRes],
+    ['financial_checklist_items', checklistRes],
   ] as const
 
   let loadHadErrors = false
   for (const [table, res] of responses) {
     if (res.error) {
+      // Table may not exist until migration 037 is applied — don't fail the whole load.
+      if (table === 'financial_checklist_items') {
+        console.warn(`[workspaceRepository] load ${table}:`, res.error.message)
+        continue
+      }
       loadHadErrors = true
       console.error(`[workspaceRepository] load ${table}:`, res.error.message)
     }
@@ -383,6 +417,9 @@ export async function loadWorkspaceState(workspaceId: string): Promise<Workspace
       (historyRes.data ?? []).map((row) => mapHistoryRecord(row as Record<string, unknown>)),
     ),
     dayNotes: (dayNotesRes.data ?? []).map((row) => mapDayNote(row as Record<string, unknown>)),
+    financialChecklistItems: checklistRes.error
+      ? []
+      : (checklistRes.data ?? []).map((row) => mapFinancialChecklistItem(row as Record<string, unknown>)),
     deletedReceiptIds,
   }
 
@@ -421,6 +458,7 @@ const WORKSPACE_TABLE_NAMES = [
   'balance_snapshots',
   'history_records',
   'day_notes',
+  'financial_checklist_items',
 ] as const
 
 export type WorkspaceTableName = (typeof WORKSPACE_TABLE_NAMES)[number]
@@ -438,6 +476,7 @@ function tableCounts(state: AppState): Record<WorkspaceTableName, number> {
     balance_snapshots: state.snapshots.length,
     history_records: (state.historyRecords ?? []).length,
     day_notes: (state.dayNotes ?? []).length,
+    financial_checklist_items: (state.financialChecklistItems ?? []).length,
   }
 }
 
@@ -686,6 +725,25 @@ export async function saveWorkspaceState(
     updated_at: n.updatedAt ?? new Date().toISOString(),
     ...ws,
   }))
+  const checklistRows = (state.financialChecklistItems ?? []).map((item, i) => ({
+    id: item.id,
+    name: item.name,
+    recurrence: item.recurrence,
+    due_date: item.dueDate ?? null,
+    due_day_of_month: item.dueDayOfMonth ?? null,
+    due_months: item.dueMonths ?? [],
+    scope_level: item.scopeLevel,
+    scope_id: item.scopeId,
+    notes: item.notes ?? null,
+    completed_periods: item.completedPeriods ?? [],
+    sort_order: item.sortOrder ?? i,
+    created_at: item.createdAt
+      ? item.createdAt.includes('T')
+        ? item.createdAt
+        : `${item.createdAt}T12:00:00.000Z`
+      : new Date().toISOString(),
+    ...ws,
+  }))
   const tables = [
     { name: 'groups', rows: groupRows },
     { name: 'businesses', rows: businessRows },
@@ -698,6 +756,7 @@ export async function saveWorkspaceState(
     { name: 'balance_snapshots', rows: snapshotRows },
     { name: 'history_records', rows: historyRows },
     { name: 'day_notes', rows: dayNoteRows },
+    { name: 'financial_checklist_items', rows: checklistRows },
   ] as const
 
   const EXTENDED_COLUMNS = [
@@ -750,6 +809,7 @@ export async function saveWorkspaceState(
     'groups',
     'history_records',
     'balance_snapshots',
+    'financial_checklist_items',
   ])
 
   const previousIdsByTable = (tableName: string): string[] => {
@@ -776,6 +836,8 @@ export async function saveWorkspaceState(
         return (previous.historyRecords ?? []).map((row) => row.id)
       case 'balance_snapshots':
         return previous.snapshots.map((row) => row.id)
+      case 'financial_checklist_items':
+        return (previous.financialChecklistItems ?? []).map((row) => row.id)
       default:
         return []
     }

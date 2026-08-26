@@ -1123,6 +1123,7 @@ function AppShellInner({
             const first = app.state.reservePlanners[0]
             goToRoute('reserve-planner', first?.id)
           }}
+          onOpenCalendar={() => goToRoute('calendar')}
           onCheckInClosed={() => setDueNotifyRefresh((n) => n + 1)}
           enabled={!isDemoSession && onboardingCompleted && !setupWizardOpen}
         />

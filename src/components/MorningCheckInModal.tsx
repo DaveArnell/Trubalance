@@ -13,6 +13,7 @@ import {
   dueNotifyKey,
   wasMorningCheckInDoneToday,
 } from '../utils/morningCheckIn'
+import { getOutstandingChecklistOccurrences } from '../utils/financialChecklist'
 import { MorningBalancesList } from './MorningBalancesList'
 import { MarkPaidConfirmButton } from './committed/MarkPaidConfirmModal'
 
@@ -24,6 +25,7 @@ interface MorningCheckInModalProps {
   onMarkCommitmentPaid?: (id: string, paidAmount?: number) => void
   onOpenDue?: () => void
   onOpenReserve?: () => void
+  onOpenCalendar?: () => void
   onCheckInClosed?: () => void
   enabled?: boolean
 }
@@ -39,6 +41,7 @@ export function MorningCheckInModal({
   onMarkCommitmentPaid,
   onOpenDue,
   onOpenReserve,
+  onOpenCalendar,
   onCheckInClosed,
   enabled = true,
 }: MorningCheckInModalProps) {
@@ -51,6 +54,10 @@ export function MorningCheckInModal({
   )
   const visibleDue = newlyDue.filter((item) => !paidIds.includes(item.commitmentId))
   const reserveHint = useMemo(() => getMorningReserveHint(state, viewScope), [state, viewScope])
+  const outstandingChecklist = useMemo(
+    () => getOutstandingChecklistOccurrences(state, viewScope).slice(0, 5),
+    [state, viewScope],
+  )
   const showMonthTip = isStartOfMonth() || Boolean(reserveHint)
 
   useEffect(() => {
@@ -171,6 +178,37 @@ export function MorningCheckInModal({
                 {onOpenReserve ? (
                   <button type="button" className="btn-ghost btn-tiny" onClick={onOpenReserve}>
                     Open Reserve Planner
+                  </button>
+                ) : null}
+              </section>
+            ) : null}
+
+            {outstandingChecklist.length > 0 ? (
+              <section className="morning-checkin-panel morning-checkin-panel--checklist">
+                <div className="morning-checkin-panel-head">
+                  <h3>Checklist outstanding</h3>
+                  <p>Money-admin items waiting to be ticked.</p>
+                </div>
+                <ul className="morning-checkin-due-list">
+                  {outstandingChecklist.map((occurrence) => (
+                    <li
+                      key={`${occurrence.item.id}-${occurrence.periodKey}`}
+                      className="morning-checkin-due-item"
+                    >
+                      <div className="morning-checkin-due-copy">
+                        <strong>{occurrence.item.name}</strong>
+                        <span className="morning-checkin-due-meta">
+                          {occurrence.status === 'due' ? 'Due today' : 'Outstanding'} ·{' '}
+                          {occurrence.dueDate.slice(8, 10)}/
+                          {occurrence.dueDate.slice(5, 7)}
+                        </span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                {onOpenCalendar ? (
+                  <button type="button" className="btn-ghost btn-tiny" onClick={onOpenCalendar}>
+                    Open Calendar
                   </button>
                 ) : null}
               </section>

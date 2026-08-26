@@ -66,6 +66,9 @@ export function parseImportedAppState(raw: unknown): { state: AppState } | { err
         Array.isArray(record.dayNotes) ? (record.dayNotes as AppState['dayNotes']) : [],
         groups[0]?.id,
       ),
+      financialChecklistItems: Array.isArray(record.financialChecklistItems)
+        ? (record.financialChecklistItems as AppState['financialChecklistItems'])
+        : [],
       workspaceOrigin: 'user',
     },
   }

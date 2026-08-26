@@ -6,6 +6,7 @@ import type {
   BalanceSnapshot,
   Commitment,
   ExpectedReceipt,
+  FinancialChecklistItem,
   IncomePattern,
   ReserveBill,
   ReservePlanner,
@@ -56,6 +57,7 @@ import { normalizeWorkspaceState } from '../utils/workspaceNormalize'
 import { workspaceCostsRepairKey } from '../utils/workspaceRecovery'
 import { getReferenceDate, getReferenceDateKey } from '../utils/referenceDate'
 import { migrateDayNotes } from '../utils/dayNotes'
+import { CHECKLIST_STARTER_TEMPLATES } from '../utils/financialChecklist'
 
 const STORAGE_KEY = 'trubalance-app-state-v4'
 const MAX_UNDO = 30
@@ -179,6 +181,7 @@ function migrateState(parsed: Record<string, unknown>): AppState {
   base.reservePlanners = ensureArray(base.reservePlanners, initialState.reservePlanners)
   base.historyRecords = ensureArray(base.historyRecords, [])
   base.dayNotes = migrateDayNotes(ensureArray(base.dayNotes, []), base.groups[0]?.id)
+  base.financialChecklistItems = ensureArray(base.financialChecklistItems, [])
   base.snapshots = ensureArray(base.snapshots, []).map((snap: BalanceSnapshot) => ({
     ...snap,
     changedAccounts: (snap.changedAccounts ?? []).map((c) => ({
@@ -2015,6 +2018,84 @@ export function useAppState(options?: UseAppStateOptions) {
       return { ...s, dayNotes: [...rest, next].sort((a, b) => a.date.localeCompare(b.date)) }
     })
 
+  const addFinancialChecklistItem = (
+    item: Omit<FinancialChecklistItem, 'id' | 'completedPeriods' | 'createdAt' | 'sortOrder'> & {
+      sortOrder?: number
+    },
+  ) => {
+    update((s) => {
+      const list = s.financialChecklistItems ?? []
+      const next: FinancialChecklistItem = {
+        ...item,
+        id: newId(),
+        completedPeriods: [],
+        createdAt: todayDateKey(),
+        sortOrder: item.sortOrder ?? nextSortOrder(list),
+      }
+      return { ...s, financialChecklistItems: [...list, next] }
+    })
+    requestImmediatePersist()
+  }
+
+  const updateFinancialChecklistItem = (id: string, patch: Partial<FinancialChecklistItem>) => {
+    update((s) => ({
+      ...s,
+      financialChecklistItems: (s.financialChecklistItems ?? []).map((row) =>
+        row.id === id ? { ...row, ...patch, id: row.id } : row,
+      ),
+    }))
+    requestImmediatePersist()
+  }
+
+  const deleteFinancialChecklistItem = (id: string) => {
+    update((s) => ({
+      ...s,
+      financialChecklistItems: (s.financialChecklistItems ?? []).filter((row) => row.id !== id),
+    }))
+    requestImmediatePersist()
+  }
+
+  const setFinancialChecklistOccurrenceDone = (id: string, periodKey: string, done: boolean) => {
+    update((s) => ({
+      ...s,
+      financialChecklistItems: (s.financialChecklistItems ?? []).map((row) => {
+        if (row.id !== id) return row
+        const set = new Set(row.completedPeriods ?? [])
+        if (done) set.add(periodKey)
+        else set.delete(periodKey)
+        return { ...row, completedPeriods: [...set].sort() }
+      }),
+    }))
+    requestImmediatePersist()
+  }
+
+  const seedFinancialChecklistTemplates = (scopeLevel: 'group' | 'business', scopeId: string) => {
+    update((s) => {
+      const list = s.financialChecklistItems ?? []
+      const existingNames = new Set(list.map((row) => row.name.toLowerCase()))
+      const added: FinancialChecklistItem[] = []
+      let order = nextSortOrder(list)
+      for (const template of CHECKLIST_STARTER_TEMPLATES) {
+        if (existingNames.has(template.name.toLowerCase())) continue
+        added.push({
+          id: newId(),
+          name: template.name,
+          recurrence: template.recurrence,
+          dueDayOfMonth: template.dueDayOfMonth,
+          dueMonths: template.dueMonths,
+          scopeLevel,
+          scopeId,
+          completedPeriods: [],
+          createdAt: todayDateKey(),
+          sortOrder: order++,
+        })
+      }
+      if (added.length === 0) return s
+      return { ...s, financialChecklistItems: [...list, ...added] }
+    })
+    requestImmediatePersist()
+  }
+
   const setupMinimalWorkspace = (input: {
     businessName: string
     venueName?: string
@@ -2222,6 +2303,11 @@ export function useAppState(options?: UseAppStateOptions) {
     deleteHistoryRecord,
     deleteHistoryRecords,
     setDayNote,
+    addFinancialChecklistItem,
+    updateFinancialChecklistItem,
+    deleteFinancialChecklistItem,
+    setFinancialChecklistOccurrenceDone,
+    seedFinancialChecklistTemplates,
     setupMinimalWorkspace,
     setupGuidedWorkspace,
     syncGuidedStructureFromDrafts,

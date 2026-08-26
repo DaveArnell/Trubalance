@@ -41,6 +41,8 @@ export const WIDGET_HELP = {
     'Projects your current account forward using dated monthly costs, planned payments, reserve transfers, and expected receipts.\n\nWorks best when income arrives as identifiable payments. For steady daily trade, Trends is usually a clearer picture of direction.',
   forecast:
     'Forward-looking view: cash outlook from scheduled movements, plus trend projection from saved balance history.\n\nIf your income arrives steadily through the month, the Trends page is often the better guide.',
+  financialCalendar:
+    'Your financial calendar and checklist in one place.\n\nAdd recurring money-admin tasks (payroll, pension, VAT, Companies House, reserve transfers). They show on the calendar ahead of time. Once the date arrives they stay on the outstanding checklist until you tick them — then the next cycle appears automatically.\n\nThis is not bookkeeping or tax filing. It is the operational tick-list that keeps your financial life running on time.',
 } as const
 
 export const QUICK_HABITS = [

@@ -188,6 +188,21 @@ export const PAGE_TOURS: Partial<Record<PageId, PageTour>> = {
       },
     ],
   },
+  calendar: {
+    id: 'calendar',
+    title: 'Financial calendar',
+    description: 'Calendar and outstanding checklist.',
+    steps: [
+      {
+        id: 'cal-overview',
+        target: '[data-tour="financial-calendar"]',
+        title: 'Calendar and checklist',
+        body: 'Set money-admin tasks ahead of time so they show on the calendar. When the date arrives they stay on the outstanding checklist until you tick them — then the next cycle comes back automatically.\n\nUse Add starter list for common items like payroll, pension, and VAT.',
+        placement: 'top',
+        page: 'calendar',
+      },
+    ],
+  },
 }
 
 export function getTourForPage(pageId: PageId): PageTour | null {

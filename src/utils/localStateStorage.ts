@@ -71,6 +71,7 @@ export const emptyAppState = (): AppState => ({
   snapshots: [],
   historyRecords: [],
   dayNotes: [],
+  financialChecklistItems: [],
 })
 
 /** True when the workspace is still the untouched built-in demo seed. */
@@ -270,6 +271,12 @@ export function stripEntitiesOutsideWorkspace(state: AppState): AppState {
     return false
   })
 
+  const financialChecklistItems = (state.financialChecklistItems ?? []).filter((item) => {
+    if (item.scopeLevel === 'group') return groupIds.has(item.scopeId)
+    if (item.scopeLevel === 'business') return businessIds.has(item.scopeId)
+    return false
+  })
+
   return {
     ...state,
     businesses,
@@ -278,6 +285,7 @@ export function stripEntitiesOutsideWorkspace(state: AppState): AppState {
     reservePlanners,
     commitments,
     expectedReceipts,
+    financialChecklistItems,
   }
 }
 

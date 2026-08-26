@@ -273,6 +273,8 @@ export interface AppState {
   historyRecords: HistoryRecord[]
   /** User annotations for a calendar day — shown on trends and balance log. */
   dayNotes: DayNote[]
+  /** Financial calendar / monthly checklist (money-admin tasks). */
+  financialChecklistItems?: FinancialChecklistItem[]
   /** Receipt ids the user removed — kept so History recovery cannot resurrect them. */
   deletedReceiptIds?: string[]
   /** Set when loading built-in demo or restoring a user export. */
@@ -286,6 +288,32 @@ export interface DayNote {
   scopeLevel: ScopeLevel
   scopeId: string
   updatedAt: string
+}
+
+/** How often a financial calendar / checklist item repeats. */
+export type ChecklistRecurrence = 'once' | 'monthly' | 'quarterly' | 'yearly'
+
+/**
+ * Financial diary item: shows on the calendar ahead of its due date, then sits on
+ * the outstanding checklist until ticked for that cycle (recurring items reopen next cycle).
+ */
+export interface FinancialChecklistItem {
+  id: string
+  name: string
+  recurrence: ChecklistRecurrence
+  /** Absolute date when recurrence === 'once' (YYYY-MM-DD). */
+  dueDate?: string
+  /** Day of month 1–31 for monthly / quarterly / yearly. */
+  dueDayOfMonth?: number
+  /** Calendar months 1–12 when the item fires (quarterly/yearly; monthly ignores). */
+  dueMonths?: number[]
+  scopeLevel: 'group' | 'business'
+  scopeId: string
+  notes?: string
+  /** Completed occurrence keys (YYYY-MM-DD for once / monthly anchors). */
+  completedPeriods?: string[]
+  sortOrder?: number
+  createdAt?: string
 }
 
 export interface DashboardMetrics {
