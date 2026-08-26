@@ -190,14 +190,14 @@ export const PAGE_TOURS: Partial<Record<PageId, PageTour>> = {
   },
   calendar: {
     id: 'calendar',
-    title: 'Checklist',
-    description: 'Financial admin tasks that return each cycle.',
+    title: 'Financial calendar',
+    description: 'Money-admin dates that return each cycle.',
     steps: [
       {
         id: 'cal-overview',
         target: '[data-tour="financial-calendar"]',
-        title: 'Needs doing and Coming up',
-        body: 'Tick what is due under Needs doing. Coming up shows what is scheduled next. Set up holds the recurring tasks themselves — add once, and each cycle returns when the date arrives.',
+        title: 'Three clear sections',
+        body: 'Recurring tasks — set payroll, pension, VAT once.\n\nComing up — see the next dates ahead.\n\nTo do now — tick when the date arrives; the next cycle comes back automatically.',
         placement: 'top',
         page: 'calendar',
       },
