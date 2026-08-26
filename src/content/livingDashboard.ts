@@ -42,7 +42,7 @@ export const WIDGET_HELP = {
   forecast:
     'Forward-looking view: cash outlook from scheduled movements, plus trend projection from saved balance history.\n\nIf your income arrives steadily through the month, the Trends page is often the better guide.',
   financialCalendar:
-    'Recurring money-admin dates — payroll, pension, VAT, Companies House, reserve transfers.\n\nSet each task once under Recurring tasks. Coming up shows the next dates. When a date arrives it moves to To do now until you tick it — then the next cycle returns automatically.\n\nThis is not bookkeeping or tax filing. It keeps operational dates visible so nothing slips.',
+    'Your financial calendar and tick list.\n\nAdd any reminder you want to track — under Your reminders. Coming up shows the next dates. When a date arrives it moves to To do now until you tick it; recurring reminders come back on the next due date.\n\nThis is not bookkeeping or tax filing. It is simply a place to keep financial dates visible.',
 } as const
 
 export const QUICK_HABITS = [

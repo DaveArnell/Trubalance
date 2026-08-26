@@ -57,7 +57,6 @@ import { normalizeWorkspaceState } from '../utils/workspaceNormalize'
 import { workspaceCostsRepairKey } from '../utils/workspaceRecovery'
 import { getReferenceDate, getReferenceDateKey } from '../utils/referenceDate'
 import { migrateDayNotes } from '../utils/dayNotes'
-import { CHECKLIST_STARTER_TEMPLATES } from '../utils/financialChecklist'
 import { isFinancialChecklistTableMissing } from '../services/workspaceRepository'
 
 const STORAGE_KEY = 'trubalance-app-state-v4'
@@ -2107,33 +2106,6 @@ export function useAppState(options?: UseAppStateOptions) {
     requestImmediatePersist()
   }
 
-  const seedFinancialChecklistTemplates = (scopeLevel: 'group' | 'business', scopeId: string) => {
-    update((s) => {
-      const list = s.financialChecklistItems ?? []
-      const existingNames = new Set(list.map((row) => row.name.toLowerCase()))
-      const added: FinancialChecklistItem[] = []
-      let order = nextSortOrder(list)
-      for (const template of CHECKLIST_STARTER_TEMPLATES) {
-        if (existingNames.has(template.name.toLowerCase())) continue
-        added.push({
-          id: newId(),
-          name: template.name,
-          recurrence: template.recurrence,
-          dueDayOfMonth: template.dueDayOfMonth,
-          dueMonths: template.dueMonths,
-          scopeLevel,
-          scopeId,
-          completedPeriods: [],
-          createdAt: todayDateKey(),
-          sortOrder: order++,
-        })
-      }
-      if (added.length === 0) return s
-      return { ...s, financialChecklistItems: [...list, ...added] }
-    })
-    requestImmediatePersist()
-  }
-
   const setupMinimalWorkspace = (input: {
     businessName: string
     venueName?: string
@@ -2345,7 +2317,6 @@ export function useAppState(options?: UseAppStateOptions) {
     updateFinancialChecklistItem,
     deleteFinancialChecklistItem,
     setFinancialChecklistOccurrenceDone,
-    seedFinancialChecklistTemplates,
     setupMinimalWorkspace,
     setupGuidedWorkspace,
     syncGuidedStructureFromDrafts,

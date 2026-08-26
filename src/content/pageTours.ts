@@ -191,13 +191,13 @@ export const PAGE_TOURS: Partial<Record<PageId, PageTour>> = {
   calendar: {
     id: 'calendar',
     title: 'Financial calendar',
-    description: 'Money-admin dates that return each cycle.',
+    description: 'Financial reminders on a calendar.',
     steps: [
       {
         id: 'cal-overview',
         target: '[data-tour="financial-calendar"]',
-        title: 'Three clear sections',
-        body: 'Recurring tasks — set payroll, pension, VAT once.\n\nComing up — see the next dates ahead.\n\nTo do now — tick when the date arrives; the next cycle comes back automatically.',
+        title: 'Calendar and tick list',
+        body: 'Your reminders — add anything you want to track.\n\nComing up — see dates ahead.\n\nTo do now — tick when the date arrives; recurring reminders come back next time.',
         placement: 'top',
         page: 'calendar',
       },

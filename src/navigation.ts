@@ -3,7 +3,7 @@ export const APP_PAGES = [
   { id: 'due', label: 'Due', kicker: 'Payments due', icon: '✓' },
   { id: 'receipts', label: 'Receipts', kicker: 'Expected in', icon: '↓' },
   { id: 'trends', label: 'Trends', kicker: 'Balance over time', icon: '↗' },
-  { id: 'calendar', label: 'Financial calendar', kicker: 'Money admin dates', icon: '▣' },
+  { id: 'calendar', label: 'Financial calendar', kicker: 'Reminders', icon: '▣' },
   { id: 'forecast', label: 'Forecast', kicker: 'Forward look', icon: '⇢' },
   { id: 'history', label: 'History', kicker: 'Saved days', icon: '◷' },
   { id: 'reserve-planner', label: 'Reserve Planner', kicker: 'Irregular bills', icon: '◎' },

@@ -31,7 +31,6 @@ interface FinancialCalendarPanelProps {
     | 'updateFinancialChecklistItem'
     | 'deleteFinancialChecklistItem'
     | 'setFinancialChecklistOccurrenceDone'
-    | 'seedFinancialChecklistTemplates'
   >
   openHelp: string | null
   setOpenHelp: (id: string | null) => void
@@ -154,7 +153,6 @@ export function FinancialCalendarPanel({
   )
   const recurring = useMemo(() => listChecklistItemsForView(state, viewScope), [state, viewScope])
   const nextUp = upcoming[0] ?? null
-  const seedScope = defaultScope(state, viewScope)
 
   const openCreate = () => {
     setEditingId(null)
@@ -214,23 +212,9 @@ export function FinancialCalendarPanel({
         </table>
         <div className="card-actions">
           {!editReadOnly ? (
-            <>
-              {recurring.length === 0 ? (
-                <button
-                  type="button"
-                  className="btn-ghost btn-tiny"
-                  onClick={() =>
-                    actions.seedFinancialChecklistTemplates(seedScope.scopeLevel, seedScope.scopeId)
-                  }
-                  disabled={!seedScope.scopeId}
-                >
-                  Starter list
-                </button>
-              ) : null}
-              <button type="button" className="btn-primary btn-widget-add" onClick={openCreate}>
-                + Add
-              </button>
-            </>
+            <button type="button" className="btn-primary btn-widget-add" onClick={openCreate}>
+              + Add
+            </button>
           ) : null}
           <HelpButton
             id="financial-calendar"
@@ -255,9 +239,9 @@ export function FinancialCalendarPanel({
                 ? `${nextUp.item.name} · ${formatShortDate(nextUp.dueDate)}`
                 : recurring.length > 0
                   ? 'Nothing in next 90 days'
-                  : 'Add a recurring task',
+                  : 'Add a reminder',
             },
-            { label: 'Recurring tasks', value: recurring.length },
+            { label: 'Reminders', value: recurring.length },
           ]}
         />
       </div>
@@ -273,12 +257,12 @@ export function FinancialCalendarPanel({
           <div className="sheet-section-head">
             <h3>To do now</h3>
             <p className="muted fin-cal-section-lead">
-              Recurring money-admin dates that have arrived — payroll, pension, VAT, Companies House.
-              Tick when done; the next cycle comes back on its due date.
+              Financial reminders that have reached their date. Tick when done — recurring ones come
+              back on the next due date.
             </p>
           </div>
           {outstanding.length === 0 ? (
-            <p className="muted fin-cal-empty">Nothing waiting. Tasks land here on their due date.</p>
+            <p className="muted fin-cal-empty">Nothing waiting. Reminders land here on their due date.</p>
           ) : (
             <ul className="fin-cal-todo-list">
               {outstanding.map((occurrence) => (
@@ -305,14 +289,13 @@ export function FinancialCalendarPanel({
           <div className="sheet-section-head">
             <h3>Coming up</h3>
             <p className="muted fin-cal-section-lead">
-              The next dates on your calendar — so you can see what is ahead before it moves to To do
-              now.
+              Dates on your financial calendar for the next 90 days.
             </p>
           </div>
           {upcoming.length === 0 ? (
             <p className="muted fin-cal-empty">
               {recurring.length === 0
-                ? 'Add recurring tasks below — they will show here before each due date.'
+                ? 'Add reminders below — they will show here before each due date.'
                 : 'No dates in the next 90 days.'}
             </p>
           ) : (
@@ -320,7 +303,7 @@ export function FinancialCalendarPanel({
               <thead>
                 <tr>
                   <th scope="col">Date</th>
-                  <th scope="col">Task</th>
+                  <th scope="col">Reminder</th>
                   <th scope="col">Repeats</th>
                   {!editReadOnly ? <th scope="col" className="fin-cal-actions-col" /> : null}
                 </tr>
@@ -351,21 +334,19 @@ export function FinancialCalendarPanel({
 
         <div className="sheet-section sheet-section-compact">
           <div className="sheet-section-head">
-            <h3>Recurring tasks</h3>
+            <h3>Your reminders</h3>
             <p className="muted fin-cal-section-lead">
-              Set each task once with its due date or day of month. Cash Prophet puts it on the calendar
-              ahead of time, then back in To do now when the date arrives.
+              Anything you want to track — set the name and due date once. It appears under Coming up,
+              then To do now when the date arrives.
             </p>
           </div>
           {recurring.length === 0 ? (
-            <p className="muted fin-cal-empty">
-              No recurring tasks yet. Use + Add or Starter list for payroll, pension, VAT and similar.
-            </p>
+            <p className="muted fin-cal-empty">No reminders yet. Use + Add to create one.</p>
           ) : (
             <table className="fin-cal-recurring-table">
               <thead>
                 <tr>
-                  <th scope="col">Task</th>
+                  <th scope="col">Reminder</th>
                   <th scope="col">Repeats</th>
                   <th scope="col">Due</th>
                   <th scope="col">Applies to</th>
@@ -420,19 +401,18 @@ export function FinancialCalendarPanel({
                 aria-labelledby="fin-cal-form-title"
                 onClick={(e) => e.stopPropagation()}
               >
-                <h3 id="fin-cal-form-title">{editingId ? 'Edit recurring task' : 'Add recurring task'}</h3>
+                <h3 id="fin-cal-form-title">{editingId ? 'Edit reminder' : 'Add reminder'}</h3>
                 <p className="planned-funding-subtitle">
-                  Example: staff pay on the 28th every month. It appears under Coming up, then To do now
-                  on that date.
+                  Name it, pick when it repeats, and choose the due date or day of month.
                 </p>
                 <div className="fin-cal-modal-grid">
                   <label>
-                    Task name
+                    Name
                     <input
                       autoFocus
                       value={draft.name}
                       onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))}
-                      placeholder="e.g. Staff pay"
+                      placeholder="e.g. Insurance renewal"
                     />
                   </label>
                   <label>
@@ -521,7 +501,7 @@ export function FinancialCalendarPanel({
                     Cancel
                   </button>
                   <button type="button" className="btn-primary btn-tiny" onClick={saveDraft}>
-                    {editingId ? 'Save' : 'Add task'}
+                    {editingId ? 'Save' : 'Add'}
                   </button>
                 </div>
               </div>
@@ -532,7 +512,7 @@ export function FinancialCalendarPanel({
 
       {deleteId ? (
         <ConfirmDialog
-          title="Delete this task?"
+          title="Delete this reminder?"
           message="Removes it from your calendar and its tick history."
           confirmLabel="Delete"
           onConfirm={() => {

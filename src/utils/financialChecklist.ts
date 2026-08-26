@@ -189,21 +189,3 @@ export function recurrenceLabel(recurrence: ChecklistRecurrence): string {
   if (recurrence === 'quarterly') return 'Every quarter'
   return 'Every year'
 }
-
-export const CHECKLIST_STARTER_TEMPLATES: Array<{
-  name: string
-  recurrence: ChecklistRecurrence
-  dueDayOfMonth: number
-  dueMonths?: number[]
-}> = [
-  { name: 'Staff pay', recurrence: 'monthly', dueDayOfMonth: 28 },
-  { name: 'Pension submission', recurrence: 'monthly', dueDayOfMonth: 22 },
-  { name: 'VAT return', recurrence: 'quarterly', dueDayOfMonth: 7, dueMonths: [2, 5, 8, 11] },
-  { name: 'Confirm reserve transfer', recurrence: 'monthly', dueDayOfMonth: 1 },
-  {
-    name: 'Companies House confirmation statement',
-    recurrence: 'yearly',
-    dueDayOfMonth: 1,
-    dueMonths: [4],
-  },
-]
