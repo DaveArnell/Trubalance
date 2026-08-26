@@ -183,6 +183,28 @@ export function getChecklistOccurrencesForMonth(
   return out.sort((a, b) => a.dueDate.localeCompare(b.dueDate))
 }
 
+/** Outstanding first, then upcoming — one chronological timeline. */
+export function getChecklistTimeline(
+  state: AppState,
+  viewScope: ViewScope,
+  withinDays = 120,
+  referenceDate: Date = getReferenceDate(),
+): ChecklistOccurrence[] {
+  const outstanding = getOutstandingChecklistOccurrences(state, viewScope, referenceDate)
+  const upcoming = getUpcomingChecklistOccurrences(state, viewScope, withinDays, referenceDate)
+  const seen = new Set<string>()
+  const merged: ChecklistOccurrence[] = []
+  for (const occurrence of [...outstanding, ...upcoming]) {
+    const key = `${occurrence.item.id}:${occurrence.periodKey}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    merged.push(occurrence)
+  }
+  return merged.sort(
+    (a, b) => a.dueDate.localeCompare(b.dueDate) || a.item.name.localeCompare(b.item.name),
+  )
+}
+
 export function recurrenceLabel(recurrence: ChecklistRecurrence): string {
   if (recurrence === 'once') return 'One-off'
   if (recurrence === 'monthly') return 'Every month'
