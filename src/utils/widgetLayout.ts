@@ -56,7 +56,7 @@ export const WIDGET_LABELS: Record<string, string> = {
   'committed-funds': 'Monthly accruing',
   due: 'Due',
   'expected-receipts': 'Expected receipts',
-  'financial-calendar': 'Financial calendar',
+  'financial-calendar': 'Checklist',
   'reserve-planner': 'Reserve planner',
   settings: 'Organisation',
 }

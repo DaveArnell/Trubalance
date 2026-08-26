@@ -34888,299 +34888,327 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 
-/* -- Financial calendar + checklist ------------------------- */
-.financial-calendar-panel {
+
+/* -- Financial checklist (practical tick list) --------------- */
+.financial-checklist-panel {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.85rem;
   min-height: 0;
 }
 
-.financial-calendar-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem 0.75rem;
-}
-
-.financial-calendar-count {
-  margin-left: auto;
+.financial-checklist-lead {
+  margin: 0.15rem 0 0;
   font-size: 0.85rem;
+  max-width: 42rem;
+  line-height: 1.4;
 }
 
-.financial-calendar-layout {
+.financial-checklist-summary {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(16rem, 0.9fr);
-  gap: 1.25rem;
-  align-items: start;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
 }
 
-.financial-calendar-month-nav {
+.financial-checklist-summary-pill {
+  appearance: none;
+  border: 1px solid color-mix(in srgb, var(--border, #d1d5db) 80%, transparent);
+  background: color-mix(in srgb, var(--surface, #fff) 94%, #f3f4f6);
+  border-radius: 0.55rem;
+  padding: 0.65rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  cursor: pointer;
+  color: inherit;
+  text-align: left;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.financial-checklist-summary-pill strong {
+  font-size: 1.25rem;
+  font-weight: 650;
+  line-height: 1;
+}
+
+.financial-checklist-summary-pill span {
+  font-size: 0.78rem;
+  color: var(--muted, #6b7280);
+}
+
+.financial-checklist-summary-pill.is-active {
+  border-color: color-mix(in srgb, var(--accent, #0f766e) 50%, transparent);
+  background: color-mix(in srgb, var(--accent, #0f766e) 8%, white);
+}
+
+.financial-checklist-summary-pill.has-work:not(.is-active) {
+  border-color: color-mix(in srgb, #b45309 35%, transparent);
+}
+
+.financial-checklist-summary-pill.has-work strong {
+  color: #92400e;
+}
+
+.financial-checklist-monthbar {
+  border: 1px solid color-mix(in srgb, var(--border, #d1d5db) 70%, transparent);
+  border-radius: 0.55rem;
+  padding: 0.55rem 0.65rem 0.65rem;
+  background: color-mix(in srgb, var(--surface, #fff) 97%, #f8fafc);
+}
+
+.financial-checklist-monthbar-nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  margin-bottom: 0.65rem;
-}
-
-.financial-calendar-month-nav h3 {
-  margin: 0;
-  font-size: 1.05rem;
+  margin-bottom: 0.45rem;
+  font-size: 0.88rem;
   font-weight: 600;
 }
 
-.financial-calendar-weekdays {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0.25rem;
-  margin-bottom: 0.25rem;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--muted, #6b7280);
-  text-align: center;
-}
-
-.financial-calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0.3rem;
-}
-
-.financial-calendar-day {
-  appearance: none;
-  border: 1px solid color-mix(in srgb, var(--border, #d1d5db) 80%, transparent);
-  background: color-mix(in srgb, var(--surface, #fff) 92%, #f3f4f6);
-  border-radius: 0.55rem;
-  min-height: 3.4rem;
-  padding: 0.35rem 0.3rem 0.4rem;
+.financial-checklist-monthbar-days {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.25rem;
-  cursor: pointer;
-  text-align: left;
-  color: inherit;
-}
-
-.financial-calendar-day.is-pad {
-  border: none;
-  background: transparent;
-  pointer-events: none;
-  min-height: 0;
-}
-
-.financial-calendar-day.is-today {
-  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent, #0f766e) 65%, transparent);
-}
-
-.financial-calendar-day.is-selected {
-  background: color-mix(in srgb, var(--accent, #0f766e) 12%, white);
-  border-color: color-mix(in srgb, var(--accent, #0f766e) 45%, transparent);
-}
-
-.financial-calendar-day.has-outstanding {
-  background: color-mix(in srgb, #b45309 10%, white);
-}
-
-.financial-calendar-day-num {
-  font-size: 0.82rem;
-  font-weight: 600;
-}
-
-.financial-calendar-day-dots {
-  display: flex;
-  gap: 0.18rem;
   flex-wrap: wrap;
+  gap: 0.2rem;
 }
 
-.financial-calendar-day-dots .dot {
-  width: 0.38rem;
-  height: 0.38rem;
-  border-radius: 999px;
-  background: #94a3b8;
+.financial-checklist-monthbar-day {
+  width: 1.55rem;
+  height: 1.55rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.35rem;
+  font-size: 0.68rem;
+  color: var(--muted, #6b7280);
+  border: 1px solid transparent;
 }
 
-.financial-calendar-day-dots .dot.status-upcoming {
-  background: #64748b;
+.financial-checklist-monthbar-day.is-today {
+  border-color: color-mix(in srgb, var(--accent, #0f766e) 55%, transparent);
+  color: inherit;
+  font-weight: 650;
 }
 
-.financial-calendar-day-dots .dot.status-due,
-.financial-calendar-day-dots .dot.status-overdue {
-  background: #b45309;
+.financial-checklist-monthbar-day.mark-due {
+  background: color-mix(in srgb, #b45309 18%, white);
+  color: #92400e;
+  font-weight: 650;
 }
 
-.financial-calendar-day-dots .dot.status-done {
-  background: #0f766e;
+.financial-checklist-monthbar-day.mark-upcoming {
+  background: color-mix(in srgb, var(--accent, #0f766e) 12%, white);
+  color: color-mix(in srgb, var(--accent, #0f766e) 80%, #111);
 }
 
-.financial-calendar-day-detail {
-  margin-top: 1rem;
-  padding-top: 0.85rem;
-  border-top: 1px solid color-mix(in srgb, var(--border, #d1d5db) 70%, transparent);
+.financial-checklist-monthbar-day.mark-done {
+  background: color-mix(in srgb, #64748b 12%, white);
+  color: #475569;
 }
 
-.financial-calendar-day-detail h4 {
-  margin: 0 0 0.5rem;
-  font-size: 0.95rem;
+.financial-checklist-body {
+  min-height: 12rem;
 }
 
-.financial-calendar-aside {
+.financial-checklist-empty {
+  padding: 1.75rem 1rem;
+  text-align: center;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  align-items: center;
+  gap: 0.35rem;
 }
 
-.financial-checklist-block {
-  border: 1px solid color-mix(in srgb, var(--border, #d1d5db) 75%, transparent);
-  border-radius: 0.75rem;
-  padding: 0.85rem 0.9rem;
-  background: color-mix(in srgb, var(--surface, #fff) 96%, #f8fafc);
-}
-
-.financial-checklist-block header h3 {
+.financial-checklist-empty p {
   margin: 0;
-  font-size: 0.95rem;
 }
 
-.financial-checklist-block header p {
-  margin: 0.2rem 0 0.65rem;
-  font-size: 0.8rem;
+.financial-checklist-empty-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.65rem;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
-.financial-checklist-list,
-.financial-checklist-setup {
+.financial-checklist-ticklist {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: 0.35rem;
 }
 
-.financial-checklist-row,
-.financial-checklist-setup > li {
+.financial-checklist-tickrow {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 0.55rem;
-  align-items: start;
+  gap: 0.65rem;
+  align-items: center;
+  padding: 0.7rem 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--border, #d1d5db) 65%, transparent);
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--surface, #fff) 98%, #f8fafc);
 }
 
-.financial-checklist-setup > li {
-  padding-bottom: 0.45rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--border, #d1d5db) 55%, transparent);
+.financial-checklist-tickrow.is-emphasis.is-due,
+.financial-checklist-tickrow.is-emphasis.is-overdue {
+  border-color: color-mix(in srgb, #b45309 28%, transparent);
+  background: color-mix(in srgb, #b45309 6%, white);
 }
 
-.financial-checklist-setup > li:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
+.financial-checklist-ticklist--quiet .financial-checklist-tickrow {
+  background: transparent;
+  border-color: color-mix(in srgb, var(--border, #d1d5db) 50%, transparent);
 }
 
-.financial-checklist-copy,
-.financial-checklist-setup > li > div {
+.financial-checklist-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.financial-checklist-check input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--accent, #0f766e);
+  cursor: pointer;
+}
+
+.financial-checklist-check-spacer {
+  width: 1.1rem;
+}
+
+.financial-checklist-tickrow-copy {
   display: flex;
   flex-direction: column;
-  gap: 0.12rem;
+  gap: 0.15rem;
   min-width: 0;
 }
 
-.financial-checklist-copy strong,
-.financial-checklist-setup strong {
-  font-size: 0.9rem;
+.financial-checklist-tickrow-copy strong {
+  font-size: 0.95rem;
+  font-weight: 600;
 }
 
-.financial-checklist-copy .muted,
-.financial-checklist-setup .muted {
-  font-size: 0.75rem;
-}
-
-.financial-checklist-tick {
-  display: inline-flex;
-  align-items: center;
-  padding-top: 0.15rem;
-}
-
-.financial-checklist-status-pill {
-  font-size: 0.68rem;
-  padding: 0.15rem 0.4rem;
-  border-radius: 999px;
-  background: #e2e8f0;
-  color: #334155;
-  white-space: nowrap;
-}
-
-.financial-checklist-status-pill.status-overdue,
-.financial-checklist-status-pill.status-due {
-  background: color-mix(in srgb, #b45309 18%, white);
-  color: #92400e;
-}
-
-.financial-checklist-status-pill.status-upcoming {
-  background: #e2e8f0;
+.financial-checklist-tickrow-copy .muted {
+  font-size: 0.78rem;
 }
 
 .financial-checklist-row-actions {
   display: flex;
+  gap: 0.15rem;
+  flex-shrink: 0;
+}
+
+.financial-checklist-agenda {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.financial-checklist-agenda-group h3 {
+  margin: 0 0 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--muted, #6b7280);
+}
+
+.financial-checklist-setuplist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.financial-checklist-setuplist > li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: start;
+  padding: 0.75rem 0.15rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border, #d1d5db) 55%, transparent);
+}
+
+.financial-checklist-setuplist > li:last-child {
+  border-bottom: none;
+}
+
+.financial-checklist-setuplist-copy {
+  display: flex;
   flex-direction: column;
   gap: 0.15rem;
+  min-width: 0;
 }
 
-.financial-calendar-form {
-  margin-top: 0.25rem;
-  padding: 0.9rem 1rem;
-  border-radius: 0.75rem;
-  border: 1px solid color-mix(in srgb, var(--accent, #0f766e) 28%, transparent);
-  background: color-mix(in srgb, var(--accent, #0f766e) 6%, white);
+.financial-checklist-setuplist-copy strong {
+  font-size: 0.95rem;
 }
 
-.financial-calendar-form h3 {
-  margin: 0 0 0.75rem;
-  font-size: 1rem;
+.financial-checklist-setuplist-copy .muted {
+  font-size: 0.78rem;
 }
 
-.financial-calendar-form-grid {
+.financial-checklist-notes {
+  font-size: 0.8rem;
+  color: color-mix(in srgb, var(--text, #111) 72%, transparent);
+}
+
+.financial-checklist-modal {
+  max-width: 28rem;
+  width: min(28rem, calc(100vw - 2rem));
+}
+
+.financial-checklist-modal-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.65rem 0.85rem;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem 0.75rem;
+  margin: 0.85rem 0 1rem;
 }
 
-.financial-calendar-form-grid label {
+.financial-checklist-modal-grid label {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
   font-size: 0.8rem;
 }
 
-.financial-calendar-form-grid input,
-.financial-calendar-form-grid select {
+.financial-checklist-modal-grid input,
+.financial-checklist-modal-grid select {
   font: inherit;
-  padding: 0.4rem 0.5rem;
-  border-radius: 0.45rem;
+  padding: 0.45rem 0.55rem;
+  border-radius: 0.4rem;
   border: 1px solid color-mix(in srgb, var(--border, #d1d5db) 85%, transparent);
   background: white;
 }
 
-.financial-calendar-form-notes {
+.financial-checklist-modal-notes {
   grid-column: 1 / -1;
 }
 
-.financial-calendar-form-actions {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.85rem;
-}
-
-@media (max-width: 960px) {
-  .financial-calendar-layout {
+@media (max-width: 720px) {
+  .financial-checklist-summary {
     grid-template-columns: 1fr;
   }
 
-  .financial-calendar-form-grid {
+  .financial-checklist-modal-grid {
     grid-template-columns: 1fr;
   }
 
-  .financial-calendar-count {
-    margin-left: 0;
-    width: 100%;
+  .financial-checklist-tickrow {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .financial-checklist-row-actions {
+    grid-column: 2;
+    justify-content: flex-start;
+  }
+
+  .financial-checklist-setuplist > li {
+    grid-template-columns: 1fr;
   }
 }

@@ -190,14 +190,14 @@ export const PAGE_TOURS: Partial<Record<PageId, PageTour>> = {
   },
   calendar: {
     id: 'calendar',
-    title: 'Financial calendar',
-    description: 'Calendar and outstanding checklist.',
+    title: 'Checklist',
+    description: 'Financial admin tasks that return each cycle.',
     steps: [
       {
         id: 'cal-overview',
         target: '[data-tour="financial-calendar"]',
-        title: 'Calendar and checklist',
-        body: 'Set money-admin tasks ahead of time so they show on the calendar. When the date arrives they stay on the outstanding checklist until you tick them — then the next cycle comes back automatically.\n\nUse Add starter list for common items like payroll, pension, and VAT.',
+        title: 'Needs doing and Coming up',
+        body: 'Tick what is due under Needs doing. Coming up shows what is scheduled next. Set up holds the recurring tasks themselves — add once, and each cycle returns when the date arrives.',
         placement: 'top',
         page: 'calendar',
       },
