@@ -742,6 +742,7 @@ export async function saveWorkspaceState(
         ? item.createdAt
         : `${item.createdAt}T12:00:00.000Z`
       : new Date().toISOString(),
+    updated_at: new Date().toISOString(),
     ...ws,
   }))
   const tables = [
@@ -786,6 +787,7 @@ export async function saveWorkspaceState(
     'expected_receipts',
     'reserve_planners',
     'reserve_bills',
+    'financial_checklist_items',
   ])
 
   const upsertConflict = (tableName: string): { onConflict: string } | undefined => {
@@ -898,7 +900,10 @@ export async function saveWorkspaceState(
       )
       if (retryErr) {
         console.warn(`[workspaceRepository] upsert ${table.name} (retry):`, retryErr.message)
-        if (CRITICAL_UPSERT_TABLES.has(table.name)) {
+        const missingRelation =
+          table.name === 'financial_checklist_items' &&
+          /does not exist|Could not find the table/i.test(retryErr.message)
+        if (CRITICAL_UPSERT_TABLES.has(table.name) && !missingRelation) {
           failedCritical.push(`${table.name}: ${retryErr.message}`)
         }
         continue

@@ -255,7 +255,9 @@ export function readBrowserAppState(): AppState | null {
   try {
     const raw = readRawBrowserStateJson()
     if (!raw) return null
-    return migrateState(JSON.parse(raw) as Record<string, unknown>)
+    const migrated = migrateState(JSON.parse(raw) as Record<string, unknown>)
+    // Checklist is server-only — never revive it from a browser cache.
+    return { ...migrated, financialChecklistItems: [] }
   } catch {
     return null
   }
@@ -340,7 +342,8 @@ export function useAppState(options?: UseAppStateOptions) {
 
   useEffect(() => {
     return () => {
-      if (!options?.remotePersist || options?.skipLocalPersist || !options?.onStateChange) return
+      if (!options?.remotePersist || !options?.onStateChange) return
+      // Cloud-only sessions (skipLocalPersist) must still flush — there is no local mirror.
       options.onStateChange(stateRef.current, { immediate: true })
     }
   }, [options?.remotePersist, options?.onStateChange, options?.skipLocalPersist])
@@ -423,7 +426,10 @@ export function useAppState(options?: UseAppStateOptions) {
     }
     if (!options?.skipLocalPersist) {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({ ...next, financialChecklistItems: [] }),
+        )
       } catch {
         /* ignore quota */
       }
@@ -470,8 +476,12 @@ export function useAppState(options?: UseAppStateOptions) {
     }
     // Always mirror to localStorage — even before cloud hydrate — so focus/reload
     // merge can recover receipts added while remote state was still loading.
+    // Financial checklist is server-only: never persist it in the browser cache.
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ ...state, financialChecklistItems: [] }),
+      )
     } catch {
       /* ignore quota */
     }
@@ -501,9 +511,13 @@ export function useAppState(options?: UseAppStateOptions) {
         // to homepage) still flushes the latest paid/ unpaid change, not a stale snapshot.
         stateRef.current = next
         // Mirror to localStorage synchronously so a concurrent cloud pull cannot miss this edit.
+        // Checklist stays server-only — strip it from the browser mirror.
         if (!options?.skipLocalPersist) {
           try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+            localStorage.setItem(
+              STORAGE_KEY,
+              JSON.stringify({ ...next, financialChecklistItems: [] }),
+            )
           } catch {
             /* ignore quota */
           }
@@ -809,7 +823,10 @@ export function useAppState(options?: UseAppStateOptions) {
       stateRef.current = nextState
       if (!options?.skipLocalPersist) {
         try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState))
+          localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify({ ...nextState, financialChecklistItems: [] }),
+          )
         } catch {
           /* ignore quota */
         }
@@ -954,8 +971,9 @@ export function useAppState(options?: UseAppStateOptions) {
     // Queue cloud save from the latest stateRef on the next microtask so adds are not
     // lost if a sync pull starts before React's persist effect runs.
     queueMicrotask(() => {
-      if (!options?.remotePersist || !remoteHydratedRef.current || options?.skipLocalPersist) return
+      if (!options?.remotePersist || !remoteHydratedRef.current) return
       if (options?.readOnly || options?.readOnlyRef?.current) return
+      // skipLocalPersist means "no browser mirror" — still push to Supabase immediately.
       options.onStateChange?.(stateRef.current, { immediate: true })
     })
   }
@@ -1697,7 +1715,10 @@ export function useAppState(options?: UseAppStateOptions) {
     const demo = { ...initialState, workspaceOrigin: 'builtin-demo' as const }
     setState(demo)
     setViewScope(defaultViewScope)
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(demo))
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ ...demo, financialChecklistItems: [] }),
+    )
     skipPersistRef.current = false
   }
 
@@ -1733,7 +1754,12 @@ export function useAppState(options?: UseAppStateOptions) {
       setCanRedo(false)
       const withOrigin: AppState = { ...cloneState(next), workspaceOrigin: 'user' }
       setState(withOrigin)
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(withOrigin))
+      if (!options?.skipLocalPersist) {
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({ ...withOrigin, financialChecklistItems: [] }),
+        )
+      }
       const firstGroup = withOrigin.groups[0]
       if (firstGroup && withOrigin.businesses.length > 1) {
         setViewScope({ type: 'group', id: firstGroup.id })
