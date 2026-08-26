@@ -912,12 +912,11 @@ export async function saveWorkspaceDeletedReceiptIds(
       ? { ...(data.reveal_from_overrides as Record<string, unknown>) }
       : {}
 
-  const unique = [...new Set(ids.filter(Boolean))]
-  if (unique.length === 0) {
-    delete current[DELETED_RECEIPTS_META_KEY]
-  } else {
-    current[DELETED_RECEIPTS_META_KEY] = unique
-  }
+  // Append-only: never drop ids already stored (Trends saves must not wipe deletes).
+  const existing = parseDeletedReceiptIdsFromWorkspaceMeta(current)
+  const unique = [...new Set([...existing, ...ids.filter(Boolean)])]
+  if (unique.length === 0) return
+  current[DELETED_RECEIPTS_META_KEY] = unique
 
   const { error } = await supabase
     .from('workspaces')
@@ -1146,9 +1145,28 @@ export async function saveWorkspaceRevealFrom(
   const supabase = tryGetSupabase()
   if (!supabase) return
 
+  const { data } = await supabase
+    .from('workspaces')
+    .select('reveal_from_overrides')
+    .eq('id', workspaceId)
+    .maybeSingle()
+
+  const previous =
+    data?.reveal_from_overrides &&
+    typeof data.reveal_from_overrides === 'object' &&
+    !Array.isArray(data.reveal_from_overrides)
+      ? (data.reveal_from_overrides as Record<string, unknown>)
+      : {}
+
+  // Keep receipt tombstones when Trends cutoffs are saved (same jsonb column).
+  const next: Record<string, unknown> = { ...overrides }
+  if (DELETED_RECEIPTS_META_KEY in previous) {
+    next[DELETED_RECEIPTS_META_KEY] = previous[DELETED_RECEIPTS_META_KEY]
+  }
+
   const { error } = await supabase
     .from('workspaces')
-    .update({ reveal_from_overrides: overrides, updated_at: new Date().toISOString() })
+    .update({ reveal_from_overrides: next, updated_at: new Date().toISOString() })
     .eq('id', workspaceId)
 
   if (error) {

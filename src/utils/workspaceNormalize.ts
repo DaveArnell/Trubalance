@@ -1,7 +1,7 @@
 import type { AppState } from '../types'
 import { applyDemoOperatingSnapshot } from '../data/demoScenarios/operatingSnapshot'
 import { ensureGroupStructure } from './groupStructure'
-import { reconstructHistoryRecordsFromSnapshots, stripInventedTrendPoints, repairEmptySnapshotChangedAccounts } from './historyRebuild'
+import { reconstructHistoryRecordsFromSnapshots, stripInventedTrendPoints, stripSystemHistoryNotes, repairEmptySnapshotChangedAccounts } from './historyRebuild'
 import { stripEntitiesOutsideWorkspace } from './localStateStorage'
 import { getReferenceDate } from './referenceDate'
 import { backfillScopeSnapshots } from './snapshotRollup'
@@ -19,7 +19,9 @@ function withDedupedSnapshots(state: AppState): AppState {
 export function normalizeWorkspaceStateForDisplay(state: AppState, now = new Date().toISOString()): AppState {
   const scoped = stripEntitiesOutsideWorkspace(state)
   const grouped = ensureGroupStructure(scoped)
-  const withHistoryLogs = stripInventedTrendPoints(reconstructHistoryRecordsFromSnapshots(grouped))
+  const withHistoryLogs = stripSystemHistoryNotes(
+    stripInventedTrendPoints(reconstructHistoryRecordsFromSnapshots(grouped)),
+  )
   const repairedReceipts = recoverLivingCostsFromHistory(repairHistoryRecoveredReceipts(withHistoryLogs).state)
   const repaired = withDedupedSnapshots(repairEmptySnapshotChangedAccounts(repairedReceipts))
   const restored = restorePastSnapshotMetricsFromHistory(repaired, now)
@@ -34,7 +36,9 @@ export function normalizeWorkspaceStateForDisplay(state: AppState, now = new Dat
 export function normalizeWorkspaceState(state: AppState, now = new Date().toISOString()): AppState {
   const scoped = stripEntitiesOutsideWorkspace(state)
   const grouped = ensureGroupStructure(scoped)
-  const withHistoryLogs = stripInventedTrendPoints(reconstructHistoryRecordsFromSnapshots(grouped))
+  const withHistoryLogs = stripSystemHistoryNotes(
+    stripInventedTrendPoints(reconstructHistoryRecordsFromSnapshots(grouped)),
+  )
   const repairedReceipts = recoverLivingCostsFromHistory(repairHistoryRecoveredReceipts(withHistoryLogs).state)
   const repaired = withDedupedSnapshots(repairEmptySnapshotChangedAccounts(repairedReceipts))
   // Restore frozen History captures before backfill so we do not push poisoned past rows.

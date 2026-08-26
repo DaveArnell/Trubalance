@@ -143,7 +143,7 @@ export function reconstructHistoryRecordsFromSnapshots(state: AppState): AppStat
       savedAt: snap.updatedAt,
       viewScope: { type: snap.scopeType, id: snap.scopeId },
       viewName: snap.viewName || '',
-      note: 'Restored from saved daily snapshot',
+      // No user-facing note — this is an internal rebuild marker only.
       summary: {
         cash: snap.cash,
         committedFunds: snap.committedFunds,
@@ -170,6 +170,27 @@ export function reconstructHistoryRecordsFromSnapshots(state: AppState): AppStat
   if (added.length === 0) return state
   console.info(`[Workspace] Restored ${added.length} missing History logs from daily snapshots`)
   return { ...state, workspaceOrigin: state.workspaceOrigin ?? 'user', historyRecords: [...(state.historyRecords ?? []), ...added] }
+}
+
+/** Drop internal rebuild markers so they never appear as Trends day notes. */
+export function stripSystemHistoryNotes(state: AppState): AppState {
+  let changed = false
+  const historyRecords = (state.historyRecords ?? []).map((record) => {
+    const note = record.note?.trim()
+    if (!note) return record
+    const lower = note.toLowerCase()
+    if (
+      !lower.includes('restored from saved daily snapshot') &&
+      !lower.includes('restored from daily snapshot')
+    ) {
+      return record
+    }
+    changed = true
+    const { note: _removed, ...rest } = record
+    return rest
+  })
+  if (!changed) return state
+  return { ...state, historyRecords }
 }
 
 /** Drop Trend/History points invented after the wipe. Keep only dates that were actually saved. */

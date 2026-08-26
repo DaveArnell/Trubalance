@@ -1056,20 +1056,19 @@ export function reopenCommittedFundsFromHistory(state: AppState): AppState {
   return { ...state, workspaceOrigin: 'user', commitments }
 }
 
-/** Rebuild costs / receipts / reserve shells only when live lists were wiped. */
+/** Rebuild costs / reserve shells only when live lists were wiped.
+ * Expected receipts are NOT auto-restored here: an empty receipts list is a valid
+ * intentional state (user deleted them). History resurrection made deletes impossible.
+ */
 export function recoverLivingCostsFromHistory(state: AppState): AppState {
   const stripped = stripInventedHistoryReserveBills(state)
   const needsFullRepair =
-    stripped.commitments.length === 0 ||
-    stripped.reservePlanners.length === 0 ||
-    (stripped.expectedReceipts.length === 0 && restorableReceiptIdsFromHistory(stripped).size > 0)
+    stripped.commitments.length === 0 || stripped.reservePlanners.length === 0
 
   if (!needsFullRepair) return stripped
 
   const before = workspaceCostsRepairKey(stripped)
-  const pruned = pruneStaleHistoryRestoredReceipts(stripped)
-  const receipts = recoverExpectedReceiptsFromHistory(pruned)
-  const withCosts = recoverCommitmentsFromHistory(receipts.state)
+  const withCosts = recoverCommitmentsFromHistory(stripped)
   const refined = refineRestoredCommitmentsFromHistory(withCosts.state)
   const reopened = reopenCommittedFundsFromHistory(refined)
   const withShells = recoverReservePlannerShellsFromHistory(reopened)

@@ -35,7 +35,21 @@ export function getDayNoteText(state: AppState, date: string, scope: ViewScope):
       r.viewScope.type === scope.type &&
       r.viewScope.id === scope.id,
   )?.note
-  return historyNote?.trim() ?? null
+  const trimmed = historyNote?.trim() ?? null
+  if (!trimmed) return null
+  // System / recovery markers must not appear as user notes in Trends.
+  if (isSystemHistoryNote(trimmed)) return null
+  return trimmed
+}
+
+/** Internal History markers — never show these in the Note column. */
+export function isSystemHistoryNote(note: string): boolean {
+  const value = note.toLowerCase()
+  return (
+    value.includes('restored from saved daily snapshot') ||
+    value.includes('restored from daily snapshot') ||
+    value.includes('restored from balance history')
+  )
 }
 
 export function hasDayNote(state: AppState, date: string, scope: ViewScope): boolean {
@@ -50,6 +64,7 @@ export function dayNoteDates(state: AppState, scope: ViewScope): string[] {
   for (const r of state.historyRecords ?? []) {
     if (
       r.note?.trim() &&
+      !isSystemHistoryNote(r.note) &&
       r.viewScope.type === scope.type &&
       r.viewScope.id === scope.id
     ) {
@@ -59,6 +74,7 @@ export function dayNoteDates(state: AppState, scope: ViewScope): string[] {
   for (const s of state.snapshots ?? []) {
     if (
       s.note?.trim() &&
+      !isSystemHistoryNote(s.note) &&
       s.scopeType === scope.type &&
       s.scopeId === scope.id
     ) {
