@@ -8,7 +8,8 @@ import { ConfirmDialog } from './ConfirmDialog'
 import { WIDGET_HELP } from '../content/livingDashboard'
 import {
   getChecklistOccurrencesForMonth,
-  getChecklistTimeline,
+  getOutstandingChecklistOccurrences,
+  getUpcomingChecklistOccurrences,
   listChecklistItemsForView,
   recurrenceLabel,
   type ChecklistOccurrence,
@@ -46,7 +47,7 @@ type DraftItem = {
   notes: string
 }
 
-const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+const WEEKDAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
 
 function defaultScope(
   state: AppState,
@@ -77,11 +78,10 @@ function emptyDraft(state: AppState, viewScope: ViewScope): DraftItem {
   }
 }
 
-function formatFeedDate(dateKey: string): string {
+function formatShortDate(dateKey: string): string {
   return new Date(`${dateKey}T12:00:00`).toLocaleDateString('en-GB', {
-    weekday: 'long',
     day: 'numeric',
-    month: 'long',
+    month: 'short',
   })
 }
 
@@ -92,26 +92,26 @@ function monthTitle(year: number, monthIndex: number): string {
   })
 }
 
+function daysUntil(dueDate: string, todayKey: string): number {
+  const due = new Date(`${dueDate}T12:00:00`)
+  const today = new Date(`${todayKey}T12:00:00`)
+  return Math.round((due.getTime() - today.getTime()) / 86_400_000)
+}
+
+function dueInLabel(dueDate: string, todayKey: string): string {
+  const days = daysUntil(dueDate, todayKey)
+  if (days <= 0) return 'Due today'
+  if (days === 1) return 'Due tomorrow'
+  if (days < 14) return `Due in ${days} days`
+  return formatShortDate(dueDate)
+}
+
 function parseDueMonths(raw: string): number[] | undefined {
   const months = raw
     .split(/[,\s]+/)
     .map((part) => Number(part.trim()))
     .filter((n) => Number.isFinite(n) && n >= 1 && n <= 12)
   return months.length > 0 ? [...new Set(months)].sort((a, b) => a - b) : undefined
-}
-
-function groupTimelineByDate(
-  items: ChecklistOccurrence[],
-): Array<{ date: string; items: ChecklistOccurrence[] }> {
-  const map = new Map<string, ChecklistOccurrence[]>()
-  for (const item of items) {
-    const list = map.get(item.dueDate) ?? []
-    list.push(item)
-    map.set(item.dueDate, list)
-  }
-  return [...map.entries()]
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, group]) => ({ date, items: group }))
 }
 
 export function FinancialCalendarPanel({
@@ -143,7 +143,14 @@ export function FinancialCalendarPanel({
     [state, viewScope],
   )
 
-  const timeline = useMemo(() => getChecklistTimeline(state, viewScope), [state, viewScope])
+  const outstanding = useMemo(
+    () => getOutstandingChecklistOccurrences(state, viewScope),
+    [state, viewScope],
+  )
+  const upcoming = useMemo(
+    () => getUpcomingChecklistOccurrences(state, viewScope, 120),
+    [state, viewScope],
+  )
   const monthOccurrences = useMemo(
     () => getChecklistOccurrencesForMonth(state, viewScope, cursor.year, cursor.monthIndex),
     [state, viewScope, cursor.year, cursor.monthIndex],
@@ -160,12 +167,15 @@ export function FinancialCalendarPanel({
     return map
   }, [monthOccurrences])
 
-  const feedItems = useMemo(() => {
-    if (!selectedDate) return timeline
-    return timeline.filter((item) => item.dueDate === selectedDate)
-  }, [timeline, selectedDate])
+  const visibleOutstanding = useMemo(() => {
+    if (!selectedDate) return outstanding
+    return outstanding.filter((item) => item.dueDate === selectedDate)
+  }, [outstanding, selectedDate])
 
-  const feedGroups = useMemo(() => groupTimelineByDate(feedItems), [feedItems])
+  const visibleUpcoming = useMemo(() => {
+    if (!selectedDate) return upcoming
+    return upcoming.filter((item) => item.dueDate === selectedDate)
+  }, [upcoming, selectedDate])
 
   const calendarCells = useMemo(() => {
     const first = new Date(cursor.year, cursor.monthIndex, 1)
@@ -289,8 +299,8 @@ export function FinancialCalendarPanel({
             </div>
 
             <div className="fin-cal-weekdays" aria-hidden>
-              {WEEKDAY_LABELS.map((label) => (
-                <span key={label}>{label}</span>
+              {WEEKDAY_LABELS.map((label, index) => (
+                <span key={`${label}-${index}`}>{label}</span>
               ))}
             </div>
 
@@ -305,7 +315,6 @@ export function FinancialCalendarPanel({
                 const hasDue = dayItems.some(
                   (item) => item.status === 'due' || item.status === 'overdue',
                 )
-                const hasUpcoming = dayItems.some((item) => item.status === 'upcoming')
                 return (
                   <button
                     key={cell.dateKey}
@@ -316,7 +325,7 @@ export function FinancialCalendarPanel({
                       isToday ? 'is-today' : '',
                       isSelected ? 'is-selected' : '',
                       hasDue ? 'has-due' : '',
-                      hasUpcoming ? 'has-upcoming' : '',
+                      dayItems.length > 0 ? 'has-event' : '',
                     ]
                       .filter(Boolean)
                       .join(' ')}
@@ -325,112 +334,140 @@ export function FinancialCalendarPanel({
                     }
                   >
                     <span className="fin-cal-day-num">{cell.day}</span>
-                    {dayItems.length > 0 ? (
-                      <span className="fin-cal-day-mark" aria-hidden />
-                    ) : null}
                   </button>
                 )
               })}
             </div>
 
-            <button
-              type="button"
-              className="btn-ghost btn-tiny fin-cal-today-btn"
-              onClick={() => {
-                setCursor({ year: today.getFullYear(), monthIndex: today.getMonth() })
-                setSelectedDate(todayKey)
-              }}
-            >
-              Today
-            </button>
-          </div>
-
-          <aside className="fin-cal-feed">
-            <div className="fin-cal-feed-head">
-              <h3>{selectedDate ? formatFeedDate(selectedDate) : 'Next up'}</h3>
+            <div className="fin-cal-month-foot">
+              <button
+                type="button"
+                className="btn-ghost btn-tiny fin-cal-today-btn"
+                onClick={() => {
+                  setCursor({ year: today.getFullYear(), monthIndex: today.getMonth() })
+                  setSelectedDate(null)
+                }}
+              >
+                Today
+              </button>
               {selectedDate ? (
                 <button type="button" className="btn-ghost btn-tiny" onClick={() => setSelectedDate(null)}>
-                  Show all
+                  Show all dates
                 </button>
               ) : null}
             </div>
+          </div>
 
-            {feedGroups.length === 0 ? (
-              <div className="fin-cal-feed-empty">
-                <p>{selectedDate ? 'Nothing on this day.' : 'No reminders yet.'}</p>
-                {!editReadOnly && reminders.length === 0 ? (
-                  <button type="button" className="btn-primary btn-tiny" onClick={openCreate}>
-                    Add reminder
-                  </button>
-                ) : null}
-              </div>
-            ) : (
-              <div className="fin-cal-feed-list">
-                {feedGroups.map((group) => (
-                  <section key={group.date} className="fin-cal-feed-group">
-                    {!selectedDate ? (
-                      <h4 className="fin-cal-feed-date">{formatFeedDate(group.date)}</h4>
-                    ) : null}
-                    <ul>
-                      {group.items.map((occurrence) => {
-                        const actionable =
-                          occurrence.status === 'due' || occurrence.status === 'overdue'
-                        return (
-                          <li
-                            key={`${occurrence.item.id}-${occurrence.periodKey}`}
-                            className={[
-                              'fin-cal-feed-item',
-                              occurrence.status === 'overdue' ? 'is-overdue' : '',
-                              occurrence.status === 'due' ? 'is-due' : '',
-                            ]
-                              .filter(Boolean)
-                              .join(' ')}
-                          >
-                            {actionable && !editReadOnly ? (
-                              <label className="fin-cal-feed-check">
-                                <input
-                                  type="checkbox"
-                                  checked={occurrence.done}
-                                  onChange={(e) => toggleDone(occurrence, e.target.checked)}
-                                />
-                                <span className="sr-only">Done</span>
-                              </label>
-                            ) : (
-                              <span className="fin-cal-feed-dot" aria-hidden />
-                            )}
-                            <div className="fin-cal-feed-copy">
-                              <strong>{occurrence.item.name}</strong>
-                              <span className="muted">
-                                {occurrence.status === 'overdue'
-                                  ? 'Overdue — tick when done'
-                                  : occurrence.status === 'due'
-                                    ? 'Due today'
-                                    : recurrenceLabel(occurrence.item.recurrence)}
-                                {' · '}
-                                {getScopeLabel(state, {
-                                  type: occurrence.item.scopeLevel,
-                                  id: occurrence.item.scopeId,
-                                })}
-                              </span>
-                            </div>
-                            {!editReadOnly ? (
-                              <button
-                                type="button"
-                                className="btn-ghost btn-tiny"
-                                onClick={() => openEdit(occurrence.item)}
-                              >
-                                Edit
-                              </button>
-                            ) : null}
-                          </li>
-                        )
-                      })}
-                    </ul>
-                  </section>
-                ))}
-              </div>
-            )}
-          </aside>
+          <div className="fin-cal-side">
+            <section className="fin-cal-panel">
+              <header className="fin-cal-panel-head">
+                <h3>To do now</h3>
+                <span className="fin-cal-panel-count">{visibleOutstanding.length}</span>
+              </header>
+              <p className="fin-cal-panel-lead muted">Tick when done — overdue items stay until you tick them.</p>
+              {visibleOutstanding.length === 0 ? (
+                <p className="fin-cal-panel-empty muted">
+                  {selectedDate ? 'Nothing to tick on this day.' : 'Nothing waiting — you are up to date.'}
+                </p>
+              ) : (
+                <ul className="fin-cal-todo-list">
+                  {visibleOutstanding.map((occurrence) => (
+                    <li
+                      key={`${occurrence.item.id}-${occurrence.periodKey}`}
+                      className={[
+                        'fin-cal-todo-row',
+                        occurrence.status === 'overdue' ? 'is-overdue' : 'is-due',
+                      ].join(' ')}
+                    >
+                      {!editReadOnly ? (
+                        <label className="fin-cal-todo-check">
+                          <input
+                            type="checkbox"
+                            checked={occurrence.done}
+                            onChange={(e) => toggleDone(occurrence, e.target.checked)}
+                          />
+                          <span className="sr-only">Mark {occurrence.item.name} done</span>
+                        </label>
+                      ) : (
+                        <span className="fin-cal-todo-check fin-cal-todo-check--readonly" aria-hidden />
+                      )}
+                      <div className="fin-cal-todo-copy">
+                        <strong>{occurrence.item.name}</strong>
+                        <span className="muted">
+                          {occurrence.status === 'overdue'
+                            ? `Overdue · ${formatShortDate(occurrence.dueDate)}`
+                            : 'Due today'}
+                          {' · '}
+                          {getScopeLabel(state, {
+                            type: occurrence.item.scopeLevel,
+                            id: occurrence.item.scopeId,
+                          })}
+                        </span>
+                      </div>
+                      {!editReadOnly ? (
+                        <button
+                          type="button"
+                          className="btn-ghost btn-tiny"
+                          onClick={() => openEdit(occurrence.item)}
+                        >
+                          Edit
+                        </button>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+
+            <section className="fin-cal-panel">
+              <header className="fin-cal-panel-head">
+                <h3>Coming up</h3>
+                <span className="fin-cal-panel-count">{visibleUpcoming.length}</span>
+              </header>
+              <p className="fin-cal-panel-lead muted">On the horizon — not ready to tick yet.</p>
+              {visibleUpcoming.length === 0 ? (
+                <p className="fin-cal-panel-empty muted">
+                  {selectedDate
+                    ? 'Nothing coming up on this day.'
+                    : reminders.length === 0
+                      ? 'Add reminders with + Add — they appear here before each due date.'
+                      : 'Nothing on the horizon in the next 120 days.'}
+                </p>
+              ) : (
+                <ul className="fin-cal-horizon-list">
+                  {visibleUpcoming.map((occurrence) => (
+                    <li
+                      key={`${occurrence.item.id}-${occurrence.periodKey}`}
+                      className="fin-cal-horizon-row"
+                    >
+                      <div className="fin-cal-horizon-copy">
+                        <strong>{occurrence.item.name}</strong>
+                        <span className="muted">
+                          {dueInLabel(occurrence.dueDate, todayKey)}
+                          {' · '}
+                          {recurrenceLabel(occurrence.item.recurrence)}
+                          {' · '}
+                          {getScopeLabel(state, {
+                            type: occurrence.item.scopeLevel,
+                            id: occurrence.item.scopeId,
+                          })}
+                        </span>
+                      </div>
+                      {!editReadOnly ? (
+                        <button
+                          type="button"
+                          className="btn-ghost btn-tiny"
+                          onClick={() => openEdit(occurrence.item)}
+                        >
+                          Edit
+                        </button>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          </div>
         </div>
       </div>
 
@@ -446,8 +483,7 @@ export function FinancialCalendarPanel({
               >
                 <h3 id="fin-cal-form-title">{editingId ? 'Edit reminder' : 'Add reminder'}</h3>
                 <p className="planned-funding-subtitle">
-                  Shows on the calendar and in Next up by date. Tick when due; recurring reminders come
-                  back next time.
+                  Shows on the calendar. Lands in To do now on the due date — tick when done.
                 </p>
                 <div className="fin-cal-modal-grid">
                   <label>
