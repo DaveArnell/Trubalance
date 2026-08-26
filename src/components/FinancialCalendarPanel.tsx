@@ -13,6 +13,7 @@ import {
   recurrenceLabel,
   type ChecklistOccurrence,
 } from '../utils/financialChecklist'
+import { isFinancialChecklistTableMissing } from '../services/workspaceRepository'
 import { getReferenceDate, dateToKey } from '../utils/referenceDate'
 import {
   formatScopeOptionLabel,
@@ -240,6 +241,15 @@ export function FinancialCalendarPanel({
           text={WIDGET_HELP.financialCalendar}
         />
       </div>
+
+      {isFinancialChecklistTableMissing() ? (
+        <div className="import-banner" role="status">
+          <span>
+            Checklist cloud storage is not set up yet — items stay on this device for now. Run
+            migrations 037 and 038 in the Supabase SQL Editor so they save to your account.
+          </span>
+        </div>
+      ) : null}
 
       <div className="financial-calendar-toolbar">
         {!editReadOnly ? (

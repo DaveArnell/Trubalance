@@ -7,6 +7,49 @@ import { tryGetSupabase } from '../lib/supabase'
 import { readBrowserAppState } from '../hooks/useAppState'
 import { emptyAppState } from '../utils/localStateStorage'
 
+/** null = unknown, true = table exists, false = migration not applied yet. */
+let financialChecklistTableAvailable: boolean | null = null
+let financialChecklistMissingLogged = false
+/** Session memory when cloud table is missing — stops sync pulls wiping in-progress checklist edits. */
+const financialChecklistMemoryByWorkspace = new Map<string, FinancialChecklistItem[]>()
+
+function isMissingFinancialChecklistTableError(message: string | undefined): boolean {
+  if (!message) return false
+  return /does not exist|Could not find the table/i.test(message)
+}
+
+function markFinancialChecklistTableMissing(context: string) {
+  financialChecklistTableAvailable = false
+  if (!financialChecklistMissingLogged) {
+    financialChecklistMissingLogged = true
+    console.warn(
+      `[workspaceRepository] financial_checklist_items is missing (${context}). ` +
+        'Run supabase/migrations/037_financial_checklist_items.sql and 038_financial_checklist_security.sql in the Supabase SQL Editor. Skipping further checklist cloud calls this session.',
+    )
+  }
+}
+
+function rememberFinancialChecklist(workspaceId: string, items: FinancialChecklistItem[] | undefined) {
+  financialChecklistMemoryByWorkspace.set(workspaceId, items ?? [])
+}
+
+function recalledFinancialChecklist(workspaceId: string): FinancialChecklistItem[] {
+  return financialChecklistMemoryByWorkspace.get(workspaceId) ?? []
+}
+
+/** True once we know the checklist table is missing (migration not applied). */
+export function isFinancialChecklistTableMissing(): boolean {
+  return financialChecklistTableAvailable === false
+}
+
+/** Keep the latest in-memory checklist for a workspace (used when cloud table is unavailable). */
+export function rememberFinancialChecklistForWorkspace(
+  workspaceId: string,
+  items: FinancialChecklistItem[] | undefined,
+) {
+  rememberFinancialChecklist(workspaceId, items)
+}
+
 function toNumber(value: unknown): number {
   if (typeof value === 'number') return value
   if (typeof value === 'string') return Number(value) || 0
@@ -311,12 +354,15 @@ export interface WorkspaceLoadResult {
   state: AppState
   /** True when any table failed to load — cloud save must not wipe missing tables. */
   loadHadErrors: boolean
+  /** True when financial_checklist_items migration has not been applied. */
+  checklistTableMissing?: boolean
 }
 
 export async function loadWorkspaceState(workspaceId: string): Promise<WorkspaceLoadResult> {
   const supabase = tryGetSupabase()
   if (!supabase) return { state: emptyAppState(), loadHadErrors: true }
 
+  const skipChecklist = financialChecklistTableAvailable === false
   const [
     groupsRes,
     businessesRes,
@@ -343,7 +389,9 @@ export async function loadWorkspaceState(workspaceId: string): Promise<Workspace
     supabase.from('balance_snapshots').select('*').eq('workspace_id', workspaceId).order('date'),
     supabase.from('history_records').select('*').eq('workspace_id', workspaceId).order('date', { ascending: false }),
     supabase.from('day_notes').select('*').eq('workspace_id', workspaceId).order('date'),
-    supabase.from('financial_checklist_items').select('*').eq('workspace_id', workspaceId).order('sort_order'),
+    skipChecklist
+      ? Promise.resolve({ data: null, error: { message: 'skipped: table unavailable' } })
+      : supabase.from('financial_checklist_items').select('*').eq('workspace_id', workspaceId).order('sort_order'),
     supabase.from('workspaces').select('reveal_from_overrides').eq('id', workspaceId).maybeSingle(),
   ])
 
@@ -359,20 +407,35 @@ export async function loadWorkspaceState(workspaceId: string): Promise<Workspace
     ['balance_snapshots', snapshotsRes],
     ['history_records', historyRes],
     ['day_notes', dayNotesRes],
-    ['financial_checklist_items', checklistRes],
   ] as const
 
   let loadHadErrors = false
   for (const [table, res] of responses) {
     if (res.error) {
-      // Table may not exist until migration 037 is applied — don't fail the whole load.
-      if (table === 'financial_checklist_items') {
-        console.warn(`[workspaceRepository] load ${table}:`, res.error.message)
-        continue
-      }
       loadHadErrors = true
       console.error(`[workspaceRepository] load ${table}:`, res.error.message)
     }
+  }
+
+  let checklistTableMissing = skipChecklist
+  let financialChecklistItems: FinancialChecklistItem[] = []
+  if (skipChecklist) {
+    financialChecklistItems = recalledFinancialChecklist(workspaceId)
+  } else if (checklistRes.error) {
+    if (isMissingFinancialChecklistTableError(checklistRes.error.message)) {
+      markFinancialChecklistTableMissing('load')
+      checklistTableMissing = true
+      financialChecklistItems = recalledFinancialChecklist(workspaceId)
+    } else {
+      loadHadErrors = true
+      console.error(`[workspaceRepository] load financial_checklist_items:`, checklistRes.error.message)
+    }
+  } else {
+    financialChecklistTableAvailable = true
+    financialChecklistItems = (checklistRes.data ?? []).map((row) =>
+      mapFinancialChecklistItem(row as Record<string, unknown>),
+    )
+    rememberFinancialChecklist(workspaceId, financialChecklistItems)
   }
 
   const bills = (billsRes.data ?? []).map((row) => mapBill(row as Record<string, unknown>))
@@ -417,13 +480,11 @@ export async function loadWorkspaceState(workspaceId: string): Promise<Workspace
       (historyRes.data ?? []).map((row) => mapHistoryRecord(row as Record<string, unknown>)),
     ),
     dayNotes: (dayNotesRes.data ?? []).map((row) => mapDayNote(row as Record<string, unknown>)),
-    financialChecklistItems: checklistRes.error
-      ? []
-      : (checklistRes.data ?? []).map((row) => mapFinancialChecklistItem(row as Record<string, unknown>)),
+    financialChecklistItems,
     deletedReceiptIds,
   }
 
-  return { state, loadHadErrors }
+  return { state, loadHadErrors, checklistTableMissing }
 }
 
 /** Whether the database has no saved rows yet for this workspace. */
@@ -745,6 +806,9 @@ export async function saveWorkspaceState(
     updated_at: new Date().toISOString(),
     ...ws,
   }))
+  // Keep session memory so a missing table / failed sync pull does not wipe the UI.
+  rememberFinancialChecklist(workspaceId, state.financialChecklistItems)
+
   const tables = [
     { name: 'groups', rows: groupRows },
     { name: 'businesses', rows: businessRows },
@@ -757,7 +821,9 @@ export async function saveWorkspaceState(
     { name: 'balance_snapshots', rows: snapshotRows },
     { name: 'history_records', rows: historyRows },
     { name: 'day_notes', rows: dayNoteRows },
-    { name: 'financial_checklist_items', rows: checklistRows },
+    ...(financialChecklistTableAvailable === false
+      ? []
+      : [{ name: 'financial_checklist_items' as const, rows: checklistRows }]),
   ] as const
 
   const EXTENDED_COLUMNS = [
@@ -777,6 +843,7 @@ export async function saveWorkspaceState(
    * Fail the whole save if these cannot upsert — silent continue left devices out of sync.
    * Trends tables are NOT critical: a snapshot/history conflict must never block Due,
    * reserve bills, or account saves (that caused edits to appear then vanish).
+   * Checklist is critical only after the migration is confirmed present.
    */
   const CRITICAL_UPSERT_TABLES = new Set([
     'groups',
@@ -787,7 +854,7 @@ export async function saveWorkspaceState(
     'expected_receipts',
     'reserve_planners',
     'reserve_bills',
-    'financial_checklist_items',
+    ...(financialChecklistTableAvailable === true ? (['financial_checklist_items'] as const) : []),
   ])
 
   const upsertConflict = (tableName: string): { onConflict: string } | undefined => {
@@ -889,6 +956,13 @@ export async function saveWorkspaceState(
     )
     if (error) {
       console.warn(`[workspaceRepository] upsert ${table.name}:`, error.message)
+      if (
+        table.name === 'financial_checklist_items' &&
+        isMissingFinancialChecklistTableError(error.message)
+      ) {
+        markFinancialChecklistTableMissing('upsert')
+        continue
+      }
       const coreRows = table.rows.map((row) => {
         const clean = { ...(row as Record<string, unknown>) }
         for (const col of EXTENDED_COLUMNS) delete clean[col]
@@ -900,14 +974,22 @@ export async function saveWorkspaceState(
       )
       if (retryErr) {
         console.warn(`[workspaceRepository] upsert ${table.name} (retry):`, retryErr.message)
-        const missingRelation =
+        if (
           table.name === 'financial_checklist_items' &&
-          /does not exist|Could not find the table/i.test(retryErr.message)
-        if (CRITICAL_UPSERT_TABLES.has(table.name) && !missingRelation) {
+          isMissingFinancialChecklistTableError(retryErr.message)
+        ) {
+          markFinancialChecklistTableMissing('upsert retry')
+          continue
+        }
+        if (CRITICAL_UPSERT_TABLES.has(table.name)) {
           failedCritical.push(`${table.name}: ${retryErr.message}`)
         }
         continue
       }
+    }
+
+    if (table.name === 'financial_checklist_items') {
+      financialChecklistTableAvailable = true
     }
 
     const ids = table.rows.map((r) => (r as Record<string, unknown>).id).filter(Boolean) as string[]

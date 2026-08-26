@@ -58,6 +58,7 @@ import { workspaceCostsRepairKey } from '../utils/workspaceRecovery'
 import { getReferenceDate, getReferenceDateKey } from '../utils/referenceDate'
 import { migrateDayNotes } from '../utils/dayNotes'
 import { CHECKLIST_STARTER_TEMPLATES } from '../utils/financialChecklist'
+import { isFinancialChecklistTableMissing } from '../services/workspaceRepository'
 
 const STORAGE_KEY = 'trubalance-app-state-v4'
 const MAX_UNDO = 30
@@ -381,6 +382,17 @@ export function useAppState(options?: UseAppStateOptions) {
     next = unionSnapshotsByUpdatedAt(next, stateRef.current)
     next = unionHistoryRecordsBySavedAt(next, stateRef.current)
     next = omitDeletedReceipts(next)
+    // Checklist is server-only; if the table is missing, keep this session's items across sync pulls.
+    if (
+      isFinancialChecklistTableMissing() &&
+      (next.financialChecklistItems?.length ?? 0) === 0 &&
+      (stateRef.current.financialChecklistItems?.length ?? 0) > 0
+    ) {
+      next = {
+        ...next,
+        financialChecklistItems: stateRef.current.financialChecklistItems,
+      }
+    }
     // Union can reintroduce a newer poisoned local past row — restore History again.
     const afterUnion = next
     next = normalizeWorkspaceState(next)

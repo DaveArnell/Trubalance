@@ -127,13 +127,14 @@ export function getOutstandingChecklistOccurrences(
   referenceDate: Date = getReferenceDate(),
 ): ChecklistOccurrence[] {
   const today = dateToKey(dateOnly(referenceDate))
-  const lookback = dateToKey(
-    new Date(referenceDate.getFullYear(), referenceDate.getMonth() - 18, referenceDate.getDate()),
-  )
   const items = listChecklistItemsForView(state, viewScope)
   const out: ChecklistOccurrence[] = []
   for (const item of items) {
-    for (const occurrence of getChecklistOccurrencesInRange(item, lookback, today, referenceDate)) {
+    // Never backfill months before the item existed — a new monthly task must not
+    // suddenly open 18 overdue ticks.
+    const createdKey = (item.createdAt ?? today).slice(0, 10)
+    const fromDate = createdKey < today ? createdKey : today
+    for (const occurrence of getChecklistOccurrencesInRange(item, fromDate, today, referenceDate)) {
       if (!occurrence.done && (occurrence.status === 'due' || occurrence.status === 'overdue')) {
         out.push(occurrence)
       }
@@ -169,11 +170,14 @@ export function getChecklistOccurrencesForMonth(
   monthIndex: number,
   referenceDate: Date = getReferenceDate(),
 ): ChecklistOccurrence[] {
-  const from = dateToKey(new Date(year, monthIndex, 1))
+  const monthFrom = dateToKey(new Date(year, monthIndex, 1))
   const to = dateToKey(new Date(year, monthIndex, daysInMonth(year, monthIndex)))
   const items = listChecklistItemsForView(state, viewScope)
   const out: ChecklistOccurrence[] = []
   for (const item of items) {
+    const createdKey = (item.createdAt ?? monthFrom).slice(0, 10)
+    const from = createdKey > monthFrom ? createdKey : monthFrom
+    if (from > to) continue
     out.push(...getChecklistOccurrencesInRange(item, from, to, referenceDate))
   }
   return out.sort((a, b) => a.dueDate.localeCompare(b.dueDate))

@@ -16,6 +16,7 @@ import {
   isWorkspaceEmptyInDatabase,
   loadWorkspaceState,
   loadWorkspaceSubscription,
+  rememberFinancialChecklistForWorkspace,
   restoreStateToWorkspace,
   saveWorkspaceState,
   buildSafeTableEmptyDeletes,
@@ -609,6 +610,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       if (!remoteEnabled || readOnly || !workspaceId) return
       // Always queue — even while a pull has persistEnabled=false — so phone edits are not dropped.
       pendingStateRef.current = state
+      rememberFinancialChecklistForWorkspace(workspaceId, state.financialChecklistItems)
       if (!persistEnabledRef.current) return
       if (hydratedGenerationRef.current !== pullGenerationRef.current) return
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
