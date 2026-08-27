@@ -191,13 +191,13 @@ export const PAGE_TOURS: Partial<Record<PageId, PageTour>> = {
   calendar: {
     id: 'calendar',
     title: 'Financial calendar',
-    description: 'Reminders on a calendar, with what’s coming up beside it.',
+    description: 'Month calendar and what’s coming up — two widgets, like the dashboard.',
     steps: [
       {
         id: 'cal-add',
         target: '[data-tour="fin-cal-toolbar"]',
         title: 'Add a reminder',
-        body: 'Use + Add for anything with a financial date — renewals, payroll, quarterly bills, one-off deadlines.\n\nChoose how often it repeats, which business it applies to, and optional notes.',
+        body: 'Use + Add, or double-click a day on the calendar.\n\nOne-off or recurring — renewals, payroll, quarterly bills, deadlines.',
         placement: 'bottom',
         page: 'calendar',
       },
@@ -205,7 +205,7 @@ export const PAGE_TOURS: Partial<Record<PageId, PageTour>> = {
         id: 'cal-grid',
         target: '[data-tour="fin-cal-month"]',
         title: 'Calendar',
-        body: 'Reminders show as chips on their days. Click a day to see the detail underneath and tick items when you have handled them.',
+        body: 'Reminders show as chips on their days. Click the month title to jump months or years.\n\nReserve transfers appear on the 1st when you have a plan — confirm those in Reserve Planner.',
         placement: 'right',
         page: 'calendar',
       },
@@ -213,7 +213,7 @@ export const PAGE_TOURS: Partial<Record<PageId, PageTour>> = {
         id: 'cal-upcoming',
         target: '[data-tour="fin-cal-upcoming"]',
         title: 'Coming up',
-        body: 'Everything next, in date order — including overdue until you tick it.\n\nWhen a due date arrives you can tick it here or under the selected day on the calendar.',
+        body: 'A separate list of what’s next, in date order.\n\nTick your reminders when due. System items (like reserve transfers) stay until you confirm them in Reserve Planner.',
         placement: 'left',
         page: 'calendar',
       },

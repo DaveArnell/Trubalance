@@ -16,7 +16,7 @@ import { CashOutlookPanel } from './CashOutlookPanel'
 import { TrendChart } from './TrendChart'
 import { TrendProjectionPanel } from './TrendProjectionPanel'
 import { TrueBalanceHistoryTable } from './TrueBalanceHistoryTable'
-import { FinancialCalendarPanel } from './FinancialCalendarPanel'
+import { FinancialCalendarMonthPanel, FinancialComingUpPanel } from './FinancialCalendarPanel'
 export interface PageWidgetContext {
   state: AppState
   viewScope: ViewScope
@@ -224,7 +224,16 @@ export function buildPageWidgets(pageId: PageId, ctx: PageWidgetContext): Record
     case 'calendar':
       return {
         'financial-calendar': (
-          <FinancialCalendarPanel
+          <FinancialCalendarMonthPanel
+            state={state}
+            viewScope={viewScope}
+            actions={actions}
+            openHelp={openHelp}
+            setOpenHelp={setOpenHelp}
+          />
+        ),
+        'financial-coming-up': (
+          <FinancialComingUpPanel
             state={state}
             viewScope={viewScope}
             actions={actions}

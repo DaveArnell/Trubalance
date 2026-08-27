@@ -42,10 +42,11 @@ export const WIDGET_HELP = {
   forecast:
     'Forward-looking view: cash outlook from scheduled movements, plus trend projection from saved balance history.\n\nIf your income arrives steadily through the month, the Trends page is often the better guide.',
   financialCalendar:
-    'Beta — this page is still being shaped. Reminders you add are saved.\n\n' +
-    'Your calendar for financial dates — renewals, payroll, VAT, one-off deadlines. Not bookkeeping; just dates you want visible.\n\n' +
-    '+ Add puts a reminder on the calendar (one-off or recurring). Notes stay with the reminder.\n\n' +
-    'Click a day to see what falls there and tick it when done. Coming up lists the next dates in order — overdue stays until you tick it; recurring reminders return next cycle.',
+    'Beta — month view for financial dates. Double-click a day to add a reminder. Reserve transfers show on the 1st when you have a plan.\n\n' +
+    'Click a day for detail and tick reminders when due. Coming up is the list beside this calendar.',
+  financialComingUp:
+    'Beta — next financial dates in order, including system items like reserve transfers.\n\n' +
+    'Tick your reminders when due. Overdue stays until you tick it. Confirm reserve transfers in Reserve Planner.',
 } as const
 
 export const QUICK_HABITS = [
