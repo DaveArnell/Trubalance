@@ -35228,10 +35228,6 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   margin: 0 0.3rem;
 }
 
-.fin-cal-sheet-row.is-system .fin-cal-sheet-mark {
-  background: color-mix(in srgb, #6366f1 55%, transparent);
-}
-
 .fin-cal-sheet-copy {
   display: flex;
   flex-direction: column;
