@@ -6,6 +6,7 @@ import type { AppState, ViewScope } from '../types'
 import type { AppRoute, PageId } from '../navigation'
 import {
   buildHash,
+  BETA_APP_PAGES,
   DESKTOP_SIDEBAR_HIDDEN_PAGES,
   MUTED_APP_PAGES,
   RESERVE_PLANNER_CREATE_ROUTE,
@@ -366,6 +367,9 @@ export function Sidebar({
                         {page.icon}
                       </span>
                       {!showCollapsed && <span className="sidebar-link-label">{page.label}</span>}
+                      {!showCollapsed && BETA_APP_PAGES.has(page.id) ? (
+                        <span className="feature-beta-badge feature-beta-badge--nav">Beta</span>
+                      ) : null}
                       {reserveNeedsSetup ? (
                         <span
                           className="sidebar-nav-alert"
@@ -473,7 +477,14 @@ export function Sidebar({
                   <span className="sidebar-nav-icon" aria-hidden>
                     {page.icon}
                   </span>
-                  {!showCollapsed && page.label}
+                  {!showCollapsed && (
+                    <>
+                      <span className="sidebar-link-label">{page.label}</span>
+                      {BETA_APP_PAGES.has(page.id) ? (
+                        <span className="feature-beta-badge feature-beta-badge--nav">Beta</span>
+                      ) : null}
+                    </>
+                  )}
                 </a>
               </NavDragShell>
             )

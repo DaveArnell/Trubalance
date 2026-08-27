@@ -301,7 +301,12 @@ export function FinancialCalendarPanel({
           ) : (
             <span className="card-head-toolbar-spacer" aria-hidden />
           )}
-          <h2>Financial calendar</h2>
+          <h2>
+            Financial calendar
+            <span className="feature-beta-badge" title="Still being shaped — your reminders are saved">
+              Beta
+            </span>
+          </h2>
           <HelpButton
             id="financial-calendar"
             openHelp={openHelp}
@@ -316,6 +321,9 @@ export function FinancialCalendarPanel({
           <span>Cloud sync for the calendar is still unavailable — check Supabase migrations.</span>
         </div>
       ) : null}
+      <p className="fin-cal-beta-note muted">
+        Beta — the layout is still being shaped. Reminders you add are saved.
+      </p>
 
       <div className="card-scroll-body fin-cal-shell">
         <div className="fin-cal-layout">

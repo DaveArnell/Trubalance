@@ -42,6 +42,7 @@ export const WIDGET_HELP = {
   forecast:
     'Forward-looking view: cash outlook from scheduled movements, plus trend projection from saved balance history.\n\nIf your income arrives steadily through the month, the Trends page is often the better guide.',
   financialCalendar:
+    'Beta — this page is still being shaped. Reminders you add are saved.\n\n' +
     'Your calendar for financial dates — renewals, payroll, VAT, one-off deadlines. Not bookkeeping; just dates you want visible.\n\n' +
     '+ Add puts a reminder on the calendar (one-off or recurring). Notes stay with the reminder.\n\n' +
     'Click a day to see what falls there and tick it when done. Coming up lists the next dates in order — overdue stays until you tick it; recurring reminders return next cycle.',

@@ -30,6 +30,9 @@ export const DESKTOP_SIDEBAR_HIDDEN_PAGES = new Set<PageId>(['due', 'receipts'])
  */
 export const MUTED_APP_PAGES = new Set<PageId>(['forecast', 'history'])
 
+/** Pages shown with a Beta label — still evolving; data is saved. */
+export const BETA_APP_PAGES = new Set<PageId>(['calendar'])
+
 export interface AppRoute {
   page: PageId
   reservePlannerId: string | null
