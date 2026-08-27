@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { Commitment, PlannedFundingMethod } from '../types'
 import { formatCurrency } from '../utils/format'
@@ -45,6 +45,7 @@ const OPTIONS: Array<{
 ]
 
 export function PlannedFundingModal({ draft, onConfirm, onCancel }: PlannedFundingModalProps) {
+  const backdropPointerDown = useRef(false)
   const [method, setMethod] = useState<PlannedFundingMethod>(draft.fundingMethod ?? 'immediate')
   const [reserveNow, setReserveNow] = useState(
     draft.amountToReserveNow ?? Math.round(draft.amount / 2),
@@ -74,13 +75,23 @@ export function PlannedFundingModal({ draft, onConfirm, onCancel }: PlannedFundi
   }
 
   return createPortal(
-    <div className="planned-funding-backdrop" onClick={onCancel}>
+    <div
+      className="planned-funding-backdrop"
+      onPointerDown={(e) => {
+        backdropPointerDown.current = e.target === e.currentTarget
+      }}
+      onClick={(e) => {
+        if (backdropPointerDown.current && e.target === e.currentTarget) onCancel()
+        backdropPointerDown.current = false
+      }}
+    >
       <div
         className="planned-funding-modal"
         role="dialog"
         aria-modal="true"
         aria-labelledby="planned-funding-title"
         onClick={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
       >
         <h3 id="planned-funding-title">How should this affect Available?</h3>
         <p className="planned-funding-subtitle">

@@ -42,7 +42,9 @@ export const WIDGET_HELP = {
   forecast:
     'Forward-looking view: cash outlook from scheduled movements, plus trend projection from saved balance history.\n\nIf your income arrives steadily through the month, the Trends page is often the better guide.',
   financialCalendar:
-    'Your financial calendar and tick list.\n\nAdd any reminder you want to track — under Your reminders. Coming up shows the next dates. When a date arrives it moves to To do now until you tick it; recurring reminders come back on the next due date.\n\nThis is not bookkeeping or tax filing. It is simply a place to keep financial dates visible.',
+    'Your calendar for financial dates — renewals, payroll, VAT, one-off deadlines. Not bookkeeping; just dates you want visible.\n\n' +
+    '+ Add puts a reminder on the calendar (one-off or recurring). Notes stay with the reminder.\n\n' +
+    'Click a day to see what falls there and tick it when done. Coming up lists the next dates in order — overdue stays until you tick it; recurring reminders return next cycle.',
 } as const
 
 export const QUICK_HABITS = [
