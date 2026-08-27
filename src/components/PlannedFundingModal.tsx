@@ -30,7 +30,7 @@ const OPTIONS: Array<{
   {
     method: 'immediate',
     title: 'Reserve the full amount now',
-    description: 'The full amount is taken off Available immediately.',
+    description: 'The full amount comes off your Cash Prophet Balance immediately.',
   },
   {
     method: 'accrue_until_due',
@@ -93,7 +93,7 @@ export function PlannedFundingModal({ draft, onConfirm, onCancel }: PlannedFundi
         onClick={(e) => e.stopPropagation()}
         onPointerDown={(e) => e.stopPropagation()}
       >
-        <h3 id="planned-funding-title">How should this affect Available?</h3>
+        <h3 id="planned-funding-title">How should this affect your Cash Prophet Balance?</h3>
         <p className="planned-funding-subtitle">
           <strong>{draft.name || 'Planned cost'}</strong> · {formatCurrency(draft.amount)} due{' '}
           {dueLabel}

@@ -35316,49 +35316,17 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .fin-cal-modal {
-  max-width: 34rem;
-  width: min(34rem, calc(100vw - 2rem));
-}
-
-.fin-cal-modal-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.7rem 0.75rem;
-  margin: 0.85rem 0 1rem;
-}
-
-.fin-cal-modal-grid label {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  font-size: 0.8rem;
-}
-
-.fin-cal-modal-grid input,
-.fin-cal-modal-grid select {
-  font: inherit;
-  padding: 0.45rem 0.55rem;
-  border-radius: 0.4rem;
-  border: 1px solid color-mix(in srgb, var(--border, #d1d5db) 85%, transparent);
-  background: white;
-}
-
-.fin-cal-modal-notes {
-  grid-column: 1 / -1;
+  width: min(100%, 28rem);
 }
 
 .fin-cal-modal-delete {
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
   color: #b91c1c;
 }
 
 @media (max-width: 720px) {
   .fin-cal-day {
     min-height: 3.4rem;
-  }
-
-  .fin-cal-modal-grid {
-    grid-template-columns: 1fr;
   }
 
   .fin-cal-sheet-row {

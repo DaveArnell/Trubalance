@@ -22,7 +22,7 @@ import { isFinancialChecklistTableMissing } from '../services/workspaceRepositor
 import { getReferenceDate, dateToKey } from '../utils/referenceDate'
 import {
   formatChecklistScopeLabel,
-  formatScopeOptionLabel,
+  formatChecklistScopeOptionLabel,
   getScopeOptionsForView,
 } from '../utils/scope'
 
@@ -239,7 +239,7 @@ function useReminderForm(state: AppState, viewScope: ViewScope, actions: Calenda
   const modal: ReactNode = formOpen
     ? createPortal(
         <div
-          className="planned-funding-backdrop"
+          className="snapshot-correction-backdrop"
           onPointerDown={(e) => {
             backdropPointerDown.current = e.target === e.currentTarget
           }}
@@ -249,7 +249,7 @@ function useReminderForm(state: AppState, viewScope: ViewScope, actions: Calenda
           }}
         >
           <div
-            className="planned-funding-modal fin-cal-modal"
+            className="snapshot-correction-modal mobile-item-modal fin-cal-modal"
             role="dialog"
             aria-modal="true"
             aria-labelledby="fin-cal-form-title"
@@ -257,12 +257,12 @@ function useReminderForm(state: AppState, viewScope: ViewScope, actions: Calenda
             onPointerDown={(e) => e.stopPropagation()}
           >
             <h3 id="fin-cal-form-title">{editingId ? 'Edit reminder' : 'Add reminder'}</h3>
-            <p className="planned-funding-subtitle">
+            <p className="snapshot-correction-subtitle">
               Shows on the calendar and in Coming up. Tick when due; recurring ones return next cycle.
             </p>
-            <div className="fin-cal-modal-grid">
-              <label>
-                Name
+            <div className="mobile-accruing-edit-fields">
+              <label className="snapshot-correction-input">
+                <span>Name</span>
                 <input
                   autoFocus
                   value={draft.name}
@@ -270,8 +270,8 @@ function useReminderForm(state: AppState, viewScope: ViewScope, actions: Calenda
                   placeholder="e.g. Insurance renewal"
                 />
               </label>
-              <label>
-                Repeats
+              <label className="snapshot-correction-input">
+                <span>Repeats</span>
                 <select
                   value={draft.recurrence}
                   onChange={(e) =>
@@ -288,8 +288,8 @@ function useReminderForm(state: AppState, viewScope: ViewScope, actions: Calenda
                 </select>
               </label>
               {draft.recurrence === 'once' ? (
-                <label>
-                  Date
+                <label className="snapshot-correction-input">
+                  <span>Date</span>
                   <input
                     type="date"
                     value={draft.dueDate}
@@ -297,8 +297,8 @@ function useReminderForm(state: AppState, viewScope: ViewScope, actions: Calenda
                   />
                 </label>
               ) : (
-                <label>
-                  Day of month
+                <label className="snapshot-correction-input">
+                  <span>Day of month</span>
                   <input
                     type="number"
                     min={1}
@@ -314,8 +314,8 @@ function useReminderForm(state: AppState, viewScope: ViewScope, actions: Calenda
                 </label>
               )}
               {(draft.recurrence === 'quarterly' || draft.recurrence === 'yearly') && (
-                <label>
-                  Months (1–12)
+                <label className="snapshot-correction-input">
+                  <span>Months (1–12)</span>
                   <input
                     value={draft.dueMonths}
                     onChange={(e) => setDraft((d) => ({ ...d, dueMonths: e.target.value }))}
@@ -323,8 +323,8 @@ function useReminderForm(state: AppState, viewScope: ViewScope, actions: Calenda
                   />
                 </label>
               )}
-              <label>
-                Applies to
+              <label className="snapshot-correction-input">
+                <span>Applies to</span>
                 <select
                   value={`${draft.scopeLevel}:${draft.scopeId}`}
                   onChange={(e) => {
@@ -335,13 +335,13 @@ function useReminderForm(state: AppState, viewScope: ViewScope, actions: Calenda
                 >
                   {scopeOptions.map((option) => (
                     <option key={`${option.level}:${option.id}`} value={`${option.level}:${option.id}`}>
-                      {formatScopeOptionLabel(option.level, option.label)}
+                      {formatChecklistScopeOptionLabel(option.level, option.label)}
                     </option>
                   ))}
                 </select>
               </label>
-              <label className="fin-cal-modal-notes">
-                Notes (optional)
+              <label className="snapshot-correction-input">
+                <span>Notes (optional)</span>
                 <input
                   value={draft.notes}
                   onChange={(e) => setDraft((d) => ({ ...d, notes: e.target.value }))}
@@ -349,18 +349,18 @@ function useReminderForm(state: AppState, viewScope: ViewScope, actions: Calenda
                 />
               </label>
             </div>
-            <div className="planned-funding-actions">
-              <button type="button" className="btn-ghost btn-tiny" onClick={() => setFormOpen(false)}>
+            <div className="mobile-item-modal-actions">
+              <button type="button" className="btn-ghost" onClick={() => setFormOpen(false)}>
                 Cancel
               </button>
-              <button type="button" className="btn-primary btn-tiny" onClick={saveDraft}>
+              <button type="button" className="btn-primary" onClick={saveDraft}>
                 {editingId ? 'Save' : 'Add'}
               </button>
             </div>
             {editingId && !editReadOnly ? (
               <button
                 type="button"
-                className="btn-ghost btn-tiny fin-cal-modal-delete"
+                className="btn-ghost fin-cal-modal-delete"
                 onClick={() => {
                   setDeleteId(editingId)
                   setFormOpen(false)
