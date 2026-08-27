@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import type { AppState, ChecklistRecurrence, FinancialChecklistItem, ViewScope } from '../types'
 import type { AppActions } from '../hooks/useAppState'
@@ -21,8 +21,8 @@ import {
 import { isFinancialChecklistTableMissing } from '../services/workspaceRepository'
 import { getReferenceDate, dateToKey } from '../utils/referenceDate'
 import {
+  formatChecklistScopeLabel,
   formatScopeOptionLabel,
-  getScopeLabel,
   getScopeOptionsForView,
 } from '../utils/scope'
 
@@ -55,6 +55,42 @@ interface SharedCalendarProps {
 
 const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const SHOW_RESERVE_TRANSFERS_KEY = 'cashprophet-cal-show-reserve-transfers'
+
+function readShowReserveTransfers(): boolean {
+  try {
+    return localStorage.getItem(SHOW_RESERVE_TRANSFERS_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+function writeShowReserveTransfers(value: boolean) {
+  try {
+    localStorage.setItem(SHOW_RESERVE_TRANSFERS_KEY, value ? '1' : '0')
+  } catch {
+    /* ignore */
+  }
+  window.dispatchEvent(new Event('cp-cal-reserve-toggle'))
+}
+
+function useShowReserveTransfers() {
+  const [show, setShow] = useState(readShowReserveTransfers)
+  useEffect(() => {
+    const sync = () => setShow(readShowReserveTransfers())
+    window.addEventListener('storage', sync)
+    window.addEventListener('cp-cal-reserve-toggle', sync)
+    return () => {
+      window.removeEventListener('storage', sync)
+      window.removeEventListener('cp-cal-reserve-toggle', sync)
+    }
+  }, [])
+  const setShowReserveTransfers = (value: boolean) => {
+    writeShowReserveTransfers(value)
+    setShow(value)
+  }
+  return [show, setShowReserveTransfers] as const
+}
 
 function defaultScope(
   state: AppState,
@@ -378,14 +414,18 @@ export function FinancialCalendarMonthPanel({
   }))
   const [pickerOpen, setPickerOpen] = useState(false)
   const [selectedDate, setSelectedDate] = useState<string | null>(todayKey)
+  const [showReserveTransfers] = useShowReserveTransfers()
 
   const monthOccurrences = useMemo(
     () => getChecklistOccurrencesForMonth(state, viewScope, cursor.year, cursor.monthIndex),
     [state, viewScope, cursor.year, cursor.monthIndex],
   )
   const systemMonth = useMemo(
-    () => getSystemCalendarEventsForMonth(state, viewScope, cursor.year, cursor.monthIndex),
-    [state, viewScope, cursor.year, cursor.monthIndex],
+    () =>
+      showReserveTransfers
+        ? getSystemCalendarEventsForMonth(state, viewScope, cursor.year, cursor.monthIndex)
+        : [],
+    [state, viewScope, cursor.year, cursor.monthIndex, showReserveTransfers],
   )
 
   const byDate = useMemo(() => {
@@ -476,8 +516,7 @@ export function FinancialCalendarMonthPanel({
         </div>
       ) : null}
       <p className="fin-cal-beta-note muted">
-        Beta — double-click a day to add a reminder. Reserve transfers appear on the 1st when you have a
-        plan.
+        Beta — double-click a day to add a reminder. Tick when due; overdue stays until you tick it.
       </p>
 
       <div className="card-scroll-body fin-cal-shell fin-cal-shell--month">
@@ -724,10 +763,7 @@ export function FinancialCalendarMonthPanel({
                       <span className="muted">
                         {recurrenceLabel(occurrence.item.recurrence)}
                         {' · '}
-                        {getScopeLabel(state, {
-                          type: occurrence.item.scopeLevel,
-                          id: occurrence.item.scopeId,
-                        })}
+                        {formatChecklistScopeLabel(state, occurrence.item)}
                         {occurrence.item.notes ? ` · ${occurrence.item.notes}` : null}
                       </span>
                     </div>
@@ -767,11 +803,12 @@ export function FinancialComingUpPanel({
     viewScope,
     actions,
   )
+  const [showReserveTransfers, setShowReserveTransfers] = useShowReserveTransfers()
 
   const timeline = useMemo(() => getChecklistTimeline(state, viewScope, 120), [state, viewScope])
   const systemTimeline = useMemo(
-    () => getSystemCalendarTimeline(state, viewScope, 120),
-    [state, viewScope],
+    () => (showReserveTransfers ? getSystemCalendarTimeline(state, viewScope, 120) : []),
+    [state, viewScope, showReserveTransfers],
   )
   const reminders = useMemo(() => listChecklistItemsForView(state, viewScope), [state, viewScope])
 
@@ -823,9 +860,21 @@ export function FinancialComingUpPanel({
       </div>
 
       <div className="card-scroll-body fin-cal-shell fin-cal-shell--upcoming">
-        <p className="muted fin-cal-upcoming-lead">
-          Next dates in order — including reserve transfers. Tick reminders when due.
-        </p>
+        <div className="fin-cal-upcoming-toolbar">
+          <p className="muted fin-cal-upcoming-lead">
+            Next dates in order. Tick when due — overdue stays until you tick it.
+          </p>
+          <label className="fin-cal-upcoming-toggle">
+            <input
+              type="checkbox"
+              checked={showReserveTransfers}
+              onChange={(e) => {
+                setShowReserveTransfers(e.target.checked)
+              }}
+            />
+            <span>Show reserve transfers</span>
+          </label>
+        </div>
         {rows.length === 0 ? (
           <div className="fin-cal-empty-block">
             <p className="muted">
@@ -848,7 +897,6 @@ export function FinancialComingUpPanel({
                 </th>
                 <th scope="col">When</th>
                 <th scope="col">Reminder</th>
-                <th scope="col">Detail</th>
                 <th scope="col" className="fin-cal-upcoming-actions-col">
                   <span className="sr-only">Actions</span>
                 </th>
@@ -872,9 +920,13 @@ export function FinancialComingUpPanel({
                       <td />
                       <td className="fin-cal-upcoming-when">{dueInLabel(event.dueDate, todayKey)}</td>
                       <td>
-                        <strong>{event.name}</strong>
+                        <div className="fin-cal-sheet-copy">
+                          <strong>{event.name}</strong>
+                          <span className="muted">
+                            Confirm in Reserve Planner · {event.scopeLabel}
+                          </span>
+                        </div>
                       </td>
-                      <td className="muted">Reserve Planner · {event.scopeLabel}</td>
                       <td />
                     </tr>
                   )
@@ -914,15 +966,15 @@ export function FinancialComingUpPanel({
                       {dueInLabel(occurrence.dueDate, todayKey)}
                     </td>
                     <td>
-                      <strong>{occurrence.item.name}</strong>
-                    </td>
-                    <td className="muted">
-                      {recurrenceLabel(occurrence.item.recurrence)}
-                      {' · '}
-                      {getScopeLabel(state, {
-                        type: occurrence.item.scopeLevel,
-                        id: occurrence.item.scopeId,
-                      })}
+                      <div className="fin-cal-sheet-copy">
+                        <strong>{occurrence.item.name}</strong>
+                        <span className="muted">
+                          {recurrenceLabel(occurrence.item.recurrence)}
+                          {' · '}
+                          {formatChecklistScopeLabel(state, occurrence.item)}
+                          {occurrence.item.notes ? ` · ${occurrence.item.notes}` : null}
+                        </span>
+                      </div>
                     </td>
                     <td className="fin-cal-upcoming-actions-col">
                       {!editReadOnly ? (

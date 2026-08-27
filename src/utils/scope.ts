@@ -175,7 +175,19 @@ export type ScopeOption = { level: ScopeLevel; id: string; label: string }
 /** Indent venues under businesses in native select lists. */
 export function formatScopeOptionLabel(level: ScopeLevel, label: string): string {
   if (level === 'venue') return `\u00A0\u00A0\u00A0${label}`
+  if (level === 'group') return `Group · ${label}`
+  if (level === 'business') return `Business · ${label}`
   return label
+}
+
+/** Clear label for checklist/calendar rows — always shows level when group. */
+export function formatChecklistScopeLabel(
+  state: AppState,
+  item: { scopeLevel: 'group' | 'business'; scopeId: string },
+): string {
+  const name = getScopeLabel(state, { type: item.scopeLevel, id: item.scopeId })
+  if (item.scopeLevel === 'group') return `Group · ${name}`
+  return name
 }
 
 export function getScopeOptionsForView(state: AppState, viewScope: ViewScope): ScopeOption[] {

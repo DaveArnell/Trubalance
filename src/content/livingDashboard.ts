@@ -45,8 +45,8 @@ export const WIDGET_HELP = {
     'Beta — month view for financial dates. Double-click a day to add a reminder. Reserve transfers show on the 1st when you have a plan.\n\n' +
     'Click a day for detail and tick reminders when due. Coming up is the list beside this calendar.',
   financialComingUp:
-    'Beta — next financial dates in order, including system items like reserve transfers.\n\n' +
-    'Tick your reminders when due. Overdue stays until you tick it. Confirm reserve transfers in Reserve Planner.',
+    'Next financial dates in order. Tick when due — overdue stays until you tick it.\n\n' +
+    'Optional: turn on Show reserve transfers to include monthly reserve moves on the 1st.',
 } as const
 
 export const QUICK_HABITS = [

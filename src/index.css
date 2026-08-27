@@ -923,10 +923,6 @@ body {
   margin-bottom: 6px;
 }
 
-.main-content:has(.widget-canvas[data-page-id='trends']) .main-pinned {
-  margin-bottom: 0;
-}
-
 .main-pinned--compact {
   gap: 0;
 }
@@ -35295,9 +35291,33 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   text-align: right;
 }
 
+.fin-cal-upcoming-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.35rem 0.75rem;
+  margin-bottom: 0.15rem;
+}
+
+.fin-cal-upcoming-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.74rem;
+  color: var(--muted, #6b7280);
+  cursor: pointer;
+  user-select: none;
+}
+
+.fin-cal-upcoming-toggle input {
+  margin: 0;
+  accent-color: var(--accent, #0f766e);
+}
+
 .fin-cal-modal {
-  max-width: 28rem;
-  width: min(28rem, calc(100vw - 2rem));
+  max-width: 34rem;
+  width: min(34rem, calc(100vw - 2rem));
 }
 
 .fin-cal-modal-grid {
