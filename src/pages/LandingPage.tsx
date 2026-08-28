@@ -7,6 +7,7 @@ import {
   scrollToMarketingSection,
 } from '../components/marketing/MarketingLayout'
 import { HomeHeroCompare } from '../components/marketing/HomeHeroCompare'
+import { CashProphetLogo } from '../components/marketing/CashProphetLogo'
 import { HomeHeroVideo } from '../components/marketing/HomeHeroVideo'
 import {
   HomeAvailablePanel,
@@ -47,7 +48,11 @@ export function LandingPage() {
 
       <main className="marketing-main marketing-main--home marketing-main--home-vivid">
         <section className="marketing-hero marketing-hero--rank marketing-hero--compare marketing-surface--hero">
-          <div className="home-hero-split">
+          <div className="home-hero-split-layout">
+            <div className="home-hero-banner-logo">
+              <CashProphetLogo variant="hero" onDark />
+            </div>
+            <div className="home-hero-split">
             <div className="home-hero-split-copy">
               <h1>
                 {HOME_HERO.headlineStart}{' '}
@@ -83,6 +88,7 @@ export function LandingPage() {
               </div>
             </div>
             <HomeHeroCompare />
+          </div>
           </div>
         </section>
 
