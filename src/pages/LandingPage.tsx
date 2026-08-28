@@ -47,17 +47,15 @@ export function LandingPage() {
 
       <main className="marketing-main marketing-main--home marketing-main--home-vivid">
         <section className="marketing-hero marketing-hero--rank marketing-hero--compare marketing-surface--hero">
-          <div className="home-hero-compare">
-            <div className="home-hero-compare-intro">
-              <div className="home-hero-compare-copy">
-                <h1>
-                  {HOME_HERO.headlineStart}{' '}
-                  <span className="marketing-hero-highlight marketing-hero-highlight--line">
-                    {HOME_HERO.headlineHighlight}
-                  </span>
-                </h1>
-                <p className="marketing-lead">{HOME_HERO.lead}</p>
-              </div>
+          <div className="home-hero-split">
+            <div className="home-hero-split-copy">
+              <h1>
+                {HOME_HERO.headlineStart}{' '}
+                <span className="marketing-hero-highlight marketing-hero-highlight--line">
+                  {HOME_HERO.headlineHighlight}
+                </span>
+              </h1>
+              <p className="marketing-lead">{HOME_HERO.lead}</p>
               <div className="home-hero-compare-actions">
                 <div className="home-hero-compare-cta-pair">
                   <CanonicalLink

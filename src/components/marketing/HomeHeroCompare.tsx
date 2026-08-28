@@ -2,14 +2,14 @@ import { HOME_HERO } from '../../content/homePage'
 import { HomeHeroDashboard } from './HomeHeroDashboard'
 import { HomeHeroThoughtBubble } from './HomeHeroThoughtBubble'
 
-/** Hero: finances in your head versus organised on the Cash Prophet dashboard. */
+/** Hero stack: without (in your head) → with (dashboard). Sits beside copy on desktop. */
 export function HomeHeroCompare() {
   return (
     <div
-      className="home-hero-pair"
+      className="home-hero-stack"
       aria-label="Without Cash Prophet, business finances live in your head. With Cash Prophet they are organised on the dashboard."
     >
-      <figure className="home-hero-pair-col">
+      <figure className="home-hero-stack-item">
         <figcaption className="home-hero-pair-tag home-hero-pair-tag--warn">
           {HOME_HERO.withoutLabel}
         </figcaption>
@@ -18,10 +18,10 @@ export function HomeHeroCompare() {
         </div>
       </figure>
 
-      <div className="home-hero-pair-arrow" aria-hidden>
-        <svg viewBox="0 0 72 36" width="72" height="36">
+      <div className="home-hero-stack-arrow" aria-hidden>
+        <svg viewBox="0 0 36 72" width="36" height="48">
           <path
-            d="M4 18h52M44 6l20 12-20 12"
+            d="M18 4v52M8 46l10 14 10-14"
             fill="none"
             stroke="currentColor"
             strokeWidth="4"
@@ -31,7 +31,7 @@ export function HomeHeroCompare() {
         </svg>
       </div>
 
-      <figure className="home-hero-pair-col home-hero-pair-col--dash">
+      <figure className="home-hero-stack-item">
         <figcaption className="home-hero-pair-tag home-hero-pair-tag--ok">
           {HOME_HERO.withLabel}
         </figcaption>
