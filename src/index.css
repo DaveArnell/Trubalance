@@ -34499,11 +34499,11 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .home-hero-pair {
   display: grid;
-  grid-template-columns: minmax(0, 0.92fr) 44px minmax(0, 1.28fr);
-  gap: 0 0.85rem;
+  grid-template-columns: minmax(0, 1fr) 36px minmax(0, 1fr);
+  gap: 0 0.65rem;
   align-items: start;
   justify-content: center;
-  max-width: 68rem;
+  max-width: 56rem;
   margin-inline: auto;
   width: 100%;
 }
@@ -34516,6 +34516,10 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   grid-template-rows: auto minmax(0, 1fr);
   align-content: start;
   align-items: start;
+}
+
+.home-hero-pair-col--dash {
+  justify-self: stretch;
 }
 
 .home-hero-pair-tag {
@@ -34556,41 +34560,159 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   min-height: 0;
 }
 
-.home-hero-visual--paper {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  height: auto;
+.home-hero-visual--mind,
+.home-hero-visual--dash {
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.36);
 }
 
-.home-hero-visual--paper img {
-  display: block;
-  width: 100%;
-  height: auto;
-  max-width: 100%;
-  max-height: min(380px, 42vw);
-  object-fit: contain;
-  object-position: center top;
-  filter: brightness(1.4) saturate(0.2) contrast(1.12);
+.home-hero-visual--mind {
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .home-hero-visual--dash {
   height: auto;
-  width: 100%;
-  max-width: 760px;
-  margin-inline: auto;
-  overflow: hidden;
-  border-radius: 14px;
   background: #e8eef3;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.36);
 }
 
+.home-hero-thought-frame,
 .home-hero-dash-frame {
   container-type: inline-size;
   position: relative;
   width: 100%;
   aspect-ratio: 900 / 540;
   overflow: hidden;
+}
+
+.home-hero-thought {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 900px;
+  height: 540px;
+  box-sizing: border-box;
+  transform: scale(min(1, calc(100cqi / 900px)));
+  transform-origin: top left;
+}
+
+.home-hero-thought-shape {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.home-hero-thought-cloud,
+.home-hero-thought-tail {
+  fill: #f8fafc;
+  stroke: #94a3b8;
+  stroke-width: 2.5;
+}
+
+.home-hero-thought-tail {
+  stroke-width: 2;
+}
+
+.home-hero-thought-content {
+  position: absolute;
+  inset: 0;
+  font-family: 'Caveat', cursive;
+  color: #1f2937;
+  pointer-events: none;
+}
+
+.home-hero-thought-note {
+  position: absolute;
+  margin: 0;
+  font-size: 1.65rem;
+  font-weight: 600;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.home-hero-thought-note--rent {
+  top: 14%;
+  left: 10%;
+  transform: rotate(-7deg);
+}
+
+.home-hero-thought-note--wages {
+  top: 11%;
+  right: 8%;
+  transform: rotate(5deg);
+}
+
+.home-hero-thought-note--utilities {
+  top: 28%;
+  left: 6%;
+  transform: rotate(-4deg);
+}
+
+.home-hero-thought-note--vat {
+  top: 24%;
+  right: 12%;
+  font-size: 1.85rem;
+  transform: rotate(8deg);
+}
+
+.home-hero-thought-note--insurance {
+  top: 58%;
+  left: 8%;
+  transform: rotate(-3deg);
+}
+
+.home-hero-thought-note--other {
+  top: 52%;
+  right: 6%;
+  transform: rotate(4deg);
+}
+
+.home-hero-thought-core {
+  position: absolute;
+  top: 38%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 1.1rem 1.6rem;
+  border: 3px solid #334155;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  text-align: center;
+}
+
+.home-hero-thought-core-label {
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.home-hero-thought-core-amount {
+  font-size: 2.75rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.home-hero-thought-question {
+  position: absolute;
+  bottom: 14%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font-size: 1.55rem;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  color: #7f1d1d;
 }
 
 .home-hero-dash {
@@ -34969,9 +35091,9 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
   .home-hero-pair {
     grid-template-columns: 1fr 1fr;
-    gap: 0.45rem 0.7rem;
+    gap: 0.45rem 0.55rem;
     align-items: start;
-    max-width: 34rem;
+    max-width: 100%;
     margin-inline: auto;
     width: 100%;
     box-sizing: border-box;
@@ -34995,23 +35117,32 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
     display: none;
   }
 
-  .home-hero-visual {
-    height: auto;
-  }
-
-  .home-hero-visual--paper {
-    align-items: flex-start;
-  }
-
-  .home-hero-visual--paper img {
-    max-height: min(11.5rem, 48vw);
-  }
-
+  .home-hero-visual--mind,
   .home-hero-visual--dash {
-    height: auto;
-    max-width: none;
     border-radius: 10px;
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+  }
+
+  .home-hero-thought-note {
+    font-size: 1.15rem;
+  }
+
+  .home-hero-thought-note--vat {
+    font-size: 1.25rem;
+  }
+
+  .home-hero-thought-core-label {
+    font-size: 0.95rem;
+  }
+
+  .home-hero-thought-core-amount {
+    font-size: 1.85rem;
+  }
+
+  .home-hero-thought-question {
+    font-size: 1.05rem;
+    white-space: normal;
+    max-width: 92%;
   }
 }
 

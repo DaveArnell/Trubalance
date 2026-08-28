@@ -1,28 +1,20 @@
 import { HOME_HERO } from '../../content/homePage'
 import { HomeHeroDashboard } from './HomeHeroDashboard'
+import { HomeHeroThoughtBubble } from './HomeHeroThoughtBubble'
 
-const MESSY_PAPER = '/hero-messy-paper.webp'
-
-/** Hero: messy notes versus the real Cash Prophet dashboard, filling the card. */
+/** Hero: finances in your head versus organised on the Cash Prophet dashboard. */
 export function HomeHeroCompare() {
   return (
     <div
       className="home-hero-pair"
-      aria-label="Without Cash Prophet the bank balance lives in messy notes. With Cash Prophet those commitments sit on the dashboard."
+      aria-label="Without Cash Prophet, business finances live in your head. With Cash Prophet they are organised on the dashboard."
     >
       <figure className="home-hero-pair-col">
         <figcaption className="home-hero-pair-tag home-hero-pair-tag--warn">
           {HOME_HERO.withoutLabel}
         </figcaption>
-        <div className="home-hero-visual home-hero-visual--paper">
-          <img
-            src={MESSY_PAPER}
-            alt="Handwritten notes around a bank balance of £33,350, asking how much is actually left today"
-            width={995}
-            height={1374}
-            decoding="async"
-            fetchPriority="high"
-          />
+        <div className="home-hero-visual home-hero-visual--mind">
+          <HomeHeroThoughtBubble />
         </div>
       </figure>
 
