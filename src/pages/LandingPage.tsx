@@ -63,6 +63,9 @@ export function LandingPage() {
             </div>
             <HomeHeroCompare />
             <div className="home-hero-compare-actions">
+              <p className="marketing-early-access-hero">
+                <span className="marketing-early-access-badge">{HOME_HERO.earlyAccessBadge}</span>
+              </p>
               <div className="marketing-cta-row marketing-cta-row--hero marketing-cta-row--center">
                 <CanonicalLink
                   to="/signup"
@@ -77,6 +80,7 @@ export function LandingPage() {
                   {HOME_HERO.tryItCta}
                 </CanonicalLink>
               </div>
+              <p className="marketing-early-access-line">{HOME_HERO.earlyAccessLine}</p>
               <p className="marketing-hero-onboard-link">
                 <CanonicalLink to="/contact?topic=onboarding">
                   Free personal onboarding

@@ -10,10 +10,14 @@ export const HOME_HERO = {
   category: 'Simple money management for small businesses',
   /** Slogan under the brand. */
   tagline: BRAND_SLOGAN,
-  headline: 'Your business finances are messy enough. Cash Prophet keeps them organised.',
-  headlineStart: 'Your business finances are messy enough.',
-  headlineHighlight: 'Cash Prophet keeps them organised.',
-  lead: "Know what's already spoken for, stay ahead of regular and larger bills, and see what your business can actually afford today.",
+  headline:
+    'Stop carrying your business finances around in your head. Let Cash Prophet keep them organised.',
+  headlineStart: 'Stop carrying your business finances around in your head.',
+  headlineHighlight: 'Let Cash Prophet keep them organised.',
+  lead:
+    'Keep track of your regular bills, account for costs as they build up, and work out what to put aside for the bigger expenses ahead. Cash Prophet brings it all together so you can see where your business really stands and stay in control.',
+  earlyAccessBadge: 'Early access',
+  earlyAccessLine: 'Join our first group of businesses using Cash Prophet.',
   withoutLabel: 'Without Cash Prophet',
   withLabel: 'With Cash Prophet',
   subheading: [

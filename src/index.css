@@ -34832,6 +34832,31 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   text-align: center;
 }
 
+.marketing-early-access-hero {
+  margin: 0 0 0.75rem;
+}
+
+.marketing-early-access-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.marketing-early-access-line {
+  margin: 0.85rem 0 0;
+  font-size: 0.92rem;
+  color: rgba(255, 255, 255, 0.76);
+}
+
 .marketing-hero--compare .marketing-hero-onboard-link {
   color: rgba(255, 255, 255, 0.82);
 }
