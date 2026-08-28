@@ -34459,24 +34459,24 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   box-sizing: border-box;
 }
 
-.home-hero-banner-logo {
+.home-hero-column-logo {
   display: flex;
   justify-content: center;
-  margin: 0 0 1.35rem;
+  margin: 0 0 1rem;
 }
 
-.home-hero-banner-logo .cp-logo--hero {
-  gap: 16px;
+.home-hero-column-logo .cp-logo--hero {
+  gap: 14px;
 }
 
-.home-hero-banner-logo .cp-logo--hero .cp-logo-mark {
-  width: 56px;
-  height: 56px;
-  border-radius: 16px;
+.home-hero-column-logo .cp-logo--hero .cp-logo-mark {
+  width: 52px;
+  height: 52px;
+  border-radius: 15px;
 }
 
-.home-hero-banner-logo .cp-logo--hero .cp-logo-word {
-  font-size: clamp(1.85rem, 3.5vw, 2.35rem);
+.home-hero-column-logo .cp-logo--hero .cp-logo-word {
+  font-size: clamp(1.65rem, 3vw, 2.1rem);
 }
 
 .home-hero-split {
@@ -34484,7 +34484,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   display: grid;
   grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.15fr);
   gap: 2rem 2.75rem;
-  align-items: center;
+  align-items: start;
   box-sizing: border-box;
 }
 
@@ -34493,7 +34493,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   gap: 1.1rem;
   text-align: center;
   justify-items: center;
-  align-content: center;
+  align-content: start;
 }
 
 .marketing-main--home-vivid .marketing-hero--compare h1 {
@@ -34586,7 +34586,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .home-hero-mind-art img {
   display: block;
   width: 100%;
-  max-width: 100%;
+  max-width: 88%;
   height: auto;
   object-fit: contain;
 }
@@ -34949,13 +34949,9 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
     padding-right: 1.25rem;
   }
 
-  .home-hero-banner-logo {
-    margin-bottom: 1rem;
-  }
-
-  .home-hero-banner-logo .cp-logo--hero .cp-logo-mark {
-    width: 48px;
-    height: 48px;
+  .home-hero-column-logo .cp-logo--hero .cp-logo-mark {
+    width: 44px;
+    height: 44px;
   }
 
   .home-hero-split {
@@ -35006,6 +35002,10 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
     gap: 0.55rem;
     max-width: 28rem;
     margin-inline: auto;
+  }
+
+  .home-hero-mind-art img {
+    max-width: 100%;
   }
 
   .home-hero-pair-tag {

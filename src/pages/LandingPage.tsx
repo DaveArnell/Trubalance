@@ -49,46 +49,46 @@ export function LandingPage() {
       <main className="marketing-main marketing-main--home marketing-main--home-vivid">
         <section className="marketing-hero marketing-hero--rank marketing-hero--compare marketing-surface--hero">
           <div className="home-hero-split-layout">
-            <div className="home-hero-banner-logo">
-              <CashProphetLogo variant="hero" onDark />
-            </div>
             <div className="home-hero-split">
-            <div className="home-hero-split-copy">
-              <h1>
-                {HOME_HERO.headlineStart}{' '}
-                <span className="marketing-hero-highlight marketing-hero-highlight--line">
-                  {HOME_HERO.headlineHighlight}
-                </span>
-              </h1>
-              <p className="marketing-lead">{HOME_HERO.lead}</p>
-              <div className="home-hero-compare-actions">
-                <div className="home-hero-compare-cta-pair">
-                  <CanonicalLink
-                    to="/signup"
-                    className="btn-primary btn-large home-hero-cta-btn marketing-cta-primary marketing-cta-primary--rank"
-                  >
-                    {HOME_HERO.primaryCta}
-                  </CanonicalLink>
-                  <CanonicalLink
-                    to="/try-it"
-                    className="btn-secondary btn-large home-hero-cta-btn marketing-cta-secondary--rank"
-                  >
-                    {HOME_HERO.tryItCta}
-                  </CanonicalLink>
+              <div className="home-hero-split-copy">
+                <div className="home-hero-column-logo">
+                  <CashProphetLogo variant="hero" onDark />
                 </div>
-                <p className="home-hero-early-access-note">
-                  Early access · {HOME_HERO.earlyAccessLine}
-                </p>
-                {!isSupabaseConfigured && (
-                  <p className="marketing-config-hint">
-                    Cloud signup needs Supabase in <code>.env.local</code>, or{' '}
-                    <CanonicalLink to="/app">try the app locally</CanonicalLink> without an account.
+                <h1>
+                  {HOME_HERO.headlineStart}{' '}
+                  <span className="marketing-hero-highlight marketing-hero-highlight--line">
+                    {HOME_HERO.headlineHighlight}
+                  </span>
+                </h1>
+                <p className="marketing-lead">{HOME_HERO.lead}</p>
+                <div className="home-hero-compare-actions">
+                  <div className="home-hero-compare-cta-pair">
+                    <CanonicalLink
+                      to="/signup"
+                      className="btn-primary btn-large home-hero-cta-btn marketing-cta-primary marketing-cta-primary--rank"
+                    >
+                      {HOME_HERO.primaryCta}
+                    </CanonicalLink>
+                    <CanonicalLink
+                      to="/try-it"
+                      className="btn-secondary btn-large home-hero-cta-btn marketing-cta-secondary--rank"
+                    >
+                      {HOME_HERO.tryItCta}
+                    </CanonicalLink>
+                  </div>
+                  <p className="home-hero-early-access-note">
+                    Early access · {HOME_HERO.earlyAccessLine}
                   </p>
-                )}
+                  {!isSupabaseConfigured && (
+                    <p className="marketing-config-hint">
+                      Cloud signup needs Supabase in <code>.env.local</code>, or{' '}
+                      <CanonicalLink to="/app">try the app locally</CanonicalLink> without an account.
+                    </p>
+                  )}
+                </div>
               </div>
+              <HomeHeroCompare />
             </div>
-            <HomeHeroCompare />
-          </div>
           </div>
         </section>
 

@@ -1,4 +1,4 @@
-const MIND_BUBBLE = '/hero-mind-bubble.png'
+const MIND_BUBBLE = '/hero-mind-bubble.jpg'
 
 /** Hand-drawn “finances in your head” illustration for the hero stack. */
 export function HomeHeroThoughtBubble() {
