@@ -54,37 +54,39 @@ export function LandingPage() {
                 <div className="home-hero-column-logo">
                   <CashProphetLogo variant="hero" onDark />
                 </div>
-                <h1>
-                  {HOME_HERO.headlineStart}{' '}
-                  <span className="marketing-hero-highlight marketing-hero-highlight--line">
-                    {HOME_HERO.headlineHighlight}
-                  </span>
-                </h1>
-                <p className="marketing-lead">{HOME_HERO.lead}</p>
-                <div className="home-hero-compare-actions">
-                  <div className="home-hero-compare-cta-pair">
-                    <CanonicalLink
-                      to="/signup"
-                      className="btn-primary btn-large home-hero-cta-btn marketing-cta-primary marketing-cta-primary--rank"
-                    >
-                      {HOME_HERO.primaryCta}
-                    </CanonicalLink>
-                    <CanonicalLink
-                      to="/try-it"
-                      className="btn-secondary btn-large home-hero-cta-btn marketing-cta-secondary--rank"
-                    >
-                      {HOME_HERO.tryItCta}
-                    </CanonicalLink>
-                  </div>
-                  <p className="home-hero-early-access-note">
-                    Early access · {HOME_HERO.earlyAccessLine}
-                  </p>
-                  {!isSupabaseConfigured && (
-                    <p className="marketing-config-hint">
-                      Cloud signup needs Supabase in <code>.env.local</code>, or{' '}
-                      <CanonicalLink to="/app">try the app locally</CanonicalLink> without an account.
+                <div className="home-hero-split-copy-body">
+                  <h1>
+                    {HOME_HERO.headlineStart}{' '}
+                    <span className="marketing-hero-highlight marketing-hero-highlight--line">
+                      {HOME_HERO.headlineHighlight}
+                    </span>
+                  </h1>
+                  <p className="marketing-lead">{HOME_HERO.lead}</p>
+                  <div className="home-hero-compare-actions">
+                    <div className="home-hero-compare-cta-pair">
+                      <CanonicalLink
+                        to="/signup"
+                        className="btn-primary btn-large home-hero-cta-btn marketing-cta-primary marketing-cta-primary--rank"
+                      >
+                        {HOME_HERO.primaryCta}
+                      </CanonicalLink>
+                      <CanonicalLink
+                        to="/try-it"
+                        className="btn-secondary btn-large home-hero-cta-btn marketing-cta-secondary--rank"
+                      >
+                        {HOME_HERO.tryItCta}
+                      </CanonicalLink>
+                    </div>
+                    <p className="home-hero-early-access-note">
+                      Early access · {HOME_HERO.earlyAccessLine}
                     </p>
-                  )}
+                    {!isSupabaseConfigured && (
+                      <p className="marketing-config-hint">
+                        Cloud signup needs Supabase in <code>.env.local</code>, or{' '}
+                        <CanonicalLink to="/app">try the app locally</CanonicalLink> without an account.
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
               <HomeHeroCompare />

@@ -34484,16 +34484,25 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   display: grid;
   grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.15fr);
   gap: 2rem 2.75rem;
-  align-items: start;
+  align-items: stretch;
   box-sizing: border-box;
 }
 
 .home-hero-split-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-height: 100%;
+  text-align: center;
+}
+
+.home-hero-split-copy-body {
+  flex: 1;
   display: grid;
   gap: 1.1rem;
-  text-align: center;
+  align-content: center;
   justify-items: center;
-  align-content: start;
+  width: 100%;
 }
 
 .marketing-main--home-vivid .marketing-hero--compare h1 {
@@ -34581,6 +34590,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   display: flex;
   justify-content: center;
   align-items: center;
+  background: transparent;
 }
 
 .home-hero-mind-art img {
@@ -34589,6 +34599,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   max-width: 88%;
   height: auto;
   object-fit: contain;
+  background: transparent;
 }
 
 .home-hero-visual--dash {
