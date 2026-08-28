@@ -18,8 +18,6 @@ export const HOME_HERO = {
     'Keep track of your regular bills, account for costs as they build up, and work out what to put aside for the bigger expenses ahead. Cash Prophet brings it all together so you can see where your business really stands and stay in control.',
   earlyAccessBadge: 'Early access',
   earlyAccessLine: 'Join our first group of businesses using Cash Prophet.',
-  withoutLabel: 'Without Cash Prophet',
-  withLabel: 'With Cash Prophet',
   subheading: [
     "Your bank balance only shows what's in the account. It doesn't show regular costs already building, or larger bills still ahead.",
     'Cash Prophet automatically accounts for those commitments as they build and helps you prepare for bigger future costs, so you get a daily financial position you can trust.',
