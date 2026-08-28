@@ -59,28 +59,22 @@ export function LandingPage() {
                 <p className="marketing-lead">{HOME_HERO.lead}</p>
               </div>
               <div className="home-hero-compare-actions">
-                <p className="marketing-early-access-hero">
-                  <span className="marketing-early-access-badge">{HOME_HERO.earlyAccessBadge}</span>
-                </p>
-                <div className="marketing-cta-row marketing-cta-row--hero marketing-cta-row--center">
+                <div className="home-hero-compare-cta-pair">
                   <CanonicalLink
                     to="/signup"
-                    className="btn-primary btn-large marketing-cta-primary marketing-cta-primary--rank"
+                    className="btn-primary btn-large home-hero-cta-btn marketing-cta-primary marketing-cta-primary--rank"
                   >
                     {HOME_HERO.primaryCta}
                   </CanonicalLink>
                   <CanonicalLink
                     to="/try-it"
-                    className="btn-secondary btn-large marketing-cta-secondary--rank"
+                    className="btn-secondary btn-large home-hero-cta-btn marketing-cta-secondary--rank"
                   >
                     {HOME_HERO.tryItCta}
                   </CanonicalLink>
                 </div>
-                <p className="marketing-early-access-line">{HOME_HERO.earlyAccessLine}</p>
-                <p className="marketing-hero-onboard-link">
-                  <CanonicalLink to="/contact?topic=onboarding">
-                    Free personal onboarding
-                  </CanonicalLink>
+                <p className="home-hero-early-access-note">
+                  Early access · {HOME_HERO.earlyAccessLine}
                 </p>
                 {!isSupabaseConfigured && (
                   <p className="marketing-config-hint">
