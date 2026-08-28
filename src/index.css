@@ -34544,12 +34544,10 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   justify-content: center;
   align-items: center;
   align-self: center;
-  margin-top: calc(1.65rem + 0.45rem);
 }
 
 .home-hero-visual {
   width: 100%;
-  height: clamp(280px, 28vw, 380px);
   min-height: 0;
 }
 
@@ -34557,21 +34555,22 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   display: flex;
   align-items: flex-start;
   justify-content: center;
+  height: auto;
 }
 
 .home-hero-visual--paper img {
   display: block;
-  width: auto;
+  width: 100%;
   height: auto;
   max-width: 100%;
-  max-height: 100%;
+  max-height: min(380px, 42vw);
   object-fit: contain;
   object-position: center top;
   filter: brightness(1.4) saturate(0.2) contrast(1.12);
 }
 
 .home-hero-visual--dash {
-  height: clamp(280px, 28vw, 380px);
+  height: auto;
   width: 100%;
   max-width: 760px;
   margin-inline: auto;
@@ -34579,14 +34578,6 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   border-radius: 14px;
   background: #e8eef3;
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.36);
-  display: flex;
-  flex-direction: column;
-}
-
-.home-hero-visual--dash .home-hero-dash-frame {
-  flex: 1;
-  min-height: 0;
-  height: 100%;
 }
 
 .home-hero-dash-frame {
@@ -34834,13 +34825,13 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .home-hero-dash-chart--reserve {
-  flex: 1.15 1 0;
+  flex: 0 0 auto;
   min-width: 0;
 }
 
 .home-hero-dash-reserve {
   min-width: 0;
-  flex: 1;
+  flex: 0 0 auto;
 }
 
 .home-hero-dash-chart--reserve .reserve-plan-chart-svg {
@@ -34964,15 +34955,19 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   }
 
   .home-hero-visual {
-    height: clamp(9.5rem, 42vw, 13rem);
+    height: auto;
   }
 
   .home-hero-visual--paper {
     align-items: flex-start;
   }
 
+  .home-hero-visual--paper img {
+    max-height: min(11.5rem, 48vw);
+  }
+
   .home-hero-visual--dash {
-    height: clamp(9.5rem, 42vw, 13rem);
+    height: auto;
     max-width: none;
     border-radius: 10px;
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
