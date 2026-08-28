@@ -13,7 +13,6 @@ import type { WorkspaceSubscription } from '../types/subscription'
 import { useAuth } from './AuthContext'
 import {
   getWorkspaceIdForUser,
-  isWorkspaceEmptyInDatabase,
   loadWorkspaceState,
   loadWorkspaceSubscription,
   rememberFinancialChecklistForWorkspace,
@@ -21,7 +20,7 @@ import {
   saveWorkspaceState,
   buildSafeTableEmptyDeletes,
 } from '../services/workspaceRepository'
-import { isSupabaseConfigured, tryGetSupabase } from '../lib/supabase'
+import { isSupabaseConfigured } from '../lib/supabase'
 import { emptyAppState, isBuiltinDemoWorkspace, isUserOwnedWorkspace, backupBrowserStateToSession, mergeMissingLocalWorkspaceData, countCriticalEntitiesAdded, unionExpectedReceipts, expectedReceiptsSyncKey, accountsSyncKey, snapshotsSyncKey, historyRecordsSyncKey, unionAccountsByUpdatedAt, unionSnapshotsByUpdatedAt, unionHistoryRecordsBySavedAt, stripEntitiesOutsideWorkspace, omitDeletedReceipts, syncDeletedReceiptIdsToBrowser, LOCAL_STORAGE_KEY } from '../utils/localStateStorage'
 import { readBrowserAppState } from '../hooks/useAppState'
 import { normalizeWorkspaceStateForDisplay } from '../utils/workspaceNormalize'
@@ -55,6 +54,13 @@ function workspaceSyncFingerprint(state: AppState): string {
   // Trends / week-month deltas come from stored snapshot values — length alone missed rebuilds.
   const snapshots = snapshotsSyncKey(state)
   const history = historyRecordsSyncKey(state)
+  const checklist = (state.financialChecklistItems ?? [])
+    .map(
+      (item) =>
+        `${item.id}:${item.name}:${item.scopeId}:${item.recurrence}:${item.dueDate ?? ''}:${(item.completedPeriods ?? []).join(',')}`,
+    )
+    .sort()
+    .join('|')
   return [
     accounts,
     commitments,
@@ -62,6 +68,7 @@ function workspaceSyncFingerprint(state: AppState): string {
     planners,
     snapshots,
     history,
+    checklist,
     state.dayNotes?.length ?? 0,
   ].join('#')
 }
@@ -100,15 +107,10 @@ const WorkspaceContext = createContext<WorkspaceContextValue | null>(null)
 const SAVE_DEBOUNCE_MS = 400
 const LOAD_WORKSPACE_TIMEOUT_MS = 45_000
 const SYNC_PULL_THROTTLE_MS = 2_500
-const SYNC_INTERVAL_MS = 20_000
+const SYNC_INTERVAL_MS = 45_000
 const SAVE_RETRY_MS = 2_500
-const REALTIME_PULL_TABLES = [
-  'expected_receipts',
-  'commitments',
-  'accounts',
-  'reserve_planners',
-  'reserve_bills',
-] as const
+/** Skip focus/visibility re-pull right after a full load — avoids doubling the ~20-query burst. */
+const INITIAL_SYNC_GRACE_MS = 12_000
 
 function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
   return new Promise<T>((resolve, reject) => {
@@ -167,6 +169,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const pullGenerationRef = useRef(0)
   const hydratedGenerationRef = useRef(0)
   const lastLocalSaveAtRef = useRef(0)
+  const lastLoadFinishedAtRef = useRef(0)
   const loadedForUserRef = useRef<string | null>(null)
   const hasLoadedStateRef = useRef(
     (() => {
@@ -229,8 +232,14 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
       backupBrowserStateToSession()
 
-      const dbEmpty = await isWorkspaceEmptyInDatabase(wsId)
       const { state: loadedState, loadHadErrors } = await loadWorkspaceState(wsId)
+      const dbEmpty =
+        loadedState.groups.length === 0 &&
+        loadedState.businesses.length === 0 &&
+        loadedState.accounts.length === 0 &&
+        loadedState.commitments.length === 0 &&
+        loadedState.reservePlanners.length === 0 &&
+        loadedState.expectedReceipts.length === 0
       syncDeletedReceiptIdsToBrowser(loadedState.deletedReceiptIds ?? [])
       const cloudRaw = stripEntitiesOutsideWorkspace(omitDeletedReceipts(loadedState))
       let state = cloudRaw
@@ -469,6 +478,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false)
       persistEnabledRef.current = true
+      lastLoadFinishedAtRef.current = Date.now()
       // Mid-pull edits stay queued until hydrate unlocks saves (markRemoteHydrated).
       if (
         pendingStateRef.current &&
@@ -544,6 +554,13 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       const state = pendingStateRef.current
       pendingStateRef.current = null
 
+      if (
+        lastPersistedStateRef.current &&
+        workspaceSyncFingerprint(state) === workspaceSyncFingerprint(lastPersistedStateRef.current)
+      ) {
+        continue
+      }
+
       const loaded = loadedStateRef.current
       if (
         loaded &&
@@ -608,6 +625,12 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const persistState = useCallback(
     (state: AppState, options?: { immediate?: boolean }) => {
       if (!remoteEnabled || readOnly || !workspaceId) return
+      if (
+        lastPersistedStateRef.current &&
+        workspaceSyncFingerprint(state) === workspaceSyncFingerprint(lastPersistedStateRef.current)
+      ) {
+        return
+      }
       // Always queue — even while a pull has persistEnabled=false — so phone edits are not dropped.
       pendingStateRef.current = state
       rememberFinancialChecklistForWorkspace(workspaceId, state.financialChecklistItems)
@@ -649,6 +672,12 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     const flushThenPull = async (reason: string) => {
       if (cancelled || readOnly) return
       if (syncInFlightRef.current) return
+      if (
+        (reason === 'focus' || reason === 'visibility') &&
+        Date.now() - lastLoadFinishedAtRef.current < INITIAL_SYNC_GRACE_MS
+      ) {
+        return
+      }
       const now = Date.now()
       if (now - lastPullAt < SYNC_PULL_THROTTLE_MS && reason !== 'online') return
       syncInFlightRef.current = true
@@ -699,59 +728,6 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       window.clearInterval(intervalId)
     }
   }, [remoteEnabled, readOnly, loadWorkspace, flushSave])
-
-  // Live updates when another device writes to the account (requires Realtime publication).
-  useEffect(() => {
-    if (!remoteEnabled || readOnly || !workspaceId) return
-    const supabase = tryGetSupabase()
-    if (!supabase) return
-
-    let pullTimer: ReturnType<typeof setTimeout> | null = null
-    const schedulePull = () => {
-      if (Date.now() - lastLocalSaveAtRef.current < 4_000) return
-      if (pullTimer) clearTimeout(pullTimer)
-      pullTimer = setTimeout(() => {
-        if (document.visibilityState !== 'visible') return
-        if (syncInFlightRef.current) return
-        if (Date.now() - lastLocalSaveAtRef.current < 4_000) return
-        syncInFlightRef.current = true
-        void (async () => {
-          try {
-            await saveChainRef.current.catch(() => undefined)
-            if (saveTimerRef.current) {
-              clearTimeout(saveTimerRef.current)
-              saveTimerRef.current = null
-            }
-            await flushSaveRef.current()
-            await loadWorkspace()
-          } catch (error) {
-            console.warn('[Workspace] realtime sync failed', error)
-          } finally {
-            syncInFlightRef.current = false
-          }
-        })()
-      }, 800)
-    }
-
-    const channel = supabase.channel(`workspace-sync:${workspaceId}`)
-    for (const table of REALTIME_PULL_TABLES) {
-      channel.on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table, filter: `workspace_id=eq.${workspaceId}` },
-        schedulePull,
-      )
-    }
-    channel.subscribe((status) => {
-      if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-        console.info('[Workspace] Realtime sync unavailable — using focus/interval sync')
-      }
-    })
-
-    return () => {
-      if (pullTimer) clearTimeout(pullTimer)
-      void supabase.removeChannel(channel)
-    }
-  }, [remoteEnabled, readOnly, workspaceId, loadWorkspace])
 
   const restoreFromBrowser = useCallback(async (): Promise<AppState | null> => {
     const local = readBrowserAppState()

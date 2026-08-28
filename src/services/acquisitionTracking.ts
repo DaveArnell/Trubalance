@@ -144,10 +144,7 @@ const VISIT_DAY_KEY = 'cashprophet-acquisition-visit-day'
 export function trackAcquisitionVisitOncePerDay(): void {
   const today = new Date().toISOString().slice(0, 10)
   try {
-    if (localStorage.getItem(VISIT_DAY_KEY) === today) {
-      void syncAcquisitionVisitorAttribution()
-      return
-    }
+    if (localStorage.getItem(VISIT_DAY_KEY) === today) return
     localStorage.setItem(VISIT_DAY_KEY, today)
   } catch {
     /* continue — still try the insert */

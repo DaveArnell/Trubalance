@@ -53,7 +53,7 @@ import { parseVirtualSnapshotId } from '../utils/scopeSnapshotSeries'
 import { MONTHS, currentMonthIndex } from '../utils/format'
 import { syncGuidedStructureInState, type GuidedBusinessPayload } from '../utils/structureDraftSync'
 import { backupBrowserStateToSession, isUserOwnedWorkspace, mergeMissingLocalWorkspaceData, countCriticalEntitiesAdded, unionExpectedReceipts, expectedReceiptsSyncKey, accountsSyncKey, snapshotsSyncKey, historyRecordsSyncKey, unionAccountsByUpdatedAt, unionSnapshotsByUpdatedAt, unionHistoryRecordsBySavedAt, omitDeletedReceipts, rememberDeletedReceiptIds, readRawBrowserStateJson, statesMatchRoughly } from '../utils/localStateStorage'
-import { normalizeWorkspaceState } from '../utils/workspaceNormalize'
+import { normalizeWorkspaceState, normalizeWorkspaceStateForDisplay } from '../utils/workspaceNormalize'
 import { workspaceCostsRepairKey } from '../utils/workspaceRecovery'
 import { getReferenceDate, getReferenceDateKey } from '../utils/referenceDate'
 import { migrateDayNotes } from '../utils/dayNotes'
@@ -374,7 +374,7 @@ export function useAppState(options?: UseAppStateOptions) {
     // Initial paint may use a local cache; this replaces it once remote state arrives.
     // Union receipts so open phone edits win over stale “received” cloud rows for the same id.
     const cloudBeforeNormalize = cloneState(external)
-    const cloudNormalized = normalizeWorkspaceState(cloudBeforeNormalize)
+    const cloudNormalized = normalizeWorkspaceStateForDisplay(cloudBeforeNormalize)
     let next = mergeMissingLocalWorkspaceData(cloudNormalized, stateRef.current)
     next = unionExpectedReceipts(next, stateRef.current)
     next = unionAccountsByUpdatedAt(next, stateRef.current)
@@ -394,7 +394,7 @@ export function useAppState(options?: UseAppStateOptions) {
     }
     // Union can reintroduce a newer poisoned local past row — restore History again.
     const afterUnion = next
-    next = normalizeWorkspaceState(next)
+    next = normalizeWorkspaceStateForDisplay(next)
     const mergeAdded = countCriticalEntitiesAdded(cloudNormalized, next).total > 0
     const recoveredFromHistory =
       countCriticalEntitiesAdded(cloudBeforeNormalize, next).total > 0 ||
