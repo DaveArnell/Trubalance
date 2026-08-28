@@ -6,7 +6,6 @@ import {
   MarketingShell,
   scrollToMarketingSection,
 } from '../components/marketing/MarketingLayout'
-import { CashProphetLogo } from '../components/marketing/CashProphetLogo'
 import { HomeHeroCompare } from '../components/marketing/HomeHeroCompare'
 import { HomeHeroVideo } from '../components/marketing/HomeHeroVideo'
 import {
@@ -49,50 +48,49 @@ export function LandingPage() {
       <main className="marketing-main marketing-main--home marketing-main--home-vivid">
         <section className="marketing-hero marketing-hero--rank marketing-hero--compare marketing-surface--hero">
           <div className="home-hero-compare">
-            <div className="home-hero-compare-copy">
-              <div className="marketing-hero-brand">
-                <CashProphetLogo variant="hero" onDark />
+            <div className="home-hero-compare-intro">
+              <div className="home-hero-compare-copy">
+                <h1>
+                  {HOME_HERO.headlineStart}{' '}
+                  <span className="marketing-hero-highlight marketing-hero-highlight--line">
+                    {HOME_HERO.headlineHighlight}
+                  </span>
+                </h1>
+                <p className="marketing-lead">{HOME_HERO.lead}</p>
               </div>
-              <h1>
-                {HOME_HERO.headlineStart}{' '}
-                <span className="marketing-hero-highlight marketing-hero-highlight--line">
-                  {HOME_HERO.headlineHighlight}
-                </span>
-              </h1>
-              <p className="marketing-lead">{HOME_HERO.lead}</p>
+              <div className="home-hero-compare-actions">
+                <p className="marketing-early-access-hero">
+                  <span className="marketing-early-access-badge">{HOME_HERO.earlyAccessBadge}</span>
+                </p>
+                <div className="marketing-cta-row marketing-cta-row--hero marketing-cta-row--center">
+                  <CanonicalLink
+                    to="/signup"
+                    className="btn-primary btn-large marketing-cta-primary marketing-cta-primary--rank"
+                  >
+                    {HOME_HERO.primaryCta}
+                  </CanonicalLink>
+                  <CanonicalLink
+                    to="/try-it"
+                    className="btn-secondary btn-large marketing-cta-secondary--rank"
+                  >
+                    {HOME_HERO.tryItCta}
+                  </CanonicalLink>
+                </div>
+                <p className="marketing-early-access-line">{HOME_HERO.earlyAccessLine}</p>
+                <p className="marketing-hero-onboard-link">
+                  <CanonicalLink to="/contact?topic=onboarding">
+                    Free personal onboarding
+                  </CanonicalLink>
+                </p>
+                {!isSupabaseConfigured && (
+                  <p className="marketing-config-hint">
+                    Cloud signup needs Supabase in <code>.env.local</code>, or{' '}
+                    <CanonicalLink to="/app">try the app locally</CanonicalLink> without an account.
+                  </p>
+                )}
+              </div>
             </div>
             <HomeHeroCompare />
-            <div className="home-hero-compare-actions">
-              <p className="marketing-early-access-hero">
-                <span className="marketing-early-access-badge">{HOME_HERO.earlyAccessBadge}</span>
-              </p>
-              <div className="marketing-cta-row marketing-cta-row--hero marketing-cta-row--center">
-                <CanonicalLink
-                  to="/signup"
-                  className="btn-primary btn-large marketing-cta-primary marketing-cta-primary--rank"
-                >
-                  {HOME_HERO.primaryCta}
-                </CanonicalLink>
-                <CanonicalLink
-                  to="/try-it"
-                  className="btn-secondary btn-large marketing-cta-secondary--rank"
-                >
-                  {HOME_HERO.tryItCta}
-                </CanonicalLink>
-              </div>
-              <p className="marketing-early-access-line">{HOME_HERO.earlyAccessLine}</p>
-              <p className="marketing-hero-onboard-link">
-                <CanonicalLink to="/contact?topic=onboarding">
-                  Free personal onboarding
-                </CanonicalLink>
-              </p>
-              {!isSupabaseConfigured && (
-                <p className="marketing-config-hint">
-                  Cloud signup needs Supabase in <code>.env.local</code>, or{' '}
-                  <CanonicalLink to="/app">try the app locally</CanonicalLink> without an account.
-                </p>
-              )}
-            </div>
           </div>
         </section>
 
