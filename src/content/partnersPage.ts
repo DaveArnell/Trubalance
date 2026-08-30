@@ -41,8 +41,8 @@ export const PARTNERS_PAGE = {
     lead:
       'Cash Prophet is not accounting or bookkeeping software. It gives the business owner somewhere to keep the day-to-day financial picture organised between the accounts, reports and professional advice they receive.',
     body: [
-      'Accountants and bookkeepers provide the records, reporting, compliance and professional judgement a business needs.',
-      'Cash Prophet helps the owner stay on top of the practical financial picture as the month unfolds.',
+      'Accountants, bookkeepers and other professional advisers provide businesses with records, reporting, compliance and professional advice.',
+      'Cash Prophet has a different day-to-day role. It helps the owner keep the practical financial picture organised as the month unfolds.',
     ],
     accounting: {
       label: 'Accounting & professional support',

@@ -25871,28 +25871,37 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   padding: 0.85rem 1rem;
 }
 
-.marketing-faq-item summary {
+.marketing-faq-summary {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0 1.75rem 0 0;
+  border: none;
+  background: transparent;
   cursor: pointer;
+  text-align: left;
+  font: inherit;
   font-weight: 650;
   letter-spacing: -0.01em;
-  list-style: none;
+  color: inherit;
+  position: relative;
 }
 
-.marketing-faq-item summary::-webkit-details-marker {
-  display: none;
-}
-
-.marketing-faq-item summary::after {
+.marketing-faq-summary::after {
   content: '+';
-  float: right;
+  position: absolute;
+  right: 0;
+  top: 0;
   color: var(--text-secondary);
   font-weight: 500;
+  line-height: 1.2;
 }
 
-.marketing-faq-item[open] summary::after {
+.marketing-faq-item.is-open .marketing-faq-summary::after {
   content: '–';
 }
 
+.marketing-faq-panel p,
 .marketing-faq-item p {
   margin: 0.75rem 0 0;
   color: var(--text-secondary);
@@ -32792,11 +32801,12 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   width: 100%;
 }
 
-.marketing-faq-item summary {
+.marketing-faq-summary {
   font-size: 1.05rem;
   color: #0f1b2d;
 }
 
+.marketing-faq-panel p,
 .marketing-faq-item p {
   color: #243044 !important;
   font-size: 1rem;
@@ -33054,7 +33064,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .marketing-main--home-vivid .home-outcome-close,
 .marketing-shell .method-edu-prose,
 .marketing-shell .method-edu-principle-lead,
-.marketing-shell .marketing-faq-item summary,
+.marketing-shell .marketing-faq-summary,
 .marketing-shell .marketing-faq-item p,
 .marketing-shell .marketing-price-desc,
 .marketing-shell .marketing-pricing-footnote {
@@ -33063,7 +33073,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   line-height: 1.55 !important;
 }
 
-.marketing-shell .marketing-faq-item summary {
+.marketing-shell .marketing-faq-summary {
   font-weight: 700 !important;
 }
 
@@ -34269,7 +34279,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 /* —— Partner with Cash Prophet (/partners) —— */
 
 .partners-page .partners-hero {
-  padding-bottom: 1.5rem;
+  padding-bottom: 1.25rem;
 }
 
 .partners-hero-inner {
@@ -34287,8 +34297,15 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   justify-content: center;
 }
 
-.partners-section {
-  padding-block: 1.85rem 2rem;
+.partners-page .partners-section,
+.partners-page .partners-section.home-band {
+  padding-block: 1.35rem 1.45rem;
+}
+
+.partners-page .partners-section .marketing-section-inner,
+.partners-page .partners-section-inner {
+  padding-top: 1.15rem !important;
+  padding-bottom: 1.15rem !important;
 }
 
 .partners-section-inner {
@@ -34296,14 +34313,14 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .partners-section-inner > h2 {
-  margin: 0 0 0.55rem;
+  margin: 0 0 0.45rem;
   font-size: clamp(1.35rem, 2.8vw, 1.75rem);
   line-height: 1.25;
   text-align: center;
 }
 
 .partners-lead {
-  margin: 0 auto 1.05rem;
+  margin: 0 auto 0.8rem;
   max-width: 38rem;
   text-align: center;
   line-height: 1.55;
@@ -34311,14 +34328,14 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .partners-prose {
-  margin: 0 auto 0.7rem;
+  margin: 0 auto 0.55rem;
   max-width: 40rem;
   line-height: 1.55;
   color: rgba(15, 27, 45, 0.82);
 }
 
 .partners-note {
-  margin: 1rem auto 0;
+  margin: 0.8rem auto 0;
   max-width: 36rem;
   text-align: center;
   font-size: 0.92rem;
@@ -34366,7 +34383,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .partners-compare {
   display: grid;
   gap: 0.75rem;
-  margin-top: 1.15rem;
+  margin-top: 0.85rem;
 }
 
 @media (min-width: 720px) {
@@ -34439,11 +34456,11 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .partners-demo .partners-lead {
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .partners-demo-secondary {
-  margin: 0.85rem 0 0;
+  margin: 0.7rem 0 0;
   font-size: 0.95rem;
 }
 
@@ -34455,10 +34472,10 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .partners-steps {
   list-style: none;
-  margin: 0.85rem 0 0;
+  margin: 0.65rem 0 0;
   padding: 0;
   display: grid;
-  gap: 0.65rem;
+  gap: 0.55rem;
 }
 
 .partners-step {
@@ -34491,12 +34508,22 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   color: rgba(15, 27, 45, 0.78);
 }
 
+.partners-page .partners-final-cta.home-cta-band,
 .partners-final-cta {
-  padding-block: 2.25rem;
+  padding-block: 1.65rem !important;
 }
 
 .partners-page .marketing-faq-section {
-  padding-block: 2rem 2.5rem;
+  padding-block: 1.45rem 1.85rem !important;
+}
+
+.partners-page .marketing-faq-section .marketing-section-inner {
+  padding-top: 0.85rem !important;
+  padding-bottom: 0.85rem !important;
+}
+
+.partners-page .marketing-faq-section .marketing-section-head {
+  margin-bottom: 0.95rem !important;
 }
 
 @media (max-width: 639px) {
