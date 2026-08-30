@@ -6,15 +6,15 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 
 /**
  * Erratic bank cash (k) — sharp income spikes and large bill/VAT/payroll drops.
- * Values chosen so month-to-month swings are obviously larger than the prophet series.
+ * Pronounced peaks and troughs so timing noise is obvious next to the prophet series.
  */
-const BANK_K = [36, 61, 24, 58, 29, 72, 18, 54, 27, 69, 21, 57] as const
+const BANK_K = [34, 68, 16, 62, 22, 76, 12, 58, 19, 74, 14, 61] as const
 
 /**
- * Cash Prophet Balance (k) — still rises and falls, with a clearer underlying path
- * as known obligations are accounted for progressively.
+ * Cash Prophet Balance (k) — still rises and falls with the real underlying position,
+ * but without the same payment-timing distortion.
  */
-const PROPHET_K = [23, 26, 22, 27, 29, 25, 28, 31, 27, 32, 29, 33] as const
+const PROPHET_K = [23, 26, 21, 27, 30, 26, 29, 32, 28, 33, 30, 34] as const
 
 const W = 680
 const H = 280

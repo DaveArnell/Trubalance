@@ -35734,6 +35734,15 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   line-height: 1.5;
 }
 
+.how-it-works-over-time-visual {
+  margin: 0.35rem auto 0;
+  max-width: 38rem;
+}
+
+.how-it-works-over-time-visual .balance-compare-trend-caption {
+  text-align: center;
+}
+
 .how-it-works-checkin {
   text-align: center;
 }
@@ -35757,22 +35766,85 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   text-align: center;
 }
 
-.how-it-works-setup .method-edu-prose,
-.how-it-works-setup-includes-intro {
-  max-width: 36rem;
-  margin-left: auto;
-  margin-right: auto;
+.how-it-works-setup-subhead {
+  margin: 0.35rem auto 1rem;
+  max-width: 28rem;
+  font-size: 1.05rem;
+  font-weight: 650;
+  line-height: 1.35;
+  color: var(--text-primary, #111827);
 }
 
-.how-it-works-setup-import {
-  margin-top: 0.85rem;
+.how-it-works-setup-grid {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  max-width: 36rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 1rem;
+}
+
+.how-it-works-setup-item {
+  margin: 0;
+  padding: 0.85rem 0.75rem;
+  display: grid;
+  gap: 0.1rem;
+  align-content: center;
+  justify-items: center;
+  text-align: center;
+  border-top: 2px solid color-mix(in srgb, #24da76 70%, #0d8f5b);
+  background: transparent;
+}
+
+.how-it-works-setup-item-line {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 550;
+  line-height: 1.3;
+  color: var(--text-primary, #1f2937);
+}
+
+.how-it-works-setup-selfserve {
+  margin: 1.65rem auto 0;
+  padding-top: 1.25rem;
+  max-width: 34rem;
+  border-top: 1px solid color-mix(in srgb, var(--border, #d1d5db) 85%, transparent);
+}
+
+.how-it-works-setup-selfserve-heading {
+  margin: 0 0 0.45rem;
+  font-size: 1rem;
+  font-weight: 650;
+  line-height: 1.35;
+  color: var(--text-primary, #111827);
+}
+
+.how-it-works-setup-selfserve-body {
+  margin: 0;
   color: var(--muted, #4b5563);
-  font-size: 0.92rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
 }
 
 .how-it-works-setup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   justify-content: center;
+  gap: 0.75rem;
   margin-top: 1.35rem;
+}
+
+.how-it-works-setup-actions .btn-primary {
+  min-height: 3rem;
+}
+
+@media (max-width: 560px) {
+  .how-it-works-setup-grid {
+    grid-template-columns: 1fr;
+    max-width: 18rem;
+  }
 }
 
 .early-access-page {

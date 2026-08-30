@@ -41,6 +41,16 @@ export const HOW_IT_WORKS_BALANCE = {
     'Because known costs are accounted for progressively, the Cash Prophet Balance is less distorted by the timing of large payments than the bank balance alone.',
 } as const
 
+export const HOW_IT_WORKS_OVER_TIME = {
+  heading: 'See the underlying position more clearly',
+  lead: [
+    'Your bank balance naturally rises and falls as money comes in and bills are paid. That can make it difficult to tell whether the underlying position of the business is actually improving.',
+    'Because Cash Prophet accounts for known costs as they build, the Cash Prophet Balance gives you a more consistent benchmark to follow over time.',
+  ],
+  afterVisual:
+    'Less timing noise. A clearer view of whether the underlying position is getting stronger or weaker.',
+} as const
+
 export const HOW_IT_WORKS_CHECKIN = {
   heading: 'Keep it current with a quick check-in',
   lead:
@@ -58,17 +68,16 @@ export const HOW_IT_WORKS_CHECKIN = {
 export const HOW_IT_WORKS_SETUP = {
   heading: 'Getting set up is straightforward',
   primaryLead: "During Early Access, we'll help you get Cash Prophet set up around your business.",
-  includesIntro: 'Personal setup can include:',
+  includesIntro: 'Personal setup can include',
   includes: [
-    'understanding the existing regular costs',
-    'setting up the Reserve Planner',
-    'confirming the opening balances',
-    'showing you the simple ongoing check-in',
+    { line1: 'Understanding your', line2: 'regular costs' },
+    { line1: 'Setting up the', line2: 'Reserve Planner' },
+    { line1: 'Confirming your', line2: 'opening balances' },
+    { line1: 'Showing you the', line2: 'ongoing check-in' },
   ],
-  selfServe:
-    'Prefer to do it yourself? You can still create an account and use the guided setup.',
-  importNote:
-    'You can also upload a CSV or PDF transaction history to help identify recurring costs for you to review and confirm.',
+  selfServeHeading: 'Prefer to set it up yourself?',
+  selfServeBody:
+    'You can create an account and use the guided setup. You can also upload a CSV or PDF transaction history to help identify recurring costs for you to review and confirm.',
   primaryCta: 'Get personally set up',
   primaryHref: PERSONAL_SETUP_CONTACT_PATH,
   secondaryCta: 'Set up myself',

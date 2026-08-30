@@ -9,6 +9,7 @@ import {
 import { MethodWorkedExample } from '../components/marketing/MethodWorkedExample'
 import { MethodReservePlannerVisual } from '../components/marketing/MethodReservePlannerVisual'
 import { MarketingAccruingDemo } from '../components/marketing/MarketingAccruingDemo'
+import { BalanceCompareTrendVisual } from '../components/marketing/BalanceCompareTrendVisual'
 import { HomeEarlyAccessCta } from '../components/marketing/HomePositioningSections'
 import {
   HOW_IT_WORKS_ACCRUING,
@@ -16,6 +17,7 @@ import {
   HOW_IT_WORKS_CHECKIN,
   HOW_IT_WORKS_EARLY_ACCESS,
   HOW_IT_WORKS_HERO,
+  HOW_IT_WORKS_OVER_TIME,
   HOW_IT_WORKS_RESERVE,
   HOW_IT_WORKS_SETUP,
 } from '../content/howItWorksPage'
@@ -103,6 +105,27 @@ export function HowItWorksPage() {
         </section>
 
         <section
+          className="method-edu-section marketing-surface--mist"
+          aria-labelledby="over-time-heading"
+          id="over-time"
+        >
+          <div className="method-edu-inner method-edu-inner--narrow">
+            <div className="method-edu-section-head">
+              <h2 id="over-time-heading">{HOW_IT_WORKS_OVER_TIME.heading}</h2>
+              {HOW_IT_WORKS_OVER_TIME.lead.map((paragraph) => (
+                <p key={paragraph} className="method-edu-section-lead">
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+            <div className="how-it-works-over-time-visual">
+              <BalanceCompareTrendVisual />
+            </div>
+            <p className="how-it-works-after-example">{HOW_IT_WORKS_OVER_TIME.afterVisual}</p>
+          </div>
+        </section>
+
+        <section
           className="method-edu-section marketing-surface--paper"
           aria-labelledby="checkin-heading"
           id="habits"
@@ -142,19 +165,22 @@ export function HowItWorksPage() {
               <p className="method-edu-section-lead">{HOW_IT_WORKS_SETUP.primaryLead}</p>
             </div>
 
-            <p className="method-edu-prose how-it-works-setup-includes-intro">
-              {HOW_IT_WORKS_SETUP.includesIntro}
-            </p>
-            <ul className="how-it-works-compact-points how-it-works-compact-points--setup">
+            <h3 className="how-it-works-setup-subhead">{HOW_IT_WORKS_SETUP.includesIntro}</h3>
+            <ul className="how-it-works-setup-grid" aria-label="What personal setup can include">
               {HOW_IT_WORKS_SETUP.includes.map((item) => (
-                <li key={item}>{item}</li>
+                <li key={`${item.line1} ${item.line2}`} className="how-it-works-setup-item">
+                  <span className="how-it-works-setup-item-line">{item.line1}</span>
+                  <span className="how-it-works-setup-item-line">{item.line2}</span>
+                </li>
               ))}
             </ul>
 
-            <p className="method-edu-prose">{HOW_IT_WORKS_SETUP.selfServe}</p>
-            <p className="method-edu-prose how-it-works-setup-import">{HOW_IT_WORKS_SETUP.importNote}</p>
+            <div className="how-it-works-setup-selfserve">
+              <h3 className="how-it-works-setup-selfserve-heading">{HOW_IT_WORKS_SETUP.selfServeHeading}</h3>
+              <p className="how-it-works-setup-selfserve-body">{HOW_IT_WORKS_SETUP.selfServeBody}</p>
+            </div>
 
-            <div className="marketing-cta-row how-it-works-setup-actions">
+            <div className="how-it-works-setup-actions">
               <CanonicalLink to={HOW_IT_WORKS_SETUP.primaryHref} className="btn-primary btn-large">
                 {HOW_IT_WORKS_SETUP.primaryCta}
               </CanonicalLink>
