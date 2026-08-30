@@ -35,8 +35,11 @@ export function EarlyAccessPage() {
       <MarketingHeader />
 
       <main className="marketing-main marketing-main--home marketing-main--home-vivid">
-        <section className="home-band home-band--paper early-access-page" aria-labelledby="early-access-heading">
-          <div className="marketing-section-inner marketing-section-inner--home early-access-inner">
+        <section
+          className="home-band home-band--paper early-access-page"
+          aria-labelledby="early-access-heading"
+        >
+          <div className="early-access-shell">
             <div className="early-access-intro">
               <h1 id="early-access-heading">{EARLY_ACCESS_PAGE.heading}</h1>
               {EARLY_ACCESS_PAGE.intro.split('\n\n').map((paragraph) => (
@@ -44,28 +47,26 @@ export function EarlyAccessPage() {
               ))}
             </div>
 
-            <div className="early-access-options">
-              <article className="early-access-card early-access-card--primary">
-                <p className="early-access-badge">{EARLY_ACCESS_PAGE.recommended.label}</p>
-                <h2>{EARLY_ACCESS_PAGE.recommended.heading}</h2>
-                <p>{EARLY_ACCESS_PAGE.recommended.body}</p>
-                <CanonicalLink
-                  to={PERSONAL_SETUP_CONTACT_PATH}
-                  className="btn-primary btn-large"
-                >
-                  {EARLY_ACCESS_PAGE.recommended.cta}
-                </CanonicalLink>
-                <p className="early-access-card-support">{EARLY_ACCESS_PAGE.recommended.support}</p>
-              </article>
+            <article className="early-access-card early-access-card--primary">
+              <p className="early-access-badge">{EARLY_ACCESS_PAGE.recommended.label}</p>
+              <h2>{EARLY_ACCESS_PAGE.recommended.heading}</h2>
+              <p>{EARLY_ACCESS_PAGE.recommended.body}</p>
+              <CanonicalLink
+                to={PERSONAL_SETUP_CONTACT_PATH}
+                className="btn-primary btn-large early-access-primary-btn"
+              >
+                {EARLY_ACCESS_PAGE.recommended.cta}
+              </CanonicalLink>
+              <p className="early-access-card-support">{EARLY_ACCESS_PAGE.recommended.support}</p>
+            </article>
 
-              <article className="early-access-card early-access-card--secondary">
-                <h2>{EARLY_ACCESS_PAGE.selfServe.heading}</h2>
-                <p>{EARLY_ACCESS_PAGE.selfServe.body}</p>
-                <CanonicalLink to="/signup" className="btn-secondary btn-large">
-                  {EARLY_ACCESS_PAGE.selfServe.cta}
-                </CanonicalLink>
-              </article>
-            </div>
+            <aside className="early-access-secondary">
+              <h2>{EARLY_ACCESS_PAGE.selfServe.heading}</h2>
+              <p>{EARLY_ACCESS_PAGE.selfServe.body}</p>
+              <CanonicalLink to="/signup" className="early-access-secondary-link">
+                {EARLY_ACCESS_PAGE.selfServe.cta} →
+              </CanonicalLink>
+            </aside>
           </div>
         </section>
       </main>

@@ -14,9 +14,9 @@ export const HOME_HERO = {
 } as const
 
 export const HOME_PICTURE = {
-  heading: "Know what's coming. Know where you stand.",
+  heading: 'Your financial picture, organised.',
   lead:
-    'Cash Prophet brings together the things you need to keep on top of, giving you a clearer financial picture whenever you want it.',
+    'Cash Prophet brings together the things you need to keep on top of, so you can quickly understand where your business stands and what needs your attention.',
   tabs: [
     {
       id: 'bills',

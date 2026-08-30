@@ -1,7 +1,7 @@
 import { METHOD_WORKED_EXAMPLE } from '../../content/trueBalanceMethod'
 
 /** Visual calculation flow for the Method page — each adjustment on its own row. */
-export function MethodWorkedExample() {
+export function MethodWorkedExample({ compact = false }: { compact?: boolean } = {}) {
   const ex = METHOD_WORKED_EXAMPLE
 
   const rows = [
@@ -16,35 +16,35 @@ export function MethodWorkedExample() {
       tone: 'out' as const,
       op: '−',
       label: 'Monthly costs accrued',
-      hint: 'Payroll, rent, utilities, and planned or one-off costs you add',
+      hint: compact ? 'Costs already building' : 'Payroll, rent, utilities, and planned or one-off costs you add',
       value: ex.monthlyAccrued,
     },
     {
       tone: 'out' as const,
       op: '−',
       label: 'Monthly reserve transfer',
-      hint: 'What you move into the reserve savings account each month',
+      hint: compact ? 'Set aside for larger bills' : 'What you move into the reserve savings account each month',
       value: ex.reservesBuilding,
     },
     {
       tone: 'in' as const,
       op: '+',
       label: 'Expected receipts',
-      hint: 'Money you are realistically still owed',
+      hint: compact ? 'Still owed, realistically' : 'Money you are realistically still owed',
       value: ex.expectedReceipts,
     },
     {
       tone: 'true' as const,
       op: '=',
       label: 'Cash Prophet Balance',
-      hint: 'What you can work with after commitments',
+      hint: compact ? 'Underlying position today' : 'What you can work with after commitments',
       value: ex.trueBalance,
     },
   ]
 
   return (
     <div
-      className="method-worked-example"
+      className={`method-worked-example${compact ? ' method-worked-example--compact' : ''}`}
       role="img"
       aria-label={`Cash Prophet Balance worked example: bank ${ex.bankBalance}, minus monthly costs accrued ${ex.monthlyAccrued}, minus monthly reserve transfer ${ex.reservesBuilding}, plus expected receipts ${ex.expectedReceipts}, equals Cash Prophet Balance ${ex.trueBalance}`}
     >

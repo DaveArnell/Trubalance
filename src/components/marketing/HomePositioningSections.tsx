@@ -10,8 +10,8 @@ export function HomeFitsSection() {
       id="where-it-fits"
       aria-labelledby="where-it-fits-heading"
     >
-      <div className="marketing-section-inner marketing-section-inner--home home-band-stack home-fits">
-        <div className="home-band-head home-band-head--center">
+      <div className="marketing-section-inner marketing-section-inner--home home-fits">
+        <div className="home-band-head">
           <h2 id="where-it-fits-heading">{HOME_FITS.heading}</h2>
           {HOME_FITS.intro.split('\n\n').map((paragraph) => (
             <p key={paragraph} className="home-fits-intro">
@@ -53,8 +53,8 @@ export function HomeCheckInSection() {
       id="quick-check-in"
       aria-labelledby="quick-check-in-heading"
     >
-      <div className="marketing-section-inner marketing-section-inner--home home-band-stack home-checkin">
-        <div className="home-band-head home-band-head--center">
+      <div className="marketing-section-inner marketing-section-inner--home home-checkin">
+        <div className="home-band-head">
           <h2 id="quick-check-in-heading">{HOME_CHECKIN.heading}</h2>
           <p className="home-checkin-lead">{HOME_CHECKIN.lead}</p>
         </div>
