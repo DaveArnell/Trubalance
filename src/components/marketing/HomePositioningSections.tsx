@@ -2,6 +2,15 @@ import { HOME_CHECKIN, HOME_EARLY_ACCESS, HOME_FITS } from '../../content/homePa
 import { PERSONAL_SETUP_CONTACT_PATH } from '../../content/earlyAccessPage'
 import { CanonicalLink } from '../CanonicalLink'
 
+type EarlyAccessCtaContent = {
+  heading: string
+  body: string
+  primaryCta: string
+  primarySupport: string
+  secondaryPrompt: string
+  secondaryCta: string
+}
+
 /** Complementary roles: accounting, accountant, Cash Prophet — plus emotional payoff. */
 export function HomeFitsSection() {
   return (
@@ -79,16 +88,22 @@ export function HomeCheckInSection() {
 }
 
 /** Closing Early Access CTA — personal setup dominant. */
-export function HomeEarlyAccessCta() {
+export function HomeEarlyAccessCta({
+  content = HOME_EARLY_ACCESS,
+  headingId = 'home-early-access-heading',
+}: {
+  content?: EarlyAccessCtaContent
+  headingId?: string
+} = {}) {
   return (
     <section
       className="marketing-cta-band marketing-cta-band--pop home-cta-band"
       id="early-access"
-      aria-labelledby="home-early-access-heading"
+      aria-labelledby={headingId}
     >
       <div className="marketing-cta-band-inner home-early-cta">
-        <h2 id="home-early-access-heading">{HOME_EARLY_ACCESS.heading}</h2>
-        {HOME_EARLY_ACCESS.body.split('\n\n').map((paragraph) => (
+        <h2 id={headingId}>{content.heading}</h2>
+        {content.body.split('\n\n').map((paragraph) => (
           <p key={paragraph}>{paragraph}</p>
         ))}
         <div className="home-early-cta-actions">
@@ -96,13 +111,13 @@ export function HomeEarlyAccessCta() {
             to={PERSONAL_SETUP_CONTACT_PATH}
             className="btn-primary btn-large marketing-cta-btn-on-dark"
           >
-            {HOME_EARLY_ACCESS.primaryCta}
+            {content.primaryCta}
           </CanonicalLink>
-          <p className="home-early-cta-support">{HOME_EARLY_ACCESS.primarySupport}</p>
+          <p className="home-early-cta-support">{content.primarySupport}</p>
           <p className="home-early-cta-secondary">
-            {HOME_EARLY_ACCESS.secondaryPrompt}{' '}
+            {content.secondaryPrompt}{' '}
             <CanonicalLink to="/signup" className="home-early-cta-link">
-              {HOME_EARLY_ACCESS.secondaryCta} →
+              {content.secondaryCta} →
             </CanonicalLink>
           </p>
         </div>

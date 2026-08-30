@@ -62,11 +62,11 @@ export const PRICING_SEO = {
 } as const satisfies RouteSeo
 
 export const HOW_IT_WORKS_SEO = {
-  title: 'How Cash Prophet Balance Works | Cash Prophet',
+  title: 'How Cash Prophet Works | Cash Prophet',
   description:
-    'How Cash Prophet continuously accounts for meaningful financial commitments to calculate your Cash Prophet Balance. Accruing costs, Reserve Planner, and a calm daily rhythm.',
+    'How Cash Prophet keeps your financial picture current: regular costs that build before payday, the Reserve Planner for larger costs, and your Cash Prophet Balance.',
   path: '/how-it-works',
-  imageAlt: 'How Cash Prophet Balance works for UK business owners',
+  imageAlt: 'How Cash Prophet keeps a financial picture current for UK business owners',
 } as const satisfies RouteSeo
 
 /** /habits redirects here — keep unique copy for any lingering links/sitemap. */

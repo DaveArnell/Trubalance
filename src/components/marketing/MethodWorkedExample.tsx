@@ -22,8 +22,8 @@ export function MethodWorkedExample({ compact = false }: { compact?: boolean } =
     {
       tone: 'out' as const,
       op: '−',
-      label: 'Monthly reserve transfer',
-      hint: compact ? 'Set aside for larger bills' : 'What you move into the reserve savings account each month',
+      label: compact ? 'Monthly reserve transfer' : 'Planned reserves',
+      hint: compact ? 'Set aside for larger bills' : 'Reserve amount for larger or irregular costs',
       value: ex.reservesBuilding,
     },
     {
@@ -37,7 +37,7 @@ export function MethodWorkedExample({ compact = false }: { compact?: boolean } =
       tone: 'true' as const,
       op: '=',
       label: 'Cash Prophet Balance',
-      hint: compact ? 'Underlying position today' : 'What you can work with after commitments',
+      hint: compact ? 'Underlying position today' : 'Benchmark for the underlying position',
       value: ex.trueBalance,
     },
   ]
@@ -46,7 +46,7 @@ export function MethodWorkedExample({ compact = false }: { compact?: boolean } =
     <div
       className={`method-worked-example${compact ? ' method-worked-example--compact' : ''}`}
       role="img"
-      aria-label={`Cash Prophet Balance worked example: bank ${ex.bankBalance}, minus monthly costs accrued ${ex.monthlyAccrued}, minus monthly reserve transfer ${ex.reservesBuilding}, plus expected receipts ${ex.expectedReceipts}, equals Cash Prophet Balance ${ex.trueBalance}`}
+      aria-label={`Cash Prophet Balance worked example: bank ${ex.bankBalance}, minus monthly costs accrued ${ex.monthlyAccrued}, minus planned reserves ${ex.reservesBuilding}, plus expected receipts ${ex.expectedReceipts}, equals Cash Prophet Balance ${ex.trueBalance}`}
     >
       {rows.map((row) => (
         <div key={row.label} className={`method-worked-example-row method-worked-example-row--${row.tone}`}>

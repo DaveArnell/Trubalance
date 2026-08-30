@@ -9,14 +9,16 @@ import {
 import { MethodWorkedExample } from '../components/marketing/MethodWorkedExample'
 import { MethodReservePlannerVisual } from '../components/marketing/MethodReservePlannerVisual'
 import { MarketingAccruingDemo } from '../components/marketing/MarketingAccruingDemo'
-import { HabitsTrendVisual } from '../components/marketing/HomeMarketingVisuals'
+import { HomeEarlyAccessCta } from '../components/marketing/HomePositioningSections'
 import {
-  METHOD_FIRST_SETUP,
-  METHOD_RESERVE_PLANNER,
-  METHOD_SOFTWARE_HELPS,
-  METHOD_THREE_PRINCIPLES,
-  METHOD_TWO_HABITS,
-} from '../content/trueBalanceMethod'
+  HOW_IT_WORKS_ACCRUING,
+  HOW_IT_WORKS_BALANCE,
+  HOW_IT_WORKS_CHECKIN,
+  HOW_IT_WORKS_EARLY_ACCESS,
+  HOW_IT_WORKS_HERO,
+  HOW_IT_WORKS_RESERVE,
+  HOW_IT_WORKS_SETUP,
+} from '../content/howItWorksPage'
 import { HOW_IT_WORKS_SEO } from '../content/marketingSeo'
 import { HOW_IT_WORKS_FAQS } from '../content/marketingFaqs'
 import { usePageMeta } from '../hooks/usePageMeta'
@@ -24,7 +26,7 @@ import { MarketingFaqSection } from '../components/marketing/MarketingFaqSection
 import { MarketingJsonLd, howItWorksPageJsonLd } from '../components/marketing/MarketingJsonLd'
 
 /**
- * How it works — enough to understand the system, not a feature manual.
+ * How it works — short mechanism explanation of the Cash Prophet system.
  */
 export function HowItWorksPage() {
   usePageMeta(HOW_IT_WORKS_SEO)
@@ -41,51 +43,22 @@ export function HowItWorksPage() {
       <MarketingJsonLd data={howItWorksPageJsonLd(HOW_IT_WORKS_FAQS)} />
       <MarketingHeader />
 
-      <main className="marketing-main marketing-method-page">
-        <header className="method-edu-hero marketing-surface--hero">
-          <div className="method-edu-inner">
-            <h1>From commitments to one number you can trust</h1>
-            <p className="method-edu-hero-lead">
-              Cash Prophet isn&apos;t complicated. It follows a simple rhythm that keeps your
-              business position accurate every day.
+      <main className="marketing-main marketing-method-page how-it-works-page">
+        <header className="method-edu-hero method-edu-hero--compact marketing-surface--hero">
+          <div className="method-edu-inner method-edu-inner--narrow">
+            <h1>{HOW_IT_WORKS_HERO.heading}</h1>
+            <p className="method-edu-hero-lead">{HOW_IT_WORKS_HERO.lead}</p>
+            <p className="method-edu-hero-lead method-edu-hero-lead--secondary">
+              {HOW_IT_WORKS_HERO.support}
             </p>
           </div>
         </header>
 
-        <section
-          className="method-edu-section marketing-surface--paper"
-          aria-labelledby="principles-heading"
-          id="how-cash-prophet-works"
-        >
-          <div className="method-edu-inner">
-            <div className="method-edu-section-head">
-              <h2 id="principles-heading">How Cash Prophet works</h2>
-              <p className="method-edu-section-lead">
-                Cash Prophet does the daily calculations for you. Keep your bank balance up to date
-                and it keeps your Cash Prophet Balance current around your normal payment cycle.
-              </p>
-            </div>
-            <div className="method-edu-principles">
-              {METHOD_THREE_PRINCIPLES.map((principle, index) => (
-                <article key={principle.id} className="method-edu-principle-card" id={principle.id}>
-                  <p className="method-edu-principle-num" aria-hidden>
-                    {index + 1}
-                  </p>
-                  <h3>{principle.title}</h3>
-                  <p className="method-edu-principle-lead">{principle.lead}</p>
-                  <p className="method-edu-prose">{principle.body}</p>
-                  <ul className="method-edu-chip-list">
-                    {principle.examples.map((example) => (
-                      <li key={example}>{example}</li>
-                    ))}
-                  </ul>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <MarketingAccruingDemo variant="method" />
+        <MarketingAccruingDemo
+          variant="method"
+          heading={HOW_IT_WORKS_ACCRUING.heading}
+          lead={HOW_IT_WORKS_ACCRUING.lead}
+        />
 
         <section
           className="method-edu-section marketing-surface--mist"
@@ -94,20 +67,19 @@ export function HowItWorksPage() {
         >
           <div className="method-edu-inner">
             <div className="method-edu-section-head">
-              <h2 id="reserve-heading">{METHOD_RESERVE_PLANNER.title}</h2>
-              <p className="method-edu-section-lead">{METHOD_RESERVE_PLANNER.lead}</p>
+              <h2 id="reserve-heading">{HOW_IT_WORKS_RESERVE.heading}</h2>
+              {HOW_IT_WORKS_RESERVE.lead.map((paragraph) => (
+                <p key={paragraph} className="method-edu-section-lead">
+                  {paragraph}
+                </p>
+              ))}
             </div>
             <MethodReservePlannerVisual />
-            <ol className="method-edu-timeline method-edu-timeline--compact">
-              {METHOD_RESERVE_PLANNER.steps.map((step, index) => (
-                <li key={step}>
-                  <span className="method-edu-timeline-step" aria-hidden>
-                    {index + 1}
-                  </span>
-                  <span>{step}</span>
-                </li>
+            <ul className="how-it-works-compact-points" aria-label="How the Reserve Planner works">
+              {HOW_IT_WORKS_RESERVE.points.map((point) => (
+                <li key={point}>{point}</li>
               ))}
-            </ol>
+            </ul>
           </div>
         </section>
 
@@ -118,126 +90,91 @@ export function HowItWorksPage() {
         >
           <div className="method-edu-inner method-edu-inner--narrow">
             <div className="method-edu-section-head">
-              <h2 id="example-heading">A worked example</h2>
-              <p className="method-edu-section-lead">
-                How the bank figure becomes your Cash Prophet Balance.
-              </p>
-            </div>
-            <MethodWorkedExample />
-          </div>
-        </section>
-
-        <section
-          className="method-edu-section marketing-surface--paper"
-          aria-labelledby="first-setup-heading"
-          id="first-setup"
-        >
-          <div className="method-edu-inner method-edu-inner--narrow">
-            <div className="method-edu-section-head">
-              <h2 id="first-setup-heading">{METHOD_FIRST_SETUP.heading}</h2>
-              {METHOD_FIRST_SETUP.lead.map((paragraph) => (
+              <h2 id="example-heading">{HOW_IT_WORKS_BALANCE.heading}</h2>
+              {HOW_IT_WORKS_BALANCE.lead.map((paragraph) => (
                 <p key={paragraph} className="method-edu-section-lead">
                   {paragraph}
                 </p>
               ))}
             </div>
-            {METHOD_FIRST_SETUP.body.map((paragraph) => (
-              <p key={paragraph} className="method-edu-prose">
-                {paragraph}
-              </p>
-            ))}
-            <ol className="method-setup-timeline" aria-label="Setup path">
-              {METHOD_FIRST_SETUP.timeline.map((step) => (
-                <li key={step}>
-                  <span>{step}</span>
-                </li>
-              ))}
-            </ol>
+            <MethodWorkedExample />
+            <p className="how-it-works-after-example">{HOW_IT_WORKS_BALANCE.afterExample}</p>
           </div>
         </section>
 
         <section
-          className="method-edu-section method-edu-section--tint marketing-surface--mist"
-          aria-labelledby="habits-heading"
+          className="method-edu-section marketing-surface--paper"
+          aria-labelledby="checkin-heading"
           id="habits"
         >
-          <div className="method-edu-inner">
-            <div className="method-edu-section-head">
-              <h2 id="habits-heading">Two light habits</h2>
-              <p className="method-edu-section-lead">
-                A light check when something changes, and a short monthly reserve review.
-              </p>
+          <div className="method-edu-inner method-edu-inner--narrow home-checkin how-it-works-checkin">
+            <div className="method-edu-section-head home-band-head">
+              <h2 id="checkin-heading">{HOW_IT_WORKS_CHECKIN.heading}</h2>
+              <p className="home-checkin-lead method-edu-section-lead">{HOW_IT_WORKS_CHECKIN.lead}</p>
             </div>
-            <div className="method-edu-habits method-edu-habits--with-trend">
-              {METHOD_TWO_HABITS.map((habit) => (
-                <article key={habit.id} className="method-edu-habit-card">
-                  <p className="method-edu-habit-meta">
-                    <span>{habit.title}</span>
-                    <span className="method-edu-habit-time">{habit.time}</span>
-                  </p>
-                  <h3>{habit.lead}</h3>
-                  <p>{habit.body}</p>
-                  <ul className="method-edu-habit-tasks">
-                    {habit.tasks.map((task) => (
-                      <li key={task}>{task}</li>
-                    ))}
-                  </ul>
-                </article>
+
+            <ol className="home-checkin-steps">
+              {HOW_IT_WORKS_CHECKIN.steps.map((step, index) => (
+                <li key={step} className="home-checkin-step">
+                  {index > 0 && (
+                    <span className="home-checkin-arrow" aria-hidden>
+                      →
+                    </span>
+                  )}
+                  <span className="home-checkin-step-label">{step}</span>
+                </li>
               ))}
-              <HabitsTrendVisual />
-            </div>
+            </ol>
+
+            <p className="home-checkin-support">{HOW_IT_WORKS_CHECKIN.support}</p>
+            <p className="how-it-works-reserve-note">{HOW_IT_WORKS_CHECKIN.reserveNote}</p>
           </div>
         </section>
 
         <section
           className="method-edu-section marketing-surface--mist"
-          aria-labelledby="platform-heading"
-          id="platform"
+          aria-labelledby="first-setup-heading"
+          id="first-setup"
         >
-          <div className="method-edu-inner">
+          <div className="method-edu-inner method-edu-inner--narrow how-it-works-setup">
             <div className="method-edu-section-head">
-              <h2 id="platform-heading">Cash Prophet makes the process effortless</h2>
+              <h2 id="first-setup-heading">{HOW_IT_WORKS_SETUP.heading}</h2>
+              <p className="method-edu-section-lead">{HOW_IT_WORKS_SETUP.primaryLead}</p>
             </div>
-            <div className="method-edu-software-grid">
-              <div className="method-edu-software-card">
-                <h3>What it automates</h3>
-                <ul>
-                  {METHOD_SOFTWARE_HELPS.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-              <div className="method-edu-software-card method-edu-software-card--aside">
-                <h3>What it is not</h3>
-                <p>Not another bookkeeping package. It sits alongside the tools you already use.</p>
-                <p className="muted method-edu-disclaimer">
-                  It does not provide regulated financial, tax or accounting advice.
-                </p>
-              </div>
+
+            <p className="method-edu-prose how-it-works-setup-includes-intro">
+              {HOW_IT_WORKS_SETUP.includesIntro}
+            </p>
+            <ul className="how-it-works-compact-points how-it-works-compact-points--setup">
+              {HOW_IT_WORKS_SETUP.includes.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+
+            <p className="method-edu-prose">{HOW_IT_WORKS_SETUP.selfServe}</p>
+            <p className="method-edu-prose how-it-works-setup-import">{HOW_IT_WORKS_SETUP.importNote}</p>
+
+            <div className="marketing-cta-row how-it-works-setup-actions">
+              <CanonicalLink to={HOW_IT_WORKS_SETUP.primaryHref} className="btn-primary btn-large">
+                {HOW_IT_WORKS_SETUP.primaryCta}
+              </CanonicalLink>
+              <CanonicalLink to={HOW_IT_WORKS_SETUP.secondaryHref} className="btn-secondary btn-large">
+                {HOW_IT_WORKS_SETUP.secondaryCta}
+              </CanonicalLink>
             </div>
           </div>
         </section>
 
         <MarketingFaqSection
           heading="Common questions"
-          lead="Short answers about Cash Prophet Balance, reserves and daily effort."
+          lead="Short answers about how Cash Prophet works day to day."
           items={HOW_IT_WORKS_FAQS}
         />
 
-        <section className="method-edu-cta" aria-labelledby="how-cta-heading">
-          <div className="method-edu-inner method-edu-inner--narrow">
-            <h2 id="how-cta-heading">See it with a live business</h2>
-            <p>Open a demo, or start free and set up your own picture.</p>
-            <div className="marketing-cta-row">
-              <CanonicalLink to="/see-how-it-works" className="btn-primary btn-large">
-                See it
-              </CanonicalLink>
-              <CanonicalLink to="/signup" className="btn-secondary btn-large">
-                Get started
-              </CanonicalLink>
-            </div>
-          </div>
-        </section>
+        <HomeEarlyAccessCta
+          content={HOW_IT_WORKS_EARLY_ACCESS}
+          headingId="how-early-access-heading"
+        />
       </main>
 
       <MarketingFooter />

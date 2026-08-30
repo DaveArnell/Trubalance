@@ -35685,6 +35685,96 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   text-underline-offset: 0.16em;
 }
 
+/* How It Works — compact mechanism page */
+.how-it-works-page .method-edu-section {
+  padding-top: 2.75rem;
+  padding-bottom: 2.75rem;
+}
+
+.how-it-works-compact-points {
+  list-style: none;
+  margin: 1.35rem auto 0;
+  padding: 0;
+  max-width: 40rem;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.how-it-works-compact-points li {
+  position: relative;
+  margin: 0;
+  padding-left: 1.15rem;
+  color: var(--text-secondary, #374151);
+  font-size: 0.95rem;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.how-it-works-compact-points li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: #24da76;
+}
+
+.how-it-works-compact-points--setup {
+  margin-bottom: 1.1rem;
+}
+
+.how-it-works-after-example {
+  margin: 1.15rem auto 0;
+  max-width: 36rem;
+  text-align: center;
+  color: var(--text-secondary, #374151);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.how-it-works-checkin {
+  text-align: center;
+}
+
+.how-it-works-checkin .home-band-head,
+.how-it-works-checkin .method-edu-section-head {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.how-it-works-reserve-note {
+  margin: 0.65rem auto 0;
+  max-width: 34rem;
+  color: var(--muted, #4b5563);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.how-it-works-setup {
+  text-align: center;
+}
+
+.how-it-works-setup .method-edu-prose,
+.how-it-works-setup-includes-intro {
+  max-width: 36rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.how-it-works-setup-import {
+  margin-top: 0.85rem;
+  color: var(--muted, #4b5563);
+  font-size: 0.92rem;
+}
+
+.how-it-works-setup-actions {
+  justify-content: center;
+  margin-top: 1.35rem;
+}
+
 .early-access-page {
   padding-top: 2.75rem;
   padding-bottom: 3.25rem;

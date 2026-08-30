@@ -7,23 +7,27 @@ export type FaqItem = { q: string; a: string }
 export const HOW_IT_WORKS_FAQS: FaqItem[] = [
   {
     q: `What is the ${CASH_PROPHET_BALANCE}?`,
-    a: `The ${CASH_PROPHET_BALANCE} is Cash Prophet's calculation of your business's financial position. Unlike a bank balance, it already reflects accrued meaningful financial commitments — so you can see where your business really stands.`,
+    a: `The ${CASH_PROPHET_BALANCE} is a benchmark for the underlying financial position of the business. It combines your bank balance with regular costs already building, planned reserves and any realistic expected receipts.`,
   },
   {
-    q: 'How do monthly costs build before payday?',
-    a: 'Meaningful costs such as rent and wages grow a little every day until paid. Cash Prophet keeps that accrual in your position so payday is not a surprise.',
+    q: 'How do regular costs build before payday?',
+    a: 'Rent, wages, utilities and similar costs build through their payment cycle. Cash Prophet reflects the amount already built up in your financial picture, rather than waiting until payday.',
   },
   {
     q: 'What does the Reserve Planner do?',
-    a: 'It helps you continuously save towards predictable future costs — VAT, corporation tax, annual bills — without multiple bank accounts or manual jam-jar budgeting. Reserve Planner is valuable whatever your income pattern.',
+    a: 'It turns larger or irregular costs such as VAT, corporation tax and insurance into a manageable monthly reserve amount, so those costs become predictable and funded.',
   },
   {
     q: 'Is Cash Prophet accounting software?',
-    a: 'No. It sits alongside tools like Xero or FreeAgent. Cash Prophet is not bookkeeping and not a replacement for accountants or detailed cash flow forecasting. It complements accounting with a continuously updated financial position you can understand every day.',
+    a: 'No. It is a financial organiser that sits alongside your bookkeeping and accountant. It does not replace accounting software, bookkeeping or professional advice.',
   },
   {
-    q: 'How much daily effort does it take?',
-    a: 'A light routine: update bank balances when needed, mark payments paid, and review reserve targets monthly. Cash Prophet does the daily calculations around that rhythm.',
+    q: 'How much ongoing effort does it take?',
+    a: 'Once set up, a quick check-in is usually enough: update balances, tick off what has been paid, add anything new and see your current position. For a straightforward business it can take just a few minutes.',
+  },
+  {
+    q: 'Do I have to use it every day?',
+    a: 'No. Check in daily, every few days or weekly depending on how closely you want to follow the business. Review the Reserve Planner periodically as well.',
   },
 ]
 

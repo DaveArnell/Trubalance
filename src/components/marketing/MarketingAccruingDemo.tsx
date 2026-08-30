@@ -4,13 +4,19 @@ import { METHOD_ACCRUING_DEMO } from '../../content/trueBalanceMethod'
 type MarketingAccruingDemoProps = {
   /** Use home section spacing/classes when embedded on the landing page. */
   variant?: 'home' | 'method'
+  heading?: string
+  lead?: string
 }
 
 /**
  * Educational accruing-cycle demo for marketing pages.
  * Uses the building-only loop (no Due column). Onboarding teaches the Due handoff separately.
  */
-export function MarketingAccruingDemo({ variant = 'home' }: MarketingAccruingDemoProps) {
+export function MarketingAccruingDemo({
+  variant = 'home',
+  heading = METHOD_ACCRUING_DEMO.heading,
+  lead = METHOD_ACCRUING_DEMO.lead,
+}: MarketingAccruingDemoProps) {
   const sectionClass =
     variant === 'home'
       ? 'marketing-accruing-demo marketing-accruing-demo--home'
@@ -30,7 +36,7 @@ export function MarketingAccruingDemo({ variant = 'home' }: MarketingAccruingDem
         }
       >
         <div className={variant === 'home' ? 'marketing-section-head' : 'method-edu-section-head'}>
-          <h2 id="accruing-demo-heading">{METHOD_ACCRUING_DEMO.heading}</h2>
+          <h2 id="accruing-demo-heading">{heading}</h2>
           <p
             className={
               variant === 'home'
@@ -38,7 +44,7 @@ export function MarketingAccruingDemo({ variant = 'home' }: MarketingAccruingDem
                 : 'method-edu-section-lead'
             }
           >
-            {METHOD_ACCRUING_DEMO.lead}
+            {lead}
           </p>
         </div>
         <div className="marketing-accruing-demo-stage">
