@@ -1,6 +1,6 @@
 import { APP_PAGES, type PageId } from '../navigation'
 
-const STORAGE_KEY = 'trubalance-nav-order-v1'
+const STORAGE_KEY = 'trubalance-nav-order-v2'
 
 const DEFAULT_ORDER: PageId[] = APP_PAGES.map((page) => page.id)
 

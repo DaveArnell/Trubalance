@@ -11,7 +11,15 @@ const bizId = 'salon-biz'
 export const salonDefaultViewScope = { type: 'business' as const, id: bizId }
 
 const SALON_SNAPSHOT_SCOPES = [
-  { id: bizId, type: 'business' as const, name: 'Grove Hair Studio', baseTrue: 16800, growthPerMonth: 145, annualWobble: 950 },
+  {
+    id: bizId,
+    type: 'business' as const,
+    name: 'Grove Hair Studio',
+    baseTrue: 16800,
+    growthPerMonth: 145,
+    annualWobble: 950,
+    trendShape: 'salon-autumn' as const,
+  },
 ]
 
 /** Single-site salon — steady appointment income, simple cost picture. */

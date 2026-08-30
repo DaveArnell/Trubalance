@@ -114,7 +114,7 @@ export function buildDemoProductTour(
     },
     {
       id: 'demo-reserve',
-      target: '[data-tour="reserve-planner-sheet"]',
+      target: '[data-tour="reserve-planner-body"]',
       title: 'Prepare for the bigger costs ahead',
       body: `The Reserve Planner takes larger or irregular costs such as ${reserveList} and turns them into an amount the business can prepare for gradually.\n\nEach month, Cash Prophet shows what should be moved into or out of the reserve so those costs are already planned for.`,
       placement: 'top',

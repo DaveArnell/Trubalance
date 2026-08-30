@@ -123,7 +123,7 @@ export function DemoPage() {
             key={activeId}
             workspaceId={null}
             externalState={externalState}
-            externalStateVersion={`${activeId}:${meta.historyMonths}:v7-demo-fixes`}
+            externalStateVersion={`${activeId}:${meta.historyMonths}:v8-nav-trends`}
             defaultViewScope={meta.defaultViewScope}
             readOnly={!canEditDemo}
             skipLocalPersist

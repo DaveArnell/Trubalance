@@ -871,7 +871,10 @@ export function ReservePlannerPanel({
       </div>
 
       <div className="card-scroll-body">
-      <div className="reserve-planner-block reserve-planner-block--solo">
+      <div
+        className="reserve-planner-block reserve-planner-block--solo"
+        data-tour="reserve-planner-body"
+      >
             <div className="reserve-planner-top">
               <div className="reserve-planner-top-metrics" data-tour="reserve-planner-buffer">
                 <div

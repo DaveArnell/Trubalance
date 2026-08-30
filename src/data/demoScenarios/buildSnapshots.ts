@@ -3,6 +3,15 @@ import { getAccountsForScope } from '../../utils/calculations'
 import type { ViewScope } from '../../types'
 import { getDemoFrozenDate } from './demoFreeze'
 
+/**
+ * Distinct demo Trends shapes — same generator, different seasonal character
+ * so the three SEAT demos do not look like scaled copies of one line.
+ */
+export type DemoTrendShape =
+  | 'leisure-summer' // Harbour: summer booking peak, quieter winter
+  | 'cafe-steady' // Cornerstone: steadier trade, mild winter dip, spring lift
+  | 'salon-autumn' // Grove: quieter spring, stronger late-year appointment season
+
 export interface SnapshotScope {
   id: string
   type: BalanceSnapshot['scopeType']
@@ -16,6 +25,8 @@ export interface SnapshotScope {
    * Keep small vs baseTrue so the Trends chart reads as calm and reliable.
    */
   annualWobble?: number
+  /** Seasonal character — defaults to a generic sine if omitted. */
+  trendShape?: DemoTrendShape
 }
 
 function dateKey(d: Date): string {
@@ -65,6 +76,60 @@ function snap(
   }
 }
 
+/** Year fraction within the history window (0 → months). */
+function yearFrac(progressMonths: number): number {
+  return progressMonths / 12
+}
+
+function seasonalAndShortWave(
+  progressMonths: number,
+  wobble: number,
+  shape: DemoTrendShape | undefined,
+): number {
+  if (wobble === 0) return 0
+  const t = yearFrac(progressMonths)
+  const monthOfYear = ((progressMonths % 12) + 12) % 12
+
+  if (shape === 'leisure-summer') {
+    // Stronger mid-year peak (school holidays / bookings), softer winter trough.
+    const seasonal =
+      wobble *
+      (0.78 * Math.sin(t * Math.PI * 2 - Math.PI / 2) +
+        0.28 * Math.sin(t * Math.PI * 4 + 0.55) +
+        0.22 * Math.max(0, Math.sin(((monthOfYear - 5) / 12) * Math.PI * 2)))
+    const shortWave = wobble * 0.1 * Math.sin(progressMonths * Math.PI * 0.95 + 0.2)
+    return seasonal + shortWave
+  }
+
+  if (shape === 'cafe-steady') {
+    // Flatter overall; noticeable winter dip, spring recovery, mild autumn plateau.
+    const seasonal =
+      wobble *
+      (0.48 * Math.sin(t * Math.PI * 2 + 0.95) +
+        0.38 * Math.sin(t * Math.PI * 2 + Math.PI * 0.15) +
+        0.18 * Math.sin(t * Math.PI * 6 + 1.1) -
+        (monthOfYear >= 11 || monthOfYear <= 1 ? 0.2 : 0))
+    const shortWave = wobble * 0.14 * Math.sin(progressMonths * Math.PI * 1.35 + 1.4)
+    return seasonal + shortWave
+  }
+
+  if (shape === 'salon-autumn') {
+    // Quieter early year; builds into late summer / autumn appointment season.
+    const seasonal =
+      wobble *
+      (0.62 * Math.sin(t * Math.PI * 2 + 1.35) +
+        0.32 * Math.sin(t * Math.PI * 2 + 2.4) +
+        0.25 * Math.max(0, Math.sin(((monthOfYear - 8) / 12) * Math.PI * 2)))
+    const shortWave = wobble * 0.11 * Math.sin(progressMonths * Math.PI * 1.05 + 2.1)
+    return seasonal + shortWave
+  }
+
+  // Generic calm sine (fallback)
+  const seasonal = wobble * Math.sin(t * Math.PI * 2 - Math.PI / 2)
+  const shortWave = wobble * 0.12 * Math.sin(progressMonths * Math.PI * 1.15 + 0.35)
+  return seasonal + shortWave
+}
+
 function trueBalanceForScope(
   scope: SnapshotScope,
   months: number,
@@ -72,16 +137,8 @@ function trueBalanceForScope(
 ): number {
   const progressMonths = months - monthsAgo
   const trend = scope.baseTrue + scope.growthPerMonth * progressMonths
-  // Soft annual cycle — visible wave, still calm (no weekly crashes).
   const wobble = scope.annualWobble ?? 0
-  const seasonal =
-    wobble === 0 ? 0 : wobble * Math.sin((progressMonths / 12) * Math.PI * 2 - Math.PI / 2)
-  // Gentle short-period movement so 30/90-day ranges still show direction without jagged noise.
-  const shortWave =
-    wobble === 0
-      ? 0
-      : wobble * 0.12 * Math.sin(progressMonths * Math.PI * 1.15 + 0.35)
-  return Math.round(trend + seasonal + shortWave)
+  return Math.round(trend + seasonalAndShortWave(progressMonths, wobble, scope.trendShape))
 }
 
 function accountChangesForCash(
