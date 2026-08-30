@@ -7,6 +7,7 @@ import { GoogleAnalyticsTracker } from './components/GoogleAnalyticsTracker'
 import { WorkspaceProvider } from './contexts/WorkspaceContext'
 import { TrailingSlashGuard } from './components/TrailingSlashGuard'
 import { LandingPage } from './pages/LandingPage'
+import { EarlyAccessPage } from './pages/EarlyAccessPage'
 import { PricingPage } from './pages/PricingPage'
 import { ForgotPasswordPage, LoginPage, ResetPasswordPage, SignupPage } from './pages/AuthPages'
 import { PrivacyPage } from './pages/legal/PrivacyPage'
@@ -37,6 +38,7 @@ export function AppRouter() {
         <WorkspaceProvider>
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/early-access" element={<EarlyAccessPage />} />
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />

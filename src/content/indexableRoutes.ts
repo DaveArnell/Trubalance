@@ -11,6 +11,7 @@ export type IndexableRoute = {
 
 export const INDEXABLE_STATIC_ROUTES: readonly IndexableRoute[] = [
   { path: '/', priority: '1.0', changefreq: 'weekly' },
+  { path: '/early-access', priority: '0.95', changefreq: 'weekly' },
   { path: '/pricing', priority: '0.9', changefreq: 'monthly' },
   { path: '/how-it-works', priority: '0.9', changefreq: 'monthly' },
   { path: '/who-its-for', priority: '0.8', changefreq: 'monthly' },

@@ -1,15 +1,17 @@
-/** Signup / get-started messaging — trial first, then paid when it sticks. */
+/** Signup / get-started messaging — self-serve path with Early Access help. */
+
 export const SIGNUP_ASIDE = {
   eyebrow: 'Cash Prophet',
-  heading: 'Start free. Decide later.',
-  lead:
-    'Create your account and we will walk you through a short onboarding. A few real numbers from your business is enough to get Cash Prophet set up. You get 30 days free — only start paying once it has become part of how you run things.',
+  heading: 'Set up Cash Prophet yourself',
+  lead: "Create your account and we'll guide you through getting your financial picture organised.",
   points: [
-    '30 days free — no payment details to start',
-    'Guided onboarding on first login',
-    'A few figures from your business to get going',
-    'Then a Cash Prophet Balance you can actually decide from',
+    '30 days free',
+    'No card required',
+    "Keep track of what's coming up and what to put aside",
+    'See where the business stands and where it is heading',
   ],
+  helpLine: 'Want some help? Personal setup is free during Early Access.',
+  helpCta: 'Get personally set up',
 } as const
 
 export const SIGNUP_FORM = {

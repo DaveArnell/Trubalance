@@ -121,18 +121,18 @@ export function MarketingHeader() {
                     Log in
                   </CanonicalLink>
                   <CanonicalLink
-                    to="/signup"
+                    to="/early-access"
                     className="btn-primary marketing-nav-btn"
                     onClick={() => setMenuOpen(false)}
                   >
-                    Get started
+                    Join Early Access
                   </CanonicalLink>
                   <CanonicalLink
                     to="/try-it"
                     className="btn-secondary marketing-nav-btn"
                     onClick={() => setMenuOpen(false)}
                   >
-                    Free cash check
+                    Free Snapshot
                   </CanonicalLink>
                 </>
               )}
@@ -158,8 +158,8 @@ export function MarketingHeader() {
               <CanonicalLink to="/login" className="btn-ghost marketing-nav-btn">
                 Log in
               </CanonicalLink>
-              <CanonicalLink to="/signup" className="btn-primary marketing-nav-btn">
-                Get started
+              <CanonicalLink to="/early-access" className="btn-primary marketing-nav-btn">
+                Join Early Access
               </CanonicalLink>
             </>
           )}
@@ -203,7 +203,8 @@ export function MarketingFooter() {
             <CanonicalLink to="/try-it">Try It</CanonicalLink>
             <CanonicalLink to="/see-how-it-works">See it</CanonicalLink>
             <CanonicalLink to="/pricing">Pricing</CanonicalLink>
-            <CanonicalLink to="/signup">Start free trial</CanonicalLink>
+            <CanonicalLink to="/early-access">Join Early Access</CanonicalLink>
+            <CanonicalLink to="/signup">Set up my account</CanonicalLink>
             <CanonicalLink to="/login">Log in</CanonicalLink>
             {!isSupabaseConfigured && <CanonicalLink to="/app">Try locally</CanonicalLink>}
           </div>

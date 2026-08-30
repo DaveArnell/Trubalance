@@ -8,27 +8,21 @@ import {
 } from '../components/marketing/MarketingLayout'
 import { HomeHeroCompare } from '../components/marketing/HomeHeroCompare'
 import { CashProphetLogo } from '../components/marketing/CashProphetLogo'
+import { HomeFinancialPicture } from '../components/marketing/HomeFinancialPicture'
 import {
-  HomeAvailablePanel,
-  HomeCompareStrip,
-  HomeOutcomeBeats,
-} from '../components/marketing/HomeMarketingVisuals'
+  HomeCheckInSection,
+  HomeEarlyAccessCta,
+  HomeFitsSection,
+} from '../components/marketing/HomePositioningSections'
 import { CompanyLegalNotice } from '../components/marketing/CompanyLegalNotice'
-import {
-  HOME_CTA,
-  HOME_BANK_TO_PROPHET,
-  HOME_HERO,
-  HOME_ONBOARDING,
-  HOME_OUTCOME,
-  HOME_WHY_IT_WORKS,
-} from '../content/homePage'
+import { HOME_HERO } from '../content/homePage'
 import { isSupabaseConfigured } from '../lib/supabase'
 import { HOME_SEO } from '../content/marketingSeo'
 import { usePageMeta } from '../hooks/usePageMeta'
 import { homePageJsonLd, MarketingJsonLd } from '../components/marketing/MarketingJsonLd'
 
 /**
- * Homepage — Brand & Product Foundation; Cash Prophet Balance as the trusted number.
+ * Homepage — Early Access financial organiser for hospitality & leisure.
  */
 export function LandingPage() {
   usePageMeta(HOME_SEO)
@@ -54,6 +48,7 @@ export function LandingPage() {
                   <CashProphetLogo variant="hero" onDark />
                 </div>
                 <div className="home-hero-split-copy-body">
+                  <p className="home-hero-eyebrow">{HOME_HERO.eyebrow}</p>
                   <h1>
                     {HOME_HERO.headlineStart}{' '}
                     <span className="marketing-hero-highlight marketing-hero-highlight--line">
@@ -62,27 +57,23 @@ export function LandingPage() {
                   </h1>
                   <p className="marketing-lead">{HOME_HERO.lead}</p>
                   <div className="home-hero-compare-actions">
-                    <div className="home-hero-compare-cta-pair">
+                    <div className="home-hero-early-primary">
                       <CanonicalLink
-                        to="/signup"
+                        to="/early-access"
                         className="btn-primary btn-large home-hero-cta-btn marketing-cta-primary marketing-cta-primary--rank"
                       >
                         {HOME_HERO.primaryCta}
                       </CanonicalLink>
-                      <CanonicalLink
-                        to="/try-it"
-                        className="btn-secondary btn-large home-hero-cta-btn marketing-cta-secondary--rank"
-                      >
-                        {HOME_HERO.tryItCta}
-                      </CanonicalLink>
+                      <p className="home-hero-cta-support">{HOME_HERO.primaryCtaSupport}</p>
                     </div>
-                    <p className="home-hero-early-access-note">
-                      Early access · {HOME_HERO.earlyAccessLine}
+                    <p className="home-hero-snapshot-link">
+                      <CanonicalLink to="/try-it">{HOME_HERO.tryItCta} →</CanonicalLink>
                     </p>
                     {!isSupabaseConfigured && (
                       <p className="marketing-config-hint">
                         Cloud signup needs Supabase in <code>.env.local</code>, or{' '}
-                        <CanonicalLink to="/app">try the app locally</CanonicalLink> without an account.
+                        <CanonicalLink to="/app">try the app locally</CanonicalLink> without an
+                        account.
                       </p>
                     )}
                   </div>
@@ -93,87 +84,14 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* Bank balance problem + Cash Prophet solution — one band */}
-        <section
-          className="home-band home-band--paper"
-          id="why-bank-balance"
-          aria-labelledby="bank-to-prophet-heading"
-        >
-          <div className="marketing-section-inner marketing-section-inner--home home-split">
-            <div className="home-split-copy">
-              <h2 id="bank-to-prophet-heading">{HOME_BANK_TO_PROPHET.heading}</h2>
-              <p className="home-split-lead">{HOME_BANK_TO_PROPHET.lead}</p>
-              {HOME_BANK_TO_PROPHET.body.map((paragraph) => (
-                <p key={paragraph} className="home-split-prose">
-                  {paragraph}
-                </p>
-              ))}
-            </div>
-            <HomeAvailablePanel />
-          </div>
-        </section>
-
-        <section
-          className="home-band home-band--paper"
-          id="what-changes"
-          aria-labelledby="outcome-heading"
-        >
-          <div className="marketing-section-inner marketing-section-inner--home home-band-stack">
-            <div className="home-band-head home-band-head--center">
-              <h2 id="outcome-heading">{HOME_OUTCOME.heading}</h2>
-            </div>
-            <HomeOutcomeBeats beats={HOME_OUTCOME.beats} closing={HOME_OUTCOME.closing} />
-          </div>
-        </section>
-
-        <section
-          className="home-band home-band--mist"
-          id="why-it-works"
-          aria-labelledby="why-heading"
-        >
-          <div className="marketing-section-inner marketing-section-inner--home home-band-stack">
-            <div className="home-band-head home-band-head--center">
-              <h2 id="why-heading">{HOME_WHY_IT_WORKS.heading}</h2>
-            </div>
-            <HomeCompareStrip />
-            <p className="home-split-prose home-why-close">{HOME_WHY_IT_WORKS.close}</p>
-          </div>
-        </section>
+        <HomeFinancialPicture />
+        <HomeFitsSection />
+        <HomeCheckInSection />
+        <HomeEarlyAccessCta />
 
         <section className="marketing-company-band home-band--legal" aria-label="Company information">
           <div className="marketing-section-inner marketing-section-inner--home">
             <CompanyLegalNotice variant="inline" />
-          </div>
-        </section>
-
-        <section className="home-band home-band--paper" aria-labelledby="onboarding-heading">
-          <div className="marketing-section-inner marketing-section-inner--home home-onboarding-band">
-            <h2 id="onboarding-heading">{HOME_ONBOARDING.heading}</h2>
-            <p className="home-split-lead">{HOME_ONBOARDING.body}</p>
-            <CanonicalLink to="/contact?topic=onboarding" className="btn-secondary">
-              {HOME_ONBOARDING.cta}
-            </CanonicalLink>
-          </div>
-        </section>
-
-        <section className="marketing-cta-band marketing-cta-band--pop home-cta-band">
-          <div className="marketing-cta-band-inner">
-            <h2>{HOME_CTA.heading}</h2>
-            <p>{HOME_CTA.body}</p>
-            <div className="marketing-cta-row marketing-cta-row--center">
-              <CanonicalLink to="/signup" className="btn-primary btn-large marketing-cta-btn-on-dark">
-                {HOME_HERO.primaryCta}
-              </CanonicalLink>
-              <CanonicalLink to="/try-it" className="btn-ghost btn-large marketing-cta-ghost">
-                {HOME_HERO.tryItCta}
-              </CanonicalLink>
-              <CanonicalLink
-                to="/contact?topic=onboarding"
-                className="btn-ghost btn-large marketing-cta-ghost"
-              >
-                Free onboarding
-              </CanonicalLink>
-            </div>
           </div>
         </section>
       </main>

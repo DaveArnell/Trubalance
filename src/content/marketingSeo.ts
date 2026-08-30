@@ -38,10 +38,18 @@ export type RouteSeo = {
 
 /** Primary keyword near the front; brand at the end when not already in the title. */
 export const HOME_SEO = {
-  title: 'Cash Prophet | A daily financial position you can trust',
+  title: 'Cash Prophet | Financial organiser for hospitality & leisure',
   description:
-    'Cash Prophet is financial management software that helps business owners understand where their business really stands by continuously accounting for meaningful financial commitments.',
+    'Cash Prophet is a financial organiser for independent hospitality and leisure businesses. Keep track of what is coming up, what to put aside, where you stand and where you are heading.',
   path: '/',
+  imageAlt: SITE_OG_IMAGE_ALT,
+} as const satisfies RouteSeo
+
+export const EARLY_ACCESS_SEO = {
+  title: 'Join Early Access | Cash Prophet',
+  description:
+    'Join Cash Prophet Early Access. Get personally set up with your financial picture, or create an account in your own time.',
+  path: '/early-access',
   imageAlt: SITE_OG_IMAGE_ALT,
 } as const satisfies RouteSeo
 
@@ -152,11 +160,11 @@ export const LOGIN_SEO = {
 } as const satisfies RouteSeo
 
 export const SIGNUP_SEO = {
-  title: 'Start Free Trial | Cash Prophet',
+  title: 'Set up Cash Prophet yourself | Cash Prophet',
   description:
-    'Create your Cash Prophet account. Three months free, guided onboarding, and a Cash Prophet Balance that shows where your business really stands.',
+    'Create your Cash Prophet account and get your financial picture organised. 30 days free, no card required. Personal setup is free during Early Access.',
   path: '/signup',
-  imageAlt: 'Start a free Cash Prophet trial for your UK business',
+  imageAlt: 'Set up a Cash Prophet account for your UK business',
 } as const satisfies RouteSeo
 
 export const FORGOT_PASSWORD_SEO = {
@@ -196,6 +204,7 @@ export const APP_SEO = {
 /** Public indexable marketing routes used by the build-time HTML shell generator. */
 export const PUBLIC_ROUTE_SEO: readonly RouteSeo[] = [
   HOME_SEO,
+  EARLY_ACCESS_SEO,
   PRICING_SEO,
   HOW_IT_WORKS_SEO,
   WHO_FOR_SEO,

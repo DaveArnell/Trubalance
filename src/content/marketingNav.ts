@@ -11,8 +11,9 @@ export const PRIMARY_NAV = [
 /** Extra destinations included in SiteNavigationElement (footer / journey links). */
 export const SECONDARY_NAV = [
   { to: '/blog', label: 'Blog' },
-  { to: '/signup', label: 'Get started' },
-  { to: '/try-it', label: 'Free cash check' },
+  { to: '/early-access', label: 'Join Early Access' },
+  { to: '/signup', label: 'Set up my account' },
+  { to: '/try-it', label: 'Free Snapshot' },
   { to: '/partners', label: 'Partner with Cash Prophet' },
   { to: '/see-how-it-works', label: 'Live demos' },
   { to: '/contact', label: 'Enquire / onboarding' },

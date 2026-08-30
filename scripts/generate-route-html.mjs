@@ -39,6 +39,7 @@ function extractSeoBlock(name) {
 
 const staticRoutes = [
   'HOME_SEO',
+  'EARLY_ACCESS_SEO',
   'PRICING_SEO',
   'HOW_IT_WORKS_SEO',
   'WHO_FOR_SEO',

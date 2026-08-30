@@ -34,6 +34,12 @@ function AuthAside({ mode }: { mode: 'login' | 'signup' }) {
             <li key={point}>{point}</li>
           ))}
         </ul>
+        {mode === 'signup' && 'helpLine' in SIGNUP_ASIDE && (
+          <p className="auth-aside-help">
+            {SIGNUP_ASIDE.helpLine}{' '}
+            <CanonicalLink to="/early-access">{SIGNUP_ASIDE.helpCta}</CanonicalLink>
+          </p>
+        )}
       </div>
     </aside>
   )
@@ -232,7 +238,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       <p className="auth-switch">
         {mode === 'login' ? (
           <>
-            No account? <CanonicalLink to="/signup">Start free trial</CanonicalLink>
+            No account? <CanonicalLink to="/early-access">Join Early Access</CanonicalLink>
           </>
         ) : (
           <>
