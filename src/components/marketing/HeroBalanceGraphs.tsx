@@ -287,3 +287,49 @@ export function HeroBalanceGraphs() {
     </div>
   )
 }
+
+/**
+ * Line-only morph for How It Works — red spiky bank balance eases into green Cash Prophet Balance.
+ */
+export function BalanceLineMorphVisual() {
+  const towardEven = useMorphCycle(2400, 2800)
+  const cardTone = towardEven > 0.5 ? 'true' : 'bank'
+
+  return (
+    <div
+      className="hero-graphs hero-graphs--line-morph"
+      aria-label="Bank balance spikes with payment timing, then morphs into a clearer Cash Prophet Balance"
+    >
+      <MorphText
+        className={`hero-graph-mode hero-graph-mode--shared hero-graph-mode--${cardTone}`}
+        before="Without Cash Prophet"
+        after="With Cash Prophet"
+        t={towardEven}
+        beforeClassName="hero-graph-mode-label hero-graph-mode-label--without"
+        afterClassName="hero-graph-mode-label hero-graph-mode-label--with"
+      />
+
+      <figure className={`hero-graph-card hero-graph-card--${cardTone}`}>
+        <div className="hero-graph-header">
+          <MorphText
+            className="hero-graph-tag-stack"
+            before="Bank balance"
+            after="Cash Prophet Balance"
+            t={towardEven}
+            beforeClassName="hero-graph-tag hero-graph-tag--bank"
+            afterClassName="hero-graph-tag hero-graph-tag--true"
+          />
+          <MorphText
+            className="hero-graph-title-stack"
+            before="Rises and falls with the timing of bills and payments"
+            after="A clearer view of the underlying position over time"
+            t={towardEven}
+            beforeClassName="hero-graph-title"
+            afterClassName="hero-graph-title"
+          />
+        </div>
+        <BalanceLine towardEven={towardEven} />
+      </figure>
+    </div>
+  )
+}

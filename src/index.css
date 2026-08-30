@@ -35736,11 +35736,24 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .how-it-works-over-time-visual {
   margin: 0.35rem auto 0;
-  max-width: 38rem;
+  max-width: 34rem;
 }
 
-.how-it-works-over-time-visual .balance-compare-trend-caption {
-  text-align: center;
+.how-it-works-over-time-visual .hero-graphs--line-morph {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  align-items: stretch;
+}
+
+.how-it-works-over-time-visual .hero-graph-mode--shared {
+  align-self: center;
+  width: auto;
+  min-width: min(100%, 16rem);
+}
+
+.how-it-works-over-time-visual .hero-graph-card {
+  margin: 0;
 }
 
 .how-it-works-checkin {

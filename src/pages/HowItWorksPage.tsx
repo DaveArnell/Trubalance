@@ -9,7 +9,7 @@ import {
 import { MethodWorkedExample } from '../components/marketing/MethodWorkedExample'
 import { MethodReservePlannerVisual } from '../components/marketing/MethodReservePlannerVisual'
 import { MarketingAccruingDemo } from '../components/marketing/MarketingAccruingDemo'
-import { BalanceCompareTrendVisual } from '../components/marketing/BalanceCompareTrendVisual'
+import { BalanceLineMorphVisual } from '../components/marketing/HeroBalanceGraphs'
 import { HomeEarlyAccessCta } from '../components/marketing/HomePositioningSections'
 import {
   HOW_IT_WORKS_ACCRUING,
@@ -119,7 +119,7 @@ export function HowItWorksPage() {
               ))}
             </div>
             <div className="how-it-works-over-time-visual">
-              <BalanceCompareTrendVisual />
+              <BalanceLineMorphVisual />
             </div>
             <p className="how-it-works-after-example">{HOW_IT_WORKS_OVER_TIME.afterVisual}</p>
           </div>
