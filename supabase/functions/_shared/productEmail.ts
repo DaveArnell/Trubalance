@@ -127,7 +127,7 @@ export function buildProductEmailHtml(
       <p style="margin:28px 0 0;font-size:13px;color:#3a465c;line-height:1.5">
         Or open <a href="${loginUrl}" style="color:#1bb863">${loginUrl}</a>
       </p>
-      <p style="margin:24px 0 0;font-size:12px;color:#6b778c">A daily financial position you can trust.</p>
+      <p style="margin:24px 0 0;font-size:12px;color:#6b778c">A financial organiser for independent hospitality and leisure businesses.</p>
     </div>
   </div>
 </body>

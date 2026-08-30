@@ -44,7 +44,7 @@ Everything else exists to support this belief.
 
 ## Slogan
 
-**A daily financial position you can trust.**
+**A financial organiser for independent hospitality and leisure businesses.**
 
 This is the customer-facing slogan under the Cash Prophet name (homepage, footer, and similar brand surfaces).
 

@@ -4,6 +4,7 @@ import { CanonicalLink } from '../CanonicalLink'
 import { useAuth } from '../../contexts/AuthContext'
 import { isSupabaseConfigured } from '../../lib/supabase'
 import { COMPANY_INFO } from '../../content/companyInfo'
+import { BRAND_SLOGAN } from '../../content/brandFoundation'
 import { REGULATORY_POSITION } from '../../content/regulatoryNotice'
 import { CompanyLegalNotice } from './CompanyLegalNotice'
 import { CashProphetLogo } from './CashProphetLogo'
@@ -11,8 +12,6 @@ import { useMarketingReveal } from '../../hooks/useMarketingReveal'
 import { PRIMARY_NAV } from '../../content/marketingNav'
 import { openCookiePreferences } from '../../utils/cookieConsent'
 
-const FOOTER_TAGLINE =
-  'A financial organiser for independent hospitality and leisure businesses.'
 const FOOTER_TRIAL_LINE =
   'Early Access · Personal setup available · 30 days free · No card required'
 
@@ -180,7 +179,7 @@ export function MarketingFooter() {
           <CanonicalLink to="/" className="marketing-logo marketing-logo--footer" aria-label="Cash Prophet home">
             <CashProphetLogo variant="footer" />
           </CanonicalLink>
-          <p className="marketing-footer-tagline">{FOOTER_TAGLINE}</p>
+          <p className="marketing-footer-tagline">{BRAND_SLOGAN}</p>
           <CompanyLegalNotice variant="footer" />
         </div>
 

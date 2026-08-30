@@ -9,7 +9,8 @@ export const CASH_PROPHET_BALANCE = 'Cash Prophet Balance'
 export const CASH_PROPHET_BALANCE_SHORT = 'Balance'
 
 /** Customer-facing slogan (under the brand name). */
-export const BRAND_SLOGAN = 'A daily financial position you can trust.'
+export const BRAND_SLOGAN =
+  'A financial organiser for independent hospitality and leisure businesses.'
 
 /** One-sentence product definition. */
 export const PRODUCT_DEFINITION =
