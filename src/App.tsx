@@ -23,6 +23,7 @@ import {
   type MobileHomeSection,
 } from './components/mobile/MobileHomeSectionTabs'
 import { GuidedTour } from './components/GuidedTour'
+import { DemoProductTourStarter } from './components/DemoProductTourStarter'
 import { SetupTourBanner, TourMenuButton } from './components/TourMenu'
 import { GuidedSetupWizard } from './components/onboarding/GuidedSetupWizard'
 import { TourProvider, useTour, wasTourDismissedLocally } from './contexts/TourContext'
@@ -854,6 +855,12 @@ function AppShellInner({
           pending={pendingSetupTour}
           onStarted={() => setPendingSetupTour(false)}
         />
+        {isDemoSession && (
+          <DemoProductTourStarter
+            bankBalance={metrics.cash}
+            trueBalance={metrics.trueBalance}
+          />
+        )}
         <GuidedTour />
         {setupWizardOpen && !isDemoSession && (
           <GuidedSetupWizard
@@ -1055,7 +1062,14 @@ function AppShellInner({
                     </div>
                     <div className="top-bar-actions">
                       {!isDemoSession && <FounderAccessChip />}
-                      <TourMenuButton onSetupGuide={() => setSetupWizardOpen(true)} />
+                      <TourMenuButton
+                        onSetupGuide={() => setSetupWizardOpen(true)}
+                        demoBalances={
+                          isDemoSession
+                            ? { bankBalance: metrics.cash, trueBalance: metrics.trueBalance }
+                            : undefined
+                        }
+                      />
                       {isDemoSession ? (
                         <>
                           <Link to="/" className="btn-ghost btn-tiny top-bar-home-link">
@@ -1071,8 +1085,8 @@ function AppShellInner({
                         </Link>
                       )}
                       {isDemoSession && !user && (
-                        <Link to="/signup" className="btn-primary btn-tiny">
-                          Start free trial
+                        <Link to="/early-access" className="btn-primary btn-tiny">
+                          Join Early Access
                         </Link>
                       )}
                       <UndoRedoButtons

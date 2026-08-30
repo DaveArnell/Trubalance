@@ -11,6 +11,14 @@ export interface TourStep {
   /** Optional — reserved for when tour clips return; not shown in UI for now */
   videoUrl?: string
   videoLabel?: string
+  /** Override primary button label (defaults: Next / Done) */
+  ctaPrimary?: string
+  /** Optional secondary button label */
+  ctaSecondary?: string
+  /** Where secondary goes: skip tour, or navigate to a route */
+  ctaSecondaryAction?: 'skip' | 'link'
+  /** Route for secondary link action */
+  ctaSecondaryTo?: string
 }
 
 export interface PageTour {
@@ -18,12 +26,15 @@ export interface PageTour {
   title: string
   description: string
   steps: TourStep[]
+  /** Distinguishes demo product walkthrough from normal user tours */
+  kind?: 'page' | 'setup' | 'demo'
 }
 
 export const SETUP_TOUR: PageTour = {
   id: 'setup',
   title: 'Set up your dashboard',
   description: 'Add your real numbers where you’ll use them every day.',
+  kind: 'setup',
   steps: [
     {
       id: 'setup-balances',

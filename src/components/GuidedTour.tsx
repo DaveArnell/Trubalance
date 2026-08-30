@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
+import { Link } from 'react-router-dom'
 import { MOBILE_LAYOUT_MQ } from '../hooks/useMobileNav'
 import { useTour } from '../contexts/TourContext'
 
@@ -31,7 +32,7 @@ function TourOverlay({ rect }: { rect: SpotlightRect | null }) {
   return (
     <>
       {/* Four panels around the hole so clicks inside the spotlight reach the app.
-          Outside clicks do not dismiss — only Skip tour / Done. */}
+          Outside clicks do not dismiss - only Skip tour / Done. */}
       {top > 0 ? (
         <div className="guided-tour-shade" style={{ top: 0, left: 0, width: '100%', height: top }} aria-hidden />
       ) : null}
@@ -86,6 +87,11 @@ export function GuidedTour() {
   const measureTarget = () => {
     clearTargetHighlight()
     if (!step) {
+      setRect(null)
+      setMissingTarget(false)
+      return
+    }
+    if (step.target === 'none') {
       setRect(null)
       setMissingTarget(false)
       return
@@ -256,14 +262,26 @@ export function GuidedTour() {
         </div>
         {missingTarget && (
           <p className="guided-tour-missing muted">
-            This section is not visible right now — try expanding a panel or switching page, then use
+            This section is not visible right now. Try expanding a panel or switching page, then use
             Back.
           </p>
         )}
         <div className="guided-tour-actions">
-          <button type="button" className="btn-ghost btn-tiny" onClick={skipTour}>
-            Skip tour
-          </button>
+          {step.ctaSecondary ? (
+            step.ctaSecondaryAction === 'link' && step.ctaSecondaryTo ? (
+              <Link to={step.ctaSecondaryTo} className="btn-ghost btn-tiny" onClick={completeTour}>
+                {step.ctaSecondary}
+              </Link>
+            ) : (
+              <button type="button" className="btn-ghost btn-tiny" onClick={skipTour}>
+                {step.ctaSecondary}
+              </button>
+            )
+          ) : (
+            <button type="button" className="btn-ghost btn-tiny" onClick={skipTour}>
+              {activeTour.tour.kind === 'demo' ? 'Skip and explore' : 'Skip tour'}
+            </button>
+          )}
           <div className="guided-tour-nav">
             <span className="guided-tour-step-count muted" aria-live="polite">
               {stepNumber} / {stepCount}
@@ -281,7 +299,7 @@ export function GuidedTour() {
               className="btn-primary btn-tiny"
               onClick={isLast ? completeTour : nextStep}
             >
-              {isLast ? 'Done' : 'Next'}
+              {step.ctaPrimary ?? (isLast ? 'Done' : 'Next')}
             </button>
           </div>
         </div>

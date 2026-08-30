@@ -549,8 +549,8 @@ export function Sidebar({
           ) : (
             !user && (
               demoMode ? (
-                <Link to="/signup" className="sidebar-account-link" title={showCollapsed ? 'Start trial' : undefined}>
-                  {showCollapsed ? '★' : 'Start free trial'}
+                <Link to="/early-access" className="sidebar-account-link" title={showCollapsed ? 'Early Access' : undefined}>
+                  {showCollapsed ? '★' : 'Join Early Access'}
                 </Link>
               ) : (
                 configured && (

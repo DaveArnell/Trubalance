@@ -76,12 +76,11 @@ function trueBalanceForScope(
   const wobble = scope.annualWobble ?? 0
   const seasonal =
     wobble === 0 ? 0 : wobble * Math.sin((progressMonths / 12) * Math.PI * 2 - Math.PI / 2)
-  // Shorter cycles so 30-day and 90-day ranges still show gentle movement, not a flat line.
+  // Gentle short-period movement so 30/90-day ranges still show direction without jagged noise.
   const shortWave =
     wobble === 0
       ? 0
-      : wobble * 0.32 * Math.sin(progressMonths * Math.PI * 2) +
-        wobble * 0.16 * Math.sin(progressMonths * Math.PI * 4.5 + 0.7)
+      : wobble * 0.12 * Math.sin(progressMonths * Math.PI * 1.15 + 0.35)
   return Math.round(trend + seasonal + shortWave)
 }
 

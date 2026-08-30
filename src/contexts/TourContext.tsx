@@ -8,6 +8,7 @@ import {
 } from 'react'
 import type { PageId } from '../navigation'
 import { SETUP_TOUR, getTourForPage, type PageTour } from '../content/pageTours'
+import { isDemoProductTourId } from '../content/demoTour'
 import { markOnboardingComplete } from '../services/adminRepository'
 import { trackEvent } from '../services/eventTracking'
 import { trackMetaOnboardingCompleted } from '../services/metaConversions'
@@ -108,13 +109,18 @@ export function TourProvider({
   }, [])
 
   const skipTour = useCallback(() => {
-    try {
-      localStorage.setItem(TOUR_DISMISSED_KEY, '1')
-    } catch {
-      /* ignore */
+    const tourId = activeTour?.tour.id
+    const isDemoTour = activeTour?.tour.kind === 'demo' || isDemoProductTourId(tourId)
+    // Never write the normal-user onboarding dismiss flag for demo product tours.
+    if (!isDemoTour) {
+      try {
+        localStorage.setItem(TOUR_DISMISSED_KEY, '1')
+      } catch {
+        /* ignore */
+      }
     }
     finishTour(false)
-  }, [finishTour])
+  }, [activeTour, finishTour])
 
   const completeTour = useCallback(() => {
     finishTour(true)

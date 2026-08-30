@@ -53,7 +53,7 @@ export function SeeHowItWorksPage() {
                     to={`/demo/${scenario.id}`}
                     className="btn-primary btn-large demo-scenario-cta"
                   >
-                    Explore this demo
+                    Take the guided tour
                   </CanonicalLink>
                 </article>
               ))}

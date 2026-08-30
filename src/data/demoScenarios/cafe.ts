@@ -14,10 +14,10 @@ const venueMarket = 'cafe-market'
 export const cafeDefaultViewScope = { type: 'business' as const, id: bizId }
 
 const CAFE_SNAPSHOT_SCOPES = [
-  { id: bizId, type: 'business' as const, name: 'Cornerstone Coffee Co.', baseTrue: 32000, growthPerMonth: 320, annualWobble: 3200 },
-  { id: venueHigh, type: 'venue' as const, name: 'High Street', baseTrue: 19500, growthPerMonth: 195, annualWobble: 1950 },
-  { id: venueMarket, type: 'venue' as const, name: 'Market Hall', baseTrue: 12500, growthPerMonth: 125, annualWobble: 1250 },
-  { id: groupId, type: 'group' as const, name: 'Cornerstone Coffee', baseTrue: 32000, growthPerMonth: 320, annualWobble: 3200 },
+  { id: bizId, type: 'business' as const, name: 'Cornerstone Coffee Co.', baseTrue: 32000, growthPerMonth: 320, annualWobble: 2200 },
+  { id: venueHigh, type: 'venue' as const, name: 'High Street', baseTrue: 19500, growthPerMonth: 195, annualWobble: 1350 },
+  { id: venueMarket, type: 'venue' as const, name: 'Market Hall', baseTrue: 12500, growthPerMonth: 125, annualWobble: 900 },
+  { id: groupId, type: 'group' as const, name: 'Cornerstone Coffee', baseTrue: 32000, growthPerMonth: 320, annualWobble: 2200 },
 ]
 
 /** Independent café with two sites — multi-year balance history. */

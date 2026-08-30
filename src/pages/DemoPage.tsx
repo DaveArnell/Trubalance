@@ -113,8 +113,8 @@ export function DemoPage() {
               <CanonicalLink to="/see-how-it-works" className="btn-ghost btn-tiny">
                 All demos
               </CanonicalLink>
-              <CanonicalLink to="/signup" className="btn-primary btn-tiny">
-                Start free trial
+              <CanonicalLink to="/early-access" className="btn-primary btn-tiny">
+                Join Early Access
               </CanonicalLink>
             </div>
           </div>
@@ -123,7 +123,7 @@ export function DemoPage() {
             key={activeId}
             workspaceId={null}
             externalState={externalState}
-            externalStateVersion={`${activeId}:${meta.historyMonths}:v5-short-wave`}
+            externalStateVersion={`${activeId}:${meta.historyMonths}:v6-demo-tour`}
             defaultViewScope={meta.defaultViewScope}
             readOnly={!canEditDemo}
             skipLocalPersist

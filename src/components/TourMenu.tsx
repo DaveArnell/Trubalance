@@ -1,5 +1,8 @@
 import { useTour } from '../contexts/TourContext'
-import { getTourForPage } from '../content/pageTours'
+import { getTourForPage, type PageTour } from '../content/pageTours'
+import { useDemoMode } from '../contexts/DemoModeContext'
+import { buildDemoProductTour } from '../content/demoTour'
+import { markDemoProductTourSeen } from '../utils/demoTourSession'
 
 export function SetupTourBanner({
   visible,
@@ -34,9 +37,34 @@ export function MobileTourLinks({ onSetupGuide }: { onSetupGuide: () => void }) 
   )
 }
 
-export function TourMenuButton({ onSetupGuide }: { onSetupGuide?: () => void }) {
-  const { activePageId, startPageTour, startSetupTour, isTourActive } = useTour()
+export function TourMenuButton({
+  onSetupGuide,
+  demoBalances,
+}: {
+  onSetupGuide?: () => void
+  /** When provided in demo mode, Restart tour uses live dashboard balances. */
+  demoBalances?: { bankBalance: number; trueBalance: number }
+}) {
+  const demo = useDemoMode()
+  const { activePageId, startPageTour, startSetupTour, startTour, isTourActive } = useTour()
   if (isTourActive) return null
+
+  if (demo?.isInteractiveDemo && demoBalances) {
+    return (
+      <div className="tour-menu">
+        <button
+          type="button"
+          className="btn-ghost btn-tiny"
+          onClick={() => {
+            markDemoProductTourSeen(demo.scenario.id)
+            startTour(buildDemoProductTour(demo.scenario.id, demoBalances) as PageTour)
+          }}
+        >
+          Restart tour
+        </button>
+      </div>
+    )
+  }
 
   const pageTour = activePageId ? getTourForPage(activePageId) : null
 
