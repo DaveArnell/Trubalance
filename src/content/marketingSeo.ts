@@ -95,11 +95,11 @@ export const CAFES_SEO = {
 } as const satisfies RouteSeo
 
 export const SEE_HOW_SEO = {
-  title: 'Cash Prophet Live Demo | Try Cash Prophet Balance',
+  title: 'See Cash Prophet in a Real Business | Cash Prophet',
   description:
-    'Open leisure, café or sample demos and see meaningful commitments accounted for — and one Cash Prophet Balance you can trust.',
+    'Explore Cash Prophet through fixed example businesses. See how regular bills, costs building up, bigger expenses and the underlying financial position come together. No signup needed.',
   path: '/see-how-it-works',
-  imageAlt: 'Try Cash Prophet with live demo businesses',
+  imageAlt: 'Explore Cash Prophet through example hospitality and leisure businesses',
 } as const satisfies RouteSeo
 
 export const CONTACT_SEO = {

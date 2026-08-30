@@ -4,10 +4,9 @@ import {
   MarketingHeader,
   MarketingShell,
 } from '../components/marketing/MarketingLayout'
-import { DEMO_SCENARIOS, DEMO_FROZEN_DATE_KEY } from '../data/demoScenarios'
+import { DEMO_SCENARIOS } from '../data/demoScenarios'
 import { SEE_HOW_SEO } from '../content/marketingSeo'
 import { usePageMeta } from '../hooks/usePageMeta'
-import { formatSnapshotDateLong } from '../utils/snapshots'
 import { MarketingJsonLd, seeHowPageJsonLd } from '../components/marketing/MarketingJsonLd'
 
 export function SeeHowItWorksPage() {
@@ -20,15 +19,20 @@ export function SeeHowItWorksPage() {
       <main className="marketing-main">
         <header className="method-edu-hero marketing-surface--hero">
           <div className="method-edu-inner">
-            <h1>See it with a live business</h1>
+            <h1>See Cash Prophet in a real business</h1>
             <p className="method-edu-hero-lead">
-              Pick an example workspace and explore Cash Prophet - no signup needed. Leisure and
-              hospitality demos show the Cash Prophet Balance with consistent income. Each demo is a
-              frozen snapshot as of {formatSnapshotDateLong(DEMO_FROZEN_DATE_KEY)}, so figures stay
-              stable while you look around.
+              Explore Cash Prophet through one of our example businesses. No signup needed.
+            </p>
+            <p className="method-edu-hero-lead">
+              See how regular bills, costs building up, bigger expenses and the underlying financial
+              position come together in one place.
+            </p>
+            <p className="method-edu-hero-lead">
+              Each demo is a fixed example, so you can look around without changing anything.
             </p>
             <p className="method-edu-hero-lead method-edu-hero-lead--secondary">
-              Prefer to understand the system first? <CanonicalLink to="/how-it-works">See how it works</CanonicalLink>.
+              Prefer to understand how it works first?{' '}
+              <CanonicalLink to="/how-it-works">See how it works</CanonicalLink>.
             </p>
           </div>
         </header>
@@ -57,10 +61,10 @@ export function SeeHowItWorksPage() {
 
             <div className="demo-scenarios-footer">
               <CanonicalLink to="/" className="btn-ghost">
-                &larr; Back to home
+                Back to home
               </CanonicalLink>
-              <CanonicalLink to="/signup" className="btn-secondary btn-large">
-                Follow the Method in your business
+              <CanonicalLink to="/early-access" className="btn-secondary btn-large">
+                Start with Cash Prophet
               </CanonicalLink>
             </div>
           </div>

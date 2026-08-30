@@ -377,7 +377,7 @@ export function seeHowPageJsonLd(): JsonLd[] {
         price: '0',
         priceCurrency: 'GBP',
         availability: 'https://schema.org/InStock',
-        description: 'Free interactive demos — café, trades and leisure sample businesses',
+        description: 'Free interactive demos of example hospitality, leisure and service businesses',
       },
     },
   ]
