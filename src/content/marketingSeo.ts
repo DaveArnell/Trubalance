@@ -113,9 +113,9 @@ export const TRY_IT_SEO = {
 export const PARTNERS_SEO = {
   title: 'Partner with Cash Prophet | Accountants, Advisers & Member Organisations',
   description:
-    'Offer your clients or members Cash Prophet at 50% off. A day-to-day financial clarity tool that sits alongside accounting and bookkeeping. We handle onboarding and support.',
+    'Offer clients or members Cash Prophet at 50% off. A financial organiser for owner-managed businesses that sits alongside accounting and bookkeeping. We handle onboarding and support.',
   path: '/partners',
-  imageAlt: 'Partner with Cash Prophet for UK small business clients and members',
+  imageAlt: 'Partner with Cash Prophet for UK owner-managed business clients and members',
 } as const satisfies RouteSeo
 
 export const BLOG_INDEX_SEO = {

@@ -12,6 +12,7 @@ import { usePageMeta } from '../hooks/usePageMeta'
 import {
   trackMetaPartnerEnquireClick,
   trackMetaPartnerSnapshotClick,
+  trackMetaPartnerTourClick,
 } from '../services/metaConversions'
 
 const PARTNER_CONTACT = '/contact?topic=partnership#contact-form'
@@ -24,7 +25,7 @@ export function PartnersPage() {
       <MarketingJsonLd data={partnersPageJsonLd([...PARTNERS_FAQS])} />
       <MarketingHeader />
       <main className="marketing-main partners-page">
-        <header className="method-edu-hero marketing-surface--hero partners-hero">
+        <header className="method-edu-hero method-edu-hero--compact marketing-surface--hero partners-hero">
           <div className="method-edu-inner partners-hero-inner">
             <h1>{PARTNERS_PAGE.hero.title}</h1>
             <p className="method-edu-hero-lead">{PARTNERS_PAGE.hero.lead}</p>
@@ -36,7 +37,11 @@ export function PartnersPage() {
               >
                 {PARTNERS_PAGE.hero.primaryCta}
               </CanonicalLink>
-              <CanonicalLink to="/how-it-works" className="btn-secondary btn-large">
+              <CanonicalLink
+                to="/see-how-it-works"
+                className="btn-secondary btn-large"
+                onClick={() => trackMetaPartnerTourClick('hero')}
+              >
                 {PARTNERS_PAGE.hero.secondaryCta}
               </CanonicalLink>
             </div>
@@ -49,12 +54,13 @@ export function PartnersPage() {
             <p className="partners-lead">{PARTNERS_PAGE.who.lead}</p>
             <ul className="partners-audience-grid">
               {PARTNERS_PAGE.who.audiences.map((item) => (
-                <li key={item.title} className="partners-audience-card">
+                <li key={item.title} className="partners-card">
                   <h3>{item.title}</h3>
                   <p>{item.body}</p>
                 </li>
               ))}
             </ul>
+            <p className="partners-note">{PARTNERS_PAGE.who.hospitalityNote}</p>
           </div>
         </section>
 
@@ -88,13 +94,16 @@ export function PartnersPage() {
           </div>
         </section>
 
-        <section className="partners-section marketing-surface--mist" aria-labelledby="partners-client">
+        <section className="partners-section marketing-surface--mist" aria-labelledby="partners-organised">
           <div className="marketing-section-inner partners-section-inner">
-            <h2 id="partners-client">{PARTNERS_PAGE.clientBenefit.heading}</h2>
-            <p className="partners-lead">{PARTNERS_PAGE.clientBenefit.lead}</p>
-            <ul className="partners-benefit-list">
-              {PARTNERS_PAGE.clientBenefit.points.map((point) => (
-                <li key={point}>{point}</li>
+            <h2 id="partners-organised">{PARTNERS_PAGE.organised.heading}</h2>
+            <p className="partners-lead">{PARTNERS_PAGE.organised.lead}</p>
+            <ul className="partners-organised-grid">
+              {PARTNERS_PAGE.organised.items.map((item) => (
+                <li key={item.title} className="partners-card">
+                  <h3>{item.title}</h3>
+                  <p>{item.body}</p>
+                </li>
               ))}
             </ul>
           </div>
@@ -104,7 +113,7 @@ export function PartnersPage() {
           <div className="marketing-section-inner partners-section-inner">
             <h2 id="partners-offer">{PARTNERS_PAGE.partnerBenefit.heading}</h2>
             <p className="partners-lead">{PARTNERS_PAGE.partnerBenefit.lead}</p>
-            <ul className="partners-benefit-list partners-benefit-list--offer">
+            <ul className="partners-offer-list">
               {PARTNERS_PAGE.partnerBenefit.points.map((point) => (
                 <li key={point}>{point}</li>
               ))}
@@ -112,17 +121,22 @@ export function PartnersPage() {
           </div>
         </section>
 
-        <section className="partners-section marketing-surface--mist" aria-labelledby="partners-snapshot">
-          <div className="marketing-section-inner partners-section-inner partners-snapshot">
-            <h2 id="partners-snapshot">{PARTNERS_PAGE.snapshot.heading}</h2>
-            <p className="partners-lead">{PARTNERS_PAGE.snapshot.lead}</p>
+        <section className="partners-section marketing-surface--mist" aria-labelledby="partners-demo">
+          <div className="marketing-section-inner partners-section-inner partners-demo">
+            <h2 id="partners-demo">{PARTNERS_PAGE.demo.heading}</h2>
+            <p className="partners-lead">{PARTNERS_PAGE.demo.lead}</p>
             <CanonicalLink
-              to="/try-it"
-              className="btn-secondary btn-large"
-              onClick={() => trackMetaPartnerSnapshotClick()}
+              to="/see-how-it-works"
+              className="btn-primary btn-large"
+              onClick={() => trackMetaPartnerTourClick('demo')}
             >
-              {PARTNERS_PAGE.snapshot.cta}
+              {PARTNERS_PAGE.demo.primaryCta}
             </CanonicalLink>
+            <p className="partners-demo-secondary">
+              <CanonicalLink to="/try-it" onClick={() => trackMetaPartnerSnapshotClick()}>
+                {PARTNERS_PAGE.demo.secondaryCta}
+              </CanonicalLink>
+            </p>
           </div>
         </section>
 
@@ -145,7 +159,7 @@ export function PartnersPage() {
           </div>
         </section>
 
-        <section className="marketing-cta-band marketing-cta-band--pop home-cta-band">
+        <section className="marketing-cta-band marketing-cta-band--pop home-cta-band partners-final-cta">
           <div className="marketing-cta-band-inner">
             <h2>{PARTNERS_PAGE.cta.heading}</h2>
             <p>{PARTNERS_PAGE.cta.body}</p>

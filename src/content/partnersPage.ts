@@ -6,120 +6,145 @@ export const PARTNERS_PAGE = {
   path: '/partners',
   navLabel: 'Partners',
   hero: {
-    title: 'Give your clients greater financial clarity',
+    title: 'Help your clients stay on top of their business finances',
     lead:
-      'Partner with Cash Prophet and give your clients or members access to a simple day-to-day financial clarity tool at an exclusive 50% discount.',
+      'Partner with Cash Prophet and give your clients or members a simple way to keep their day-to-day financial picture organised. They get an exclusive 50% discount, and we handle the onboarding and support.',
     primaryCta: 'Talk to us about partnering',
-    secondaryCta: 'See how Cash Prophet works',
+    secondaryCta: 'See Cash Prophet in action',
   },
   who: {
-    heading: 'Who this is for',
-    lead: 'One partnership proposition for organisations that support small businesses.',
+    heading: 'Who we partner with',
+    lead: 'Cash Prophet can be offered by organisations and professionals who support owner-managed businesses.',
+    hospitalityNote:
+      'We are particularly interested in working with organisations supporting independent hospitality and leisure businesses.',
     audiences: [
       {
         title: 'Accountants & bookkeepers',
-        body: 'Practices whose clients need clearer day-to-day awareness alongside reporting and compliance.',
-      },
-      {
-        title: 'Finance professionals',
-        body: 'Fractional FDs and finance leads supporting owner-managed businesses.',
-      },
-      {
-        title: 'Business advisers & coaches',
-        body: 'Advisers helping owners make better day-to-day decisions.',
+        body: 'Give clients a practical way to stay organised between the accounts, reporting and advice you provide.',
       },
       {
         title: 'Membership & trade organisations',
-        body: 'Groups offering members practical tools alongside advice and community.',
+        body: 'Offer members a useful day-to-day financial tool at an exclusive partner rate.',
+      },
+      {
+        title: 'Business advisers & coaches',
+        body: 'Give business owners a simple system for staying closer to the financial picture between your conversations.',
+      },
+      {
+        title: 'Finance professionals',
+        body: 'For finance professionals supporting smaller owner-managed businesses that need a straightforward way to stay on top of day-to-day finances.',
       },
     ],
   },
   alongside: {
-    heading: 'Financial clarity between the accounts',
+    heading: 'Cash Prophet sits alongside the work you already do',
     lead:
-      'Cash Prophet is not accounting or bookkeeping software. It does not replace the professional reporting, compliance and advice you provide.',
+      'Cash Prophet is not accounting or bookkeeping software. It gives the business owner somewhere to keep the day-to-day financial picture organised between the accounts, reports and professional advice they receive.',
     body: [
-      'Accountants and bookkeepers give businesses essential structure: records, reports, compliance and professional judgement.',
-      'Cash Prophet sits alongside that work. It gives the owner a lightweight way to stay aware of their financial position day to day, without asking them to run a second finance system.',
+      'Accountants and bookkeepers provide the records, reporting, compliance and professional judgement a business needs.',
+      'Cash Prophet helps the owner stay on top of the practical financial picture as the month unfolds.',
     ],
     accounting: {
-      label: 'Accounting & bookkeeping',
-      points: ['Reporting', 'Compliance', 'Professional advice'],
+      label: 'Accounting & professional support',
+      points: [
+        'Financial records and bookkeeping',
+        'Accounts and reporting',
+        'Tax and compliance',
+        'Professional advice',
+      ],
     },
     cashProphet: {
       label: 'Cash Prophet',
-      points: ['Day-to-day financial awareness', 'Clearer available position', 'Quiet ongoing habit'],
+      points: [
+        'Bills and commitments coming up',
+        'Costs building through the month',
+        'Larger future costs to prepare for',
+        'Current underlying financial position',
+        'Direction of that position over time',
+      ],
     },
   },
-  clientBenefit: {
-    heading: 'Why clients find it useful',
+  organised: {
+    heading: 'What Cash Prophet keeps organised',
     lead:
-      'A business bank balance can look reassuring while a large share of that money is already spoken for.',
-    points: [
-      'See how much of the bank balance is already committed',
-      'Account for recurring costs as they build between payment dates',
-      'Stay aware of upcoming regular bills',
-      'Provision for larger future costs',
-      'Get a clearer day-to-day financial position',
-      'Track the Cash Prophet Balance over time without the noise of payment timing',
+      'Instead of piecing the financial picture together from the bank account, spreadsheets, calendars and memory, the owner has one place to keep track of it.',
+    items: [
+      {
+        title: "What's coming up",
+        body: 'Keep regular bills and commitments visible, including costs that are already building before payment day.',
+      },
+      {
+        title: 'What needs putting aside',
+        body: 'Use the Reserve Planner to prepare gradually for VAT, tax, insurance and other larger future costs.',
+      },
+      {
+        title: 'Where the business stands',
+        body: 'Bring the bank balance, accrued commitments, reserves and expected receipts together into the Cash Prophet Balance.',
+      },
+      {
+        title: "Where it's heading",
+        body: 'Track that underlying position over time to see whether the business is getting stronger or weaker.',
+      },
     ],
   },
   partnerBenefit: {
-    heading: 'An additional benefit you can offer your clients',
-    lead: 'A practical exclusive offer, with Cash Prophet carrying the product work.',
+    heading: 'A useful benefit you can offer without creating more work',
+    lead:
+      'Your clients or members get an exclusive Cash Prophet offer. We take care of getting them started and supporting them afterwards.',
     points: [
-      'Your clients or members receive 50% off Cash Prophet',
-      'Cash Prophet provides personal onboarding',
-      'Cash Prophet handles ongoing product questions and support',
-      'You are not expected to support the product yourself',
-      'You can offer a clear, useful benefit without adding operational load',
+      '50% off Cash Prophet for your clients or members',
+      'Free personal onboarding from Cash Prophet',
+      'Ongoing product support handled by us',
+      'No product support required from your organisation',
+      'We provide the link, code and materials you need',
     ],
   },
-  snapshot: {
-    heading: 'See the principle in two minutes',
+  demo: {
+    heading: 'See what your clients would be using',
     lead:
-      'The free Cash Prophet Snapshot lets you enter a sample bank balance and regular bills, then see how amounts already accrued against those bills change the apparent financial position.',
-    cta: 'Try the free snapshot',
+      'Take a guided tour through an example business and see how Cash Prophet organises regular costs, larger future expenses, the current financial position and the direction of the business over time.',
+    primaryCta: 'Take the guided tour',
+    secondaryCta: 'Or try the free check with your own numbers',
   },
   how: {
     heading: 'How a partnership works',
     steps: [
       {
         title: 'Talk to us',
-        body: 'We discuss your clients or members and whether Cash Prophet is a good fit.',
+        body: 'We learn about your clients or members and whether Cash Prophet is a good fit.',
       },
       {
-        title: 'We arrange your offer',
+        title: 'We set up your partner offer',
         body: 'Your clients or members receive an exclusive 50% Cash Prophet discount.',
       },
       {
         title: 'You share the benefit',
-        body: 'We provide the link, code or materials you need.',
+        body: 'We provide the link, code and any simple materials you need.',
       },
       {
         title: 'We take it from there',
-        body: 'Cash Prophet handles onboarding and ongoing product support.',
+        body: 'Cash Prophet handles personal onboarding, product questions and ongoing support.',
       },
     ],
   },
   cta: {
     heading: 'Interested in offering Cash Prophet to your clients or members?',
-    body: 'We are happy to discuss how a partnership could work for your organisation.',
-    button: 'Enquire about partnering',
+    body: "Tell us a little about your organisation and who you support. We'll talk through whether a partnership would be a good fit.",
+    button: 'Talk to us about partnering',
   },
 } as const
 
 export const PARTNERS_FAQS = [
   {
     q: 'Does Cash Prophet replace accounting or bookkeeping software?',
-    a: 'No. It is a financial clarity tool for the business owner, used alongside existing accounting and bookkeeping arrangements.',
+    a: 'No. Cash Prophet is a financial organiser for the business owner. It sits alongside accounting, bookkeeping and professional advice.',
   },
   {
     q: 'Will we need to support the product for clients?',
-    a: 'No. Cash Prophet handles personal onboarding and ongoing product support directly with the client.',
+    a: 'No. Cash Prophet handles personal onboarding and ongoing product support directly with the client or member.',
   },
   {
     q: 'What do clients or members receive?',
-    a: 'Access to Cash Prophet at an exclusive 50% discount through your partnership offer.',
+    a: 'Access to Cash Prophet at an exclusive 50% discount through your partnership offer, with onboarding and product support handled by Cash Prophet.',
   },
 ] as const

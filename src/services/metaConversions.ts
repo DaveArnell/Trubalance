@@ -397,6 +397,19 @@ export function trackMetaPartnerSnapshotClick(): void {
   }
 }
 
+export function trackMetaPartnerTourClick(placement: 'hero' | 'demo' = 'demo'): void {
+  try {
+    if (!hasAdvertisingConsent()) return
+    trackMetaPixelCustomEvent('PartnerTourClick', {
+      content_name: 'partners_see_it',
+      content_category: 'partners',
+      content_placement: placement,
+    })
+  } catch {
+    /* ignore */
+  }
+}
+
 export function trackMetaPartnerEnquireClick(placement: 'hero' | 'footer'): void {
   try {
     if (!hasAdvertisingConsent()) return
