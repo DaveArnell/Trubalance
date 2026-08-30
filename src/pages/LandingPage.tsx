@@ -8,7 +8,6 @@ import {
 } from '../components/marketing/MarketingLayout'
 import { HomeHeroCompare } from '../components/marketing/HomeHeroCompare'
 import { CashProphetLogo } from '../components/marketing/CashProphetLogo'
-import { HomeHeroVideo } from '../components/marketing/HomeHeroVideo'
 import {
   HomeAvailablePanel,
   HomeCompareStrip,
@@ -93,8 +92,6 @@ export function LandingPage() {
             </div>
           </div>
         </section>
-
-        <HomeHeroVideo />
 
         {/* Bank balance problem + Cash Prophet solution — one band */}
         <section

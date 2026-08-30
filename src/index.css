@@ -34571,7 +34571,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .home-hero-mind-art img {
   display: block;
   width: 100%;
-  max-width: 78%;
+  max-width: 72%;
   height: auto;
   object-fit: contain;
   background: transparent;
@@ -34579,10 +34579,18 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .home-hero-visual--dash {
   width: 100%;
-  overflow: hidden;
-  border-radius: 14px;
-  background: #e8eef3;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.36);
+  display: flex;
+  justify-content: center;
+  background: transparent;
+}
+
+.home-hero-dash-photo {
+  display: block;
+  width: 100%;
+  max-width: 92%;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.38));
 }
 
 .home-hero-dash-frame {
@@ -34986,12 +34994,16 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
   .home-hero-stack {
     gap: 0.15rem;
-    max-width: 26rem;
+    max-width: 24rem;
     margin-inline: auto;
   }
 
   .home-hero-mind-art img {
-    max-width: 88%;
+    max-width: 82%;
+  }
+
+  .home-hero-dash-photo {
+    max-width: 100%;
   }
 }
 
