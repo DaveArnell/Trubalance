@@ -31870,9 +31870,9 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .home-accrue-row {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(5.5rem, 0.9fr) minmax(0, 1.4fr) auto;
+  grid-template-columns: 7.5rem minmax(0, 1fr) 8.75rem;
   align-items: center;
-  gap: 8px;
+  column-gap: 0.55rem;
   min-height: 2.35rem;
   padding: 6px 10px;
   border: 1px solid rgba(15, 27, 45, 0.1);
@@ -31896,9 +31896,12 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .home-accrue-row-amount {
   position: relative;
   z-index: 1;
+  min-width: 0;
 }
 
 .home-accrue-row-due {
+  justify-self: start;
+  text-align: left;
   font-size: 0.72rem;
   font-weight: 650;
   color: rgba(15, 27, 45, 0.55);
@@ -31906,16 +31909,18 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .home-accrue-row-name {
+  justify-self: stretch;
+  text-align: center;
   font-size: 0.9rem;
   font-weight: 750;
   color: #0f1b2d;
-  text-align: center;
 }
 
 .home-accrue-row-amount {
+  justify-self: end;
+  text-align: right;
   font-size: 0.88rem;
   font-variant-numeric: tabular-nums;
-  text-align: right;
   white-space: nowrap;
   color: rgba(15, 27, 45, 0.55);
 }
@@ -32032,6 +32037,22 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   .home-accrue-row-name {
     grid-column: 1;
     text-align: left;
+  }
+
+  .home-picture-visual--bills .home-accrue-row {
+    grid-template-columns: 6.75rem minmax(0, 1fr) 7.75rem;
+    grid-template-rows: auto;
+  }
+
+  .home-picture-visual--bills .home-accrue-row-due,
+  .home-picture-visual--bills .home-accrue-row-name,
+  .home-picture-visual--bills .home-accrue-row-amount {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .home-picture-visual--bills .home-accrue-row-name {
+    text-align: center;
   }
 }
 
@@ -35019,16 +35040,16 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 /* Homepage — Early Access positioning bands */
 .home-hero-eyebrow {
-  margin: 0 0 0.7rem;
-  padding: 0.35rem 0.75rem;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, #24da76 45%, transparent);
-  background: color-mix(in srgb, #24da76 14%, transparent);
-  font-size: clamp(0.78rem, 1.2vw, 0.88rem);
+  margin: 0 0 0.65rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  border-radius: 0;
+  font-size: clamp(0.8rem, 1.25vw, 0.92rem);
   font-weight: 750;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
-  color: #e8fff3;
+  color: color-mix(in srgb, #24da76 55%, #ffffff);
 }
 
 .home-hero-early-primary {
@@ -35190,15 +35211,25 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .home-picture-visual--bills .home-snap {
   width: 100%;
-  max-width: 22rem;
+  max-width: 28.5rem;
   margin: 0 auto;
 }
 
+.home-picture-visual--bills .home-accrue-row {
+  grid-template-columns: 7.75rem minmax(0, 1fr) 9rem;
+  column-gap: 0.65rem;
+  padding: 0.45rem 0.7rem;
+}
+
 .home-picture-visual--bigger .method-reserve-viz,
-.home-picture-visual--heading .balance-compare-trend,
 .home-picture-visual--stand .method-worked-example {
   width: 100%;
   max-width: 34rem;
+}
+
+.home-picture-visual--heading .balance-compare-trend {
+  width: 100%;
+  max-width: 38rem;
 }
 
 .method-worked-example--compact {
@@ -35264,17 +35295,19 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 .balance-compare-trend-line {
   fill: none;
-  stroke-width: 2.6;
+  stroke-width: 2.8;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
 .balance-compare-trend-line--bank {
   stroke: #e11d48;
+  stroke-width: 2.9;
 }
 
 .balance-compare-trend-line--prophet {
   stroke: #0d8f5b;
+  stroke-width: 2.7;
 }
 
 .balance-compare-trend-dot--bank {
@@ -35282,19 +35315,6 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 }
 
 .balance-compare-trend-dot--prophet {
-  fill: #0d8f5b;
-}
-
-.balance-compare-trend-inline {
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.balance-compare-trend-inline--bank {
-  fill: #be123c;
-}
-
-.balance-compare-trend-inline--prophet {
   fill: #0d8f5b;
 }
 

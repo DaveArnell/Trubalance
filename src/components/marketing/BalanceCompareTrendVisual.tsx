@@ -4,21 +4,27 @@
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] as const
 
-/** Erratic bank cash (k) — income spikes and large bill drops. */
-const BANK_K = [42, 51, 33, 48, 39, 55, 31, 47, 36, 52, 34, 49] as const
+/**
+ * Erratic bank cash (k) — sharp income spikes and large bill/VAT/payroll drops.
+ * Values chosen so month-to-month swings are obviously larger than the prophet series.
+ */
+const BANK_K = [36, 61, 24, 58, 29, 72, 18, 54, 27, 69, 21, 57] as const
 
-/** Cash Prophet Balance (k) — still moves, with a clearer underlying path. */
-const PROPHET_K = [24, 26, 23, 27, 28, 26, 29, 31, 28, 32, 30, 33] as const
+/**
+ * Cash Prophet Balance (k) — still rises and falls, with a clearer underlying path
+ * as known obligations are accounted for progressively.
+ */
+const PROPHET_K = [23, 26, 22, 27, 29, 25, 28, 31, 27, 32, 29, 33] as const
 
-const W = 640
-const H = 260
+const W = 680
+const H = 280
 const PAD_L = 44
-const PAD_R = 18
-const PAD_T = 36
-const PAD_B = 40
+const PAD_R = 16
+const PAD_T = 22
+const PAD_B = 38
 const PLOT_W = W - PAD_L - PAD_R
 const PLOT_H = H - PAD_T - PAD_B
-const Y_MAX = 60
+const Y_MAX = 80
 
 function xAt(i: number, n: number) {
   return PAD_L + (i / (n - 1)) * PLOT_W
@@ -46,7 +52,7 @@ export function BalanceCompareTrendVisual() {
     >
       <figcaption className="balance-compare-trend-caption">Bank balance vs Cash Prophet Balance</figcaption>
       <svg className="balance-compare-trend-svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-hidden>
-        {[0, 20, 40, 60].map((tick) => (
+        {[0, 20, 40, 60, 80].map((tick) => (
           <g key={tick}>
             <line
               x1={PAD_L}
@@ -69,7 +75,7 @@ export function BalanceCompareTrendVisual() {
             key={`b-${MONTHS[i]}`}
             cx={xAt(i, n)}
             cy={yAt(v)}
-            r="3.2"
+            r="3"
             className="balance-compare-trend-dot balance-compare-trend-dot--bank"
           />
         ))}
@@ -78,32 +84,16 @@ export function BalanceCompareTrendVisual() {
             key={`p-${MONTHS[i]}`}
             cx={xAt(i, n)}
             cy={yAt(v)}
-            r="3.2"
+            r="3"
             className="balance-compare-trend-dot balance-compare-trend-dot--prophet"
           />
         ))}
-
-        {/* Direct line labels */}
-        <text
-          x={xAt(2, n) + 6}
-          y={yAt(BANK_K[2]!) - 10}
-          className="balance-compare-trend-inline balance-compare-trend-inline--bank"
-        >
-          Bank balance
-        </text>
-        <text
-          x={xAt(8, n) + 4}
-          y={yAt(PROPHET_K[8]!) - 10}
-          className="balance-compare-trend-inline balance-compare-trend-inline--prophet"
-        >
-          Cash Prophet Balance
-        </text>
 
         {MONTHS.map((month, i) => (
           <text
             key={month}
             x={xAt(i, n)}
-            y={H - 14}
+            y={H - 12}
             textAnchor="middle"
             className="balance-compare-trend-month"
           >
