@@ -34594,12 +34594,12 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .home-hero-dash-photo {
   display: block;
   width: auto;
-  max-width: min(100%, 28rem);
-  max-height: min(38vh, 18rem);
+  max-width: min(100%, 26rem);
+  max-height: min(40vh, 20rem);
   height: auto;
   object-fit: contain;
-  border-radius: 12px;
-  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.4);
+  background: transparent;
+  filter: drop-shadow(0 16px 28px rgba(0, 0, 0, 0.45));
 }
 
 .home-hero-dash-frame {

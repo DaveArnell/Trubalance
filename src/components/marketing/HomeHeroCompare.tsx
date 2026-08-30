@@ -1,8 +1,8 @@
 import {
-  PRODUCT_DASHBOARD_IMAGE,
-  PRODUCT_DASHBOARD_IMAGE_ALT,
-  PRODUCT_DASHBOARD_IMAGE_HEIGHT,
-  PRODUCT_DASHBOARD_IMAGE_WIDTH,
+  PRODUCT_MONITOR_CUTOUT_IMAGE,
+  PRODUCT_MONITOR_CUTOUT_IMAGE_ALT,
+  PRODUCT_MONITOR_CUTOUT_IMAGE_HEIGHT,
+  PRODUCT_MONITOR_CUTOUT_IMAGE_WIDTH,
 } from '../../content/marketingSeo'
 import { HomeHeroThoughtBubble } from './HomeHeroThoughtBubble'
 
@@ -36,10 +36,10 @@ export function HomeHeroCompare() {
         <div className="home-hero-visual home-hero-visual--dash">
           <img
             className="home-hero-dash-photo"
-            src={PRODUCT_DASHBOARD_IMAGE}
-            alt={PRODUCT_DASHBOARD_IMAGE_ALT}
-            width={PRODUCT_DASHBOARD_IMAGE_WIDTH}
-            height={PRODUCT_DASHBOARD_IMAGE_HEIGHT}
+            src={PRODUCT_MONITOR_CUTOUT_IMAGE}
+            alt={PRODUCT_MONITOR_CUTOUT_IMAGE_ALT}
+            width={PRODUCT_MONITOR_CUTOUT_IMAGE_WIDTH}
+            height={PRODUCT_MONITOR_CUTOUT_IMAGE_HEIGHT}
             decoding="async"
             fetchPriority="high"
           />

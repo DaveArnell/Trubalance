@@ -13,6 +13,12 @@ export const PRODUCT_MONITOR_IMAGE_ALT =
 export const PRODUCT_MONITOR_IMAGE_WIDTH = 1536
 export const PRODUCT_MONITOR_IMAGE_HEIGHT = 1024
 
+/** Monitor cutout with transparent background for the homepage hero stack. */
+export const PRODUCT_MONITOR_CUTOUT_IMAGE = '/product-monitor-cutout.png' as const
+export const PRODUCT_MONITOR_CUTOUT_IMAGE_ALT = PRODUCT_MONITOR_IMAGE_ALT
+export const PRODUCT_MONITOR_CUTOUT_IMAGE_WIDTH = 1050
+export const PRODUCT_MONITOR_CUTOUT_IMAGE_HEIGHT = 911
+
 /** Screen-only crop of the product monitor, used in the homepage hero. */
 export const PRODUCT_DASHBOARD_IMAGE = '/product-dashboard.png' as const
 export const PRODUCT_DASHBOARD_IMAGE_ALT =
