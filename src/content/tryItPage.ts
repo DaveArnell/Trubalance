@@ -19,7 +19,7 @@ export const TRY_IT_PAGE = {
     namePlaceholder: 'e.g. Rent',
     amountLabel: 'Monthly amount',
     dueDayLabel: 'Due day of month',
-    dueDayPlaceholder: '28',
+    dueDayPlaceholder: 'e.g. 28',
     empty: "Add your bills to see how much of today's balance is already spoken for.",
     kpiMonthly: 'Monthly total',
     kpiAccrued: 'Accrued now',
