@@ -3,7 +3,6 @@
  */
 
 import { WHO_FOR_RELATED_GUIDES } from './trueBalanceMethod'
-import { PERSONAL_SETUP_CONTACT_PATH } from './earlyAccessPage'
 
 export const WHO_FOR_HERO = {
   heading: 'Who Cash Prophet is for',
@@ -76,6 +75,3 @@ export const WHO_FOR_EARLY_ACCESS = {
   secondaryPrompt: 'Prefer to get started yourself?',
   secondaryCta: 'Set up my account',
 } as const
-
-/** Kept for type-check / unused-path clarity — personal setup path if needed later. */
-export const WHO_FOR_SETUP_HREF = PERSONAL_SETUP_CONTACT_PATH
