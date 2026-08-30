@@ -135,34 +135,57 @@ export function PrivacyPage() {
           </thead>
           <tbody>
             <tr>
-              <td>Create and manage your account; provide the product; sync workspace data</td>
-              <td>Account details; workspace financial organiser data</td>
-              <td>Contract (to provide the service you request)</td>
+              <td data-label="Purpose">
+                Create and manage your account; provide the product; sync workspace data
+              </td>
+              <td data-label="Examples of data">Account details; workspace financial organiser data</td>
+              <td data-label="Legal basis">Contract (to provide the service you request)</td>
             </tr>
             <tr>
-              <td>Subscriptions and billing</td>
-              <td>Plan status; Stripe customer and payment records we store</td>
-              <td>Contract; legal obligation where tax or accounting rules require records</td>
+              <td data-label="Purpose">Subscriptions and billing</td>
+              <td data-label="Examples of data">
+                Plan status; Stripe customer and payment records we store
+              </td>
+              <td data-label="Legal basis">
+                Contract; legal obligation where tax or accounting rules require records
+              </td>
             </tr>
             <tr>
-              <td>Optional statement analysis suggestions</td>
-              <td>Compact transaction summaries sent for analysis</td>
-              <td>Contract (feature you choose to use)</td>
+              <td data-label="Purpose">Optional statement analysis suggestions</td>
+              <td data-label="Examples of data">Compact transaction summaries sent for analysis</td>
+              <td data-label="Legal basis">Contract (feature you choose to use)</td>
             </tr>
             <tr>
-              <td>Support and enquiry responses</td>
-              <td>Messages and contact details you send</td>
-              <td>Contract or legitimate interests (responding to your request)</td>
+              <td data-label="Purpose">
+                Support for an existing Cash Prophet customer or account
+              </td>
+              <td data-label="Examples of data">Messages and contact details you send</td>
+              <td data-label="Legal basis">
+                Contract (responding as part of providing the service)
+              </td>
             </tr>
             <tr>
-              <td>Security, abuse prevention and reliability</td>
-              <td>Technical logs and account security data as needed to run the service</td>
-              <td>Legitimate interests (keeping the service secure and usable)</td>
+              <td data-label="Purpose">
+                General enquiries from prospective customers or other contacts
+              </td>
+              <td data-label="Examples of data">Messages and contact details you send</td>
+              <td data-label="Legal basis">
+                Legitimate interests (responding to the enquiry)
+              </td>
             </tr>
             <tr>
-              <td>Optional analytics and advertising measurement</td>
-              <td>Page views; ad cookies; first-party campaign tags</td>
-              <td>Consent</td>
+              <td data-label="Purpose">Security, abuse prevention and reliability</td>
+              <td data-label="Examples of data">
+                Technical logs and account security data as needed to run the service
+              </td>
+              <td data-label="Legal basis">
+                Legitimate interests (keeping the service secure and usable)
+              </td>
+            </tr>
+            <tr>
+              <td data-label="Purpose">Optional analytics and advertising measurement</td>
+              <td data-label="Examples of data">Page views; ad cookies; first-party campaign tags</td>
+              <td data-label="Legal basis">Consent</td>
             </tr>
           </tbody>
         </table>
@@ -193,29 +216,29 @@ export function PrivacyPage() {
       <p>We use service providers to operate Cash Prophet. They only receive what is needed for their role:</p>
       <ul>
         <li>
-          <strong>Supabase</strong> — authentication, database and related backend hosting for
+          <strong>Supabase</strong>: authentication, database and related backend hosting for
           accounts and workspace data.
         </li>
         <li>
-          <strong>OpenAI</strong> — optional statement analysis only (compact transaction summaries).
+          <strong>OpenAI</strong>: optional statement analysis only (compact transaction summaries).
         </li>
         <li>
-          <strong>Stripe</strong> — subscription checkout, billing portal, tax calculation and payment
+          <strong>Stripe</strong>: subscription checkout, billing portal, tax calculation and payment
           processing. Card details are handled by Stripe, not by us.
         </li>
         <li>
-          <strong>Resend</strong> — sending transactional and enquiry-related emails.
+          <strong>Resend</strong>: sending transactional and enquiry-related emails.
         </li>
         <li>
-          <strong>Google</strong> — Google sign-in (if you choose it) and, with consent, Google
+          <strong>Google</strong>: Google sign-in (if you choose it) and, with consent, Google
           Analytics.
         </li>
         <li>
-          <strong>Meta</strong> — with consent, Meta Pixel and related conversion measurement for
+          <strong>Meta</strong>: with consent, Meta Pixel and related conversion measurement for
           advertising.
         </li>
         <li>
-          <strong>Hosting and infrastructure</strong> — our website is hosted on cloud infrastructure
+          <strong>Hosting and infrastructure</strong>: our website is hosted on cloud infrastructure
           (currently Vercel for the public web app) so the service can be delivered.
         </li>
       </ul>
@@ -226,26 +249,26 @@ export function PrivacyPage() {
 
       <h2>International data transfers</h2>
       <p>
-        Some providers above may process personal information outside the United Kingdom. When that
-        happens, processing is carried out under the provider&apos;s arrangements with us for
-        providing their service. The exact transfer safeguards can depend on the provider and
-        configuration. If you need more detail for a specific transfer, contact us and we will
-        explain what we can from our contracts and provider documentation.
+        Some of the service providers listed above may process personal information outside the
+        United Kingdom. Where UK data protection law requires it, we use appropriate safeguards for
+        those transfers. The precise safeguard can depend on the provider and how the service is
+        configured. If you need more detail for a specific provider, contact us and we will explain
+        what we can from our contracts and their documentation.
       </p>
 
       <h2>Where data is stored</h2>
       <ul>
         <li>
-          <strong>Signed-in accounts</strong> — workspace and account data are stored in our
+          <strong>Signed-in accounts</strong>: workspace and account data are stored in our
           database (hosted via Supabase) and may also be cached in your browser while you use the
           app.
         </li>
         <li>
-          <strong>Without an account</strong> — data stays in browser storage on that device unless
+          <strong>Without an account</strong>: data stays in browser storage on that device unless
           you later sign up and sync, or send us information directly.
         </li>
         <li>
-          <strong>Exports</strong> — JSON downloads from Settings are saved on your device. We do not
+          <strong>Exports</strong>: JSON downloads from Settings are saved on your device. We do not
           keep a separate copy of that download file.
         </li>
       </ul>
@@ -253,11 +276,11 @@ export function PrivacyPage() {
       <h2>Retention</h2>
       <ul>
         <li>
-          <strong>Active accounts</strong> — we keep account and workspace data while your account
+          <strong>Active accounts</strong>: we keep account and workspace data while your account
           remains open so we can provide the service.
         </li>
         <li>
-          <strong>Account deletion</strong> — you can delete your account from Settings. That removes
+          <strong>Account deletion</strong>: you can delete your account from Settings. That removes
           your profile, authentication account and owned workspace data from our application
           database. Some records that are not tied to your user account (for example a contact-form
           enquiry under your email, or anonymised marketing visit rows) may remain. Billing records
@@ -265,21 +288,22 @@ export function PrivacyPage() {
           information under their own policies.
         </li>
         <li>
-          <strong>Raw statement files</strong> — not retained on our servers; cleared from the
+          <strong>Raw statement files</strong>: not retained on our servers; cleared from the
           browser session after analysis.
         </li>
         <li>
-          <strong>Statement suggestions</strong> — may remain in browser storage until you clear site
+          <strong>Statement suggestions</strong>: may remain in browser storage until you clear site
           data or they expire from local cache; accepted items remain as workspace data.
         </li>
         <li>
-          <strong>Optional advertising cookies</strong> — follow the provider&apos;s cookie lifetime
+          <strong>Optional advertising cookies</strong>: follow the provider&apos;s cookie lifetime
           unless you withdraw consent earlier. First-party campaign tags we store after consent are
           kept for up to 90 days or until cleared.
         </li>
         <li>
-          <strong>Support and enquiries</strong> — kept as long as needed to handle your request and
-          for a reasonable period afterwards for our records.
+          <strong>Support and enquiries</strong>: kept while we need them to handle your request,
+          follow up if needed, and keep a record of that correspondence. We do not currently apply a
+          fixed automatic deletion timetable to these messages.
         </li>
       </ul>
 
@@ -297,7 +321,7 @@ export function PrivacyPage() {
       </ul>
       <h3>Optional (consent)</h3>
       <ul>
-        <li>Google Analytics (when configured) for site usage measurement</li>
+        <li>Google Analytics for site usage measurement</li>
         <li>Meta Pixel and related advertising measurement cookies</li>
         <li>
           First-party campaign attribution (UTM and similar tags, anonymous visitor identifiers used

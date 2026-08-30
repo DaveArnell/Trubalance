@@ -25590,11 +25590,13 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .legal-table-wrap {
   margin: 0 0 var(--space-4);
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .legal-simple-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
   font-size: 0.92rem;
   line-height: 1.45;
 }
@@ -25606,12 +25608,84 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   text-align: left;
   vertical-align: top;
   color: var(--text-secondary);
+  word-break: break-word;
 }
 
 .legal-simple-table th {
   background: rgba(15, 27, 45, 0.04);
   color: var(--text-primary);
   font-weight: 650;
+}
+
+.legal-simple-table th:nth-child(1),
+.legal-simple-table td:nth-child(1) {
+  width: 36%;
+}
+
+.legal-simple-table th:nth-child(2),
+.legal-simple-table td:nth-child(2) {
+  width: 32%;
+}
+
+.legal-simple-table th:nth-child(3),
+.legal-simple-table td:nth-child(3) {
+  width: 32%;
+}
+
+@media (max-width: 700px) {
+  .legal-table-wrap {
+    overflow: visible;
+  }
+
+  .legal-simple-table {
+    table-layout: auto;
+  }
+
+  .legal-simple-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .legal-simple-table tbody,
+  .legal-simple-table tr,
+  .legal-simple-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .legal-simple-table tr {
+    border: 1px solid rgba(15, 27, 45, 0.12);
+    border-radius: 10px;
+    margin: 0 0 var(--space-3);
+    overflow: hidden;
+    background: #fff;
+  }
+
+  .legal-simple-table td {
+    border: none;
+    border-bottom: 1px solid rgba(15, 27, 45, 0.08);
+    padding: 0.7rem 0.85rem;
+  }
+
+  .legal-simple-table td:last-child {
+    border-bottom: none;
+  }
+
+  .legal-simple-table td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 0.25rem;
+    color: var(--text-primary);
+    font-weight: 650;
+    font-size: 0.82rem;
+  }
 }
 
 .legal-prose h3 {

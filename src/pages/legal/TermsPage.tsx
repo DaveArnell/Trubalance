@@ -42,8 +42,8 @@ export function TermsPage() {
       <h2>Early Access</h2>
       <p>
         We currently offer Early Access with personal setup strongly encouraged. The core service is
-        live and used with real customer data. Features may continue to evolve. Early Access does not
-        mean your data is experimental or disposable.
+        live and used with real customer data. Features may continue to evolve during Early Access,
+        and we apply the data protection and security practices described in our Privacy policy.
       </p>
 
       <h2>Accounts</h2>
@@ -133,6 +133,18 @@ export function TermsPage() {
         delete your account from Settings, which removes your account and owned workspace data from
         our application database, subject to records we may need to keep for billing, tax or legal
         reasons and subject to our Privacy policy.
+      </p>
+
+      <h2>Intellectual property</h2>
+      <p>
+        Cash Prophet, including its software, design, branding and other service content, is owned by
+        or licensed to {COMPANY_INFO.legalName}. Subject to these terms, we give you a limited,
+        non-exclusive, non-transferable right to use the service for your business while your account
+        is active.
+      </p>
+      <p>
+        You retain ownership of the business information and other content you enter into Cash
+        Prophet.
       </p>
 
       <h2>Acceptable use</h2>
