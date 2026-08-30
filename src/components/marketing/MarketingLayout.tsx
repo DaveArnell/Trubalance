@@ -4,14 +4,17 @@ import { CanonicalLink } from '../CanonicalLink'
 import { useAuth } from '../../contexts/AuthContext'
 import { isSupabaseConfigured } from '../../lib/supabase'
 import { COMPANY_INFO } from '../../content/companyInfo'
-import { BRAND_SLOGAN } from '../../content/brandFoundation'
-import { FOUNDER_PROGRAM_FOOTNOTE, FOUNDER_PROGRAM_HEADLINE } from '../../config/founderProgram'
 import { REGULATORY_POSITION } from '../../content/regulatoryNotice'
 import { CompanyLegalNotice } from './CompanyLegalNotice'
 import { CashProphetLogo } from './CashProphetLogo'
 import { useMarketingReveal } from '../../hooks/useMarketingReveal'
 import { PRIMARY_NAV } from '../../content/marketingNav'
 import { openCookiePreferences } from '../../utils/cookieConsent'
+
+const FOOTER_TAGLINE =
+  'A financial organiser for independent hospitality and leisure businesses.'
+const FOOTER_TRIAL_LINE =
+  'Early Access · Personal setup available · 30 days free · No card required'
 
 export function scrollToMarketingSection(id: string) {
   const shell = document.querySelector('.marketing-shell')
@@ -177,7 +180,7 @@ export function MarketingFooter() {
           <CanonicalLink to="/" className="marketing-logo marketing-logo--footer" aria-label="Cash Prophet home">
             <CashProphetLogo variant="footer" />
           </CanonicalLink>
-          <p className="marketing-footer-tagline">{BRAND_SLOGAN}</p>
+          <p className="marketing-footer-tagline">{FOOTER_TAGLINE}</p>
           <CompanyLegalNotice variant="footer" />
         </div>
 
@@ -200,7 +203,7 @@ export function MarketingFooter() {
           </div>
           <div>
             <p className="marketing-footer-heading">Product</p>
-            <CanonicalLink to="/try-it">Try It</CanonicalLink>
+            <CanonicalLink to="/try-it">Try it</CanonicalLink>
             <CanonicalLink to="/see-how-it-works">See it</CanonicalLink>
             <CanonicalLink to="/pricing">Pricing</CanonicalLink>
             <CanonicalLink to="/early-access">Join Early Access</CanonicalLink>
@@ -230,9 +233,7 @@ export function MarketingFooter() {
             Cookies
           </button>
         </p>
-        <p className="marketing-footer-trial muted">
-          {FOUNDER_PROGRAM_HEADLINE}. {FOUNDER_PROGRAM_FOOTNOTE}
-        </p>
+        <p className="marketing-footer-trial muted">{FOOTER_TRIAL_LINE}</p>
         <p className="marketing-footer-regulatory muted">{REGULATORY_POSITION.shortFooter}</p>
       </div>
     </footer>
