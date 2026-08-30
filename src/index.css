@@ -17834,82 +17834,149 @@ tr.sheet-row--received td {
 .marketing-footer-inner {
   max-width: 1140px;
   margin: 0 auto;
-  padding: 48px 24px 32px;
+  padding: 2.75rem 1.5rem 2rem;
   display: grid;
-  grid-template-columns: 1.2fr 2fr;
-  gap: 40px;
+  grid-template-columns: minmax(12rem, 1.35fr) repeat(4, minmax(0, 1fr));
+  gap: 1.75rem 1.5rem;
+  align-items: start;
+}
+
+.marketing-footer-brand {
+  display: grid;
+  gap: 0.55rem;
+  align-content: start;
 }
 
 .marketing-footer-tagline {
   margin: 0;
   color: var(--text-muted);
   font-size: 0.88rem;
+  line-height: 1.45;
+  font-weight: 550;
+  max-width: 17.5rem;
 }
 
-.marketing-footer-columns {
+.marketing-footer-col {
+  min-width: 0;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 24px;
+  align-content: start;
+  gap: 0;
 }
 
 .marketing-footer-email {
+  margin: 0.15rem 0 0;
   overflow-wrap: anywhere;
   word-break: break-word;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  font-weight: 450;
+  text-decoration: none;
 }
 
 .marketing-footer-heading {
-  margin: 0 0 12px;
+  margin: 0 0 0.75rem;
+  min-height: 1.1rem;
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-muted);
+  line-height: 1.2;
 }
 
-.marketing-footer-columns a {
+.marketing-footer-col a,
+.marketing-footer-col .marketing-footer-btn {
   display: block;
-  margin-bottom: 8px;
+  margin: 0 0 0.55rem;
+  padding: 0;
   color: var(--text-secondary);
   text-decoration: none;
   font-size: 0.88rem;
+  font-weight: 450;
+  line-height: 1.4;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
 }
 
-.marketing-footer-columns a:hover {
+.marketing-footer-col a:last-child,
+.marketing-footer-col .marketing-footer-btn:last-child {
+  margin-bottom: 0;
+}
+
+.marketing-footer-col a:hover,
+.marketing-footer-col .marketing-footer-btn:hover {
   color: var(--accent);
 }
 
 .marketing-footer-plain {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 0.55rem;
   color: var(--text-secondary);
   font-size: 0.88rem;
+  line-height: 1.4;
 }
 
 .marketing-footer-bottom {
   max-width: 1140px;
   margin: 0 auto;
-  padding: 20px 24px 28px;
+  padding: 1.15rem 1.5rem 1.5rem;
   border-top: 1px solid var(--border);
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 8px;
-  font-size: 0.82rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem 1.25rem;
+  align-items: start;
+  font-size: 0.8rem;
+  line-height: 1.45;
   color: var(--text-muted);
 }
 
-.marketing-footer-trial {
+.marketing-footer-bottom-block {
+  margin: 0;
+}
+
+.marketing-footer-bottom-block p {
+  margin: 0;
+}
+
+.marketing-footer-bottom-block p + p {
+  margin-top: 0.2rem;
+}
+
+.marketing-footer-bottom-block--left {
+  text-align: left;
+  justify-self: start;
+}
+
+.marketing-footer-bottom-block--center {
+  text-align: center;
+  justify-self: center;
+}
+
+.marketing-footer-bottom-block--right {
+  text-align: right;
+  justify-self: end;
+}
+
+.marketing-footer-trial,
+.marketing-footer-regulatory {
   margin: 0;
 }
 
 .company-legal-notice--footer {
-  margin-top: 16px;
-  font-size: 0.82rem;
-  line-height: 1.55;
+  margin-top: 0.15rem;
+  font-size: 0.8rem;
+  line-height: 1.5;
 }
 
 .company-legal-notice--footer p {
-  margin: 0 0 4px;
+  margin: 0 0 0.2rem;
+}
+
+.company-legal-notice--footer p:last-child {
+  margin-bottom: 0;
 }
 
 .company-legal-notice-operator {
@@ -18998,25 +19065,43 @@ tr.sheet-row--received td {
   .marketing-hero-inner,
   .marketing-feature-grid,
   .marketing-steps-grid,
-  .marketing-pricing-grid,
-  .marketing-footer-inner {
+  .marketing-pricing-grid {
     grid-template-columns: 1fr;
   }
 
-  .marketing-footer-columns {
+  .marketing-footer-inner {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.5rem 1.25rem;
   }
 
-  .marketing-footer-columns > div {
+  .marketing-footer-brand {
+    grid-column: 1 / -1;
+    max-width: 28rem;
+  }
+
+  .marketing-footer-col {
     min-width: 0;
   }
 
-  .marketing-footer-columns a,
+  .marketing-footer-col a,
+  .marketing-footer-col .marketing-footer-btn,
   .marketing-footer-plain,
   .marketing-footer-email {
     overflow-wrap: anywhere;
     word-break: break-word;
+  }
+
+  .marketing-footer-bottom {
+    grid-template-columns: 1fr;
+    justify-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .marketing-footer-bottom-block--left,
+  .marketing-footer-bottom-block--center,
+  .marketing-footer-bottom-block--right {
+    text-align: left;
+    justify-self: stretch;
   }
 
   .marketing-hero-visual {
@@ -19090,7 +19175,7 @@ tr.sheet-row--received td {
     display: none;
   }
 
-  .marketing-footer-columns {
+  .marketing-footer-inner {
     grid-template-columns: 1fr;
     gap: 1.35rem;
   }
@@ -26152,14 +26237,18 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   margin: 0;
   font: inherit;
   color: inherit;
-  text-decoration: underline;
+  text-decoration: none;
   cursor: pointer;
   text-align: left;
 }
 
+.marketing-footer-inline-btn {
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
+}
+
 .marketing-footer-btn {
   display: block;
-  color: inherit;
 }
 
 @media (max-width: 640px) {
@@ -30949,6 +31038,10 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   border-top-color: rgba(244, 247, 251, 0.12);
 }
 
+.marketing-footer .marketing-footer-btn {
+  text-decoration: none;
+}
+
 .marketing-cta-band--pop {
   background:
     radial-gradient(ellipse 60% 70% at 30% 0%, rgba(37, 99, 235, 0.35), transparent 55%),
@@ -32536,7 +32629,42 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   color: rgba(255, 255, 255, 0.7) !important;
 }
 
-.marketing-shell .marketing-footer a {
+.marketing-shell .marketing-footer a,
+.marketing-shell .marketing-footer-col .marketing-footer-btn {
+  color: #24da76 !important;
+  font-size: 0.88rem !important;
+  font-weight: 450 !important;
+  line-height: 1.4 !important;
+}
+
+.marketing-shell .marketing-footer-brand .marketing-footer-email {
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-size: 0.8rem !important;
+  line-height: 1.45 !important;
+  font-weight: 450 !important;
+}
+
+.marketing-shell .marketing-footer-brand .marketing-footer-email:hover {
+  color: #24da76 !important;
+}
+
+.marketing-shell .marketing-footer a:hover,
+.marketing-shell .marketing-footer-col .marketing-footer-btn:hover {
+  color: #6ef0a8 !important;
+}
+
+.marketing-shell .marketing-footer-bottom,
+.marketing-shell .marketing-footer-bottom a,
+.marketing-shell .marketing-footer-bottom .marketing-footer-inline-btn,
+.marketing-shell .marketing-footer-trial,
+.marketing-shell .marketing-footer-regulatory {
+  color: rgba(255, 255, 255, 0.68) !important;
+  font-size: 0.8rem !important;
+  line-height: 1.45 !important;
+}
+
+.marketing-shell .marketing-footer-bottom a:hover,
+.marketing-shell .marketing-footer-bottom .marketing-footer-inline-btn:hover {
   color: #24da76 !important;
 }
 

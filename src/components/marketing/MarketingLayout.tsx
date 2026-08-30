@@ -181,60 +181,70 @@ export function MarketingFooter() {
           </CanonicalLink>
           <p className="marketing-footer-tagline">{BRAND_SLOGAN}</p>
           <CompanyLegalNotice variant="footer" />
+          <a className="marketing-footer-email" href={`mailto:${COMPANY_INFO.contactEmail}`}>
+            {COMPANY_INFO.contactEmail}
+          </a>
         </div>
 
-        <div className="marketing-footer-columns">
-          <div>
-            <p className="marketing-footer-heading">Company</p>
-            <CanonicalLink to="/contact">Enquire / onboarding</CanonicalLink>
-            <CanonicalLink to="/partners">Partner with Cash Prophet</CanonicalLink>
-            <a className="marketing-footer-email" href={`mailto:${COMPANY_INFO.contactEmail}`}>
-              {COMPANY_INFO.contactEmail}
-            </a>
-          </div>
-          <div>
-            <p className="marketing-footer-heading">Learn</p>
-            <CanonicalLink to="/how-it-works">How it works</CanonicalLink>
-            <CanonicalLink to="/who-its-for">Who it’s for</CanonicalLink>
-            <CanonicalLink to="/cafes">For cafés</CanonicalLink>
-            <CanonicalLink to="/how-it-works#habits">Habits</CanonicalLink>
-            <CanonicalLink to="/blog">Blog</CanonicalLink>
-          </div>
-          <div>
-            <p className="marketing-footer-heading">Product</p>
-            <CanonicalLink to="/try-it">Try it</CanonicalLink>
-            <CanonicalLink to="/see-how-it-works">See it</CanonicalLink>
-            <CanonicalLink to="/pricing">Pricing</CanonicalLink>
-            <CanonicalLink to="/early-access">Join Early Access</CanonicalLink>
-            <CanonicalLink to="/signup">Set up my account</CanonicalLink>
-            <CanonicalLink to="/login">Log in</CanonicalLink>
-            {!isSupabaseConfigured && <CanonicalLink to="/app">Try locally</CanonicalLink>}
-          </div>
-          <div>
-            <p className="marketing-footer-heading">Legal</p>
-            <CanonicalLink to="/privacy">Privacy policy</CanonicalLink>
-            <CanonicalLink to="/terms">Terms of service</CanonicalLink>
-            <button type="button" className="marketing-footer-btn" onClick={() => openCookiePreferences()}>
-              Cookie preferences
-            </button>
-          </div>
+        <div className="marketing-footer-col">
+          <p className="marketing-footer-heading">Company</p>
+          <CanonicalLink to="/contact">Enquire / onboarding</CanonicalLink>
+          <CanonicalLink to="/partners">Partner with Cash Prophet</CanonicalLink>
+        </div>
+
+        <div className="marketing-footer-col">
+          <p className="marketing-footer-heading">Learn</p>
+          <CanonicalLink to="/how-it-works">How it works</CanonicalLink>
+          <CanonicalLink to="/who-its-for">Who it’s for</CanonicalLink>
+          <CanonicalLink to="/cafes">For cafés</CanonicalLink>
+          <CanonicalLink to="/how-it-works#habits">Habits</CanonicalLink>
+          <CanonicalLink to="/blog">Blog</CanonicalLink>
+        </div>
+
+        <div className="marketing-footer-col">
+          <p className="marketing-footer-heading">Product</p>
+          <CanonicalLink to="/try-it">Try it</CanonicalLink>
+          <CanonicalLink to="/see-how-it-works">See it</CanonicalLink>
+          <CanonicalLink to="/pricing">Pricing</CanonicalLink>
+          <CanonicalLink to="/early-access">Join Early Access</CanonicalLink>
+          <CanonicalLink to="/signup">Set up my account</CanonicalLink>
+          <CanonicalLink to="/login">Log in</CanonicalLink>
+          {!isSupabaseConfigured && <CanonicalLink to="/app">Try locally</CanonicalLink>}
+        </div>
+
+        <div className="marketing-footer-col">
+          <p className="marketing-footer-heading">Legal</p>
+          <CanonicalLink to="/privacy">Privacy policy</CanonicalLink>
+          <CanonicalLink to="/terms">Terms of service</CanonicalLink>
+          <button type="button" className="marketing-footer-btn" onClick={() => openCookiePreferences()}>
+            Cookie preferences
+          </button>
         </div>
       </div>
 
       <div className="marketing-footer-bottom">
-        <p>
-          © {new Date().getFullYear()} {COMPANY_INFO.legalName}. All rights reserved.{' '}
-          <CanonicalLink to="/privacy">Privacy</CanonicalLink>
-          {' · '}
-          <CanonicalLink to="/terms">Terms</CanonicalLink>
-          {' · '}
-          <button type="button" className="marketing-footer-inline-btn" onClick={() => openCookiePreferences()}>
-            Cookies
-          </button>
+        <div className="marketing-footer-bottom-block marketing-footer-bottom-block--left">
+          <p>
+            © {new Date().getFullYear()} {COMPANY_INFO.legalName}. All rights reserved.
+          </p>
+          <p>
+            <CanonicalLink to="/privacy">Privacy</CanonicalLink>
+            {' · '}
+            <CanonicalLink to="/terms">Terms</CanonicalLink>
+            {' · '}
+            <button type="button" className="marketing-footer-inline-btn" onClick={() => openCookiePreferences()}>
+              Cookies
+            </button>
+          </p>
+        </div>
+        <p className="marketing-footer-bottom-block marketing-footer-bottom-block--center marketing-footer-trial">
+          {FOOTER_TRIAL_LINE}
         </p>
-        <p className="marketing-footer-trial muted">{FOOTER_TRIAL_LINE}</p>
-        <p className="marketing-footer-regulatory muted">{REGULATORY_POSITION.shortFooter}</p>
+        <p className="marketing-footer-bottom-block marketing-footer-bottom-block--right marketing-footer-regulatory">
+          {REGULATORY_POSITION.shortFooter}
+        </p>
       </div>
     </footer>
   )
 }
+
