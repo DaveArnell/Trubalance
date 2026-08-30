@@ -33268,6 +33268,20 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   padding: 3.5rem 0 3.75rem;
 }
 
+.who-for-page .who-for-guides {
+  padding: 2.75rem 0;
+}
+
+.who-for-page .who-for-guides .marketing-section-inner,
+.who-for-page .marketing-faq-section .marketing-section-inner {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.who-for-page .marketing-faq-section {
+  padding: 2.75rem 0 !important;
+}
+
 .who-for-guides-inner {
   max-width: 42rem;
   margin: 0 auto;
