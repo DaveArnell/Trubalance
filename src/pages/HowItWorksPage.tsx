@@ -121,7 +121,7 @@ export function HowItWorksPage() {
             <div className="how-it-works-over-time-visual">
               <BalanceLineMorphVisual />
             </div>
-            <p className="how-it-works-after-example">{HOW_IT_WORKS_OVER_TIME.afterVisual}</p>
+            <p className="how-it-works-over-time-conclusion">{HOW_IT_WORKS_OVER_TIME.afterVisual}</p>
           </div>
         </section>
 
