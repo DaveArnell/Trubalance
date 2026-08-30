@@ -66,6 +66,9 @@ See **`docs/STRIPE_GO_LIVE.md`** for prices, env secrets, webhook, trial emails,
 - [ ] Stripe webhook events connected
 - [ ] Migration **027** (`trial_email_log`) run
 - [ ] Daily cron hitting `send-trial-emails`
+- [ ] Migration **039** (`purge_expired_support_and_enquiries`) run in Supabase SQL Editor
+- [ ] Edge function `purge-support-enquiries` deployed
+- [ ] Quarterly (or monthly) cron hitting `purge-support-enquiries` with `TRIAL_EMAIL_CRON_SECRET` — deletes closed enquiry/support rows older than 12 months
 - [ ] Test checkout with deferred trial charge
 
 **Do not spend hard on Facebook until the Stripe checklist is green.**

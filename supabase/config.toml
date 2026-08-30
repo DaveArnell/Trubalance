@@ -12,3 +12,6 @@ verify_jwt = true
 
 [functions.submit-inquiry]
 verify_jwt = true
+
+[functions.purge-support-enquiries]
+verify_jwt = false

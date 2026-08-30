@@ -301,9 +301,9 @@ export function PrivacyPage() {
           kept for up to 90 days or until cleared.
         </li>
         <li>
-          <strong>Support and enquiries</strong>: kept for up to 12 months after we receive them,
-          unless we need to keep a message longer to resolve an ongoing issue or meet a legal
-          obligation.
+          <strong>Support and enquiries</strong>: kept for up to 12 months after we receive them.
+          Closed or idle messages are removed after that period. We may keep a message longer if it
+          is still needed to resolve an ongoing issue or to meet a legal obligation.
         </li>
       </ul>
 
