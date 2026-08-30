@@ -24,7 +24,6 @@ export function buildSalonDemoState(): AppState {
     venues: [],
     accounts: [
       { id: 'salon-acc-1', businessId: bizId, name: 'Current Account', type: 'current', balance: 14200, active: true, updatedAt },
-      { id: 'salon-acc-2', businessId: bizId, name: 'Savings Account', type: 'savings', balance: 3100, active: true, updatedAt },
       { id: 'salon-acc-3', businessId: bizId, name: 'Reserve Account', type: 'reserve', balance: 2800, active: true, updatedAt },
     ],
     commitments: [
@@ -76,6 +75,41 @@ export function buildSalonDemoState(): AppState {
     snapshots: [],
     historyRecords: [],
     dayNotes: [],
+    financialChecklistItems: [
+      {
+        id: 'salon-fc-1',
+        name: 'Self Assessment payment on account',
+        recurrence: 'once',
+        dueDate: '2026-07-31',
+        scopeLevel: 'business',
+        scopeId: bizId,
+        notes: 'Second payment on account for the tax year.',
+        sortOrder: 1,
+        createdAt: updatedAt,
+      },
+      {
+        id: 'salon-fc-2',
+        name: 'Chair rental renewals',
+        recurrence: 'once',
+        dueDate: '2026-07-18',
+        scopeLevel: 'business',
+        scopeId: bizId,
+        notes: 'Confirm renewals with self-employed stylists.',
+        sortOrder: 2,
+        createdAt: updatedAt,
+      },
+      {
+        id: 'salon-fc-3',
+        name: 'VAT return due',
+        recurrence: 'quarterly',
+        dueDayOfMonth: 7,
+        dueMonths: [3, 6, 9, 12],
+        scopeLevel: 'business',
+        scopeId: bizId,
+        sortOrder: 3,
+        createdAt: updatedAt,
+      },
+    ],
     workspaceOrigin: 'builtin-demo',
   }
 

@@ -136,12 +136,12 @@ export function applyDemoOperatingSnapshot(state: AppState, today = getReference
     accounts: rolled.accounts.map((account) => ({
       ...account,
       updatedAt,
-      balance: onTrackByAccountId.get(account.id) ?? account.balance,
+      balance: Math.round(onTrackByAccountId.get(account.id) ?? account.balance),
     })),
     commitments: markCommitmentsOperatingCurrent(rolled.commitments, today),
     reservePlanners: rolled.reservePlanners.map((planner) => ({
       ...planner,
-      actualBalance: onTrackByPlannerId.get(planner.id) ?? planner.actualBalance,
+      actualBalance: Math.round(onTrackByPlannerId.get(planner.id) ?? planner.actualBalance ?? 0),
       monthConfirmations: confirmationsByPlannerId.get(planner.id),
       bills: markReserveBillsOperatingCurrent(planner.bills, today),
     })),

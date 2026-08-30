@@ -19,16 +19,24 @@ export function TryItPage() {
   const [params] = useSearchParams()
   const cafe = isCafeSector(params.get('sector'))
   usePageMeta(TRY_IT_SEO)
+
+  const leadParagraphs = (cafe ? TRY_IT_CAFE.lead : TRY_IT_PAGE.lead).split('\n\n')
+  const explainIntro = TRY_IT_PAGE.explain.intro.split('\n\n')
+
   return (
     <MarketingShell>
       <MarketingJsonLd data={tryItPageJsonLd()} />
       <MarketingHeader />
       <main className="marketing-main try-it-page">
-        <header className="method-edu-hero marketing-surface--hero try-it-hero">
+        <header className="method-edu-hero method-edu-hero--compact marketing-surface--hero try-it-hero">
           <div className="method-edu-inner try-it-hero-inner">
             <p className="marketing-eyebrow">{TRY_IT_PAGE.freeBadge}</p>
             <h1>{cafe ? TRY_IT_CAFE.title : TRY_IT_PAGE.title}</h1>
-            <p className="method-edu-hero-lead">{cafe ? TRY_IT_CAFE.lead : TRY_IT_PAGE.lead}</p>
+            {leadParagraphs.map((paragraph) => (
+              <p key={paragraph} className="method-edu-hero-lead">
+                {paragraph}
+              </p>
+            ))}
           </div>
         </header>
 
@@ -41,32 +49,23 @@ export function TryItPage() {
         <section className="try-it-explain home-band home-band--paper" aria-labelledby="try-it-explain">
           <div className="marketing-section-inner try-it-explain-inner">
             <h2 id="try-it-explain">{TRY_IT_PAGE.explain.heading}</h2>
-            <p className="try-it-explain-intro">{TRY_IT_PAGE.explain.intro}</p>
+            {explainIntro.map((paragraph) => (
+              <p key={paragraph} className="try-it-explain-intro">
+                {paragraph}
+              </p>
+            ))}
             <ul className="try-it-explain-points">
               {TRY_IT_PAGE.explain.points.map((point) => (
                 <li key={point}>{point}</li>
               ))}
             </ul>
             <p className="try-it-explain-close">{TRY_IT_PAGE.explain.closing}</p>
-          </div>
-        </section>
-
-        <section className="marketing-cta-band marketing-cta-band--pop home-cta-band">
-          <div className="marketing-cta-band-inner">
-            <h2>{TRY_IT_PAGE.cta.heading}</h2>
-            <p>{TRY_IT_PAGE.cta.body}</p>
-            <div className="marketing-cta-row marketing-cta-row--center">
-              <CanonicalLink to="/signup" className="btn-primary btn-large marketing-cta-btn-on-dark">
+            <div className="try-it-explain-actions">
+              <CanonicalLink to={TRY_IT_PAGE.cta.primaryHref} className="btn-primary btn-large">
                 {TRY_IT_PAGE.cta.primary}
               </CanonicalLink>
-              <CanonicalLink
-                to="/contact?topic=onboarding"
-                className="btn-ghost btn-large marketing-cta-ghost"
-              >
+              <CanonicalLink to={TRY_IT_PAGE.cta.secondaryHref} className="btn-secondary btn-large">
                 {TRY_IT_PAGE.cta.secondary}
-              </CanonicalLink>
-              <CanonicalLink to="/how-it-works" className="btn-ghost btn-large marketing-cta-ghost">
-                {TRY_IT_PAGE.cta.tertiary}
               </CanonicalLink>
             </div>
           </div>

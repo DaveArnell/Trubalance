@@ -857,7 +857,9 @@ function AppShellInner({
         />
         {isDemoSession && (
           <DemoProductTourStarter
-            bankBalance={metrics.cash}
+            bankBalance={
+              breakdownColumns.find((col) => col.isRollup)?.current ?? metrics.cash
+            }
             trueBalance={metrics.trueBalance}
           />
         )}
@@ -1066,7 +1068,12 @@ function AppShellInner({
                         onSetupGuide={() => setSetupWizardOpen(true)}
                         demoBalances={
                           isDemoSession
-                            ? { bankBalance: metrics.cash, trueBalance: metrics.trueBalance }
+                            ? {
+                                bankBalance:
+                                  breakdownColumns.find((col) => col.isRollup)?.current ??
+                                  metrics.cash,
+                                trueBalance: metrics.trueBalance,
+                              }
                             : undefined
                         }
                       />

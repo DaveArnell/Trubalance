@@ -33,9 +33,7 @@ export function buildCafeDemoState(): AppState {
     ],
     accounts: [
       { id: 'cafe-acc-1', venueId: venueHigh, name: 'Current Account', type: 'current', balance: 18400, active: true, updatedAt },
-      { id: 'cafe-acc-2', venueId: venueHigh, name: 'Savings Account', type: 'savings', balance: 3200, active: true, updatedAt },
       { id: 'cafe-acc-3', venueId: venueMarket, name: 'Current Account', type: 'current', balance: 12800, active: true, updatedAt },
-      { id: 'cafe-acc-4', venueId: venueMarket, name: 'Savings Account', type: 'savings', balance: 2100, active: true, updatedAt },
       { id: 'cafe-acc-5', businessId: bizId, name: 'Reserve Account', type: 'reserve', balance: 4500, active: true, updatedAt },
     ],
     commitments: [
@@ -88,6 +86,41 @@ export function buildCafeDemoState(): AppState {
     snapshots: [],
     historyRecords: [],
     dayNotes: [],
+    financialChecklistItems: [
+      {
+        id: 'cafe-fc-1',
+        name: 'PAYE / CIS filing',
+        recurrence: 'monthly',
+        dueDayOfMonth: 19,
+        scopeLevel: 'business',
+        scopeId: bizId,
+        notes: 'File Full Payment Submission for the tax month.',
+        sortOrder: 1,
+        createdAt: updatedAt,
+      },
+      {
+        id: 'cafe-fc-2',
+        name: 'Business rates instalment',
+        recurrence: 'once',
+        dueDate: '2026-07-15',
+        scopeLevel: 'business',
+        scopeId: bizId,
+        notes: 'Monthly rates instalment for both sites.',
+        sortOrder: 2,
+        createdAt: updatedAt,
+      },
+      {
+        id: 'cafe-fc-3',
+        name: 'VAT return due',
+        recurrence: 'quarterly',
+        dueDayOfMonth: 7,
+        dueMonths: [1, 4, 7, 10],
+        scopeLevel: 'business',
+        scopeId: bizId,
+        sortOrder: 3,
+        createdAt: updatedAt,
+      },
+    ],
     workspaceOrigin: 'builtin-demo',
   }
 

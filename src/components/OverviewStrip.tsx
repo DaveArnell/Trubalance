@@ -92,6 +92,7 @@ export function OverviewStrip({
               columns={breakdownColumns}
               compact
               density={expanded ? 'detailed' : 'summary'}
+              roundAmounts
               onBalanceSave={readOnly ? undefined : handleBalanceSave}
             />
             {saveMessage ? <p className="overview-accounts-save-msg">{saveMessage}</p> : null}

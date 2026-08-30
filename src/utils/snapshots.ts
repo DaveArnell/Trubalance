@@ -164,7 +164,7 @@ export function filterSnapshotsByRange(
   let filtered = snapshots
 
   if (range !== 'all') {
-    const cutoff = new Date()
+    const cutoff = new Date(getReferenceDate().getTime())
     if (range === '30d') cutoff.setDate(cutoff.getDate() - 30)
     else if (range === '90d') cutoff.setDate(cutoff.getDate() - 90)
     else cutoff.setMonth(cutoff.getMonth() - 12)

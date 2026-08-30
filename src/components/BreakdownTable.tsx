@@ -425,7 +425,11 @@ export function BreakdownTable({
 
   const summaryMode = !balancesOnly && density === 'summary'
   const showDetailRows = !balancesOnly && !summaryMode
-  const showSavingsRow = showDetailRows && !omitSavings
+  const hasSavingsBalance = columns.some(
+    (col) => col.savings !== 0 || col.savingsAccounts.length > 0,
+  )
+  // Summary stays Bank + CPB unless savings has money — then show that row too.
+  const showSavingsRow = !omitSavings && (showDetailRows || (summaryMode && hasSavingsBalance))
   const hasReceipts = showDetailRows && showReceipts && columns.some((col) => col.expectedReceipts !== 0)
   const showTrueBalance = !balancesOnly
   const bankLabel = shortLabels ? 'Bank' : 'Bank balance'
@@ -584,7 +588,9 @@ export function BreakdownTable({
         {balancesOnly
           ? 'Click a Bank balance or Savings Acc cell to update today’s balances.'
           : summaryMode
-            ? 'Click a Bank balance cell to update balances.'
+            ? showSavingsRow
+              ? 'Click a Bank balance or Savings Acc cell to update balances.'
+              : 'Click a Bank balance cell to update balances.'
             : 'Click a Bank balance or Savings Acc cell to update balances. Click a Total costs cell for the breakdown.'}
       </p>
     </div>

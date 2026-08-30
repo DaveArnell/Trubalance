@@ -935,7 +935,11 @@ export function ReservePlannerPanel({
                 actions={actions}
               />
             ) : (
-            <div className="sheet-wrap reserve-sheet-wrap" ref={sheetWrapRef}>
+            <div
+              className="sheet-wrap reserve-sheet-wrap"
+              ref={sheetWrapRef}
+              data-tour="reserve-planner-sheet"
+            >
               <table
                 className="sheet-table reserve-sheet-table"
                 style={sheetTableWidthStyle(columnWidths)}

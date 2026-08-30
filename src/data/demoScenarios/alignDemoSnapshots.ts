@@ -32,10 +32,10 @@ export function alignDemoSnapshotsToLivePosition(state: AppState): AppState {
   for (const [key, scope] of scopes) {
     const live = calculateDashboard(state, scope)
     liveByScope.set(key, {
-      cash: live.cash,
-      committedFunds: live.committedFunds,
-      expectedReceipts: live.expectedReceipts,
-      trueBalance: live.trueBalance,
+      cash: Math.round(live.cash),
+      committedFunds: Math.round(live.committedFunds),
+      expectedReceipts: Math.round(live.expectedReceipts),
+      trueBalance: Math.round(live.trueBalance),
     })
     const scoped = state.snapshots.filter(
       (snap) => snap.scopeType === scope.type && snap.scopeId === scope.id,
@@ -44,7 +44,7 @@ export function alignDemoSnapshotsToLivePosition(state: AppState): AppState {
       scoped.find((snap) => snap.date === today) ??
       [...scoped].sort((a, b) => a.date.localeCompare(b.date)).at(-1)
     if (!todaySnap) continue
-    offsetByScope.set(key, live.trueBalance - todaySnap.trueBalance)
+    offsetByScope.set(key, Math.round(live.trueBalance) - todaySnap.trueBalance)
   }
 
   const snapshots = state.snapshots.map((snap) => {
@@ -61,10 +61,10 @@ export function alignDemoSnapshotsToLivePosition(state: AppState): AppState {
       }
     }
     if (offset === 0) return snap
+    // Shift the underlying position only — do not push the same offset into cash history.
     return {
       ...snap,
       trueBalance: Math.round(snap.trueBalance + offset),
-      cash: Math.round(snap.cash + offset),
     }
   })
 

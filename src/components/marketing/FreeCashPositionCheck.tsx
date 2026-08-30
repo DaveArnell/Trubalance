@@ -124,10 +124,12 @@ export function FreeCashPositionCheck({ variant = 'default' }: { variant?: 'defa
     })
   }, [regularCosts, result.regularCosts])
 
+  const spokenFor = result.regularAccruedTotal + result.otherOwedTotal
+
   return (
     <div className="try-it-tool">
       <div className="try-it-tool-inputs">
-        <section className="try-it-bank" aria-labelledby={`${formId}-bank`}>
+        <section className="try-it-calc-card try-it-bank" aria-labelledby={`${formId}-bank`}>
           <h2 id={`${formId}-bank`}>{TRY_IT_PAGE.bank.heading}</h2>
           <p className="try-it-section-lead">
             {variant === 'cafe' ? TRY_IT_CAFE.bankHint : TRY_IT_PAGE.bank.hint}
@@ -147,10 +149,10 @@ export function FreeCashPositionCheck({ variant = 'default' }: { variant?: 'defa
         </section>
 
         <section
-          className="home-snap home-snap--wide try-it-app-panel"
+          className="try-it-calc-card try-it-app-panel"
           aria-labelledby={`${formId}-regular`}
         >
-          <div className="home-dash home-dash--cards home-dash--accruing">
+          <div className="try-it-panel-body home-dash home-dash--cards home-dash--accruing">
             <div className="home-dash-hero home-dash-hero--accruing">
               <p id={`${formId}-regular`} className="home-snap-label home-snap-label--teal">
                 {TRY_IT_PAGE.regular.heading}
@@ -197,7 +199,7 @@ export function FreeCashPositionCheck({ variant = 'default' }: { variant?: 'defa
                     />
                     <div className="try-it-bill-fields">
                       <label className="try-it-mini-field">
-                        <span className="sr-only">{TRY_IT_PAGE.regular.nameLabel}</span>
+                        <span className="try-it-field-label">{TRY_IT_PAGE.regular.nameLabel}</span>
                         <input
                           type="text"
                           value={cost.name}
@@ -210,26 +212,29 @@ export function FreeCashPositionCheck({ variant = 'default' }: { variant?: 'defa
                         />
                       </label>
                       <label className="try-it-mini-field try-it-mini-field--amount">
-                        <span className="sr-only">{TRY_IT_PAGE.regular.amountLabel}</span>
-                        <span className="try-it-mini-currency" aria-hidden>
-                          {symbol}
+                        <span className="try-it-field-label">{TRY_IT_PAGE.regular.amountLabel}</span>
+                        <span className="try-it-mini-input-wrap">
+                          <span className="try-it-mini-currency" aria-hidden>
+                            {symbol}
+                          </span>
+                          <input
+                            type="text"
+                            inputMode="decimal"
+                            value={cost.amount}
+                            placeholder="3000"
+                            onChange={(e) => updateRegular(cost.id, { amount: e.target.value })}
+                          />
                         </span>
-                        <input
-                          type="text"
-                          inputMode="decimal"
-                          value={cost.amount}
-                          placeholder="3000"
-                          onChange={(e) => updateRegular(cost.id, { amount: e.target.value })}
-                        />
                       </label>
                       <label className="try-it-mini-field try-it-mini-field--day">
-                        <span className="sr-only">{TRY_IT_PAGE.regular.dueDayLabel}</span>
+                        <span className="try-it-field-label">{TRY_IT_PAGE.regular.dueDayLabel}</span>
                         <input
                           type="number"
                           min={1}
                           max={31}
                           value={cost.dueDay}
-                          aria-label="Due day of month"
+                          placeholder={TRY_IT_PAGE.regular.dueDayPlaceholder}
+                          aria-label={TRY_IT_PAGE.regular.dueDayLabel}
                           onChange={(e) => updateRegular(cost.id, { dueDay: e.target.value })}
                         />
                       </label>
@@ -270,10 +275,10 @@ export function FreeCashPositionCheck({ variant = 'default' }: { variant?: 'defa
         </section>
 
         <section
-          className="home-snap home-snap--wide try-it-app-panel"
+          className="try-it-calc-card try-it-app-panel"
           aria-labelledby={`${formId}-other`}
         >
-          <div className="home-dash home-dash--cards try-it-dash--due">
+          <div className="try-it-panel-body home-dash home-dash--cards try-it-dash--due">
             <div className="home-dash-hero try-it-dash-hero--due">
               <p id={`${formId}-other`} className="home-snap-label try-it-label--due">
                 {TRY_IT_PAGE.other.heading}
@@ -311,7 +316,7 @@ export function FreeCashPositionCheck({ variant = 'default' }: { variant?: 'defa
                     />
                     <div className="try-it-bill-fields">
                       <label className="try-it-mini-field">
-                        <span className="sr-only">{TRY_IT_PAGE.other.nameLabel}</span>
+                        <span className="try-it-field-label">{TRY_IT_PAGE.other.nameLabel}</span>
                         <input
                           type="text"
                           value={cost.name}
@@ -320,17 +325,19 @@ export function FreeCashPositionCheck({ variant = 'default' }: { variant?: 'defa
                         />
                       </label>
                       <label className="try-it-mini-field try-it-mini-field--amount">
-                        <span className="sr-only">{TRY_IT_PAGE.other.amountLabel}</span>
-                        <span className="try-it-mini-currency" aria-hidden>
-                          {symbol}
+                        <span className="try-it-field-label">{TRY_IT_PAGE.other.amountLabel}</span>
+                        <span className="try-it-mini-input-wrap">
+                          <span className="try-it-mini-currency" aria-hidden>
+                            {symbol}
+                          </span>
+                          <input
+                            type="text"
+                            inputMode="decimal"
+                            value={cost.amount}
+                            placeholder="1500"
+                            onChange={(e) => updateOther(cost.id, { amount: e.target.value })}
+                          />
                         </span>
-                        <input
-                          type="text"
-                          inputMode="decimal"
-                          value={cost.amount}
-                          placeholder="1500"
-                          onChange={(e) => updateOther(cost.id, { amount: e.target.value })}
-                        />
                       </label>
                       {otherCosts.length > 1 ? (
                         <button
@@ -369,7 +376,7 @@ export function FreeCashPositionCheck({ variant = 'default' }: { variant?: 'defa
       {hasBank ? (
         <section className="try-it-result" aria-labelledby={`${formId}-result`} aria-live="polite">
           <h2 id={`${formId}-result`} className="sr-only">
-            What is actually yours today
+            Position after what is already spoken for
           </h2>
           <div className="try-it-result-stack">
             <div className="try-it-result-row">
@@ -399,9 +406,18 @@ export function FreeCashPositionCheck({ variant = 'default' }: { variant?: 'defa
           </div>
           {!hasMeaningfulInput ? (
             <p className="try-it-result-hint">{TRY_IT_PAGE.regular.empty}</p>
-          ) : null}
+          ) : (
+            <p className="try-it-result-hint">
+              {TRY_IT_PAGE.result.spokenPrefix} {formatCurrency(spokenFor)}{' '}
+              {TRY_IT_PAGE.result.spokenSuffix}
+            </p>
+          )}
         </section>
-      ) : null}
+      ) : (
+        <section className="try-it-result try-it-result--empty" aria-live="polite">
+          <p className="try-it-result-hint">{TRY_IT_PAGE.result.emptyBank}</p>
+        </section>
+      )}
     </div>
   )
 }

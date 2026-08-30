@@ -4,7 +4,11 @@ import { applyDemoOperatingSnapshot } from './operatingSnapshot'
 import { alignDemoSnapshotsToLivePosition } from './alignDemoSnapshots'
 import { buildLeisureSoloDemoState, leisureDefaultViewScope } from './leisureSolo'
 import { buildSalonDemoState, salonDefaultViewScope } from './salon'
-import { getDemoFrozenDate } from './demoFreeze'
+import { DEMO_FROZEN_DATE_KEY, getDemoFrozenDate } from './demoFreeze'
+import {
+  getSimulatedDateKey,
+  setReferenceDateOverride,
+} from '../../utils/referenceDate'
 
 export type DemoScenarioId = 'independent-leisure' | 'independent-cafe' | 'independent-salon'
 
@@ -91,7 +95,15 @@ export function buildDemoScenarioState(id: string | undefined): {
   state: AppState
 } {
   const meta = getDemoScenario(id)
-  const operated = applyDemoOperatingSnapshot(meta.buildState(), getDemoFrozenDate())
-  const state = alignDemoSnapshotsToLivePosition(operated)
-  return { meta, state }
+  // Align must use the frozen demo calendar; otherwise accruals use the real clock
+  // and Trends history locks to the wrong Cash Prophet Balance.
+  const previousOverride = getSimulatedDateKey()
+  setReferenceDateOverride(DEMO_FROZEN_DATE_KEY)
+  try {
+    const operated = applyDemoOperatingSnapshot(meta.buildState(), getDemoFrozenDate())
+    const state = alignDemoSnapshotsToLivePosition(operated)
+    return { meta, state }
+  } finally {
+    setReferenceDateOverride(previousOverride)
+  }
 }

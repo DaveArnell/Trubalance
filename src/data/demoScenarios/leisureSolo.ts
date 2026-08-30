@@ -24,7 +24,6 @@ export function buildLeisureSoloDemoState(): AppState {
     venues: [],
     accounts: [
       { id: 'ls-acc-1', businessId: bizId, name: 'Current Account', type: 'current', balance: 24600, active: true, updatedAt },
-      { id: 'ls-acc-2', businessId: bizId, name: 'Savings Account', type: 'savings', balance: 5400, active: true, updatedAt },
       { id: 'ls-acc-3', businessId: bizId, name: 'Reserve Account', type: 'reserve', balance: 6200, active: true, updatedAt },
     ],
     commitments: [
@@ -76,6 +75,42 @@ export function buildLeisureSoloDemoState(): AppState {
     snapshots: [],
     historyRecords: [],
     dayNotes: [],
+    financialChecklistItems: [
+      {
+        id: 'ls-fc-1',
+        name: 'VAT return due',
+        recurrence: 'quarterly',
+        dueDayOfMonth: 7,
+        dueMonths: [2, 5, 8, 11],
+        scopeLevel: 'business',
+        scopeId: bizId,
+        notes: 'Submit and pay VAT for the previous quarter.',
+        sortOrder: 1,
+        createdAt: updatedAt,
+      },
+      {
+        id: 'ls-fc-2',
+        name: 'Pension reconfirmation',
+        recurrence: 'once',
+        dueDate: '2026-07-22',
+        scopeLevel: 'business',
+        scopeId: bizId,
+        notes: 'Confirm auto-enrolment duties with the pension provider.',
+        sortOrder: 2,
+        createdAt: updatedAt,
+      },
+      {
+        id: 'ls-fc-3',
+        name: 'Public liability certificate check',
+        recurrence: 'yearly',
+        dueDayOfMonth: 1,
+        dueMonths: [9],
+        scopeLevel: 'business',
+        scopeId: bizId,
+        sortOrder: 3,
+        createdAt: updatedAt,
+      },
+    ],
     workspaceOrigin: 'builtin-demo',
   }
 

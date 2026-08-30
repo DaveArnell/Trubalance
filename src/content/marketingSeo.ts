@@ -111,11 +111,11 @@ export const CONTACT_SEO = {
 } as const satisfies RouteSeo
 
 export const TRY_IT_SEO = {
-  title: 'Free Cash Position Check | How Much Is Actually Yours | Cash Prophet',
+  title: 'Free Check | How Much of Today\'s Bank Balance Is Already Spoken For | Cash Prophet',
   description:
-    'Free interactive check: enter your bank balance and bills to see how much is already spoken for, and what is actually yours today. No account needed.',
+    'Free interactive check: enter your business bank balance and bills to see how much is already spoken for today. One part of the Cash Prophet approach. No account needed.',
   path: '/try-it',
-  imageAlt: 'Free Cash Prophet cash position check for UK small businesses',
+  imageAlt: 'Free Cash Prophet check showing how much of a business bank balance is already spoken for',
 } as const satisfies RouteSeo
 
 export const PARTNERS_SEO = {

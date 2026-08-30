@@ -1,38 +1,36 @@
-import { TRIAL_DAYS } from '../config/subscriptionTiers'
-import { CASH_PROPHET_BALANCE } from './brandFoundation'
-
 export const TRY_IT_PAGE = {
   navLabel: 'Try It',
   path: '/try-it',
-  title: 'How much of your bank balance is actually yours?',
+  title: "See how much of today's bank balance is already spoken for",
   lead:
-    'The number in your bank account does not show costs and commitments already building up. This free check applies the Cash Prophet approach. No account needed.',
+    "Regular bills can be building up long before the money actually leaves your account.\n\nEnter a few of yours below and see how Cash Prophet accounts for them as part of your day-to-day financial picture.",
   freeBadge: 'Free check · no signup',
   bank: {
-    heading: 'What’s in your business bank account today?',
-    hint: 'Enter the balance you’d normally trust at a glance.',
+    heading: "What's in your business bank account today?",
+    hint: "Enter the balance you'd normally trust at a glance.",
   },
   regular: {
     heading: 'Monthly accruing bills',
     lead:
       'Add the bills that hit every month. Each one builds through its payment cycle, so only the amount accrued so far is treated as spoken for today.',
-    examplesHint: 'Examples: payroll, rent, loan, utilities, software. Add whatever fits your business.',
+    examplesHint: 'Examples: payroll, rent, loan, utilities, software.',
     addLabel: 'Add monthly bill',
-    nameLabel: 'Name',
+    nameLabel: 'Bill name',
     namePlaceholder: 'e.g. Rent',
-    amountLabel: 'Monthly',
-    dueDayLabel: 'Due day',
-    empty: 'Add a monthly bill below to see how much of this is already spoken for.',
+    amountLabel: 'Monthly amount',
+    dueDayLabel: 'Due day of month',
+    dueDayPlaceholder: '28',
+    empty: "Add your bills to see how much of today's balance is already spoken for.",
     kpiMonthly: 'Monthly total',
     kpiAccrued: 'Accrued now',
   },
   other: {
     heading: 'Other bills owed',
     lead:
-      'Add any other amounts that should come out of today’s balance in full: invoices due, tax you already owe, one-off bills waiting to be paid.',
-    examplesHint: 'Examples: supplier invoice due, VAT already owed, equipment invoice, other known amounts to deduct.',
+      'Add any other amounts that should come out of today\'s position in full, such as invoices due, tax already owed or one-off bills waiting to be paid.',
+    examplesHint: 'Examples: supplier invoice, VAT already owed, equipment invoice.',
     addLabel: 'Add other bill',
-    nameLabel: 'Name',
+    nameLabel: 'Bill name',
     namePlaceholder: 'e.g. Supplier invoice',
     amountLabel: 'Amount owed',
     empty: 'Optional. Add bills that should be deducted in full today.',
@@ -42,40 +40,39 @@ export const TRY_IT_PAGE = {
     bankLabel: 'Your bank balance',
     accruedLabel: 'Less monthly bills accrued',
     otherLabel: 'Less other bills owed',
-    availableLabel: 'Actually yours today',
-    emptyBank: 'Enter your bank balance to see what is actually yours.',
+    availableLabel: "After what's already spoken for",
+    emptyBank: 'Enter your bank balance to get started.',
+    spokenPrefix: "Based on the costs you've entered,",
+    spokenSuffix: "of today's bank balance is already spoken for.",
   },
   explain: {
-    heading: 'This is the number Cash Prophet keeps clear for you every day',
+    heading: "That's one part of the picture Cash Prophet keeps organised",
     intro:
-      'You have just done by hand what Cash Prophet does quietly in the background: separate what is already spoken for from what is actually yours.',
+      "You've just accounted for some of the costs already sitting behind today's bank balance.\n\nCash Prophet keeps the wider day-to-day financial picture organised too.",
     points: [
-      'Keeps monthly bills accruing correctly as the days pass',
-      'Shows other amounts owed when they need to come out of today’s position',
-      `Gives you a reliable ${CASH_PROPHET_BALANCE}`,
-      'Records that balance over time so you can see the real direction of the business',
-      'Cuts through the noise of large bills hitting the bank on different days',
+      'What bills are coming up',
+      'What is already building towards them',
+      'What to put aside for bigger future costs',
+      'Where the business stands',
+      'Whether that position is getting better or worse',
     ],
-    closing:
-      'This free check is a snapshot for today. Cash Prophet is the ongoing system and history, with free personal onboarding if you want a guided start.',
+    closing: 'Instead of working all of that out yourself, Cash Prophet keeps it together in one place.',
   },
   cta: {
-    heading: 'Keep track of this every day with Cash Prophet',
-    body: `Start ${TRIAL_DAYS} days free. Free personal onboarding is available if you want a guided setup.`,
-    primary: `Start ${TRIAL_DAYS} days free`,
-    secondary: 'Enquire / free onboarding',
-    tertiary: 'See how it works',
+    primary: 'See it with a live business',
+    primaryHref: '/see-how-it-works',
+    secondary: 'Join Early Access',
+    secondaryHref: '/early-access',
   },
 } as const
 
 /** Optional café flavour for /try-it?sector=cafe. Does not change the calculator. */
 export const TRY_IT_CAFE = {
-  title: 'How much of your café bank balance is actually yours?',
+  title: "See how much of today's café bank balance is already spoken for",
   lead:
-    'Enter the café current-account balance, wages, rent and regular bills. This free check shows how much is already spoken for today. No account needed.',
+    "Regular café costs can be building up long before payday.\n\nEnter a few of yours below and see how Cash Prophet accounts for them as part of your day-to-day financial picture.",
   bankHint: 'Enter the café current-account balance you would normally trust at a glance.',
-  regularExamples:
-    'Examples: wages, rent, coffee wholesale standing order, utilities, card fees. Add whatever fits your café.',
+  regularExamples: 'Examples: wages, rent, coffee wholesale, utilities, card fees.',
   regularPlaceholder: 'e.g. Wages',
-  otherExamples: 'Examples: supplier invoice due, VAT already owed, equipment invoice, other known amounts to deduct.',
+  otherExamples: 'Examples: supplier invoice, VAT already owed, equipment invoice.',
 } as const
