@@ -81,9 +81,9 @@ export const HABITS_SEO = {
 export const WHO_FOR_SEO = {
   title: 'Who Cash Prophet Is For | Cash Prophet',
   description:
-    'Cash Prophet is for business owners who check the bank and still cannot tell what is safe to spend. One trusted daily number, without replacing your accountant.',
+    'Cash Prophet is for owner-managed hospitality and leisure businesses where the financial picture still lives in your head. Keep bills, reserves and your underlying position organised.',
   path: '/who-its-for',
-  imageAlt: 'Who Cash Prophet is for',
+  imageAlt: 'Who Cash Prophet is for — owner-managed hospitality and leisure businesses',
 } as const satisfies RouteSeo
 
 export const CAFES_SEO = {

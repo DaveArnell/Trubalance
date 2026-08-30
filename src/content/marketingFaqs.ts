@@ -80,14 +80,22 @@ export const CAFES_FAQS: FaqItem[] = [
 export const WHO_FOR_FAQS: FaqItem[] = [
   {
     q: 'Who is Cash Prophet for?',
-    a: `Owners who check the bank and still cannot tell what is safe to spend. If wages, VAT and bills keep catching you out, and you want one trusted daily number, Cash Prophet is built for that.`,
+    a: 'Cash Prophet is designed for owner-managed businesses where the owner is still closely involved in the day-to-day finances. We are initially focusing on independent hospitality and leisure businesses, but the underlying approach can suit other businesses with regular commitments and larger costs to prepare for.',
   },
   {
-    q: 'Does my business type matter?',
-    a: 'Less than the problem you have. It works best when income is fairly steady week to week or month to month, so a daily position stays meaningful. That includes many leisure, hospitality, childcare, subscription and service businesses, but the fit is the problem, not the sector label.',
+    q: 'Do I need to be in hospitality or leisure?',
+    a: 'No. That is where we are initially focusing because Cash Prophet was shaped around the realities of running these kinds of businesses. The important thing is whether the financial problems it organises are familiar to you.',
   },
   {
-    q: 'Who is Cash Prophet Balance less suitable for?',
-    a: 'Businesses with highly irregular, project-based or occasional large-contract income often need detailed cash flow forecasting first, because income timing is itself a major risk. Reserve Planner can still help those businesses save for predictable costs, but Cash Prophet Balance should not replace proper forecasting there.',
+    q: 'Is Cash Prophet accounting software?',
+    a: 'No. Your accounting software keeps the financial records of the business and your accountant helps with accounts, tax and professional advice. Cash Prophet sits alongside them and helps you keep the day-to-day financial picture organised.',
+  },
+  {
+    q: 'What if my income is very irregular?',
+    a: 'Cash Prophet is not designed to replace detailed cash-flow forecasting. If your business depends heavily on irregular projects or occasional large contracts, forecasting may need to play a bigger role. Cash Prophet may still be useful for organising regular commitments and planned larger costs.',
+  },
+  {
+    q: 'Do I need a finance background?',
+    a: 'No. Cash Prophet is deliberately designed around the questions a business owner wants answered rather than accounting terminology or management reports.',
   },
 ]
