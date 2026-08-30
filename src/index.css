@@ -34441,13 +34441,19 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 /* Homepage hero: messy notes → real dashboard screen */
 .marketing-hero--compare {
-  padding-top: 40px;
-  padding-bottom: 36px;
+  padding-top: 36px;
+  padding-bottom: 32px;
+  overflow: visible;
 }
 
 .marketing-main--home-vivid .marketing-hero--compare.marketing-hero--rank {
-  padding-top: 40px;
-  padding-bottom: 36px;
+  padding-top: 36px;
+  padding-bottom: 32px;
+  overflow: visible;
+}
+
+.marketing-main--home-vivid .marketing-hero--compare.marketing-surface--hero {
+  overflow: visible;
 }
 
 .home-hero-split-layout {
@@ -34571,7 +34577,7 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .home-hero-mind-art img {
   display: block;
   width: 100%;
-  max-width: 72%;
+  max-width: 64%;
   height: auto;
   object-fit: contain;
   background: transparent;
@@ -34582,15 +34588,18 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   display: flex;
   justify-content: center;
   background: transparent;
+  overflow: visible;
 }
 
 .home-hero-dash-photo {
   display: block;
-  width: 100%;
-  max-width: 92%;
+  width: auto;
+  max-width: min(100%, 28rem);
+  max-height: min(38vh, 18rem);
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.38));
+  border-radius: 12px;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.4);
 }
 
 .home-hero-dash-frame {
@@ -34994,16 +35003,17 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
   .home-hero-stack {
     gap: 0.15rem;
-    max-width: 24rem;
+    max-width: 22rem;
     margin-inline: auto;
   }
 
   .home-hero-mind-art img {
-    max-width: 82%;
+    max-width: 70%;
   }
 
   .home-hero-dash-photo {
     max-width: 100%;
+    max-height: min(32vh, 14rem);
   }
 }
 

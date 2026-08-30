@@ -1,8 +1,8 @@
 import {
-  PRODUCT_MONITOR_IMAGE,
-  PRODUCT_MONITOR_IMAGE_ALT,
-  PRODUCT_MONITOR_IMAGE_HEIGHT,
-  PRODUCT_MONITOR_IMAGE_WIDTH,
+  PRODUCT_DASHBOARD_IMAGE,
+  PRODUCT_DASHBOARD_IMAGE_ALT,
+  PRODUCT_DASHBOARD_IMAGE_HEIGHT,
+  PRODUCT_DASHBOARD_IMAGE_WIDTH,
 } from '../../content/marketingSeo'
 import { HomeHeroThoughtBubble } from './HomeHeroThoughtBubble'
 
@@ -20,7 +20,7 @@ export function HomeHeroCompare() {
       </div>
 
       <div className="home-hero-stack-arrow" aria-hidden>
-        <svg viewBox="0 0 36 72" width="24" height="30">
+        <svg viewBox="0 0 36 72" width="22" height="26">
           <path
             d="M18 4v52M8 46l10 14 10-14"
             fill="none"
@@ -36,10 +36,10 @@ export function HomeHeroCompare() {
         <div className="home-hero-visual home-hero-visual--dash">
           <img
             className="home-hero-dash-photo"
-            src={PRODUCT_MONITOR_IMAGE}
-            alt={PRODUCT_MONITOR_IMAGE_ALT}
-            width={PRODUCT_MONITOR_IMAGE_WIDTH}
-            height={PRODUCT_MONITOR_IMAGE_HEIGHT}
+            src={PRODUCT_DASHBOARD_IMAGE}
+            alt={PRODUCT_DASHBOARD_IMAGE_ALT}
+            width={PRODUCT_DASHBOARD_IMAGE_WIDTH}
+            height={PRODUCT_DASHBOARD_IMAGE_HEIGHT}
             decoding="async"
             fetchPriority="high"
           />
