@@ -181,9 +181,6 @@ export function MarketingFooter() {
           </CanonicalLink>
           <p className="marketing-footer-tagline">{BRAND_SLOGAN}</p>
           <CompanyLegalNotice variant="footer" />
-          <a className="marketing-footer-email" href={`mailto:${COMPANY_INFO.contactEmail}`}>
-            {COMPANY_INFO.contactEmail}
-          </a>
         </div>
 
         <div className="marketing-footer-col">
