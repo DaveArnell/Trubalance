@@ -33774,20 +33774,20 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: minmax(0, 1.55fr) minmax(6.5rem, 0.9fr) minmax(5.75rem, 0.7fr) auto;
-  gap: 0.55rem 0.65rem;
+  grid-template-columns: minmax(0, 1.4fr) minmax(7.5rem, 0.85fr) minmax(4.75rem, 5.5rem) auto;
+  gap: 0.65rem 0.75rem;
   align-items: end;
 }
 
 .try-it-bill-row--due .try-it-bill-fields {
-  grid-template-columns: minmax(0, 1.7fr) minmax(6.5rem, 0.95fr) auto;
+  grid-template-columns: minmax(0, 1.55fr) minmax(7.5rem, 0.9fr) auto;
 }
 
 .try-it-mini-field {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 0.28rem;
+  gap: 0.3rem;
   min-width: 0;
 }
 
@@ -33798,38 +33798,47 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   text-transform: uppercase;
   color: rgba(15, 27, 45, 0.55);
   line-height: 1.2;
+  white-space: nowrap;
 }
 
 .try-it-mini-input-wrap {
   display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.35rem;
   min-width: 0;
-  min-height: 2.55rem;
-  padding: 0 0.6rem;
+  width: 100%;
+  min-height: 2.6rem;
+  padding: 0 0.7rem;
   border: 1px solid rgba(15, 27, 45, 0.16);
   border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.96);
+  background: #fff;
+  box-sizing: border-box;
 }
 
 .try-it-mini-field input {
   width: 100%;
-  min-height: 2.55rem;
-  padding: 0.5rem 0.6rem;
+  min-height: 2.6rem;
+  padding: 0.5rem 0.65rem;
   border: 1px solid rgba(15, 27, 45, 0.16);
   border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.96);
+  background: #fff;
   color: #0f1b2d;
   font: inherit;
   font-size: 16px;
   font-weight: 550;
+  box-sizing: border-box;
 }
 
 .try-it-mini-field--amount .try-it-mini-input-wrap input {
   border: none;
   background: transparent;
-  min-height: 2.45rem;
-  padding: 0.45rem 0;
+  width: auto;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 2.4rem;
+  padding: 0.4rem 0;
   font-variant-numeric: tabular-nums;
 }
 
@@ -33838,16 +33847,33 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   outline-offset: 1px;
 }
 
+.try-it-mini-field--day {
+  max-width: 5.5rem;
+}
+
 .try-it-mini-field--day input {
   text-align: center;
   font-variant-numeric: tabular-nums;
+  padding-inline: 0.4rem;
+  /* Hide native number spinners if type=number is ever restored */
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.try-it-mini-field--day input::-webkit-outer-spin-button,
+.try-it-mini-field--day input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .try-it-mini-currency {
-  font-size: 0.92rem;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  font-size: 0.95rem;
   font-weight: 650;
+  line-height: 1;
   color: rgba(15, 27, 45, 0.65);
-  flex-shrink: 0;
 }
 
 .try-it-remove {
@@ -34066,15 +34092,16 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 
 @media (max-width: 719px) {
   .try-it-bill-fields {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+    grid-template-columns: minmax(0, 1fr) minmax(7rem, 0.85fr);
   }
 
   .try-it-bill-row--due .try-it-bill-fields {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+    grid-template-columns: minmax(0, 1fr) minmax(7rem, 0.85fr);
   }
 
   .try-it-mini-field--day {
     grid-column: 1 / 2;
+    max-width: 6rem;
   }
 
   .try-it-remove {

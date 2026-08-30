@@ -42,7 +42,7 @@ function regularDraftsToInputs(drafts: RegularDraft[]): FreeRegularCostInput[] {
       id: d.id,
       name: d.name.trim() || 'Monthly bill',
       amount: toAmount(d.amount),
-      dueDayOfMonth: Number(d.dueDay) || 28,
+      dueDayOfMonth: Math.min(31, Math.max(1, Number(d.dueDay) || 28)),
     }))
     .filter((d) => d.amount > 0)
 }
@@ -229,13 +229,17 @@ export function FreeCashPositionCheck({ variant = 'default' }: { variant?: 'defa
                       <label className="try-it-mini-field try-it-mini-field--day">
                         <span className="try-it-field-label">{TRY_IT_PAGE.regular.dueDayLabel}</span>
                         <input
-                          type="number"
-                          min={1}
-                          max={31}
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          maxLength={2}
                           value={cost.dueDay}
                           placeholder={TRY_IT_PAGE.regular.dueDayPlaceholder}
-                          aria-label={TRY_IT_PAGE.regular.dueDayLabel}
-                          onChange={(e) => updateRegular(cost.id, { dueDay: e.target.value })}
+                          aria-label="Due day of month (1 to 31)"
+                          onChange={(e) => {
+                            const next = e.target.value.replace(/\D/g, '').slice(0, 2)
+                            updateRegular(cost.id, { dueDay: next })
+                          }}
                         />
                       </label>
                       {regularCosts.length > 1 ? (
