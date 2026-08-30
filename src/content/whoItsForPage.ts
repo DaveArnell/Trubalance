@@ -9,7 +9,7 @@ export const WHO_FOR_HERO = {
   lead:
     'Built for independent business owners who are still keeping too much of the financial picture in their head.',
   support:
-    'Cash Prophet is designed for hospitality and leisure businesses where the owner is close to the day-to-day finances, with regular bills to stay on top of, bigger costs to prepare for and no finance team keeping it all organised for them.',
+    'Cash Prophet keeps your regular bills, growing commitments and bigger future costs organised, so you can quickly see where the business stands without working it all out yourself.',
 } as const
 
 export const WHO_FOR_FAMILIAR = {
@@ -46,7 +46,7 @@ export const WHO_FOR_OWNER_MANAGED = {
 export const WHO_FOR_SECTOR = {
   heading: 'Made with hospitality and leisure businesses in mind',
   lead: [
-    'Cash Prophet grew out of the reality of running businesses where money is moving constantly, while wages, rent, utilities, tax and other commitments are always building in the background.',
+    'Cash Prophet was created from first-hand experience of running a hospitality and leisure business, where money is moving constantly while wages, rent, utilities, tax and other commitments are building in the background.',
     'That makes it particularly relevant to independent hospitality and leisure businesses where the owner wants a simple way to stay close to the financial picture without turning it into another accounting job.',
   ],
   examples: [
