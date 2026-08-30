@@ -86,14 +86,6 @@ export const WHO_FOR_SEO = {
   imageAlt: 'Who Cash Prophet is for — owner-managed hospitality and leisure businesses',
 } as const satisfies RouteSeo
 
-export const CAFES_SEO = {
-  title: 'Automated Budgeting for Cafes and Coffee Shops | Cash Prophet',
-  description:
-    'Cafe and coffee shop budgeting that accounts for wages, rent and regular costs as they build up. See a trusted cash position, keep bills in view, and follow the direction over time with the Cash Prophet Balance.',
-  path: '/cafes',
-  imageAlt: 'Automated budgeting for cafes and coffee shops with Cash Prophet Balance',
-} as const satisfies RouteSeo
-
 export const SEE_HOW_SEO = {
   title: 'See Cash Prophet in a Real Business | Cash Prophet',
   description:
@@ -137,7 +129,7 @@ export const BLOG_INDEX_SEO = {
 export const PRIVACY_SEO = {
   title: 'Privacy Policy | Cash Prophet (Vocatio Ltd)',
   description:
-    'How Cash Prophet, operated by Vocatio Ltd, collects, stores and protects account and workspace data. UK GDPR-aligned privacy policy.',
+    'How Cash Prophet collects and uses account, workspace and cookie data. Operated by Vocatio Ltd. UK GDPR privacy policy.',
   path: '/privacy',
   imageAlt: SITE_OG_IMAGE_ALT,
 } as const satisfies RouteSeo
@@ -145,7 +137,7 @@ export const PRIVACY_SEO = {
 export const TERMS_SEO = {
   title: 'Terms of Service | Cash Prophet (Vocatio Ltd)',
   description:
-    'Terms of use for Cash Prophet, operated by Vocatio Ltd. Accounts, trials, acceptable use and UK jurisdiction.',
+    'Terms for Cash Prophet, a financial organiser for owner-managed businesses. Accounts, subscriptions, acceptable use and UK jurisdiction.',
   path: '/terms',
   imageAlt: SITE_OG_IMAGE_ALT,
 } as const satisfies RouteSeo
@@ -208,7 +200,6 @@ export const PUBLIC_ROUTE_SEO: readonly RouteSeo[] = [
   PRICING_SEO,
   HOW_IT_WORKS_SEO,
   WHO_FOR_SEO,
-  CAFES_SEO,
   SEE_HOW_SEO,
   CONTACT_SEO,
   TRY_IT_SEO,

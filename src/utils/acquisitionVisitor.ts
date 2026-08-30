@@ -28,3 +28,11 @@ export function getOrCreateVisitorId(): string | null {
     return null
   }
 }
+
+export function clearVisitorId(): void {
+  try {
+    localStorage.removeItem(VISITOR_KEY)
+  } catch {
+    /* ignore */
+  }
+}

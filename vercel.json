@@ -22,12 +22,17 @@
     },
     {
       "source": "/cafes-coffee-shops",
-      "destination": "/cafes",
+      "destination": "/",
       "permanent": true
     },
     {
       "source": "/cafe",
-      "destination": "/cafes",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/cafes",
+      "destination": "/",
       "permanent": true
     },
     {

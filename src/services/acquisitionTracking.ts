@@ -1,4 +1,5 @@
 import { tryGetSupabase } from '../lib/supabase'
+import { hasAdvertisingConsent } from '../utils/cookieConsent'
 import {
   hasAttributionData,
   loadStoredAttribution,
@@ -140,8 +141,9 @@ export async function syncAcquisitionVisitorAttribution(): Promise<void> {
 
 const VISIT_DAY_KEY = 'cashprophet-acquisition-visit-day'
 
-/** Once per UTC day per browser (DB also dedupes). Claim storage first to avoid a 409. */
+/** Once per UTC day per browser (DB also dedupes). Requires optional analytics consent. */
 export function trackAcquisitionVisitOncePerDay(): void {
+  if (!hasAdvertisingConsent()) return
   const today = new Date().toISOString().slice(0, 10)
   try {
     if (localStorage.getItem(VISIT_DAY_KEY) === today) return

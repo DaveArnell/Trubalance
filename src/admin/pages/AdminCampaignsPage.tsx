@@ -19,11 +19,11 @@ export const META_LAUNCH_TEST_LINK =
 /** @deprecated Prefer META_LAUNCH_TEST_LINK — kept for any older references. */
 export const FACEBOOK_BOOST_TEST_LINK = META_LAUNCH_TEST_LINK
 
-/** Café / coffee shop Meta campaign — destination is /cafes. */
+/** Café / coffee shop Meta campaign — destination is homepage (café landing removed). */
 export const META_CAFES_URL_PARAMS =
   'utm_source=meta&utm_medium=paid&utm_campaign=cp_cafes_uk&utm_content=takings_everyday_v1'
 
-export const META_CAFES_TEST_LINK = `https://www.cashprophet.co.uk/cafes?${META_CAFES_URL_PARAMS}`
+export const META_CAFES_TEST_LINK = `https://www.cashprophet.co.uk/?${META_CAFES_URL_PARAMS}`
 
 const EXAMPLE_LINK = META_LAUNCH_TEST_LINK
 
@@ -106,10 +106,9 @@ export function AdminCampaignsPage() {
 
       <AdminSection title="Meta cafés campaign — URL parameters">
         <p className="muted admin-section-lead">
-          Destination is <code className="admin-mono">/cafes</code>. Paste this into Meta Ads
+          Destination is the homepage (<code className="admin-mono">/</code>). Paste this into Meta Ads
           Manager → Tracking → <strong>URL parameters</strong>. Acquisition Funnel will show
-          landing path <code className="admin-mono">/cafes</code> and campaign{' '}
-          <code className="admin-mono">cp_cafes_uk</code>. Complete Registration is unchanged.
+          campaign <code className="admin-mono">cp_cafes_uk</code>. Complete Registration is unchanged.
         </p>
         <pre className="admin-guide-code">{META_CAFES_URL_PARAMS}</pre>
         <p className="muted">

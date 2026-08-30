@@ -1,4 +1,5 @@
 import { tryGetSupabase } from '../lib/supabase'
+import { hasAdvertisingConsent } from '../utils/cookieConsent'
 import {
   attributionToAuthMetadata,
   captureMarketingAttributionFromLocation,
@@ -8,9 +9,10 @@ import {
 } from '../utils/marketingAttribution'
 import { trackEvent } from './eventTracking'
 
-/** Call on every public page load so tagged ad links are remembered until signup. */
+/** Call on public page loads after optional analytics consent is given. */
 export function captureMarketingAttributionOnVisit() {
   if (typeof window === 'undefined') return
+  if (!hasAdvertisingConsent()) return
   captureMarketingAttributionFromLocation()
 }
 

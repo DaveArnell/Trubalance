@@ -15,7 +15,6 @@ export const INDEXABLE_STATIC_ROUTES: readonly IndexableRoute[] = [
   { path: '/pricing', priority: '0.9', changefreq: 'monthly' },
   { path: '/how-it-works', priority: '0.9', changefreq: 'monthly' },
   { path: '/who-its-for', priority: '0.8', changefreq: 'monthly' },
-  { path: '/cafes', priority: '0.9', changefreq: 'monthly' },
   { path: '/see-how-it-works', priority: '0.9', changefreq: 'monthly' },
   { path: '/try-it', priority: '0.95', changefreq: 'monthly' },
   { path: '/partners', priority: '0.85', changefreq: 'monthly' },
@@ -31,8 +30,9 @@ export const LEGACY_REDIRECTS: readonly { from: string; to: string }[] = [
   { from: '/habits', to: '/how-it-works#habits' },
   { from: '/cash-prophet', to: '/' },
   { from: '/true-balance-method', to: '/' },
-  { from: '/cafes-coffee-shops', to: '/cafes' },
-  { from: '/cafe', to: '/cafes' },
+  { from: '/cafes-coffee-shops', to: '/' },
+  { from: '/cafe', to: '/' },
+  { from: '/cafes', to: '/' },
   // Old "True Balance" blog URLs — keep 301s so Google consolidates onto Cash Prophet slugs.
   { from: '/blog/what-is-true-balance', to: '/blog/what-is-cash-prophet-balance' },
   {

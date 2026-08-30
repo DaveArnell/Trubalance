@@ -85,6 +85,14 @@ export function loadStoredAttribution(): MarketingAttribution | null {
   }
 }
 
+export function clearStoredAttribution(): void {
+  try {
+    localStorage.removeItem(STORAGE_KEY)
+  } catch {
+    /* ignore */
+  }
+}
+
 export function saveAttribution(attribution: MarketingAttribution) {
   try {
     const payload: StoredAttribution = { ...attribution, version: 1 }

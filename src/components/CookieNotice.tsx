@@ -12,8 +12,11 @@ import { resetMetaRouteTracking, stopMetaPixelTracking } from '../services/metaP
 import {
   loadGoogleAnalytics,
   resetGaRouteTracking,
+  stopGoogleAnalyticsTracking,
   trackGaRoute,
 } from '../services/googleAnalytics'
+import { captureMarketingAttributionOnVisit } from '../services/marketingAttribution'
+import { trackAcquisitionVisitOncePerDay } from '../services/acquisitionTracking'
 
 function readInitialConsentState(): CookieConsentState {
   if (typeof window === 'undefined') return 'unknown'
@@ -41,6 +44,10 @@ export function CookieNotice() {
     resetGaRouteTracking()
     loadGoogleAnalytics()
     trackGaRoute(window.location.pathname, window.location.search)
+    captureMarketingAttributionOnVisit()
+    if (!window.location.pathname.startsWith('/app')) {
+      trackAcquisitionVisitOncePerDay()
+    }
     setConsentState('accepted')
     setBannerOpen(false)
   }
@@ -48,6 +55,7 @@ export function CookieNotice() {
   const handleReject = () => {
     rejectAdvertisingCookies()
     stopMetaPixelTracking()
+    stopGoogleAnalyticsTracking()
     setConsentState('rejected')
     setBannerOpen(false)
   }
@@ -71,9 +79,9 @@ export function CookieNotice() {
           </p>
           <p id="cookie-notice-desc">
             We use necessary cookies and similar storage to run Cash Prophet and keep you signed in.
-            With your permission we also use analytics (Google Analytics) and Meta (Facebook/Instagram)
-            advertising cookies to measure ads and understand website visits. We do not send your
-            business balances or financial figures to Google or Meta.{' '}
+            With your permission we also use analytics (Google Analytics), Meta (Facebook/Instagram)
+            advertising cookies, and first-party campaign tags to measure ads and website visits. We
+            do not send your business balances or financial figures to Google or Meta.{' '}
             <CanonicalLink to="/privacy#cookies">Privacy policy</CanonicalLink>
             {' · '}
             <button type="button" className="cookie-notice-text-btn" onClick={handleReject}>

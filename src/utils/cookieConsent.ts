@@ -1,4 +1,7 @@
-/** Advertising / Meta Pixel consent — necessary storage only until the user chooses. */
+import { clearStoredAttribution } from './marketingAttribution'
+import { clearVisitorId } from './acquisitionVisitor'
+
+/** Advertising / analytics consent — necessary storage only until the user chooses. */
 
 export const COOKIE_CONSENT_STORAGE_KEY = 'cashprophet-cookie-consent-v1'
 export const COOKIE_CONSENT_CHANGED_EVENT = 'cashprophet:cookie-consent-changed'
@@ -6,7 +9,7 @@ export const COOKIE_CONSENT_OPEN_EVENT = 'cashprophet:cookie-consent-open'
 
 export type CookieConsentChoice = {
   version: 1
-  /** Whether Meta advertising cookies / Pixel may run. */
+  /** Whether optional analytics and advertising measurement may run. */
   advertising: boolean
   updatedAt: string
 }
@@ -47,6 +50,17 @@ export function hasAdvertisingConsent(): boolean {
   return getCookieConsentState() === 'accepted'
 }
 
+/** Clear optional first-party marketing measurement storage after reject / withdraw. */
+export function clearOptionalMarketingStorage(): void {
+  clearStoredAttribution()
+  clearVisitorId()
+  try {
+    localStorage.removeItem('cashprophet-acquisition-visit-day')
+  } catch {
+    /* ignore */
+  }
+}
+
 function writeConsent(advertising: boolean): CookieConsentChoice {
   const choice: CookieConsentChoice = {
     version: 1,
@@ -57,6 +71,9 @@ function writeConsent(advertising: boolean): CookieConsentChoice {
     localStorage.setItem(COOKIE_CONSENT_STORAGE_KEY, JSON.stringify(choice))
   } catch {
     /* ignore quota / private mode */
+  }
+  if (!advertising) {
+    clearOptionalMarketingStorage()
   }
   if (typeof window !== 'undefined') {
     window.dispatchEvent(

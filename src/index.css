@@ -25587,6 +25587,38 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
   margin-top: var(--space-2);
 }
 
+.legal-table-wrap {
+  margin: 0 0 var(--space-4);
+  overflow-x: auto;
+}
+
+.legal-simple-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.legal-simple-table th,
+.legal-simple-table td {
+  border: 1px solid rgba(15, 27, 45, 0.12);
+  padding: 0.65rem 0.7rem;
+  text-align: left;
+  vertical-align: top;
+  color: var(--text-secondary);
+}
+
+.legal-simple-table th {
+  background: rgba(15, 27, 45, 0.04);
+  color: var(--text-primary);
+  font-weight: 650;
+}
+
+.legal-prose h3 {
+  margin: var(--space-4) 0 var(--space-2);
+  font-size: 1rem;
+}
+
 .legal-prose a {
   color: var(--accent-text);
 }

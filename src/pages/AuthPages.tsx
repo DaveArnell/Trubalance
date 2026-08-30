@@ -223,8 +223,8 @@ export function AuthForm({ mode }: AuthFormProps) {
 
         {mode === 'signup' && (
           <p className="auth-legal muted">
-            By starting a trial you agree to our <CanonicalLink to="/terms">Terms of service</CanonicalLink> and{' '}
-            <CanonicalLink to="/privacy">Privacy policy</CanonicalLink>.
+            By creating an account you agree to our <CanonicalLink to="/terms">Terms of service</CanonicalLink> and{' '}
+            acknowledge our <CanonicalLink to="/privacy">Privacy policy</CanonicalLink>.
           </p>
         )}
       </form>

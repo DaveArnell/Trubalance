@@ -123,14 +123,6 @@ export function trackMetaRoute(pathname: string, search = ''): void {
       content_type: 'product',
     })
   }
-
-  if (path === '/cafes') {
-    window.fbq?.('track', 'ViewContent', {
-      content_name: 'Cafes',
-      content_category: 'cafes',
-      content_type: 'product',
-    })
-  }
 }
 
 /** Allow the next navigation (or same path after re-consent) to fire again. */

@@ -8,7 +8,6 @@ import {
   HOW_IT_WORKS_SEO,
   PRICING_SEO,
   WHO_FOR_SEO,
-  CAFES_SEO,
   SEE_HOW_SEO,
   BLOG_INDEX_SEO,
   CONTACT_SEO,
@@ -251,32 +250,6 @@ export function howItWorksPageJsonLd(faqs: FaqItem[]): JsonLd[] {
       isPartOf: { '@id': `${site}/#website` },
       about: { '@id': `${site}/#product` },
     },
-    faqPageJsonLd(faqs, pageUrl),
-  ]
-}
-
-export function cafesPageJsonLd(faqs: FaqItem[]): JsonLd[] {
-  const pageUrl = absolutePath(CAFES_SEO.path)
-  return [
-    organizationJsonLd(),
-    {
-      '@context': 'https://schema.org',
-      '@type': 'WebPage',
-      '@id': pageUrl,
-      url: pageUrl,
-      name: CAFES_SEO.title,
-      description: CAFES_SEO.description,
-      isPartOf: { '@id': `${site}/#website` },
-      about: { '@id': `${site}/#product` },
-      audience: {
-        '@type': 'BusinessAudience',
-        audienceType: 'Cafe and coffee shop owners',
-      },
-    },
-    breadcrumbJsonLd([
-      { name: 'Home', path: '/' },
-      { name: 'Cafés', path: CAFES_SEO.path },
-    ]),
     faqPageJsonLd(faqs, pageUrl),
   ]
 }

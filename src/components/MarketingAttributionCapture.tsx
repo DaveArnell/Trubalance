@@ -1,21 +1,30 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
+import {
+  COOKIE_CONSENT_CHANGED_EVENT,
+  hasAdvertisingConsent,
+} from '../utils/cookieConsent'
 import { captureMarketingAttributionOnVisit } from '../services/marketingAttribution'
 import { trackAcquisitionVisitOncePerDay } from '../services/acquisitionTracking'
 
 /**
- * First-party UTM capture + acquisition visit tracking (Marketing Funnel).
- * Does not load Meta Pixel — separate from advertising consent.
- *
- * Acquisition RPCs run on public routes only — not on every in-app navigation.
+ * Optional first-party UTM capture + acquisition visit tracking.
+ * Runs only after the visitor accepts analytics / advertising cookies.
  */
 export function MarketingAttributionCapture() {
   const location = useLocation()
 
   useEffect(() => {
-    captureMarketingAttributionOnVisit()
-    if (location.pathname.startsWith('/app')) return
-    trackAcquisitionVisitOncePerDay()
+    const run = () => {
+      if (!hasAdvertisingConsent()) return
+      captureMarketingAttributionOnVisit()
+      if (location.pathname.startsWith('/app')) return
+      trackAcquisitionVisitOncePerDay()
+    }
+
+    run()
+    window.addEventListener(COOKIE_CONSENT_CHANGED_EVENT, run)
+    return () => window.removeEventListener(COOKIE_CONSENT_CHANGED_EVENT, run)
   }, [location.pathname, location.search])
 
   return null
