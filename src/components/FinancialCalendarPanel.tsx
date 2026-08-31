@@ -497,9 +497,6 @@ export function FinancialCalendarMonthPanel({
           )}
           <h2>
             Calendar
-            <span className="feature-beta-badge" title="Still being shaped — reminders are saved">
-              Beta
-            </span>
           </h2>
           <HelpButton
             id="financial-calendar-month"
@@ -515,9 +512,6 @@ export function FinancialCalendarMonthPanel({
           <span>Cloud sync for the calendar is still unavailable — check Supabase migrations.</span>
         </div>
       ) : null}
-      <p className="fin-cal-beta-note muted">
-        Beta — double-click a day to add a reminder. Tick when due; overdue stays until you tick it.
-      </p>
 
       <div className="card-scroll-body fin-cal-shell fin-cal-shell--month">
         <div className="fin-cal-month-header">
@@ -798,7 +792,7 @@ export function FinancialComingUpPanel({
   setOpenHelp,
 }: SharedCalendarProps) {
   const todayKey = dateToKey(getReferenceDate())
-  const { editReadOnly, openCreate, openEdit, modal, deleteDialog } = useReminderForm(
+  const { editReadOnly, openEdit, modal, deleteDialog } = useReminderForm(
     state,
     viewScope,
     actions,
@@ -839,16 +833,9 @@ export function FinancialComingUpPanel({
     >
       <div className="card-head card-head-compact card-head--widget-bar">
         <div className="card-head-toolbar">
-          {!editReadOnly ? (
-            <button type="button" className="btn-primary btn-widget-add" onClick={() => openCreate()}>
-              + Add
-            </button>
-          ) : (
-            <span className="card-head-toolbar-spacer" aria-hidden />
-          )}
+          <span className="card-head-toolbar-spacer" aria-hidden />
           <h2>
             Coming up
-            <span className="feature-beta-badge">Beta</span>
           </h2>
           <HelpButton
             id="financial-coming-up"
@@ -861,9 +848,6 @@ export function FinancialComingUpPanel({
 
       <div className="card-scroll-body fin-cal-shell fin-cal-shell--upcoming">
         <div className="fin-cal-upcoming-toolbar">
-          <p className="muted fin-cal-upcoming-lead">
-            Next dates in order. Tick when due — overdue stays until you tick it.
-          </p>
           <label className="fin-cal-upcoming-toggle">
             <input
               type="checkbox"
@@ -879,14 +863,9 @@ export function FinancialComingUpPanel({
           <div className="fin-cal-empty-block">
             <p className="muted">
               {reminders.length === 0
-                ? 'No reminders yet. Use + Add, or double-click a day on the calendar.'
+                ? 'No reminders yet. Double-click a day on the calendar to add one.'
                 : 'Nothing coming up in the next 120 days.'}
             </p>
-            {!editReadOnly && reminders.length === 0 ? (
-              <button type="button" className="btn-primary btn-tiny" onClick={() => openCreate()}>
-                Add reminder
-              </button>
-            ) : null}
           </div>
         ) : (
           <table className="fin-cal-upcoming-table">

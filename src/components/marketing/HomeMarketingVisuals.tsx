@@ -9,7 +9,7 @@ import { formatCurrency } from '../../utils/format'
 /** Sorted fullest-first; progress tracks “due in X days”. */
 const BUILDING_CARDS = [
   { dueInDays: 2, name: 'Rent', accrued: 2300, total: 2500 },
-  { dueInDays: 8, name: 'Reserve transfer', accrued: 1580, total: 2200 },
+  { dueInDays: 8, name: 'Loan', accrued: 1580, total: 2200 },
   { dueInDays: 15, name: 'Utilities', accrued: 210, total: 420 },
   { dueInDays: 24, name: 'Wages', accrued: 1680, total: 8400 },
 ] as const

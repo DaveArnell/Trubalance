@@ -42,10 +42,10 @@ export const WIDGET_HELP = {
   forecast:
     'Forward-looking view: cash outlook from scheduled movements, plus trend projection from saved balance history.\n\nIf your income arrives steadily through the month, the Trends page is often the better guide.',
   financialCalendar:
-    'Beta — month view for financial dates. Double-click a day to add a reminder. Reserve transfers show on the 1st when you have a plan.\n\n' +
-    'Click a day for detail and tick reminders when due. Coming up is the list beside this calendar.',
+    'Month view for financial dates and reminders. Reserve transfers can show on the 1st when you have a plan.\n\n' +
+    'Click a day for detail. Coming up is the list beside this calendar.',
   financialComingUp:
-    'Next financial dates in order. Tick when due — overdue stays until you tick it.\n\n' +
+    'Next financial dates in order.\n\n' +
     'Optional: turn on Show reserve transfers to include monthly reserve moves on the 1st.',
 } as const
 
