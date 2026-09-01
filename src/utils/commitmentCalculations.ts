@@ -1332,6 +1332,16 @@ export function migrateCommitment(raw: Record<string, unknown>): Commitment {
         ? parsePlannedDueDateInput(legacy.plannedLabel) ?? undefined
         : undefined)
 
+    const duePeriodAmountOverrides =
+      legacy.duePeriodAmountOverrides && typeof legacy.duePeriodAmountOverrides === 'object'
+        ? Object.fromEntries(
+            Object.entries(legacy.duePeriodAmountOverrides).map(([period, value]) => [
+              period,
+              toAmount(value),
+            ]),
+          )
+        : undefined
+
     const migrated: Commitment = {
       ...legacy,
       amount: toAmount(legacy.amount),
@@ -1342,6 +1352,7 @@ export function migrateCommitment(raw: Record<string, unknown>): Commitment {
       amountToReserveNow:
         legacy.amountToReserveNow != null ? toAmount(legacy.amountToReserveNow) : undefined,
       periodAmountOverrides: legacy.periodAmountOverrides,
+      duePeriodAmountOverrides,
       paidPeriodAmounts: legacy.paidPeriodAmounts,
       paidPeriodDates: legacy.paidPeriodDates,
     }

@@ -124,8 +124,6 @@ export function MobileDueDetailModal({
       return
     }
 
-    if (!onSave) return
-
     if (isMonthly) {
       const parsedDue = Math.round(Number(dueDay))
       if (!Number.isFinite(parsedDue) || parsedDue < 1 || parsedDue > 31) {
@@ -144,6 +142,8 @@ export function MobileDueDetailModal({
       onClose()
       return
     }
+
+    if (!onSave) return
 
     if (isPlanned) {
       const trimmedName = name.trim() || item.name

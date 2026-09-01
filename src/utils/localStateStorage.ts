@@ -518,6 +518,23 @@ function preferPaidCommitment(cloud: Commitment, local: Commitment): Commitment 
   return cloud
 }
 
+function dueOverridesKey(commitment: Commitment): string {
+  return JSON.stringify(commitment.duePeriodAmountOverrides ?? {})
+}
+
+/** Merge paid state and Due-only amount overrides from this device into a cloud pull. */
+function mergeCommitmentFromLocal(cloud: Commitment, local: Commitment): Commitment {
+  let next = preferPaidCommitment(cloud, local)
+  const localDue = local.duePeriodAmountOverrides
+  if (localDue && Object.keys(localDue).length > 0) {
+    const mergedDue = { ...(next.duePeriodAmountOverrides ?? {}), ...localDue }
+    if (dueOverridesKey({ ...next, duePeriodAmountOverrides: mergedDue }) !== dueOverridesKey(next)) {
+      next = { ...next, duePeriodAmountOverrides: mergedDue, amount: next.amount }
+    }
+  }
+  return next
+}
+
 /** Keep this device's mark-paid so a stale cloud pull cannot resurrect Due items. */
 export function unionCommitmentsPaidState(cloud: AppState, local: AppState | null): AppState {
   if (!local?.commitments.length) return cloud
@@ -526,8 +543,15 @@ export function unionCommitmentsPaidState(cloud: AppState, local: AppState | nul
   const commitments = cloud.commitments.map((commitment) => {
     const localCommitment = localById.get(commitment.id)
     if (!localCommitment) return commitment
-    const next = preferPaidCommitment(commitment, localCommitment)
-    if (next !== commitment) changed = true
+    const next = mergeCommitmentFromLocal(commitment, localCommitment)
+    if (
+      next !== commitment ||
+      dueOverridesKey(next) !== dueOverridesKey(commitment) ||
+      JSON.stringify(next.paidPeriodDates ?? {}) !== JSON.stringify(commitment.paidPeriodDates ?? {}) ||
+      next.lastPaidPeriod !== commitment.lastPaidPeriod
+    ) {
+      changed = true
+    }
     return next
   })
   if (!changed) return cloud

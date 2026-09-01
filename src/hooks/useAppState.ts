@@ -953,20 +953,30 @@ export function useAppState(options?: UseAppStateOptions) {
     id: string,
     primaryPeriod: string,
     amount: number,
-    occurrences: ReturnType<typeof getCommitmentDueOccurrences>,
-  ) =>
+    _occurrences: ReturnType<typeof getCommitmentDueOccurrences>,
+  ) => {
+    requestImmediatePersist()
     update((s) => {
       const existing = s.commitments.find((c) => c.id === id)
       if (!existing || existing.schedule !== 'monthly') return s
 
-      const merged = mergeCommitmentDuePeriodOverride(existing, primaryPeriod, amount, occurrences)
+      const occurrences = getCommitmentDueOccurrences(existing)
+      const effectivePrimary = occurrences[0]?.period ?? primaryPeriod
+      const merged = mergeCommitmentDuePeriodOverride(
+        existing,
+        effectivePrimary,
+        amount,
+        occurrences,
+      )
       const nextState: AppState = {
         ...s,
         commitments: s.commitments.map((c) => (c.id === id ? merged : c)),
       }
 
       const fromDate =
-        getCommitmentRebuildFromPeriodOverridePatch(existing, merged) ??
+        getCommitmentRebuildFromPeriodOverridePatch(existing, {
+          duePeriodAmountOverrides: merged.duePeriodAmountOverrides,
+        }) ??
         getCommitmentRebuildFromDateKey(merged, getReferenceDate())
 
       return refreshSnapshotsForScopes(
@@ -976,6 +986,7 @@ export function useAppState(options?: UseAppStateOptions) {
         new Date().toISOString(),
       )
     })
+  }
 
   const requestImmediatePersist = () => {
     persistImmediateRef.current = true
