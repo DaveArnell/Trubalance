@@ -35,7 +35,7 @@ function workspaceSyncFingerprint(state: AppState): string {
   const commitments = state.commitments
     .map(
       (c) =>
-        `${c.id}:${c.name}:${c.lastPaidPeriod ?? ''}:${JSON.stringify(c.paidPeriodAmounts ?? {})}:${c.amount}:${c.dueDayOfMonth ?? ''}:${c.scopeId}`,
+        `${c.id}:${c.name}:${c.lastPaidPeriod ?? ''}:${JSON.stringify(c.paidPeriodAmounts ?? {})}:${c.amount}:${c.dueDayOfMonth ?? ''}:${c.scopeId}:${JSON.stringify(c.duePeriodAmountOverrides ?? {})}`,
     )
     .sort()
     .join('|')

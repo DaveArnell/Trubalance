@@ -526,13 +526,27 @@ function dueOverridesKey(commitment: Commitment): string {
 function mergeCommitmentFromLocal(cloud: Commitment, local: Commitment): Commitment {
   let next = preferPaidCommitment(cloud, local)
   const localDue = local.duePeriodAmountOverrides
-  if (localDue && Object.keys(localDue).length > 0) {
-    const mergedDue = { ...(next.duePeriodAmountOverrides ?? {}), ...localDue }
-    if (dueOverridesKey({ ...next, duePeriodAmountOverrides: mergedDue }) !== dueOverridesKey(next)) {
-      next = { ...next, duePeriodAmountOverrides: mergedDue, amount: next.amount }
-    }
+  if (!localDue || Object.keys(localDue).length === 0) return next
+
+  const mergedDue = { ...(next.duePeriodAmountOverrides ?? {}), ...localDue }
+  if (dueOverridesKey({ ...next, duePeriodAmountOverrides: mergedDue }) === dueOverridesKey(next)) {
+    return next
   }
-  return next
+
+  // Due-only edit on this device — keep headline budget from local so stale cloud rows cannot
+  // rewrite monthly accruing when we merge the override back in after sync.
+  const periodOverrides = { ...(local.periodAmountOverrides ?? {}) }
+  for (const period of Object.keys(mergedDue)) {
+    delete periodOverrides[period]
+  }
+
+  return {
+    ...next,
+    duePeriodAmountOverrides: mergedDue,
+    amount: local.amount,
+    periodAmountOverrides:
+      Object.keys(periodOverrides).length > 0 ? periodOverrides : undefined,
+  }
 }
 
 /** Keep this device's mark-paid so a stale cloud pull cannot resurrect Due items. */

@@ -263,10 +263,33 @@ export function mergeCommitmentDuePeriodOverride(
   amount: number,
   occurrences: CommitmentDueOccurrence[],
 ): Commitment {
+  const duePatch = buildCommitmentDueAmountOverridePatch(
+    commitment,
+    primaryPeriod,
+    amount,
+    occurrences,
+  )
+  const periodOverrides = { ...(commitment.periodAmountOverrides ?? {}) }
+  const periodsToClear =
+    occurrences.length > 0 ? occurrences.map((entry) => entry.period) : [primaryPeriod]
+  let clearedLegacy = false
+  for (const period of periodsToClear) {
+    if (periodOverrides[period] != null) {
+      delete periodOverrides[period]
+      clearedLegacy = true
+    }
+  }
+
   return {
     ...commitment,
-    ...buildCommitmentDueAmountOverridePatch(commitment, primaryPeriod, amount, occurrences),
+    ...duePatch,
     amount: commitment.amount,
+    ...(clearedLegacy
+      ? {
+          periodAmountOverrides:
+            Object.keys(periodOverrides).length > 0 ? periodOverrides : undefined,
+        }
+      : {}),
   }
 }
 

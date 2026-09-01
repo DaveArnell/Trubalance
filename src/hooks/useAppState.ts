@@ -333,6 +333,7 @@ export function useAppState(options?: UseAppStateOptions) {
   const externalStateRef = useRef(options?.externalState)
   externalStateRef.current = options?.externalState
   const lastHydrateKeyRef = useRef<string | null>(null)
+  const lastHydrateWorkspaceRef = useRef<string | null>(null)
   const prevWorkspaceIdRef = useRef<string | null | undefined>(undefined)
   const persistImmediateRef = useRef(false)
   const stateRef = useRef(state)
@@ -425,10 +426,14 @@ export function useAppState(options?: UseAppStateOptions) {
       return
     }
     setState(next)
-    undoStackRef.current = []
-    setCanUndo(false)
-    redoStackRef.current = []
-    setCanRedo(false)
+    const workspaceKey = options?.workspaceId ?? 'local'
+    if (lastHydrateWorkspaceRef.current !== workspaceKey) {
+      undoStackRef.current = []
+      setCanUndo(false)
+      redoStackRef.current = []
+      setCanRedo(false)
+      lastHydrateWorkspaceRef.current = workspaceKey
+    }
     // Keep the user's sidebar selection across sync pulls. Only fall back when the
     // current scope no longer exists (workspace switch / deleted node).
     const currentScope = viewScopeRef.current
@@ -955,19 +960,21 @@ export function useAppState(options?: UseAppStateOptions) {
     amount: number,
     _occurrences: ReturnType<typeof getCommitmentDueOccurrences>,
   ) => {
-    requestImmediatePersist()
     update((s) => {
       const existing = s.commitments.find((c) => c.id === id)
       if (!existing || existing.schedule !== 'monthly') return s
 
       const occurrences = getCommitmentDueOccurrences(existing)
       const effectivePrimary = occurrences[0]?.period ?? primaryPeriod
-      const merged = mergeCommitmentDuePeriodOverride(
+      let merged = mergeCommitmentDuePeriodOverride(
         existing,
         effectivePrimary,
         amount,
         occurrences,
       )
+      if (merged.amount !== existing.amount) {
+        merged = { ...merged, amount: existing.amount }
+      }
       const nextState: AppState = {
         ...s,
         commitments: s.commitments.map((c) => (c.id === id ? merged : c)),
@@ -986,6 +993,7 @@ export function useAppState(options?: UseAppStateOptions) {
         new Date().toISOString(),
       )
     })
+    requestImmediatePersist()
   }
 
   const requestImmediatePersist = () => {
