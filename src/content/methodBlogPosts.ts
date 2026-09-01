@@ -2,7 +2,7 @@ import type { BlogPost } from './blogTypes'
 import { METHOD_BLOG_CATEGORY } from './trueBalanceMethod'
 
 const METHOD_CTA =
-  'Cash Prophet continuously accounts for meaningful commitments to give you one trusted Cash Prophet Balance: confidence in where your business really stands, alongside your accounting software.'
+  'Cash Prophet is a financial organiser for owner-managed businesses. It helps you keep track of what is coming up, what needs putting aside, where the business stands and whether that position is improving, alongside your accounting software.'
 
 /** Educational articles for the Cash Prophet category. */
 export const METHOD_BLOG_POSTS: BlogPost[] = [
@@ -10,14 +10,19 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
     slug: 'what-is-cash-prophet',
     title: 'What Is Cash Prophet?',
     metaDescription:
-      'Cash Prophet helps UK business owners see where the business really stands with one trusted Cash Prophet Balance, not the bank balance alone.',
-    keywords: ['cash prophet', 'cash prophet balance', 'UK small business', 'financial management'],
+      'Cash Prophet is a financial organiser for UK owner-managed businesses: what is coming up, what to put aside, where you stand, and whether that position is improving.',
+    keywords: [
+      'cash prophet',
+      'cash prophet balance',
+      'financial organiser',
+      'UK small business',
+    ],
     publishedAt: '2026-07-08',
-    updatedAt: '2026-08-09',
+    updatedAt: '2026-09-01',
     category: METHOD_BLOG_CATEGORY,
     readMinutes: 2,
     excerpt:
-      'One trusted financial number that accounts for committed money, reserves and realistic receipts, so you know where the business really stands.',
+      'A financial organiser for owner-managed businesses: keep day-to-day finances organised without replacing your accounting software.',
     relatedSlugs: [
       'why-business-bank-balance-is-not-all-yours',
       'what-accounting-software-tells-you-and-what-it-does-not',
@@ -25,7 +30,20 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
     sections: [
       {
         type: 'p',
-        text: 'Cash Prophet is a practical way to manage business money. It starts from a quieter question most owners already ask: where does my business really stand once commitments are counted?',
+        text: 'Cash Prophet is a financial organiser for small and owner-managed businesses. It helps you keep day-to-day finances organised in one place, so less of the picture lives only in your head.',
+      },
+      {
+        type: 'h2',
+        text: 'Four things it helps you see',
+      },
+      {
+        type: 'ul',
+        items: [
+          'What is coming up: costs building through the month and bills on the horizon',
+          'What needs putting aside: Reserve Planner for VAT, tax and irregular costs',
+          'Where the business stands: your Cash Prophet Balance after commitments',
+          'Where it is heading: whether that position is improving over time',
+        ],
       },
       {
         type: 'h2',
@@ -33,11 +51,11 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'Your bank balance shows cash in the account. It does not show payroll building toward month end, VAT accruing, or a quarterly insurance bill you know is coming. Cash Prophet brings those into view before they become a surprise.',
+        text: 'Your bank balance is accurate for cash in the account. It is incomplete as the whole picture: payroll building toward month end, VAT accruing, or a quarterly insurance bill you know is coming. Cash Prophet brings those into view before they become a surprise.',
       },
       {
         type: 'h2',
-        text: 'The core idea',
+        text: 'How Cash Prophet Balance fits',
       },
       {
         type: 'ul',
@@ -45,12 +63,12 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
           'Start from cash in the bank',
           'Subtract money already committed or building up',
           'Add only realistic expected receipts',
-          'Use the result, your Cash Prophet Balance, as your trusted financial position',
+          'Use the result, your Cash Prophet Balance, as one organised view of where you stand',
         ],
       },
       {
         type: 'p',
-        text: 'It is financial management for owners who need day to day confidence between accountant visits, not a replacement for accounting software, professional advice or detailed cash flow forecasting.',
+        text: 'It sits alongside accounting software and professional advice. It is not a replacement for bookkeeping, filings or detailed cash flow forecasting.',
       },
       { type: 'p', text: METHOD_CTA },
     ],
@@ -59,19 +77,19 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
     slug: 'why-business-bank-balance-is-not-all-yours',
     title: 'Why Your Business Bank Balance Is Not All Yours',
     metaDescription:
-      'Why a healthy UK business bank balance can still mislead you, and how committed funds change your real Cash Prophet Balance.',
+      'Why a healthy UK business bank balance can still leave you short, and how committed funds change the organised picture of where you stand.',
     keywords: ['bank balance', 'committed funds', 'UK business', 'cash prophet balance'],
     publishedAt: '2026-07-08',
-    updatedAt: '2026-07-26',
+    updatedAt: '2026-09-01',
     category: METHOD_BLOG_CATEGORY,
     readMinutes: 2,
     excerpt:
-      'Cash in the account is not the same as a trusted financial position. Here is what is often already spoken for.',
+      'Cash in the account is real. Treating it as the whole financial picture is not, until payroll, VAT and other commitments are counted.',
     relatedSlugs: ['what-is-cash-prophet', 'monthly-accruals-explained-small-business'],
     sections: [
       {
         type: 'p',
-        text: 'Opening your banking app feels reassuring when the balance is healthy. The harder question is where the business really stands once obligations are counted.',
+        text: 'Opening your banking app feels reassuring when the balance is healthy. The harder question is what that cash still has to cover once obligations are counted.',
       },
       {
         type: 'h2',
@@ -92,7 +110,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'Cash Prophet treats those items as part of your Cash Prophet Balance now, not only on payment day. That single shift helps owners trust the position they are looking at, instead of decisions that look fine on the bank app but are not.',
+        text: 'Cash Prophet treats those items as part of your Cash Prophet Balance now, not only on payment day. That habit helps you keep the picture organised, instead of decisions that look fine on the bank app but leave you short later.',
       },
       { type: 'p', text: METHOD_CTA },
     ],
@@ -104,7 +122,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
       'A calm approach to setting money aside for VAT, corporation tax and irregular UK business bills, using Reserve Planner and steady habits.',
     keywords: ['VAT reserve', 'tax reserve', 'irregular bills', 'UK small business'],
     publishedAt: '2026-07-09',
-    updatedAt: '2026-07-26',
+    updatedAt: '2026-09-01',
     category: METHOD_BLOG_CATEGORY,
     readMinutes: 2,
     excerpt:
@@ -148,7 +166,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
       'What monthly accruals mean in plain English for UK small businesses, and why they matter for your Cash Prophet Balance.',
     keywords: ['accruals', 'small business', 'payroll accrual', 'committed funds'],
     publishedAt: '2026-07-09',
-    updatedAt: '2026-07-26',
+    updatedAt: '2026-09-01',
     category: METHOD_BLOG_CATEGORY,
     readMinutes: 2,
     excerpt:
@@ -185,7 +203,7 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
       'Reserve targets in Cash Prophet are planning figures, not money moved automatically. How they work alongside a real savings account.',
     keywords: ['virtual reserves', 'savings account', 'tax reserve', 'cash management'],
     publishedAt: '2026-07-10',
-    updatedAt: '2026-07-26',
+    updatedAt: '2026-09-01',
     category: METHOD_BLOG_CATEGORY,
     readMinutes: 2,
     excerpt:
@@ -219,19 +237,19 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
     slug: 'five-minute-financial-routine-business-owners',
     title: 'A Five Minute Financial Routine for Business Owners',
     metaDescription:
-      'A short, repeatable routine to keep your Cash Prophet Balance current: bank balances, paid items, and a monthly reserve check.',
+      'A short, repeatable routine to keep day-to-day finances organised: bank balances, paid items, and a monthly reserve check.',
     keywords: ['financial routine', 'small business', 'cash management', 'Cash Prophet'],
     publishedAt: '2026-07-10',
-    updatedAt: '2026-07-26',
+    updatedAt: '2026-09-01',
     category: METHOD_BLOG_CATEGORY,
     readMinutes: 2,
     excerpt:
-      'Little and often beats a monthly panic. A calm routine for keeping your Cash Prophet Balance honest.',
+      'Little and often beats a monthly panic. A calm routine for keeping the financial picture organised.',
     relatedSlugs: ['what-is-cash-prophet', 'virtual-reserves-vs-separate-savings-accounts'],
     sections: [
       {
         type: 'p',
-        text: 'Cash Prophet does not ask for hours of bookkeeping. It asks for small, regular updates so the Cash Prophet Balance stays trustworthy.',
+        text: 'Cash Prophet does not ask for hours of bookkeeping. It asks for small, regular updates so the organised picture stays current.',
       },
       {
         type: 'h2',
@@ -256,19 +274,19 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
     slug: 'what-accounting-software-tells-you-and-what-it-does-not',
     title: 'What Accounting Software Tells You, and What It Does Not',
     metaDescription:
-      'Xero and similar tools record what happened. Cash Prophet focuses on a trusted financial position for day to day confidence. They work together.',
+      'Xero and similar tools record what happened. Cash Prophet helps organise the day-to-day financial picture. They work together.',
     keywords: ['accounting software', 'Xero', 'cash prophet balance', 'Cash Prophet'],
     publishedAt: '2026-07-11',
-    updatedAt: '2026-07-26',
+    updatedAt: '2026-09-01',
     category: METHOD_BLOG_CATEGORY,
     readMinutes: 2,
     excerpt:
-      'Accounting software is essential, but it is not designed to answer where your business really stands today.',
+      'Accounting software is essential, but it is not designed to organise the day-to-day picture of commitments and reserves.',
     relatedSlugs: ['what-is-cash-prophet', 'cash-prophet-vs-accounting-software'],
     sections: [
       {
         type: 'p',
-        text: 'Accounting software does an important job: records, compliance, reports for your accountant. Most owners still need a separate answer for day to day financial confidence.',
+        text: 'Accounting software does an important job: records, compliance, reports for your accountant. Most owners still need a separate place to keep day-to-day finances organised between accountant visits.',
       },
       {
         type: 'h2',
@@ -289,14 +307,14 @@ export const METHOD_BLOG_POSTS: BlogPost[] = [
       {
         type: 'ul',
         items: [
-          'After everything building up, what is my Cash Prophet Balance?',
+          'What is coming up this month once costs are building?',
           'Have we set enough aside for VAT and tax?',
-          'Where does the business really stand before a hire, purchase or quiet month?',
+          'Where does the business stand before a hire, purchase or quiet month?',
         ],
       },
       {
         type: 'p',
-        text: 'Cash Prophet sits alongside your accounts. It is not bookkeeping and not a replacement for detailed forecasting, it is a current trusted position for decisions, kept honest with small regular updates.',
+        text: 'Cash Prophet sits alongside your accounts. It is not bookkeeping and not a replacement for detailed forecasting. It keeps the current picture organised with small regular updates.',
       },
       { type: 'p', text: METHOD_CTA },
     ],

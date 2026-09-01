@@ -119,11 +119,11 @@ export const PARTNERS_SEO = {
 } as const satisfies RouteSeo
 
 export const BLOG_INDEX_SEO = {
-  title: 'Business Financial Clarity Blog | Cash Prophet Balance | Cash Prophet',
+  title: 'Business Finance Guides | Cash Prophet',
   description:
-    'Guides on bank balance vs financial position, VAT reserves, committed funds, and why every business deserves one financial number it can trust.',
+    'Practical guides for owner-managed businesses: bills coming up, money to put aside, the Cash Prophet Balance, and keeping day-to-day finances organised.',
   path: '/blog',
-  imageAlt: 'Cash Prophet blog — Cash Prophet Balance for UK businesses',
+  imageAlt: 'Cash Prophet blog for UK owner-managed businesses',
 } as const satisfies RouteSeo
 
 export const PRIVACY_SEO = {

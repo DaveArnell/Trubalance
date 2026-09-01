@@ -71,30 +71,31 @@ export function BlogPostPage() {
           <aside className="blog-cta-box">
             {post.category === METHOD_BLOG_CATEGORY ? (
               <>
-                <h2>Let Cash Prophet carry the load</h2>
+                <h2>Keep the day-to-day picture organised</h2>
                 <p>
-                  Cash Prophet organises known commitments and shows what&apos;s genuinely available —
-                  without spreadsheet logic.
+                  Cash Prophet is a financial organiser for owner-managed businesses. See what is
+                  coming up, what needs putting aside, where you stand and whether that position is
+                  improving.
                 </p>
               </>
             ) : (
               <>
                 <h2>See Cash Prophet in action</h2>
                 <p>
-                  Explore a demo business with realistic figures, or start free — no payment details
-                  required.
+                  Take a guided tour through an example business, or join Early Access. Personal
+                  setup is available and no card is required to start.
                 </p>
               </>
             )}
             <div className="blog-index-cta">
+              <CanonicalLink to="/see-how-it-works" className="btn-primary">
+                Take the guided tour
+              </CanonicalLink>
               <CanonicalLink to="/how-it-works" className="btn-ghost">
                 How it works
               </CanonicalLink>
-              <CanonicalLink to="/see-how-it-works" className="btn-primary">
-                Try demo
-              </CanonicalLink>
               <CanonicalLink to="/signup" className="btn-secondary">
-                Get started
+                Join Early Access
               </CanonicalLink>
             </div>
           </aside>

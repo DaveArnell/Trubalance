@@ -21,7 +21,7 @@ export function BlogIndexPage() {
       ? `${activeCategory} Cash Guides | Cash Prophet Blog`
       : BLOG_INDEX_SEO.title,
     description: activeCategory
-      ? `${activeCategory} articles on Cash Prophet Balance, financial position and clarity for UK business owners.`
+      ? `${activeCategory} articles for UK owner-managed businesses: day-to-day financial organisation, reserves and Cash Prophet Balance.`
       : BLOG_INDEX_SEO.description,
     path: BLOG_INDEX_SEO.path,
   })
@@ -38,22 +38,22 @@ export function BlogIndexPage() {
       <main className="blog-page">
         <header className="method-edu-hero marketing-surface--hero blog-index-hero">
           <div className="method-edu-inner">
-            <p className="marketing-how-eyebrow">Clarity</p>
-            <h1>Articles on knowing where you stand</h1>
+            <p className="marketing-how-eyebrow">Guides</p>
+            <h1>Keeping business finances organised</h1>
             <p className="method-edu-hero-lead">
-              Why your bank balance isn’t enough, how known commitments build before payday, how to
-              stop VAT and annual bills catching you out, and the light habits that keep the picture
-              honest.
+              Practical reading for owner-managed businesses: bills coming up, costs building through
+              the month, money to put aside, and a clearer view of where the business stands than the
+              bank balance alone.
             </p>
             <div className="blog-index-cta">
-              <CanonicalLink to="/how-it-works" className="btn-primary marketing-cta-btn-on-dark">
+              <CanonicalLink to="/see-how-it-works" className="btn-primary marketing-cta-btn-on-dark">
+                Take the guided tour
+              </CanonicalLink>
+              <CanonicalLink to="/how-it-works" className="btn-ghost btn-large marketing-cta-ghost">
                 How it works
               </CanonicalLink>
-              <CanonicalLink to="/see-how-it-works" className="btn-ghost btn-large marketing-cta-ghost">
-                See how it feels
-              </CanonicalLink>
               <CanonicalLink to="/signup" className="btn-ghost btn-large marketing-cta-ghost">
-                Get started
+                Join Early Access
               </CanonicalLink>
             </div>
           </div>
@@ -84,8 +84,8 @@ export function BlogIndexPage() {
 
           {activeCategory === METHOD_BLOG_CATEGORY && (
             <p className="blog-index-category-note muted">
-              Educational articles about Cash Prophet — how to see what is genuinely available and keep
-              a calm financial routine.
+              Educational articles about Cash Prophet: organising what is coming up, what to put aside,
+              and where the business stands.
             </p>
           )}
 
