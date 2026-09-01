@@ -80,6 +80,8 @@ export interface Commitment {
   acknowledgedDuePeriods?: string[]
   /** Per-period expected amounts (YYYY-MM) locked when the headline amount changes. */
   periodAmountOverrides?: Record<string, number>
+  /** Due-only amount for a period (YYYY-MM) — edits in Due do not change the recurring budget or accrual. */
+  duePeriodAmountOverrides?: Record<string, number>
   /** Actual amount paid per period (YYYY-MM) when reconciled. */
   paidPeriodAmounts?: Record<string, number>
   /** Calendar date (YYYY-MM-DD) each period was marked paid — used for historic as-of views. */

@@ -201,6 +201,14 @@ function mapCommitment(row: Record<string, unknown>): Commitment {
             ]),
           )
         : undefined,
+    duePeriodAmountOverrides:
+      row.due_period_amount_overrides && typeof row.due_period_amount_overrides === 'object'
+        ? Object.fromEntries(
+            Object.entries(row.due_period_amount_overrides as Record<string, unknown>).map(
+              ([k, v]) => [k, toNumber(v)],
+            ),
+          )
+        : undefined,
     paidPeriodAmounts:
       row.paid_period_amounts && typeof row.paid_period_amounts === 'object'
         ? Object.fromEntries(
@@ -655,6 +663,7 @@ export async function saveWorkspaceState(
     dismissed_due_periods: c.dismissedDuePeriods ?? [],
     acknowledged_due_periods: c.acknowledgedDuePeriods ?? [],
     period_amount_overrides: c.periodAmountOverrides ?? {},
+    due_period_amount_overrides: c.duePeriodAmountOverrides ?? {},
     paid_period_amounts: c.paidPeriodAmounts ?? {},
     preserved_due_periods: c.preservedDuePeriods ?? [],
     paid_period_dates: c.paidPeriodDates ?? {},

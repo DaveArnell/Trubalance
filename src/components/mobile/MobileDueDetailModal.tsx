@@ -26,6 +26,7 @@ interface MobileDueDetailModalProps {
   onClose: () => void
   onMarkPaid: (amount: number) => void
   onSave?: (patch: Partial<Commitment>) => void
+  onSaveDueAmount?: (amount: number) => void
   onSaveReserveAmount?: (amount: number) => void
   onDuplicate?: () => void
   onDelete?: () => void
@@ -45,6 +46,7 @@ export function MobileDueDetailModal({
   onClose,
   onMarkPaid,
   onSave,
+  onSaveDueAmount,
   onSaveReserveAmount,
   onDuplicate,
   onDelete,
@@ -65,7 +67,7 @@ export function MobileDueDetailModal({
   const canEdit =
     !editReadOnly &&
     !isReserveTransfer &&
-    (((isPlanned || isMonthly) && Boolean(onSave)) ||
+    (((isPlanned || isMonthly) && Boolean(onSave || onSaveDueAmount)) ||
       (isReserveBill && Boolean(onSaveReserveAmount)))
 
   const expectedTotal = isPlanned || isReserveBill
@@ -130,12 +132,14 @@ export function MobileDueDetailModal({
         setError('Due day must be between 1 and 31.')
         return
       }
-      const patch: Partial<Commitment> = {}
       const trimmedName = name.trim() || item.name
+      if (parsedAmount !== roundCurrency(row.amount)) {
+        onSaveDueAmount?.(parsedAmount)
+      }
+      const patch: Partial<Commitment> = {}
       if (trimmedName !== item.name) patch.name = trimmedName
-      if (parsedAmount !== roundCurrency(toAmount(item.amount))) patch.amount = parsedAmount
       if (parsedDue !== (item.dueDayOfMonth ?? 28)) patch.dueDayOfMonth = parsedDue
-      if (Object.keys(patch).length > 0) onSave(patch)
+      if (Object.keys(patch).length > 0) onSave?.(patch)
       setEditing(false)
       onClose()
       return

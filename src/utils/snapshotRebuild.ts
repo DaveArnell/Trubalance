@@ -55,8 +55,11 @@ export function getCommitmentRebuildFromPeriodOverridePatch(
   commitment: Commitment,
   patch: Partial<Commitment>,
 ): string | null {
-  if (!patch.periodAmountOverrides) return null
-  const periods = Object.keys(patch.periodAmountOverrides).sort()
+  if (!patch.periodAmountOverrides && !patch.duePeriodAmountOverrides) return null
+  const periods = [
+    ...Object.keys(patch.periodAmountOverrides ?? {}),
+    ...Object.keys(patch.duePeriodAmountOverrides ?? {}),
+  ].sort()
   if (periods.length === 0) return null
   const periodStart = `${periods[0]!}-01`
   const created = commitment.createdAt?.slice(0, 10)

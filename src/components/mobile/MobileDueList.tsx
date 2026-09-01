@@ -4,6 +4,7 @@ import {
   buildDueRowSections,
   formatDueRowTiming,
   formatRolledDueTooltip,
+  getCommitmentDueOccurrences,
   getDueRowCardFunding,
   isReserveTransferDueRow,
 } from '../../utils/commitmentCalculations'
@@ -29,6 +30,7 @@ interface MobileDueListProps {
     | 'deleteCommitment'
     | 'duplicateCommitment'
     | 'updateCommitment'
+    | 'updateCommitmentDuePeriodAmount'
     | 'markReserveBillPaid'
     | 'duplicateReserveBill'
     | 'updateReserveBill'
@@ -156,6 +158,21 @@ export function MobileDueList({
           onSave={
             selected.source !== 'reserve'
               ? (patch) => actions.updateCommitment(selected.commitment.id, patch)
+              : undefined
+          }
+          onSaveDueAmount={
+            selected.source !== 'reserve' && selected.commitment.schedule === 'monthly'
+              ? (amount) => {
+                  const commitment = selected.commitment
+                  const primaryPeriod = selected.dueReferencePeriod ?? selected.period
+                  const occurrences = getCommitmentDueOccurrences(commitment)
+                  actions.updateCommitmentDuePeriodAmount(
+                    commitment.id,
+                    primaryPeriod,
+                    amount,
+                    occurrences,
+                  )
+                }
               : undefined
           }
           onSaveReserveAmount={

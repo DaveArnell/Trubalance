@@ -3,7 +3,7 @@ import { sumAccountBalances, toAmount, roundCurrency } from './amounts'
 import {
   clampDueDay,
   commitmentEligibleForPeriodDue,
-  getPeriodExpectedAmount,
+  getDuePeriodExpectedAmount,
   isCommitmentPaidForPeriod,
   isDismissedForPeriod,
 } from './commitmentCalculations'
@@ -326,7 +326,7 @@ function buildMonthlyCostEvents(
     const eventDate = clampEventDate(isoFromDate(payDate), todayKey, endKey)
     if (!eventDate) return
 
-    const amount = getPeriodExpectedAmount(commitment, period)
+    const amount = getDuePeriodExpectedAmount(commitment, period)
     if (amount <= 0) return
 
     events.push({

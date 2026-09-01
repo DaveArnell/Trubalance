@@ -26,15 +26,20 @@ export function getPeriodExpectedAmount(commitment: Commitment, period: string):
   return getMonthlyBudgetAmount(commitment)
 }
 
-/** Accrual target for the active cycle — may use a one-month override without changing the headline budget. */
+/** Amount for a due row for one period — Due-only overrides, then legacy locks, then headline budget. */
+export function getDuePeriodExpectedAmount(commitment: Commitment, period: string): number {
+  const dueOverride = commitment.duePeriodAmountOverrides?.[period]
+  if (dueOverride != null) return toAmount(dueOverride)
+  return getPeriodExpectedAmount(commitment, period)
+}
+
+/** Accrual target for the active cycle — always the headline monthly budget (Due edits stay in Due). */
 export function getAccrualTargetAmount(
   commitment: Commitment,
-  referenceDate: Date = getReferenceDate(),
+  _referenceDate: Date = getReferenceDate(),
 ): number {
   if (commitment.schedule !== 'monthly') return getMonthlyBudgetAmount(commitment)
-  const activePeriod = getActiveAccrualPeriod(commitment, referenceDate)
-  if (!activePeriod) return getMonthlyBudgetAmount(commitment)
-  return getPeriodExpectedAmount(commitment, activePeriod)
+  return getMonthlyBudgetAmount(commitment)
 }
 
 /** @deprecated Use getAccrualTargetAmount or getMonthlyBudgetAmount */
@@ -53,17 +58,28 @@ export function getCommitmentDueRowAmount(
   if (occurrences.length === 0) return 0
   const primary = occurrences[0]!
   if (occurrences.length === 1) {
-    return getPeriodExpectedAmount(commitment, primary.period)
+    return getDuePeriodExpectedAmount(commitment, primary.period)
   }
 
-  const overrides = commitment.periodAmountOverrides ?? {}
-  const periodsWithOverrides = occurrences.filter((entry) => overrides[entry.period] != null)
-  if (periodsWithOverrides.length === 1 && periodsWithOverrides[0]!.period === primary.period) {
-    return toAmount(overrides[primary.period]!)
+  const dueOverrides = commitment.duePeriodAmountOverrides ?? {}
+  const legacyOverrides = commitment.periodAmountOverrides ?? {}
+  const periodsWithDueOverrides = occurrences.filter((entry) => dueOverrides[entry.period] != null)
+  const periodsWithLegacyOverrides = occurrences.filter((entry) => legacyOverrides[entry.period] != null)
+  if (
+    periodsWithDueOverrides.length === 1 &&
+    periodsWithDueOverrides[0]!.period === primary.period
+  ) {
+    return toAmount(dueOverrides[primary.period]!)
+  }
+  if (
+    periodsWithLegacyOverrides.length === 1 &&
+    periodsWithLegacyOverrides[0]!.period === primary.period
+  ) {
+    return toAmount(legacyOverrides[primary.period]!)
   }
 
   return occurrences.reduce(
-    (sum, entry) => sum + getPeriodExpectedAmount(commitment, entry.period),
+    (sum, entry) => sum + getDuePeriodExpectedAmount(commitment, entry.period),
     0,
   )
 }
@@ -73,20 +89,20 @@ export function buildCommitmentDueAmountOverridePatch(
   primaryPeriod: string,
   amount: number,
   occurrences: CommitmentDueOccurrence[],
-): Pick<Commitment, 'periodAmountOverrides'> {
-  const overrides = { ...(commitment.periodAmountOverrides ?? {}) }
+): Pick<Commitment, 'duePeriodAmountOverrides'> {
+  const overrides = { ...(commitment.duePeriodAmountOverrides ?? {}) }
   const nextAmount = toAmount(amount)
 
   if (occurrences.length <= 1) {
     overrides[primaryPeriod] = nextAmount
-    return { periodAmountOverrides: overrides }
+    return { duePeriodAmountOverrides: overrides }
   }
 
   overrides[primaryPeriod] = nextAmount
   for (const occurrence of occurrences.slice(1)) {
     delete overrides[occurrence.period]
   }
-  return { periodAmountOverrides: overrides }
+  return { duePeriodAmountOverrides: overrides }
 }
 
 function isCommitmentDueRollupOverride(
@@ -95,9 +111,14 @@ function isCommitmentDueRollupOverride(
 ): boolean {
   if (occurrences.length <= 1) return false
   const primary = occurrences[0]!
-  const overrides = commitment.periodAmountOverrides ?? {}
-  const periodsWithOverrides = occurrences.filter((entry) => overrides[entry.period] != null)
-  return periodsWithOverrides.length === 1 && periodsWithOverrides[0]!.period === primary.period
+  const dueOverrides = commitment.duePeriodAmountOverrides ?? {}
+  const legacyOverrides = commitment.periodAmountOverrides ?? {}
+  const periodsWithDueOverrides = occurrences.filter((entry) => dueOverrides[entry.period] != null)
+  if (periodsWithDueOverrides.length === 1 && periodsWithDueOverrides[0]!.period === primary.period) {
+    return true
+  }
+  const periodsWithLegacyOverrides = occurrences.filter((entry) => legacyOverrides[entry.period] != null)
+  return periodsWithLegacyOverrides.length === 1 && periodsWithLegacyOverrides[0]!.period === primary.period
 }
 
 function getOccurrenceDueShareAmount(
@@ -109,14 +130,14 @@ function getOccurrenceDueShareAmount(
   if (isCommitmentDueRollupOverride(commitment, occurrences)) {
     return index === 0 ? getCommitmentDueRowAmount(commitment, occurrences) : 0
   }
-  return getPeriodExpectedAmount(commitment, occurrence.period)
+  return getDuePeriodExpectedAmount(commitment, occurrence.period)
 }
 
 /** Actual amount recorded when a period was marked paid (falls back to expected). */
 export function getPaidPeriodAmount(commitment: Commitment, period: string): number {
   const paid = commitment.paidPeriodAmounts?.[period]
   if (paid != null) return toAmount(paid)
-  return getPeriodExpectedAmount(commitment, period)
+  return getDuePeriodExpectedAmount(commitment, period)
 }
 
 /**

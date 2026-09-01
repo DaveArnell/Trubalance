@@ -924,7 +924,7 @@ export function useAppState(options?: UseAppStateOptions) {
       }
       if (patch.amount !== undefined && patch.amount !== existing.amount) {
         merged = { ...merged, ...buildAmountChangePatch(existing, patch.amount) }
-      } else if (patch.periodAmountOverrides !== undefined) {
+      } else if (patch.periodAmountOverrides !== undefined || patch.duePeriodAmountOverrides !== undefined) {
         merged.amount = existing.amount
       }
 
@@ -1134,6 +1134,7 @@ export function useAppState(options?: UseAppStateOptions) {
         dismissedDuePeriods: _dismissed,
         acknowledgedDuePeriods: _acknowledged,
         periodAmountOverrides: _overrides,
+        duePeriodAmountOverrides: _dueOverrides,
         paid: _legacyPaid,
         ...sourceBase
       } = source as Commitment & { paid?: boolean }
@@ -1148,6 +1149,7 @@ export function useAppState(options?: UseAppStateOptions) {
         acknowledgedDuePeriods: [],
         paidPeriodAmounts: undefined,
         periodAmountOverrides: undefined,
+        duePeriodAmountOverrides: undefined,
       }
       const ordered = sortByOrder(siblings, (c) => c.sortOrder)
       const sourceIndex = ordered.findIndex((c) => c.id === id)
