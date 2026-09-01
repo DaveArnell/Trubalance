@@ -259,7 +259,12 @@ export function reserveBillEligibleForPeriodDue(
   return created.getTime() < periodDueDate.getTime()
 }
 
-/** Unpaid reserve bill due months in the current year through today (rolls prior months forward). */
+/**
+ * Unpaid reserve bill due months in the current year through this month
+ * (rolls prior months forward).
+ * Once the due month starts, the bill appears in Due with its real payment date.
+ * It does not wait until that day of the month.
+ */
 export function getUnpaidReserveBillDueOccurrences(
   bill: ReserveBill,
   referenceDate: Date = getReferenceDate(),
@@ -278,8 +283,6 @@ export function getUnpaidReserveBillDueOccurrences(
     if (isReserveBillDismissedThisPeriod(bill, period)) continue
 
     const dueDay = getBillDueDay(bill, month)
-    const dueDate = getReserveDueDate(year, monthIndex, dueDay)
-    if (today.getTime() < dueDate.getTime()) continue
     if (!reserveBillEligibleForPeriodDue(bill, year, monthIndex)) continue
 
     results.push({
