@@ -34,6 +34,8 @@ function actualBalanceForMonth(
   currentMonthIdx: number,
   currentActualBalance?: number,
 ): number | null {
+  // Past months follow the seasonal plan in the chart; do not pin to a stale check-in.
+  if (month.monthIndex < currentMonthIdx) return null
   if (month.confirmation) return month.confirmation.balance
   if (month.monthIndex === currentMonthIdx && currentActualBalance != null) {
     return currentActualBalance

@@ -328,20 +328,27 @@ function ReserveBalanceCell({
   onAdjustCurrentBalance?: (balance: number) => void
 }) {
   const isCurrentMonth = monthEnd.monthIndex === currentMonthIdx
+  const isPastMonth = monthEnd.monthIndex < currentMonthIdx
   const isConfirmed = !!monthEnd.confirmation
   const planned = monthEnd.targetBalance
-  const actual = monthEnd.confirmation
-    ? monthEnd.confirmation.balance
-    : isCurrentMonth
-      ? currentActualBalance
-      : null
+  // Past months always show the seasonal plan target — not a frozen check-in
+  // snapshot (e.g. £0 from when that month was current).
+  const actual = isPastMonth
+    ? null
+    : monthEnd.confirmation
+      ? monthEnd.confirmation.balance
+      : isCurrentMonth
+        ? currentActualBalance
+        : null
   const showBoth = actual != null && Math.abs(actual - planned) >= 0.5
   const className = [
     'reserve-balance-cell',
     currentMonthClass(isCurrentMonth, isConfirmed),
     monthEnd.isLowestMonth ? 'reserve-lowest-month' : '',
-    isConfirmed ? 'reserve-balance-confirmed' : '',
-    monthEnd.variance !== null && Math.abs(monthEnd.variance) >= 0.5 ? 'reserve-balance-variance' : '',
+    isConfirmed && !isPastMonth ? 'reserve-balance-confirmed' : '',
+    !isPastMonth && monthEnd.variance !== null && Math.abs(monthEnd.variance) >= 0.5
+      ? 'reserve-balance-variance'
+      : '',
     monthEnd.targetBalance < 0 ? 'reserve-balance-negative' : '',
     isCurrentMonth && onAdjustCurrentBalance ? 'reserve-balance-cell--editable' : '',
   ]

@@ -142,7 +142,7 @@ export const CAFE_LANDING: SectorLandingContent = {
     headlineStart: 'Busy till. Full head.',
     headlineHighlight: 'Cash Prophet organises the café finances you still carry around.',
     lead:
-      'Cash Prophet is financial management software that keeps track of what’s coming up, what you need to put aside, where your café stands and where it’s heading — without turning day-to-day running into another accounting job.',
+      'Cash Prophet is financial management software that keeps track of what’s coming up, what you need to put aside, where your café stands and where it’s heading, without turning day-to-day running into another accounting job.',
     primaryCta: 'Join Early Access',
     primaryCtaSupport: 'Personal setup included',
     tryItCta: 'Try the free Snapshot',
@@ -155,7 +155,7 @@ export const CAFE_LANDING: SectorLandingContent = {
       'Regular costs such as wages, rent, utilities and suppliers keep building before payday.',
       'Larger costs such as VAT and insurance need preparing for months ahead.',
       'The till can be busy while the underlying position is harder to see.',
-      'Accounting software records what happened — it does not organise what you need to decide today.',
+      'Accounting software records what happened. It does not organise what you need to decide today.',
     ],
     close:
       'Cash Prophet sits beside your books as a financial organiser: one place for commitments, reserves and your Cash Prophet Balance.',
@@ -204,7 +204,7 @@ export const CAFE_LANDING: SectorLandingContent = {
     points: [
       'See annual and monthly totals for VAT, rent and other irregular costs.',
       'Know what the reserve should hold after each bill lands.',
-      'Transfer what you choose — the plan stays honest either way.',
+      'Transfer what you choose. The plan stays honest either way.',
     ],
   },
   fits: { ...sharedFits },
@@ -223,7 +223,7 @@ export const PUB_LANDING: SectorLandingContent = {
     headlineStart: 'Quiet midweeks. Busy weekends.',
     headlineHighlight: 'Cash Prophet keeps pub finances organised between the peaks.',
     lead:
-      'Cash Prophet is financial management software that keeps track of wages, stock, rent, VAT and other commitments — so you can see where the pub stands without guessing from the bank balance alone.',
+      'Cash Prophet is financial management software that keeps track of wages, stock, rent, VAT and other commitments, so you can see where the pub stands without guessing from the bank balance alone.',
     primaryCta: 'Join Early Access',
     primaryCtaSupport: 'Personal setup included',
     tryItCta: 'Try the free Snapshot',
@@ -236,7 +236,7 @@ export const PUB_LANDING: SectorLandingContent = {
       'Staff wages and PAYE build through the week before payday.',
       'Rent, utilities and deliveries keep landing on a rhythm of their own.',
       'VAT and insurance need a reserve, not a scramble when the bill arrives.',
-      'The bank balance answers “what’s in the account” — not “what’s already spoken for”.',
+      'The bank balance answers “what’s in the account”, not “what’s already spoken for”.',
     ],
     close:
       'Cash Prophet is financial management software for the day-to-day picture: commitments building, reserves planned, and one Cash Prophet Balance you can check quickly.',
@@ -285,7 +285,7 @@ export const PUB_LANDING: SectorLandingContent = {
     points: [
       'Map VAT quarters, rent and insurance on one plan.',
       'See the reserve balance after each bill is due.',
-      'Confirm transfers when you choose — the plan stays visible either way.',
+      'Confirm transfers when you choose. The plan stays visible either way.',
     ],
   },
   fits: { ...sharedFits },
@@ -304,7 +304,7 @@ export const RESTAURANT_LANDING: SectorLandingContent = {
     headlineStart: 'Covers on. Bills building.',
     headlineHighlight: 'Cash Prophet organises the restaurant finances you still carry in your head.',
     lead:
-      'Cash Prophet is financial management software that keeps track of kitchen and front-of-house wages, rent, suppliers, VAT and other commitments — so you can see where the restaurant stands between service and payday.',
+      'Cash Prophet is financial management software that keeps track of kitchen and front-of-house wages, rent, suppliers, VAT and other commitments, so you can see where the restaurant stands between service and payday.',
     primaryCta: 'Join Early Access',
     primaryCtaSupport: 'Personal setup included',
     tryItCta: 'Try the free Snapshot',
@@ -316,7 +316,7 @@ export const RESTAURANT_LANDING: SectorLandingContent = {
     points: [
       'Kitchen and front-of-house wages build through the week before payday.',
       'Rent, utilities and supplier payments keep landing on their own schedule.',
-      'VAT and insurance need preparing for — not reacting to.',
+      'VAT and insurance need preparing for, not reacting to.',
       'Accounting records the past; owners still need a day-to-day organised picture.',
     ],
     close:
@@ -366,7 +366,7 @@ export const RESTAURANT_LANDING: SectorLandingContent = {
     points: [
       'Plan VAT, rent and insurance on one reserve view.',
       'See what should remain after each bill is due.',
-      'Move money when you choose — the target stays visible.',
+      'Move money when you choose. The target stays visible.',
     ],
   },
   fits: { ...sharedFits },
@@ -385,7 +385,7 @@ export const SOFT_PLAY_LANDING: SectorLandingContent = {
     headlineStart: 'Busy sessions. Quiet midweeks.',
     headlineHighlight: 'Cash Prophet organises soft play finances beyond the bank balance.',
     lead:
-      'Cash Prophet is financial management software that keeps track of staffing, rent, insurance, VAT and other commitments — so you can see where the venue stands when takings rise and fall through the week.',
+      'Cash Prophet is financial management software that keeps track of staffing, rent, insurance, VAT and other commitments, so you can see where the venue stands when takings rise and fall through the week.',
     primaryCta: 'Join Early Access',
     primaryCtaSupport: 'Personal setup included',
     tryItCta: 'Try the free Snapshot',
@@ -447,7 +447,7 @@ export const SOFT_PLAY_LANDING: SectorLandingContent = {
     points: [
       'Map VAT, rent and insurance on one reserve plan.',
       'See the planned balance after each bill is due.',
-      'Confirm transfers when you choose — the target stays visible.',
+      'Confirm transfers when you choose. The target stays visible.',
     ],
   },
   fits: { ...sharedFits },

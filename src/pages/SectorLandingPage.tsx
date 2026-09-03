@@ -99,7 +99,7 @@ export function SectorLandingPage({ sectorId }: { sectorId: SectorId }) {
           aria-labelledby="sector-problem-heading"
         >
           <div className="marketing-section-inner marketing-section-inner--home">
-            <div className="home-band-head">
+            <div className="home-picture-head">
               <h2 id="sector-problem-heading">{content.problem.heading}</h2>
               <p className="home-picture-lead">{content.problem.lead}</p>
             </div>
@@ -120,7 +120,7 @@ export function SectorLandingPage({ sectorId }: { sectorId: SectorId }) {
           aria-labelledby="sector-reserve-heading"
         >
           <div className="marketing-section-inner marketing-section-inner--home">
-            <div className="home-band-head">
+            <div className="home-picture-head">
               <h2 id="sector-reserve-heading">{content.reserve.heading}</h2>
               {content.reserve.lead.map((paragraph) => (
                 <p key={paragraph} className="home-picture-lead">

@@ -383,7 +383,8 @@ export function isReserveTransferPending(
 
 /** Month check-in marked complete in Reserve Planner (clears the plan Due row). */
 export function isReservePlanMonthTransferDone(planner: ReservePlanner, monthKey: string): boolean {
-  return planner.monthConfirmations?.[monthKey]?.transferDone === true
+  const confirmation = confirmationForCurrentPlanYear(planner.monthConfirmations?.[monthKey])
+  return confirmation?.transferDone === true
 }
 
 /**
@@ -404,7 +405,10 @@ export function buildReservePlanPaidFields(
     const monthIndex = MONTHS.indexOf(month)
     if (monthIndex < 0) continue
     const period = `${year}-${String(monthIndex + 1).padStart(2, '0')}`
-    const confirmation = planner.monthConfirmations?.[month]
+    const confirmation = confirmationForCurrentPlanYear(
+      planner.monthConfirmations?.[month],
+      new Date(year, 0, 1),
+    )
 
     if (confirmation?.transferDone === true) {
       paidPeriodAmounts[period] = 0
@@ -1003,7 +1007,9 @@ export function getReserveBalanceForTransfer(
 ): number {
   const monthKey = MONTHS[monthIndex]!
   const isCurrentMonth = monthIndex === referenceDate.getMonth()
-  const hasConfirmation = Boolean(planner.monthConfirmations?.[monthKey])
+  const hasConfirmation = Boolean(
+    confirmationForCurrentPlanYear(planner.monthConfirmations?.[monthKey], referenceDate),
+  )
 
   if (isCurrentMonth && !hasConfirmation) {
     if (isReservePlannerUnconfigured(planner)) return planner.actualBalance ?? 0
@@ -1136,10 +1142,26 @@ function getLatestConfirmationBeforeMonth(
 ): { monthIndex: number; confirmation: ReserveMonthConfirmation } | null {
   for (let i = monthIndex - 1; i >= 0; i--) {
     const month = MONTHS[i]!
-    const confirmation = planner.monthConfirmations?.[month]
+    const confirmation = confirmationForCurrentPlanYear(planner.monthConfirmations?.[month])
     if (confirmation) return { monthIndex: i, confirmation }
   }
   return null
+}
+
+/**
+ * Confirmations are keyed by month name only. Ignore snapshots from a prior
+ * calendar year so last year's £0 (etc.) does not stick on this year's plan.
+ */
+function confirmationForCurrentPlanYear(
+  confirmation: ReserveMonthConfirmation | undefined,
+  referenceDate: Date = getReferenceDate(),
+): ReserveMonthConfirmation | undefined {
+  if (!confirmation) return undefined
+  if (!confirmation.confirmedAt) return confirmation
+  const at = new Date(confirmation.confirmedAt)
+  if (Number.isNaN(at.getTime())) return confirmation
+  if (at.getFullYear() !== referenceDate.getFullYear()) return undefined
+  return confirmation
 }
 
 /** Planner has no bills, buffer, or monthly confirmations yet — still in initial setup. */
@@ -1272,25 +1294,30 @@ export function computeReserveMonthEndBalances(planner: ReservePlanner): Reserve
   const confirmations = planner.monthConfirmations ?? {}
   const simulated = simulateReservePlan(planner)
   const planSummary = computeReservePlanSummary(planner.bills, planner.bufferAmount)
+  const referenceDate = getReferenceDate()
 
-  return simulated.map((row) => ({
-    month: row.month,
-    monthIndex: row.monthIndex,
-    targetBalance: row.balanceAfterBills,
-    isCurrentMonth: row.isCurrentMonth,
-    isPastMonth: row.isPastMonth,
-    isLowestMonth: row.month === planSummary.lowestMonth,
-    confirmation: confirmations[row.month],
-    variance: confirmations[row.month]
-      ? roundMoney(confirmations[row.month].balance - row.balanceAfterBills)
-      : null,
-    transferRequired: row.transferRequired,
-    balanceAfterBills: row.balanceAfterBills,
-    balanceAfterDeposit: row.balanceAfterDeposit,
-    totalDue: row.totalDue,
-    monthlyDeposit: row.monthlyDeposit,
-    startBalance: row.startBalance,
-  }))
+  return simulated.map((row) => {
+    // Past months always follow the seasonal plan target, not a frozen check-in
+    // (e.g. £0 from when that month was current). Future/current keep this-year confirmations only.
+    const raw = row.isPastMonth ? undefined : confirmations[row.month]
+    const confirmation = confirmationForCurrentPlanYear(raw, referenceDate)
+    return {
+      month: row.month,
+      monthIndex: row.monthIndex,
+      targetBalance: row.balanceAfterBills,
+      isCurrentMonth: row.isCurrentMonth,
+      isPastMonth: row.isPastMonth,
+      isLowestMonth: row.month === planSummary.lowestMonth,
+      confirmation,
+      variance: confirmation ? roundMoney(confirmation.balance - row.balanceAfterBills) : null,
+      transferRequired: row.transferRequired,
+      balanceAfterBills: row.balanceAfterBills,
+      balanceAfterDeposit: row.balanceAfterDeposit,
+      totalDue: row.totalDue,
+      monthlyDeposit: row.monthlyDeposit,
+      startBalance: row.startBalance,
+    }
+  })
 }
 
 export function buildReserveGrid(bills: ReserveBill[]): ReserveGrid {

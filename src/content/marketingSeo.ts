@@ -121,7 +121,7 @@ export const PARTNERS_SEO = {
 export const CAFE_SECTOR_SEO = {
   title: 'Financial Management Software for UK Cafés | Cash Prophet',
   description:
-    'Financial management software for independent UK cafés. Organise wages, rent, suppliers and VAT, and see your Cash Prophet Balance — clearer than the bank alone.',
+    'Financial management software for independent UK cafés. Organise wages, rent, suppliers and VAT, and see your Cash Prophet Balance, clearer than the bank alone.',
   path: '/cafe-financial-management-software',
   imageAlt: SITE_OG_IMAGE_ALT,
 } as const satisfies RouteSeo
@@ -129,7 +129,7 @@ export const CAFE_SECTOR_SEO = {
 export const PUB_SECTOR_SEO = {
   title: 'Financial Management Software for UK Pubs & Bars | Cash Prophet',
   description:
-    'Financial management software for independent UK pubs and bars. Organise wages, stock, rent and VAT, and see your Cash Prophet Balance — clearer than the bank alone.',
+    'Financial management software for independent UK pubs and bars. Organise wages, stock, rent and VAT, and see your Cash Prophet Balance, clearer than the bank alone.',
   path: '/pub-financial-management-software',
   imageAlt: SITE_OG_IMAGE_ALT,
 } as const satisfies RouteSeo
@@ -137,7 +137,7 @@ export const PUB_SECTOR_SEO = {
 export const RESTAURANT_SECTOR_SEO = {
   title: 'Financial Management Software for UK Restaurants | Cash Prophet',
   description:
-    'Financial management software for independent UK restaurants. Organise kitchen payroll, rent, suppliers and VAT, and see your Cash Prophet Balance — clearer than the bank alone.',
+    'Financial management software for independent UK restaurants. Organise kitchen payroll, rent, suppliers and VAT, and see your Cash Prophet Balance, clearer than the bank alone.',
   path: '/restaurant-financial-management-software',
   imageAlt: SITE_OG_IMAGE_ALT,
 } as const satisfies RouteSeo
@@ -145,7 +145,7 @@ export const RESTAURANT_SECTOR_SEO = {
 export const SOFT_PLAY_SECTOR_SEO = {
   title: 'Financial Management Software for Soft Play Centres | Cash Prophet',
   description:
-    'Financial management software for UK soft play and leisure venues. Organise staffing, rent, insurance and VAT, and see your Cash Prophet Balance — clearer than the bank alone.',
+    'Financial management software for UK soft play and leisure venues. Organise staffing, rent, insurance and VAT, and see your Cash Prophet Balance, clearer than the bank alone.',
   path: '/soft-play-financial-management-software',
   imageAlt: SITE_OG_IMAGE_ALT,
 } as const satisfies RouteSeo

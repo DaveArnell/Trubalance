@@ -35656,10 +35656,13 @@ body.setup-onboarding-spotlight-active [data-onboarding-focus='true'] {
 .home-picture-head {
   text-align: center;
   max-width: 42rem;
+  margin-inline: auto;
+  width: 100%;
 }
 
 .home-picture-head h2 {
   margin: 0;
+  text-align: center;
 }
 
 .home-picture-lead {
