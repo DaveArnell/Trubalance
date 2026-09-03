@@ -111,7 +111,7 @@ export const CAFE_SECTOR_FAQS: FaqItem[] = [
 export const PUB_SECTOR_FAQS: FaqItem[] = [
   {
     q: 'Is Cash Prophet financial management software for pubs and bars?',
-    a: 'Yes. Cash Prophet is financial management software for independent pubs and bars. It organises wages, rent, stock-related costs, VAT and your Cash Prophet Balance so you can see where the pub stands between quiet midweeks and busy weekends.',
+    a: 'Yes. Cash Prophet is financial management software for independent pubs and bars. It organises wages, rent, stock-related costs, VAT and your Cash Prophet Balance so you can see where the pub stands without relying on the bank balance alone.',
   },
   {
     q: 'Is this the same as pub cash flow software?',
@@ -138,7 +138,7 @@ export const PUB_SECTOR_FAQS: FaqItem[] = [
 export const RESTAURANT_SECTOR_FAQS: FaqItem[] = [
   {
     q: 'Is Cash Prophet financial management software for restaurants?',
-    a: 'Yes. Cash Prophet is financial management software for independent restaurants. It organises kitchen and front-of-house wages, rent, suppliers, VAT and your Cash Prophet Balance so you can see where the restaurant stands between service and payday.',
+    a: 'Yes. Cash Prophet is financial management software for independent restaurants. It organises kitchen and front-of-house wages, rent, suppliers, VAT and your Cash Prophet Balance so you can see where the restaurant stands without relying on the bank balance alone.',
   },
   {
     q: 'Is this restaurant cash flow forecasting?',
@@ -165,7 +165,7 @@ export const RESTAURANT_SECTOR_FAQS: FaqItem[] = [
 export const SOFT_PLAY_SECTOR_FAQS: FaqItem[] = [
   {
     q: 'Is Cash Prophet financial management software for soft play centres?',
-    a: 'Yes. Cash Prophet is financial management software for soft play and similar leisure venues. It organises staffing, rent, insurance, VAT and your Cash Prophet Balance so you can see where the venue stands when takings rise and fall through the week.',
+    a: 'Yes. Cash Prophet is financial management software for soft play and similar leisure venues. It organises staffing costs, rent, insurance, VAT and your Cash Prophet Balance so you can see where the venue stands without relying on the bank balance alone.',
   },
   {
     q: 'Is this cash flow forecasting for leisure venues?',

@@ -139,8 +139,8 @@ export const CAFE_LANDING: SectorLandingContent = {
   breadcrumbName: 'Café financial management',
   hero: {
     eyebrow: 'Financial management software for independent cafés',
-    headlineStart: 'Busy till. Full head.',
-    headlineHighlight: 'Cash Prophet organises the café finances you still carry around.',
+    headlineStart: 'Stop carrying the café finances around in your head.',
+    headlineHighlight: 'Let Cash Prophet keep the picture organised.',
     lead:
       'Cash Prophet is financial management software that keeps track of what’s coming up, what you need to put aside, where your café stands and where it’s heading, without turning day-to-day running into another accounting job.',
     primaryCta: 'Join Early Access',
@@ -148,17 +148,17 @@ export const CAFE_LANDING: SectorLandingContent = {
     tryItCta: 'Try the free Snapshot',
   },
   problem: {
-    heading: 'What café owners are usually searching for',
+    heading: 'Still keeping too much of the café picture in your head?',
     lead:
-      'Searches for café finance software, cash management or “where do we really stand?” often come from the same place: the bank balance looks fine until wages, rent, suppliers and VAT all land.',
+      'Most café owners already know what’s roughly coming up. The hard part is keeping wages, rent, suppliers, VAT and the bigger costs organised in one place you can trust, instead of piecing it together from the bank balance and memory.',
     points: [
-      'Regular costs such as wages, rent, utilities and suppliers keep building before payday.',
-      'Larger costs such as VAT and insurance need preparing for months ahead.',
-      'The till can be busy while the underlying position is harder to see.',
-      'Accounting software records what happened. It does not organise what you need to decide today.',
+      'What bills have we got coming up, and how much is already building?',
+      'Are we putting enough aside for VAT, insurance and the larger costs ahead?',
+      'Where does the café actually stand today, beyond what’s in the account?',
+      'Is that underlying position getting stronger or weaker over time?',
     ],
     close:
-      'Cash Prophet sits beside your books as a financial organiser: one place for commitments, reserves and your Cash Prophet Balance.',
+      'If you regularly find yourself working these things out yourself, Cash Prophet gives you one place to keep the café’s financial picture organised.',
   },
   picture: {
     heading: 'Your café’s financial picture, organised.',
@@ -220,26 +220,26 @@ export const PUB_LANDING: SectorLandingContent = {
   breadcrumbName: 'Pub financial management',
   hero: {
     eyebrow: 'Financial management software for independent pubs & bars',
-    headlineStart: 'Quiet midweeks. Busy weekends.',
-    headlineHighlight: 'Cash Prophet keeps pub finances organised between the peaks.',
+    headlineStart: 'Stop carrying the pub finances around in your head.',
+    headlineHighlight: 'Let Cash Prophet keep the picture organised.',
     lead:
-      'Cash Prophet is financial management software that keeps track of wages, stock, rent, VAT and other commitments, so you can see where the pub stands without guessing from the bank balance alone.',
+      'Cash Prophet is financial management software that keeps track of what’s coming up, what you need to put aside, where your pub stands and where it’s heading, without turning day-to-day running into another accounting job.',
     primaryCta: 'Join Early Access',
     primaryCtaSupport: 'Personal setup included',
     tryItCta: 'Try the free Snapshot',
   },
   problem: {
-    heading: 'What pub owners are usually searching for',
+    heading: 'Still keeping too much of the pub picture in your head?',
     lead:
-      'Searches for pub cash flow or pub finance software often mean: the till is up and down, wages and stock are constant, and VAT still arrives whether the week was quiet or busy.',
+      'Wages, stock, rent, VAT and the larger costs ahead are usually known in outline. What wears people down is keeping that picture organised, instead of judging the pub from the bank balance and whatever you can remember.',
     points: [
-      'Staff wages and PAYE build through the week before payday.',
-      'Rent, utilities and deliveries keep landing on a rhythm of their own.',
-      'VAT and insurance need a reserve, not a scramble when the bill arrives.',
-      'The bank balance answers “what’s in the account”, not “what’s already spoken for”.',
+      'What bills have we got coming up, and how much is already building?',
+      'Are we putting enough aside for VAT, insurance and the larger costs ahead?',
+      'Where does the pub actually stand today, beyond what’s in the account?',
+      'Is that underlying position getting stronger or weaker over time?',
     ],
     close:
-      'Cash Prophet is financial management software for the day-to-day picture: commitments building, reserves planned, and one Cash Prophet Balance you can check quickly.',
+      'If you regularly find yourself working these things out yourself, Cash Prophet gives you one place to keep the pub’s financial picture organised.',
   },
   picture: {
     heading: 'Your pub’s financial picture, organised.',
@@ -272,14 +272,14 @@ export const PUB_LANDING: SectorLandingContent = {
         label: "Where you're heading",
         heading: 'See whether your position is improving',
         body:
-          `Track your ${CASH_PROPHET_BALANCE} over time to see how your underlying position is changing, without quiet midweeks and busy weekends making the bank balance harder to interpret.\n\nSee how today compares with previous weeks and months, and whether the underlying position is getting stronger or weaker.`,
+          `Track your ${CASH_PROPHET_BALANCE} over time to see how your underlying position is changing, without the normal timing of bills and payments making the bank balance harder to interpret.\n\nSee how today compares with previous weeks and months, and whether the underlying position is getting stronger or weaker.`,
       },
     ],
   },
   reserve: {
     heading: 'Reserve Planner for pub VAT, rent and insurance',
     lead: [
-      'Pub bills such as VAT, rent and insurance rarely match the weekly rhythm of takings. Without a plan, a healthy-looking current account can disappear when those costs land.',
+      'Pub bills such as VAT, rent and insurance rarely line up neatly with week-to-week takings. Without a plan, a healthy-looking current account can disappear when those costs land.',
       'The Reserve Planner turns larger costs into a clear monthly set-aside and shows the planned reserve balance after each due date.',
     ],
     points: [
@@ -301,26 +301,26 @@ export const RESTAURANT_LANDING: SectorLandingContent = {
   breadcrumbName: 'Restaurant financial management',
   hero: {
     eyebrow: 'Financial management software for independent restaurants',
-    headlineStart: 'Covers on. Bills building.',
-    headlineHighlight: 'Cash Prophet organises the restaurant finances you still carry in your head.',
+    headlineStart: 'Stop carrying the restaurant finances around in your head.',
+    headlineHighlight: 'Let Cash Prophet keep the picture organised.',
     lead:
-      'Cash Prophet is financial management software that keeps track of kitchen and front-of-house wages, rent, suppliers, VAT and other commitments, so you can see where the restaurant stands between service and payday.',
+      'Cash Prophet is financial management software that keeps track of what’s coming up, what you need to put aside, where your restaurant stands and where it’s heading, without turning day-to-day running into another accounting job.',
     primaryCta: 'Join Early Access',
     primaryCtaSupport: 'Personal setup included',
     tryItCta: 'Try the free Snapshot',
   },
   problem: {
-    heading: 'What restaurant owners are usually searching for',
+    heading: 'Still keeping too much of the restaurant picture in your head?',
     lead:
-      'Searches for restaurant finance software or cash management often mean: covers look strong, but payroll, rent, food suppliers and VAT are still only partly visible until they hit the account.',
+      'Kitchen and front-of-house wages, rent, suppliers and VAT are part of running the place. The hard part is keeping them organised so you can see where the restaurant stands, without reconstructing it from the bank balance each time.',
     points: [
-      'Kitchen and front-of-house wages build through the week before payday.',
-      'Rent, utilities and supplier payments keep landing on their own schedule.',
-      'VAT and insurance need preparing for, not reacting to.',
-      'Accounting records the past; owners still need a day-to-day organised picture.',
+      'What bills have we got coming up, and how much is already building?',
+      'Are we putting enough aside for VAT, insurance and the larger costs ahead?',
+      'Where does the restaurant actually stand today, beyond what’s in the account?',
+      'Is that underlying position getting stronger or weaker over time?',
     ],
     close:
-      'Cash Prophet sits alongside your books as financial management software for owners: commitments, reserves and a Cash Prophet Balance you can check quickly.',
+      'If you regularly find yourself working these things out yourself, Cash Prophet gives you one place to keep the restaurant’s financial picture organised.',
   },
   picture: {
     heading: 'Your restaurant’s financial picture, organised.',
@@ -330,7 +330,7 @@ export const RESTAURANT_LANDING: SectorLandingContent = {
       {
         id: 'bills',
         label: 'Bills coming up',
-        heading: 'Keep ahead of payroll, rent and suppliers',
+        heading: 'Keep ahead of wages, rent and suppliers',
         body:
           'See what’s due, when it’s due and roughly how much it will be. Regular restaurant costs such as kitchen and front-of-house wages, rent, utilities and suppliers build into your financial picture as they accrue, rather than suddenly appearing when they’re paid.',
       },
@@ -360,7 +360,7 @@ export const RESTAURANT_LANDING: SectorLandingContent = {
   reserve: {
     heading: 'Reserve Planner for restaurant VAT, rent and insurance',
     lead: [
-      'Restaurant VAT, rent and insurance rarely arrive in neat weekly amounts. Without a reserve plan, a strong-looking current account can disappear when those costs land.',
+      'Restaurant VAT, rent and insurance rarely arrive in neat monthly amounts. Without a reserve plan, a strong-looking current account can disappear when those costs land.',
       'The Reserve Planner turns larger costs into a clear monthly set-aside and shows the planned reserve balance after each due date.',
     ],
     points: [
@@ -382,26 +382,26 @@ export const SOFT_PLAY_LANDING: SectorLandingContent = {
   breadcrumbName: 'Soft play financial management',
   hero: {
     eyebrow: 'Financial management software for soft play & leisure venues',
-    headlineStart: 'Busy sessions. Quiet midweeks.',
-    headlineHighlight: 'Cash Prophet organises soft play finances beyond the bank balance.',
+    headlineStart: 'Stop carrying the venue finances around in your head.',
+    headlineHighlight: 'Let Cash Prophet keep the picture organised.',
     lead:
-      'Cash Prophet is financial management software that keeps track of staffing, rent, insurance, VAT and other commitments, so you can see where the venue stands when takings rise and fall through the week.',
+      'Cash Prophet is financial management software that keeps track of what’s coming up, what you need to put aside, where your venue stands and where it’s heading, without turning day-to-day running into another accounting job.',
     primaryCta: 'Join Early Access',
     primaryCtaSupport: 'Personal setup included',
     tryItCta: 'Try the free Snapshot',
   },
   problem: {
-    heading: 'What soft play owners are usually searching for',
+    heading: 'Still keeping too much of the venue picture in your head?',
     lead:
-      'Searches for leisure or soft play finance software often mean: parties and weekends look strong, but staffing, rent, insurance and VAT still need organising between busy days.',
+      'Staffing costs, rent, insurance and VAT are part of running a soft play. The hard part is keeping that picture organised week to week, instead of judging the venue from the bank balance alone.',
     points: [
-      'Staffing costs build through the week before payday.',
-      'Rent, utilities and insurance keep landing on their own schedule.',
-      'VAT and larger renewals need a planned reserve, not a last-minute scramble.',
-      'The bank balance does not show what is already spoken for.',
+      'What bills have we got coming up, and how much is already building?',
+      'Are we putting enough aside for VAT, insurance and the larger costs ahead?',
+      'Where does the venue actually stand today, beyond what’s in the account?',
+      'Is that underlying position getting stronger or weaker over time?',
     ],
     close:
-      'Cash Prophet is financial management software for owner-managed leisure venues: commitments organised, reserves planned, and a Cash Prophet Balance you can check quickly.',
+      'If you regularly find yourself working these things out yourself, Cash Prophet gives you one place to keep the venue’s financial picture organised.',
   },
   picture: {
     heading: 'Your venue’s financial picture, organised.',
@@ -411,9 +411,9 @@ export const SOFT_PLAY_LANDING: SectorLandingContent = {
       {
         id: 'bills',
         label: 'Bills coming up',
-        heading: 'Keep ahead of staffing, rent and utilities',
+        heading: 'Keep ahead of staffing costs, rent and utilities',
         body:
-          'See what’s due, when it’s due and roughly how much it will be. Regular soft play costs such as staffing, rent, utilities and supplier payments build into your financial picture as they accrue, rather than suddenly appearing when they’re paid.',
+          'See what’s due, when it’s due and roughly how much it will be. Regular soft play costs such as staffing costs, rent, utilities and supplier payments build into your financial picture as they accrue, rather than suddenly appearing when they’re paid.',
       },
       {
         id: 'bigger',
@@ -434,14 +434,14 @@ export const SOFT_PLAY_LANDING: SectorLandingContent = {
         label: "Where you're heading",
         heading: 'See whether your position is improving',
         body:
-          `Track your ${CASH_PROPHET_BALANCE} over time to see how your underlying position is changing, without busy weekends and quieter midweeks making the bank balance harder to interpret.\n\nSee how today compares with previous weeks and months, and whether the underlying position is getting stronger or weaker.`,
+          `Track your ${CASH_PROPHET_BALANCE} over time to see how your underlying position is changing, without the normal timing of bills and payments making the bank balance harder to interpret.\n\nSee how today compares with previous weeks and months, and whether the underlying position is getting stronger or weaker.`,
       },
     ],
   },
   reserve: {
     heading: 'Reserve Planner for soft play VAT, rent and insurance',
     lead: [
-      'Soft play VAT, rent and insurance rarely match the weekly rhythm of parties and walk-ins. Without a plan, a healthy-looking current account can disappear when those costs land.',
+      'Soft play VAT, rent and insurance rarely line up neatly with week-to-week takings. Without a plan, a healthy-looking current account can disappear when those costs land.',
       'The Reserve Planner turns larger costs into a clear monthly set-aside and shows the planned reserve balance after each due date.',
     ],
     points: [

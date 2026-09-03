@@ -103,7 +103,7 @@ export function SectorLandingPage({ sectorId }: { sectorId: SectorId }) {
               <h2 id="sector-problem-heading">{content.problem.heading}</h2>
               <p className="home-picture-lead">{content.problem.lead}</p>
             </div>
-            <ul className="marketing-clarity-questions who-for-questions" aria-label="Familiar search problems">
+            <ul className="marketing-clarity-questions who-for-questions" aria-label="Familiar questions">
               {content.problem.points.map((point) => (
                 <li key={point}>{point}</li>
               ))}
