@@ -450,3 +450,30 @@ export function breadcrumbJsonLd(items: { name: string; path: string }[]): JsonL
     })),
   }
 }
+
+export function sectorLandingPageJsonLd(
+  seo: { title: string; description: string; path: string },
+  faqs: FaqItem[],
+  breadcrumbName: string,
+): JsonLd[] {
+  const pageUrl = absolutePath(seo.path)
+  return [
+    organizationJsonLd(),
+    softwareApplicationJsonLd(),
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      '@id': pageUrl,
+      url: pageUrl,
+      name: seo.title,
+      description: seo.description,
+      isPartOf: { '@id': `${site}/#website` },
+      about: { '@id': `${site}/#product` },
+    },
+    breadcrumbJsonLd([
+      { name: 'Home', path: '/' },
+      { name: breadcrumbName, path: seo.path },
+    ]),
+    faqPageJsonLd(faqs, pageUrl),
+  ]
+}

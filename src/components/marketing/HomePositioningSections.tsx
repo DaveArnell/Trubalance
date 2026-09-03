@@ -2,6 +2,22 @@ import { HOME_CHECKIN, HOME_EARLY_ACCESS, HOME_FITS } from '../../content/homePa
 import { PERSONAL_SETUP_CONTACT_PATH } from '../../content/earlyAccessPage'
 import { CanonicalLink } from '../CanonicalLink'
 
+type FitsContent = {
+  heading: string
+  intro: string
+  columns: ReadonlyArray<{ tag: string; body: string; accent?: boolean }>
+  payoffHeading: string
+  payoffBody: string
+  payoffClose: string
+}
+
+type CheckinContent = {
+  heading: string
+  lead: string
+  steps: readonly string[]
+  support: string
+}
+
 type EarlyAccessCtaContent = {
   heading: string
   body: string
@@ -12,7 +28,7 @@ type EarlyAccessCtaContent = {
 }
 
 /** Complementary roles: accounting, accountant, Cash Prophet — plus emotional payoff. */
-export function HomeFitsSection() {
+export function HomeFitsSection({ content = HOME_FITS }: { content?: FitsContent } = {}) {
   return (
     <section
       className="home-band home-band--mist"
@@ -21,8 +37,8 @@ export function HomeFitsSection() {
     >
       <div className="marketing-section-inner marketing-section-inner--home home-fits">
         <div className="home-band-head">
-          <h2 id="where-it-fits-heading">{HOME_FITS.heading}</h2>
-          {HOME_FITS.intro.split('\n\n').map((paragraph) => (
+          <h2 id="where-it-fits-heading">{content.heading}</h2>
+          {content.intro.split('\n\n').map((paragraph) => (
             <p key={paragraph} className="home-fits-intro">
               {paragraph}
             </p>
@@ -33,10 +49,10 @@ export function HomeFitsSection() {
           className="home-fits-columns"
           aria-label="How Cash Prophet sits beside accounting and your accountant"
         >
-          {HOME_FITS.columns.map((column) => (
+          {content.columns.map((column) => (
             <div
               key={column.tag}
-              className={`home-fits-col${'accent' in column && column.accent ? ' home-fits-col--accent' : ''}`}
+              className={`home-fits-col${column.accent ? ' home-fits-col--accent' : ''}`}
             >
               <p className="home-fits-tag">{column.tag}</p>
               <p className="home-fits-body">{column.body}</p>
@@ -45,9 +61,9 @@ export function HomeFitsSection() {
         </div>
 
         <div className="home-fits-payoff">
-          <h3>{HOME_FITS.payoffHeading}</h3>
-          <p>{HOME_FITS.payoffBody}</p>
-          <p className="home-fits-close">{HOME_FITS.payoffClose}</p>
+          <h3>{content.payoffHeading}</h3>
+          <p>{content.payoffBody}</p>
+          <p className="home-fits-close">{content.payoffClose}</p>
         </div>
       </div>
     </section>
@@ -55,7 +71,7 @@ export function HomeFitsSection() {
 }
 
 /** Compact check-in flow — answers the maintenance objection. */
-export function HomeCheckInSection() {
+export function HomeCheckInSection({ content = HOME_CHECKIN }: { content?: CheckinContent } = {}) {
   return (
     <section
       className="home-band home-band--paper"
@@ -64,12 +80,12 @@ export function HomeCheckInSection() {
     >
       <div className="marketing-section-inner marketing-section-inner--home home-checkin">
         <div className="home-band-head">
-          <h2 id="quick-check-in-heading">{HOME_CHECKIN.heading}</h2>
-          <p className="home-checkin-lead">{HOME_CHECKIN.lead}</p>
+          <h2 id="quick-check-in-heading">{content.heading}</h2>
+          <p className="home-checkin-lead">{content.lead}</p>
         </div>
 
         <ol className="home-checkin-steps">
-          {HOME_CHECKIN.steps.map((step, index) => (
+          {content.steps.map((step, index) => (
             <li key={step} className="home-checkin-step">
               {index > 0 && (
                 <span className="home-checkin-arrow" aria-hidden>
@@ -81,7 +97,7 @@ export function HomeCheckInSection() {
           ))}
         </ol>
 
-        <p className="home-checkin-support">{HOME_CHECKIN.support}</p>
+        <p className="home-checkin-support">{content.support}</p>
       </div>
     </section>
   )

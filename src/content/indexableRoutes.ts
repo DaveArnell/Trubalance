@@ -18,6 +18,10 @@ export const INDEXABLE_STATIC_ROUTES: readonly IndexableRoute[] = [
   { path: '/see-how-it-works', priority: '0.9', changefreq: 'monthly' },
   { path: '/try-it', priority: '0.95', changefreq: 'monthly' },
   { path: '/partners', priority: '0.85', changefreq: 'monthly' },
+  { path: '/cafe-financial-management-software', priority: '0.85', changefreq: 'monthly' },
+  { path: '/pub-financial-management-software', priority: '0.85', changefreq: 'monthly' },
+  { path: '/restaurant-financial-management-software', priority: '0.85', changefreq: 'monthly' },
+  { path: '/soft-play-financial-management-software', priority: '0.85', changefreq: 'monthly' },
   { path: '/contact', priority: '0.9', changefreq: 'monthly' },
   { path: '/signup', priority: '0.9', changefreq: 'monthly' },
   { path: '/blog', priority: '0.9', changefreq: 'weekly' },
@@ -30,9 +34,9 @@ export const LEGACY_REDIRECTS: readonly { from: string; to: string }[] = [
   { from: '/habits', to: '/how-it-works#habits' },
   { from: '/cash-prophet', to: '/' },
   { from: '/true-balance-method', to: '/' },
-  { from: '/cafes-coffee-shops', to: '/' },
-  { from: '/cafe', to: '/' },
-  { from: '/cafes', to: '/' },
+  { from: '/cafes-coffee-shops', to: '/cafe-financial-management-software' },
+  { from: '/cafe', to: '/cafe-financial-management-software' },
+  { from: '/cafes', to: '/cafe-financial-management-software' },
   // Old "True Balance" blog URLs — keep 301s so Google consolidates onto Cash Prophet slugs.
   { from: '/blog/what-is-true-balance', to: '/blog/what-is-cash-prophet-balance' },
   {

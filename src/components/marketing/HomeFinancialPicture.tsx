@@ -1,13 +1,24 @@
-import { useId, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { HOME_PICTURE } from '../../content/homePage'
 import { HomeAvailablePanel } from './HomeMarketingVisuals'
 import { MethodReservePlannerVisual } from './MethodReservePlannerVisual'
 import { MethodWorkedExample } from './MethodWorkedExample'
 import { BalanceCompareTrendVisual } from './BalanceCompareTrendVisual'
 
-type TabId = (typeof HOME_PICTURE.tabs)[number]['id']
+type PictureTab = {
+  id: 'bills' | 'bigger' | 'stand' | 'heading'
+  label: string
+  heading: string
+  body: string
+}
 
-function TabVisual({ id }: { id: TabId }) {
+type PictureContent = {
+  heading: string
+  lead: string
+  tabs: readonly PictureTab[]
+}
+
+function TabVisual({ id }: { id: PictureTab['id'] }) {
   switch (id) {
     case 'bills':
       return <HomeAvailablePanel />
@@ -23,9 +34,13 @@ function TabVisual({ id }: { id: TabId }) {
 }
 
 /** Interactive four-part financial picture — one bordered card, fixed-height panels. */
-export function HomeFinancialPicture() {
+export function HomeFinancialPicture({ content = HOME_PICTURE }: { content?: PictureContent } = {}) {
   const baseId = useId()
-  const [activeId, setActiveId] = useState<TabId>(HOME_PICTURE.tabs[0]!.id)
+  const [activeId, setActiveId] = useState<PictureTab['id']>(content.tabs[0]!.id)
+
+  useEffect(() => {
+    setActiveId(content.tabs[0]!.id)
+  }, [content])
 
   return (
     <section
@@ -35,13 +50,13 @@ export function HomeFinancialPicture() {
     >
       <div className="marketing-section-inner marketing-section-inner--home home-picture">
         <div className="home-picture-head">
-          <h2 id="financial-picture-heading">{HOME_PICTURE.heading}</h2>
-          <p className="home-picture-lead">{HOME_PICTURE.lead}</p>
+          <h2 id="financial-picture-heading">{content.heading}</h2>
+          <p className="home-picture-lead">{content.lead}</p>
         </div>
 
         <div className="home-picture-card">
           <div className="home-picture-nav" role="tablist" aria-label="Parts of your financial picture">
-            {HOME_PICTURE.tabs.map((tab) => {
+            {content.tabs.map((tab) => {
               const selected = tab.id === activeId
               return (
                 <button
@@ -55,7 +70,7 @@ export function HomeFinancialPicture() {
                   className={`home-picture-seg${selected ? ' home-picture-seg--active' : ''}`}
                   onClick={() => setActiveId(tab.id)}
                   onKeyDown={(event) => {
-                    const tabs = HOME_PICTURE.tabs
+                    const tabs = content.tabs
                     const index = tabs.findIndex((t) => t.id === activeId)
                     if (index < 0) return
                     if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
@@ -88,7 +103,7 @@ export function HomeFinancialPicture() {
           </div>
 
           <div className="home-picture-body">
-            {HOME_PICTURE.tabs.map((tab) => {
+            {content.tabs.map((tab) => {
               const selected = tab.id === activeId
               return (
                 <div

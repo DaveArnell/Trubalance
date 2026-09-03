@@ -47,6 +47,10 @@ const staticRoutes = [
   'CONTACT_SEO',
   'TRY_IT_SEO',
   'PARTNERS_SEO',
+  'CAFE_SECTOR_SEO',
+  'PUB_SECTOR_SEO',
+  'RESTAURANT_SECTOR_SEO',
+  'SOFT_PLAY_SECTOR_SEO',
   'BLOG_INDEX_SEO',
   'PRIVACY_SEO',
   'TERMS_SEO',
@@ -267,6 +271,30 @@ function jsonLdForRoute(path, routeMeta, blogPost) {
     return [
       organizationGraph(),
       faqGraph(extractFaqConst('WHO_FOR_FAQS'), `${site}/who-its-for`),
+    ]
+  }
+  if (path === '/cafe-financial-management-software') {
+    return [
+      organizationGraph(),
+      faqGraph(extractFaqConst('CAFE_SECTOR_FAQS'), `${site}/cafe-financial-management-software`),
+    ]
+  }
+  if (path === '/pub-financial-management-software') {
+    return [
+      organizationGraph(),
+      faqGraph(extractFaqConst('PUB_SECTOR_FAQS'), `${site}/pub-financial-management-software`),
+    ]
+  }
+  if (path === '/restaurant-financial-management-software') {
+    return [
+      organizationGraph(),
+      faqGraph(extractFaqConst('RESTAURANT_SECTOR_FAQS'), `${site}/restaurant-financial-management-software`),
+    ]
+  }
+  if (path === '/soft-play-financial-management-software') {
+    return [
+      organizationGraph(),
+      faqGraph(extractFaqConst('SOFT_PLAY_SECTOR_FAQS'), `${site}/soft-play-financial-management-software`),
     ]
   }
   if (path === '/see-how-it-works') {

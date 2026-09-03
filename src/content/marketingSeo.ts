@@ -118,6 +118,38 @@ export const PARTNERS_SEO = {
   imageAlt: 'Partner with Cash Prophet for UK owner-managed business clients and members',
 } as const satisfies RouteSeo
 
+export const CAFE_SECTOR_SEO = {
+  title: 'Financial Management Software for UK Cafés | Cash Prophet',
+  description:
+    'Financial management software for independent UK cafés. Organise wages, rent, suppliers and VAT, and see your Cash Prophet Balance — clearer than the bank alone.',
+  path: '/cafe-financial-management-software',
+  imageAlt: SITE_OG_IMAGE_ALT,
+} as const satisfies RouteSeo
+
+export const PUB_SECTOR_SEO = {
+  title: 'Financial Management Software for UK Pubs & Bars | Cash Prophet',
+  description:
+    'Financial management software for independent UK pubs and bars. Organise wages, stock, rent and VAT, and see your Cash Prophet Balance — clearer than the bank alone.',
+  path: '/pub-financial-management-software',
+  imageAlt: SITE_OG_IMAGE_ALT,
+} as const satisfies RouteSeo
+
+export const RESTAURANT_SECTOR_SEO = {
+  title: 'Financial Management Software for UK Restaurants | Cash Prophet',
+  description:
+    'Financial management software for independent UK restaurants. Organise kitchen payroll, rent, suppliers and VAT, and see your Cash Prophet Balance — clearer than the bank alone.',
+  path: '/restaurant-financial-management-software',
+  imageAlt: SITE_OG_IMAGE_ALT,
+} as const satisfies RouteSeo
+
+export const SOFT_PLAY_SECTOR_SEO = {
+  title: 'Financial Management Software for Soft Play Centres | Cash Prophet',
+  description:
+    'Financial management software for UK soft play and leisure venues. Organise staffing, rent, insurance and VAT, and see your Cash Prophet Balance — clearer than the bank alone.',
+  path: '/soft-play-financial-management-software',
+  imageAlt: SITE_OG_IMAGE_ALT,
+} as const satisfies RouteSeo
+
 export const BLOG_INDEX_SEO = {
   title: 'Business Finance Guides | Cash Prophet',
   description:
@@ -204,6 +236,10 @@ export const PUBLIC_ROUTE_SEO: readonly RouteSeo[] = [
   CONTACT_SEO,
   TRY_IT_SEO,
   PARTNERS_SEO,
+  CAFE_SECTOR_SEO,
+  PUB_SECTOR_SEO,
+  RESTAURANT_SECTOR_SEO,
+  SOFT_PLAY_SECTOR_SEO,
   BLOG_INDEX_SEO,
   PRIVACY_SEO,
   TERMS_SEO,

@@ -97,7 +97,13 @@ export function WhoItsForPage() {
             </div>
             <ul className="who-for-examples" aria-label="Example hospitality and leisure businesses">
               {WHO_FOR_SECTOR.examples.map((example) => (
-                <li key={example}>{example}</li>
+                <li key={example.label}>
+                  {example.to ? (
+                    <CanonicalLink to={example.to}>{example.label}</CanonicalLink>
+                  ) : (
+                    example.label
+                  )}
+                </li>
               ))}
             </ul>
             <p className="who-for-sector-note">{WHO_FOR_SECTOR.note}</p>

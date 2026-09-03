@@ -22,17 +22,17 @@
     },
     {
       "source": "/cafes-coffee-shops",
-      "destination": "/",
+      "destination": "/cafe-financial-management-software",
       "permanent": true
     },
     {
       "source": "/cafe",
-      "destination": "/",
+      "destination": "/cafe-financial-management-software",
       "permanent": true
     },
     {
       "source": "/cafes",
-      "destination": "/",
+      "destination": "/cafe-financial-management-software",
       "permanent": true
     },
     {

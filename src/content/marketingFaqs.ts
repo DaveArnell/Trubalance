@@ -80,3 +80,111 @@ export const WHO_FOR_FAQS: FaqItem[] = [
     a: 'No. Cash Prophet is deliberately designed around the questions a business owner wants answered rather than accounting terminology or management reports.',
   },
 ]
+
+export const CAFE_SECTOR_FAQS: FaqItem[] = [
+  {
+    q: 'Is Cash Prophet financial management software for cafés?',
+    a: 'Yes. Cash Prophet is financial management software for independent cafés and similar owner-managed businesses. It organises bills coming up, money to put aside and your Cash Prophet Balance so you can see where the café stands without replacing your accounting software.',
+  },
+  {
+    q: 'Is this the same as café cash flow forecasting?',
+    a: 'No. Cash Prophet is not detailed cash-flow forecasting. It continuously accounts for regular commitments and planned larger costs so you have a clearer day-to-day picture than the bank balance alone. Businesses with highly irregular income may still need forecasting alongside it.',
+  },
+  {
+    q: 'Does it replace my accountant or bookkeeping?',
+    a: 'No. Your accounting software keeps the records and your accountant helps with accounts, tax and advice. Cash Prophet sits alongside them as a financial organiser for the questions you want to answer yourself.',
+  },
+  {
+    q: `What is the ${CASH_PROPHET_BALANCE}?`,
+    a: `The ${CASH_PROPHET_BALANCE} is a benchmark for the underlying financial position of the business. It combines your bank balance with regular costs already building, planned reserves and any realistic expected receipts.`,
+  },
+  {
+    q: 'How does the Reserve Planner help with café VAT?',
+    a: 'The Reserve Planner turns larger or irregular costs such as VAT, insurance and renewals into a manageable monthly reserve amount, so those costs become predictable and funded before they land.',
+  },
+  {
+    q: 'How much ongoing effort does it take?',
+    a: 'Once set up, a quick check-in is usually enough: update balances, tick off what has been paid, add anything new and see your current position. For a straightforward café it can take just a few minutes.',
+  },
+]
+
+export const PUB_SECTOR_FAQS: FaqItem[] = [
+  {
+    q: 'Is Cash Prophet financial management software for pubs and bars?',
+    a: 'Yes. Cash Prophet is financial management software for independent pubs and bars. It organises wages, rent, stock-related costs, VAT and your Cash Prophet Balance so you can see where the pub stands between quiet midweeks and busy weekends.',
+  },
+  {
+    q: 'Is this the same as pub cash flow software?',
+    a: 'People often search for pub cash flow when they mean a clearer day-to-day picture. Cash Prophet is not detailed cash-flow forecasting. It accounts for commitments building and reserves planned so the bank balance is not the only number you rely on.',
+  },
+  {
+    q: 'Does it replace my accountant or bookkeeping?',
+    a: 'No. Accounting keeps the records; your accountant helps with tax and advice. Cash Prophet sits alongside them as a financial organiser for owner day-to-day decisions.',
+  },
+  {
+    q: `What is the ${CASH_PROPHET_BALANCE}?`,
+    a: `The ${CASH_PROPHET_BALANCE} is a benchmark for the underlying financial position of the business. It combines your bank balance with regular costs already building, planned reserves and any realistic expected receipts.`,
+  },
+  {
+    q: 'How does the Reserve Planner help with pub VAT and rent?',
+    a: 'It turns larger costs such as VAT, rent and insurance into a clear monthly set-aside and shows the planned reserve balance after each due date, so those bills are less of a surprise.',
+  },
+  {
+    q: 'How much ongoing effort does it take?',
+    a: 'Once set up, a quick check-in is usually enough: update balances, tick off what has been paid, add anything new and see your current position. For a straightforward pub it can take just a few minutes.',
+  },
+]
+
+export const RESTAURANT_SECTOR_FAQS: FaqItem[] = [
+  {
+    q: 'Is Cash Prophet financial management software for restaurants?',
+    a: 'Yes. Cash Prophet is financial management software for independent restaurants. It organises kitchen and front-of-house wages, rent, suppliers, VAT and your Cash Prophet Balance so you can see where the restaurant stands between service and payday.',
+  },
+  {
+    q: 'Is this restaurant cash flow forecasting?',
+    a: 'No. Cash Prophet is not detailed cash-flow forecasting. It continuously accounts for regular commitments and planned larger costs so you have a clearer day-to-day picture than the bank balance alone.',
+  },
+  {
+    q: 'Does it replace my accountant or bookkeeping?',
+    a: 'No. Your accounting software keeps the records and your accountant helps with accounts, tax and advice. Cash Prophet sits alongside them as a financial organiser for the questions you want to answer yourself.',
+  },
+  {
+    q: `What is the ${CASH_PROPHET_BALANCE}?`,
+    a: `The ${CASH_PROPHET_BALANCE} is a benchmark for the underlying financial position of the business. It combines your bank balance with regular costs already building, planned reserves and any realistic expected receipts.`,
+  },
+  {
+    q: 'How does the Reserve Planner help with restaurant VAT?',
+    a: 'The Reserve Planner turns larger or irregular costs such as VAT, insurance and renewals into a manageable monthly reserve amount, so those costs become predictable and funded before they land.',
+  },
+  {
+    q: 'How much ongoing effort does it take?',
+    a: 'Once set up, a quick check-in is usually enough: update balances, tick off what has been paid, add anything new and see your current position. For a straightforward restaurant it can take just a few minutes.',
+  },
+]
+
+export const SOFT_PLAY_SECTOR_FAQS: FaqItem[] = [
+  {
+    q: 'Is Cash Prophet financial management software for soft play centres?',
+    a: 'Yes. Cash Prophet is financial management software for soft play and similar leisure venues. It organises staffing, rent, insurance, VAT and your Cash Prophet Balance so you can see where the venue stands when takings rise and fall through the week.',
+  },
+  {
+    q: 'Is this cash flow forecasting for leisure venues?',
+    a: 'No. Cash Prophet is not detailed cash-flow forecasting. It accounts for commitments building and reserves planned so you have a clearer day-to-day picture than the bank balance alone. Highly irregular project businesses may still need forecasting alongside it.',
+  },
+  {
+    q: 'Does it replace my accountant or bookkeeping?',
+    a: 'No. Accounting keeps the records; your accountant helps with tax and advice. Cash Prophet sits alongside them as a financial organiser for owner day-to-day decisions.',
+  },
+  {
+    q: `What is the ${CASH_PROPHET_BALANCE}?`,
+    a: `The ${CASH_PROPHET_BALANCE} is a benchmark for the underlying financial position of the business. It combines your bank balance with regular costs already building, planned reserves and any realistic expected receipts.`,
+  },
+  {
+    q: 'How does the Reserve Planner help with soft play insurance and VAT?',
+    a: 'It turns larger costs such as VAT, rent and insurance into a clear monthly set-aside and shows the planned reserve balance after each due date, so those bills are less of a surprise.',
+  },
+  {
+    q: 'How much ongoing effort does it take?',
+    a: 'Once set up, a quick check-in is usually enough: update balances, tick off what has been paid, add anything new and see your current position. For a straightforward venue it can take just a few minutes.',
+  },
+]

@@ -50,12 +50,30 @@ export const WHO_FOR_SECTOR = {
     'That makes it particularly relevant to independent hospitality and leisure businesses where the owner wants a simple way to stay close to the financial picture without turning it into another accounting job.',
   ],
   examples: [
-    'Cafés',
-    'Restaurants',
-    'Pubs & bars',
-    'Leisure venues',
-    'Gyms & studios',
-    'Independent attractions',
+    {
+      label: 'Cafés',
+      to: '/cafe-financial-management-software',
+    },
+    {
+      label: 'Restaurants',
+      to: '/restaurant-financial-management-software',
+    },
+    {
+      label: 'Pubs & bars',
+      to: '/pub-financial-management-software',
+    },
+    {
+      label: 'Soft play & leisure',
+      to: '/soft-play-financial-management-software',
+    },
+    {
+      label: 'Gyms & studios',
+      to: null,
+    },
+    {
+      label: 'Independent attractions',
+      to: null,
+    },
   ],
   note: 'The fit is ultimately about how you run the business, not simply the sector you are in.',
 } as const

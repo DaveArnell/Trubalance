@@ -37,4 +37,5 @@ export {
   breadcrumbJsonLd,
   articleJsonLd,
   faqPageJsonLd,
+  sectorLandingPageJsonLd,
 } from '../../content/jsonLd'

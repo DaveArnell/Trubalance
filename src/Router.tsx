@@ -23,6 +23,7 @@ import { BlogPostPage } from './pages/BlogPostPage'
 import { ContactPage } from './pages/ContactPage'
 import { TryItPage } from './pages/TryItPage'
 import { PartnersPage } from './pages/PartnersPage'
+import { SectorLandingPage } from './pages/SectorLandingPage'
 import { PlatformAdminShell, LegacyVocatioAdminRedirect } from './admin/PlatformAdminShell'
 import { isSupabaseConfigured } from './lib/supabase'
 
@@ -48,9 +49,34 @@ export function AppRouter() {
             <Route path="/how-it-works" element={<HowItWorksPage />} />
             <Route path="/habits" element={<HabitsPage />} />
             <Route path="/who-its-for" element={<WhoItsForPage />} />
-            <Route path="/cafes" element={<Navigate to="/" replace />} />
-            <Route path="/cafe" element={<Navigate to="/" replace />} />
-            <Route path="/cafes-coffee-shops" element={<Navigate to="/" replace />} />
+            <Route
+              path="/cafe-financial-management-software"
+              element={<SectorLandingPage sectorId="cafe" />}
+            />
+            <Route
+              path="/pub-financial-management-software"
+              element={<SectorLandingPage sectorId="pub" />}
+            />
+            <Route
+              path="/restaurant-financial-management-software"
+              element={<SectorLandingPage sectorId="restaurant" />}
+            />
+            <Route
+              path="/soft-play-financial-management-software"
+              element={<SectorLandingPage sectorId="soft-play" />}
+            />
+            <Route
+              path="/cafes"
+              element={<Navigate to="/cafe-financial-management-software" replace />}
+            />
+            <Route
+              path="/cafe"
+              element={<Navigate to="/cafe-financial-management-software" replace />}
+            />
+            <Route
+              path="/cafes-coffee-shops"
+              element={<Navigate to="/cafe-financial-management-software" replace />}
+            />
             <Route path="/see-how-it-works" element={<SeeHowItWorksPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/try-it" element={<TryItPage />} />
