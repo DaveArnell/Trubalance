@@ -5,6 +5,7 @@ import { getAccrualProgress } from '../../utils/commitmentCalculations'
 import {
   sortAccruingRowsByNextDue,
   sortAccruingRowsBySortOrder,
+  accruingDueDayForDisplay,
 } from '../../utils/accruingOrder'
 import {
   buildMonthlyCostDisplayTree,
@@ -37,7 +38,9 @@ function accruingScopeLabel(state: AppState, row: CommitmentAccruingRow) {
 function accruingDetailMeta(row: CommitmentAccruingRow) {
   const { commitment } = row
   const dueDay =
-    commitment.dueDayOfMonth != null ? `Due ${ordinalDay(commitment.dueDayOfMonth)}` : null
+    commitment.dueDayOfMonth != null
+      ? `Due ${ordinalDay(accruingDueDayForDisplay(commitment.dueDayOfMonth))}`
+      : null
   const kind = row.source === 'reserve' ? 'Reserve' : null
   return [kind, dueDay].filter(Boolean).join(' · ') || undefined
 }

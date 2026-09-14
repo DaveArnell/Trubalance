@@ -9,6 +9,7 @@ import { getScopeItemLabel, isSoloOrganisation, formatScopeOptionLabel, type Sco
 import { formatCurrency } from '../../utils/format'
 import { toAmount, roundCurrency } from '../../utils/amounts'
 import { ordinalDay } from '../committed/shared'
+import { accruingDueDayForDisplay } from '../../utils/accruingOrder'
 import { useEditReadOnly } from '../../hooks/useEditReadOnly'
 
 interface MobileAccruingDetailModalProps {
@@ -212,7 +213,12 @@ export function MobileAccruingDetailModal({
             {commitment.dueDayOfMonth != null ? (
               <div>
                 <dt>Due</dt>
-                <dd>{ordinalDay(commitment.dueDayOfMonth)} each month</dd>
+                <dd>
+                  {ordinalDay(accruingDueDayForDisplay(commitment.dueDayOfMonth))} each month
+                  {(commitment.dueDayOfMonth ?? 28) > accruingDueDayForDisplay(commitment.dueDayOfMonth)
+                    ? ` (stored as ${ordinalDay(commitment.dueDayOfMonth)})`
+                    : ''}
+                </dd>
               </div>
             ) : null}
             {isReserve ? (

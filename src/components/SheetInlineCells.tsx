@@ -166,6 +166,7 @@ export function InlineDayCell({
   onDeactivate,
   onSave,
   onTab,
+  displayValue,
 }: {
   cellId: string
   value: number
@@ -174,6 +175,8 @@ export function InlineDayCell({
   onDeactivate: () => void
   onSave: (value: number) => void
   onTab?: SheetTabHandler
+  /** When set, shown while idle (e.g. 31 → 30 in a short month). Edit still uses `value`. */
+  displayValue?: number
 }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [draft, setDraft] = useSheetInlineDraft(isActive, String(value))
@@ -198,14 +201,20 @@ export function InlineDayCell({
     return `${day}th`
   }
 
+  const shown = displayValue ?? value
+  const clampedHint =
+    displayValue != null && displayValue !== value
+      ? `Stored as day ${value} (last day of month). Pays on the ${ordinalDay(displayValue)} this month.`
+      : 'Day of month when full amount becomes due'
+
   return (
     <td
       className={`sheet-cell-editable${isActive ? ' sheet-cell-active' : ''}`}
       onMouseDown={sheetCellActivateOnMouseDown(isActive, onActivate)}
-      title="Day of month when full amount becomes due"
+      title={clampedHint}
       data-cell-id={cellId}
     >
-      <span className="sheet-cell-value">{ordinalDay(value)}</span>
+      <span className="sheet-cell-value">{ordinalDay(isActive ? value : shown)}</span>
       {isActive && (
         <input
           ref={inputRef}

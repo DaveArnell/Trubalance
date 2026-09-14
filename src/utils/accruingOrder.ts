@@ -10,6 +10,19 @@ function dateToKey(d: Date): string {
 }
 
 /**
+ * Calendar day the upcoming payment lands on for this commitment.
+ * Stored dueDayOfMonth can stay 31 to mean “last day of every month”
+ * (→ 30 in September, 28/29 in February, etc.).
+ */
+export function accruingDueDayForDisplay(
+  dueDayOfMonth: number | undefined,
+  referenceDate: Date = getReferenceDate(),
+): number {
+  const stored = dueDayOfMonth ?? 28
+  return getAccrualCycle(referenceDate, stored).cycleEnd.getDate()
+}
+
+/**
  * Next due date for timeline order.
  * Uses accrual progress so that on/after the due day (cycle reset) the next month’s
  * due date is used — freshly reset / least-full cards sort to the bottom.
@@ -26,7 +39,7 @@ export function accruingNextDueDateKey(
   return dateToKey(cycle.cycleEnd)
 }
 
-/** Soonest upcoming due date first; reserve plans stay grouped together within the same due day. */
+/** Soonest upcoming due date first; earlier stored days before 31-as-EOM; reserve plans grouped. */
 export function sortAccruingRowsByNextDue(
   rows: CommitmentAccruingRow[],
   referenceDate: Date = getReferenceDate(),
@@ -36,6 +49,9 @@ export function sortAccruingRowsByNextDue(
       accruingNextDueDateKey(b, referenceDate),
     )
     if (dueCmp !== 0) return dueCmp
+    const dayA = a.commitment.dueDayOfMonth ?? 28
+    const dayB = b.commitment.dueDayOfMonth ?? 28
+    if (dayA !== dayB) return dayA - dayB
     const reserveCmp = Number(a.source !== 'reserve') - Number(b.source !== 'reserve')
     if (reserveCmp !== 0) return reserveCmp
     return a.commitment.name.localeCompare(b.commitment.name)

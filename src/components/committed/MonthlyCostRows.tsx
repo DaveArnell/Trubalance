@@ -28,6 +28,7 @@ import {
   SheetDragCell,
 } from './shared'
 import { getMonthlyBudgetAmount } from '../../utils/commitmentCalculations'
+import { accruingDueDayForDisplay } from '../../utils/accruingOrder'
 import { getReserveAccrualTooltip } from '../../utils/reserveCalculations'
 
 interface MonthlyCostRowsProps {
@@ -144,7 +145,7 @@ function MonthlyCostReserveLeafRow({
         {getScopeItemLabel(state, item.scopeLevel, item.scopeId)}
       </td>
       <ReadOnlyCell className="sheet-num sheet-cell--reserve" title="Accrues toward the 1st, then moves to Due">
-        {ordinalDay(item.dueDayOfMonth ?? 28)}
+        {ordinalDay(accruingDueDayForDisplay(item.dueDayOfMonth))}
       </ReadOnlyCell>
       <ReadOnlyCell className="sheet-num sheet-cell--reserve">{formatCurrency(item.amount)}</ReadOnlyCell>
       <td className="sheet-num sheet-cell-computed sheet-cell--reserve sheet-col-emphasis">
@@ -263,6 +264,7 @@ function MonthlyCostLeafRow({
       <InlineDayCell
         cellId={`${item.id}-day`}
         value={item.dueDayOfMonth ?? 28}
+        displayValue={accruingDueDayForDisplay(item.dueDayOfMonth)}
         isActive={activeCell === `${item.id}-day`}
         onActivate={() => onActivate(`${item.id}-day`)}
         onDeactivate={onDeactivate}

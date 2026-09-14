@@ -13,7 +13,7 @@ import { useEditReadOnly } from '../hooks/useEditReadOnly'
 import { useDashboardViewPreferences } from '../contexts/DashboardViewPreferencesContext'
 import { useMonthlyCostGroupCollapse } from '../hooks/useMonthlyCostGroupCollapse'
 import { flattenMonthlyCostTree, type MonthlyCostDisplayNode } from '../utils/monthlyCostGrouping'
-import { sortAccruingRowsByNextDue } from '../utils/accruingOrder'
+import { sortAccruingRowsByNextDue, accruingDueDayForDisplay } from '../utils/accruingOrder'
 import { monthlyCostEditableCellIds, useSheetCellNavigation } from '../utils/sheetCellNavigation'
 import { HelpButton } from './HelpButton'
 import { WIDGET_HELP } from '../content/livingDashboard'
@@ -436,7 +436,7 @@ export function CommittedFundsPanel({
                               className="sheet-num sheet-cell--reserve"
                               title="Accrues toward the 1st, then moves to Due"
                             >
-                              {ordinalDay(item.dueDayOfMonth ?? 28)}
+                              {ordinalDay(accruingDueDayForDisplay(item.dueDayOfMonth))}
                             </ReadOnlyCell>
                             <ReadOnlyCell className="sheet-num sheet-cell--reserve">
                               {formatCurrency(item.amount)}
