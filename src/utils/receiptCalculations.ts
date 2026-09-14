@@ -1,7 +1,8 @@
 import type { ExpectedReceipt } from '../types'
-import { toAmount } from './amounts'
+import { toAmount, roundCurrency } from './amounts'
 import { parsePlannedDueDateInput, formatPlannedDueDate } from './plannedFunding'
 import { getReferenceDate, dateToKey } from './referenceDate'
+import { formatCurrency } from './format'
 
 export type ReceiptTiming = 'lump' | 'accrual'
 
@@ -269,6 +270,51 @@ export function getReceiptRebuildFromDateKey(
   }
 
   return candidates.sort()[0] ?? dateToKey(getReferenceDate())
+}
+
+/** Outcome of confirming an amount received against the open expected total. */
+export type ReceiptReceiveResolution =
+  | { kind: 'full'; amount: number; correctHistory: boolean }
+  | { kind: 'partial'; receivedAmount: number; remainder: number }
+
+/**
+ * Same amount → full receive (freeze past).
+ * Less than expected → partial receive (leave remainder open, freeze past).
+ * More than expected → full receive and rewrite history to the actual total.
+ */
+export function resolveReceiptReceiveAmount(
+  expectedAmount: number,
+  receivedAmount: number | undefined,
+): ReceiptReceiveResolution {
+  const expected = roundCurrency(toAmount(expectedAmount))
+  const resolved =
+    receivedAmount != null ? roundCurrency(toAmount(receivedAmount)) : expected
+
+  if (resolved > 0 && resolved < expected - 0.005) {
+    return {
+      kind: 'partial',
+      receivedAmount: resolved,
+      remainder: roundCurrency(expected - resolved),
+    }
+  }
+
+  return {
+    kind: 'full',
+    amount: resolved,
+    correctHistory: Math.abs(resolved - expected) >= 0.5,
+  }
+}
+
+export function appendReceiptPartialReceiveNote(
+  notes: string | undefined,
+  receivedAmount: number,
+  receivedDate: string,
+): string {
+  const line = `Part received ${formatCurrency(receivedAmount)} on ${receivedDate}.`
+  const existing = notes?.trim()
+  if (!existing) return line
+  if (existing.includes(line)) return existing
+  return `${existing}\n${line}`
 }
 
 export function buildReceiptPeriodOverridePatch(

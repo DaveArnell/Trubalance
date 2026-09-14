@@ -23,7 +23,7 @@ import {
   refreshAllSnapshotMetrics,
   restorePastSnapshotMetricsFromHistory,
 } from '../utils/snapshotRebuild'
-import { getReceiptRebuildFromDateKey, getReceiptDeleteFromDateKey, getReceiptHistoricCorrectionFromDateKey } from '../utils/receiptCalculations'
+import { getReceiptRebuildFromDateKey, getReceiptDeleteFromDateKey, getReceiptHistoricCorrectionFromDateKey, resolveReceiptReceiveAmount, appendReceiptPartialReceiveNote } from '../utils/receiptCalculations'
 import { captureHistoryRecord, upsertDailyHistoryRecord } from '../utils/historyCapture'
 import { getStoredHistoryRecordIdsForDay, getSnapshotIdsForDayInViewScope, repairEmptySnapshotChangedAccounts, scopeInViewTree, computeScopeMetricsAtDate, getExactHistorySummaryForScopeDate } from '../utils/historyRebuild'
 import { getCommitmentsForScope } from '../utils/calculations'
@@ -1233,10 +1233,19 @@ export function useAppState(options?: UseAppStateOptions) {
 
       if (!affectsHistory) return nextState
 
+      // Amount-only edits must not rewrite past Trends (e.g. reducing a receipt after
+      // part of the cash has already landed). Timing/start changes still rebuild from start.
+      const amountOnly =
+        patch.amount !== undefined &&
+        patch.receiptTiming === undefined &&
+        patch.expectedDate === undefined &&
+        patch.accrualStartDate === undefined &&
+        patch.periodAmountOverrides === undefined
+
       return refreshSnapshotsForScopes(
         nextState,
         getScopesForReceipt(nextState, merged),
-        getReceiptRebuildFromDateKey(existing, patch),
+        amountOnly ? todayDateKey() : getReceiptRebuildFromDateKey(existing, patch),
         new Date().toISOString(),
       )
     })
@@ -1248,23 +1257,38 @@ export function useAppState(options?: UseAppStateOptions) {
       const existing = s.expectedReceipts.find((r) => r.id === id)
       if (!existing) return s
       const receivedDate = todayDateKey()
-      const expected = roundCurrency(toAmount(existing.amount))
-      const resolved =
-        receivedAmount != null ? roundCurrency(toAmount(receivedAmount)) : expected
-      const amountCorrected = resolved !== expected
+      const resolution = resolveReceiptReceiveAmount(existing.amount, receivedAmount)
 
-      // Mirror costs: keep the corrected target on the receipt so history from install
-      // uses the real amount; receivedDate stops it counting from today onward.
-      const merged: ExpectedReceipt = {
-        ...existing,
-        received: true,
-        receivedDate,
-        ...(amountCorrected ? { amount: resolved } : {}),
+      let merged: ExpectedReceipt
+      let fromDate: string
+
+      if (resolution.kind === 'partial') {
+        // Leave the remainder open. Rebuild from today only so past Trends keep the
+        // original expected contribution (cash already moved into the bank balance).
+        merged = {
+          ...existing,
+          amount: resolution.remainder,
+          received: false,
+          receivedDate: undefined,
+          notes: appendReceiptPartialReceiveNote(
+            existing.notes,
+            resolution.receivedAmount,
+            receivedDate,
+          ),
+        }
+        fromDate = receivedDate
+      } else {
+        // Full receive. Same amount freezes the past; a higher actual total corrects history.
+        merged = {
+          ...existing,
+          received: true,
+          receivedDate,
+          ...(resolution.correctHistory ? { amount: resolution.amount } : {}),
+        }
+        fromDate = resolution.correctHistory
+          ? getReceiptHistoricCorrectionFromDateKey(existing)
+          : receivedDate
       }
-
-      const fromDate = amountCorrected
-        ? getReceiptHistoricCorrectionFromDateKey(existing)
-        : todayDateKey()
 
       const nextState: AppState = {
         ...s,

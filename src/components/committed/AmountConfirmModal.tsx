@@ -11,8 +11,11 @@ export interface AmountConfirmModalProps {
   amountLabel?: string
   confirmSameLabel?: string
   confirmDiffLabel?: string
+  /** When set, entering less than expected uses partial-receive copy instead of history correction. */
+  confirmPartialLabel?: string
   noteSame?: string
   noteDiff?: string
+  notePartial?: string
   onConfirm: (amount: number) => void
   onCancel: () => void
 }
@@ -26,8 +29,10 @@ export function AmountConfirmModal({
   amountLabel = 'Final amount',
   confirmSameLabel = 'Confirm',
   confirmDiffLabel = 'Confirm and correct history',
+  confirmPartialLabel,
   noteSame = 'Confirming the expected amount will not change past history.',
   noteDiff = 'A different amount will correct history from when this item was added.',
+  notePartial,
   onConfirm,
   onCancel,
 }: AmountConfirmModalProps) {
@@ -61,6 +66,25 @@ export function AmountConfirmModal({
   const enteredRounded = roundCurrency(toAmount(value))
   const amountDiffers =
     Number.isFinite(enteredRounded) && enteredRounded !== expectedRounded
+  const isPartial =
+    Boolean(confirmPartialLabel) &&
+    Number.isFinite(enteredRounded) &&
+    enteredRounded > 0 &&
+    enteredRounded < expectedRounded
+  const remainder = isPartial ? roundCurrency(expectedRounded - enteredRounded) : 0
+
+  const confirmLabel = isPartial
+    ? confirmPartialLabel!
+    : amountDiffers
+      ? confirmDiffLabel
+      : confirmSameLabel
+
+  const note = isPartial
+    ? notePartial ??
+      `This marks ${formatCurrency(enteredRounded)} as received and leaves ${formatCurrency(remainder)} still expected. Past Trends stay as they were.`
+    : amountDiffers
+      ? noteDiff
+      : noteSame
 
   return createPortal(
     <div
@@ -91,6 +115,12 @@ export function AmountConfirmModal({
             <dt>{expectedLabel}</dt>
             <dd>{formatCurrency(expectedRounded)}</dd>
           </div>
+          {isPartial ? (
+            <div>
+              <dt>Still expected</dt>
+              <dd>{formatCurrency(remainder)}</dd>
+            </div>
+          ) : null}
         </dl>
 
         <label className="snapshot-correction-input">
@@ -116,14 +146,14 @@ export function AmountConfirmModal({
 
         {error ? <p className="snapshot-correction-error">{error}</p> : null}
 
-        <p className="snapshot-correction-note">{amountDiffers ? noteDiff : noteSame}</p>
+        <p className="snapshot-correction-note">{note}</p>
 
         <div className="snapshot-correction-actions">
           <button type="button" className="btn-secondary" onClick={onCancel}>
             Cancel
           </button>
           <button type="button" className="btn-primary" onClick={handleConfirm}>
-            {amountDiffers ? confirmDiffLabel : confirmSameLabel}
+            {confirmLabel}
           </button>
         </div>
       </div>
@@ -141,8 +171,10 @@ interface AmountConfirmButtonProps {
   amountLabel?: string
   confirmSameLabel?: string
   confirmDiffLabel?: string
+  confirmPartialLabel?: string
   noteSame?: string
   noteDiff?: string
+  notePartial?: string
   onConfirm: (amount: number) => void
   className?: string
 }
@@ -156,8 +188,10 @@ export function AmountConfirmButton({
   amountLabel,
   confirmSameLabel,
   confirmDiffLabel,
+  confirmPartialLabel,
   noteSame,
   noteDiff,
+  notePartial,
   onConfirm,
   className = 'btn-primary btn-tiny',
 }: AmountConfirmButtonProps) {
@@ -185,8 +219,10 @@ export function AmountConfirmButton({
           amountLabel={amountLabel}
           confirmSameLabel={confirmSameLabel}
           confirmDiffLabel={confirmDiffLabel}
+          confirmPartialLabel={confirmPartialLabel}
           noteSame={noteSame}
           noteDiff={noteDiff}
+          notePartial={notePartial}
           onConfirm={(amount) => {
             onConfirm(amount)
             setOpen(false)

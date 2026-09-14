@@ -80,9 +80,11 @@ export function MarkReceivedConfirmButton({
       expectedLabel="Expected amount"
       amountLabel="Amount received"
       confirmSameLabel="Yes, mark received"
+      confirmPartialLabel="Receive part"
       confirmDiffLabel="Receive and correct history"
       noteSame="Confirming the expected amount will mark it received without changing past history."
-      noteDiff="A different amount will correct history from when this receipt started."
+      notePartial="This marks part of the receipt as received and leaves the rest still expected. Past Trends stay as they were."
+      noteDiff="A higher amount will mark it fully received and correct history from when this receipt started."
       onConfirm={onConfirm}
     />
   )
