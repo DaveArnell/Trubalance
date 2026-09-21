@@ -183,8 +183,9 @@ export function getReserveBillPeriodDueDateKey(bill: ReserveBill, period: string
 }
 
 /**
- * When marking a reserve bill paid, count it paid from the due day (not click day).
- * That stops True Balance double-counting after the bank balance already dropped.
+ * When marking a reserve bill paid, count it paid from the due day (not click day)
+ * for as-of / double-count logic. Trends rebuild must still start from today —
+ * see markReserveBillPaid — so past balance-log points stay frozen.
  */
 export function resolveReserveMarkPaidFromDateKey(
   bill: ReserveBill,

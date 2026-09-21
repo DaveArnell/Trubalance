@@ -1579,7 +1579,10 @@ export function useAppState(options?: UseAppStateOptions) {
       ].filter((period, index, list): period is string => Boolean(period) && list.indexOf(period) === index)
       if (!planner || !bill) return s
 
+      // Paid-from date for as-of math (due day). Trends rebuild must stay on today only —
+      // rewriting from the due date recomputes the whole log and swings history.
       const paidFrom = resolveReserveMarkPaidFromDateKey(bill, latest)
+      const trendsFrom = todayDateKey()
 
       const nextState: AppState = {
         ...s,
@@ -1605,7 +1608,7 @@ export function useAppState(options?: UseAppStateOptions) {
       return refreshSnapshotsForScopes(
         nextState,
         getScopesForReservePlanner(nextState, planner),
-        paidFrom,
+        trendsFrom,
         new Date().toISOString(),
       )
     })
