@@ -1,102 +1,62 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
-import { MarketingAttributionCapture } from './components/MarketingAttributionCapture'
 import { AuthProvider } from './contexts/AuthContext'
-import { CookieNotice } from './components/CookieNotice'
-import { MetaPixelTracker } from './components/MetaPixelTracker'
-import { GoogleAnalyticsTracker } from './components/GoogleAnalyticsTracker'
 import { WorkspaceProvider } from './contexts/WorkspaceContext'
 import { TrailingSlashGuard } from './components/TrailingSlashGuard'
-import { LandingPage } from './pages/LandingPage'
-import { EarlyAccessPage } from './pages/EarlyAccessPage'
-import { PricingPage } from './pages/PricingPage'
-import { ForgotPasswordPage, LoginPage, ResetPasswordPage, SignupPage } from './pages/AuthPages'
-import { PrivacyPage } from './pages/legal/PrivacyPage'
-import { TermsPage } from './pages/legal/TermsPage'
+import { ForgotPasswordPage, LoginPage, ResetPasswordPage } from './pages/AuthPages'
 import { AppPage } from './pages/AppPage'
-import { DemoPage } from './pages/DemoPage'
-import { HowItWorksPage } from './pages/HowItWorksPage'
-import { HabitsPage } from './pages/HabitsPage'
-import { WhoItsForPage } from './pages/WhoItsForPage'
-import { SeeHowItWorksPage } from './pages/SeeHowItWorksPage'
-import { BlogIndexPage } from './pages/BlogIndexPage'
-import { BlogPostPage } from './pages/BlogPostPage'
-import { ContactPage } from './pages/ContactPage'
-import { TryItPage } from './pages/TryItPage'
-import { PartnersPage } from './pages/PartnersPage'
-import { SectorLandingPage } from './pages/SectorLandingPage'
 import { PlatformAdminShell, LegacyVocatioAdminRedirect } from './admin/PlatformAdminShell'
 import { isSupabaseConfigured } from './lib/supabase'
+
+/** Private personal app: marketing and signup are closed; entry is login only. */
+function RedirectToLogin() {
+  return <Navigate to="/login" replace />
+}
 
 export function AppRouter() {
   return (
     <BrowserRouter>
       <TrailingSlashGuard />
-      <MarketingAttributionCapture />
-      <MetaPixelTracker />
-      <GoogleAnalyticsTracker />
       <AuthProvider>
         <WorkspaceProvider>
           <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/early-access" element={<EarlyAccessPage />} />
-            <Route path="/pricing" element={<PricingPage />} />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignupPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
-            <Route path="/privacy" element={<PrivacyPage />} />
-            <Route path="/terms" element={<TermsPage />} />
-            <Route path="/how-it-works" element={<HowItWorksPage />} />
-            <Route path="/habits" element={<HabitsPage />} />
-            <Route path="/who-its-for" element={<WhoItsForPage />} />
-            <Route
-              path="/cafe-financial-management-software"
-              element={<SectorLandingPage sectorId="cafe" />}
-            />
-            <Route
-              path="/pub-financial-management-software"
-              element={<SectorLandingPage sectorId="pub" />}
-            />
-            <Route
-              path="/restaurant-financial-management-software"
-              element={<SectorLandingPage sectorId="restaurant" />}
-            />
-            <Route
-              path="/soft-play-financial-management-software"
-              element={<SectorLandingPage sectorId="soft-play" />}
-            />
-            <Route
-              path="/cafes"
-              element={<Navigate to="/cafe-financial-management-software" replace />}
-            />
-            <Route
-              path="/cafe"
-              element={<Navigate to="/cafe-financial-management-software" replace />}
-            />
-            <Route
-              path="/cafes-coffee-shops"
-              element={<Navigate to="/cafe-financial-management-software" replace />}
-            />
-            <Route path="/see-how-it-works" element={<SeeHowItWorksPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/try-it" element={<TryItPage />} />
-            <Route path="/partners" element={<PartnersPage />} />
-            <Route path="/cash-prophet" element={<Navigate to="/" replace />} />
-            <Route path="/true-balance-method" element={<Navigate to="/" replace />} />
-            <Route path="/blog" element={<BlogIndexPage />} />
-            <Route path="/blog/:slug" element={<BlogPostPage />} />
-            <Route path="/demo" element={<DemoPage />} />
-            <Route path="/demo/:scenarioId" element={<DemoPage />} />
             <Route path="/app/*" element={<AppPage />} />
             <Route path="/platform-admin/*" element={<PlatformAdminShell />} />
             <Route path="/vocatio-admin/*" element={<LegacyVocatioAdminRedirect />} />
+            <Route path="/" element={<RedirectToLogin />} />
+            <Route path="/signup" element={<RedirectToLogin />} />
+            <Route path="/early-access" element={<RedirectToLogin />} />
+            <Route path="/pricing" element={<RedirectToLogin />} />
+            <Route path="/privacy" element={<RedirectToLogin />} />
+            <Route path="/terms" element={<RedirectToLogin />} />
+            <Route path="/how-it-works" element={<RedirectToLogin />} />
+            <Route path="/habits" element={<RedirectToLogin />} />
+            <Route path="/who-its-for" element={<RedirectToLogin />} />
+            <Route path="/cafe-financial-management-software" element={<RedirectToLogin />} />
+            <Route path="/pub-financial-management-software" element={<RedirectToLogin />} />
+            <Route path="/restaurant-financial-management-software" element={<RedirectToLogin />} />
+            <Route path="/soft-play-financial-management-software" element={<RedirectToLogin />} />
+            <Route path="/cafes" element={<RedirectToLogin />} />
+            <Route path="/cafe" element={<RedirectToLogin />} />
+            <Route path="/cafes-coffee-shops" element={<RedirectToLogin />} />
+            <Route path="/see-how-it-works" element={<RedirectToLogin />} />
+            <Route path="/contact" element={<RedirectToLogin />} />
+            <Route path="/try-it" element={<RedirectToLogin />} />
+            <Route path="/partners" element={<RedirectToLogin />} />
+            <Route path="/cash-prophet" element={<RedirectToLogin />} />
+            <Route path="/true-balance-method" element={<RedirectToLogin />} />
+            <Route path="/blog" element={<RedirectToLogin />} />
+            <Route path="/blog/:slug" element={<RedirectToLogin />} />
+            <Route path="/demo" element={<RedirectToLogin />} />
+            <Route path="/demo/:scenarioId" element={<RedirectToLogin />} />
             <Route
               path="*"
-              element={<Navigate to={isSupabaseConfigured ? '/' : '/app'} replace />}
+              element={<Navigate to={isSupabaseConfigured ? '/login' : '/app'} replace />}
             />
           </Routes>
         </WorkspaceProvider>
-        <CookieNotice />
       </AuthProvider>
     </BrowserRouter>
   )

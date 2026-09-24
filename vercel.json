@@ -4,60 +4,14 @@
       "source": "/:path+/",
       "destination": "/:path+",
       "permanent": true
-    },
-    {
-      "source": "/habits",
-      "destination": "/how-it-works",
-      "permanent": true
-    },
-    {
-      "source": "/cash-prophet",
-      "destination": "/",
-      "permanent": true
-    },
-    {
-      "source": "/true-balance-method",
-      "destination": "/",
-      "permanent": true
-    },
-    {
-      "source": "/cafes-coffee-shops",
-      "destination": "/cafe-financial-management-software",
-      "permanent": true
-    },
-    {
-      "source": "/cafe",
-      "destination": "/cafe-financial-management-software",
-      "permanent": true
-    },
-    {
-      "source": "/cafes",
-      "destination": "/cafe-financial-management-software",
-      "permanent": true
-    },
-    {
-      "source": "/blog/what-is-true-balance",
-      "destination": "/blog/what-is-cash-prophet-balance",
-      "permanent": true
-    },
-    {
-      "source": "/blog/true-balance-vs-accounting-software",
-      "destination": "/blog/cash-prophet-vs-accounting-software",
-      "permanent": true
-    },
-    {
-      "source": "/blog/the-true-balance-method-explained",
-      "destination": "/blog/cash-prophet-explained",
-      "permanent": true
-    },
-    {
-      "source": "/blog/what-is-the-true-balance-method",
-      "destination": "/blog/what-is-cash-prophet",
-      "permanent": true
     }
   ],
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
   "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    },
     {
       "source": "/sw.js",
       "headers": [
@@ -68,50 +22,6 @@
     {
       "source": "/manifest.webmanifest",
       "headers": [{ "key": "Content-Type", "value": "application/manifest+json" }]
-    },
-    {
-      "source": "/app",
-      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
-    },
-    {
-      "source": "/app/(.*)",
-      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
-    },
-    {
-      "source": "/demo",
-      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
-    },
-    {
-      "source": "/demo/(.*)",
-      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
-    },
-    {
-      "source": "/login",
-      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
-    },
-    {
-      "source": "/forgot-password",
-      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
-    },
-    {
-      "source": "/reset-password",
-      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
-    },
-    {
-      "source": "/platform-admin",
-      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
-    },
-    {
-      "source": "/platform-admin/(.*)",
-      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
-    },
-    {
-      "source": "/vocatio-admin",
-      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
-    },
-    {
-      "source": "/vocatio-admin/(.*)",
-      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
     }
   ]
 }

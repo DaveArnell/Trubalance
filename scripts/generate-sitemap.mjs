@@ -1,6 +1,7 @@
 /**
  * Regenerates public/sitemap.xml with absolute canonical URLs (no trailing slashes)
  * for every indexable marketing path + blog post. Runs automatically before build.
+ * Private personal app: emits an empty urlset (noindex site-wide via vercel.json).
  */
 import { readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
@@ -35,24 +36,12 @@ function extractIndexableStaticRoutes() {
       changefreq: match[3],
     })
   }
-  if (routes.length === 0) throw new Error('No indexable static routes parsed')
   return routes
 }
 
 function extractBlogSlugs() {
-  const files = [
-    'src/content/cornerstoneBlogPosts.ts',
-    'src/content/blogPosts.ts',
-    'src/content/methodBlogPosts.ts',
-  ]
-  const slugs = []
-  for (const file of files) {
-    const source = readFileSync(join(root, file), 'utf8')
-    for (const match of source.matchAll(/slug:\s*'([^']+)'/g)) {
-      slugs.push(match[1])
-    }
-  }
-  return [...new Set(slugs)]
+  // Private personal app: do not list blog posts in the sitemap.
+  return []
 }
 
 const staticRoutes = extractIndexableStaticRoutes()

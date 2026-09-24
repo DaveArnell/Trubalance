@@ -10,6 +10,7 @@ import {
   type SubscriptionLimitKey,
   type SubscriptionTierId,
 } from '../config/subscriptionTiers'
+import { PRIVATE_PERSONAL_APP } from '../config/privateApp'
 import type { AccessCheckResult, WorkspaceSubscription, WorkspaceUsage } from '../types/subscription'
 
 export function addDays(iso: string | Date, days: number): string {
@@ -39,6 +40,7 @@ export function createDefaultSubscription(now = new Date()): WorkspaceSubscripti
 }
 
 export function isBillingExempt(subscription: WorkspaceSubscription): boolean {
+  if (PRIVATE_PERSONAL_APP) return true
   return subscription.lifetimeAccess || subscription.betaTester
 }
 

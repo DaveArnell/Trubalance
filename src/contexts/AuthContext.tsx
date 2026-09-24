@@ -21,6 +21,12 @@ import {
   trackMetaCompleteRegistration,
 } from '../services/metaConversions'
 import { linkAcquisitionVisitorToUser } from '../services/acquisitionTracking'
+import {
+  LOGIN_DENIED_MESSAGE,
+  PRIVATE_PERSONAL_APP,
+  SIGNUP_DISABLED_MESSAGE,
+  isEmailAllowed,
+} from '../config/privateApp'
 
 const IMPERSONATE_KEY = 'trubalance-impersonate'
 
@@ -98,11 +104,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const supabase = getSupabase()
 
     supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session)
+      const next = data.session
+      if (
+        PRIVATE_PERSONAL_APP &&
+        next?.user?.email &&
+        !isEmailAllowed(next.user.email)
+      ) {
+        void supabase.auth.signOut().then(() => {
+          setSession(null)
+          setLoading(false)
+        })
+        return
+      }
+      setSession(next)
       setLoading(false)
     })
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      if (
+        PRIVATE_PERSONAL_APP &&
+        nextSession?.user?.email &&
+        !isEmailAllowed(nextSession.user.email)
+      ) {
+        void supabase.auth.signOut().then(() => setSession(null))
+        return
+      }
       setSession(nextSession)
     })
 
@@ -143,12 +169,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = useCallback(async (email: string, password: string) => {
     if (!isSupabaseConfigured) return { error: 'Supabase is not configured' }
+    if (PRIVATE_PERSONAL_APP && !isEmailAllowed(email)) {
+      return { error: LOGIN_DENIED_MESSAGE }
+    }
     const supabase = getSupabase()
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) return { error: error.message }
 
     const { data } = await supabase.auth.getUser()
     if (data.user) {
+      if (PRIVATE_PERSONAL_APP && !isEmailAllowed(data.user.email)) {
+        await supabase.auth.signOut()
+        return { error: LOGIN_DENIED_MESSAGE }
+      }
       await updateLastSignIn(data.user.id)
       await trackEvent('login', data.user.id)
       await attachMarketingAttributionToProfile(data.user.id)
@@ -170,16 +203,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: null }
   }, [])
 
-  const signUp = useCallback(async (email: string, password: string, fullName: string) => {
+  const signUp = useCallback(async (_email: string, _password: string, _fullName: string) => {
+    if (PRIVATE_PERSONAL_APP) return { error: SIGNUP_DISABLED_MESSAGE }
     if (!isSupabaseConfigured) return { error: 'Supabase is not configured' }
     const supabase = getSupabase()
     const attributionMeta = getAttributionAuthMetadata()
     const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
+      email: _email,
+      password: _password,
       options: {
         data: {
-          full_name: fullName,
+          full_name: _fullName,
           ...attributionMeta,
         },
       },
@@ -192,7 +226,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await attachMarketingAttributionToProfile(data.user.id)
       void trackMetaCompleteRegistration({
         userId: data.user.id,
-        email: data.user.email ?? email,
+        email: data.user.email ?? _email,
         method: 'email',
       })
       void linkAcquisitionVisitorToUser(data.user.id)
@@ -228,7 +262,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     clearLocalUserData()
 
-    window.location.href = '/'
+    window.location.href = '/login'
   }, [])
 
   const startImpersonation = useCallback(

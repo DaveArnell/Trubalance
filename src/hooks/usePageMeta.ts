@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { PRIVATE_PERSONAL_APP } from '../config/privateApp'
 import {
   SITE_OG_IMAGE,
   SITE_OG_IMAGE_ALT,
@@ -99,7 +100,7 @@ export function usePageMeta({
     upsertMeta('twitter:image', resolvedImage)
     upsertMeta('twitter:image:alt', ogAlt)
 
-    if (noindex) {
+    if (noindex || PRIVATE_PERSONAL_APP) {
       upsertMeta('robots', 'noindex, nofollow')
       removeMeta('googlebot')
       document.querySelector('link[rel="canonical"]')?.remove()

@@ -9,6 +9,7 @@ import {
 } from 'react'
 import type { SubscriptionLimitKey, SubscriptionTierId, SubscriptionFeatureFlag } from '../config/subscriptionTiers'
 import { SUBSCRIPTION_TIERS } from '../config/subscriptionTiers'
+import { PRIVATE_PERSONAL_APP } from '../config/privateApp'
 import {
   buildUsageFromAppState,
   loadLocalSubscription,
@@ -53,6 +54,16 @@ interface SubscriptionContextValue {
 
 const SubscriptionContext = createContext<SubscriptionContextValue | null>(null)
 
+function unlockForPersonalUse(subscription: WorkspaceSubscription): WorkspaceSubscription {
+  if (!PRIVATE_PERSONAL_APP) return subscription
+  return {
+    ...subscription,
+    lifetimeAccess: true,
+    status: 'active',
+    trialEndsAt: null,
+  }
+}
+
 export function SubscriptionProvider({
   children,
   state,
@@ -80,19 +91,25 @@ export function SubscriptionProvider({
   }, [])
 
   const usage = useMemo(() => buildUsageFromAppState(state, userCount), [state, userCount])
-  const now = useMemo(() => new Date(), [subscription, state])
+  const unlockedSubscription = useMemo(
+    () => unlockForPersonalUse(subscription),
+    [subscription],
+  )
+  const now = useMemo(() => new Date(), [unlockedSubscription, state])
 
   const effectiveTierId = useMemo(
-    () => effectiveTier(subscription, usage, now),
-    [subscription, usage, now],
+    () => effectiveTier(unlockedSubscription, usage, now),
+    [unlockedSubscription, usage, now],
   )
 
-  const trialActive = isTrialActive(subscription, now)
-  const trialDaysLeft = trialDaysRemaining(subscription, now)
-  const fullAccess = hasFullTrialAccess(subscription, now)
-  const subscriptionReadOnly = isSubscriptionReadOnly(subscription, now)
-  const trialWarningLevel = getTrialWarningLevel(subscription, now)
-  const postTrialNotice = subscriptionNeedsUpgrade(subscription, usage, now)
+  const trialActive = isTrialActive(unlockedSubscription, now)
+  const trialDaysLeft = trialDaysRemaining(unlockedSubscription, now)
+  const fullAccess = hasFullTrialAccess(unlockedSubscription, now)
+  const subscriptionReadOnly = isSubscriptionReadOnly(unlockedSubscription, now)
+  const trialWarningLevel = getTrialWarningLevel(unlockedSubscription, now)
+  const postTrialNotice = PRIVATE_PERSONAL_APP
+    ? null
+    : subscriptionNeedsUpgrade(unlockedSubscription, usage, now)
 
   const updateSubscription = useCallback((patch: Partial<WorkspaceSubscription>) => {
     setSubscription((current) => {
@@ -103,6 +120,7 @@ export function SubscriptionProvider({
   }, [])
 
   const openUpgrade = useCallback((requiredTier: SubscriptionTierId, headline: string, body: string) => {
+    if (PRIVATE_PERSONAL_APP) return
     setUpgradePrompt({ open: true, requiredTier, headline, body })
   }, [])
 
@@ -110,52 +128,54 @@ export function SubscriptionProvider({
 
   const requestLimit = useCallback(
     (limit: SubscriptionLimitKey, nextCount: number) => {
+      if (PRIVATE_PERSONAL_APP) return true
       if (subscriptionReadOnly) {
         openUpgrade(
-          subscription.tierId,
+          unlockedSubscription.tierId,
           'Your trial has ended',
           'Choose a plan to keep editing your workspace. You can still view everything until you subscribe.',
         )
         return false
       }
-      const result = checkLimit(subscription, usage, limit, nextCount, now)
+      const result = checkLimit(unlockedSubscription, usage, limit, nextCount, now)
       if (!result.allowed && result.requiredTier && result.headline && result.message) {
         openUpgrade(result.requiredTier, result.headline, result.message)
         return false
       }
       return true
     },
-    [subscription, subscriptionReadOnly, usage, now, openUpgrade],
+    [unlockedSubscription, subscriptionReadOnly, usage, now, openUpgrade],
   )
 
   const requestFeature = useCallback(
     (feature: SubscriptionFeatureFlag) => {
+      if (PRIVATE_PERSONAL_APP) return true
       if (subscriptionReadOnly) {
         openUpgrade(
-          subscription.tierId,
+          unlockedSubscription.tierId,
           'Your trial has ended',
           'Choose a plan to keep editing your workspace. You can still view everything until you subscribe.',
         )
         return false
       }
-      const result = checkFeature(subscription, usage, feature, now)
+      const result = checkFeature(unlockedSubscription, usage, feature, now)
       if (!result.allowed && result.requiredTier && result.headline && result.message) {
         openUpgrade(result.requiredTier, result.headline, result.message)
         return false
       }
       return true
     },
-    [subscription, subscriptionReadOnly, usage, now, openUpgrade],
+    [unlockedSubscription, subscriptionReadOnly, usage, now, openUpgrade],
   )
 
   const canUseFeature = useCallback(
-    (feature: SubscriptionFeatureFlag) => hasFeature(subscription, usage, feature, now),
-    [subscription, usage, now],
+    (feature: SubscriptionFeatureFlag) => hasFeature(unlockedSubscription, usage, feature, now),
+    [unlockedSubscription, usage, now],
   )
 
   const value = useMemo(
     () => ({
-      subscription,
+      subscription: unlockedSubscription,
       usage,
       effectiveTierId,
       trialActive,
@@ -167,13 +187,13 @@ export function SubscriptionProvider({
       requestLimit,
       requestFeature,
       canUseFeature,
-      upgradePrompt,
+      upgradePrompt: PRIVATE_PERSONAL_APP ? null : upgradePrompt,
       dismissUpgradePrompt,
       openUpgrade,
       postTrialNotice,
     }),
     [
-      subscription,
+      unlockedSubscription,
       usage,
       effectiveTierId,
       trialActive,

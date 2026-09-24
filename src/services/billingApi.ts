@@ -1,4 +1,5 @@
 import type { SubscriptionTierId } from '../config/subscriptionTiers'
+import { PRIVATE_PERSONAL_APP } from '../config/privateApp'
 import { getStripePriceId } from '../config/stripePrices'
 import { getSupabase, isSupabaseConfigured } from '../lib/supabase'
 import { hasAdvertisingConsent } from '../utils/cookieConsent'
@@ -6,6 +7,7 @@ import { readMetaFbc, readMetaFbp } from '../utils/metaMatching'
 import { trackMetaInitiateCheckout } from './metaConversions'
 
 export function isBillingConfigured(): boolean {
+  if (PRIVATE_PERSONAL_APP) return false
   if (!isSupabaseConfigured) return false
   // Solo monthly is the minimum gate used across the app; prefer configuring all six prices.
   return Boolean(getStripePriceId('solo', 'monthly'))
@@ -29,6 +31,9 @@ interface CheckoutOptions {
 }
 
 export async function startCheckout(options: CheckoutOptions): Promise<void> {
+  if (PRIVATE_PERSONAL_APP) {
+    throw new Error('Billing is disabled for this private workspace')
+  }
   const priceId = getStripePriceId(options.tierId, options.billingInterval)
   if (!priceId) {
     throw new Error('Stripe price is not configured for this plan')

@@ -1,13 +1,4 @@
 User-agent: *
-Allow: /
-Disallow: /app
-Disallow: /demo
-Disallow: /login
-Disallow: /forgot-password
-Disallow: /reset-password
-Disallow: /platform-admin
-Disallow: /vocatio-admin
+Disallow: /
 
 Sitemap: https://www.cashprophet.co.uk/sitemap.xml
-
-# Trailing-slash URLs redirect to the canonical non-slash form (see vercel.json).

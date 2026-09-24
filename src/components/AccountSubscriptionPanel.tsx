@@ -8,6 +8,7 @@ import {
   VAT_PRICE_NOTE,
   type SubscriptionTierId,
 } from '../config/subscriptionTiers'
+import { PRIVATE_PERSONAL_APP } from '../config/privateApp'
 import { ManageBillingButton, PlanCheckoutButtons } from './UpgradePrompt'
 import { isBillingConfigured } from '../services/billingApi'
 import { useAuth } from '../contexts/AuthContext'
@@ -70,6 +71,23 @@ export function AccountSubscriptionPanel({ state, embedded = false }: AccountSub
     const elapsed = TRIAL_DAYS - trialDaysLeft
     return Math.min(100, Math.max(0, Math.round((elapsed / TRIAL_DAYS) * 100)))
   }, [trialActive, trialDaysLeft])
+
+  if (PRIVATE_PERSONAL_APP) {
+    const privateBody = (
+      <article className="account-plan-block">
+        <h4>Access</h4>
+        <p>Private personal workspace — full access, no subscription billing.</p>
+        {user?.email ? <p className="muted">Signed in as {user.email}</p> : null}
+      </article>
+    )
+    if (embedded) return privateBody
+    return (
+      <section className="account-plan-panel" aria-labelledby="account-plan-heading">
+        <h3 id="account-plan-heading">Plan &amp; billing</h3>
+        {privateBody}
+      </section>
+    )
+  }
 
   const verdictDetail =
     recommendedTierId === 'group'

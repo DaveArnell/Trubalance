@@ -9,7 +9,6 @@ import {
   FORGOT_PASSWORD_SEO,
   LOGIN_SEO,
   RESET_PASSWORD_SEO,
-  SIGNUP_SEO,
 } from '../content/marketingSeo'
 import { usePageMeta } from '../hooks/usePageMeta'
 import {
@@ -235,17 +234,11 @@ export function AuthForm({ mode }: AuthFormProps) {
         </p>
       )}
 
-      <p className="auth-switch">
-        {mode === 'login' ? (
-          <>
-            No account? <CanonicalLink to="/early-access">Join Early Access</CanonicalLink>
-          </>
-        ) : (
-          <>
-            Already have an account? <CanonicalLink to="/login">Log in</CanonicalLink>
-          </>
-        )}
-      </p>
+      {mode === 'signup' && (
+        <p className="auth-switch">
+          Already have an account? <CanonicalLink to="/login">Log in</CanonicalLink>
+        </p>
+      )}
     </div>
   )
 }
@@ -254,7 +247,6 @@ export function LoginPage() {
   usePageMeta(LOGIN_SEO)
   return (
     <MarketingShell>
-      <MarketingHeader />
       <div className="auth-layout-wrap">
         <div className="auth-layout">
           <AuthAside mode="login" />
@@ -263,25 +255,23 @@ export function LoginPage() {
           </div>
         </div>
       </div>
-      <MarketingFooter />
     </MarketingShell>
   )
 }
 
+/** Signup is closed; route redirects to login. Kept for type/import compatibility. */
 export function SignupPage() {
-  usePageMeta(SIGNUP_SEO)
+  usePageMeta(LOGIN_SEO)
   return (
     <MarketingShell>
-      <MarketingHeader />
       <div className="auth-layout-wrap">
         <div className="auth-layout">
-          <AuthAside mode="signup" />
+          <AuthAside mode="login" />
           <div className="auth-main">
-            <AuthForm mode="signup" />
+            <AuthForm mode="login" />
           </div>
         </div>
       </div>
-      <MarketingFooter />
     </MarketingShell>
   )
 }
